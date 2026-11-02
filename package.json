@@ -7,8 +7,14 @@
     "dev": "node scripts/serve.mjs",
     "test": "node --test",
     "build": "node scripts/build.mjs",
-    "e2e": "node scripts/e2e.mjs"
+    "e2e": "node scripts/e2e.mjs",
+    "godot:data": "node scripts/export-godot-data.mjs",
+    "godot:test": "godot/run_tests.sh"
   },
-  "engines": { "node": ">=22" },
-  "dependencies": { "three": "0.180.0" }
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "three": "0.180.0"
+  }
 }

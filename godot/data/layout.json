@@ -1,0 +1,1238 @@
+{
+ "spawn": {
+  "x": -40,
+  "z": 5,
+  "yaw": 1.5707963267948966
+ },
+ "square": {
+  "x": 0,
+  "z": 2,
+  "r": 7
+ },
+ "fountain": {
+  "x": 0,
+  "z": 2,
+  "r": 1.7,
+  "inlet": {
+   "cell": [
+    2,
+    2
+   ],
+   "side": "W"
+  }
+ },
+ "buildings": [
+  {
+   "id": "workshop",
+   "kind": "workshop",
+   "name": "Bram's Workshop",
+   "x": -13,
+   "z": 10,
+   "w": 9,
+   "d": 7,
+   "wall": "#f3dfc1",
+   "roof": "#d9734e",
+   "door": "E",
+   "doorAt": 10,
+   "doorWidth": 2
+  },
+  {
+   "id": "bakery",
+   "kind": "shop",
+   "name": "Crumb & Co. Bakery",
+   "x": -11,
+   "z": -6.5,
+   "w": 6,
+   "d": 5,
+   "wall": "#ffe4ec",
+   "roof": "#e98aa8",
+   "door": "S",
+   "awning": "#ff9fb8"
+  },
+  {
+   "id": "fernHouse",
+   "kind": "cottage",
+   "name": "Fern's Cottage",
+   "x": 10,
+   "z": -9,
+   "w": 5,
+   "d": 5,
+   "wall": "#e9f5d8",
+   "roof": "#6fae5c",
+   "door": "S"
+  },
+  {
+   "id": "odessaHouse",
+   "kind": "cottage",
+   "name": "Odessa's House",
+   "x": -5,
+   "z": 17,
+   "w": 6,
+   "d": 5,
+   "wall": "#efe3ff",
+   "roof": "#8f78d6",
+   "door": "N"
+  },
+  {
+   "id": "playerHouse",
+   "kind": "cottage",
+   "name": "Your Cottage",
+   "x": 14,
+   "z": 13,
+   "w": 6,
+   "d": 6,
+   "wall": "#fff3d6",
+   "roof": "#5f9be0",
+   "door": "S"
+  },
+  {
+   "id": "caravan",
+   "kind": "caravan",
+   "name": "Tilly's Caravan",
+   "x": 21,
+   "z": 5,
+   "w": 4,
+   "d": 2.6,
+   "wall": "#ffd36b",
+   "roof": "#5ab8b0",
+   "door": "W"
+  },
+  {
+   "id": "percivalHouse",
+   "kind": "cottage",
+   "name": "Gatehouse",
+   "x": -20,
+   "z": -10,
+   "w": 5,
+   "d": 4,
+   "wall": "#f5ead2",
+   "roof": "#c25b6a",
+   "door": "E"
+  },
+  {
+   "id": "captainHut",
+   "kind": "hut",
+   "name": "Captain's Hut",
+   "x": 13,
+   "z": 38,
+   "w": 4,
+   "d": 4,
+   "wall": "#d6eef7",
+   "roof": "#3f7fb5",
+   "door": "W"
+  },
+  {
+   "id": "castle",
+   "kind": "castle",
+   "name": "Hearthglow Castle",
+   "x": 31,
+   "z": -5,
+   "w": 11,
+   "d": 9,
+   "wall": "#f4ecdf",
+   "roof": "#5f7fd8",
+   "door": "W"
+  }
+ ],
+ "workshop_interior": {
+  "minI": -17,
+  "maxI": -10,
+  "minK": 7,
+  "maxK": 12
+ },
+ "harbor_gate": {
+  "minX": 2.5,
+  "maxX": 7.5,
+  "minZ": 34,
+  "maxZ": 35.4,
+  "flag": "harborOpen"
+ },
+ "harbor_cliffs": [
+  {
+   "minX": -70,
+   "maxX": 2.5,
+   "minZ": 34,
+   "maxZ": 35.6
+  },
+  {
+   "minX": 7.5,
+   "maxX": 70,
+   "minZ": 34,
+   "maxZ": 35.6
+  }
+ ],
+ "zones": [
+  {
+   "id": "plot",
+   "name": "Your garden plot",
+   "minI": 18,
+   "maxI": 25,
+   "minK": 9,
+   "maxK": 16,
+   "unlock": {
+    "flag": "hasTool"
+   },
+   "expanded": {
+    "minI": 18,
+    "maxI": 29,
+    "minK": 6,
+    "maxK": 19,
+    "harmony": 50
+   }
+  },
+  {
+   "id": "bridge",
+   "name": "Orchard Bridge site",
+   "minI": -3,
+   "maxI": 2,
+   "minK": -22,
+   "maxK": -15,
+   "spanY": 0,
+   "unlock": {
+    "quest": "bridge"
+   },
+   "endpoints": {
+    "a": {
+     "minI": -3,
+     "maxI": 2,
+     "minK": -15,
+     "maxK": -15
+    },
+    "b": {
+     "minI": -3,
+     "maxI": 2,
+     "minK": -22,
+     "maxK": -22
+    }
+   },
+   "blueprint": [
+    [
+     0,
+     -15,
+     "bridgeDeck"
+    ],
+    [
+     0,
+     -16,
+     "bridgeDeck"
+    ],
+    [
+     0,
+     -17,
+     "bridgeDeck"
+    ],
+    [
+     0,
+     -18,
+     "bridgePost"
+    ],
+    [
+     0,
+     -18,
+     "bridgeDeck"
+    ],
+    [
+     0,
+     -19,
+     "bridgeDeck"
+    ],
+    [
+     0,
+     -20,
+     "bridgeDeck"
+    ],
+    [
+     0,
+     -21,
+     "bridgeDeck"
+    ],
+    [
+     0,
+     -22,
+     "bridgeDeck"
+    ]
+   ]
+  },
+  {
+   "id": "workshop",
+   "name": "Bram's Workshop",
+   "minI": -17,
+   "maxI": -10,
+   "minK": 7,
+   "maxK": 12,
+   "interior": true,
+   "unlock": {
+    "quest": "workshop"
+   }
+  },
+  {
+   "id": "plaza",
+   "name": "Fountain plaza",
+   "minI": 2,
+   "maxI": 11,
+   "minK": -1,
+   "maxK": 5,
+   "unlock": {
+    "quest": "fountain"
+   },
+   "blueprint": [
+    [
+     9,
+     1,
+     "waterwheel",
+     0
+    ],
+    [
+     9,
+     2,
+     "gear"
+    ],
+    [
+     8,
+     2,
+     "pump",
+     0
+    ],
+    [
+     7,
+     2,
+     "pipe",
+     1
+    ],
+    [
+     6,
+     2,
+     "pipe",
+     1
+    ],
+    [
+     5,
+     2,
+     "pipe",
+     1
+    ],
+    [
+     4,
+     2,
+     "pipe",
+     1
+    ],
+    [
+     3,
+     2,
+     "pipe",
+     1
+    ],
+    [
+     2,
+     2,
+     "pipe",
+     1
+    ]
+   ]
+  },
+  {
+   "id": "dock",
+   "name": "Harbor dock",
+   "minI": 4,
+   "maxI": 6,
+   "minK": 40,
+   "maxK": 49,
+   "spanY": 0,
+   "unlock": {
+    "flag": "harborOpen"
+   },
+   "fixedSupports": [
+    [
+     5,
+     44
+    ],
+    [
+     5,
+     47
+    ]
+   ],
+   "endpoints": {
+    "a": {
+     "minI": 4,
+     "maxI": 6,
+     "minK": 40,
+     "maxK": 40
+    },
+    "b": {
+     "minI": 4,
+     "maxI": 6,
+     "minK": 49,
+     "maxK": 49
+    }
+   },
+   "blueprint": [
+    [
+     5,
+     41,
+     "bridgeDeck"
+    ],
+    [
+     5,
+     42,
+     "bridgeDeck"
+    ],
+    [
+     5,
+     43,
+     "bridgeDeck"
+    ],
+    [
+     5,
+     44,
+     "bridgeDeck"
+    ],
+    [
+     5,
+     45,
+     "bridgeDeck"
+    ],
+    [
+     5,
+     46,
+     "bridgeDeck"
+    ],
+    [
+     5,
+     47,
+     "bridgeDeck"
+    ],
+    [
+     5,
+     48,
+     "bridgeDeck"
+    ],
+    [
+     5,
+     49,
+     "bridgeDeck"
+    ]
+   ]
+  },
+  {
+   "id": "orchardPlot",
+   "name": "Orchard garden",
+   "minI": 4,
+   "maxI": 11,
+   "minK": -35,
+   "maxK": -28,
+   "unlock": {
+    "flag": "orchardOpen"
+   }
+  }
+ ],
+ "nodes": [
+  {
+   "id": "tree0",
+   "kind": "chop",
+   "x": -24,
+   "z": 15
+  },
+  {
+   "id": "tree1",
+   "kind": "chop",
+   "x": -27.5,
+   "z": 19
+  },
+  {
+   "id": "tree2",
+   "kind": "chop",
+   "x": -21.5,
+   "z": 20.5
+  },
+  {
+   "id": "tree3",
+   "kind": "chop",
+   "x": -29,
+   "z": 13.5
+  },
+  {
+   "id": "tree4",
+   "kind": "chop",
+   "x": -25,
+   "z": 23.5
+  },
+  {
+   "id": "tree5",
+   "kind": "chop",
+   "x": -19.5,
+   "z": 16
+  },
+  {
+   "id": "tree6",
+   "kind": "chop",
+   "x": -35,
+   "z": 10.5
+  },
+  {
+   "id": "tree7",
+   "kind": "chop",
+   "x": -37,
+   "z": -1
+  },
+  {
+   "id": "tree8",
+   "kind": "chop",
+   "x": 16,
+   "z": 25
+  },
+  {
+   "id": "tree9",
+   "kind": "chop",
+   "x": -14,
+   "z": 27
+  },
+  {
+   "id": "rock0",
+   "kind": "mine",
+   "x": -31,
+   "z": -9,
+   "rich": false
+  },
+  {
+   "id": "rock1",
+   "kind": "mine",
+   "x": -28,
+   "z": -11.5,
+   "rich": false
+  },
+  {
+   "id": "rock2",
+   "kind": "mine",
+   "x": -33.5,
+   "z": -5.5,
+   "rich": false
+  },
+  {
+   "id": "rock3",
+   "kind": "mine",
+   "x": -27,
+   "z": -6.5,
+   "rich": false
+  },
+  {
+   "id": "rock4",
+   "kind": "mine",
+   "x": -30,
+   "z": -2.5,
+   "rich": false
+  },
+  {
+   "id": "rock5",
+   "kind": "mine",
+   "x": -35,
+   "z": -10,
+   "rich": true
+  },
+  {
+   "id": "clay0",
+   "kind": "clay",
+   "x": -14,
+   "z": -14.964096325544483
+  },
+  {
+   "id": "clay1",
+   "kind": "clay",
+   "x": -18,
+   "z": -15.694103815130928
+  },
+  {
+   "id": "clay2",
+   "kind": "clay",
+   "x": 16,
+   "z": -11.528886608387776
+  },
+  {
+   "id": "fish0",
+   "kind": "fish",
+   "x": -8,
+   "z": -14.089186884035934,
+   "facing": 3.141592653589793
+  },
+  {
+   "id": "fish1",
+   "kind": "fish",
+   "x": 11,
+   "z": -12.8261195201818,
+   "facing": 3.141592653589793
+  },
+  {
+   "id": "fish2",
+   "kind": "fish",
+   "x": -7,
+   "z": 41.2,
+   "facing": 0,
+   "flag": "harborOpen"
+  },
+  {
+   "id": "flowers0",
+   "kind": "flowers",
+   "x": -20,
+   "z": -2
+  },
+  {
+   "id": "flowers1",
+   "kind": "flowers",
+   "x": 18,
+   "z": -12
+  },
+  {
+   "id": "flowers2",
+   "kind": "flowers",
+   "x": -9,
+   "z": 25
+  },
+  {
+   "id": "flowers3",
+   "kind": "flowers",
+   "x": 22,
+   "z": 21
+  },
+  {
+   "id": "flowers4",
+   "kind": "flowers",
+   "x": -38,
+   "z": 14
+  },
+  {
+   "id": "flowers5",
+   "kind": "flowers",
+   "x": 3,
+   "z": -38
+  },
+  {
+   "id": "flowers6",
+   "kind": "flowers",
+   "x": -4,
+   "z": -31
+  },
+  {
+   "id": "oak0",
+   "kind": "shake",
+   "x": -16.5,
+   "z": -1.5
+  },
+  {
+   "id": "fruit0",
+   "kind": "fruit",
+   "x": -6,
+   "z": -28
+  },
+  {
+   "id": "fruit1",
+   "kind": "fruit",
+   "x": -2,
+   "z": -28
+  },
+  {
+   "id": "fruit2",
+   "kind": "fruit",
+   "x": 2,
+   "z": -28
+  },
+  {
+   "id": "fruit3",
+   "kind": "fruit",
+   "x": -6,
+   "z": -32
+  },
+  {
+   "id": "fruit4",
+   "kind": "fruit",
+   "x": -2,
+   "z": -32
+  },
+  {
+   "id": "fruit5",
+   "kind": "fruit",
+   "x": 2,
+   "z": -32
+  },
+  {
+   "id": "fruit6",
+   "kind": "fruit",
+   "x": -6,
+   "z": -36
+  },
+  {
+   "id": "fruit7",
+   "kind": "fruit",
+   "x": -2,
+   "z": -36
+  },
+  {
+   "id": "dig0",
+   "kind": "dig",
+   "x": -18,
+   "z": 25.5
+  },
+  {
+   "id": "dig1",
+   "kind": "dig",
+   "x": 25,
+   "z": 19.5
+  },
+  {
+   "id": "dig2",
+   "kind": "dig",
+   "x": -41,
+   "z": -12
+  },
+  {
+   "id": "dig3",
+   "kind": "dig",
+   "x": 6,
+   "z": -37.5
+  },
+  {
+   "id": "dig4",
+   "kind": "dig",
+   "x": 33,
+   "z": 9
+  },
+  {
+   "id": "chest0",
+   "kind": "chest",
+   "x": 38.5,
+   "z": -11,
+   "loot": {
+    "crystal": 2,
+    "spark": 12
+   },
+   "blueprint": "statue"
+  },
+  {
+   "id": "chest1",
+   "kind": "chest",
+   "x": -36.5,
+   "z": -14.5,
+   "loot": {
+    "metal": 3,
+    "spark": 10
+   },
+   "blueprint": "windmill"
+  },
+  {
+   "id": "chest2",
+   "kind": "chest",
+   "x": 9.5,
+   "z": -41,
+   "loot": {
+    "fabric": 3,
+    "spark": 10
+   },
+   "outfit": "flowerCrown"
+  },
+  {
+   "id": "frag0",
+   "kind": "fragment",
+   "x": -35.5,
+   "z": 6
+  },
+  {
+   "id": "frag1",
+   "kind": "fragment",
+   "x": -2,
+   "z": 24.5
+  },
+  {
+   "id": "frag2",
+   "kind": "fragment",
+   "x": 18,
+   "z": -5.5
+  },
+  {
+   "id": "frag3",
+   "kind": "fragment",
+   "x": -22,
+   "z": -13
+  },
+  {
+   "id": "frag4",
+   "kind": "fragment",
+   "x": 35,
+   "z": 3
+  },
+  {
+   "id": "frag5",
+   "kind": "fragment",
+   "x": 0,
+   "z": -43
+  },
+  {
+   "id": "frag6",
+   "kind": "fragment",
+   "x": -12,
+   "z": 31
+  },
+  {
+   "id": "frag7",
+   "kind": "fragment",
+   "x": 27,
+   "z": 25
+  },
+  {
+   "id": "frag8",
+   "kind": "fragment",
+   "x": -44,
+   "z": 9
+  },
+  {
+   "id": "frag9",
+   "kind": "fragment",
+   "x": 11,
+   "z": 6.5
+  }
+ ],
+ "features": [
+  {
+   "id": "wardrobe",
+   "kind": "wardrobe",
+   "x": 11.4,
+   "z": 17,
+   "label": "Change outfit"
+  },
+  {
+   "id": "bed",
+   "kind": "rest",
+   "x": 16.4,
+   "z": 16.6,
+   "label": "Rest until morning"
+  },
+  {
+   "id": "welcomeSign",
+   "kind": "sign",
+   "x": -33,
+   "z": 7.5,
+   "text": "Welcome to Hearthglow Village! Population: cozy."
+  },
+  {
+   "id": "bridgeSign",
+   "kind": "sign",
+   "x": 2.5,
+   "z": -13,
+   "text": "Orchard Bridge — closed for repairs (since forever)."
+  },
+  {
+   "id": "harborSign",
+   "kind": "sign",
+   "x": 9,
+   "z": 32.5,
+   "text": "Hearthglow Harbor. Gate sealed by Royal Decree No. 47."
+  },
+  {
+   "id": "boat",
+   "kind": "boat",
+   "x": 5.5,
+   "z": 51.6,
+   "label": "Board the ferry",
+   "flag": "boatReady"
+  },
+  {
+   "id": "noticeBoard",
+   "kind": "board",
+   "x": 4.5,
+   "z": 7.5,
+   "label": "Read the notice board"
+  }
+ ],
+ "nav_nodes": {
+  "spawn": [
+   -40,
+   5
+  ],
+  "westGate": [
+   -31,
+   4.5
+  ],
+  "westRoad": [
+   -20,
+   3
+  ],
+  "workshopDoor": [
+   -6.6,
+   10
+  ],
+  "workshopInside": [
+   -12,
+   10
+  ],
+  "squareW": [
+   -4.5,
+   2
+  ],
+  "squareN": [
+   0,
+   -3
+  ],
+  "squareE": [
+   4.5,
+   2
+  ],
+  "squareS": [
+   0,
+   6.8
+  ],
+  "bakeryDoor": [
+   -11,
+   -2.6
+  ],
+  "fernDoor": [
+   10,
+   -5.6
+  ],
+  "fernGarden": [
+   5.5,
+   -10
+  ],
+  "bridgeS": [
+   0,
+   -13
+  ],
+  "bridgeN": [
+   0,
+   -23.5
+  ],
+  "orchard": [
+   0,
+   -30
+  ],
+  "orchard2": [
+   -4,
+   -34
+  ],
+  "odessaDoor": [
+   -5,
+   13.4
+  ],
+  "southRoad": [
+   3,
+   19.2
+  ],
+  "cottageDoor": [
+   14,
+   17
+  ],
+  "eastRoad": [
+   11.5,
+   -1.5
+  ],
+  "caravan": [
+   18.2,
+   5.4
+  ],
+  "castleSteps": [
+   23.5,
+   -5
+  ],
+  "harborGate": [
+   5,
+   32
+  ],
+  "harborIn": [
+   5,
+   37.5
+  ],
+  "harborHut": [
+   10,
+   38.5
+  ],
+  "dockStart": [
+   5.4,
+   41.2
+  ],
+  "quarry": [
+   -26,
+   -4
+  ],
+  "grove": [
+   -22.5,
+   11.5
+  ],
+  "gatehouse": [
+   -16.8,
+   -10
+  ]
+ },
+ "nav_edges": [
+  [
+   "spawn",
+   "westGate"
+  ],
+  [
+   "westGate",
+   "westRoad"
+  ],
+  [
+   "westRoad",
+   "squareW"
+  ],
+  [
+   "squareW",
+   "workshopDoor"
+  ],
+  [
+   "workshopDoor",
+   "workshopInside"
+  ],
+  [
+   "squareW",
+   "squareN"
+  ],
+  [
+   "squareN",
+   "squareE"
+  ],
+  [
+   "squareE",
+   "squareS"
+  ],
+  [
+   "squareS",
+   "squareW"
+  ],
+  [
+   "squareW",
+   "bakeryDoor"
+  ],
+  [
+   "squareN",
+   "bridgeS"
+  ],
+  [
+   "bridgeS",
+   "fernGarden"
+  ],
+  [
+   "fernGarden",
+   "fernDoor"
+  ],
+  [
+   "fernDoor",
+   "eastRoad"
+  ],
+  [
+   "eastRoad",
+   "squareE"
+  ],
+  [
+   "eastRoad",
+   "caravan"
+  ],
+  [
+   "caravan",
+   "castleSteps"
+  ],
+  [
+   "squareS",
+   "odessaDoor"
+  ],
+  [
+   "squareS",
+   "southRoad"
+  ],
+  [
+   "southRoad",
+   "cottageDoor"
+  ],
+  [
+   "southRoad",
+   "harborGate"
+  ],
+  [
+   "westRoad",
+   "quarry"
+  ],
+  [
+   "westRoad",
+   "grove"
+  ],
+  [
+   "bakeryDoor",
+   "gatehouse"
+  ],
+  [
+   "quarry",
+   "gatehouse"
+  ],
+  [
+   "bridgeS",
+   "bridgeN",
+   "orchardOpen"
+  ],
+  [
+   "bridgeN",
+   "orchard",
+   "orchardOpen"
+  ],
+  [
+   "orchard",
+   "orchard2",
+   "orchardOpen"
+  ],
+  [
+   "harborGate",
+   "harborIn",
+   "harborOpen"
+  ],
+  [
+   "harborIn",
+   "harborHut",
+   "harborOpen"
+  ],
+  [
+   "harborIn",
+   "dockStart",
+   "harborOpen"
+  ]
+ ],
+ "paths": [
+  [
+   [
+    -46,
+    5
+   ],
+   [
+    -31,
+    4.5
+   ],
+   [
+    -20,
+    3
+   ],
+   [
+    -7,
+    2.5
+   ]
+  ],
+  [
+   [
+    0,
+    -5
+   ],
+   [
+    0,
+    -14.6
+   ]
+  ],
+  [
+   [
+    0,
+    -23
+   ],
+   [
+    0,
+    -38
+   ]
+  ],
+  [
+   [
+    6.5,
+    1
+   ],
+   [
+    11.5,
+    -1.5
+   ],
+   [
+    18,
+    4.5
+   ],
+   [
+    23.5,
+    -5
+   ]
+  ],
+  [
+   [
+    0,
+    9
+   ],
+   [
+    3,
+    19.2
+   ],
+   [
+    5,
+    33
+   ],
+   [
+    5,
+    41.5
+   ]
+  ],
+  [
+   [
+    3,
+    19.2
+   ],
+   [
+    14,
+    17
+   ]
+  ],
+  [
+   [
+    -4.5,
+    4
+   ],
+   [
+    -6.6,
+    10
+   ]
+  ],
+  [
+   [
+    -3,
+    -3
+   ],
+   [
+    -11,
+    -2.6
+   ]
+  ],
+  [
+   [
+    1.5,
+    -12
+   ],
+   [
+    5.5,
+    -10
+   ],
+   [
+    10,
+    -5.6
+   ],
+   [
+    11.5,
+    -1.5
+   ]
+  ],
+  [
+   [
+    -20,
+    3
+   ],
+   [
+    -26,
+    -4
+   ]
+  ],
+  [
+   [
+    -4,
+    7.5
+   ],
+   [
+    -5,
+    13.4
+   ]
+  ]
+ ]
+}

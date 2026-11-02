@@ -1,0 +1,830 @@
+{
+ "npcs": [
+  {
+   "id": "odessa",
+   "name": "Odessa Quill",
+   "title": "Master Artisan",
+   "voice": 0.85,
+   "appearance": {
+    "skin": "#f8cfa8",
+    "eyeShape": "sleepy",
+    "eyeColor": "#8a4fd8",
+    "hair": "bun",
+    "hairColor": "#f2f2f2",
+    "mouth": "calm",
+    "top": "tunic",
+    "topColor": "#b59cff",
+    "bottom": "dress",
+    "bottomColor": "#b59cff",
+    "shoes": "boots",
+    "shoesColor": "#7a4a2a",
+    "hat": "none",
+    "hatColor": "#ffd166",
+    "accessory": "glasses"
+   },
+   "schedule": [
+    [
+     6,
+     10,
+     "odessaDoor",
+     "read"
+    ],
+    [
+     10,
+     14,
+     "squareS",
+     "idle"
+    ],
+    [
+     14,
+     19,
+     "odessaDoor",
+     "read"
+    ],
+    [
+     19,
+     22,
+     "squareW",
+     "idle"
+    ]
+   ],
+   "when": [
+    {
+     "flag": "!toolGiven",
+     "schedule": [
+      [
+       0,
+       24,
+       "westGate",
+       "wave"
+      ]
+     ]
+    },
+    {
+     "flag": "fountainFlowing",
+     "schedule": [
+      [
+       6,
+       10,
+       "odessaDoor",
+       "read"
+      ],
+      [
+       10,
+       15,
+       "squareS",
+       "idle"
+      ],
+      [
+       15,
+       19,
+       "odessaDoor",
+       "read"
+      ],
+      [
+       19,
+       22,
+       "squareN",
+       "idle"
+      ]
+     ]
+    }
+   ],
+   "home": "odessaDoor",
+   "greetings": [
+    {
+     "flag": "boatReady",
+     "lines": [
+      "A ferry at the dock again! I knew those clever hands of yours would get us there."
+     ]
+    },
+    {
+     "flag": "fountainFlowing",
+     "lines": [
+      "Listen to that fountain sing. I had forgotten the square could sound like this."
+     ]
+    },
+    {
+     "flag": "orchardOpen",
+     "lines": [
+      "The whole village is talking about your bridge, {name}. Mostly Fern. Loudly."
+     ]
+    },
+    {
+     "lines": [
+      "Ah, {name}! Mind the loose cobbles — and the loose ends. This village is full of both.",
+      "Good to see you, apprentice. Has the Starforge Tool been behaving?"
+     ]
+    }
+   ],
+   "sleepy": [
+    "Mm? Oh, {name}… I was just resting my eyes. For an hour or six."
+   ],
+   "topics": [
+    {
+     "id": "starforge",
+     "label": "What is the Starforge Tool?",
+     "lines": [
+      "Long ago, Wonderhaven's artisans shaped the islands with tools like that one.",
+      "It turns ordinary wood and stone into whatever your heart can picture — powered by Spark Energy.",
+      "Gather Spark from the world, and the world gives you back a little magic. That is the whole trick, really."
+     ]
+    },
+    {
+     "id": "kingdom",
+     "label": "What happened to Wonderhaven?",
+     "lines": [
+      "The old magic went quiet. Not broken — sleepy, like a cat in the sun.",
+      "Bridges sagged, workshops gathered dust, and the ferries stopped coming.",
+      "Every bit of kindness you build wakes a little more of it. We call that Harmony."
+     ]
+    },
+    {
+     "id": "tips",
+     "label": "Any building tips?",
+     "lines": [
+      "Press B to call up your Starforge grid. Green means yes, red means \"try somewhere else\".",
+      "R turns a piece, T changes its colour, and if you make a mess — Ctrl+Z. Even masters need it."
+     ]
+    },
+    {
+     "id": "isles",
+     "label": "Tell me about the other isles.",
+     "requires": "orchardOpen",
+     "lines": [
+      "Clockwork Cove, full of gears and gadgets. Blooming Wilds, where the flowers are taller than houses.",
+      "Starlight Shores and its harbor markets, and Moonveil Hollow, where the mushrooms glow.",
+      "Once our harbor opens, you will see them for yourself."
+     ]
+    }
+   ],
+   "gifts": [
+    {
+     "hearts": 4,
+     "blueprint": "windowWall",
+     "line": "Here — the window design from my own first cottage. Let the light in, {name}."
+    }
+   ]
+  },
+  {
+   "id": "fern",
+   "name": "Fern Marigold",
+   "title": "Village Gardener",
+   "voice": 1.15,
+   "appearance": {
+    "skin": "#e9b083",
+    "eyeShape": "sparkle",
+    "eyeColor": "#3c9a4a",
+    "hair": "pigtails",
+    "hairColor": "#55c49a",
+    "mouth": "grin",
+    "top": "overalls",
+    "topColor": "#ffd166",
+    "bottom": "pants",
+    "bottomColor": "#7bd389",
+    "shoes": "boots",
+    "shoesColor": "#c98a55",
+    "hat": "flowerCrown",
+    "hatColor": "#ff8fab",
+    "accessory": "none"
+   },
+   "schedule": [
+    [
+     6,
+     12,
+     "fernGarden",
+     "garden"
+    ],
+    [
+     12,
+     14,
+     "squareN",
+     "idle"
+    ],
+    [
+     14,
+     20,
+     "fernGarden",
+     "garden"
+    ]
+   ],
+   "when": [
+    {
+     "flag": "orchardOpen",
+     "schedule": [
+      [
+       6,
+       11,
+       "fernGarden",
+       "garden"
+      ],
+      [
+       11,
+       16,
+       "orchard",
+       "garden"
+      ],
+      [
+       16,
+       20,
+       "fernGarden",
+       "garden"
+      ]
+     ]
+    }
+   ],
+   "home": "fernDoor",
+   "greetings": [
+    {
+     "flag": "orchardOpen",
+     "lines": [
+      "The apple trees say hello! Well. They rustled. I'm choosing to believe it was hello."
+     ]
+    },
+    {
+     "lines": [
+      "Shh — I'm telling the tulips a story. They get nervous without one.",
+      "Oh! {name}! The daisies were just asking about you."
+     ]
+    }
+   ],
+   "sleepy": [
+    "Zzz… no, carrots, you can't stay up late… oh! Hello."
+   ],
+   "topics": [
+    {
+     "id": "plants",
+     "label": "Do plants really talk?",
+     "lines": [
+      "Of course! They just talk very, very slowly.",
+      "A sunflower once told me a joke. I'll let you know the punchline next spring."
+     ]
+    },
+    {
+     "id": "orchard",
+     "label": "What's across the river?",
+     "lines": [
+      "My orchard! Apple trees, a secret seed shed, and the best picnic spot in the kingdom.",
+      "I haven't been able to visit since the old bridge fell in. The trees must be so lonely."
+     ]
+    },
+    {
+     "id": "garden",
+     "label": "How does gardening work?",
+     "requires": "flowersQuest",
+     "lines": [
+      "Plant a seed in one of my garden beds, give it water, and wait.",
+      "Water it again whenever the soil looks thirsty. In a little while — blooms!"
+     ]
+    }
+   ],
+   "gifts": [
+    {
+     "hearts": 4,
+     "items": {
+      "seeds": 4
+     },
+     "line": "For my favourite builder: special seeds. Plant them somewhere they can see the sky!"
+    }
+   ]
+  },
+  {
+   "id": "bram",
+   "name": "Bram Shavings",
+   "title": "Carpenter",
+   "voice": 0.95,
+   "appearance": {
+    "skin": "#c98a5e",
+    "eyeShape": "round",
+    "eyeColor": "#3a2a1e",
+    "hair": "short",
+    "hairColor": "#7a4a2a",
+    "mouth": "calm",
+    "top": "sweater",
+    "topColor": "#3fb5a3",
+    "bottom": "pants",
+    "bottomColor": "#4a4a6a",
+    "shoes": "boots",
+    "shoesColor": "#4a4a6a",
+    "hat": "beanie",
+    "hatColor": "#ff9f5a",
+    "accessory": "scarf"
+   },
+   "schedule": [
+    [
+     7,
+     20,
+     "workshopDoor",
+     "idle"
+    ]
+   ],
+   "when": [
+    {
+     "flag": "workshopDone",
+     "schedule": [
+      [
+       7,
+       12,
+       "workshopInside",
+       "work"
+      ],
+      [
+       12,
+       14,
+       "squareW",
+       "idle"
+      ],
+      [
+       14,
+       19,
+       "workshopInside",
+       "work"
+      ],
+      [
+       19,
+       22,
+       "squareS",
+       "idle"
+      ]
+     ]
+    }
+   ],
+   "home": "workshopDoor",
+   "greetings": [
+    {
+     "flag": "workshopDone",
+     "lines": [
+      "I made a chair with a built-in teapot today. Don't tell anyone. Actually… do tell people."
+     ]
+    },
+    {
+     "lines": [
+      "Oh — h-hello. Sorry. I was practising saying hello. That went… fine?",
+      "The workshop is all dust and boxes. A carpenter without a workshop is just a person who owns a lot of sawdust."
+     ]
+    }
+   ],
+   "sleepy": [
+    "*yawn* I dreamt of a sofa shaped like a swan. It was beautiful."
+   ],
+   "topics": [
+    {
+     "id": "dream",
+     "label": "What do you love to make?",
+     "lines": [
+      "Officially? Sensible chairs. Sturdy tables.",
+      "Secretly…",
+      "A chandelier shaped like a whale. A bed with a slide. A bookshelf that hugs you.",
+      "Please forget I said all of that."
+     ]
+    },
+    {
+     "id": "workshop",
+     "label": "What happened to the workshop?",
+     "lines": [
+      "It's been shut for years. Everything inside is either broken, dusty, or broken AND dusty.",
+      "If someone could help me set it up again… I'd need a workbench, a chair, a lamp and some shelves."
+     ]
+    }
+   ],
+   "gifts": [
+    {
+     "hearts": 4,
+     "blueprint": "sofa",
+     "line": "I drew this sofa for you. It's… extra fluffy. On purpose."
+    }
+   ]
+  },
+  {
+   "id": "percival",
+   "name": "Lord Percival Puffington",
+   "title": "Royal Advisor",
+   "voice": 0.75,
+   "appearance": {
+    "skin": "#ffe3cc",
+    "eyeShape": "wide",
+    "eyeColor": "#2f6fdf",
+    "hair": "curly",
+    "hairColor": "#f2f2f2",
+    "mouth": "o",
+    "top": "jacket",
+    "topColor": "#e85d75",
+    "bottom": "pants",
+    "bottomColor": "#ffffff",
+    "shoes": "boots",
+    "shoesColor": "#3a2a20",
+    "hat": "beret",
+    "hatColor": "#2f5fa8",
+    "accessory": "bowtie"
+   },
+   "schedule": [
+    [
+     7,
+     12,
+     "castleSteps",
+     "talk"
+    ],
+    [
+     12,
+     15,
+     "squareE",
+     "talk"
+    ],
+    [
+     15,
+     21,
+     "castleSteps",
+     "talk"
+    ]
+   ],
+   "when": [
+    {
+     "flag": "harborOpen",
+     "schedule": [
+      [
+       7,
+       11,
+       "castleSteps",
+       "talk"
+      ],
+      [
+       11,
+       14,
+       "squareE",
+       "talk"
+      ],
+      [
+       14,
+       18,
+       "harborGate",
+       "talk"
+      ],
+      [
+       18,
+       21,
+       "castleSteps",
+       "talk"
+      ]
+     ]
+    }
+   ],
+   "home": "castleSteps",
+   "greetings": [
+    {
+     "flag": "harborOpen",
+     "lines": [
+      "The harbor stands open! I have written fourteen proclamations about it. Fifteen, if you count the limerick."
+     ]
+    },
+    {
+     "lines": [
+      "Hark! A citizen approaches! State your business — unless it is alarming, in which case state it calmly.",
+      "Disaster, {name}! Utter disaster! …Someone has left a slightly crooked flowerpot by the castle gate."
+     ]
+    }
+   ],
+   "sleepy": [
+    "I am not sleeping. I am conducting a very long, very quiet emergency meeting."
+   ],
+   "topics": [
+    {
+     "id": "castle",
+     "label": "Who lives in the castle?",
+     "lines": [
+      "The Royal Seat of Hearthglow has been vacant since the magic dozed off.",
+      "I keep it dusted. Twice. Daily. One must be ready for royalty at all times!"
+     ]
+    },
+    {
+     "id": "harbor",
+     "label": "Why is the harbor sealed?",
+     "lines": [
+      "Royal Decree Number Forty-Seven! Issued when the magic faded and the boats stopped coming.",
+      "It may only be lifted when the kingdom is in Harmony again. One hundred and twenty Harmony, to be precise. I counted."
+     ]
+    },
+    {
+     "id": "crisis",
+     "label": "Any emergencies today?",
+     "lines": [
+      "A pigeon looked at me sideways this morning. I have convened a committee.",
+      "The committee is me. I am taking it very seriously."
+     ]
+    }
+   ],
+   "gifts": [
+    {
+     "hearts": 4,
+     "blueprint": "statue",
+     "line": "A statue design, for heroic citizens. You may model it on yourself. I would."
+    }
+   ]
+  },
+  {
+   "id": "tilly",
+   "name": "Tilly Sprocket",
+   "title": "Inventor",
+   "voice": 1.25,
+   "appearance": {
+    "skin": "#9a6442",
+    "eyeShape": "wide",
+    "eyeColor": "#d9822b",
+    "hair": "spiky",
+    "hairColor": "#ff9f5a",
+    "mouth": "grin",
+    "top": "jacket",
+    "topColor": "#ffd166",
+    "bottom": "shorts",
+    "bottomColor": "#4a4a6a",
+    "shoes": "sneakers",
+    "shoesColor": "#e85d75",
+    "hat": "goggles",
+    "hatColor": "#ffd166",
+    "accessory": "backpack"
+   },
+   "schedule": [
+    [
+     7,
+     13,
+     "caravan",
+     "work"
+    ],
+    [
+     13,
+     15,
+     "eastRoad",
+     "idle"
+    ],
+    [
+     15,
+     21,
+     "caravan",
+     "work"
+    ]
+   ],
+   "when": [
+    {
+     "flag": "fountainFlowing",
+     "schedule": [
+      [
+       7,
+       12,
+       "caravan",
+       "work"
+      ],
+      [
+       12,
+       15,
+       "squareE",
+       "idle"
+      ],
+      [
+       15,
+       21,
+       "caravan",
+       "work"
+      ]
+     ]
+    }
+   ],
+   "home": "caravan",
+   "greetings": [
+    {
+     "flag": "fountainFlowing",
+     "lines": [
+      "Look at it GO! Pumps pumping, pipes piping — honestly my best work, and I barely did any of it!"
+     ]
+    },
+    {
+     "lines": [
+      "Careful! That pile of bolts is load-bearing. Emotionally.",
+      "Oh good, a person! Hold this. No — the other this. Thank you!"
+     ]
+    }
+   ],
+   "sleepy": [
+    "Zzz… needs more gears… zzz… FEWER gears… zzz…"
+   ],
+   "topics": [
+    {
+     "id": "cove",
+     "label": "Where are you from?",
+     "lines": [
+      "Clockwork Cove! Island of windmills, waterwheels and things that go \"ping\".",
+      "My caravan rolled off the last ferry before the harbor closed. I've been inventing here ever since."
+     ]
+    },
+    {
+     "id": "power",
+     "label": "How do machines work here?",
+     "lines": [
+      "Easy! Something makes power — a waterwheel in a stream, or a windmill in the breeze.",
+      "Shafts and gear boxes carry it. A powered pump next to water pushes water through pipes.",
+      "Line up the connectors! A pipe only talks to a pipe it's actually pointing at."
+     ]
+    },
+    {
+     "id": "broke",
+     "label": "What are you inventing?",
+     "lines": [
+      "A self-buttering toaster. It is currently buttering everything except toast.",
+      "Also the ceiling. Don't look at the ceiling."
+     ]
+    }
+   ],
+   "gifts": [
+    {
+     "hearts": 4,
+     "items": {
+      "metal": 3,
+      "crystal": 1
+     },
+     "line": "Spare parts! Some of them were even spare on purpose."
+    }
+   ]
+  },
+  {
+   "id": "mabel",
+   "name": "Mabel Crumb",
+   "title": "Baker",
+   "voice": 1.05,
+   "appearance": {
+    "skin": "#f8cfa8",
+    "eyeShape": "happy",
+    "eyeColor": "#c23f6a",
+    "hair": "bun",
+    "hairColor": "#ff9ec7",
+    "mouth": "smile",
+    "top": "tunic",
+    "topColor": "#ffffff",
+    "bottom": "skirt",
+    "bottomColor": "#ff8fab",
+    "shoes": "sandals",
+    "shoesColor": "#c98a55",
+    "hat": "none",
+    "hatColor": "#ffffff",
+    "accessory": "none"
+   },
+   "schedule": [
+    [
+     6,
+     21,
+     "bakeryDoor",
+     "idle"
+    ]
+   ],
+   "when": [
+    {
+     "flag": "squirrelsGone",
+     "schedule": [
+      [
+       6,
+       12,
+       "bakeryDoor",
+       "work"
+      ],
+      [
+       12,
+       14,
+       "squareS",
+       "idle"
+      ],
+      [
+       14,
+       21,
+       "bakeryDoor",
+       "work"
+      ]
+     ]
+    }
+   ],
+   "home": "bakeryDoor",
+   "greetings": [
+    {
+     "flag": "squirrelsGone",
+     "lines": [
+      "The ovens are warm and the scones are squirrel-free! Mostly. One scone has a tiny bite out of it. I'm calling it \"rustic\"."
+     ]
+    },
+    {
+     "lines": [
+      "Shoo! Shoo! Oh — not you, dear. The squirrels. They've taken over my bakery!",
+      "Welcome to Crumb & Co.! We are currently closed due to… fluffy circumstances."
+     ]
+    }
+   ],
+   "sleepy": [
+    "Mm… the dough needs to rise… and so do I… in eight hours."
+   ],
+   "topics": [
+    {
+     "id": "squirrels",
+     "label": "Squirrels?",
+     "lines": [
+      "Three of them! They smell my acorn scones and simply move in.",
+      "They're not mean, just very, very hungry and very, very confident."
+     ]
+    },
+    {
+     "id": "baking",
+     "label": "What do you bake?",
+     "lines": [
+      "Cloudberry buns, honey twists, and my famous Starlight Scones.",
+      "The secret ingredient is a pinch of Spark Energy. Don't tell Percival; he'll want a royal recipe hearing."
+     ]
+    }
+   ],
+   "gifts": [
+    {
+     "hearts": 3,
+     "items": {
+      "spark": 12
+     },
+     "line": "A warm Starlight Scone! Eat it while it sparkles."
+    }
+   ]
+  },
+  {
+   "id": "captain",
+   "name": "Captain Wendell Gale",
+   "title": "Ferry Captain",
+   "voice": 0.7,
+   "appearance": {
+    "skin": "#c98a5e",
+    "eyeShape": "happy",
+    "eyeColor": "#2f6fdf",
+    "hair": "short",
+    "hairColor": "#f2f2f2",
+    "mouth": "grin",
+    "top": "sailor",
+    "topColor": "#ffffff",
+    "bottom": "pants",
+    "bottomColor": "#2f5fa8",
+    "shoes": "boots",
+    "shoesColor": "#3a2a20",
+    "hat": "captain",
+    "hatColor": "#2f5fa8",
+    "accessory": "beard"
+   },
+   "schedule": [
+    [
+     0,
+     24,
+     "harborIn",
+     "idle"
+    ]
+   ],
+   "when": [
+    {
+     "flag": "boatReady",
+     "schedule": [
+      [
+       6,
+       22,
+       "dockStart",
+       "idle"
+      ]
+     ]
+    }
+   ],
+   "present": "harborOpen",
+   "home": "harborHut",
+   "greetings": [
+    {
+     "flag": "boatReady",
+     "lines": [
+      "She's seaworthy and itching to sail! Climb aboard whenever you like, matey."
+     ]
+    },
+    {
+     "lines": [
+      "Ahoy! Did I ever tell you about the time I sailed through a storm made entirely of jellybeans?",
+      "The sea, {name}! Vast! Blue! Occasionally pink, near Moonveil, but don't ask."
+     ]
+    }
+   ],
+   "sleepy": [
+    "Zzz… hoist the… pillows… zzz…"
+   ],
+   "topics": [
+    {
+     "id": "tales",
+     "label": "Tell me a sea story.",
+     "lines": [
+      "Once I wrestled a squid the size of a lighthouse. Or a lighthouse the size of a squid. It was foggy.",
+      "Either way, we're friends now. He sends a card every winter."
+     ]
+    },
+    {
+     "id": "ferry",
+     "label": "Where can the ferry go?",
+     "lines": [
+      "Every island in Wonderhaven, once their docks are fixed up!",
+      "Clockwork Cove is nearest. You'll hear it before you see it — all those gears going clank."
+     ]
+    }
+   ],
+   "gifts": []
+  }
+ ]
+}

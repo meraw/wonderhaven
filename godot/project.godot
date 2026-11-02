@@ -1,0 +1,23 @@
+; Wonderhaven: The Lost Isles — Godot 4.4+ project
+config_version=5
+
+[application]
+config/name="Wonderhaven: The Lost Isles"
+config/description="A cozy fantasy kingdom-building adventure."
+run/main_scene="res://scenes/main.tscn"
+config/features=PackedStringArray("4.4")
+config/icon="res://icon.svg"
+
+[autoload]
+Data="*res://scripts/core/data.gd"
+
+[display]
+window/size/viewport_width=1280
+window/size/viewport_height=720
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+
+[rendering]
+anti_aliasing/quality/msaa_3d=2
+lights_and_shadows/directional_shadow/size=4096
+environment/defaults/default_clear_color=Color(0.75, 0.9, 1, 1)
