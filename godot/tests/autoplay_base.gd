@@ -7,8 +7,10 @@ var results: Array = []
 var out_dir := "/tmp"
 var shot_n := 0
 
+var _ctrl := false
 func key(code: int, pressed: bool) -> void:
-	var ev := InputEventKey.new(); ev.physical_keycode = code; ev.keycode = code; ev.pressed = pressed
+	if code == KEY_CTRL: _ctrl = pressed
+	var ev := InputEventKey.new(); ev.physical_keycode = code; ev.keycode = code; ev.pressed = pressed; ev.ctrl_pressed = _ctrl
 	Input.parse_input_event(ev)
 
 func tap(code: int) -> void:
@@ -18,6 +20,7 @@ func hold(code: int, seconds: float) -> void:
 	key(code, true); await wait(seconds); key(code, false); await frames(1)
 
 func mouse_move(p: Vector2, rel: Vector2 = Vector2.ZERO) -> void:
+	Input.warp_mouse(p)
 	var ev := InputEventMouseMotion.new(); ev.position = p; ev.global_position = p; ev.relative = rel
 	ev.button_mask = MOUSE_BUTTON_MASK_RIGHT if _rdown else 0
 	Input.parse_input_event(ev)

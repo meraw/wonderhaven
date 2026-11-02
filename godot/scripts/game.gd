@@ -17,7 +17,19 @@ var theme_res: Theme
 var prompt_panel: PanelContainer
 var prompt_label: Label
 var hotkeys: Label
-var state: Dictionary = {"flags": {}}
+var state: Dictionary = {}
+var ui_root: Control
+var toasts: VBoxContainer
+var hud_res: HBoxContainer
+var build: BuildMode
+var piece_root := Node3D.new()
+var piece_nodes: Dictionary = {}
+var spawn_anims: Array = []
+var mech: Dictionary = {"powered": {}, "watered": {}, "pumps": {}, "sources": {}, "fed": {}, "lamps": {}, "fountains": {}}
+var sitting := {}
+var drag_moved := false
+var _drag_dist := 0.0
+signal game_event(type: String, data: Dictionary)
 var mode := "explore"
 var time := 0.0
 var interactables: Array = []
@@ -28,6 +40,7 @@ var shot_cfg := {}
 func _ready() -> void:
 	Controls.setup()
 	theme_res = UiTheme.build()
+	state = GameState.new_game()
 	decor = WorldStatics.generate_decor()
 	statics = WorldStatics.build_statics(decor)
 	walk = WalkWorld.new(statics, func(f): return state.flags.get(f, false))
@@ -43,7 +56,9 @@ func _ready() -> void:
 	walk.dynamic.append(player.body)
 	camera = Camera3D.new(); camera.fov = 45; camera.far = 500; add_child(camera); camera.current = true
 	cam = FollowCamera.new(camera)
+	piece_root.name = "Placements"; add_child(piece_root)
 	_build_ui()
+	build = BuildMode.new(); build.name = "BuildMode"; add_child(build); build.setup(self)
 	_register_world_interactables()
 	_parse_args()
 	cam.update(0.016, player.pos); cam.snap()
@@ -70,7 +85,12 @@ func _build_ui() -> void:
 	hk.add_child(hotkeys)
 	hk.anchor_top = 1; hk.anchor_bottom = 1; hk.offset_left = 14; hk.offset_top = -56; hk.offset_bottom = -14; hk.grow_vertical = Control.GROW_DIRECTION_BEGIN
 	root.add_child(hk)
-	set_meta("ui_root", root)
+	ui_root = root
+	toasts = VBoxContainer.new(); toasts.anchor_left = 0.5; toasts.anchor_right = 0.5; toasts.offset_left = -300; toasts.offset_right = 300; toasts.offset_top = 70
+	toasts.alignment = BoxContainer.ALIGNMENT_BEGIN; toasts.mouse_filter = Control.MOUSE_FILTER_IGNORE; root.add_child(toasts)
+	var rp := UiTheme.panel(); rp.position = Vector2(14, 14); rp.mouse_filter = Control.MOUSE_FILTER_IGNORE; root.add_child(rp)
+	hud_res = HBoxContainer.new(); hud_res.add_theme_constant_override("separation", 8); rp.add_child(hud_res)
+	render_resources()
 
 func add_interactable(rec: Dictionary) -> void:
 	var r := {"radius": 1.8, "priority": 0.0, "available": func(): return true}
@@ -83,8 +103,216 @@ func _register_world_interactables() -> void:
 			var text: String = f.text
 			add_interactable({"id": f.id, "x": f.x, "z": f.z, "object": village.objects[f.id], "label": func(): return "Read sign", "act": func(): toast(text)})
 
-func toast(text: String) -> void:
+func toast(text: String, kind: String = "", life: float = 2.8) -> void:
 	print("[toast] ", text)
+	var bg := Color("effff4") if kind == "good" else (Color("fff0f0") if kind == "warn" else UiTheme.CREAM)
+	var bd := Color("9fe0b5") if kind == "good" else (Color("ffb3b3") if kind == "warn" else UiTheme.LINE)
+	var p := UiTheme.panel(bg, bd, 999)
+	var l := UiTheme.label(text, 15, Color("2f8a52") if kind == "good" else (Color("b34a4a") if kind == "warn" else UiTheme.INK))
+	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	if text.length() > 70: l.autowrap_mode = TextServer.AUTOWRAP_WORD; l.custom_minimum_size.x = 560
+	p.add_child(l); p.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var c := CenterContainer.new(); c.add_child(p); c.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	toasts.add_child(c)
+	while toasts.get_child_count() > 5: toasts.get_child(0).queue_free(); toasts.remove_child(toasts.get_child(0))
+	var tw := create_tween(); tw.tween_interval(life); tw.tween_property(c, "modulate:a", 0.0, 0.4); tw.tween_callback(c.queue_free)
+
+func emit_event(type: String, data: Dictionary = {}) -> void:
+	game_event.emit(type, data)
+
+func sfx(_name: String) -> void:
+	pass
+
+func render_resources(pop: Array = []) -> void:
+	for c in hud_res.get_children(): c.queue_free()
+	for id in Data.resource_order:
+		var n: int = int(state.inventory.get(id, 0))
+		if id != "spark" and n <= 0: continue
+		var chip := UiTheme.panel(Color("fff7cf") if id == "spark" else Color.WHITE, UiTheme.GOLD if id == "spark" else Color("f3dfc0"), 999)
+		chip.name = "res_" + id
+		var l := UiTheme.label("%s %d" % [Data.resources[id].icon, n], 15)
+		chip.add_child(l)
+		hud_res.add_child(chip)
+		if pop.has(id):
+			chip.pivot_offset = Vector2(30, 14)
+			var tw := chip.create_tween(); tw.tween_property(chip, "scale", Vector2(1.3, 1.3), 0.12); tw.tween_property(chip, "scale", Vector2.ONE, 0.25)
+
+func give(items: Dictionary, source = null, quiet: bool = false) -> void:
+	Inventory.add(state.inventory, items)
+	render_resources(items.keys())
+	if not quiet:
+		for id in items:
+			if items[id] > 0: toast("+%d %s %s" % [items[id], Data.resources[id].icon, Data.resources[id].name], "good", 1.8)
+	if source is Vector3: effects.sparkle(source, 10)
+	emit_event("gain", {"items": items})
+
+# ---- Zones and blueprints
+func zone_unlocked(zone: Dictionary) -> bool:
+	var u: Dictionary = zone.get("unlock", {})
+	if u.has("flag") and not state.flags.get(u.flag, false): return false
+	if u.has("quest") and not state.quests.has(u.quest): return false
+	return true
+
+func zone_plan_visible(zone: Dictionary) -> bool:
+	if not zone_unlocked(zone): return false
+	var u: Dictionary = zone.get("unlock", {})
+	if u.has("quest") and state.quests.get(u.quest, {}).get("status", "") != "active": return false
+	if zone.id == "dock" and state.flags.get("boatReady", false): return false
+	return true
+
+func blueprint_hint(id: String) -> String:
+	if has_method("_story_hint"): return call("_story_hint", id)
+	return "Keep helping the villagers to discover this blueprint"
+
+func build_goals(_zone: Dictionary) -> Dictionary:
+	return {}
+
+# ---- Construction
+func placement_ctx(placements = null) -> Dictionary:
+	var bodies := [{"x": player.pos.x, "z": player.pos.z, "r": 0.3, "y": player.pos.y}]
+	return {"placements": placements if placements != null else state.placements, "zones": Data.layout.zones.filter(func(z): return zone_unlocked(z)),
+		"locked_zones": Data.layout.zones.filter(func(z): return not zone_unlocked(z)), "harmony": state.harmony, "statics": statics, "flags": state.flags, "bodies": bodies}
+
+func commit_place(pl: Dictionary, animate: bool = true, check_cost: bool = true) -> Dictionary:
+	var others: Array = state.placements.filter(func(p): return p.uid != pl.uid)
+	var v := BuildGrid.validate_placement(pl, placement_ctx(others))
+	if not v.ok: return v
+	var cost: Dictionary = Data.piece(pl.id).cost
+	if check_cost and not Inventory.can_afford(state.inventory, cost): return {"ok": false, "reason": "Not enough materials"}
+	if check_cost: Inventory.spend(state.inventory, cost)
+	state.placements.append(pl)
+	state.next_uid = maxi(int(state.next_uid), int(pl.uid) + 1)
+	state.stats.placed += 1
+	_add_piece_node(pl, animate)
+	if animate: player_char.play("build"); sfx("place")
+	render_resources(cost.keys())
+	on_build_changed({"action": "place", "pl": pl, "zone": v.zone})
+	return {"ok": true}
+
+func commit_remove(uid: int, refund: bool = true) -> Dictionary:
+	var v := BuildGrid.validate_removal(uid, placement_ctx())
+	if not v.ok: return v
+	var pl := {}
+	for p in state.placements:
+		if p.uid == uid: pl = p
+	state.placements = state.placements.filter(func(p): return p.uid != uid)
+	if refund: Inventory.add(state.inventory, Data.piece(pl.id).cost)
+	var n: Node3D = piece_nodes.get(uid)
+	if n: effects.poof(n.position, Color("e9ddff")); n.queue_free(); piece_nodes.erase(uid)
+	sfx("remove")
+	render_resources(Data.piece(pl.id).cost.keys())
+	on_build_changed({"action": "remove", "pl": pl})
+	return {"ok": true}
+
+func commit_move(uid: int, to: Dictionary) -> Dictionary:
+	var pl := {}
+	for p in state.placements:
+		if p.uid == uid: pl = p
+	if pl.is_empty(): return {"ok": false, "reason": "That piece is gone"}
+	var cand := pl.duplicate(true); cand.merge(to, true)
+	var others: Array = state.placements.filter(func(p): return p.uid != uid)
+	if to.i != pl.i or to.k != pl.k or to.y != pl.y:
+		var rm := BuildGrid.validate_removal(uid, placement_ctx())
+		if not rm.ok: return rm
+	var v := BuildGrid.validate_placement(cand, placement_ctx(others))
+	if not v.ok: return v
+	pl.merge(to, true)
+	_sync_piece(pl)
+	effects.sparkle(piece_nodes[uid].position + Vector3(0, 0.4, 0), 8, Color("c9a8ff"))
+	sfx("place")
+	on_build_changed({"action": "move", "pl": pl, "zone": v.zone})
+	return {"ok": true}
+
+func commit_recolor(uid: int, color: String) -> Dictionary:
+	var pl := {}
+	for p in state.placements:
+		if p.uid == uid: pl = p
+	if pl.is_empty(): return {"ok": false, "reason": "That piece is gone"}
+	if color == "": pl.erase("color")
+	else: pl["color"] = color
+	PieceMeshes.set_color(piece_nodes[uid], color if color != "" else Data.piece(pl.id).color)
+	effects.sparkle(piece_nodes[uid].position + Vector3(0, 0.5, 0), 10, Color(color) if color != "" else Color.WHITE)
+	sfx("paint")
+	on_build_changed({"action": "recolor", "pl": pl})
+	return {"ok": true}
+
+func toggle_lever(uid: int) -> void:
+	for p in state.placements:
+		if p.uid == uid:
+			var st: Dictionary = p.get("state", {}); st["on"] = not st.get("on", false); p["state"] = st
+	sfx("lever")
+	on_build_changed({"action": "switch"})
+
+func _add_piece_node(pl: Dictionary, animate: bool) -> void:
+	var n := PieceMeshes.make(pl.id, pl.get("color", ""))
+	n.set_meta("uid", pl.uid)
+	piece_root.add_child(n); piece_nodes[pl.uid] = n
+	_sync_piece(pl)
+	if animate:
+		n.scale = Vector3.ONE * 0.01
+		var tw := n.create_tween(); tw.tween_property(n, "scale", Vector3.ONE * 1.15, 0.22).set_trans(Tween.TRANS_BACK); tw.tween_property(n, "scale", Vector3.ONE, 0.12)
+		effects.magic(n.position, minf(2.0, float(Data.piece(pl.id).h) + 0.5))
+
+func _sync_piece(pl: Dictionary) -> void:
+	var n: Node3D = piece_nodes.get(pl.uid)
+	if n == null: return
+	var fp := BuildGrid.footprint(Data.piece(pl.id), int(pl.r))
+	n.position = Vector3(pl.i + fp.x / 2.0, pl.y, pl.k + fp.y / 2.0)
+	n.rotation.y = -int(pl.r) * PI / 2.0
+
+func rebuild_all_pieces() -> void:
+	for c in piece_root.get_children(): c.queue_free()
+	piece_nodes.clear()
+	for pl in state.placements: _add_piece_node(pl, false)
+	on_build_changed({"action": "load"})
+
+func on_build_changed(ev: Dictionary) -> void:
+	walk.surfaces = BuildGrid.surfaces_for(state.placements)
+	var F: Dictionary = Data.layout.fountain
+	mech = Mechanics.solve(state.placements, [{"id": "fountain", "cell": F.inlet.cell, "side": F.inlet.side}])
+	_refresh_piece_interactables()
+	build.refresh_plan()
+	emit_event("build", ev)
+
+func _refresh_piece_interactables() -> void:
+	interactables = interactables.filter(func(it): return not it.get("piece", false))
+	for pl in state.placements:
+		var d := Data.piece(pl.id)
+		if not d.has("interact"): continue
+		var b := BuildGrid.bounds(pl)
+		var rec := {"id": "pl:%d" % pl.uid, "piece": true, "x": (b.minX + b.maxX) / 2.0, "z": (b.minZ + b.maxZ) / 2.0, "radius": 1.3, "object": piece_nodes.get(pl.uid)}
+		var ppl: Dictionary = pl
+		match d.interact:
+			"door":
+				rec["label"] = func(): return "Close door" if ppl.get("state", {}).get("open", false) else "Open door"
+				rec["act"] = func():
+					var st: Dictionary = ppl.get("state", {}); st["open"] = not st.get("open", false); ppl["state"] = st
+					sfx("door"); walk.surfaces = BuildGrid.surfaces_for(state.placements)
+			"lever":
+				rec["label"] = func(): return "Switch lever off" if ppl.get("state", {}).get("on", false) else "Switch lever on"
+				rec["act"] = func(): toggle_lever(ppl.uid)
+			"sit":
+				rec["label"] = func(): return "Sit down"
+				rec["act"] = func(): sit_on(ppl)
+			"sleep":
+				rec["label"] = func(): return "Rest until morning"
+				rec["act"] = func(): if has_method("rest"): call("rest")
+		if rec.has("act"): add_interactable(rec)
+
+func sit_on(pl: Dictionary) -> void:
+	var b := BuildGrid.bounds(pl)
+	sitting = {"pl": pl, "back": player.pos}
+	player.pos = Vector3((b.minX + b.maxX) / 2.0, pl.y + 0.28, (b.minZ + b.maxZ) / 2.0)
+	player.yaw = -int(pl.r) * PI / 2.0; player.sync()
+	player_char.play("sit", true)
+	toast("Ahh, cozy. Move to stand up.")
+
+func stand_up() -> void:
+	if sitting.is_empty(): return
+	var back: Vector3 = sitting.back
+	sitting = {}
+	player.teleport(back.x, back.z)
+	player_char.stop_hold()
 
 func _pos_of(it: Dictionary, key: String) -> float:
 	var v = it[key]
@@ -133,14 +361,22 @@ func _update_interaction() -> void:
 	else:
 		prompt_panel.visible = false
 
+func _input(event: InputEvent) -> void:
+	if mode == "build" and event is InputEventMouseMotion: build.mouse = event.position
+
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
 		if event.button_index in [MOUSE_BUTTON_RIGHT, MOUSE_BUTTON_MIDDLE] or (event.button_index == MOUSE_BUTTON_LEFT and mode == "explore"):
-			dragging = event.pressed
+			if event.pressed and not (mode == "build" and event.button_index == MOUSE_BUTTON_LEFT): dragging = true; _drag_dist = 0.0; drag_moved = false
 		if event.pressed and event.button_index == MOUSE_BUTTON_WHEEL_UP: cam.zoom(-1)
 		if event.pressed and event.button_index == MOUSE_BUTTON_WHEEL_DOWN: cam.zoom(1)
 	if event is InputEventMouseMotion and dragging:
-		cam.rotate_by(event.relative.x * 0.0055, event.relative.y * 0.0055)
+		_drag_dist += event.relative.length()
+		if _drag_dist > 6.0: drag_moved = true
+		if drag_moved: cam.rotate_by(event.relative.x * 0.0055, event.relative.y * 0.0055)
+	if mode == "build": build.handle_input(event)
+	if event is InputEventMouseButton and not event.pressed and event.button_index in [MOUSE_BUTTON_LEFT, MOUSE_BUTTON_RIGHT, MOUSE_BUTTON_MIDDLE]:
+		dragging = false
 
 func move_vector() -> Vector2:
 	var v := Input.get_vector("move_left", "move_right", "move_back", "move_forward")
@@ -154,12 +390,30 @@ func _process(dt: float) -> void:
 	var look := Vector2(Input.get_joy_axis(0, JOY_AXIS_RIGHT_X), Input.get_joy_axis(0, JOY_AXIS_RIGHT_Y))
 	if look.length() > 0.15: cam.rotate_by(look.x * 2.4 * dt, look.y * 1.6 * dt)
 	if mode == "explore":
-		player.update(dt, move_vector(), Input.is_action_pressed("sprint"), Input.is_action_just_pressed("jump"), cam.move_yaw(), true)
+		if not sitting.is_empty():
+			if move_vector().length() > 0.3 or Input.is_action_just_pressed("jump"): stand_up()
+			else: player_char.animate(dt)
+		else:
+			player.update(dt, move_vector(), Input.is_action_pressed("sprint"), Input.is_action_just_pressed("jump"), cam.move_yaw(), true)
+		if Input.is_action_just_pressed("build") and build.open(): mode = "build"
+	elif mode == "build":
+		player_char.animate(dt)
+		build.update(dt)
+		if not build.active: mode = "explore"
+	else:
+		player_char.animate(dt)
 	cam.update(dt, player.pos)
+	for pl in state.placements:
+		var n: Node3D = piece_nodes.get(pl.uid)
+		if n: PieceMeshes.animate(n, pl, time, dt, {"spinning": mech.powered.has(pl.uid) or mech.sources.has(pl.uid), "powered": mech.powered.has(pl.uid), "watered": mech.watered.has(pl.uid), "on": pl.get("state", {}).get("on", false), "open": pl.get("state", {}).get("open", false), "night": state.flags.get("night", false)})
 	_update_interaction()
 	hotkeys.text = "%s %s %s %s Move   Drag / %s %s Camera   Wheel Zoom   %s Interact   %s Hop" % [Controls.key_label("move_forward"), Controls.key_label("move_left"), Controls.key_label("move_back"), Controls.key_label("move_right"), Controls.key_label("cam_left"), Controls.key_label("cam_right"), Controls.key_label("interact"), Controls.key_label("jump")]
-	village.update_world(dt, time, state.flags)
-	sun.position = player.pos
+	var vflags: Dictionary = state.flags.duplicate(); vflags["fountainFlowing"] = mech.fed.get("fountain", false)
+	village.update_world(dt, time, vflags)
+	sun.position = build.focus if mode == "build" else player.pos
+	toasts.offset_top = 160 if mode == "build" else 72
+	if mode == "build": hotkeys.get_parent().visible = false
+	else: hotkeys.get_parent().visible = true
 	_tick_shot()
 
 # ---- Command-line hooks for automated screenshots: godot --path godot -- --shot=out.png --pos=x,z,yaw --cam=yaw,pitch,dist --frames=N

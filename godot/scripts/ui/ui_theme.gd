@@ -20,6 +20,7 @@ static func box(bg: Color, border: Color = LINE, radius: int = 18, bw: int = 3, 
 
 static func build() -> Theme:
 	var t := Theme.new()
+	t.default_font = main_font()
 	t.default_font_size = 17
 	t.set_color("font_color", "Label", INK)
 	t.set_color("font_color", "Button", INK)
@@ -40,6 +41,18 @@ static func build() -> Theme:
 	t.set_stylebox("fill", "ProgressBar", box(PINK, PINK, 999, 0, 0, false))
 	t.set_stylebox("panel", "TabContainer", box(Color(CREAM, 0.0), Color(0, 0, 0, 0), 0, 0, 0, false))
 	return t
+
+static var _font: SystemFont
+## Rounded, friendly system fonts with a colour-emoji fallback for the icons (Windows, macOS and Linux names).
+static func main_font() -> SystemFont:
+	if _font: return _font
+	var emoji := SystemFont.new()
+	emoji.font_names = PackedStringArray(["Noto Color Emoji", "Segoe UI Emoji", "Apple Color Emoji", "Twemoji Mozilla"])
+	_font = SystemFont.new()
+	_font.font_names = PackedStringArray(["Nunito", "Quicksand", "Varela Round", "Trebuchet MS", "Segoe UI", "Helvetica Neue", "Noto Sans", "DejaVu Sans"])
+	_font.font_weight = 700
+	_font.fallbacks = [emoji]
+	return _font
 
 static func primary(b: Button) -> Button:
 	b.add_theme_stylebox_override("normal", box(PINK, PINK_DARK, 999, 3, 6, false))
