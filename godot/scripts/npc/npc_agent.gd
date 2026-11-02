@@ -1,0 +1,118 @@
+class_name NpcAgent
+extends RefCounted
+## A villager: follows a daily routine along the path graph, plays activity animations, greets the player,
+## and shows a quest marker when they have something for you.
+
+var game
+var def: Dictionary
+var character: Chibi
+var pos := Vector3.ZERO
+var yaw := PI
+var goal := ""
+var activity := ""
+var waypoints: Array = []
+var body := {"x": 0.0, "z": 0.0, "r": 0.32}
+var talking := false
+var greeted := false
+var idle_t := 3.0
+var present := true
+var marker_offer: Label3D
+var marker_ready: Label3D
+
+func _init(g, d: Dictionary) -> void:
+	game = g; def = d
+	character = Chibi.new(d.appearance); character.name = d.id
+	game.add_child(character)
+	var a := Schedule.activity_at(def, game.state.time.minute, game.state.flags)
+	var p := node_pos(a.node)
+	pos = Vector3(p.x, game.walk.surface_at(p.x, p.y).y, p.y)
+	goal = a.node; activity = a.activity
+	game.walk.dynamic.append(body)
+	marker_offer = _marker("!", Color("ffb93b")); marker_ready = _marker("★", Color("59c27a"))
+	sync()
+
+func _marker(text: String, color: Color) -> Label3D:
+	var l := Label3D.new(); l.text = text; l.font_size = 96; l.pixel_size = 0.006; l.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	l.modulate = color; l.outline_modulate = Color.WHITE; l.outline_size = 24; l.no_depth_test = true; l.position.y = 2.15; l.visible = false
+	l.font = UiTheme.main_font()
+	character.add_child(l)
+	return l
+
+func node_pos(node: String) -> Vector2:
+	if node == "workshopInside":
+		for p in game.state.placements:
+			if p.id == "workbench" and p.i >= -17 and p.i <= -10 and p.k >= 7 and p.k <= 12:
+				return Vector2(p.i + 1.0, p.k + (1.0 if int(p.r) % 2 else (-0.7 if int(p.r) == 2 else 1.7)))
+	var a: Array = Data.layout.nav_nodes[node]
+	return Vector2(a[0], a[1])
+
+func teleport_home() -> void:
+	var a := Schedule.activity_at(def, game.state.time.minute, game.state.flags)
+	var p := node_pos(a.node)
+	pos.x = p.x; pos.z = p.y; waypoints = []; goal = a.node; activity = a.activity
+
+func plan_route(to: String) -> void:
+	var flags: Dictionary = game.state.flags
+	var path := Schedule.find_path(Schedule.nearest_node(pos.x, pos.z, flags), to, flags)
+	goal = to
+	if path.is_empty(): waypoints = [node_pos(to)]; return
+	var pts: Array = []
+	for n in path.size():
+		pts.append(node_pos(path[n]))
+		if n + 1 < path.size(): pts.append_array(game.crossing_path(path[n], path[n + 1]))
+	if not pts.is_empty() and pts[0].distance_to(Vector2(pos.x, pos.z)) < 0.5: pts.pop_front()
+	waypoints = pts
+
+func update(dt: float) -> void:
+	var flags: Dictionary = game.state.flags
+	present = not def.has("present") or flags.get(def.present, false)
+	character.visible = present
+	body.r = 0.32 if present else 0.0
+	if not present: return
+	var a := Schedule.activity_at(def, game.state.time.minute, flags)
+	if a.node != goal: plan_route(a.node)
+	activity = a.activity
+	var speed := 0.0
+	var pp: Vector3 = game.player.pos
+	if talking: face(pp, dt, 10.0)
+	elif not waypoints.is_empty():
+		var tgt: Vector2 = waypoints[0]
+		var d := Vector2(tgt.x - pos.x, tgt.y - pos.z)
+		var far := Vector2(pp.x - pos.x, pp.z - pos.z).length() > 40.0
+		var v := 6.0 if far else 2.3
+		if d.length() < 0.15: waypoints.pop_front()
+		else:
+			var step := minf(d.length(), v * dt)
+			var n := Vector2(pos.x, pos.z) + d.normalized() * step
+			if n.distance_to(Vector2(pp.x, pp.z)) > 0.62: pos.x = n.x; pos.z = n.y; speed = v / 4.4
+			yaw = lerp_angle(yaw, atan2(d.x, d.y), 1.0 - exp(-8.0 * dt))
+	else:
+		var pd := Vector2(pp.x - pos.x, pp.z - pos.z).length()
+		if pd < 3.2 and activity != "sleep":
+			face(pp, dt, 5.0)
+			if not greeted and game.mode == "explore": greeted = true; character.play("wave"); game.voice(def.get("voice", 1.0), 2)
+		elif pd > 6.0: greeted = false
+	var s: Dictionary = game.walk.surface_at(pos.x, pos.z, pos.y + 0.3)
+	if s.walkable: pos.y = s.y
+	var hold: String = "talk" if talking else ("" if speed > 0.0 else {"garden": "garden", "work": "work", "read": "read", "talk": "talk", "sleep": "sleep"}.get(activity, ""))
+	if hold != "":
+		if character.hold != hold: character.play(hold, true)
+	elif character.hold != "": character.stop_hold()
+	if speed == 0.0 and activity == "wave" and not talking:
+		idle_t -= dt
+		if idle_t < 0.0: character.play("wave"); idle_t = 3.0 + randf() * 3.0
+	if activity == "sleep" and not talking and randf() < dt * 0.8: game.effects.zzz(pos + Vector3(0, 1.4, 0))
+	character.animate(dt, speed)
+	var st: String = game.story.marker_for(def.id) if game.story else ""
+	marker_offer.visible = st == "offer" and not talking
+	marker_ready.visible = st == "ready" and not talking
+	var bob := sin(game.time * 3.0) * 0.08
+	marker_offer.position.y = 2.15 + bob; marker_ready.position.y = 2.15 + bob
+	sync()
+
+func face(p: Vector3, dt: float, rate: float) -> void:
+	yaw = lerp_angle(yaw, atan2(p.x - pos.x, p.z - pos.z), 1.0 - exp(-rate * dt))
+
+func sync() -> void:
+	body.x = pos.x; body.z = pos.z
+	character.position = pos; character.rotation.y = yaw

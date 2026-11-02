@@ -1,0 +1,289 @@
+class_name WorldActions
+extends RefCounted
+## Everything you can do with the world itself: chop, mine, dig clay, fish, pick, shake, dig treasure,
+## open chests, catch fragments, garden, and win over the bakery squirrels.
+const P := preload("res://scripts/world/palette.gd")
+const REGROW := {"chop": 360.0, "mine": 480.0, "clay": 300.0, "flowers": 240.0, "shake": 90.0, "fruit": 360.0, "fragment": 1440.0}
+const SQUIRREL_SPOTS := [[-8.4, -3.2], [-13.7, -3.3], [-7.2, -6.6]]
+const LABELS := {"chop": "Chop tree", "mine": "Mine rock", "clay": "Dig clay", "fish": "Fish here", "flowers": "Pick flowers", "shake": "Shake the oak", "fruit": "Pick apples", "chest": "Open chest", "fragment": "Catch the fragment"}
+
+var game
+var hum := 0
+var check_t := 0.0
+var plots: Array = []
+var squirrels: Array = []
+var bobber: MeshInstance3D
+var line: MeshInstance3D
+var fishing := {}
+var pending_node := {}
+
+func _init(g) -> void:
+	game = g
+	for n in Data.layout.nodes: _register_node(n)
+	for f in Data.layout.features: _register_feature(f)
+	_build_gardens(); _build_squirrels()
+	bobber = P.mi(P.sphere(0.09, 10, 8), P.mat("ff5a5f")); bobber.visible = false; game.add_child(bobber)
+	line = MeshInstance3D.new(); line.material_override = P.glow_mat(Color.WHITE); line.visible = false; game.add_child(line)
+
+func state() -> Dictionary: return game.state
+func now() -> float: return state().time.total
+func node_state(id: String) -> Dictionary: return state().nodes.get(id, {})
+
+func ready(n: Dictionary) -> bool:
+	var s := node_state(n.id)
+	if s.get("done", false): return false
+	if n.has("flag") and not state().flags.get(n.flag, false): return false
+	if n.kind == "fruit" and not state().flags.get("orchardOpen", false): return false
+	return not (s.get("ready_at", -1.0) > now())
+
+func deplete(n: Dictionary) -> void:
+	if n.kind in ["chest", "dig"]: state().nodes[n.id] = {"done": true}
+	else: state().nodes[n.id] = {"ready_at": now() + REGROW.get(n.kind, 300.0)}
+	refresh_node(n)
+
+func _register_node(n: Dictionary) -> void:
+	var nd := n
+	var base := {"id": n.id, "x": n.x, "z": n.z, "object": game.village.node_visuals.get(n.id), "available": func(): return ready(nd)}
+	if n.kind == "dig":
+		base.merge({"radius": 0.9, "object": null, "available": func(): return ready(nd) and state().flags.get("hasTool", false),
+			"label": func(): return "Dig here — the Starforge Tool is singing!", "act": func(): dig(nd)}, true)
+		game.add_interactable(base); return
+	base.merge({"radius": 2.0 if n.kind == "mine" else (1.3 if n.kind == "fish" else 1.7), "label": func(): return LABELS[nd.kind], "act": func(): act(nd)}, true)
+	game.add_interactable(base)
+
+func _register_feature(f: Dictionary) -> void:
+	match f.kind:
+		"rest": game.add_interactable({"id": f.id, "x": f.x, "z": f.z, "radius": 1.3, "label": func(): return "Rest until morning", "act": func(): game.rest()})
+		"wardrobe": game.add_interactable({"id": f.id, "x": f.x, "z": f.z, "object": game.village.objects[f.id], "label": func(): return "Change outfit", "act": func(): game.open_wardrobe()})
+		"board": game.add_interactable({"id": f.id, "x": f.x, "z": f.z, "object": game.village.objects[f.id], "label": func(): return "Read the notice board", "act": func(): game.panels.notice_board()})
+		"boat": game.add_interactable({"id": f.id, "x": f.x, "z": f.z, "radius": 2.6, "object": game.village.objects.boat, "available": func(): return state().flags.get("boatReady", false), "label": func(): return "Board the ferry", "act": func(): game.panels.map(true)})
+
+func _src(n: Dictionary, up: float = 1.0) -> Vector3: return Vector3(n.x, Heightfield.height(n.x, n.z) + up, n.z)
+
+func act(n: Dictionary) -> void:
+	game.player.yaw = atan2(n.x - game.player.pos.x, n.z - game.player.pos.z); game.player.sync()
+	match n.kind:
+		"chop": pending_node = n; game.start_minigame("chop", Minigames.Chop.new())
+		"mine": pending_node = n; game.start_minigame("mine", Minigames.Mine.new(n.get("rich", false)))
+		"fish": start_fishing(n)
+		"clay":
+			game.player_char.play("dig"); game.sfx("dig")
+			game.give({"clay": 2, "spark": 1}, _src(n)); deplete(n)
+		"flowers": game.player_char.play("dig"); game.sfx("pick"); game.give({"flowers": 2, "spark": 1}, _src(n)); deplete(n)
+		"shake":
+			game.sfx("rustle"); game.cam.shake = 0.3
+			game.village.node_visuals[n.id].set_meta("shake", 0.6)
+			game.give({"acorn": 3, "spark": 1}, _src(n, 2.0)); deplete(n)
+		"fruit": game.sfx("pick"); game.give({"fruit": 2, "spark": 1}, _src(n, 2.0)); deplete(n)
+		"chest": open_chest(n)
+		"fragment": catch_fragment(n)
+
+## Called by the game when a chop or mine minigame ends (mg is null if cancelled).
+func minigame_done(kind: String, mg) -> void:
+	var n := pending_node; pending_node = {}
+	if kind == "fish": _fishing_done(mg); return
+	if mg == null or n.is_empty(): return
+	game.give(mg.reward(), _src(n))
+	if kind == "chop": state().stats.chopped += 1; game.effects.poof(_src(n), Color("9fdc7a"))
+	else: state().stats.mined += 1
+	deplete(n); game.sfx("collect")
+
+func catch_fragment(n: Dictionary) -> void:
+	var p := _src(n)
+	game.give({"fragment": 1, "spark": 5}, p)
+	game.effects.sparkle(p, 20, Color("c9a8ff")); game.sfx("sparkle")
+	state().stats.fragments += 1
+	deplete(n)
+
+func open_chest(n: Dictionary) -> void:
+	var p := _src(n, 0.8)
+	game.sfx("chest"); game.player_char.play("surprised")
+	var loot: Dictionary = {}
+	for k in n.loot: loot[k] = int(n.loot[k])
+	game.give(loot, p)
+	if n.has("blueprint"): game.story.unlock_blueprints([n.blueprint], "treasure chest")
+	if n.has("outfit"): game.story.unlock_clothes([n.outfit])
+	state().stats.chests += 1; state().stats.treasures += 1
+	deplete(n)
+	game.effects.sparkle(p, 26)
+	game.story.event("treasure"); game.story.event("chest")
+
+func dig(n: Dictionary) -> void:
+	var p := _src(n, 0.3)
+	game.player_char.play("dig"); game.sfx("dig")
+	var digs: Array = Data.layout.nodes.filter(func(x): return x.kind == "dig")
+	var loot: Dictionary = [{"crystal": 1, "spark": 6}, {"fabric": 2, "spark": 6}, {"metal": 2, "spark": 6}, {"crystal": 1, "fabric": 1, "spark": 6}, {"metal": 1, "crystal": 1, "spark": 6}][digs.find(n) % 5]
+	game.give(loot, p); game.effects.sparkle(p, 22)
+	state().stats.dug += 1; state().stats.treasures += 1
+	deplete(n); game.sfx("chest")
+	game.story.event("treasure"); game.story.event("dig")
+
+func start_fishing(n: Dictionary) -> void:
+	var facing: float = n.get("facing", PI)
+	game.player.teleport(n.x, n.z, facing)
+	var fx: float = n.x + sin(facing) * 3.0
+	var fz: float = n.z + cos(facing) * 3.0
+	bobber.position = Vector3(fx, Heightfield.WATER_Y + 0.05, fz); bobber.visible = true; line.visible = true
+	game.player_char.play("cast", true); game.sfx("cast")
+	var mg := Minigames.Fish.new()
+	fishing = {"mg": mg, "fx": fx, "fz": fz}
+	game.start_minigame("fish", mg)
+
+func _fishing_done(mg) -> void:
+	bobber.visible = false; line.visible = false
+	var f := fishing; fishing = {}
+	game.player_char.stop_hold()
+	if mg == null or mg.result != "caught": return
+	var at := Vector3(f.fx, 0.3, f.fz)
+	game.give(mg.reward(), at)
+	game.effects.splash(Vector3(f.fx, Heightfield.WATER_Y + 0.1, f.fz))
+	game.player_char.play("celebrate"); game.sfx("fanfare_small")
+	state().stats.fish += 1
+	game.toast("You caught a %s!" % mg.fish.name, "good")
+	game.story.event("fish")
+
+func refresh_node(n: Dictionary) -> void:
+	var o: Node3D = game.village.node_visuals.get(n.id)
+	if o == null: return
+	var r := ready(n)
+	match n.kind:
+		"chop": o.visible = r; (o.get_meta("stump") as Node3D).visible = not r
+		"mine": o.scale = Vector3.ONE * (1.0 if r else 0.45)
+		"clay", "flowers", "fragment": o.visible = r
+		"fruit": (o.get_node("fruit") as Node3D).visible = r
+		"shake": (o.get_node("acorns") as Node3D).visible = r
+		"chest": (o.get_node("lid") as Node3D).rotation.x = -1.9 if node_state(n.id).get("done", false) else 0.0
+		"dig": o.visible = node_state(n.id).get("done", false)
+	if r and o.get_meta("depleted", false): game.effects.sparkle(o.position + Vector3(0, 0.8, 0), 8, Color("bfffb0"))
+	o.set_meta("depleted", not r)
+
+func refresh_all() -> void:
+	for n in Data.layout.nodes: refresh_node(n)
+	refresh_gardens(); place_squirrels()
+
+# ---- Gardens
+func _build_gardens() -> void:
+	for p in Gardening.PLOTS:
+		var g := Node3D.new(); g.position = Vector3(p.x, 0.17, p.z); game.add_child(g)
+		var soil := P.mi(P.box(1.4, 0.03, 0.9), P.mat("7a4a2a"), Vector3(0, 0.01, 0)); g.add_child(soil)
+		var pl := Node3D.new(); g.add_child(pl)
+		var rec := {"def": p, "group": g, "soil": soil, "plant": pl, "stage": -99, "watered": false}
+		plots.append(rec)
+		var pid: String = p.id
+		game.add_interactable({"id": pid, "x": p.x, "z": p.z, "radius": 1.1, "object": g,
+			"label": func(): return {"plant": "Plant a seed", "need_seeds": "Garden bed (you need seeds)", "water": "Water the seedling", "growing": "Growing nicely…", "harvest": "Pick the bloom"}[Gardening.action(state().gardens, pid, state().inventory)],
+			"act": func(): garden_act(rec)})
+
+func garden_act(rec: Dictionary) -> void:
+	var p: Dictionary = rec.def
+	var s := state()
+	var a := Gardening.action(s.gardens, p.id, s.inventory)
+	var pos := Vector3(p.x, 0.5, p.z)
+	match a:
+		"plant": Gardening.plant(s.gardens, p.id, now()); s.inventory.seeds -= 1; game.render_resources(["seeds"]); game.player_char.play("dig"); game.sfx("dig"); game.story.event("plant"); game.toast("Planted! Now give it some water.")
+		"water": Gardening.water(s.gardens, p.id, now()); game.player_char.play("feed"); game.effects.splash(pos); game.sfx("water"); game.story.event("water"); game.toast("Watered. It will grow while you explore.")
+		"harvest": game.give(Gardening.harvest(s.gardens, p.id), pos); game.sfx("pick"); game.story.event("harvest")
+		"need_seeds": game.toast("You need flower seeds. Fern might have some!", "warn")
+		_: game.toast("The little plant is soaking up the sun. Come back in a bit!")
+	refresh_gardens()
+
+func refresh_gardens() -> void:
+	for rec in plots:
+		var st := Gardening.plot(state().gardens, rec.def.id)
+		if rec.stage == st.stage and rec.watered == st.get("watered", false): continue
+		rec.stage = st.stage; rec.watered = st.get("watered", false)
+		rec.soil.material_override = P.mat("5a3420" if rec.watered else "7a4a2a")
+		for c in rec.plant.get_children(): c.queue_free()
+		if st.stage < 0: continue
+		for x in [-0.35, 0.0, 0.35]:
+			if st.stage == 0: rec.plant.add_child(P.mi(P.sphere(0.06, 6, 4), P.mat("8b5a3c"), Vector3(x, 0.04, 0))); continue
+			var h: float = 0.15 + st.stage * 0.14
+			rec.plant.add_child(P.mi(P.cyl(0.02, 0.025, h, 5), P.mat("4f9e45"), Vector3(x, h / 2.0, 0)))
+			var leaf := P.mi(P.sphere(0.07, 6, 4), P.mat("6cc65a"), Vector3(x + 0.05, h * 0.5, 0)); leaf.scale = Vector3(1.4, 0.4, 0.8); rec.plant.add_child(leaf)
+			if st.stage >= 2:
+				var col: String = ["ff7aa8", "ffd84a", "b98cff"][int(round((x + 0.35) / 0.35))] if st.stage == 3 else "9fdc7a"
+				rec.plant.add_child(P.mi(P.sphere(0.13 if st.stage == 3 else 0.07, 8, 6), P.mat(col), Vector3(x, h + 0.04, 0)))
+
+# ---- Squirrels
+func _build_squirrels() -> void:
+	for n in SQUIRREL_SPOTS.size():
+		var s := Node3D.new()
+		var fur := P.mat("b5733f")
+		var b := P.mi(P.sphere(0.18, 10, 8), fur, Vector3(0, 0.18, 0)); b.scale = Vector3(0.9, 1.1, 1); s.add_child(b)
+		s.add_child(P.mi(P.sphere(0.13, 10, 8), fur, Vector3(0, 0.38, 0.1)))
+		for sx in [-1, 1]:
+			s.add_child(P.mi(P.cone(0.04, 0.09, 5), P.mat("9a5f30"), Vector3(sx * 0.07, 0.5, 0.08)))
+			s.add_child(P.mi(P.sphere(0.022, 6, 4), P.mat("1d1414"), Vector3(sx * 0.055, 0.41, 0.21)))
+		var tail := P.mi(P.sphere(0.17, 10, 8), P.mat("c98447"), Vector3(0, 0.36, -0.2)); tail.scale = Vector3(0.7, 1.5, 0.7); tail.rotation.x = -0.4; s.add_child(tail)
+		game.add_child(s)
+		var sq := {"n": n, "obj": s, "home": Vector2(SQUIRREL_SPOTS[n][0], SQUIRREL_SPOTS[n][1]), "t": randf() * 10.0, "pos": Vector2(SQUIRREL_SPOTS[n][0], SQUIRREL_SPOTS[n][1]), "up": 0.0}
+		squirrels.append(sq)
+		game.add_interactable({"id": "squirrel%d" % n, "x": func(): return sq.pos.x, "z": func(): return sq.pos.y, "radius": 1.3, "object": s,
+			"available": func(): return not squirrel_fed(sq.n),
+			"label": func(): return "Offer an acorn" if state().quests.get("squirrels", {}).get("status", "") == "active" and state().inventory.get("acorn", 0) > 0 else "Say hello to the squirrel",
+			"act": func(): feed_squirrel(sq)})
+	place_squirrels()
+
+func squirrel_fed(n: int) -> bool: return state().flags.get("squirrelsGone", false) or state().flags.get("squirrelFed%d" % n, false)
+
+func feed_squirrel(sq: Dictionary) -> void:
+	var s := state()
+	if s.quests.get("squirrels", {}).get("status", "") != "active" or s.inventory.get("acorn", 0) <= 0:
+		game.sfx("squeak")
+		game.toast("The squirrel eyes your acorns hungrily… Mabel might want to hear about this." if s.inventory.get("acorn", 0) > 0 else "The squirrel looks at your empty hands, deeply unimpressed.")
+		return
+	s.inventory.acorn -= 1; game.render_resources(["acorn"])
+	s.flags["squirrelFed%d" % sq.n] = true
+	game.player_char.play("feed"); game.sfx("squeak")
+	game.effects.hearts(sq.obj.position + Vector3(0, 0.6, 0))
+	game.toast("Munch munch! The squirrel scampers happily back to the oak.", "good")
+	place_squirrels()
+	game.story.event("feed")
+
+func place_squirrels() -> void:
+	for sq in squirrels:
+		if squirrel_fed(sq.n):
+			sq.home = Vector2(-16.5 + [-0.6, 0.5, 0.1][sq.n], -1.5 + [0.4, 0.2, -0.6][sq.n]); sq.up = 1.9 + sq.n * 0.25
+		else:
+			sq.home = Vector2(SQUIRREL_SPOTS[sq.n][0], SQUIRREL_SPOTS[sq.n][1]); sq.up = 0.0
+
+func update(dt: float) -> void:
+	var s := state()
+	check_t -= dt
+	if check_t <= 0.0:
+		check_t = 1.0
+		for n in Data.layout.nodes:
+			var o: Node3D = game.village.node_visuals.get(n.id)
+			if o and o.get_meta("depleted", false) and ready(n): refresh_node(n)
+		if Gardening.grow(s.gardens, now()): refresh_gardens()
+	var p: Vector3 = game.player.pos
+	if game.mode == "explore":
+		for n in Data.layout.nodes:
+			if n.kind == "fragment" and ready(n) and Vector2(n.x - p.x, n.z - p.z).length() < 1.1: catch_fragment(n)
+	var best := INF
+	if s.flags.get("hasTool", false):
+		for n in Data.layout.nodes:
+			if n.kind == "dig" and ready(n): best = minf(best, Vector2(n.x - p.x, n.z - p.z).length())
+	hum = 3 if best < 3.0 else (2 if best < 7.0 else (1 if best < 13.0 else 0))
+	if hum >= 2 and randf() < dt * (4.0 if hum == 3 else 1.5):
+		for n in Data.layout.nodes:
+			if n.kind == "dig" and ready(n) and Vector2(n.x - p.x, n.z - p.z).length() < 7.0: game.effects.sparkle(Vector3(n.x, Heightfield.height(n.x, n.z) + 0.1, n.z), 2, Color("fff2a8"), 0.2)
+	for n in Data.layout.nodes:
+		var o: Node3D = game.village.node_visuals.get(n.id)
+		if o and o.get_meta("shake", 0.0) > 0.0:
+			var sh: float = o.get_meta("shake") - dt; o.set_meta("shake", sh); o.rotation.z = sin(sh * 40.0) * 0.05
+	for sq in squirrels:
+		sq.t += dt
+		var r := 0.2 if sq.up > 0.0 else 0.9
+		sq.pos = sq.home + Vector2(sin(sq.t * 0.7 + sq.n) * r, cos(sq.t * 0.5 + sq.n * 2) * r)
+		var hop := absf(sin(sq.t * 5.0)) * 0.15
+		sq.obj.position = Vector3(sq.pos.x, (sq.up if sq.up > 0.0 else Heightfield.height(sq.pos.x, sq.pos.y)) + hop, sq.pos.y)
+		sq.obj.rotation.y = atan2(cos(sq.t * 0.7 + sq.n) * 0.7, -sin(sq.t * 0.5 + sq.n * 2) * 0.5)
+	if not fishing.is_empty():
+		var mg = fishing.mg
+		var dip := (-0.12 + sin(game.time * 30.0) * 0.04) if mg.phase == "bite" else (sin(game.time * 12.0) * 0.05 if mg.phase == "reel" else sin(game.time * 2.0) * 0.02)
+		bobber.position.y = Heightfield.WATER_Y + 0.05 + dip
+		var hand: Vector3 = game.player_char.arm_r.to_global(Vector3(0, -0.6, 0.3))
+		var im := ImmediateMesh.new(); im.surface_begin(Mesh.PRIMITIVE_LINES); im.surface_add_vertex(hand); im.surface_add_vertex(bobber.position); im.surface_end()
+		line.mesh = im
+		if mg.phase == "reel" and game.player_char.hold != "reel": game.player_char.play("reel", true)

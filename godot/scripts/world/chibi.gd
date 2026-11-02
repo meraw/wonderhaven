@@ -23,6 +23,7 @@ var mood := "neutral"
 var mood_t := 0.0
 var talking := false
 var staff_visible := false
+var vis_layer := 1
 
 func _init(app: Dictionary = {}) -> void:
 	set_appearance(app)
@@ -88,6 +89,7 @@ func set_appearance(app: Dictionary) -> void:
 	for s in [-1, 1]: _m(P.sphere(0.07, 8, 6), skin, head, Vector3(s * HEAD_R * 0.98, HEAD_R * 0.9, 0), Vector3(0.6, 1, 0.8))
 	_build_face(a)
 	_build_hair(a.hair, a.hairColor)
+	call_deferred("apply_layer")
 	if a.hat != "none": _build_hat(a.hat, a.hatColor)
 	match a.accessory:
 		"glasses":
@@ -138,6 +140,9 @@ func _build_face(a: Dictionary) -> void:
 	for k in [-1, 1]: _m(P.hemi(0.025, 8), red, cat, Vector3(k * 0.024, 0, 0), Vector3(1, 0.7, 0.3), Vector3(PI, 0, 0))
 	_m(P.hemi(0.045, 12), red, make.call("sad"), Vector3(0, -0.01, 0), Vector3(1.1, 0.6, 0.3), Vector3.ZERO)
 	_refresh_face()
+
+func apply_layer() -> void:
+	for m in find_children("*", "VisualInstance3D", true, false): m.layers = vis_layer
 
 func _refresh_face() -> void:
 	if eyes.is_empty(): return
