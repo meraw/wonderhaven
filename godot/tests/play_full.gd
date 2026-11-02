@@ -126,6 +126,7 @@ func settle() -> void:
 		last = c; await frames(1)
 
 func ui_click(name: String) -> bool:
+	await frames(3)   # let containers finish laying out after a UI rebuild
 	var n: Control = game.build.ui.find_child(name, true, false) if game.build.ui else null
 	if n == null: print("   no UI node ", name); return false
 	await click(n.get_global_rect().get_center()); return true
@@ -136,6 +137,7 @@ func open_build(zone_id: String) -> void:
 		if game.build.current_zone.get("id", "") == zone_id: break
 		game.build.cycle_zone(1); await frames(2)
 	game.cam.yaw = 0.35; game.cam.pitch = 1.05; game.cam.dist = 15
+	await frames(6)
 
 func select_piece(id: String) -> void:
 	var cat: String = Data.piece(id).cat

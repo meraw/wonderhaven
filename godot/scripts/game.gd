@@ -556,7 +556,9 @@ func _input(event: InputEvent) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
 		var rot_button: bool = event.button_index in [MOUSE_BUTTON_RIGHT, MOUSE_BUTTON_MIDDLE] or (event.button_index == MOUSE_BUTTON_LEFT and mode == "explore")
-		if rot_button and event.pressed: dragging = true; _drag_dist = 0.0; drag_moved = false
+		if event.pressed and event.button_index in [MOUSE_BUTTON_LEFT, MOUSE_BUTTON_RIGHT, MOUSE_BUTTON_MIDDLE]:
+			_drag_dist = 0.0; drag_moved = false   # every new press starts fresh, so a click after a camera drag still counts
+			dragging = rot_button
 		if event.pressed and event.button_index == MOUSE_BUTTON_WHEEL_UP and mode in ["explore", "build"]: cam.zoom(-1)
 		if event.pressed and event.button_index == MOUSE_BUTTON_WHEEL_DOWN and mode in ["explore", "build"]: cam.zoom(1)
 	if event is InputEventMouseMotion and dragging and mode in ["explore", "build"]:
