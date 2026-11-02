@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wonderhaven: The Lost Isles</title>
+<link rel="stylesheet" href="./src/ui/style.css">
+<script type="importmap">{"imports":{"three":"./node_modules/three/build/three.module.js"}}</script>
+</head>
+<body>
+<canvas id="game" tabindex="0"></canvas>
+<div id="ui">
+  <div id="hud" hidden>
+    <div id="hud-res" class="hud-card"></div>
+    <div id="hud-top" class="hud-card"><div id="hud-harmony"></div><div id="hud-clock"></div></div>
+    <div id="tracker"></div>
+    <div id="hotkeys" class="hud-card"></div>
+    <div id="compass"></div>
+  </div>
+  <div id="prompt" hidden></div>
+  <div id="toasts"></div>
+  <div id="banner" hidden></div>
+  <div id="build-ui" hidden></div>
+  <div id="minigame" hidden></div>
+  <div id="dialogue" hidden></div>
+  <div id="panel" hidden></div>
+  <div id="screen" hidden></div>
+  <div id="fade"></div>
+  <p id="boot-msg" class="boot">Loading Wonderhaven…</p>
+</div>
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>
