@@ -49,6 +49,7 @@ var rain: GPUParticles3D
 var smoke_t := 0.0
 var last_autosave := -100.0
 var shot_cfg := {}
+var roof_alpha := 1.0
 var interact_cooldown := 0.0
 
 func _ready() -> void:
@@ -60,7 +61,9 @@ func _ready() -> void:
 	walk = WalkWorld.new(statics, func(f): return state.flags.get(f, false))
 	env = TerrainBuilder.build_environment(); add_child(env)
 	sun = DirectionalLight3D.new(); sun.shadow_enabled = true; sun.light_energy = 0.62; sun.light_color = Color("fff1d6")
-	sun.directional_shadow_max_distance = 60.0; sun.rotation_degrees = Vector3(-55, 35, 0); add_child(sun)
+	sun.directional_shadow_max_distance = 70.0; sun.rotation_degrees = Vector3(-50, 35, 0)
+	sun.directional_shadow_blend_splits = true; sun.shadow_blur = 1.5; sun.shadow_opacity = 0.85; sun.light_angular_distance = 1.2
+	add_child(sun)
 	village = Village.new(); village.name = "Village"; add_child(village); village.build(decor)
 	effects = Effects.new(); add_child(effects)
 	player_char = Chibi.new(state.appearance); player_char.name = "Player"; player_char.vis_layer = 2; add_child(player_char); player_char.apply_layer()
@@ -69,6 +72,8 @@ func _ready() -> void:
 	walk.dynamic.append(player.body)
 	camera = Camera3D.new(); camera.fov = 45; camera.far = 500; add_child(camera); camera.current = true
 	cam = FollowCamera.new(camera)
+	cam.blockers = Props.camera_blockers()
+	cam.occluders = village.occluders
 	piece_root.name = "Placements"; add_child(piece_root)
 	_build_ui()
 	build = BuildMode.new(); build.name = "BuildMode"; add_child(build); build.setup(self)
@@ -645,15 +650,16 @@ func _update_world_time(dt: float) -> void:
 	var weather: String = Clock.weather(s.time) if settings.weather else "sunny"
 	var cloud := 0.35 if weather == "cloudy" else (0.55 if weather == "rain" else 0.0)
 	var sunset := maxf(0.0, 1.0 - absf(h - 19.0) / 1.8) + maxf(0.0, 1.0 - absf(h - 6.5) / 1.5)
-	sun.light_energy = (0.12 + 0.55 * d) * (1.0 - cloud * 0.6)
+	sun.light_energy = (0.1 + 0.52 * d) * (1.0 - cloud * 0.6)
 	sun.light_color = Color("fff1d6").lerp(Color("ff9a5a"), minf(1.0, sunset) * 0.6)
 	var e: Environment = env.environment
-	e.ambient_light_energy = 0.22 + 0.18 * d
+	e.ambient_light_energy = 0.2 + 0.2 * d
 	e.ambient_light_color = Color("8fa0d8").lerp(Color("c9dcf0"), d).lerp(Color("c8ced2"), cloud * 0.5)
 	var sky_mat: ShaderMaterial = e.sky.sky_material
 	var top := Color("1d2a5a").lerp(Color("6cc4ff"), d).lerp(Color("9aa9b8"), cloud)
 	var bottom := Color("3b4a80").lerp(Color("d9f2ff"), d).lerp(Color("ffb88a"), minf(1.0, sunset) * (0.5 * d + 0.3)).lerp(Color("c9d3dc"), cloud)
 	sky_mat.set_shader_parameter("top_color", top); sky_mat.set_shader_parameter("bottom_color", bottom)
+	e.fog_light_color = bottom.lerp(top, 0.25)
 	(village.water.material_override as ShaderMaterial).set_shader_parameter("night", 1.0 - d)
 	rain.emitting = weather == "rain"
 	rain.position = camera.global_position + Vector3(0, 8, 0)
@@ -672,8 +678,10 @@ func _world_reactions(dt: float) -> void:
 	var ws: Node3D = village.objects.workshop
 	var p := player.pos
 	var inside: bool = (p.x > -17.5 and p.x < -8.5 and p.z > 6.5 and p.z < 13.5) or (build.active and build.current_zone.get("id", "") == "workshop")
-	var rm: StandardMaterial3D = ws.get_meta("roof_mat")
-	rm.albedo_color.a = lerpf(rm.albedo_color.a, 0.12 if inside else 1.0, minf(1.0, dt * 6.0))
+	roof_alpha = lerpf(roof_alpha, 0.12 if inside else 1.0, minf(1.0, dt * 6.0))
+	for m in ws.get_meta("fade_mats"):
+		if m is ShaderMaterial: m.set_shader_parameter("alpha", roof_alpha)
+		else: m.albedo_color.a = roof_alpha
 
 func _make_rain() -> void:
 	rain = GPUParticles3D.new(); rain.amount = 1500; rain.lifetime = 1.6; rain.emitting = false; rain.visibility_aabb = AABB(Vector3(-30, -20, -30), Vector3(60, 40, 60))

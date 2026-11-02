@@ -23,9 +23,13 @@ static func mat(color, emissive = null, energy: float = 0.0) -> StandardMaterial
 static func unique_mat(color, emissive = null, energy: float = 0.0) -> StandardMaterial3D:
 	var m := StandardMaterial3D.new()
 	m.albedo_color = color if color is Color else Color(color)
-	m.diffuse_mode = BaseMaterial3D.DIFFUSE_TOON
+	# Soft wrapped light and a faint rim: rounded, painterly shading instead of a hard toon terminator.
+	m.diffuse_mode = BaseMaterial3D.DIFFUSE_LAMBERT_WRAP
 	m.specular_mode = BaseMaterial3D.SPECULAR_DISABLED
 	m.roughness = 1.0
+	m.rim_enabled = true
+	m.rim = 0.25
+	m.rim_tint = 0.8
 	if emissive != null:
 		m.emission_enabled = true
 		m.emission = emissive if emissive is Color else Color(emissive)
