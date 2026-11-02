@@ -34,7 +34,9 @@ import { Panels } from './ui/panels.js';
 import { advanceTime, isNight, daylight, clockText, weatherAt, sleepUntilMorning } from './systems/time.js';
 import { writeSave, readSave, loadSettings, storeSettings, AUTOSAVE } from './systems/save.js';
 import { NAV_NODES } from './data/village-layout.js';
-import { terrainHeight } from './systems/heightfield.js';
+import { terrainHeight, riverCenter } from './systems/heightfield.js';
+import { AudioEngine } from './audio/audio.js';
+import { Screens } from './ui/screens.js';
 
 export class Game {
   constructor(canvas) {
@@ -82,7 +84,11 @@ export class Game {
       this.addInteractable({ id: `npc:${def.id}`, x: () => a.pos.x, z: () => a.pos.z, radius: 1.9, priority: 0.6, object: null, available: () => a.present, label: () => `Talk to ${def.name}`, act: () => this.story.talk(a) });
     }
     this.actions = new WorldActions(this);
+    this.audio = new AudioEngine();
+    this.screens = new Screens(this);
     this.applySettings();
+    const unlock = () => this.audio.unlock();
+    window.addEventListener('pointerdown', unlock); window.addEventListener('keydown', unlock);
     this.rain = makeRain(); scene.add(this.rain);
     this.lastAutosave = 0;
   }
@@ -158,6 +164,20 @@ export class Game {
     const cells = this.state.crossings?.[m[0]]; if (!cells) return null;
     const pts = cells.map(([i, k]) => [i + 0.5, k + 0.5]);
     return m[1] > 0 ? pts : pts.reverse();
+  }
+
+  intro() {
+    banner(`Welcome to Hearthglow, ${this.state.name}!`, 'A sleepy village is waiting for a builder', [], 4.5);
+    setTimeout(() => toast('Someone is waving at you by the village gate. Walk over with WASD and press E to talk.', '', 6), 2500);
+    this.sfx('morning');
+  }
+  updateAudio(dt) {
+    const a = this.audio; if (!a) return;
+    const s = this.state, p = this.player.pos;
+    a.setSong(this.mode === 'build' ? 'build' : s.flags.night ? 'night' : 'hearthglow');
+    const river = Math.max(0, 1 - (Math.abs(p.z - riverCenter(p.x)) - 3) / 8);
+    let machines = 0; for (const uid of this.mech.powered) { const m = this.pieceMeshes.get(uid); if (m && m.position.distanceTo(this.playerChar.root.position) < 10) machines++; }
+    a.update(dt, { night: s.flags.night, rain: this.rain.visible, water: river, machines: Math.min(1, machines / 4) });
   }
 
   // ---- Saving ---------------------------------------------------------------------------------
@@ -552,7 +572,7 @@ export class Game {
       animatePiece(m, pl, this.time, dt, { spinning: this.mech.powered.has(pl.uid) || this.mech.sources.has(pl.uid), powered: this.mech.powered.has(pl.uid), watered: this.mech.watered.has(pl.uid), on: pl.state?.on, open: pl.state?.open, night: !!this.state.flags.night });
     }
     this.effects.update(dt);
-    this.audio?.update(dt);
+    this.updateAudio(dt);
     this.render();
     input.endFrame();
   }

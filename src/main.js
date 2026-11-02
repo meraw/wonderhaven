@@ -5,7 +5,8 @@ try {
   const game = new Game(canvas);
   window.__wh = game.testHook();
   document.getElementById('boot-msg').remove();
-  game.start();
+  game.startLoop();
+  game.screens.title();
 } catch (err) {
   console.error(err);
   document.getElementById('boot-msg').textContent = 'Wonderhaven could not start: ' + err.message;
