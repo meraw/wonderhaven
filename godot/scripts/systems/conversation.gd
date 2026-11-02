@@ -19,9 +19,9 @@ static func build(npc: Dictionary, engine: QuestEngine, flags: Dictionary, playe
 	var greeting := fill(lines[absi(seed) % lines.size()], player_name)
 	var options: Array = []
 	for q in offers:
-		if q != main_offer: options.append({"label": "✨ Need any help? (%s)" % q.title, "kind": "offer", "id": q.id, "quest": true})
+		if q != main_offer: options.append({"label": "✨ Request: %s" % q.title, "kind": "offer", "id": q.id, "quest": true})
 	for q in engine.active():
-		if q.giver == npc.id and not turn_ins.has(q): options.append({"label": "📜 About “%s”…" % q.title, "kind": "progress", "id": q.id})
+		if q.giver == npc.id and not turn_ins.has(q): options.append({"label": "📜 About: %s" % q.title, "kind": "progress", "id": q.id})
 	for t in npc.topics:
 		if not t.has("requires") or flags.get(t.requires, false): options.append({"label": "💬 " + t.label, "kind": "topic", "id": t.id})
 	options.append({"label": "Goodbye!", "kind": "bye"})

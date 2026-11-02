@@ -108,13 +108,13 @@ func gather_node(id: String) -> void:
 	if game.mode == "minigame": await play_minigame()
 	await frames(20)
 
-func gather_until(kind: String, test: Callable, only: Array = [], rounds: int = 14) -> bool:
+func gather_until(kind: String, test: Callable, only: Array = [], rounds: int = 30) -> bool:
 	for r in rounds:
 		if test.call(): return true
 		var p: Vector3 = game.player.pos
 		var ready: Array = Data.layout.nodes.filter(func(n): return n.kind == kind and (only.is_empty() or only.has(n.id)) and game.actions.ready(n))
 		ready.sort_custom(func(a, b): return Vector2(a.x - p.x, a.z - p.z).length() < Vector2(b.x - p.x, b.z - p.z).length())
-		if ready.is_empty(): print("   waiting for ", kind, " to regrow"); await wait(4.0); continue
+		if ready.is_empty(): print("   waiting for ", kind, " to regrow"); await wait(15.0); continue
 		await gather_node(ready[0].id)
 	return test.call()
 

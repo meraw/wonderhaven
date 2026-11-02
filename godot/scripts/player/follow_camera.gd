@@ -22,7 +22,20 @@ func set_mode(m: String) -> void:
 
 func frame_dialogue(a: Vector3, b: Vector3) -> void:
 	focus = (a + b) / 2.0 + Vector3(0, 0.9, 0)
-	yaw = atan2(b.x - a.x, b.z - a.z) + PI / 2.0 + 0.6; pitch = 0.28; dist = 4.6
+	pitch = 0.28; dist = 4.6
+	# Try a few angles around the pair and keep the one whose view isn't blocked by a hill.
+	var base := atan2(b.x - a.x, b.z - a.z) + PI / 2.0
+	var best := base + 0.6
+	var best_block := INF
+	for off in [0.6, -0.6, 1.1, -1.1, 0.2, -0.2, PI - 0.6, PI + 0.6]:
+		var y: float = base + off
+		var cam_pos := focus + Vector3(sin(y) * cos(pitch), sin(pitch), cos(y) * cos(pitch)) * dist
+		var block := 0.0
+		for k in range(1, 9):
+			var p := focus.lerp(cam_pos, k / 8.0)
+			block = maxf(block, Heightfield.height(p.x, p.z) + 0.3 - p.y)
+		if block < best_block - 0.05: best_block = block; best = y
+	yaw = best
 
 func rotate_by(dx: float, dy: float) -> void:
 	yaw -= dx; pitch += dy
