@@ -3,7 +3,7 @@ import { Game } from './game.js';
 const canvas = document.getElementById('game');
 try {
   const game = new Game(canvas);
-  window.__wh = game.testHook ? game.testHook() : { game };
+  window.__wh = game.testHook();
   document.getElementById('boot-msg').remove();
   game.start();
 } catch (err) {
