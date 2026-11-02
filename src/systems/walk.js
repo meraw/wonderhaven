@@ -39,7 +39,7 @@ export class WalkWorld {
     }
     for (const s of this.surfaces) {
       if (!s.solid) continue;
-      const top = s.topAt ? Math.max(s.top, this.topOf(s, x, z)) : s.top;
+      const top = s.topAt ? this.topOf(s, x, z) : s.top;
       if (s.walkable && top <= feetY + STEP_UP + 1e-6) continue;   // you can step onto it
       if (top <= feetY + 0.05 || s.bottom >= feetY + PLAYER_HEIGHT) continue; // below the feet / above the head
       if (circleBox(x, z, r * 0.9, s)) return true;

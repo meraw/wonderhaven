@@ -32,14 +32,14 @@ export const HARBOR_CLIFFS = [
 // Build zones (cells, inclusive). `unlock` names what opens them; `spanY` lets bridge decks float at that height.
 export const ZONES = [
   { id: 'plot', name: 'Your garden plot', minI: 18, maxI: 25, minK: 9, maxK: 16, unlock: { flag: 'hasTool' },
-    expanded: { minI: 18, maxI: 29, minK: 6, maxK: 19, harmony: 60 } },
+    expanded: { minI: 18, maxI: 29, minK: 6, maxK: 19, harmony: 50 } },
   { id: 'bridge', name: 'Orchard Bridge site', minI: -3, maxI: 2, minK: -22, maxK: -15, spanY: 0, unlock: { quest: 'bridge' },
     endpoints: { a: { minI: -3, maxI: 2, minK: -15, maxK: -15 }, b: { minI: -3, maxI: 2, minK: -22, maxK: -22 } },
     blueprint: [[0, -15, 'bridgeDeck'], [0, -16, 'bridgeDeck'], [0, -17, 'bridgeDeck'], [0, -18, 'bridgePost'], [0, -18, 'bridgeDeck'],
       [0, -19, 'bridgeDeck'], [0, -20, 'bridgeDeck'], [0, -21, 'bridgeDeck'], [0, -22, 'bridgeDeck']] },
   { id: 'workshop', name: "Bram's Workshop", ...WORKSHOP_INTERIOR, interior: true, unlock: { quest: 'workshop' } },
   { id: 'plaza', name: 'Fountain plaza', minI: 2, maxI: 11, minK: -1, maxK: 5, unlock: { quest: 'fountain' },
-    blueprint: [[9, 1, 'waterwheel', 0], [9, 2, 'gear'], [8, 2, 'pump', 3], [7, 2, 'pipe', 1], [6, 2, 'pipe', 1], [5, 2, 'pipe', 1], [4, 2, 'pipe', 1], [3, 2, 'pipe', 1], [2, 2, 'pipe', 1]] },
+    blueprint: [[9, 1, 'waterwheel', 0], [9, 2, 'gear'], [8, 2, 'pump', 0], [7, 2, 'pipe', 1], [6, 2, 'pipe', 1], [5, 2, 'pipe', 1], [4, 2, 'pipe', 1], [3, 2, 'pipe', 1], [2, 2, 'pipe', 1]] },
   { id: 'dock', name: 'Harbor dock', minI: 4, maxI: 6, minK: 40, maxK: 49, spanY: 0, unlock: { flag: 'harborOpen' },
     fixedSupports: [[5, 44], [5, 47]],
     endpoints: { a: { minI: 4, maxI: 6, minK: 40, maxK: 40 }, b: { minI: 4, maxI: 6, minK: 49, maxK: 49 } },
