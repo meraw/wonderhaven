@@ -26,6 +26,7 @@ var mouse := Vector2.ZERO
 var ui: Control
 var status_label: Label
 var sel_box: MeshInstance3D
+var pad_cursor: Label
 
 func setup(g) -> void:
 	game = g
@@ -69,6 +70,7 @@ func close() -> void:
 	game.cam.set_mode("explore")
 	game.player_char.stop_hold()
 	if ui: ui.queue_free(); ui = null
+	if pad_cursor: pad_cursor.visible = false
 	game.emit_event("buildmode", {"open": false})
 
 func _over_ui(p: Vector2) -> bool:
@@ -242,6 +244,7 @@ func update(dt: float) -> void:
 	if Input.is_action_just_pressed("recolor"): cycle_color()
 	if Input.is_action_just_pressed("remove"): remove_target()
 	if Input.is_action_just_pressed("move_piece") and selected != -1 and moving.is_empty(): start_move(selected)
+	_gamepad_cursor(dt)
 	var over_ui := _over_ui(mouse)
 	hover = {} if over_ui else pick(mouse)
 	var c := candidate()
@@ -269,6 +272,41 @@ func update(dt: float) -> void:
 			var b := BuildGrid.bounds(pl)
 			sel_box.position = Vector3((b.minX + b.maxX) / 2.0, (b.bottom + b.top) / 2.0, (b.minZ + b.maxZ) / 2.0)
 			sel_box.scale = Vector3(b.maxX - b.minX + 0.1, b.top - b.bottom + 0.1, b.maxZ - b.minZ + 0.1)
+
+## Gamepad: right stick moves a build cursor, A places / selects, B cancels (left stick still pans the view).
+func _gamepad_cursor(dt: float) -> void:
+	if Input.get_connected_joypads().is_empty(): return
+	var st := Vector2(Input.get_joy_axis(0, JOY_AXIS_RIGHT_X), Input.get_joy_axis(0, JOY_AXIS_RIGHT_Y))
+	if st.length() > 0.2:
+		var vs: Vector2 = game.get_viewport().get_visible_rect().size
+		mouse = (mouse + st * 650.0 * dt).clamp(Vector2.ZERO, vs)
+		if pad_cursor == null:
+			pad_cursor = UiTheme.label("✛", 34, UiTheme.PINK_DARK); pad_cursor.mouse_filter = Control.MOUSE_FILTER_IGNORE; game.ui_root.add_child(pad_cursor)
+	if pad_cursor:
+		pad_cursor.visible = active
+		pad_cursor.position = mouse - Vector2(12, 22)
+	for pair in [[JOY_BUTTON_DPAD_LEFT, -1], [JOY_BUTTON_DPAD_RIGHT, 1]]:
+		var key := "pad_%d" % pair[0]
+		if Input.is_joy_button_pressed(0, pair[0]) and not get_meta(key, false):
+			set_meta(key, true)
+			var list: Array = Data.pieces.filter(func(p): return p.cat == category and state().blueprints.has(p.id)).map(func(p): return p.id)
+			if not list.is_empty(): select_item(list[(list.find(item_id) + pair[1] + list.size()) % list.size()] if item_id != "" else list[0])
+		elif not Input.is_joy_button_pressed(0, pair[0]): set_meta(key, false)
+	for pair in [[JOY_BUTTON_DPAD_UP, -1], [JOY_BUTTON_DPAD_DOWN, 1]]:
+		var key := "pad_%d" % pair[0]
+		if Input.is_joy_button_pressed(0, pair[0]) and not get_meta(key, false):
+			set_meta(key, true)
+			var cats: Array = Data.categories.map(func(c): return c.id)
+			category = cats[(cats.find(category) + pair[1] + cats.size()) % cats.size()]; item_id = ""; _build_ui()
+		elif not Input.is_joy_button_pressed(0, pair[0]): set_meta(key, false)
+	if Input.is_joy_button_pressed(0, JOY_BUTTON_A) and not get_meta("pad_a", false): set_meta("pad_a", true); click()
+	elif not Input.is_joy_button_pressed(0, JOY_BUTTON_A): set_meta("pad_a", false)
+	if Input.is_joy_button_pressed(0, JOY_BUTTON_B) and not get_meta("pad_b", false):
+		set_meta("pad_b", true)
+		if not moving.is_empty(): cancel_move()
+		elif item_id != "" or selected != -1: item_id = ""; selected = -1; _build_ui()
+		else: close()
+	elif not Input.is_joy_button_pressed(0, JOY_BUTTON_B): set_meta("pad_b", false)
 
 func handle_input(event: InputEvent) -> void:
 	if event is InputEventMouse: mouse = event.position

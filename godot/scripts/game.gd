@@ -89,7 +89,7 @@ func _ready() -> void:
 	apply_settings()
 	_parse_args()
 	cam.update(0.016, player.pos); cam.snap()
-	if screens and not shot_cfg.has("autoplay") and not shot_cfg.has("skiptitle"): screens.title()
+	if screens and ((not shot_cfg.has("autoplay") and not shot_cfg.has("skiptitle")) or shot_cfg.has("title")): screens.title()
 	else: begin_play()
 	if shot_cfg.has("autoplay"):
 		var script: Script = load(shot_cfg.autoplay)
