@@ -32,7 +32,7 @@ export const HARBOR_CLIFFS = [
 // Build zones (cells, inclusive). `unlock` names what opens them; `spanY` lets bridge decks float at that height.
 export const ZONES = [
   { id: 'plot', name: 'Your garden plot', minI: 18, maxI: 25, minK: 9, maxK: 16, unlock: { flag: 'hasTool' },
-    expanded: { minI: 18, maxI: 29, minK: 6, maxK: 19, harmony: 60 } },
+    expanded: { minI: 18, maxI: 29, minK: 6, maxK: 19, harmony: 50 } },
   { id: 'bridge', name: 'Orchard Bridge site', minI: -3, maxI: 2, minK: -22, maxK: -15, spanY: 0, unlock: { quest: 'bridge' },
     endpoints: { a: { minI: -3, maxI: 2, minK: -15, maxK: -15 }, b: { minI: -3, maxI: 2, minK: -22, maxK: -22 } },
     blueprint: [[0, -15, 'bridgeDeck'], [0, -16, 'bridgeDeck'], [0, -17, 'bridgeDeck'], [0, -18, 'bridgePost'], [0, -18, 'bridgeDeck'],

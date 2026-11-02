@@ -1,0 +1,8 @@
+// The islands of Wonderhaven, for the world map. Only Hearthglow is built in this first chapter.
+export const ISLANDS = [
+  { id: 'hearthglow', name: 'Hearthglow Village', x: 300, y: 330, r: 70, color: '#8fd16a', desc: 'A cheerful green countryside with a little castle, cottages and a town square.', built: true },
+  { id: 'clockwork', name: 'Clockwork Cove', x: 560, y: 180, r: 58, color: '#e8c06a', desc: 'Windmills, waterwheels and eccentric engineers. Mechanical puzzles galore.', reveal: 'clockworkRevealed' },
+  { id: 'blooming', name: 'Blooming Wilds', x: 140, y: 150, r: 62, color: '#5fbf7a', desc: 'Enormous flowers, enchanted trees and animal friends.' },
+  { id: 'starlight', name: 'Starlight Shores', x: 640, y: 420, r: 56, color: '#7fd8f0', desc: 'Docks, colourful market stalls and buried treasure.' },
+  { id: 'moonveil', name: 'Moonveil Hollow', x: 420, y: 90, r: 50, color: '#9a7ad6', desc: 'Glowing mushrooms, floating lanterns and old magical ruins.' },
+];

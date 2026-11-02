@@ -21,7 +21,20 @@ import { SPAWN, FEATURES, ZONES, FOUNTAIN } from './data/village-layout.js';
 import { PIECE } from './data/pieces.js';
 import { RESOURCES } from './data/resources.js';
 import { Hud } from './ui/hud.js';
-import { $, setPrompt, toast } from './ui/dom.js';
+import { $, el, setPrompt, toast, banner, fade } from './ui/dom.js';
+import { NpcAgent } from './npc/agent.js';
+import { NPCS } from './data/npcs.js';
+import { QUEST } from './data/quests.js';
+import { nextUnlock } from './data/harmony.js';
+import { Story } from './gameplay/story.js';
+import { WorldActions } from './gameplay/world-actions.js';
+import { DialogueUI } from './ui/dialogue.js';
+import { MinigameUI } from './ui/minigame.js';
+import { Panels } from './ui/panels.js';
+import { advanceTime, isNight, daylight, clockText, weatherAt, sleepUntilMorning } from './systems/time.js';
+import { writeSave, readSave, loadSettings, storeSettings, AUTOSAVE } from './systems/save.js';
+import { NAV_NODES } from './data/village-layout.js';
+import { terrainHeight } from './systems/heightfield.js';
 
 export class Game {
   constructor(canvas) {
@@ -30,6 +43,8 @@ export class Game {
     this.input = new Input(canvas);
     const { renderer, scene, camera, sun, hemi, ambient } = createRenderer(canvas);
     Object.assign(this, { renderer, scene, camera, sun, hemi, ambient });
+    this.storage = safeStorage();
+    this.settings = loadSettings(this.storage);
     this.state = newGameState();
     this.decor = generateDecor();
     this.statics = buildStatics(this.decor);
@@ -56,7 +71,224 @@ export class Game {
     this.sitting = null;
     this.registerWorldInteractables();
     this.build = new BuildMode(this);
-    this.marker = textSprite('!'); this.marker.scale.set(0.8, 0.8, 1); this.marker.visible = false; scene.add(this.marker);
+    this.dialogue = new DialogueUI(this);
+    this.minigame = new MinigameUI(this);
+    this.panels = new Panels(this);
+    this.story = new Story(this);
+    this.npcs = { list: [], byId: {} };
+    for (const def of NPCS) {
+      const a = new NpcAgent(this, def);
+      this.npcs.list.push(a); this.npcs.byId[def.id] = a;
+      this.addInteractable({ id: `npc:${def.id}`, x: () => a.pos.x, z: () => a.pos.z, radius: 1.9, priority: 0.6, object: null, available: () => a.present, label: () => `Talk to ${def.name}`, act: () => this.story.talk(a) });
+    }
+    this.actions = new WorldActions(this);
+    this.applySettings();
+    this.rain = makeRain(); scene.add(this.rain);
+    this.lastAutosave = 0;
+  }
+
+  // ---- Modes ----------------------------------------------------------------------------------
+  setMode(mode) {
+    this.mode = mode;
+    if (mode !== 'explore') setPrompt(null);
+  }
+  enterDialogue(agent) {
+    if (this.mode === 'build') this.build.close();
+    this.setMode('dialogue');
+    agent.talking = true;
+    this.dialogue.start(agent);
+    this.cam.setMode('dialogue');
+    this.cam.frameDialogue(this.player.pos, agent.pos);
+    this.player.yaw = Math.atan2(agent.pos.x - this.player.pos.x, agent.pos.z - this.player.pos.z); this.player.sync();
+    $('hud').classList.add('dim');
+  }
+  exitDialogue() {
+    for (const a of this.npcs.list) a.talking = false;
+    this.dialogue.end();
+    this.cam.setMode('explore');
+    this.setMode('explore');
+    $('hud').classList.remove('dim');
+  }
+  startMinigame(kind, mg, onDone) {
+    this.setMode('minigame');
+    this.minigame.start(kind, mg, res => { this.setMode('explore'); onDone(res); });
+  }
+  rest() {
+    fade(true);
+    this.setMode('cutscene');
+    setTimeout(() => {
+      sleepUntilMorning(this.state.time);
+      for (const a of this.npcs.list) a.teleportHome();
+      this.actions.refreshAll();
+      fade(false); this.setMode('explore');
+      banner('Good morning!', clockText(this.state.time));
+      this.sfx('morning');
+      this.autosave('rest', true);
+    }, 900);
+  }
+  openWardrobe() { this.screens?.wardrobe(); }
+  sailTo(isl) {
+    this.panels.close();
+    if (isl.id === 'hearthglow') { toast('You are already in Hearthglow!'); return; }
+    this.setMode('cutscene');
+    fade(true); this.sfx('sail');
+    setTimeout(() => {
+      fade(false);
+      banner(`${isl.name}`, 'Coming in the next chapter of Wonderhaven!', ['The Captain sails you round the bay and back.', 'Thank you for playing the Hearthglow chapter!'], 6);
+      this.setFlag('sailedOnce');
+      this.playerChar.play('celebrate');
+      this.setMode('explore');
+      this.autosave('travel', true);
+    }, 1400);
+  }
+  toTitle() { this.autosave('quit', true); location.reload(); }
+  onQuestCompleted(qid) {
+    const p = new THREE.Vector3();
+    if (qid === 'bridge') { this.actions.refreshAll(); this.effects.sparkle(p.set(0.5, 0.5, -18), { count: 50, spread: 3 }); }
+    if (qid === 'workshop') { this.effects.sparkle(p.set(-13, 2, 10), { count: 40, spread: 3 }); }
+    if (qid === 'fountain') { this.effects.sparkle(p.set(0, 2.5, 2), { count: 60, spread: 3, color: '#bff3ff' }); }
+    if (qid === 'decree') { this.cam.shake = 0.4; this.sfx('gate'); toast('The harbor gate creaks open to the south!', 'good', 4); }
+    if (qid === 'dock') { this.effects.sparkle(p.set(5.5, 1, 51), { count: 50, spread: 3 }); setTimeout(() => banner('The ferry has arrived!', 'Clockwork Cove now appears on your world map (M)', [], 5), 4400); }
+    for (const a of this.npcs.list) if (a.present && Math.hypot(a.pos.x - this.player.pos.x, a.pos.z - this.player.pos.z) < 12) a.character.play(Math.random() < 0.5 ? 'clap' : 'celebrate');
+  }
+  // Path cells of the bridge or dock the player built, so villagers walk across it.
+  crossingPath(a, b) {
+    const pairs = { 'bridgeS|bridgeN': ['bridge', 1], 'bridgeN|bridgeS': ['bridge', -1] };
+    const m = pairs[`${a}|${b}`]; if (!m) return null;
+    const cells = this.state.crossings?.[m[0]]; if (!cells) return null;
+    const pts = cells.map(([i, k]) => [i + 0.5, k + 0.5]);
+    return m[1] > 0 ? pts : pts.reverse();
+  }
+
+  // ---- Saving ---------------------------------------------------------------------------------
+  snapshot() {
+    this.state.player = { x: this.player.pos.x, z: this.player.pos.z, yaw: this.player.yaw };
+    return this.state;
+  }
+  saveTo(slot) {
+    try { writeSave(this.storage, slot, this.snapshot()); toast(slot === AUTOSAVE ? '💾 Autosaved' : '💾 Game saved', 'good', 1.8); this.sfx('save'); return true; }
+    catch (e) { toast('Could not save: ' + e.message, 'warn'); return false; }
+  }
+  autosave(reason, force = false) {
+    if (!this.started) return;
+    if (!force && this.time - this.lastAutosave < 20 && reason === 'build') return;
+    this.lastAutosave = this.time;
+    this.saveTo(AUTOSAVE);
+  }
+  loadFrom(slot) {
+    const s = readSave(this.storage, slot);
+    if (!s) { toast('That save is empty', 'warn'); return false; }
+    this.loadState(s);
+    toast('📂 Game loaded', 'good');
+    return true;
+  }
+  loadState(s) {
+    if (this.build.active) this.build.close();
+    this.state = s;
+    this.story.attach(s);
+    this.playerChar.setAppearance(s.appearance);
+    this.playerChar.showStaff(!!s.flags.hasTool);
+    this.player.teleport(s.player.x, s.player.z, s.player.yaw);
+    this.rebuildAllPieces();
+    for (const a of this.npcs.list) a.teleportHome();
+    this.actions.refreshAll();
+    this.build.history.clear();
+    this.hud.resources(); this.renderHarmony(); this.renderTracker();
+  }
+  applySettings() {
+    const st = this.settings;
+    this.input.sensitivity = st.sensitivity; this.input.invertY = st.invertY;
+    if (st.bindings) this.input.setBindings(st.bindings);
+    this.audio?.setVolumes(st.music, st.sfx);
+    storeSettings(this.storage, st);
+  }
+
+  // ---- HUD ------------------------------------------------------------------------------------
+  renderHarmony(pop = false) {
+    this.hud.harmony(this.state.harmony, nextUnlock(this.state.harmony));
+    if (pop) { const h = $('hud-harmony'); h.classList.remove('pop'); void h.offsetWidth; h.classList.add('pop'); }
+  }
+  renderTracker() {
+    const root = $('tracker'); root.innerHTML = '';
+    const e = this.story.engine;
+    const act = e.active();
+    const tracked = act.find(q => q.id === this.state.tracked) || act[0];
+    const show = tracked ? [tracked, ...act.filter(q => q !== tracked && q.main).slice(0, 1)] : [];
+    for (const q of show) {
+      const ready = e.isReady(q.id);
+      root.append(el('div', { class: 'track' }, el('h4', {}, q === tracked ? '📍' : '📜', q.title, q.main ? el('span', { class: 'tag' }, 'Story') : null),
+        el('ul', {}, q.objectives.filter(o => !o.final || ready).filter(o => q === tracked || !e.objective(q.id, o).done).map(o => {
+          const st = e.objective(q.id, o);
+          return el('li', { class: st.done ? 'done' : '' }, `${o.text}${st.need > 1 && !st.done ? ` (${o.kind === 'harmony' ? this.state.harmony : st.have}/${st.need})` : ''}`);
+        }))));
+    }
+    if (!show.length) {
+      const offer = Object.values(QUEST).find(q => e.canOffer(q.id) && q.main);
+      if (offer) root.append(el('div', { class: 'track' }, el('h4', {}, '✨ Next'), el('ul', {}, el('li', {}, `Look for the gold ! — ${this.npcs.byId[offer.giver].def.name} needs help`))));
+    }
+  }
+  updateCompass() {
+    const c = $('compass');
+    const t = this.mode === 'explore' ? this.story.trackedTarget() : null;
+    if (!t) { c.style.opacity = 0; return; }
+    const d = Math.hypot(t.x - this.player.pos.x, t.z - this.player.pos.z);
+    if (d < 3) { c.style.opacity = 0; return; }
+    const v = new THREE.Vector3(t.x, Math.max(0, terrainHeight(t.x, t.z)) + 2.4, t.z).project(this.camera);
+    const W = window.innerWidth, H = window.innerHeight;
+    let x = (v.x + 1) / 2 * W, y = (1 - v.y) / 2 * H;
+    const behind = v.z > 1;
+    const on = !behind && x > 40 && x < W - 40 && y > 90 && y < H - 120;
+    if (on) { c.textContent = '⭐'; c.style.transform = ''; }
+    else {
+      if (behind) { x = W - x; y = H - y; }
+      const cx = W / 2, cy = H / 2, ang = Math.atan2(y - cy, x - cx);
+      const r = Math.min(W / 2 - 50, H / 2 - 110) / Math.max(Math.abs(Math.cos(ang)), Math.abs(Math.sin(ang)) * (W / 2 - 50) / (H / 2 - 110));
+      x = cx + Math.cos(ang) * Math.min(r, W / 2 - 50); y = cy + Math.sin(ang) * Math.min(r, H / 2 - 110);
+      c.textContent = '➤'; c.style.transform = `rotate(${ang}rad)`;
+    }
+    c.style.left = `${x}px`; c.style.top = `${y}px`; c.style.opacity = 1; c.title = t.label;
+  }
+  updateWorldTime(dt) {
+    const s = this.state, wasNight = s.flags.night;
+    if (this.mode !== 'menu' && this.mode !== 'title') { advanceTime(s.time, dt); s.playTime += dt; }
+    const night = isNight(s.time);
+    if (night !== wasNight) s.flags.night = night;
+    const d = daylight(s.time), h = s.time.minute / 60;
+    const weather = this.settings.weather ? weatherAt(s.time) : 'sunny';
+    const cloud = weather === 'cloudy' ? 0.35 : weather === 'rain' ? 0.55 : 0;
+    const sunset = Math.max(0, 1 - Math.abs(h - 19) / 1.8) + Math.max(0, 1 - Math.abs(h - 6.5) / 1.5);
+    const restored = Math.min(1, s.harmony / 150);
+    this.sun.intensity = (0.25 + 1.9 * d) * (1 - cloud * 0.6);
+    this.sun.color.set('#fff1d6').lerp(tmpC.set('#ff9a5a'), Math.min(1, sunset) * 0.6);
+    this.hemi.intensity = 0.45 + 0.75 * d;
+    this.hemi.color.set('#9fb4e8').lerp(tmpC.set('#dff3ff'), d).lerp(tmpC.set('#c8ced2'), cloud * 0.5 + (1 - restored) * 0.15);
+    const top = tmpC.set('#1d2a5a').lerp(tmpC2.set('#6cc4ff'), d).lerp(tmpC2.set('#9aa9b8'), cloud);
+    const bottom = tmpC3.set('#3b4a80').lerp(tmpC2.set('#d9f2ff'), d).lerp(tmpC2.set('#ffb88a'), Math.min(1, sunset) * 0.5 * d + Math.min(1, sunset) * 0.3).lerp(tmpC2.set('#c9d3dc'), cloud);
+    this.village.sky.material.uniforms.uTop.value.copy(top);
+    this.village.sky.material.uniforms.uBottom.value.copy(bottom);
+    this.scene.fog.color.copy(bottom);
+    this.village.water.material.uniforms.uNight.value = 1 - d;
+    this.rain.visible = weather === 'rain';
+    if (this.rain.visible) animateRain(this.rain, dt, this.camera.position);
+    const clockIcon = night ? '🌙' : weather === 'rain' ? '🌧️' : weather === 'cloudy' ? '⛅' : '☀️';
+    this.hud.clock(`${clockIcon} ${clockText(s.time)}`);
+    if (this.actions.hum) this.hud.clock(`${clockIcon} ${clockText(s.time)}  ${'🎵'.repeat(this.actions.hum)}`);
+  }
+  updateWorldReactions(dt) {
+    const s = this.state;
+    if (!!s.flags.fountainFlowing !== !!this.mech.fed.fountain) this.setFlag('fountainFlowing', !!this.mech.fed.fountain);
+    this.smokeT = (this.smokeT || 0) - dt;
+    if (this.smokeT < 0) {
+      this.smokeT = 0.5;
+      const chim = (id, on) => { const o = this.village.objects[id]; if (on && o?.userData.chimney) this.effects.smoke(o.localToWorld(o.userData.chimney.clone())); };
+      chim('bakery', s.flags.squirrelsGone); chim('odessaHouse', true); chim('fernHouse', s.flags.orchardOpen); chim('playerHouse', s.flags.toolGiven);
+    }
+    if (s.harmony >= 160 && this.player.moving && Math.random() < dt * 8) this.effects.sparkle(new THREE.Vector3(this.player.pos.x, this.player.pos.y + 0.1, this.player.pos.z), { count: 1, up: 0.6, size: 0.18 });
+    // Workshop roof turns see-through while you are inside or building in it
+    const ws = this.village.objects.workshop, p = this.player.pos;
+    const inside = (p.x > -17.5 && p.x < -8.5 && p.z > 6.5 && p.z < 13.5) || (this.build.active && this.build.currentZone?.id === 'workshop');
+    ws.userData.roofMat.opacity += ((inside ? 0.12 : 1) - ws.userData.roofMat.opacity) * Math.min(1, dt * 6);
+    ws.userData.roofMat.depthWrite = ws.userData.roofMat.opacity > 0.9;
   }
 
   // ---- Flags, zones, blueprints ----------------------------------------------------------------
@@ -168,6 +400,7 @@ export class Game {
     this.refreshPieceInteractables();
     this.build.refreshPlan();
     this.bus.emit('build', ev);
+    if (ev.action !== 'load') this.autosave('build');
   }
   refreshPieceInteractables() {
     this.interactables = this.interactables.filter(it => !it.piece);
@@ -260,36 +493,58 @@ export class Game {
   sfx(name) { this.audio?.sfx(name); }
 
   // ---- Loop ------------------------------------------------------------------------------------
-  start() {
-    $('hud').hidden = false;
-    this.hud.resources();
+  startLoop() {
     const loop = () => { requestAnimationFrame(loop); this.frame(); };
     loop();
   }
+  beginPlay() {
+    this.started = true;
+    $('hud').hidden = false;
+    this.hud.resources(); this.renderHarmony(); this.renderTracker();
+    this.setMode('explore');
+  }
+  start() { this.startLoop(); this.beginPlay(); }
   frame() {
     const dt = Math.min(0.1, this.clock.getDelta());
     this.time += dt;
     const input = this.input;
     input.pollGamepad();
+    if (this.mode === 'title' || this.mode === 'creator') { this.screens?.update(dt); this.render(); input.endFrame(); return; }
     const buildDragOk = this.mode !== 'build' || input.mouse.dragging === 2 || input.mouse.dragging === 1;
-    this.cam.handleInput(input, dt, buildDragOk);
+    if (this.mode !== 'menu' && this.mode !== 'dialogue') this.cam.handleInput(input, dt, buildDragOk);
+    this.updateWorldTime(dt);
     if (this.mode === 'explore') {
       if (this.sitting) { const mv = input.moveVector(); if (Math.hypot(mv.x, mv.y) > 0.3 || input.pressed('jump')) this.standUp(); else this.playerChar.update(dt, {}); }
       else this.player.update(dt, input, this.cam.moveYaw(), true);
-      if (input.pressed('build') && this.build.open()) this.mode = 'build';
+      if (input.pressed('build') && this.build.open()) this.setMode('build');
+      else if (input.pressed('inventory')) this.panels.inventory();
+      else if (input.pressed('journal')) this.panels.journal();
+      else if (input.pressed('map')) this.panels.map();
+      else if (input.pressed('progress')) this.panels.progress();
+      else if (input.pressed('wardrobe')) this.openWardrobe();
+      else if (input.pressed('pause')) this.panels.pause();
     } else if (this.mode === 'build') {
       this.playerChar.update(dt, {});
       this.build.update(dt);
-      if (!this.build.active) this.mode = 'explore';
-    } else this.playerChar.update(dt, {});
+      if (!this.build.active) this.setMode('explore');
+    } else {
+      this.playerChar.update(dt, {});
+      if (this.mode === 'dialogue') this.dialogue.update(dt);
+      if (this.mode === 'minigame') this.minigame.update(dt);
+      if (this.mode === 'menu') this.panels.update(dt);
+    }
+    for (const a of this.npcs.list) a.update(dt);
+    this.actions.update(dt);
     this.cam.update(dt, this.player.pos);
     this.updateInteraction();
     this.updateHotkeys();
+    this.updateCompass();
+    this.updateWorldReactions(dt);
     this.village.update(dt, this.time, { ...this.state.flags, fountainFlowing: this.mech.fed.fountain });
     for (let i = this.spawnAnims.length - 1; i >= 0; i--) {
       const a = this.spawnAnims[i]; a.t += dt * 2.6;
-      const s = a.t >= 1 ? 1 : 1 + Math.sin(a.t * Math.PI * 1.5) * (1 - a.t) * 0.5 - (1 - a.t) * (1 - a.t);
-      a.m.scale.setScalar(Math.max(0.01, a.t >= 1 ? 1 : s * Math.min(1, a.t * 2)));
+      const k = Math.min(1, a.t);
+      a.m.scale.setScalar(Math.max(0.01, k >= 1 ? 1 : 1 + Math.sin(k * Math.PI) * 0.25 * (1 - k) * 2 - (1 - k) * (1 - k) * 0.9));
       if (a.t >= 1) this.spawnAnims.splice(i, 1);
     }
     for (const pl of this.state.placements) {
@@ -297,13 +552,19 @@ export class Game {
       animatePiece(m, pl, this.time, dt, { spinning: this.mech.powered.has(pl.uid) || this.mech.sources.has(pl.uid), powered: this.mech.powered.has(pl.uid), watered: this.mech.watered.has(pl.uid), on: pl.state?.on, open: pl.state?.open, night: !!this.state.flags.night });
     }
     this.effects.update(dt);
+    this.audio?.update(dt);
+    this.render();
+    input.endFrame();
+  }
+  render() {
     const p = this.mode === 'build' ? this.build.focus : this.player.pos;
     this.sun.position.set(p.x + 18, 30, p.z + 12); this.sun.target.position.set(p.x, 0, p.z);
-    this.renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
     this.renderer.setScissorTest(false);
+    this.renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
     this.renderer.clear();
     this.renderer.render(this.scene, this.camera);
-    input.endFrame();
+    if (this.mode === 'dialogue') this.dialogue.renderPortrait(this.renderer, this.scene);
+    if (this.mode === 'creator') this.screens?.renderPreview(this.renderer, this.scene);
   }
   testHook() {
     const game = this;
@@ -315,4 +576,24 @@ export class Game {
       mode: () => game.mode,
     };
   }
+}
+
+const tmpC = new THREE.Color(), tmpC2 = new THREE.Color(), tmpC3 = new THREE.Color();
+function safeStorage() {
+  try { const k = '__wh_test'; localStorage.setItem(k, '1'); localStorage.removeItem(k); return localStorage; }
+  catch { const m = new Map(); return { getItem: k => (m.has(k) ? m.get(k) : null), setItem: (k, v) => m.set(k, String(v)), removeItem: k => m.delete(k) }; }
+}
+function makeRain() {
+  const n = 1400, pos = new Float32Array(n * 3);
+  for (let i = 0; i < n; i++) { pos[i * 3] = (Math.random() - 0.5) * 50; pos[i * 3 + 1] = Math.random() * 25; pos[i * 3 + 2] = (Math.random() - 0.5) * 50; }
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  const pts = new THREE.Points(g, new THREE.PointsMaterial({ color: '#cfe8ff', size: 0.12, transparent: true, opacity: 0.7, depthWrite: false }));
+  pts.visible = false; pts.frustumCulled = false; pts.name = 'rain';
+  return pts;
+}
+function animateRain(rain, dt, cam) {
+  const a = rain.geometry.attributes.position;
+  for (let i = 0; i < a.count; i++) { let y = a.getY(i) - dt * 14; if (y < 0) y += 25; a.setY(i, y); }
+  a.needsUpdate = true;
+  rain.position.set(cam.x, 0, cam.z);
 }
