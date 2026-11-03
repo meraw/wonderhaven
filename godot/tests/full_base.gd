@@ -90,16 +90,27 @@ func talk(id: String, accept: bool = true) -> bool:
 		else: await tap(KEY_E)
 	return true
 
+## Plays a gathering minigame like a careful player: the key press lands on the next frame, so it aims at where the
+## needle (or ring) will be then, using how far it moved since the last frame.
 func play_minigame() -> void:
+	var prev := -1.0
 	for n in 2000:
 		await frames(1)
 		var a: Dictionary = game.minigame.active
 		if a.is_empty(): return
 		var mg = a.mg
-		if mg.done: continue
+		if mg.done: prev = -1.0; continue
 		match a.kind:
-			"chop": if mg.pause <= 0.0 and absf(mg.needle() - mg.center) < mg.width / 2.5: await tap(KEY_E)
-			"mine": if mg.pause <= 0.0 and mg.r < mg.target[1] - 0.01 and mg.r > mg.target[0] + 0.03: await tap(KEY_E)
+			"chop":
+				var nd: float = mg.needle()
+				var pred: float = nd + (nd - prev if prev >= 0.0 else 0.0)
+				prev = nd
+				if mg.pause <= 0.0 and absf(pred - mg.center) < mg.width / 3.0: await tap(KEY_E); prev = -1.0
+			"mine":
+				var r: float = mg.r
+				var pr: float = r + (r - prev if prev >= 0.0 else 0.0)
+				prev = r
+				if mg.pause <= 0.0 and pr < mg.target[1] - 0.015 and pr > mg.target[0] + 0.015: await tap(KEY_E); prev = -1.0
 			"fish":
 				if mg.phase == "bite": await tap(KEY_E)
 				elif mg.phase == "reel": key(KEY_E, mg.tension < 0.5)

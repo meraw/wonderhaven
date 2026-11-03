@@ -1455,9 +1455,9 @@
      "id": "metal",
      "kind": "gather",
      "item": "metal",
-     "count": 4,
+     "count": 3,
      "stage": 0,
-     "text": "Mine 4 metal on Gearspring Hill",
+     "text": "Mine 3 metal on Gearspring Hill (or buy some at the forge)",
      "hint": {
       "x": 21,
       "z": -9

@@ -6,6 +6,30 @@ extends "res://tests/full_base.gd"
 
 func eng() -> QuestEngine: return game.story.engine
 
+## Opens a villager's shop from their conversation and buys an item bundle until `done` holds (or coins run out).
+func buy_at(id: String, item: String, done: Callable) -> void:
+	var a = game.npcs[id]
+	for attempt in 4:
+		await walk_to(a.pos.x, a.pos.z, 1.5)
+		if await face_and_press("npc:" + id, a.pos.x, a.pos.z): break
+	for n in 120:
+		await frames(4)
+		if game.panels.current == "shop": break
+		var ui: DialogueUI = game.dialogue
+		if game.mode == "dialogue" and not ui.choices.is_empty():
+			var i: int = ui.choices.map(func(o): return o.get("kind", "")).find("shop")
+			if i < 0: i = ui.choices.map(func(o): return o.get("kind", "")).find("no")
+			await tap(KEY_1 + maxi(0, i))
+		elif game.mode == "dialogue": await tap(KEY_E)
+	note("shop open: %s" % (game.panels.current == "shop"))
+	var lines: Array = Shop.stock(game.state, id).filter(func(e): return e.kind == "items" and e.items.has(item))
+	for k in 4:
+		if done.call() or lines.is_empty(): break
+		var b := game.panels.find_child("buy_%d" % lines[0].i, true, false) as Button
+		if b == null or b.disabled: break
+		await click(b.get_global_rect().get_center()); await frames(8)
+	await tap(KEY_ESCAPE); await frames(10)
+
 func play() -> void:
 	# Hearthglow, after its story: the harbor is open and the dock rebuilt
 	var s: Dictionary = game.state
@@ -68,8 +92,12 @@ func play() -> void:
 	# The Stopped Clock: parts for Barnaby, then a waterwheel in the millrace
 	await talk("barnaby")
 	check("c12", "Barnaby asks about his clock", eng().status("clocktower") == "active", eng().status("clocktower"))
-	await gather_until("mine", func(): return int(q("clocktower").progress.get("metal", 0)) >= 4 and int(q("clocktower").progress.get("crystal", 0)) >= 1 and inv("metal") >= 3 and inv("crystal") >= 1, ["cove_rock2", "cove_rock0", "cove_rock1", "cove_rock3"], 24)
-	print("   clock materials: ", s.inventory)
+	var enough := func(): return int(q("clocktower").progress.get("metal", 0)) >= 3 and int(q("clocktower").progress.get("crystal", 0)) >= 1 and inv("metal") >= 3 and inv("crystal") >= 1
+	await gather_until("mine", enough, [], 8)
+	if not enough.call():   # the rocks are regrowing: buy the rest at Hazel's forge
+		await buy_at("hazel", "metal", func(): return int(q("clocktower").progress.get("metal", 0)) >= 3 and inv("metal") >= 3)
+		check("c12b", "Short of metal, you can buy it at Hazel's forge on the cove", inv("metal") >= 3, "metal %d, coins %d" % [inv("metal"), inv("coins")])
+	note("clock materials: %s" % str(s.inventory))
 	await talk("barnaby")
 	check("c13", "Handing Barnaby the parts in conversation (a pay step)", eng().current_stage("clocktower") == 2 and s.flags.get("clockParts", false), "step %d" % eng().stage_index("clocktower"))
 	await gather_until("chop", func(): return inv("wood") >= 7 and inv("spark") >= 4, [], 16)
