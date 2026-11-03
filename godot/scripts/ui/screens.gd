@@ -184,9 +184,41 @@ func start_new_game() -> void:
 	game.player.teleport(sp.x - 6, sp.z, sp.yaw)
 	game.cam.yaw = sp.yaw + PI; game.cam.snap()
 	game.begin_play()
-	game.banner("Welcome to Hearthglow, %s!" % state.name, "A sleepy village is waiting for a builder", [], 4.5)
+	arrival(state.name)
 	if not guided: game.get_tree().create_timer(2.5).timeout.connect(func(): game.toast("Someone is waving at you by the village gate. Walk over with %s%s%s%s and press %s to talk." % [Controls.key_label("move_forward"), Controls.key_label("move_left"), Controls.key_label("move_back"), Controls.key_label("move_right"), Controls.key_label("interact")], "", 6.0))
 	game.sfx("morning")
+
+## A storybook card before the first step: who you are and why you've come.
+func arrival(player_name: String) -> void:
+	_clear(); visible = true; mouse_filter = Control.MOUSE_FILTER_STOP
+	game.set_mode("cutscene")
+	var dim := ColorRect.new(); dim.color = Color(0.25, 0.15, 0.2, 0.35); dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT); add_child(dim)
+	var card := UiTheme.panel(Color("fff8ec"), UiTheme.LINE, 26); card.name = "arrival_card"
+	card.anchor_left = 0.5; card.anchor_right = 0.5; card.anchor_top = 0.5; card.anchor_bottom = 0.5
+	card.offset_left = -330; card.offset_right = 330; card.offset_top = -210; card.offset_bottom = 210
+	card.grow_vertical = Control.GROW_DIRECTION_BOTH
+	add_child(card)
+	var v := VBoxContainer.new(); v.add_theme_constant_override("separation", 12); card.add_child(v)
+	var t := UiTheme.label("Hearthglow, at last", 32, UiTheme.PINK_DARK); t.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(t)
+	var body := func(text: String, size: int = 17, col: Color = UiTheme.INK) -> void:
+		var l := UiTheme.label(text, size, col); l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART; l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; l.custom_minimum_size.x = 600; v.add_child(l)
+	body.call("Three days along the coast road, %s, with a rolled-up notice in your pocket from the market board in Saltmere:" % player_name)
+	var note := UiTheme.panel(Color("fffdf6"), Color("d9b48a"), 6)
+	var nv := VBoxContainer.new(); note.add_child(nv)
+	for line in [["BUILDER WANTED", 22, UiTheme.INK], ["Hearthglow Village · a cozy place in need of clever hands", 15, UiTheme.INK2], ["Room and board at the Lantern Inn. Ask for Odessa Quill.", 15, UiTheme.INK2]]:
+		var l := UiTheme.label(line[0], line[1], line[2]); l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; nv.add_child(l)
+	var nc := CenterContainer.new(); nc.add_child(note); v.add_child(nc)
+	body.call("The village gate is just ahead. Someone is waving.", 16, UiTheme.INK2)
+	var go := UiTheme.button("Walk into the village ➜", _arrive, true); go.name = "btn_arrive"; go.custom_minimum_size = Vector2(280, 48)
+	var bc := CenterContainer.new(); bc.add_child(go); v.add_child(bc)
+	go.grab_focus.call_deferred()
+
+func _arrive() -> void:
+	if game.mode != "cutscene": return
+	_close()
+	game.set_mode("explore")
+	game.interact_cooldown = 0.4
+	game.banner("Welcome to Hearthglow!", "Odessa is waiting at the gate", [], 3.5)
 
 func _gui_input(ev: InputEvent) -> void:
 	if game.mode != "creator": return

@@ -125,3 +125,37 @@ func test_save_round_trip():
 	var junk := SaveSystem.deserialize(JSON.stringify({"placements": [{"uid": 1, "id": "laserCannon", "i": 0, "k": 0, "y": 0}, {"uid": 2, "id": "floor", "i": 1, "k": 1, "y": 0, "r": 5}], "appearance": {"hair": "mohawk"}}))
 	t.eq(junk.placements.size(), 1); t.eq(junk.placements[0].r, 1); t.eq(junk.appearance.hair, "bob")
 	t.ok(SaveSystem.deserialize("null").is_empty())
+
+func test_story_lead_survives_side_requests():
+	# After Odessa's request, Fern's story request waits; taking a side request must not hide it.
+	var s := GameState.new_game("Ann")
+	s.tutorial.on = false
+	var e := QuestEngine.new(s)
+	s.quests["tool"] = {"status": "active", "progress": {}, "done": {}}
+	s.tracked = "tool"
+	e.complete("tool")
+	t.eq(s.tracked, "lead:bridge", "finishing Odessa's request heads for Fern's")
+	t.ok(e.story_leads().map(func(q): return q.id).has("bridge"), "Fern's request is a story lead")
+	e.accept("stones")
+	t.eq(s.tracked, "lead:bridge", "taking Percival's side request keeps following the story")
+	t.ok(e.story_leads().map(func(q): return q.id).has("bridge"), "and the story lead is still there")
+	e.accept("bridge")
+	t.eq(s.tracked, "bridge", "starting Fern's request follows it")
+	t.eq(e.story_leads().size(), 0, "no lead while the story request is active")
+	s.tracked = "stones"
+	e.complete("stones")
+	t.eq(s.tracked, "bridge", "finishing a side request goes back to the story")
+
+func test_home_of_your_own():
+	var q := Data.quest("home")
+	t.ok(not q.is_empty() and q.giver == "percival" and q.requires.quests == ["bridge"], "Percival offers a home after the bridge")
+	t.eq(Data.zone("plot").unlock, {"flag": "homePlot"}, "the plot opens with the deed, not at the start")
+	t.ok("bed" in q.onAccept.blueprints and "roof" in q.onAccept.blueprints and int(q.onAccept.items.get("fabric", 0)) >= 2, "the deed comes with the blueprints and fabric for a bed and roof")
+	var z := Data.zone("plot")
+	var pls: Array = []
+	var add := func(id: String, i: int, k: int) -> void: pls.append({"uid": pls.size() + 1, "id": id, "i": float(i), "k": float(k), "r": 0, "y": 0.0})
+	add.call("woodWall", 19, 10); add.call("woodWall", 20, 10); add.call("doorWall", 21, 10)
+	t.ok(not Validate.room_checklist(z, pls, Story.HOME_NEEDS).all(func(r): return r.ok), "not a home yet: missing a wall, roof and bed")
+	add.call("windowWall", 19, 11); add.call("roof", 19, 11); add.call("bed", 22, 12)
+	t.ok(Validate.room_checklist(z, pls, Story.HOME_NEEDS).all(func(r): return r.ok), "3 walls, a door, a roof and a bed make a home")
+	t.ok(Data.layout.buildings.any(func(b): return b.id == "playerHouse" and b.get("inn", false) and b.name == "The Lantern Inn"), "you start out at the Lantern Inn")

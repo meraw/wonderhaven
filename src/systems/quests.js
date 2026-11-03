@@ -5,7 +5,7 @@ import { NPC, NPCS } from '../data/npcs.js';
 import { NODES } from '../data/village-layout.js';
 
 export class QuestEngine {
-  // checks: { bridge: () => bool, workshop: () => bool, fountain: () => bool, dock: () => bool, lamp: () => bool }
+  // checks: { bridge: () => bool, workshop: () => bool, home: () => bool, fountain: () => bool, dock: () => bool, lamp: () => bool }
   constructor(state, checks = {}) { this.state = state; this.checks = checks; }
   rec(id) { return this.state.quests[id]; }
   status(id) { return this.rec(id)?.status; }

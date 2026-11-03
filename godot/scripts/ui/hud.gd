@@ -126,19 +126,29 @@ func render_harmony() -> void:
 	harmony_label.text = ("%d / %d" % [h, int(nx.at)]) if not nx.is_empty() else str(h)
 
 func render_tracker() -> void:
-	for c in tracker.get_children(): c.queue_free()
+	for c in tracker.get_children(): tracker.remove_child(c); c.queue_free()
 	if not Tutorial.revealed(game.state.get("tutorial", {}), "quests"): return
 	var e: QuestEngine = game.story.engine
+	if not e.tracked_valid(): e.retrack()
 	var act := e.active()
 	var tracked = null
 	for q in act:
 		if q.id == game.state.tracked: tracked = q
-	if tracked == null and not act.is_empty(): tracked = act[0]
 	var show: Array = []
-	if tracked != null:
-		show.append(tracked)
-		for q in act:
-			if q != tracked and q.get("main", false) and show.size() < 2: show.append(q)
+	if tracked != null: show.append(tracked)
+	for q in act:
+		if q != tracked and q.get("main", false) and show.size() < 2: show.append(q)
+	# The next story request always has a line here, even while side requests are going.
+	var leads := e.story_leads()
+	if not leads.is_empty() and act.filter(func(q): return q.get("main", false)).is_empty():
+		var lq: Dictionary = leads[0]
+		var p := UiTheme.panel(Color("fff8e6"), UiTheme.GOLD, 18); p.mouse_filter = Control.MOUSE_FILTER_IGNORE; p.name = "story_lead"
+		var v := VBoxContainer.new(); p.add_child(v)
+		var mark := "📍 " if game.state.tracked == "lead:" + lq.id else "★ "
+		v.add_child(UiTheme.label(mark + "Next in the story", 15))
+		var l := UiTheme.label("Talk to %s — look for the ! over their head" % Data.npc(lq.giver).name, 13, UiTheme.INK2); l.autowrap_mode = TextServer.AUTOWRAP_WORD; l.custom_minimum_size.x = 260
+		v.add_child(l)
+		tracker.add_child(p)
 	for q in show:
 		var ready := e.is_ready(q.id)
 		var p := UiTheme.panel(); p.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -153,11 +163,6 @@ func render_tracker() -> void:
 			var l := UiTheme.label(txt, 13, Color("59a86f") if st.done else UiTheme.INK2); l.autowrap_mode = TextServer.AUTOWRAP_WORD; l.custom_minimum_size.x = 260
 			v.add_child(l)
 		tracker.add_child(p)
-	if show.is_empty():
-		for q in Data.quests:
-			if q.get("main", false) and e.can_offer(q.id):
-				var p := UiTheme.panel(); var l := UiTheme.label("✨ Next: look for the gold ! — %s needs help" % Data.npc(q.giver).name, 13); l.autowrap_mode = TextServer.AUTOWRAP_WORD; l.custom_minimum_size.x = 260; p.add_child(l); tracker.add_child(p)
-				break
 
 func update_compass(target: Dictionary) -> void:
 	if target.is_empty() or game.mode != "explore": compass.visible = false; return

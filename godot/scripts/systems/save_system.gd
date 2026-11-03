@@ -77,7 +77,7 @@ static func latest() -> String:
 	return best
 
 const SETTINGS_PATH := "user://wonderhaven_settings.json"
-const DEFAULT_SETTINGS := {"music": 0.6, "sfx": 0.8, "sensitivity": 1.0, "invert_y": false, "weather": true, "outlines": true, "bindings": {}}
+const DEFAULT_SETTINGS := {"music": 0.6, "sfx": 0.8, "sensitivity": 1.0, "invert_y": false, "weather": true, "outlines": true, "fullscreen": false, "bindings": {}}
 static func load_settings() -> Dictionary:
 	var s := DEFAULT_SETTINGS.duplicate(true)
 	if FileAccess.file_exists(SETTINGS_PATH):

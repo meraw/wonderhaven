@@ -12,7 +12,7 @@ export const BUILDINGS = [
   { id: 'bakery', kind: 'shop', name: 'Crumb & Co. Bakery', x: -11, z: -6.5, w: 6, d: 5, wall: '#ffe4ec', roof: '#e98aa8', door: 'S', awning: '#ff9fb8' },
   { id: 'fernHouse', kind: 'cottage', name: "Fern's Cottage", x: 10, z: -9, w: 5, d: 5, wall: '#e9f5d8', roof: '#6fae5c', door: 'S' },
   { id: 'odessaHouse', kind: 'cottage', name: "Odessa's House", x: -5, z: 17, w: 6, d: 5, wall: '#efe3ff', roof: '#8f78d6', door: 'N' },
-  { id: 'playerHouse', kind: 'cottage', name: 'Your Cottage', x: 14, z: 13, w: 6, d: 6, wall: '#fff3d6', roof: '#5f9be0', door: 'S' },
+  { id: 'playerHouse', kind: 'cottage', name: 'The Lantern Inn', inn: true, x: 14, z: 13, w: 6, d: 6, wall: '#fff3d6', roof: '#5f9be0', door: 'S' },
   { id: 'caravan', kind: 'caravan', name: "Tilly's Caravan", x: 21, z: 5, w: 4, d: 2.6, wall: '#ffd36b', roof: '#5ab8b0', door: 'W' },
   { id: 'percivalHouse', kind: 'cottage', name: 'Gatehouse', x: -20, z: -10, w: 5, d: 4, wall: '#f5ead2', roof: '#c25b6a', door: 'E' },
   { id: 'captainHut', kind: 'hut', name: "Captain's Hut", x: 13, z: 38, w: 4, d: 4, wall: '#d6eef7', roof: '#3f7fb5', door: 'W' },
@@ -31,7 +31,7 @@ export const HARBOR_CLIFFS = [
 
 // Build zones (cells, inclusive). `unlock` names what opens them; `spanY` lets bridge decks float at that height.
 export const ZONES = [
-  { id: 'plot', name: 'Your garden plot', minI: 18, maxI: 25, minK: 9, maxK: 16, unlock: { flag: 'hasTool' },
+  { id: 'plot', name: 'Your plot, beside the inn', minI: 18, maxI: 25, minK: 9, maxK: 16, unlock: { flag: 'homePlot' },
     expanded: { minI: 18, maxI: 29, minK: 6, maxK: 19, harmony: 50 } },
   { id: 'bridge', name: 'Orchard Bridge site', minI: -3, maxI: 2, minK: -22, maxK: -15, spanY: 0, unlock: { quest: 'bridge' },
     endpoints: { a: { minI: -3, maxI: 2, minK: -15, maxK: -15 }, b: { minI: -3, maxI: 2, minK: -22, maxK: -22 } },
@@ -86,7 +86,7 @@ export const NODES = [
 // Other interactables that are not resources.
 export const FEATURES = [
   { id: 'wardrobe', kind: 'wardrobe', x: 11.4, z: 17, label: 'Change outfit' },
-  { id: 'bed', kind: 'rest', x: 16.4, z: 16.6, label: 'Rest until morning' },
+  { id: 'bed', kind: 'rest', x: 16.4, z: 16.6, label: 'Rest at the Lantern Inn' },
   { id: 'welcomeSign', kind: 'sign', x: -33, z: 7.5, text: 'Welcome to Hearthglow Village! Population: cozy.' },
   { id: 'bridgeSign', kind: 'sign', x: 2.5, z: -13, text: 'Orchard Bridge — closed for repairs (since forever).' },
   { id: 'harborSign', kind: 'sign', x: 9, z: 32.5, text: 'Hearthglow Harbor. Gate sealed by Royal Decree No. 47.' },

@@ -2,6 +2,9 @@ class_name Story
 extends RefCounted
 ## Quests, conversations, rewards, friendship, Kingdom Harmony and the build-mode checklists.
 
+const HOME_NEEDS := [
+	{"any": ["woodWall", "windowWall"], "count": 3, "label": "Walls (3)"}, {"any": ["doorWall"], "label": "A door"},
+	{"any": ["roof"], "label": "A roof"}, {"any": ["bed"], "label": "A bed"}]
 const WORKSHOP_NEEDS := [
 	{"any": ["workbench"], "label": "A workbench"}, {"any": ["chair", "sofa", "bench"], "label": "Something to sit on"},
 	{"any": ["lamp", "poweredLamp", "streetlight"], "label": "A lamp"}, {"any": ["cabinet", "bookshelf"], "label": "A shelf or cabinet"},
@@ -16,6 +19,7 @@ func _init(g) -> void:
 	engine = QuestEngine.new(game.state, {
 		"bridge": func(): return path_ok("bridge"), "dock": func(): return path_ok("dock"),
 		"workshop": func(): return Validate.room_checklist(Data.zone("workshop"), game.state.placements, WORKSHOP_NEEDS).all(func(r): return r.ok),
+		"home": func(): return Validate.room_checklist(Data.zone("plot"), game.state.placements, HOME_NEEDS).all(func(r): return r.ok),
 		"fountain": func(): return game.mech.fed.get("fountain", false), "lamp": func(): return not game.mech.lamps.is_empty()})
 	engine.gate = func(qid: String) -> bool: return Tutorial.allows_offer(game.state.get("tutorial", {}), qid)
 	game.game_event.connect(_on_event)
@@ -225,6 +229,8 @@ func build_goals(z: Dictionary) -> Dictionary:
 			if active.call("bridge"): return {"title": "Orchard Bridge", "hint": "Planks reach 2 tiles from a bank or post.", "items": [{"label": "Continuous walkable path from bank to bank", "ok": path_ok("bridge")}]}
 		"dock":
 			if active.call("dock"): return {"title": "Harbor Dock", "hint": "The old pilings hold planks up.", "items": [{"label": "Planks from the shore to the mooring post", "ok": path_ok("dock")}]}
+		"plot":
+			if active.call("home"): return {"title": "Your Home", "hint": "Walls stand on cell edges; the roof rests on top of them.", "items": Validate.room_checklist(z, game.state.placements, HOME_NEEDS).map(func(r): return {"label": r.label + ("" if r.ok or int(r.get("count", 1)) <= 1 else " (%d/%d)" % [r.have, int(r.count)]), "ok": r.ok})}
 		"workshop":
 			if active.call("workshop"): return {"title": "Bram's Workshop", "items": Validate.room_checklist(z, game.state.placements, WORKSHOP_NEEDS).map(func(r): return {"label": r.label, "ok": r.ok})}
 		"plaza":
@@ -236,18 +242,20 @@ func build_goals(z: Dictionary) -> Dictionary:
 
 func tracked_target() -> Dictionary:
 	var s: Dictionary = game.state
-	var qid: String = s.tracked if engine.status(s.tracked) == "active" else ""
-	if qid == "" and not engine.active().is_empty(): qid = engine.active()[0].id
-	if qid == "":
-		for q in Data.quests:
-			if q.get("main", false) and engine.can_offer(q.id):
-				var a = game.npcs.get(q.giver)
-				if a and a.present: return {"x": a.pos.x, "z": a.pos.z, "label": "%s has a request" % a.def.name}
-		return {}
-	var step := engine.next_step(qid)
+	if not engine.tracked_valid(): engine.retrack()
+	var t: String = s.tracked
+	if t == "": return {}
+	if t.begins_with("lead:"):
+		var q := Data.quest(t.trim_prefix("lead:"))
+		var a = game.npcs.get(q.giver)
+		return {"x": a.pos.x, "z": a.pos.z, "label": "%s has a request" % a.def.name} if a and a.present else {}
+	var step := engine.next_step(t)
 	if step.is_empty(): return {}
 	if step.get("npc", "") != "":
 		var a = game.npcs.get(step.npc)
 		return {"x": a.pos.x, "z": a.pos.z, "label": step.objective.text} if a else {}
+	if step.objective.get("kind", "") == "gather":
+		var n: Dictionary = game.actions.nearest_ready(step.objective.get("item", ""))   # nearest place to get it right now
+		if not n.is_empty(): return {"x": n.x, "z": n.z, "label": step.objective.text}
 	var h: Dictionary = step.get("hint", {})
 	return {"x": h.x, "z": h.z, "label": step.objective.text} if not h.is_empty() else {}

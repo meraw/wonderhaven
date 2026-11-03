@@ -26,6 +26,7 @@ func build(decor: Dictionary) -> void:
 		o.position = Vector3(b.x, (H.call(b.x, b.z) - 0.05) if b.kind == "castle" else maxf(0.0, H.call(b.x, b.z)), b.z)
 		o.name = b.id; add_child(o); objects[b.id] = o
 		for gl in o.get_meta("glasses", []): window_mats.append(gl.material_override)
+		for ln in o.find_children("inn_lantern", "MeshInstance3D", true, false): window_mats.append(ln.material_override)
 	var f := Props.fountain(); var F: Dictionary = Data.layout.fountain; f.position = Vector3(F.x, 0, F.z); add_child(f); objects["fountain"] = f
 	for c in Data.layout.harbor_cliffs:
 		var w: float = c.maxX - c.minX
@@ -118,7 +119,7 @@ func _build_nodes() -> void:
 	for n in Data.layout.nodes:
 		var o: Node3D
 		match n.kind:
-			"chop": o = Props.round_tree(1.05, fmod(n.x * 7.3, 1.0) if n.x > 0 else fmod(-n.x * 7.3, 1.0))
+			"chop": o = Props.round_tree(1.05, fmod(n.x * 7.3, 1.0) if n.x > 0 else fmod(-n.x * 7.3, 1.0)); Props.add_ribbon(o)
 			"mine": o = Props.rock(n.get("rich", false))
 			"clay": o = Props.clay_mound()
 			"fish": o = Props.fishing_spot()

@@ -30,6 +30,18 @@ static func round_tree(s: float = 1.0, hue: float = 0.5, fruit: bool = false) ->
 	g.scale = Vector3.ONE * s
 	return g
 
+## A pink ribbon tied round the trunk with a bow: Odessa's mark on trees that are ready for cutting.
+static func add_ribbon(tree: Node3D) -> Node3D:
+	var r := Node3D.new(); r.name = "ribbon"
+	var pink := P.fabric("ff6f9e")
+	_add(r, P.torus(0.22, 0.045, 24), pink, Vector3(0, 0.95, 0), Vector3(0, 0, 0.08), Vector3(1, 1.8, 1))
+	for s in [-1, 1]:
+		_add(r, P.sphere(0.09, 12, 8), pink, Vector3(s * 0.08, 0.96, 0.24), Vector3(0, 0, s * 0.5), Vector3(1.0, 0.55, 0.45))
+		_add(r, P.box(0.05, 0.22, 0.015), pink, Vector3(s * 0.05, 0.84, 0.235), Vector3(0, 0, s * 0.25))
+	_add(r, P.sphere(0.035, 10, 8), P.fabric("e04f82"), Vector3(0, 0.96, 0.245))
+	tree.add_child(r)
+	return r
+
 static func add_fruit(tree: Node3D) -> Node3D:
 	var f := Node3D.new(); f.name = "fruit"
 	for p in [[0.95, 1.85, 0.55], [-0.75, 2.0, 0.75], [0.25, 1.55, -1.0], [-0.4, 2.6, -0.7], [1.05, 2.3, -0.4]]:
@@ -283,7 +295,7 @@ static func cottage(b: Dictionary) -> Node3D:
 		_add(aw, P.torus(0.24, 0.05, 16), P.mat("fffaf0"), Vector3.ZERO, Vector3(PI / 2, 0, 0))
 		_add(aw, P.cyl(0.22, 0.22, 0.02, 16), P.unique_mat("a9ddf5"), Vector3.ZERO, Vector3(PI / 2, 0, 0), Vector3.ONE, false)
 		g.add_child(aw)
-	_door(g, b, "a0623a", roof_material(b.roof))
+	_door(g, b, "a0623a", null if b.get("inn", false) else roof_material(b.roof))   # the inn's name board sits over its door instead
 	var shutter := Color(b.roof).lightened(0.05)
 	var glasses: Array = []
 	var seed := int(absf(b.x * 3.0 + b.z))
@@ -298,6 +310,7 @@ static func cottage(b: Dictionary) -> Node3D:
 			var w := _window(shutter); _on_side(w, b, b.door, 1.4, off); g.add_child(w); glasses.append(w.get_node("glass"))
 			_flower_box(w, seed); seed += 3
 	g.set_meta("glasses", glasses)
+	if b.get("inn", false): _inn_sign(g, b)
 	if b.has("awning"):
 		var aw := Node3D.new(); _on_side(aw, b, b.door, 2.12, 0, 0.4)
 		var n := 8; var span: float = b.w * 0.86
@@ -306,6 +319,30 @@ static func cottage(b: Dictionary) -> Node3D:
 			_add(aw, P.sphere(span / n / 2.0, 8, 4), P.mat(b.awning if i % 2 == 0 else "fff7f0"), Vector3(-span / 2.0 + (i + 0.5) * span / n, -0.17, 0.42), Vector3.ZERO, Vector3(1, 0.5, 0.3), false)
 		g.add_child(aw)
 	return g
+
+## Hanging sign with a lantern picture and two lanterns by the door, so the inn reads as the inn.
+static func _inn_sign(g: Node3D, b: Dictionary) -> void:
+	var holder := Node3D.new(); _on_side(holder, b, b.door, 0.0, float(b.get("doorOffset", 0)) + 1.55, 0.05); g.add_child(holder)
+	var iron := P.mat("3e4f48")
+	_add(holder, P.box(0.06, 0.06, 0.75), iron, Vector3(0, 2.25, 0.36))
+	for x in [-0.28, 0.28]: _add(holder, P.cyl(0.008, 0.008, 0.16, 4), iron, Vector3(x, 2.15, 0.64))
+	var board := _add(holder, P.rbox(0.82, 0.5, 0.06, 0.05), P.wood("2f5f9e"), Vector3(0, 1.84, 0.64), Vector3(0, PI / 2, 0))
+	board.name = "inn_board"
+	_add(holder, P.rbox(0.66, 0.36, 0.07, 0.04), P.mat("fff3d6"), Vector3(0, 1.84, 0.64), Vector3(0, PI / 2, 0))
+	_add(holder, P.cyl(0.07, 0.06, 0.16, 8), P.unique_mat("ffd36b", "ffb347", 0.6), Vector3(0, 1.84, 0.64))
+	_add(holder, P.cone(0.09, 0.07, 8), iron, Vector3(0, 1.96, 0.64))
+	# name board above the door, facing the street
+	var front := Node3D.new(); _on_side(front, b, b.door, 2.1, float(b.get("doorOffset", 0)), 0.06); g.add_child(front)
+	_add(front, P.rbox(1.9, 0.42, 0.08, 0.06), P.wood("2f5f9e"), Vector3(0, 0, 0.04))
+	_add(front, P.rbox(1.76, 0.3, 0.09, 0.05), P.mat("fff3d6"), Vector3(0, 0, 0.05))
+	var txt := Label3D.new(); txt.text = "Lantern Inn"; txt.font = UiTheme.title_font(); txt.font_size = 64; txt.pixel_size = 0.0036
+	txt.modulate = Color("2f5f9e"); txt.outline_size = 0; txt.position = Vector3(0, -0.005, 0.1); txt.shaded = true; txt.double_sided = false
+	front.add_child(txt)
+	for x in [-0.95, 0.95]:
+		var lan := Node3D.new(); _on_side(lan, b, b.door, 1.75, float(b.get("doorOffset", 0)) + x, 0.12); g.add_child(lan)
+		_add(lan, P.box(0.05, 0.05, 0.2), iron, Vector3(0, 0.12, 0.08))
+		var bulb := _add(lan, P.cyl(0.08, 0.07, 0.18, 6), P.unique_mat("fff1b8", "ffcf6b", 0.8), Vector3(0, 0, 0.18)); bulb.name = "inn_lantern"
+		_add(lan, P.cone(0.11, 0.08, 6), iron, Vector3(0, 0.13, 0.18))
 
 static func workshop(b: Dictionary) -> Node3D:
 	var g := Node3D.new(); var h := 2.6; var t := 0.35

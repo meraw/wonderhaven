@@ -145,6 +145,21 @@ func _fishing_done(mg) -> void:
 	game.toast("You caught a %s!" % mg.fish.name, "good")
 	game.story.event("fish")
 
+## Which kinds of place give each item (for pointing the compass at the nearest one).
+const SOURCES := {"wood": ["chop"], "stone": ["mine"], "metal": ["mine"], "crystal": ["mine"], "clay": ["clay"], "flowers": ["flowers"],
+	"fish": ["fish"], "acorn": ["shake"], "fruit": ["fruit"], "fragment": ["fragment"], "spark": ["fragment", "chop", "mine"]}
+
+## The nearest place that gives `item` and is ready right now, or {}.
+func nearest_ready(item: String) -> Dictionary:
+	var kinds: Array = SOURCES.get(item, [])
+	var p: Vector3 = game.player.pos
+	var best := {}; var bd := INF
+	for n in Data.layout.nodes:
+		if not n.kind in kinds or not ready(n): continue
+		var d := Vector2(n.x - p.x, n.z - p.z).length()
+		if d < bd: bd = d; best = n
+	return best
+
 func refresh_node(n: Dictionary) -> void:
 	var o: Node3D = game.village.node_visuals.get(n.id)
 	if o == null: return

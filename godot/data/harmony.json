@@ -15,7 +15,7 @@
    "at": 50,
    "id": "plot",
    "title": "A Bigger Garden",
-   "desc": "Your garden plot grows, and you can build Foundations and Roofs.",
+   "desc": "Your home plot grows, and you can build Foundations and Roofs.",
    "blueprints": [
     "foundation",
     "roof"

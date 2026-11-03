@@ -142,7 +142,16 @@ func journal(tab: String = "active") -> void:
 		"active": qs = e.active()
 		"optional": qs = Data.quests.filter(func(q): return not q.get("main", false) and e.can_offer(q.id))
 		"done": qs = e.done()
-	if qs.is_empty():
+	if tab == "active":
+		for lq in e.story_leads():
+			var lv := _card(Color("fff8e6"))
+			lv.add_child(UiTheme.label("★ Next in the story · From " + Data.npc(lq.giver).name, 12, Color("b34a6a")))
+			lv.add_child(UiTheme.label(lq.title, 18))
+			lv.add_child(_wrap("%s has a request for you. Find them (look for the ! over their head) and talk to them to begin." % Data.npc(lq.giver).name))
+			var lid: String = "lead:" + lq.id
+			var tb := UiTheme.button("📍 Tracking" if game.state.tracked == lid else "📍 Track", func(): game.state.tracked = lid; game.hud.render_tracker(); close(); game.toast("Heading for %s" % Data.npc(lq.giver).name), game.state.tracked == lid)
+			tb.name = "track_" + lid; lv.add_child(tb)
+	if qs.is_empty() and not (tab == "active" and not e.story_leads().is_empty()):
 		body.add_child(_wrap({"active": "No active quests. Look for villagers with a ! over their heads.", "optional": "No new side quests right now — keep exploring!", "done": "Nothing completed yet. Every journey starts with a single plank."}[tab], 15))
 	for q in qs:
 		var v := _card(Color("f6fff8") if tab == "done" else Color.WHITE)
@@ -244,8 +253,9 @@ func settings() -> void:
 		row.add_child(sl)
 	var toggles := [["↕️ Invert camera Y", "invert_y"], ["🌦️ Weather effects", "weather"]]
 	if Outline.supported(): toggles.append(["✏️ Ink outlines", "outlines"])
+	toggles.append(["🖥️ Fullscreen (F11)", "fullscreen"])
 	for pair in toggles:
-		var cb := CheckBox.new(); cb.text = pair[0]; cb.button_pressed = st.get(pair[1], true)
+		var cb := CheckBox.new(); cb.text = pair[0]; cb.button_pressed = st.get(pair[1], pair[1] != "fullscreen")
 		var key2: String = pair[1]
 		cb.toggled.connect(func(v): st[key2] = v; game.apply_settings())
 		body.add_child(cb)
@@ -256,7 +266,7 @@ func settings() -> void:
 		var act: String = a
 		var b := UiTheme.button("Press a key…" if capture_action == a else " / ".join(Controls.keys_of(a).map(func(k): return OS.get_keycode_string(k))), func(): capture_action = act; settings())
 		row.add_child(b)
-	body.add_child(_wrap("Undo / redo in build mode: Ctrl+Z / Ctrl+Y. Gamepad: left stick move · right stick camera · A interact · X build · Y journal · Start menu · Back map.", 13))
+	body.add_child(_wrap("F11 or Alt+Enter: fullscreen. Undo / redo in build mode: Ctrl+Z / Ctrl+Y. Gamepad: left stick move · right stick camera · A interact · X build · Y journal · Start menu · Back map.", 13))
 	var row2 := HBoxContainer.new(); body.add_child(row2)
 	row2.add_child(UiTheme.button("Reset controls", func(): st.bindings = {}; game.apply_settings(); settings()))
 	row2.add_child(UiTheme.button("← Back", pause))

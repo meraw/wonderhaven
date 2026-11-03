@@ -76,7 +76,8 @@
   {
    "id": "playerHouse",
    "kind": "cottage",
-   "name": "Your Cottage",
+   "name": "The Lantern Inn",
+   "inn": true,
    "x": 14,
    "z": 13,
    "w": 6,
@@ -164,13 +165,13 @@
  "zones": [
   {
    "id": "plot",
-   "name": "Your garden plot",
+   "name": "Your plot, beside the inn",
    "minI": 18,
    "maxI": 25,
    "minK": 9,
    "maxK": 16,
    "unlock": {
-    "flag": "hasTool"
+    "flag": "homePlot"
    },
    "expanded": {
     "minI": 18,
@@ -802,7 +803,7 @@
    "kind": "rest",
    "x": 16.4,
    "z": 16.6,
-   "label": "Rest until morning"
+   "label": "Rest at the Lantern Inn"
   },
   {
    "id": "welcomeSign",

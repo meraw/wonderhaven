@@ -1,7 +1,7 @@
 // Kingdom Harmony milestones: what each level unlocks.
 export const HARMONY_UNLOCKS = [
   { at: 15, id: 'cozy', title: 'Cozy Corners', desc: 'New blueprints: Pillar, Stairs and Raised Platform.', blueprints: ['pillar', 'stairs', 'platform'] },
-  { at: 50, id: 'plot', title: 'A Bigger Garden', desc: 'Your garden plot grows, and you can build Foundations and Roofs.', blueprints: ['foundation', 'roof'] },
+  { at: 50, id: 'plot', title: 'A Bigger Garden', desc: 'Your home plot grows, and you can build Foundations and Roofs.', blueprints: ['foundation', 'roof'] },
   { at: 80, id: 'lights', title: 'Sparkling Lights', desc: 'New blueprints: Streetlight and Windmill.', blueprints: ['streetlight', 'windmill'] },
   { at: 120, id: 'harbor', title: 'Harbor Charter', desc: 'Lord Percival can lift the decree sealing the harbor.' },
   { at: 160, id: 'trail', title: 'Starlight Steps', desc: 'Your footsteps leave a trail of sparkles.' },

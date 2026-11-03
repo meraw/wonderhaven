@@ -30,10 +30,21 @@ func offers_for(npc: String) -> Array: return Data.quests.filter(func(q): return
 func active() -> Array: return Data.quests.filter(func(q): return status(q.id) == "active")
 func done() -> Array: return Data.quests.filter(func(q): return is_done(q.id))
 
+## Main-story requests you could start now (someone is waiting to ask you). These are always shown, so the story
+## never disappears behind a side request.
+func story_leads() -> Array: return Data.quests.filter(func(q): return q.get("main", false) and can_offer(q.id))
+
+## What the player follows: an active request id, "lead:<id>" for a story request not started yet, or "".
+func tracked_valid() -> bool:
+	var t: String = state.tracked
+	if t.begins_with("lead:"): return can_offer(t.trim_prefix("lead:"))
+	return status(t) == "active"
+
 func accept(id: String) -> Dictionary:
 	if not can_offer(id): return {}
 	state.quests[id] = {"status": "active", "progress": {}, "done": {}}
-	if state.tracked == "" or is_done(state.tracked): state.tracked = id
+	# picking up the story request you were heading for, or nothing tracked: follow the new request
+	if state.tracked == "lead:" + id or not tracked_valid(): state.tracked = id
 	return Data.quest(id).get("onAccept", {})
 
 func objective(qid: String, o: Dictionary) -> Dictionary:
@@ -87,6 +98,16 @@ func on_event(name: String, n: int = 1) -> Array:
 				p[o.id] = mini(int(o.count), int(p.get(o.id, 0)) + n)
 	return refresh()
 
+## After finishing something: head for the next story request first, then any active story request, then the rest.
+func retrack() -> void:
+	var leads := story_leads()
+	var act := active()
+	var main_act := act.filter(func(q): return q.get("main", false))
+	if not main_act.is_empty(): state.tracked = main_act[0].id
+	elif not leads.is_empty(): state.tracked = "lead:" + leads[0].id
+	elif not act.is_empty(): state.tracked = act[0].id
+	else: state.tracked = ""
+
 func turn_ins_for(npc: String) -> Array:
 	return active().filter(func(q): return is_ready(q.id) and q.objectives.any(func(o): return o.get("final", false) and o.kind == "talk" and o.npc == npc))
 
@@ -97,9 +118,7 @@ func complete(qid: String) -> Dictionary:
 	for o in q.objectives:
 		if o.get("final", false): r.progress[o.id] = 1
 	r.status = "done"
-	if state.tracked == qid:
-		var act := active()
-		state.tracked = act[0].id if not act.is_empty() else ""
+	if state.tracked == qid or not tracked_valid(): retrack()
 	return q.get("rewards", {})
 
 func next_step(qid: String) -> Dictionary:
