@@ -7,6 +7,7 @@ var objects: Dictionary = {}
 var node_visuals: Dictionary = {}
 var lamps: Array = []
 var lamp_glow := 0.0
+var lamp_bulbs: Array = []    # indoor lamps (build-piece models) that glow at night
 var window_mats: Array = []   # house window glass, lit warm at night
 var occluders: Array = []     # [centre, radius] of canopies and bushes, for camera framing
 var terrain: MeshInstance3D
@@ -25,6 +26,7 @@ func build(decor: Dictionary) -> void:
 			_: o = Props.cottage(b)
 		o.position = Vector3(b.x, (H.call(b.x, b.z) - 0.05) if b.kind == "castle" else maxf(0.0, H.call(b.x, b.z)), b.z)
 		o.name = b.id; add_child(o); objects[b.id] = o
+		if Interiors.enterable(b): _furnish(b, o.position.y)
 		for gl in o.get_meta("glasses", []): window_mats.append(gl.material_override)
 		for ln in o.find_children("inn_lantern", "MeshInstance3D", true, false): window_mats.append(ln.material_override)
 	var f := Props.fountain(); var F: Dictionary = Data.layout.fountain; f.position = Vector3(F.x, 0, F.z); add_child(f); objects["fountain"] = f
@@ -53,6 +55,15 @@ func build(decor: Dictionary) -> void:
 	_build_decor(decor)
 	_build_nodes()
 	_build_features()
+
+## Furniture inside a building (build-piece models, or interior props), from layout.json.
+func _furnish(b: Dictionary, base_y: float) -> void:
+	for it in Interiors.items(b):
+		var n: Node3D = PieceMeshes.make(it.id, it.color) if it.piece else Props.interior_prop(it.id)
+		n.position = Vector3(it.x, base_y, it.z); n.rotation.y = -it.r * PI / 2.0
+		n.name = "%s_%s" % [b.id, it.id]
+		add_child(n)
+		for m in n.find_children("bulb", "MeshInstance3D", true, false): lamp_bulbs.append(m)
 
 func _multimesh(mesh: Mesh, material: Material, items: Array, place: Callable, shadow: bool = true) -> void:
 	var mm := MultiMesh.new()
@@ -180,3 +191,4 @@ func update_world(dt: float, t: float, flags: Dictionary) -> void:
 		var li: OmniLight3D = l.get_node("light")
 		li.visible = lamp_glow > 0.02; li.light_energy = 1.6 * lamp_glow
 	for m in window_mats: (m as StandardMaterial3D).emission_energy_multiplier = 1.4 * lamp_glow
+	for bl in lamp_bulbs: (bl.material_override as StandardMaterial3D).emission_energy_multiplier = 0.3 + 2.4 * lamp_glow

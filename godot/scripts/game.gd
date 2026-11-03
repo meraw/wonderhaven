@@ -50,7 +50,8 @@ var rain: GPUParticles3D
 var smoke_t := 0.0
 var last_autosave := -100.0
 var shot_cfg := {}
-var roof_alpha := 1.0
+var roof_alpha := 1.0   # the workshop's roof (kept for tests)
+var roof_fade: Dictionary = {}   # building id -> roof opacity
 var guide: Guide
 var outline: MeshInstance3D
 var outline_override := ""   # look-dev renders force outlines on or off without touching saved settings
@@ -743,18 +744,27 @@ func _world_reactions(dt: float) -> void:
 			var o: Node3D = village.objects.get(pair[0])
 			if pair[1] and o and o.has_meta("chimney"): effects.smoke(o.to_global(o.get_meta("chimney")))
 	if state.harmony >= 160 and player.moving and randf() < dt * 8.0: effects.sparkle(player.pos + Vector3(0, 0.1, 0), 1, Color("fff2a8"), 0.18)
-	var ws: Node3D = village.objects.workshop
+	# Roofs dissolve over the room you're standing in (and over the workshop while you furnish it).
 	var p := player.pos
-	var inside: bool = (p.x > -17.5 and p.x < -8.5 and p.z > 6.5 and p.z < 13.5) or (build.active and build.current_zone.get("id", "") == "workshop")
-	roof_alpha = lerpf(roof_alpha, 0.0 if inside else 1.0, minf(1.0, dt * 6.0))
-	var fading := roof_alpha < 0.99
-	for part in ws.get_meta("fade_parts"):
-		var mi: MeshInstance3D = part[0]
-		var m: Material = part[2] if fading else part[1]
-		if mi.material_override != m: mi.material_override = m
-		if not fading: continue
-		if m is ShaderMaterial: m.set_shader_parameter("alpha", roof_alpha)
-		else: m.albedo_color.a = roof_alpha
+	for bd in Data.layout.buildings:
+		var o: Node3D = village.objects.get(bd.id)
+		if o == null or not o.has_meta("fade_parts"): continue
+		var room: AABB = Interiors.room(bd, o.position.y) if Interiors.enterable(bd) else AABB(Vector3(bd.x - bd.w / 2.0 + 0.3, -1.0, bd.z - bd.d / 2.0 + 0.3), Vector3(bd.w - 0.6, 4.0, bd.d - 0.6))
+		var inside: bool = room.has_point(Vector3(p.x, room.position.y + 1.0, p.z)) or (build.active and build.current_zone.get("id", "") == bd.id)
+		var a0: float = roof_fade.get(bd.id, 1.0)
+		var a1: float = lerpf(a0, 0.0 if inside else 1.0, minf(1.0, dt * 6.0))
+		if a1 > 0.995: a1 = 1.0
+		roof_fade[bd.id] = a1
+		if a1 == a0 and (a1 == 1.0 or a1 < 0.001): continue
+		var fading := a1 < 0.99
+		for part in o.get_meta("fade_parts"):
+			var mi: MeshInstance3D = part[0]
+			var m: Material = part[2] if fading else part[1]
+			if mi.material_override != m: mi.material_override = m
+			if not fading: continue
+			if m is ShaderMaterial: m.set_shader_parameter("alpha", a1)
+			else: m.albedo_color.a = a1
+	roof_alpha = roof_fade.get("workshop", 1.0)
 
 func _make_rain() -> void:
 	rain = GPUParticles3D.new(); rain.amount = 1500; rain.lifetime = 1.6; rain.emitting = false; rain.visibility_aabb = AABB(Vector3(-30, -20, -30), Vector3(60, 40, 60))

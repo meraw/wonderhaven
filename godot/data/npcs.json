@@ -26,7 +26,7 @@
     [
      6,
      10,
-     "odessaDoor",
+     "odessaHouse:spot",
      "read"
     ],
     [
@@ -38,7 +38,7 @@
     [
      14,
      19,
-     "odessaDoor",
+     "odessaHouse:spot",
      "read"
     ],
     [
@@ -66,7 +66,7 @@
       [
        6,
        10,
-       "odessaDoor",
+       "odessaHouse:spot",
        "read"
       ],
       [
@@ -78,7 +78,7 @@
       [
        15,
        19,
-       "odessaDoor",
+       "odessaHouse:spot",
        "read"
       ],
       [
@@ -90,7 +90,7 @@
      ]
     }
    ],
-   "home": "odessaDoor",
+   "home": "odessaHouse:spot",
    "greetings": [
     {
      "flag": "boatReady",
@@ -233,7 +233,7 @@
      ]
     }
    ],
-   "home": "fernDoor",
+   "home": "fernHouse:spot",
    "greetings": [
     {
      "flag": "orchardOpen",
@@ -421,7 +421,7 @@
     [
      7,
      12,
-     "castleSteps",
+     "castle:spot",
      "talk"
     ],
     [
@@ -433,7 +433,7 @@
     [
      15,
      21,
-     "castleSteps",
+     "castle:spot",
      "talk"
     ]
    ],
@@ -444,7 +444,7 @@
       [
        7,
        11,
-       "castleSteps",
+       "castle:spot",
        "talk"
       ],
       [
@@ -462,13 +462,13 @@
       [
        18,
        21,
-       "castleSteps",
+       "castle:spot",
        "talk"
       ]
      ]
     }
    ],
-   "home": "castleSteps",
+   "home": "castle:spot",
    "greetings": [
     {
      "flag": "harborOpen",
@@ -669,7 +669,7 @@
     [
      6,
      21,
-     "bakeryDoor",
+     "bakery:spot",
      "idle"
     ]
    ],
@@ -680,7 +680,7 @@
       [
        6,
        12,
-       "bakeryDoor",
+       "bakery:spot",
        "work"
       ],
       [
@@ -692,13 +692,13 @@
       [
        14,
        21,
-       "bakeryDoor",
+       "bakery:spot",
        "work"
       ]
      ]
     }
    ],
-   "home": "bakeryDoor",
+   "home": "bakery:spot",
    "greetings": [
     {
      "flag": "squirrelsGone",
@@ -788,7 +788,7 @@
     }
    ],
    "present": "harborOpen",
-   "home": "harborHut",
+   "home": "captainHut:spot",
    "greetings": [
     {
      "flag": "boatReady",

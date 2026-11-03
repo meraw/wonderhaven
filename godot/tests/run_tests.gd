@@ -20,6 +20,8 @@ func _initialize() -> void:
 	files.sort()
 	for f in files:
 		var script: Script = load("res://tests/" + f)
+		if script == null or not script.can_instantiate():
+			failures += 1; print("FAIL could not load tests/", f); continue
 		var inst = script.new()
 		inst.set("t", self)
 		for m in inst.get_method_list():

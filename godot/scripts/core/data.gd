@@ -37,6 +37,15 @@ func load_all() -> void:
 	resources = r.resources; resource_order = r.order
 	appearance = _read("appearance")
 	tutorial = _read("tutorial")
+	_add_interior_nav()
+
+## Rooms you can walk into add nav spots (inside the door, and where the owner works and sleeps) to the village graph.
+func _add_interior_nav() -> void:
+	for b in layout.buildings:
+		if not b.has("interior"): continue
+		var n: Dictionary = Interiors.nav(b)
+		for k in n.nodes: layout.nav_nodes[k] = n.nodes[k]
+		for e in n.edges: layout.nav_edges.append(e)
 
 func piece(id: String) -> Dictionary: return piece_by_id.get(id, {})
 func npc(id: String) -> Dictionary: return npc_by_id.get(id, {})

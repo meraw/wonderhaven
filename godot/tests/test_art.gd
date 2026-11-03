@@ -79,7 +79,8 @@ func test_camera_stays_inside_a_room():
 	t.ok(level < 4.0, "looking sideways, the camera stops inside the wall (d=%.2f)" % level)
 	var steep := c.clear_distance(pivot, Vector3(0.3, 1.0, 0).normalized(), 9.0)
 	t.ok(steep > 5.0, "looking down from above, it may rise out over the faded roof (d=%.2f)" % steep)
-	t.ok(Props.camera_rooms().size() == 1, "the workshop is a room you can walk into")
+	var enterable: int = Data.layout.buildings.filter(func(b): return b.kind == "workshop" or Interiors.enterable(b)).size()
+	t.eq(Props.camera_rooms().size(), enterable, "every building you can walk into is a camera room")
 
 func test_camera_rays_ignore_a_thin_miss():
 	# A building just beside the line of sight still gets a little room thanks to the probe rays, so walking past

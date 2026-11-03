@@ -108,6 +108,15 @@ static func build_statics(decor: Dictionary) -> Array:
 			out.append(_box(minX, minX + t, minZ, maxZ, b.id))
 			out.append(_box(maxX - t, maxX, minZ, g0, b.id))
 			out.append(_box(maxX - t, maxX, g1, maxZ, b.id))
+		elif Interiors.enterable(b):
+			for r in Interiors.walls(b): out.append(_box(r.minX, r.maxX, r.minZ, r.maxZ, b.id))
+			if b.interior.get("shell", "house") == "castle":
+				for c in [[-1, -1], [1, -1], [-1, 1], [1, 1]]: out.append({"type": "circle", "x": b.x + c[0] * b.w / 2.0, "z": b.z + c[1] * b.d / 2.0, "r": 1.15, "tag": b.id})
+			for it in Interiors.items(b):
+				var st := Interiors.item_static(it)
+				if st.is_empty(): continue
+				if st.get("type", "") == "circle": st["tag"] = b.id; out.append(st)
+				else: out.append(_box(st.minX, st.maxX, st.minZ, st.maxZ, b.id))
 		else:
 			out.append(_box(minX, maxX, minZ, maxZ, b.id))
 	var F: Dictionary = Data.layout.fountain
