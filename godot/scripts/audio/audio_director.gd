@@ -3,20 +3,42 @@ extends Node
 ## the first time they are needed (no audio files): marimba, glockenspiel, ukulele-ish pluck, soft pad, kick, shaker.
 
 const RATE := 22050
+## Original tunes. Steps are eighth notes; chords are semitones above the root, one per bar of 16 steps; melody is
+## [step, semitone]. lead/arp name the instruments; arp_every is how often (in steps) the arpeggio plays; drums is
+## "full", "light" (shaker only) or "" (none).
 const SONGS := {
-	"hearthglow": {"bpm": 96, "root": 65,
+	"dawn": {"bpm": 74, "root": 62, "lead": "flute", "arp": "glock", "arp_every": 4, "drums": "", "pad": 0.11,
+		"chords": [[0, 4, 7, 11], [9, 12, 16], [5, 9, 12, 16], [7, 12, 14]],
+		"melody": [[0, 16], [4, 14], [6, 12], [8, 11], [16, 9], [20, 12], [24, 14], [32, 17], [36, 16], [38, 14], [40, 12], [48, 11], [52, 9], [56, 7]]},
+	"hearthglow": {"bpm": 96, "root": 65, "lead": "marimba", "arp": "marimba", "arp_every": 2, "drums": "full", "pad": 0.08,
 		"chords": [[0, 4, 7], [9, 12, 16], [5, 9, 12], [7, 11, 14], [0, 4, 7], [2, 5, 9], [5, 9, 12], [7, 11, 14]],
 		"melody": [[0, 7], [2, 9], [4, 12], [6, 11], [8, 9], [12, 7], [16, 9], [18, 12], [20, 16], [24, 14], [28, 12], [32, 5], [34, 9], [36, 12], [38, 14], [40, 12], [44, 9], [48, 7], [50, 11], [52, 14], [56, 12], [60, 11], [64, 7], [66, 9], [68, 12], [70, 11], [72, 9], [76, 7], [80, 2], [82, 5], [84, 9], [88, 7], [92, 5], [96, 5], [98, 9], [100, 12], [102, 14], [104, 16], [108, 14], [112, 11], [114, 14], [116, 12], [120, 7]]},
-	"night": {"bpm": 72, "root": 60, "chords": [[0, 4, 7, 11], [9, 12, 16], [5, 9, 12, 16], [7, 11, 14, 17]],
+	"afternoon": {"bpm": 112, "root": 67, "lead": "marimba", "arp": "pluck", "arp_every": 1, "drums": "full", "pad": 0.06,
+		"chords": [[0, 4, 7], [7, 11, 14], [9, 12, 16], [5, 9, 12], [0, 4, 7], [2, 5, 9], [7, 11, 14], [0, 4, 7]],
+		"melody": [[0, 12], [2, 14], [4, 16], [6, 19], [8, 16], [12, 14], [16, 11], [18, 12], [20, 14], [24, 11], [28, 7], [32, 9], [34, 12], [36, 16], [40, 14], [44, 12], [48, 9], [52, 12], [56, 14], [60, 12],
+			[64, 12], [66, 16], [68, 19], [70, 21], [72, 19], [76, 16], [80, 14], [82, 12], [84, 14], [88, 17], [92, 14], [96, 16], [98, 14], [100, 12], [104, 11], [108, 14], [112, 12], [120, 7]]},
+	"evening": {"bpm": 84, "root": 63, "lead": "rhodes", "arp": "pluck", "arp_every": 2, "drums": "light", "pad": 0.1,
+		"chords": [[0, 4, 7, 11], [4, 7, 11, 14], [9, 12, 16, 19], [5, 9, 12, 16], [2, 5, 9, 12], [7, 11, 14, 17], [0, 4, 7, 11], [5, 9, 12, 16]],
+		"melody": [[0, 14], [3, 12], [4, 11], [8, 7], [12, 9], [16, 11], [19, 12], [20, 14], [24, 16], [32, 17], [35, 16], [36, 14], [40, 12], [48, 11], [52, 9], [56, 7],
+			[64, 12], [67, 14], [68, 16], [72, 19], [80, 17], [84, 16], [88, 14], [96, 12], [100, 11], [104, 9], [112, 7], [120, 4]]},
+	"night": {"bpm": 72, "root": 60, "lead": "marimba", "arp": "glock", "arp_every": 4, "drums": "", "pad": 0.12,
+		"chords": [[0, 4, 7, 11], [9, 12, 16], [5, 9, 12, 16], [7, 11, 14, 17]],
 		"melody": [[0, 16], [6, 14], [8, 12], [16, 11], [24, 12], [32, 9], [38, 12], [40, 16], [48, 14], [56, 11]]},
-	"build": {"bpm": 104, "root": 67, "chords": [[0, 4, 7], [5, 9, 12], [9, 12, 16], [7, 11, 14]],
+	"build": {"bpm": 104, "root": 67, "lead": "glock", "arp": "marimba", "arp_every": 2, "drums": "full", "pad": 0.08,
+		"chords": [[0, 4, 7], [5, 9, 12], [9, 12, 16], [7, 11, 14]],
 		"melody": [[0, 12], [2, 16], [4, 19], [8, 17], [12, 16], [16, 14], [18, 17], [20, 21], [24, 19], [28, 17], [32, 16], [36, 12], [40, 14], [44, 16], [48, 19], [56, 24]]},
 }
+## Which tune plays in each part of the day (Daylight.part_of_day).
+const DAY_SONGS := {"dawn": "dawn", "morning": "hearthglow", "afternoon": "afternoon", "evening": "evening", "night": "night"}
+const INSTRUMENTS := ["marimba", "glock", "pluck", "pad", "kick", "hat", "blip", "chirp", "hiss", "thud", "flute", "rhodes"]
 
 var cache := {}
 var pool: Array = []
 var next_player := 0
 var song := "hearthglow"
+var gain := 1.0          # music fade: crossfades between songs go through silence over a couple of seconds
+var want_song := "hearthglow"
+var soft := 0.0          # 0..1: rain makes the music gentler (no drums, quieter lead)
 var step := 0
 var song_time := 0.0
 var next_step_time := 0.0
@@ -45,7 +67,7 @@ func _gen(kind: String, midi: int) -> AudioStreamWAV:
 	var key := "%s:%d" % [kind, midi]
 	if cache.has(key): return cache[key]
 	var f := freq(midi)
-	var length: float = {"marimba": 0.6, "glock": 1.2, "pluck": 0.45, "pad": 2.4, "kick": 0.25, "hat": 0.06, "blip": 0.09, "hiss": 1.6, "chirp": 0.07, "thud": 0.3}.get(kind, 0.5)
+	var length: float = {"marimba": 0.6, "glock": 1.2, "pluck": 0.45, "pad": 2.4, "kick": 0.25, "hat": 0.06, "blip": 0.09, "hiss": 1.6, "chirp": 0.07, "thud": 0.3, "flute": 0.9, "rhodes": 1.4}.get(kind, 0.5)
 	var n := int(RATE * length)
 	var data := PackedByteArray(); data.resize(n * 2)
 	var lp := 0.0
@@ -83,6 +105,16 @@ func _gen(kind: String, midi: int) -> AudioStreamWAV:
 			"thud":
 				lp += ((randf() * 2.0 - 1.0) - lp) * 0.12
 				v = (lp * 1.6 + sin(TAU * 110.0 * t) * 0.5) * exp(-t * 14.0)
+			"flute":
+				# soft, breathy, with a gentle vibrato that comes in after the attack
+				var vib := 1.0 + 0.006 * sin(TAU * 5.4 * t) * minf(1.0, t / 0.25)
+				phase += TAU * f * vib / RATE
+				lp += ((randf() * 2.0 - 1.0) - lp) * 0.05
+				var envf := minf(1.0, t / 0.07) * minf(1.0, (length - t) / 0.3)
+				v = (sin(phase) * 0.8 + sin(phase * 2.0) * 0.12 + lp * 0.18) * envf * 0.7
+			"rhodes":
+				# electric-piano-ish: warm body, a bell-like overtone and a quick tine
+				v = (sin(TAU * f * t) + 0.3 * sin(TAU * f * 2.0 * t) * exp(-t * 3.0) + 0.18 * sin(TAU * f * 7.0 * t) * exp(-t * 28.0)) * exp(-t * 2.4) * 0.55
 		var s := int(clampf(v, -1.0, 1.0) * 32000.0)
 		data.encode_s16(i * 2, s)
 	var w := AudioStreamWAV.new(); w.format = AudioStreamWAV.FORMAT_16_BITS; w.mix_rate = RATE; w.stereo = false; w.data = data
@@ -100,15 +132,22 @@ func play(kind: String, midi: int, vol: float = 0.5, bus: int = -1, delay: float
 	p.play()
 
 func update_music(game, dt: float) -> void:
-	var want := "build" if game.mode == "build" else ("night" if game.state.flags.get("night", false) else "hearthglow")
-	if want != song: song = want; step = 0; next_step_time = song_time
+	var part := Daylight.part_of_day(float(game.state.time.minute) / 60.0)
+	want_song = "build" if game.mode == "build" else DAY_SONGS.get(part, "hearthglow")
+	soft = lerpf(soft, clampf(game.weather_now.get("rain", 0.0) * 1.4, 0.0, 1.0), 1.0 - exp(-dt * 0.5))
+	# crossfade: fade the current tune out, switch while silent, fade the new one in
+	if want_song != song:
+		gain = maxf(0.0, gain - dt / 1.6)
+		if gain <= 0.0: song = want_song; step = 0; next_step_time = song_time
+	else:
+		gain = minf(1.0, gain + dt / 3.0)
 	song_time += dt
 	var s: Dictionary = SONGS[song]
 	var step_dur: float = 60.0 / s.bpm / 2.0
 	var guard := 0
 	while next_step_time <= song_time and guard < 8:
 		guard += 1
-		_music_step(s)
+		if gain > 0.01: _music_step(s)
 		step += 1; next_step_time += step_dur
 	amb_t -= dt
 	if amb_t < 0.0:
@@ -121,28 +160,37 @@ func update_music(game, dt: float) -> void:
 		var p: Vector3 = game.player.pos
 		var river := maxf(0.0, 1.0 - (absf(p.z - Heightfield.river_center(p.x)) - 3.0) / 8.0)
 		if river > 0.05: play("hiss", 60, 0.15 * river)
-		if game.rain.emitting: play("hiss", 70, 0.25)
+		var wet: float = game.weather_now.get("rain", 0.0)
+		if wet > 0.05: play("hiss", 70, 0.3 * wet)
 
 func _music_step(s: Dictionary) -> void:
 	var beat := step % 16
 	var bar: int = int(step / 16) % s.chords.size()
 	var chord: Array = s.chords[bar]
 	var R: int = s.root
+	var g := gain
 	if beat == 0:
-		for nn in chord: play("pad", R + int(nn) - 12, 0.12 if song == "night" else 0.08, music_bus)
-		play("pluck", R + int(chord[0]) - 24, 0.4, music_bus)
-	if beat == 8: play("pluck", R + int(chord[2]) - 24, 0.3, music_bus)
-	if song != "night":
-		if beat % 2 == 0: play("marimba", R + int(chord[(beat / 2) % chord.size()]) - (0 if beat % 4 else 12), 0.22, music_bus)
-		if beat % 4 == 2: play("hat", 60, 0.12, music_bus)
-		if beat == 0 or beat == 10: play("kick", 40, 0.35, music_bus)
-	elif beat % 4 == 0: play("glock", R + int(chord[(beat / 4) % chord.size()]) + 12, 0.15, music_bus)
+		for nn in chord: play("pad", R + int(nn) - 12, s.pad * g, music_bus)
+		play("pluck", R + int(chord[0]) - 24, 0.4 * g, music_bus)
+	if beat == 8: play("pluck", R + int(chord[2]) - 24, 0.3 * g, music_bus)
+	var every: int = s.arp_every
+	if s.arp != "" and beat % every == 0:
+		var idx: int = int(beat / every) % chord.size()
+		var octave := 12 if s.arp == "glock" else (0 if beat % 4 else -12)
+		var av: float = {"glock": 0.15, "pluck": 0.16, "marimba": 0.22}.get(s.arp, 0.18)
+		play(s.arp, R + int(chord[idx]) + octave, av * g * lerpf(1.0, 0.7, soft), music_bus)
+	var drums: String = s.drums if soft < 0.5 else ""
+	if drums == "full":
+		if beat % 4 == 2: play("hat", 60, 0.12 * g, music_bus)
+		if beat == 0 or beat == 10: play("kick", 40, 0.35 * g, music_bus)
+	elif drums == "light" and beat % 4 == 2: play("hat", 60, 0.08 * g, music_bus)
 	var last := 0
 	for m in s.melody: last = maxi(last, int(m[0]))
 	var loop: int = int(ceil((last + 8) / 16.0)) * 16
 	var ms := step % loop
+	var lv: float = {"glock": 0.25, "flute": 0.3, "rhodes": 0.32}.get(s.lead, 0.4)
 	for m in s.melody:
-		if int(m[0]) == ms: play("glock" if song == "build" else "marimba", R + int(m[1]), 0.25 if song == "build" else 0.4, music_bus)
+		if int(m[0]) == ms: play(s.lead, R + int(m[1]), lv * g * lerpf(1.0, 0.75, soft), music_bus)
 
 func sfx(name: String) -> void:
 	var arp := func(notes: Array, gap: float, inst: String = "glock", vol: float = 0.45):

@@ -38,25 +38,40 @@ func test_paths_fit_terrain_shader():
 func test_camera_stops_in_front_of_buildings():
 	var c := FollowCamera.new(null)
 	c.blockers = [AABB(Vector3(4, 0, -2), Vector3(4, 5, 4))]
-	var p := c._avoid_blockers(Vector3(0, 1, 0), Vector3(10, 3, 0))
-	t.ok(p.x < 4.0 and p.x > 1.0, "camera pulled in front of the wall (x=%.2f)" % p.x)
-	var free := c._avoid_blockers(Vector3(0, 1, 0), Vector3(-10, 3, 0))
-	t.ok(free.is_equal_approx(Vector3(-10, 3, 0)), "unblocked camera untouched")
-	var inside := c._avoid_blockers(Vector3(6, 1, 0), Vector3(16, 3, 0))
-	t.ok(inside.is_equal_approx(Vector3(16, 3, 0)), "target inside a building (workshop) ignores that box")
-	var by_door := c._avoid_blockers(Vector3(3.8, 1, 0), Vector3(12, 3, 0))
-	t.ok(by_door.x < 4.0, "target standing right by the wall still keeps the camera out of the house (x=%.2f)" % by_door.x)
+	var east := Vector3(1, 0.2, 0).normalized()
+	var d := c.clear_distance(Vector3(0, 1, 0), east, 10.0)
+	t.ok(d < 4.0 and d >= FollowCamera.MIN_DIST, "camera stays in front of the wall (d=%.2f)" % d)
+	t.eq(c.clear_distance(Vector3(0, 1, 0), Vector3(-1, 0.2, 0).normalized(), 10.0), 10.0, "unblocked view keeps its distance")
+	t.ok(c.clear_distance(Vector3(0, 1, 0), Vector3(-1, -0.2, 0).normalized(), 10.0) < 6.0, "the ground blocks a view that dips into it")
+	t.eq(c.clear_distance(Vector3(6, 1, 0), east, 10.0), 10.0, "inside a building (the workshop) that building doesn't block")
+	t.ok(c.clear_distance(Vector3(3.8, 1, 0), east, 10.0) <= FollowCamera.MIN_DIST + 0.01, "right by the wall the camera comes in close instead of into the house")
+	t.ok(c.blocked(Vector3(0, 1, 0), Vector3(10, 3, 0)) and not c.blocked(Vector3(0, 1, 0), Vector3(-10, 3, 0)), "blocked() agrees")
 	var blockers := Props.camera_blockers()
 	t.eq(blockers.size(), Data.layout.buildings.size(), "one camera blocker per building")
 	var sp: Dictionary = Data.layout.spawn
 	for b in blockers: t.ok(not (b as AABB).has_point(Vector3(sp.x, 1.0, sp.z)), "spawn point is outside every blocker")
 
-func test_camera_rises_over_a_house_behind_the_player():
+func test_camera_eases_out_and_never_tilts_itself():
+	# In at once, out slowly: after a wall stops blocking, the camera takes a while to go back, without jumps.
+	var d := FollowCamera.settle(9.0, 2.0, 1.0 / 60.0)
+	t.eq(d, 2.0, "pulls in at once")
+	var biggest := 0.0
+	for i in 60:
+		var nd := FollowCamera.settle(d, 9.0, 1.0 / 60.0); biggest = maxf(biggest, nd - d); d = nd
+	t.ok(biggest < 0.3 and d > 4.0 and d < 9.0, "eases back out smoothly (largest step %.2f, after 1 s %.2f)" % [biggest, d])
 	var c := FollowCamera.new(null)
 	c.blockers = [AABB(Vector3(4, 0, -2), Vector3(4, 4, 4))]
-	var lift := c._lift_needed(Vector3(0, 1, 0), PI / 2, 0.3, 9.0)   # camera looking from +x, house in between
-	t.ok(lift > 0.0 and lift < 1.2, "camera lifts above the roof (lift=%.2f)" % lift)
-	t.eq(c._lift_needed(Vector3(0, 1, 0), -PI / 2, 0.3, 9.0), 0.0, "no lift when the view is clear")
+	c.pitch = 0.3
+	c.clamp_limits()
+	t.eq(c.pitch, 0.3, "a house behind the player doesn't change the pitch the player chose")
+
+func test_camera_rays_ignore_a_thin_miss():
+	# A building just beside the line of sight still gets a little room thanks to the probe rays, so walking past
+	# a corner doesn't make the camera flick in and out.
+	var c := FollowCamera.new(null)
+	c.blockers = [AABB(Vector3(4, 0, 0.1), Vector3(2, 5, 2))]   # starts 0.1 m to the side of the centre ray
+	var d := c.clear_distance(Vector3(0, 1, 0), Vector3(1, 0, 0), 10.0)
+	t.ok(d < 4.0, "the side probes catch a corner that the centre ray just misses (d=%.2f)" % d)
 
 func test_character_lathes_face_outward():
 	t.ok(_outward(Chibi._lathe("torso", Chibi.TORSO, 0.86), Vector3(0, 0.5, 0)) > 0.9, "torso normals point outward")
