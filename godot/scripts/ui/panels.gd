@@ -221,7 +221,7 @@ func map(from_boat: bool = false) -> void:
 func pause() -> void:
 	open_panel("pause", "🌟 Paused")
 	var v := VBoxContainer.new(); v.custom_minimum_size.x = 300; v.size_flags_horizontal = Control.SIZE_SHRINK_CENTER; v.add_theme_constant_override("separation", 10); body.add_child(v)
-	for pair in [["▶ Resume", close, true], ["💾 Save game", func(): saves("save"), false], ["📂 Load game", func(): saves("load"), false], ["👗 Wardrobe", func(): close(); game.open_wardrobe(), false], ["⚙️ Settings & controls", settings, false], ["🏠 Quit to title", func(): close(); game.to_title(), false]]:
+	for pair in [["▶ Resume", close, true], ["💾 Save game", func(): saves("save"), false], ["📂 Load game", func(): saves("load"), false], ["👗 Wardrobe", func(): close(); game.open_wardrobe(), false], ["⚙️ Settings & controls", settings, false], ["🆘 I'm stuck", func(): close(); game.unstick(), false], ["🏠 Quit to title", func(): close(); game.to_title(), false]]:
 		var b := UiTheme.button(pair[0], pair[1], pair[2]); b.name = "btn_" + str(pair[0]).substr(2).to_lower().replace(" ", "_"); v.add_child(b)
 
 func saves(mode: String) -> void:

@@ -71,3 +71,29 @@ func step_move(pos: Vector3, dx: float, dz: float, r: float = PLAYER_RADIUS, ign
 		var s := can_stand(pos.x + t.x, pos.z + t.y, pos.y, r, ignore)
 		if not s.is_empty(): return {"pos": Vector3(pos.x + t.x, s.y, pos.z + t.y), "moved": true}
 	return {"pos": Vector3(pos.x, surface_at(pos.x, pos.z, pos.y).y, pos.z), "moved": false}
+
+## True when a body at pos can't take a step in any direction (boxed in by pieces).
+func stuck(pos: Vector3, r: float = PLAYER_RADIUS, ignore = null) -> bool:
+	for k in 8:
+		var a := k * TAU / 8.0
+		if not can_stand(pos.x + cos(a) * 0.35, pos.z + sin(a) * 0.35, pos.y, r, ignore).is_empty(): return false
+	return true
+
+## The nearest spot to (x, z) where a body can stand, can move around, and that lies outside `avoid`
+## (a Rect2 in x/z, e.g. a build zone). Searches outward in rings; returns {} if nothing within max_r.
+func free_spot(x: float, z: float, avoid: Rect2 = Rect2(), max_r: float = 14.0, r: float = PLAYER_RADIUS, ignore = null) -> Dictionary:
+	var rad := 0.0
+	while rad <= max_r:
+		var n := 1 if rad == 0.0 else int(ceil(TAU * rad / 0.6))
+		for k in n:
+			var a := k * TAU / n
+			var px := x + cos(a) * rad; var pz := z + sin(a) * rad
+			if avoid.has_area() and avoid.grow(0.4).has_point(Vector2(px, pz)): continue
+			var feet: float = surface_at(px, pz).y
+			var s := can_stand(px, pz, feet, r, ignore)
+			if s.is_empty(): continue
+			if stuck(Vector3(px, s.y, pz), r, ignore): continue
+			return {"x": px, "z": pz, "y": s.y}
+		rad += 0.5
+	return {}
+

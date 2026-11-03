@@ -40,10 +40,13 @@ func setup(g) -> void:
 func state() -> Dictionary: return game.state
 func unlocked_zones() -> Array: return Data.layout.zones.filter(func(z): return game.zone_unlocked(z))
 
+var opened_at := Vector3.INF   # where the player stood when build mode opened
+
 func open(zone_id: String = "") -> bool:
 	if not state().flags.get("hasTool", false):
 		game.toast("You need the Starforge Tool first — Odessa might know where it is!", "warn"); return false
 	active = true
+	opened_at = game.player.pos
 	var zones := unlocked_zones()
 	var p: Vector3 = game.player.pos
 	var zone := {}
@@ -65,6 +68,7 @@ func open(zone_id: String = "") -> bool:
 
 func close() -> void:
 	if not moving.is_empty(): cancel_move()
+	var zone_was: Dictionary = current_zone
 	active = false; item_id = ""; selected = -1
 	_clear_ghost(); sel_box.visible = false; grid_root.visible = false
 	game.cam.set_mode("explore")
@@ -72,6 +76,25 @@ func close() -> void:
 	if ui: ui.queue_free(); ui = null
 	if pad_cursor: pad_cursor.visible = false
 	game.emit_event("buildmode", {"open": false})
+	step_out_of(zone_was)
+
+## Leaving build mode while standing on the site (or boxed in by what you built): step to the nearest free spot
+## outside the highlighted zone, preferring where you stood when you started building.
+func step_out_of(zone: Dictionary) -> void:
+	if zone.is_empty() or zone.get("interior", false): return
+	var b := BuildGrid.zone_bounds(zone, game.state.harmony)
+	var rect := Rect2(b.minI, b.minK, b.maxI - b.minI + 1, b.maxK - b.minK + 1)
+	var p: Vector3 = game.player.pos
+	var w: WalkWorld = game.walk
+	var inside := rect.grow(0.2).has_point(Vector2(p.x, p.z))
+	if not inside and not w.stuck(p, WalkWorld.PLAYER_RADIUS, game.player.body): return
+	var from: Vector3 = opened_at if opened_at != Vector3.INF else p
+	var spot := w.free_spot(from.x, from.z, rect, 14.0, WalkWorld.PLAYER_RADIUS, game.player.body)
+	if spot.is_empty(): spot = w.free_spot(p.x, p.z, rect, 30.0, WalkWorld.PLAYER_RADIUS, game.player.body)
+	if spot.is_empty(): return
+	game.player.teleport(spot.x, spot.z)
+	game.effects.sparkle(game.player.pos + Vector3(0, 1, 0), 12)
+	game.toast("You step off the build site.")
 
 func _over_ui(p: Vector2) -> bool:
 	if ui == null: return false

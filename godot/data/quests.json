@@ -385,7 +385,7 @@
    "main": true,
    "type": "character",
    "chapter": 1,
-   "description": "Royal Decree No. 47 keeps the harbor sealed until the village reaches 120 Kingdom Harmony.",
+   "description": "King Percival's Royal Decree No. 47 keeps the harbor sealed until the village reaches 120 Kingdom Harmony.",
    "requires": {
     "quests": [
      "bridge"
@@ -403,7 +403,7 @@
      "kind": "talk",
      "npc": "percival",
      "final": true,
-     "text": "Petition Lord Percival to open the harbor"
+     "text": "Petition King Percival to open the harbor"
     }
    ],
    "rewards": {
@@ -420,7 +420,7 @@
    },
    "dialogue": {
     "offer": [
-     "Ahem! Citizen {name}! Your bridge has been noticed at the very highest levels. By me.",
+     "Ahem! Citizen {name}! Your bridge has been noticed at the very highest levels. By me. The king.",
      "You may have heard: the harbor is sealed by Royal Decree Number Forty-Seven, until the kingdom is in Harmony once more.",
      "Help the villagers, mend what is broken, and when Hearthglow's Harmony reaches one hundred and twenty, I shall lift the decree!"
     ],
@@ -448,7 +448,7 @@
    "main": true,
    "type": "construction",
    "chapter": 1,
-   "description": "Lord Percival has granted you the empty plot beside the Lantern Inn. Build a little house there: walls, a door, a roof and a bed.",
+   "description": "King Percival has granted you the empty plot beside the Lantern Inn. Build a little house there: walls, a door, a roof and a bed.",
    "requires": {
     "quests": [
      "bridge"
@@ -487,7 +487,7 @@
      "kind": "talk",
      "npc": "percival",
      "final": true,
-     "text": "Tell Lord Percival your home is ready"
+     "text": "Tell King Percival your home is ready"
     }
    ],
    "rewards": {
@@ -599,7 +599,7 @@
    "giver": "percival",
    "type": "collection",
    "chapter": 1,
-   "description": "Lord Percival wants stone and a sparkling crystal to \"restore the castle's dignity\".",
+   "description": "King Percival wants stone and a sparkling crystal to \"restore the castle's dignity\".",
    "requires": {
     "quests": [
      "tool"
@@ -633,7 +633,7 @@
      "kind": "talk",
      "npc": "percival",
      "final": true,
-     "text": "Bring them to Lord Percival"
+     "text": "Bring them to King Percival"
     }
    ],
    "rewards": {

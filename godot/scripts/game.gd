@@ -775,6 +775,15 @@ func _apply_window() -> void:
 	if settings.get("fullscreen", false) and not full: DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
 	elif not settings.get("fullscreen", false) and full: DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_MAXIMIZED)
 
+## Pause menu "I'm stuck": back to the Lantern Inn's door, wherever you were.
+func unstick() -> void:
+	var door: Array = Data.layout.nav_nodes.get("cottageDoor", [14, 17])
+	var spot := walk.free_spot(float(door[0]), float(door[1]), Rect2(), 10.0, WalkWorld.PLAYER_RADIUS, player.body)
+	if spot.is_empty(): return
+	player.teleport(spot.x, spot.z); cam.snap()
+	effects.sparkle(player.pos + Vector3(0, 1, 0), 16)
+	toast("Back at the Lantern Inn.")
+
 func toggle_fullscreen() -> void:
 	settings.fullscreen = not settings.get("fullscreen", false)
 	apply_settings()

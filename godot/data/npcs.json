@@ -397,8 +397,8 @@
   },
   {
    "id": "percival",
-   "name": "Lord Percival Puffington",
-   "title": "Royal Advisor",
+   "name": "King Percival Puffington",
+   "title": "King of Hearthglow",
    "voice": 0.75,
    "appearance": {
     "skin": "#ffe3cc",
@@ -489,10 +489,10 @@
    "topics": [
     {
      "id": "castle",
-     "label": "Who lives in the castle?",
+     "label": "Is the castle really yours?",
      "lines": [
-      "The Royal Seat of Hearthglow has been vacant since the magic dozed off.",
-      "I keep it dusted. Twice. Daily. One must be ready for royalty at all times!"
+      "Every turret and teaspoon of it! King Percival the First, at your service. And the only, so far.",
+      "The magic dozed off, the courtiers wandered away, and now it is just me, a very long table and a great deal of dusting."
      ]
     },
     {

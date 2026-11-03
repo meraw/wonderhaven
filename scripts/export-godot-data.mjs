@@ -1,6 +1,13 @@
 // Writes the game's content (layout, pieces, villagers, quests, unlocks, appearance options) as JSON
 // for the Godot project, so both versions share one source of content.
 import { writeFileSync, mkdirSync } from 'node:fs';
+
+// FROZEN: since the browser version was frozen, godot/data/*.json is the source of truth and is edited directly.
+// Running this would overwrite Godot-only content (new quests, shops, interiors), so it needs --force.
+if (!process.argv.includes('--force')) {
+  console.error('The browser version is frozen: godot/data is now edited directly. Re-run with --force only if you really mean to overwrite it from src/data.');
+  process.exit(1);
+}
 import * as layout from '../src/data/village-layout.js';
 import { PIECES, CATEGORIES, STARTER_BLUEPRINTS, COLOR_PALETTE, SPAN_LIMIT } from '../src/data/pieces.js';
 import { NPCS } from '../src/data/npcs.js';
