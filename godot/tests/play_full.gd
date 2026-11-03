@@ -38,10 +38,14 @@ func walk_to(x: float, z: float, tol: float = 0.8) -> bool:
 		var a: Array = Data.layout.nav_nodes[path[i]]
 		pts.append(Vector2(a[0], a[1]))
 		if i + 1 < path.size(): pts.append_array(game.crossing_path(path[i], path[i + 1]))
-	var goal := Vector2(x, z)
-	for pt in pts:
-		if pt.distance_to(goal) > Vector2(game.player.pos.x, game.player.pos.z).distance_to(goal): continue
-		await walk_direct(pt.x, pt.y, 1.2)
+	# Follow the waypoints in order from the one nearest the player. (Skipping every waypoint farther from the goal
+	# used to cut straight through buildings, e.g. into the workshop's back wall.)
+	var here := Vector2(game.player.pos.x, game.player.pos.z)
+	var start := 0
+	for i in pts.size():
+		if pts[i].distance_to(here) < pts[start].distance_to(here): start = i
+	for i in range(start, pts.size()):
+		await walk_direct(pts[i].x, pts[i].y, 1.2)
 	return await walk_direct(x, z, tol)
 
 func face_and_press(target_id: String, x: float, z: float) -> bool:
