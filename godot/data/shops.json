@@ -225,6 +225,62 @@
      "price": 70
     }
    ]
+  },
+  "hazel": {
+   "name": "Rivet's Forge",
+   "label": "Let's trade",
+   "greet": "Gears, springs and plans. Hot off the anvil!",
+   "requires": {
+    "flags": [
+     "arrived_clockwork"
+    ]
+   },
+   "buys": {
+    "metal": 9,
+    "crystal": 16,
+    "stone": 3,
+    "fish": 7
+   },
+   "stock": [
+    {
+     "items": {
+      "fabric": 2
+     },
+     "price": 16
+    },
+    {
+     "items": {
+      "metal": 2
+     },
+     "price": 22
+    },
+    {
+     "items": {
+      "wood": 5
+     },
+     "price": 16
+    },
+    {
+     "blueprint": "gear",
+     "price": 30
+    },
+    {
+     "blueprint": "shaft",
+     "price": 10
+    },
+    {
+     "blueprint": "windmill",
+     "price": 60
+    },
+    {
+     "blueprint": "waterwheel",
+     "price": 60
+    },
+    {
+     "blueprint": "poweredLamp",
+     "price": 50
+    }
+   ]
   }
  }
 }

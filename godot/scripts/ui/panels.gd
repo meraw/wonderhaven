@@ -279,7 +279,7 @@ func map(from_boat: bool = false) -> void:
 	var info := _wrap("Where shall we sail? Pick an island." if from_boat else "Click an island to learn about it.", 15, UiTheme.INK)
 	var canvas := MapView.new(); canvas.game = game; canvas.custom_minimum_size = Vector2(800, 430); canvas.name = "map_view"
 	canvas.picked.connect(func(isl: Dictionary):
-		var revealed: bool = isl.get("built", false) or game.state.flags.get(isl.get("reveal", "-"), false)
+		var revealed: bool = (isl.get("built", false) and not isl.has("reveal")) or game.state.flags.get(isl.get("reveal", "-"), false)
 		info.text = ("%s — %s" % [isl.name, isl.desc]) if revealed else "An unexplored island. Rumours say: " + isl.desc
 		for c in body.get_children():
 			if c.name == "sail": c.queue_free()
@@ -364,7 +364,7 @@ class MapView extends Control:
 				if k % 2 == 1: continue
 				draw_line(a.lerp(b, float(k) / steps), a.lerp(b, float(k + 1) / steps), Color(1, 1, 1, 0.95 if revealed else 0.4), 4)
 		for isl in Data.islands:
-			var revealed: bool = isl.get("built", false) or game.state.flags.get(isl.get("reveal", "-"), false)
+			var revealed: bool = (isl.get("built", false) and not isl.has("reveal")) or game.state.flags.get(isl.get("reveal", "-"), false)
 			var c := Vector2(isl.x, isl.y) * s
 			var r: float = isl.r * s.x
 			draw_circle(c + Vector2(0, 8), r + 12, Color("f0dfae"))

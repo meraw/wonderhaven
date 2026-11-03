@@ -857,6 +857,267 @@
     }
    ],
    "gifts": []
+  },
+  {
+   "id": "barnaby",
+   "name": "Barnaby Sprocket",
+   "title": "Master Clockmaker",
+   "island": "clockwork",
+   "likes": [
+    "metal",
+    "crystal",
+    "pie"
+   ],
+   "voice": 0.85,
+   "appearance": {
+    "skin": "#c58a5e",
+    "eyeShape": "round",
+    "eyeColor": "#5a3d2b",
+    "hair": "curly",
+    "hairColor": "#e6e1d8",
+    "mouth": "calm",
+    "top": "sweater",
+    "topColor": "#7a5c9e",
+    "bottom": "pants",
+    "bottomColor": "#4a4a5a",
+    "shoes": "boots",
+    "shoesColor": "#5a3d2b",
+    "hat": "none",
+    "hatColor": "#ffffff",
+    "accessory": "glasses"
+   },
+   "schedule": [
+    [
+     7,
+     12,
+     "clockHouse:spot",
+     "work"
+    ],
+    [
+     12,
+     15,
+     "towerPath",
+     "idle"
+    ],
+    [
+     15,
+     20,
+     "plaza",
+     "idle"
+    ],
+    [
+     20,
+     22,
+     "clockHouse:spot",
+     "idle"
+    ]
+   ],
+   "home": "clockHouse:spot",
+   "greetings": [
+    {
+     "flag": "clockRunning",
+     "lines": [
+      "Tick, tock! Listen to her go. Thirty years I waited for that sound, and it took a stranger with a waterwheel."
+     ]
+    },
+    {
+     "lines": [
+      "Ah! A visitor! You must be the builder my niece Tilly keeps writing about. Pages and pages. With diagrams.",
+      "Welcome, welcome. Mind the springs on the floor, they bite."
+     ]
+    }
+   ],
+   "sleepy": [
+    "Zzz… the escapement… needs… a nap…"
+   ],
+   "topics": [
+    {
+     "id": "cove",
+     "label": "What happened here?",
+     "lines": [
+      "Every machine on the cove ran on the old Great Engine. One stormy night it jammed, and everything stopped at once. The clock, the lighthouse, even the gulls looked confused.",
+      "We've been fixing things one by one ever since. Slowly. Very, very slowly."
+     ]
+    },
+    {
+     "id": "tilly",
+     "label": "You know Tilly?",
+     "lines": [
+      "My niece! She takes after me: brilliant, untidy, and absolutely forbidden from touching the big lever."
+     ]
+    }
+   ],
+   "gifts": [
+    {
+     "hearts": 4,
+     "blueprint": "lever",
+     "line": "My own lever design. Do try not to pull it just to see what happens. Everyone does."
+    }
+   ]
+  },
+  {
+   "id": "juniper",
+   "name": "Juniper Flint",
+   "title": "Lighthouse Keeper",
+   "island": "clockwork",
+   "likes": [
+    "fish",
+    "bread",
+    "flowers"
+   ],
+   "voice": 1.1,
+   "appearance": {
+    "skin": "#f2c9a5",
+    "eyeShape": "sleepy",
+    "eyeColor": "#3f7fb5",
+    "hair": "ponytail",
+    "hairColor": "#3a2e2a",
+    "mouth": "smile",
+    "top": "sailor",
+    "topColor": "#3f7fb5",
+    "bottom": "pants",
+    "bottomColor": "#e6f0f7",
+    "shoes": "boots",
+    "shoesColor": "#3a2e2a",
+    "hat": "beanie",
+    "hatColor": "#e0594f",
+    "accessory": "scarf"
+   },
+   "schedule": [
+    [
+     6,
+     10,
+     "capePath",
+     "idle"
+    ],
+    [
+     10,
+     16,
+     "plazaW",
+     "idle"
+    ],
+    [
+     16,
+     22,
+     "keeperCottage:spot",
+     "idle"
+    ]
+   ],
+   "home": "keeperCottage:spot",
+   "greetings": [
+    {
+     "flag": "lighthouseLit",
+     "lines": [
+      "Did you see her last night? Sweeping the whole bay. The fishing boats came home singing."
+     ]
+    },
+    {
+     "lines": [
+      "Evening, or morning, or whatever it is. Hard to tell when your lighthouse is dark.",
+      "I'm Juniper. I keep the light. Well. I keep the lighthouse. The light is… currently resting."
+     ]
+    }
+   ],
+   "sleepy": [
+    "Mmh… one more lap of the lamp room…"
+   ],
+   "topics": [
+    {
+     "id": "lamp",
+     "label": "Why is it dark?",
+     "lines": [
+      "The lamp's turned by wind, through a drive on the south side of the tower. The old windmill blew down years ago.",
+      "Build me a new one up on the cape and connect it, and she'll shine again."
+     ]
+    }
+   ],
+   "gifts": [
+    {
+     "hearts": 4,
+     "items": {
+      "fish": 2,
+      "crystal": 1
+     },
+     "line": "Lighthouse keeper's luck: the best catch of the week, and a crystal I found in the lamp room."
+    }
+   ]
+  },
+  {
+   "id": "hazel",
+   "name": "Hazel Rivet",
+   "title": "Smith & Trader",
+   "island": "clockwork",
+   "likes": [
+    "metal",
+    "stone",
+    "pie"
+   ],
+   "voice": 0.95,
+   "appearance": {
+    "skin": "#8d5a3b",
+    "eyeShape": "wide",
+    "eyeColor": "#2f8a52",
+    "hair": "bob",
+    "hairColor": "#c9452f",
+    "mouth": "grin",
+    "top": "overalls",
+    "topColor": "#5a6b7a",
+    "bottom": "pants",
+    "bottomColor": "#3a3a4a",
+    "shoes": "boots",
+    "shoesColor": "#2e2420",
+    "hat": "goggles",
+    "hatColor": "#ffd166",
+    "accessory": "none"
+   },
+   "schedule": [
+    [
+     7,
+     19,
+     "forge:spot",
+     "work"
+    ],
+    [
+     19,
+     22,
+     "plazaE",
+     "idle"
+    ]
+   ],
+   "home": "forge:spot",
+   "greetings": [
+    {
+     "flag": "forgeLit",
+     "lines": [
+      "Hear that roar? That's a happy furnace. Thanks to you, the cove's got gears again."
+     ]
+    },
+    {
+     "lines": [
+      "Welcome to Rivet's Forge! Gears, springs, plans, and a very warm floor.",
+      "If you've got metal, I'm buying. If you need parts, I'm selling. Everybody wins, especially me."
+     ]
+    }
+   ],
+   "sleepy": [
+    "The forge sleeps, and so do I. Come back at sunrise!"
+   ],
+   "topics": [
+    {
+     "id": "forge",
+     "label": "About the forge",
+     "lines": [
+      "Hottest fire on the cove. Too hot, some say. Those people have no eyebrows."
+     ]
+    }
+   ],
+   "gifts": [
+    {
+     "hearts": 4,
+     "blueprint": "pump",
+     "line": "A pump design of my own. Pumps water uphill if you power it from the side. Physics hates it."
+    }
+   ]
   }
  ]
 }

@@ -1245,6 +1245,403 @@
      "Glowing! Beautiful! I'm going to stare at it until I see spots."
     ]
    }
+  },
+  {
+   "id": "cove",
+   "title": "Welcome to Clockwork Cove",
+   "giver": "barnaby",
+   "main": true,
+   "type": "character",
+   "chapter": 2,
+   "description": "Barnaby Sprocket, Tilly's uncle and the cove's clockmaker, wants you to meet the neighbours before he asks for help.",
+   "requires": {
+    "flags": [
+     "arrived_clockwork"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "juniper",
+     "kind": "talk",
+     "npc": "juniper",
+     "stage": 0,
+     "text": "Say hello to Juniper, the lighthouse keeper",
+     "lines": [
+      "Barnaby sent you? Then you must be good with machines. Come and find me when he's done talking. It may be a while."
+     ],
+     "hint": {
+      "x": -4.5,
+      "z": 7.5
+     }
+    },
+    {
+     "id": "hazel",
+     "kind": "talk",
+     "npc": "hazel",
+     "stage": 0,
+     "text": "Meet Hazel at Rivet's Forge",
+     "lines": [
+      "A builder! Finally, a customer who doesn't just want me to fix a kettle. Shop's open whenever you are."
+     ],
+     "hint": {
+      "x": 6.1,
+      "z": 12
+     }
+    },
+    {
+     "id": "back",
+     "kind": "talk",
+     "npc": "barnaby",
+     "final": true,
+     "text": "Go back to Barnaby"
+    }
+   ],
+   "rewards": {
+    "harmony": 15,
+    "items": {
+     "coins": 20,
+     "spark": 5
+    },
+    "blueprints": [
+     "windmill",
+     "shaft",
+     "gear"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "So you're Tilly's builder! Splendid. Clockwork Cove is a bit… stuck, I'm afraid. Everything stopped when the Great Engine jammed.",
+     "Before we start tinkering, go and meet the neighbours: Juniper at the lighthouse cottage and Hazel at the forge."
+    ],
+    "acceptLabel": "I'll go and say hello",
+    "declineLabel": "In a moment",
+    "accept": [
+     "Off you go! Juniper's usually by the square in the day, and Hazel never leaves her forge."
+    ],
+    "decline": [
+     "Take your time. The clock certainly is."
+    ],
+    "progress": [
+     "Juniper and Hazel. Then come back and I'll show you some plans."
+    ],
+    "complete": [
+     "Wonderful. Now you know everyone worth knowing, and Hazel.",
+     "Here: windmill, shaft and gear plans. On this cove, everything worth doing involves at least one gear."
+    ]
+   }
+  },
+  {
+   "id": "lighthouse",
+   "title": "Light the Lighthouse",
+   "giver": "juniper",
+   "main": true,
+   "type": "mechanism",
+   "chapter": 2,
+   "description": "The cape lighthouse turns by wind power through a drive on its south side. Gather materials, then build a windmill on the cape and carry its power to the drive.",
+   "requires": {
+    "quests": [
+     "cove"
+    ]
+   },
+   "onAccept": {
+    "blueprints": [
+     "windmill",
+     "shaft",
+     "gear"
+    ],
+    "items": {
+     "fabric": 2
+    }
+   },
+   "objectives": [
+    {
+     "id": "wood",
+     "kind": "gather",
+     "item": "wood",
+     "count": 8,
+     "stage": 0,
+     "text": "Gather 8 wood for a windmill and a shaft"
+    },
+    {
+     "id": "metal",
+     "kind": "gather",
+     "item": "metal",
+     "count": 2,
+     "stage": 0,
+     "text": "Mine 2 metal on Gearspring Hill (for gear boxes)",
+     "hint": {
+      "x": 21,
+      "z": -9
+     }
+    },
+    {
+     "id": "light",
+     "kind": "build",
+     "check": "fed:lighthouse",
+     "zone": "lighthouse",
+     "stage": 1,
+     "text": "Bring wind power to the lighthouse's drive (south side)",
+     "goal": "Power reaches the drive by the lighthouse door",
+     "buildHint": "Windmills push power out of their south side. Shafts carry it in a line; gear boxes turn corners. The drive cell is just east of the door.",
+     "hint": {
+      "x": -23,
+      "z": -17
+     }
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "juniper",
+     "final": true,
+     "text": "Tell Juniper the lighthouse is working"
+    }
+   ],
+   "rewards": {
+    "harmony": 30,
+    "items": {
+     "coins": 40
+    },
+    "flags": [
+     "lighthouseLit"
+    ],
+    "blueprints": [
+     "streetlight"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "You're the builder Barnaby keeps going on about? Then please, help me light the lighthouse.",
+     "The lamp turns by wind. A windmill on the cape, and power carried to the drive on the tower's south side. Shafts go straight; gear boxes turn corners."
+    ],
+    "acceptLabel": "Let's light it up!",
+    "declineLabel": "Not yet",
+    "accept": [
+     "Thank you! Here's some sailcloth for the windmill. You'll need wood, and a bit of metal for the gear boxes."
+    ],
+    "decline": [
+     "The dark will wait. It's good at waiting."
+    ],
+    "progress": [
+     "Windmill on the cape, power to the drive on the south side. The light comes on at night!"
+    ],
+    "complete": [
+     "She's turning! I can feel it in the floorboards. Tonight the whole bay will see her.",
+     "Here, a little thanks, and the plans for a proper street light."
+    ]
+   }
+  },
+  {
+   "id": "clocktower",
+   "title": "The Stopped Clock",
+   "giver": "barnaby",
+   "main": true,
+   "type": "mechanism",
+   "chapter": 2,
+   "description": "The Old Clock Tower stopped at 4:17 when the Great Engine jammed. Bring Barnaby parts for a new escapement, then drive the clock with water power from the millrace.",
+   "requires": {
+    "quests": [
+     "lighthouse"
+    ]
+   },
+   "onAccept": {
+    "blueprints": [
+     "waterwheel",
+     "shaft",
+     "gear"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "metal",
+     "kind": "gather",
+     "item": "metal",
+     "count": 4,
+     "stage": 0,
+     "text": "Mine 4 metal on Gearspring Hill",
+     "hint": {
+      "x": 21,
+      "z": -9
+     }
+    },
+    {
+     "id": "crystal",
+     "kind": "gather",
+     "item": "crystal",
+     "count": 1,
+     "stage": 0,
+     "text": "Find a crystal (the glowing rocks)",
+     "hint": {
+      "x": 12,
+      "z": -21
+     }
+    },
+    {
+     "id": "parts",
+     "kind": "pay",
+     "npc": "barnaby",
+     "items": {
+      "metal": 2,
+      "crystal": 1
+     },
+     "stage": 1,
+     "label": "Hand over 2 metal and a crystal",
+     "text": "Give Barnaby 2 metal and a crystal for the escapement",
+     "lines": [
+      "Perfect! A crystal escapement, the finest kind. I'll fit it tonight.",
+      "Now the clock needs turning. The millrace by the tower flows day and night: a waterwheel there, and power up to the drive on the tower's south side."
+     ],
+     "onDone": {
+      "flags": [
+       "clockParts"
+      ]
+     }
+    },
+    {
+     "id": "drive",
+     "kind": "build",
+     "check": "fed:clock",
+     "zone": "clockyard",
+     "stage": 2,
+     "text": "Drive the clock with a waterwheel in the millrace",
+     "goal": "Power reaches the clock's drive by the tower door",
+     "buildHint": "Waterwheels sit in the flowing millrace and push power north and south. Shafts carry it to the drive by the tower door.",
+     "hint": {
+      "x": 12,
+      "z": -9
+     }
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "barnaby",
+     "final": true,
+     "text": "Tell Barnaby the clock is ticking"
+    }
+   ],
+   "rewards": {
+    "harmony": 40,
+    "items": {
+     "coins": 60,
+     "crystal": 1
+    },
+    "flags": [
+     "clockRunning"
+    ],
+    "blueprints": [
+     "lever",
+     "pump"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "The lighthouse shines! Then there's hope for my poor clock.",
+     "It needs a new escapement: metal and a crystal. And then something to turn it. The millrace runs right beside the tower…"
+    ],
+    "acceptLabel": "Let's get it ticking",
+    "declineLabel": "Later",
+    "accept": [
+     "Splendid! Bring me the parts first, then we'll talk waterwheels."
+    ],
+    "decline": [
+     "Of course. It's been 4:17 for thirty years. It can be 4:17 a little longer."
+    ],
+    "progress": [
+     "Parts first: 2 metal and a crystal. Then a waterwheel in the millrace and power to the drive."
+    ],
+    "complete": [
+     "Listen! Tick… tock… tick… She's alive! Thirty years, and she hasn't lost a second. Well, she's lost all of them, but she's catching up.",
+     "Take these: my lever and pump plans. The cove is yours to tinker with."
+    ]
+   }
+  },
+  {
+   "id": "forge",
+   "title": "Fuel for the Forge",
+   "giver": "hazel",
+   "type": "character",
+   "chapter": 2,
+   "description": "Hazel's forge is running cold. Bring her stone for the furnace lining and wood for the fire.",
+   "requires": {
+    "quests": [
+     "cove"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "stone",
+     "kind": "gather",
+     "item": "stone",
+     "count": 6,
+     "stage": 0,
+     "text": "Mine 6 stone",
+     "hint": {
+      "x": 24,
+      "z": -15
+     }
+    },
+    {
+     "id": "wood",
+     "kind": "gather",
+     "item": "wood",
+     "count": 6,
+     "stage": 0,
+     "text": "Chop 6 wood"
+    },
+    {
+     "id": "deliver",
+     "kind": "pay",
+     "npc": "hazel",
+     "items": {
+      "stone": 4,
+      "wood": 4
+     },
+     "stage": 1,
+     "label": "Hand over 4 stone and 4 wood",
+     "text": "Bring Hazel 4 stone and 4 wood",
+     "lines": [
+      "Into the furnace with you! Listen to that roar."
+     ],
+     "onDone": {
+      "flags": [
+       "forgeLit"
+      ]
+     }
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "hazel",
+     "final": true,
+     "text": "See how the forge is doing"
+    }
+   ],
+   "rewards": {
+    "harmony": 15,
+    "items": {
+     "coins": 30,
+     "metal": 2
+    }
+   },
+   "dialogue": {
+    "offer": [
+     "My forge is running colder than a gull's feet. I need stone for the furnace lining and wood for the fire.",
+     "Bring me some and I'll make it worth your while."
+    ],
+    "acceptLabel": "I'll fuel your forge",
+    "declineLabel": "Maybe later",
+    "accept": [
+     "Hah! Excellent. Stone and wood, the more the merrier. Well, four of each."
+    ],
+    "decline": [
+     "Suit yourself. I'll just warm my hands on this candle."
+    ],
+    "progress": [
+     "Four stone, four wood. The furnace is hungry!"
+    ],
+    "complete": [
+     "Roaring like a dragon with a cold. Perfect! Here, coins and some fresh metal."
+    ]
+   }
   }
  ]
 }

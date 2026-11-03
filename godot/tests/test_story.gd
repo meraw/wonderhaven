@@ -12,7 +12,8 @@ func test_quest_data():
 func test_npcs():
 	t.ok(Data.npcs.size() >= 5)
 	for n in Data.npcs:
-		t.ok(Data.layout.nav_nodes.has(n.home), n.id)
+		var nav: Dictionary = Data.layout.nav_nodes if Data.npc_island(n.id) == Data.island else Data.island_nav(Data.npc_island(n.id))
+		t.ok(nav.has(n.home), "%s's home is a nav spot on their island" % n.id)
 		t.ok(Data.quests.any(func(q): return q.giver == n.id), "%s gives a quest" % n.id)
 
 func test_quest_flow():

@@ -10,7 +10,9 @@ func _init(g) -> void:
 	game = g
 	engine = QuestEngine.new(game.state, {
 		"bridge": func(): return path_ok("bridge"), "dock": func(): return path_ok("dock"),
-		"fountain": func(): return game.mech.fed.get("fountain", false), "lamp": func(): return not game.mech.lamps.is_empty()})
+		"fountain": func(): return game.mech.fed.get("fountain", false), "lamp": func(): return not game.mech.lamps.is_empty(),
+		# "fed:<machine>": water or power delivered to a machine target in the layout (a lighthouse's drive, a clock)
+		"*": func(name: String) -> bool: return name.begins_with("fed:") and game.mech.fed.get(name.substr(4), false)})
 	engine.gate = func(qid: String) -> bool: return Tutorial.allows_offer(game.state.get("tutorial", {}), qid)
 	game.game_event.connect(_on_event)
 
@@ -278,7 +280,7 @@ func first_of_kind(id: String) -> void:
 ## is still to do before its building step (materials first) if that hasn't come up yet.
 func build_goals(z: Dictionary) -> Dictionary:
 	if z.is_empty(): return {}
-	for q in engine.active():
+	for q in engine.active().filter(func(x): return engine.here(x.id)):
 		var cur := engine.current_stage(q.id)
 		var here: Array = q.objectives.filter(func(o): return o.get("zone", "") == z.id and not o.get("final", false))
 		if here.is_empty(): continue
@@ -321,6 +323,7 @@ func tracked_target() -> Dictionary:
 	if not engine.tracked_valid(): engine.retrack()
 	var t: String = s.tracked
 	if t == "": return {}
+	if not engine.here(t.trim_prefix("lead:")): return {}   # a request on another island: no compass here
 	if t.begins_with("lead:"):
 		var q := Data.quest(t.trim_prefix("lead:"))
 		var a = game.npcs.get(q.giver)

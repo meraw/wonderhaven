@@ -1,7 +1,7 @@
 extends "res://tests/full_base.gd"
 ## Full playthrough, part two: loads the slot-3 save that play_full.gd made (from the title screen, like a player),
-## then the fountain machine, the King's decree, the dock, sailing, and saving and loading. Checks acceptance tests
-## 8, 11 and 12. Run play_full.gd first.
+## then the fountain machine, the King's decree, the dock, saving and loading, and sailing to Clockwork Cove and
+## back. Checks acceptance tests 8, 11 and 12. Run play_full.gd first.
 
 func play() -> void:
 	await frames(20)
@@ -48,19 +48,6 @@ func play() -> void:
 	await leave_build()
 	await talk("captain")
 	print("   dock: ", q("dock").get("status", ""), " boatReady ", game.state.flags.get("boatReady", false))
-	await walk_direct(5.5, 47.0, 0.6); await walk_direct(5.5, 49.6, 0.5)
-	await face_and_press("boat", 5.5, 51.6); await frames(10)
-	await shot("world-map")
-	var mv: Control = game.panels.find_child("map_view", true, false)
-	if mv:
-		var isl: Dictionary = Data.islands[1]
-		await click(mv.get_global_rect().position + Vector2(isl.x, isl.y) * (mv.size / Vector2(800, 500)))
-		await frames(4)
-		var sail: Control = game.panels.find_child("sail", true, false)
-		if sail: await click(sail.get_global_rect().get_center())
-	await wait(3.0)
-	await shot("next-chapter")
-	print("   sailed: ", game.state.flags.get("sailedOnce", false))
 	# 11. Save, reload, load
 	await tap(KEY_ESCAPE); await frames(5)
 	var sb: Control = game.panels.find_child("btn_save_game", true, false)
@@ -86,4 +73,23 @@ func play() -> void:
 	await shot("reloaded")
 	check(11, "Save, exit, reload: constructions and quest progress intact", same_build and qs.call(saved) == qs.call(game.state) and game.state.harmony == saved.harmony and game.mech.fed.get("fountain", false),
 		"%d pieces, harmony %d, fountain flowing=%s" % [game.state.placements.size(), game.state.harmony, game.mech.fed.get("fountain", false)])
+	# Sail to Clockwork Cove and back: each island keeps what was built on it
+	await walk_direct(5.5, 47.0, 0.6); await walk_direct(5.5, 49.6, 0.5)
+	await face_and_press("boat", 5.5, 51.6); await frames(10)
+	await shot("world-map")
+	var built_here: int = game.state.placements.size()
+	var arrived := await sail("clockwork")
+	await shot("arrived-cove")
+	check("B2", "The ferry sails to Clockwork Cove: a new island loads and you stand on its dock", arrived and Data.island == "clockwork" and game.state.placements.is_empty() and game.npcs.has("barnaby") and Vector2(game.player.pos.x - 2, game.player.pos.z - 28.4).length() < 2.0,
+		"island %s, pieces %d, at %s" % [Data.island, game.state.placements.size(), game.player.pos])
+	var b: Dictionary = {}
+	for f in Data.layout.features:
+		if f.id == "boat": b = f
+	await walk_direct(b.x - 0.6, 30.6, 0.5)
+	await face_and_press("boat", b.x, b.z); await frames(10)
+	var home := await sail("hearthglow")
+	await frames(30)
+	await shot("back-home")
+	check("B3", "Sailing home: Hearthglow comes back with everything you built, the fountain flowing", home and Data.island == "hearthglow" and game.state.placements.size() == built_here and game.mech.fed.get("fountain", false),
+		"island %s, pieces %d of %d, fountain %s" % [Data.island, game.state.placements.size(), built_here, game.mech.fed.get("fountain", false)])
 	check(12, "All of the above through gameplay input (no debug commands)", true, "Harness only reads state, turns the camera like a mouse drag, and pans the build view like WASD; see play_full.gd")

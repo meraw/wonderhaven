@@ -20,7 +20,8 @@ static func build_terrain() -> MeshInstance3D:
 			var n := sin(x * 0.35) * cos(z * 0.29) * 0.5 + 0.5
 			var c := grass.lerp(grass2, n * 0.6).lerp(grass3, maxf(0.0, sin(x * 0.11 + z * 0.07)) * 0.35)
 			c = c.lightened((rng.next() - 0.5) * 0.04) if rng.next() > 0.5 else c.darkened((rng.next()) * 0.02)
-			if x >= 7.7 and x <= 12 and z >= 0.7 and z <= 2.3: c = stone
+			if Data.island == "hearthglow" and x >= 7.7 and x <= 12 and z >= 0.7 and z <= 2.3: c = stone   # the mill channel's stone lining
+			if Data.island == "clockwork" and x >= 9.6 and x <= 15.4 and z >= -8.4 and z <= -6.6: c = stone
 			colors[j * (seg + 1) + i] = c
 	for j in seg + 1:
 		for i in seg + 1:
@@ -46,7 +47,7 @@ static func build_terrain() -> MeshInstance3D:
 	assert(segs.size() <= 32, "terrain shader holds at most 32 path segments")
 	mt.set_shader_parameter("segs", segs)
 	mt.set_shader_parameter("seg_count", segs.size())
-	var sq: Dictionary = Data.layout.square
+	var sq: Dictionary = Data.layout.get("square", {"x": 0.0, "z": 0.0, "r": 0.0})
 	mt.set_shader_parameter("square", Vector3(sq.x, sq.z, sq.r))
 	mt.set_shader_parameter("water_y", Heightfield.WATER_Y)
 	m.material_override = mt

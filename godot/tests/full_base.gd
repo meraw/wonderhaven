@@ -79,7 +79,7 @@ func talk(id: String, accept: bool = true) -> bool:
 			var idx := -1
 			if accept:
 				for i in ui.choices.size():
-					if str(ui.choices[i].label).begins_with("✨"): idx = i; break
+					if str(ui.choices[i].label).begins_with("✨") or ui.choices[i].kind == "pay": idx = i; break
 			if idx < 0:
 				for i in ui.choices.size():
 					if ui.choices[i].kind == "bye": idx = i

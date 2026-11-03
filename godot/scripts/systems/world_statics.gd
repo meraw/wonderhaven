@@ -40,20 +40,23 @@ static func generate_decor(seed: int = 7) -> Dictionary:
 	var points: Array = Data.layout.nodes + Data.layout.features
 	var nav: Array = []
 	for k in Data.layout.nav_nodes: nav.append({"x": Data.layout.nav_nodes[k][0], "z": Data.layout.nav_nodes[k][1]})
-	var F: Dictionary = Data.layout.fountain
+	var F: Dictionary = Data.layout.get("fountain", {"x": 1000.0, "z": 1000.0})
+	var D: Dictionary = Data.layout.get("decor", {})
+	var radius := float(D.get("radius", 50.0))
+	var hearth := Data.island == "hearthglow"
 	var clear := func(x: float, z: float, pad: float) -> bool:
 		var h := Heightfield.height(x, z)
 		if h < Heightfield.WALKABLE_MIN + 0.25: return false
-		if sqrt(x * x + z * z) > 50.0: return false
+		if sqrt(x * x + z * z) > radius: return false
 		if dist_to_paths(x, z) < pad + 1.2: return false
 		if _near_building(x, z, pad + 1): return false
 		if _in_zone(x, z, pad + 0.6): return false
 		if Vector2(x - F.x, z - F.z).length() < 8 + pad: return false
 		if _near_point(x, z, points, pad + 1.6) or _near_point(x, z, nav, pad + 1.4): return false
-		if z > 33 and z < 37: return false
+		if hearth and z > 33 and z < 37: return false   # Hearthglow's harbor wall
 		return true
 	var n := 0
-	while n < 900 and trees.size() < 95:
+	while n < 900 and trees.size() < int(D.get("trees", 95)):
 		n += 1
 		var x := rng.range_f(-50, 50)
 		var z := rng.range_f(-48, 46)
@@ -119,12 +122,16 @@ static func build_statics(decor: Dictionary) -> Array:
 				else: out.append(_box(st.minX, st.maxX, st.minZ, st.maxZ, b.id))
 		else:
 			out.append(_box(minX, maxX, minZ, maxZ, b.id))
-	var F: Dictionary = Data.layout.fountain
-	out.append({"type": "circle", "x": F.x, "z": F.z, "r": F.r + 0.2, "tag": "fountain"})
-	for c in Data.layout.harbor_cliffs: out.append(_box(c.minX, c.maxX, c.minZ, c.maxZ, "cliff"))
-	var G: Dictionary = Data.layout.harbor_gate
-	var gate := _box(G.minX, G.maxX, G.minZ, G.maxZ, "gate"); gate["flag"] = G.flag
-	out.append(gate)
+	if Data.layout.has("fountain"):
+		var F: Dictionary = Data.layout.fountain
+		out.append({"type": "circle", "x": F.x, "z": F.z, "r": F.r + 0.2, "tag": "fountain"})
+	for c in Data.layout.get("harbor_cliffs", []): out.append(_box(c.minX, c.maxX, c.minZ, c.maxZ, "cliff"))
+	if Data.layout.has("harbor_gate"):
+		var G: Dictionary = Data.layout.harbor_gate
+		var gate := _box(G.minX, G.maxX, G.minZ, G.maxZ, "gate"); gate["flag"] = G.flag
+		out.append(gate)
+	for pr in Data.layout.get("props", []):   # solid scenery (lamp posts, crates, barrels...)
+		if pr.get("solid", true) and pr.kind != "pier": out.append({"type": "circle", "x": pr.x, "z": pr.z, "r": float(pr.get("rad", 0.3)), "tag": "prop"})
 	for nd in Data.layout.nodes:
 		if nd.kind in ["chop", "fruit", "shake"]: out.append({"type": "circle", "x": nd.x, "z": nd.z, "r": 0.45, "tag": nd.id})
 		elif nd.kind == "mine": out.append({"type": "circle", "x": nd.x, "z": nd.z, "r": 0.75, "tag": nd.id})

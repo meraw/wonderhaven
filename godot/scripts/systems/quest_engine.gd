@@ -32,6 +32,10 @@ func rec(id: String) -> Dictionary: return state.quests.get(id, {})
 func status(id: String) -> String: return rec(id).get("status", "")
 func is_done(id: String) -> bool: return status(id) == "done"
 
+## Is this request on the island you're on? (Live checks only look at the island you're standing on; a request
+## from another island keeps what it has latched.)
+func here(qid: String) -> bool: return Data.quest_island(qid) == String(state.get("island", "hearthglow"))
+
 func requirements_met(q: Dictionary) -> bool:
 	var r: Dictionary = q.get("requires", {})
 	for id in r.get("quests", []):
@@ -50,7 +54,7 @@ func done() -> Array: return Data.quests.filter(func(q): return is_done(q.id))
 
 ## Main-story requests you could start now (someone is waiting to ask you). These are always shown, so the story
 ## never disappears behind a side request.
-func story_leads() -> Array: return Data.quests.filter(func(q): return q.get("main", false) and can_offer(q.id))
+func story_leads() -> Array: return Data.quests.filter(func(q): return q.get("main", false) and can_offer(q.id) and here(q.id))
 
 ## What the player follows: an active request id, "lead:<id>" for a story request not started yet, or "".
 func tracked_valid() -> bool:
@@ -123,17 +127,21 @@ func _objective(qid: String, o: Dictionary) -> Dictionary:
 			return {"done": have >= need, "have": have, "need": need}
 		"harmony": return {"done": p.get(o.id, 0) == 1 or state.harmony >= o.value, "have": mini(int(state.harmony), int(o.value)), "need": int(o.value)}
 		"build":
+			if p.get(o.id, 0) == 1 or not here(qid): return {"done": p.get(o.id, 0) == 1, "have": 0, "need": 1}
 			var c = checks.get(o.check)
-			return {"done": p.get(o.id, 0) == 1 or (c != null and c.call()), "have": 0, "need": 1}
+			if c == null and checks.has("*"): return {"done": checks["*"].call(o.check), "have": 0, "need": 1}
+			return {"done": c != null and c.call(), "have": 0, "need": 1}
 		"flag": return {"done": p.get(o.id, 0) == 1 or state.flags.get(o.flag, false), "have": 0, "need": 1}
 		"talk", "pay": return {"done": p.get(o.id, 0) == 1, "have": 0, "need": 1}
 		"room":
 			if p.get(o.id, 0) == 1: return {"done": true, "have": o.needs.size(), "need": o.needs.size()}
+			if not here(qid): return {"done": false, "have": 0, "need": o.needs.size()}
 			var list := Validate.room_checklist(Data.zone(o.zone), state.get("placements", []), o.needs)
 			var ok := list.filter(func(r): return r.ok).size()
 			return {"done": ok == list.size(), "have": ok, "need": list.size()}
 		"pieces":
 			if p.get(o.id, 0) == 1: return {"done": true, "have": need, "need": need}
+			if not here(qid): return {"done": false, "have": 0, "need": need}
 			var n := Validate.pieces_in_zone(Data.zone(o.zone), state.get("placements", [])).filter(func(pl): return o.any.has(pl.id)).size()
 			return {"done": n >= need, "have": mini(n, need), "need": need}
 	return {"done": false, "have": 0, "need": need}
@@ -218,7 +226,8 @@ func pay(qid: String, oid: String) -> Dictionary:
 ## After finishing something: head for the next story request first, then any active story request, then the rest.
 func retrack() -> void:
 	var leads := story_leads()
-	var act := active()
+	var act := active().filter(func(q): return here(q.id))
+	if act.is_empty(): act = active()
 	var main_act := act.filter(func(q): return q.get("main", false))
 	if not main_act.is_empty(): state.tracked = main_act[0].id
 	elif not leads.is_empty(): state.tracked = "lead:" + leads[0].id

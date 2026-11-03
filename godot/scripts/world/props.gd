@@ -237,7 +237,7 @@ static func camera_blockers() -> Array:
 	var out: Array = []
 	for b in Data.layout.buildings:
 		var pad := 1.1 if b.kind == "castle" else 0.4
-		var top: float = 6.5 if b.kind == "castle" else (3.0 if b.kind == "caravan" else 2.6 + roof_rise(b.w, b.d) + 0.3)
+		var top: float = 6.5 if b.kind == "castle" else (3.0 if b.kind == "caravan" else (9.0 if b.kind in ["lighthouse", "clocktower"] else 2.6 + roof_rise(b.w, b.d) + 0.3))
 		out.append(AABB(Vector3(b.x - b.w / 2.0 - pad, -1.0, b.z - b.d / 2.0 - pad), Vector3(b.w + pad * 2.0, top + 1.0, b.d + pad * 2.0)))
 	return out
 
@@ -569,6 +569,78 @@ static func animate_fountain(g: Node3D, t: float, flowing: bool) -> void:
 			d.position = Vector3(cos(a) * r, 1.95 + sin(p * PI) * 0.35 - p * 0.15, sin(a) * r)
 		else: d.position = Vector3(0, 2.2 + p * 0.6, 0)
 		d.scale = Vector3.ONE * (1.0 - p * 0.5)
+
+## A striped lighthouse on a stone plinth. Its lamp room lights and the beam sweeps round when its drive is powered
+## (see animate_machine).
+static func lighthouse(b: Dictionary) -> Node3D:
+	var g := Node3D.new()
+	var r := minf(b.w, b.d) / 2.0 - 0.15
+	_add(g, P.cyl(r + 0.1, r + 0.3, 0.6, 22), P.stone("cfc6b6"), Vector3(0, 0.3, 0))
+	for i in 4:
+		var rt := r * (0.86 - i * 0.07); var rb := r * (0.93 - i * 0.07)
+		_add(g, P.cyl(rt, rb, 1.5, 22), P.plaster("fffaf0" if i % 2 == 0 else "e0594f"), Vector3(0, 0.6 + i * 1.5 + 0.75, 0))
+	var top := 6.6
+	_add(g, P.cyl(r * 0.78, r * 0.7, 0.18, 22), P.mat("3e4f48"), Vector3(0, top + 0.09, 0))
+	for i in 12:   # gallery railing
+		var a := TAU * i / 12.0
+		_add(g, P.cyl(0.03, 0.03, 0.5, 4), P.mat("3e4f48"), Vector3(cos(a) * r * 0.74, top + 0.43, sin(a) * r * 0.74))
+	var lamp := _add(g, P.cyl(r * 0.42, r * 0.42, 1.0, 16), P.unique_mat(Color("fff6c8"), Color("ffd866"), 0.2), Vector3(0, top + 0.68, 0))
+	lamp.name = "lamp"
+	_add(g, P.cone(r * 0.6, 0.9, 16), P.mat(b.get("roof", "c94a44")), Vector3(0, top + 1.63, 0))
+	_add(g, P.sphere(0.14, 8, 6), P.mat(P.GOLD), Vector3(0, top + 2.15, 0))
+	var pivot := Node3D.new(); pivot.name = "beam"; pivot.position.y = top + 0.7; pivot.visible = false; g.add_child(pivot)
+	var bm := P.glow_mat(Color(1.0, 0.95, 0.7), 0.28); bm.cull_mode = BaseMaterial3D.CULL_DISABLED
+	for side in [-1, 1]:
+		var beam := P.mi(P.cyl(0.35, 1.6, 14.0, 10), bm, Vector3(side * 7.2, 0, 0), false); beam.rotation.z = side * PI / 2; pivot.add_child(beam)
+	var li := OmniLight3D.new(); li.name = "light"; li.position.y = top + 0.7; li.omni_range = 16.0; li.light_color = Color("ffe9a8"); li.visible = false; g.add_child(li)
+	var di := Interiors.door_info(b)
+	var dp: Vector2 = di.out * (r * 0.93 + 0.02)
+	var door := _add(g, P.box(0.9, 1.7, 0.08) if di.out.y != 0.0 else P.box(0.08, 1.7, 0.9), P.wood("7a4a2a"), Vector3(dp.x, 1.45, dp.y))
+	door.name = "door"
+	return g
+
+## A stone clock tower with a face on each side; the hands turn once its drive is powered.
+static func clocktower(b: Dictionary) -> Node3D:
+	var g := Node3D.new()
+	var w: float = b.w - 0.4
+	_add(g, P.rbox(w + 0.3, 0.5, w + 0.3, 0.08), P.stone("bdb5a8"), Vector3(0, 0.25, 0))
+	_add(g, P.rbox(w, 4.6, w, 0.1), P.stone(b.get("wall", "d9cdb8")), Vector3(0, 2.8, 0))
+	_add(g, P.rbox(w * 0.86, 1.8, w * 0.86, 0.08), P.plaster("f4ecdf"), Vector3(0, 6.0, 0))
+	var roof := _add(g, P.cone(w * 0.72, 1.8, 4), P.mat(b.get("roof", "5f7fd8")), Vector3(0, 7.8, 0)); roof.rotation.y = PI / 4
+	_add(g, P.cyl(0.03, 0.03, 0.8, 4), P.mat("666666"), Vector3(0, 9.0, 0))
+	var hands := Node3D.new(); hands.name = "hands"; g.add_child(hands)
+	for k in 4:
+		var a := k * PI / 2.0
+		var face := Node3D.new(); face.position = Vector3(sin(a) * (w * 0.43 + 0.02), 6.0, cos(a) * (w * 0.43 + 0.02)); face.rotation.y = a; g.add_child(face)
+		var disc := _add(face, P.cyl(0.62, 0.62, 0.06, 24), P.mat("fffaf0"), Vector3.ZERO); disc.rotation.x = PI / 2
+		var rim := _add(face, P.torus(0.62, 0.05, 24), P.mat(P.GOLD), Vector3(0, 0, 0.02)); rim.rotation.x = PI / 2
+		for m in [["minute", 0.5, 0.05], ["hour", 0.34, 0.07]]:
+			var hp := Node3D.new(); hp.name = m[0]; hp.position.z = 0.05; face.add_child(hp)
+			_add(hp, P.box(m[2], m[1], 0.02), P.mat("3a2e2a"), Vector3(0, m[1] / 2.0, 0))
+			hp.set_meta("hand", m[0]); face.set_meta(m[0], hp)
+		face.add_to_group("clock_face_%s" % b.id)
+		g.set_meta("face%d" % k, face)
+	var di := Interiors.door_info(b)
+	var dp: Vector2 = di.out * (w / 2.0 + 0.02)
+	_add(g, P.box(1.0, 1.9, 0.08) if di.out.y != 0.0 else P.box(0.08, 1.9, 1.0), P.wood("7a4a2a"), Vector3(dp.x, 1.45, dp.y))
+	return g
+
+## Lighthouse lamp and beam, clock hands: alive while their machine is fed.
+static func animate_machine(o: Node3D, b: Dictionary, t: float, dt: float, on: bool, night: bool) -> void:
+	match b.kind:
+		"lighthouse":
+			var lamp: MeshInstance3D = o.get_node("lamp")
+			(lamp.material_override as StandardMaterial3D).emission_energy_multiplier = (2.6 + sin(t * 3.0) * 0.3) if on else 0.2
+			var beam: Node3D = o.get_node("beam")
+			beam.visible = on and night
+			beam.rotation.y = t * 0.7
+			(o.get_node("light") as OmniLight3D).visible = on and night
+		"clocktower":
+			if not on: return
+			for k in 4:
+				var face: Node3D = o.get_meta("face%d" % k)
+				(face.get_meta("minute") as Node3D).rotation.z = -t * 0.6
+				(face.get_meta("hour") as Node3D).rotation.z = -t * 0.05
 
 static func lamp_post() -> Node3D:
 	var g := Node3D.new()

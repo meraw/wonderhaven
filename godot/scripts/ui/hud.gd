@@ -135,7 +135,7 @@ func render_tracker() -> void:
 	if not Tutorial.revealed(game.state.get("tutorial", {}), "quests"): return
 	var e: QuestEngine = game.story.engine
 	if not e.tracked_valid(): e.retrack()
-	var act := e.active()
+	var act := e.active().filter(func(q): return e.here(q.id))   # requests on this island
 	var tracked = null
 	for q in act:
 		if q.id == game.state.tracked: tracked = q

@@ -158,7 +158,7 @@ func update_music(game, dt: float) -> void:
 			var base := 93 + randi() % 6
 			for i in 2 + randi() % 3: play("chirp", base + (i % 2) * 3, 0.1, sfx_bus, i * 0.09)
 		var p: Vector3 = game.player.pos
-		var river := maxf(0.0, 1.0 - (absf(p.z - Heightfield.river_center(p.x)) - 3.0) / 8.0)
+		var river := maxf(0.0, 1.0 - (absf(p.z - Heightfield.river_center(p.x)) - 3.0) / 8.0) if Data.island == "hearthglow" else 0.0
 		if river > 0.05: play("hiss", 60, 0.15 * river)
 		var wet: float = game.weather_now.get("rain", 0.0)
 		if wet > 0.05: play("hiss", 70, 0.3 * wet)

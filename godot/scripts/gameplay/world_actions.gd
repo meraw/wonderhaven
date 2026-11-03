@@ -21,7 +21,7 @@ func _init(g) -> void:
 	game = g
 	for n in Data.layout.nodes: _register_node(n)
 	for f in Data.layout.features: _register_feature(f)
-	_build_gardens(); _build_squirrels()
+	if Data.island == "hearthglow": _build_gardens(); _build_squirrels()   # Fern's beds and the bakery squirrels
 	game.game_event.connect(func(type: String, data: Dictionary): if type == "flag" and data.get("flag", "") == "hasTool": refresh_all())
 	bobber = P.mi(P.sphere(0.09, 10, 8), P.mat("ff5a5f")); bobber.visible = false; game.add_child(bobber)
 	line = MeshInstance3D.new(); line.material_override = P.glow_mat(Color.WHITE); line.visible = false; game.add_child(line)

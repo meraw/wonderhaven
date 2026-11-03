@@ -63,7 +63,18 @@ func _ready() -> void:
 		if a.begins_with("--face="): Chibi.face_style = a.trim_prefix("--face=")
 		if a.begins_with("--outline="): outline_override = a.trim_prefix("--outline=")
 	Controls.setup(settings.bindings)
-	state = GameState.new_game()
+	# Arriving from another island (or loading a save made on one): the state came across the scene reload.
+	var arriving: Dictionary = Data.pending_state
+	Data.pending_state = {}
+	var start_island := "hearthglow"   # --island=<id> starts there (screenshots, playthrough tests)
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--island=") and Data.has_island(a.trim_prefix("--island=")): start_island = a.trim_prefix("--island=")
+	if arriving.is_empty() and Data.island != start_island: Data.use_island(start_island)
+	state = arriving if not arriving.is_empty() else GameState.new_game()
+	if arriving.is_empty() and start_island != "hearthglow":
+		var sp0: Dictionary = Data.layout.spawn
+		state.island = start_island; state.player = {"x": sp0.x, "z": sp0.z, "yaw": sp0.yaw}
+		state.tutorial = Tutorial.new_state(false, true)
 	decor = WorldStatics.generate_decor()
 	statics = WorldStatics.build_statics(decor)
 	walk = WalkWorld.new(statics, func(f): return state.flags.get(f, false))
@@ -91,7 +102,7 @@ func _ready() -> void:
 	build = BuildMode.new(); build.name = "BuildMode"; add_child(build); build.setup(self)
 	story = Story.new(self)
 	guide = Guide.new(self)
-	for d in Data.npcs:
+	for d in Data.npcs_here():
 		var a := NpcAgent.new(self, d)
 		npcs[d.id] = a
 		var ag := a
@@ -107,12 +118,18 @@ func _ready() -> void:
 	apply_settings()
 	_parse_args()
 	cam.update(0.016, player.pos); cam.snap()
-	if screens and ((not shot_cfg.has("autoplay") and not shot_cfg.has("skiptitle")) or shot_cfg.has("title")): screens.title()
+	if not arriving.is_empty():
+		load_state(state)
+		begin_play()
+		_arrived()
+	elif screens and ((not shot_cfg.has("autoplay") and not shot_cfg.has("skiptitle")) or shot_cfg.has("title")): screens.title()
 	else: begin_play()
-	if shot_cfg.has("autoplay"):
+	if shot_cfg.has("autoplay") and not Data.autoplay_started:
+		Data.autoplay_started = true
 		var script: Script = load(shot_cfg.autoplay)
 		if script == null or not script.can_instantiate(): push_error("Autoplay script failed to load"); get_tree().quit(2); return
-		var runner = script.new(); add_child(runner); runner.call_deferred("run", self)
+		# The runner lives beside the game scene, so it keeps going when sailing reloads the scene.
+		var runner = script.new(); get_tree().root.add_child.call_deferred(runner); runner.call_deferred("run", self)
 
 func _load_optional_modules() -> void:
 	if ResourceLoader.exists("res://scripts/ui/screens.gd"):
@@ -269,13 +286,15 @@ func open_wardrobe() -> void:
 	for f in Data.layout.features:
 		if f.kind == "wardrobe": w = f
 	var near_inn := not w.is_empty() and Vector2(player.pos.x - w.x, player.pos.z - w.z).length() < 6.0
-	var at_home: bool = state.flags.get("ownHome", false) and BuildGrid.zone_contains(Data.zone("plot"), floorf(player.pos.x), floorf(player.pos.z), state.harmony)
+	var plot := Data.zone("plot")
+	var at_home: bool = state.flags.get("ownHome", false) and not plot.is_empty() and BuildGrid.zone_contains(plot, floorf(player.pos.x), floorf(player.pos.z), state.harmony)
 	if near_inn or at_home: screens.creator(true)
 	else: toast("Change your outfit at the Lantern Inn's wardrobe%s." % (", or at home" if state.flags.get("ownHome", false) else ""))
 
 func sail_to(isl: Dictionary) -> void:
 	panels.close()
-	if isl.id == "hearthglow": toast("You are already in Hearthglow!"); return
+	if isl.id == Data.island: toast("You are already in %s!" % isl.name); return
+	if Data.has_island(isl.id): travel(isl.id); return
 	set_mode("cutscene"); sfx("sail")
 	await _fade(true).finished
 	await get_tree().create_timer(0.6).timeout
@@ -284,6 +303,29 @@ func sail_to(isl: Dictionary) -> void:
 	set_flag("sailedOnce")
 	player_char.play("celebrate")
 	set_mode("explore")
+	autosave("travel", true)
+
+## Sail to another island: this island's buildings are put away in the save, the state crosses a scene reload,
+## and the world is rebuilt from the new island's layout. You arrive at its spawn point (the dock).
+func travel(id: String) -> void:
+	if build.active: build.close()
+	set_mode("cutscene"); sfx("sail")
+	await _fade(true).finished
+	snapshot()
+	var dest := Data.read_layout(id)
+	Travel.leave(state, Data.island, id, dest.get("arrive", dest.spawn))   # where the ferry lands
+	Data.pending_state = state
+	Data.use_island(id)
+	get_tree().reload_current_scene()
+
+## Just arrived (from a voyage or by loading a save made on this island).
+func _arrived() -> void:
+	var first: bool = not state.flags.get("arrived_" + Data.island, false)
+	set_flag("arrived_" + Data.island)
+	var isl := Data.island_def(Data.island)
+	_fade(false)
+	if first and Data.island != "hearthglow": banner(isl.get("name", ""), isl.get("desc", ""), [], 5.0); sfx("fanfare")
+	else: toast("⛵ %s" % isl.get("name", ""), "good", 2.5)
 	autosave("travel", true)
 
 func to_title() -> void:
@@ -339,6 +381,11 @@ func load_from(slot: String) -> bool:
 
 func load_state(s: Dictionary) -> void:
 	if build.active: build.close()
+	if s.get("island", "hearthglow") != Data.island:   # a save made on another island: rebuild the world for it
+		Data.pending_state = s
+		Data.use_island(s.get("island", "hearthglow"))
+		get_tree().reload_current_scene()
+		return
 	state = s
 	story.attach(s)
 	player_char.set_appearance(s.appearance)
@@ -481,10 +528,19 @@ func rebuild_all_pieces() -> void:
 	for pl in state.placements: _add_piece_node(pl, false)
 	on_build_changed({"action": "load"})
 
+## Cells where a machine delivers water or power to something in the world (layout `machines`; Hearthglow's
+## fountain inlet too).
+func machine_targets() -> Array:
+	var out: Array = []
+	if Data.layout.has("fountain"):
+		var F: Dictionary = Data.layout.fountain
+		out.append({"id": "fountain", "cell": F.inlet.cell, "side": F.inlet.side, "type": "water"})
+	out.append_array(Data.layout.get("machines", []))
+	return out
+
 func on_build_changed(ev: Dictionary) -> void:
 	walk.surfaces = BuildGrid.surfaces_for(state.placements)
-	var F: Dictionary = Data.layout.fountain
-	mech = Mechanics.solve(state.placements, [{"id": "fountain", "cell": F.inlet.cell, "side": F.inlet.side}])
+	mech = Mechanics.solve(state.placements, machine_targets())
 	_refresh_piece_interactables()
 	build.refresh_plan()
 	emit_event("build", ev)
@@ -657,6 +713,7 @@ func _process(dt: float) -> void:
 	hud.update_compass(guide.target())
 	_world_reactions(dt)
 	var vflags: Dictionary = state.flags.duplicate(); vflags["fountainFlowing"] = mech.fed.get("fountain", false)
+	for id in mech.fed: vflags["fed:" + id] = mech.fed[id]
 	village.update_world(dt, time, vflags)
 	for pl in state.placements:
 		var n: Node3D = piece_nodes.get(pl.uid)
@@ -738,7 +795,7 @@ func _update_world_time(dt: float) -> void:
 	hud.clock_label.text = "%s %s%s" % [icon, Clock.text(s.time), ("  " + "🎵".repeat(actions.hum)) if actions.hum > 0 else ""]
 
 func _world_reactions(dt: float) -> void:
-	if state.flags.get("fountainFlowing", false) != mech.fed.get("fountain", false): set_flag("fountainFlowing", mech.fed.get("fountain", false))
+	if Data.layout.has("fountain") and state.flags.get("fountainFlowing", false) != mech.fed.get("fountain", false): set_flag("fountainFlowing", mech.fed.get("fountain", false))
 	smoke_t -= dt
 	if smoke_t < 0.0:
 		smoke_t = 0.5
@@ -789,12 +846,13 @@ func _apply_window() -> void:
 
 ## Pause menu "I'm stuck": back to the Lantern Inn's door, wherever you were.
 func unstick() -> void:
-	var door: Array = Data.layout.nav_nodes.get("cottageDoor", [14, 17])
+	var safe: String = Data.layout.get("safeSpot", "cottageDoor")
+	var door: Array = Data.layout.nav_nodes.get(safe, [Data.layout.spawn.x, Data.layout.spawn.z])
 	var spot := walk.free_spot(float(door[0]), float(door[1]), Rect2(), 10.0, WalkWorld.PLAYER_RADIUS, player.body)
 	if spot.is_empty(): return
 	player.teleport(spot.x, spot.z); cam.snap()
 	effects.sparkle(player.pos + Vector3(0, 1, 0), 16)
-	toast("Back at the Lantern Inn.")
+	toast(Data.layout.get("safeText", "Back at the Lantern Inn."))
 
 func toggle_fullscreen() -> void:
 	settings.fullscreen = not settings.get("fullscreen", false)
