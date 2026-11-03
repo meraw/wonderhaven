@@ -75,7 +75,9 @@ func play() -> void:
 	check(5, "Place, select, rotate, move, remove, undo and redo", selected_ok and rotated == 1 and moved_to == -2.0 and removed and undone and redone,
 		"selected=%s r=%d moved_to=%s removed=%s undo=%s redo=%s" % [selected_ok, rotated, moved_to, removed, undone, redone])
 	await shot("bridge-built")
-	await tap(KEY_ESCAPE); await tap(KEY_ESCAPE); await frames(5)
+	for n in 3:
+		if game.mode != "build": break
+		await tap(KEY_ESCAPE); await frames(3)
 	check("b3", "Esc leaves build mode", game.mode == "explore", game.mode)
 	# Walk across with W
 	game.player.teleport(0.5, -13.5, PI)

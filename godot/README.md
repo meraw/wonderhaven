@@ -24,4 +24,4 @@ All keys can be changed in **Menu → Settings & controls**. On a gamepad, build
 - Content (layout, pieces, villagers, quests, unlocks) lives in `data/*.json`, generated from the shared content files with `npm run godot:data` (repo root). Edit the content in `src/data/` and re-export.
 - Rules are plain GDScript in `scripts/systems/` and are covered by headless tests: `GODOT=/path/to/godot ./run_tests.sh`.
 - Scripted playthroughs send real key and mouse events to the running game: `GODOT=... ./play.sh res://tests/play_full.gd /tmp/out` (needs `xvfb-run` on a headless Linux machine). `play_core.gd`, `play_build.gd` and `play_story.gd` are quicker focused runs.
-- Screenshots: `GODOT=... ./shot.sh out.png --pos=0,9,0 --cam=0.3,0.2,3.5 --time=19`.
+- Screenshots: `GODOT=... ./shot.sh out.png --pos=0,9,0 --cam=0.3,0.2,3.5 --time=19` (compatibility renderer; add `RENDERER=forward_plus` to see the game as it normally renders, with SSAO, glow and soft shadows).

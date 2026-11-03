@@ -3,7 +3,7 @@ extends RefCounted
 ## Everything you can do with the world itself: chop, mine, dig clay, fish, pick, shake, dig treasure,
 ## open chests, catch fragments, garden, and win over the bakery squirrels.
 const P := preload("res://scripts/world/palette.gd")
-const REGROW := {"chop": 360.0, "mine": 480.0, "clay": 300.0, "flowers": 240.0, "shake": 90.0, "fruit": 360.0, "fragment": 1440.0}
+const REGROW := {"chop": 180.0, "mine": 240.0, "clay": 150.0, "flowers": 180.0, "shake": 90.0, "fruit": 240.0, "fragment": 1440.0}
 const SQUIRREL_SPOTS := [[-8.4, -3.2], [-13.7, -3.3], [-7.2, -6.6]]
 const LABELS := {"chop": "Chop tree", "mine": "Mine rock", "clay": "Dig clay", "fish": "Fish here", "flowers": "Pick flowers", "shake": "Shake the oak", "fruit": "Pick apples", "chest": "Open chest", "fragment": "Catch the fragment"}
 

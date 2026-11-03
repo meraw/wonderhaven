@@ -510,7 +510,7 @@ func _build_ui() -> void:
 	# Catalog
 	var cat := UiTheme.panel(Color(UiTheme.CREAM, 0.97), UiTheme.LILAC, 24)
 	cat.anchor_top = 1; cat.anchor_bottom = 1; cat.anchor_left = 0.5; cat.anchor_right = 0.5
-	cat.offset_left = -560; cat.offset_right = 560; cat.offset_top = -170; cat.offset_bottom = -12
+	cat.offset_left = -600; cat.offset_right = 600; cat.offset_top = -12; cat.offset_bottom = -12; cat.grow_vertical = Control.GROW_DIRECTION_BEGIN
 	var cv := VBoxContainer.new(); cat.add_child(cv)
 	var tabs := HBoxContainer.new(); cv.add_child(tabs)
 	for c in Data.categories:
@@ -521,24 +521,24 @@ func _build_ui() -> void:
 	if item_id != "" and Data.piece(item_id).get("colorable", false):
 		var spacer := Control.new(); spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL; tabs.add_child(spacer)
 		tabs.add_child(_swatches(color if color != "" else Data.piece(item_id).color, set_color))
-	var scroll := ScrollContainer.new(); scroll.custom_minimum_size.y = 108; scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED; cv.add_child(scroll)
-	var items := HBoxContainer.new(); items.add_theme_constant_override("separation", 8); scroll.add_child(items)
+	# Every piece stays visible: the catalog wraps onto a second row instead of scrolling sideways.
+	var items := HFlowContainer.new(); items.add_theme_constant_override("h_separation", 6); items.add_theme_constant_override("v_separation", 6); cv.add_child(items)
 	for p in Data.pieces:
 		if p.cat != category: continue
 		var unlocked: bool = state().blueprints.has(p.id)
 		var poor := unlocked and not Inventory.can_afford(state().inventory, p.cost)
 		var pid: String = p.id
 		var btn := Button.new(); btn.name = "piece_" + pid
-		btn.custom_minimum_size = Vector2(98, 96)
+		btn.custom_minimum_size = Vector2(80, 80)
 		btn.tooltip_text = ("%s: %s" % [p.name, p.desc]) if unlocked else "Locked: " + game.blueprint_hint(pid)
 		var on := item_id == pid
 		var sb := UiTheme.box(Color("f6f0ff") if on else Color.WHITE, Color("a07cff") if on else Color("eadcff"), 16, 3, 4, false)
 		btn.add_theme_stylebox_override("normal", sb); btn.add_theme_stylebox_override("hover", UiTheme.box(Color("fbf8ff"), Color("c9a8ff"), 16, 3, 4, false))
 		var vb := VBoxContainer.new(); vb.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT); vb.alignment = BoxContainer.ALIGNMENT_CENTER; vb.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		vb.add_theme_constant_override("separation", 0)
-		var icon := UiTheme.label(p.icon if unlocked else "🔒", 30); icon.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		var nm := UiTheme.label(p.name, 12); nm.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; nm.autowrap_mode = TextServer.AUTOWRAP_WORD; nm.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		var ct := UiTheme.label(_cost_text(p.cost) if unlocked else "locked", 11, Color("d55555") if poor else UiTheme.INK2); ct.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; ct.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var icon := UiTheme.label(p.icon if unlocked else "🔒", 24); icon.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var nm := UiTheme.label(p.name, 11); nm.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; nm.autowrap_mode = TextServer.AUTOWRAP_WORD; nm.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var ct := UiTheme.label(_cost_text(p.cost) if unlocked else "locked", 10, Color("d55555") if poor else UiTheme.INK2); ct.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; ct.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		if state().new_blueprints.has(pid): var nw := UiTheme.label("✦ new", 10, UiTheme.PINK_DARK); nw.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; nw.mouse_filter = Control.MOUSE_FILTER_IGNORE; vb.add_child(nw)
 		vb.add_child(icon); vb.add_child(nm); vb.add_child(ct)
 		btn.add_child(vb)
