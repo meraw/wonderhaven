@@ -52,7 +52,9 @@ func objective(qid: String, o: Dictionary) -> Dictionary:
 	var need := int(o.get("count", 1))
 	match o.kind:
 		"gather", "event":
-			var have := mini(need, int(p.get(o.id, 0)))
+			# a `stat` objective also counts finds made before accepting (chests don't come back)
+			var before: int = int(state.get("stats", {}).get(o.stat, 0)) if o.has("stat") else 0
+			var have := mini(need, maxi(int(p.get(o.id, 0)), before))
 			return {"done": have >= need, "have": have, "need": need}
 		"harmony": return {"done": p.get(o.id, 0) == 1 or state.harmony >= o.value, "have": mini(int(state.harmony), int(o.value)), "need": int(o.value)}
 		"build":

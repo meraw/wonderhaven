@@ -71,6 +71,16 @@ func test_camera_never_ends_inside_walls():
 	var p := c._outside_walls(Vector3(0, 1, 0), Vector3(5, 2, 0))
 	t.ok(not (c.blockers[0] as AABB).grow(-0.35).has_point(p) and p.x < 4.4, "a point inside the walls is brought back out (x=%.2f)" % p.x)
 
+func test_camera_stays_inside_a_room():
+	var c := FollowCamera.new(null)
+	c.rooms = [AABB(Vector3(0, -1, 0), Vector3(8, 3.6, 6))]   # walls up to y = 2.6
+	var pivot := Vector3(4, 1, 3)
+	var level := c.clear_distance(pivot, Vector3(1, 0.1, 0).normalized(), 9.0)
+	t.ok(level < 4.0, "looking sideways, the camera stops inside the wall (d=%.2f)" % level)
+	var steep := c.clear_distance(pivot, Vector3(0.3, 1.0, 0).normalized(), 9.0)
+	t.ok(steep > 5.0, "looking down from above, it may rise out over the faded roof (d=%.2f)" % steep)
+	t.ok(Props.camera_rooms().size() == 1, "the workshop is a room you can walk into")
+
 func test_camera_rays_ignore_a_thin_miss():
 	# A building just beside the line of sight still gets a little room thanks to the probe rays, so walking past
 	# a corner doesn't make the camera flick in and out.

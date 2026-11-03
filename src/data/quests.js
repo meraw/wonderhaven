@@ -1,6 +1,7 @@
 // Quests. Objectives: gather (count of an item gained after accepting), event (count of a game event),
 // build (a construction check passes), harmony (reach a value), flag, talk (turn in; `final` ones unlock last).
 // Collection objectives latch: once done they stay done, even if you spend the materials building.
+// An event objective with `stat` also counts what you did before taking the quest (e.g. chests already opened).
 export const QUESTS = [
   {
     id: 'tool', title: 'The Starforge Tool', giver: 'odessa', main: true, type: 'character', chapter: 1,
@@ -223,7 +224,7 @@ export const QUESTS = [
     description: 'Odessa hid her old notes in treasure chests and buried caches around the island. Find three of them.',
     requires: { quests: ['bridge'] },
     objectives: [
-      { id: 'find', kind: 'event', event: 'treasure', count: 3, text: 'Find 3 treasures (chests, or dig where the tool hums)' },
+      { id: 'find', kind: 'event', event: 'treasure', stat: 'treasures', count: 3, text: 'Find 3 treasures (chests, or dig where the tool hums)' },
       { id: 'tell', kind: 'talk', npc: 'odessa', final: true, text: 'Return to Odessa' },
     ],
     rewards: { harmony: 20, items: { crystal: 2 }, clothes: ['backpack'] },

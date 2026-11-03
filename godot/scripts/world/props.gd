@@ -162,7 +162,10 @@ static var _roof_shaders: Dictionary = {}
 static func roof_material(color, fade: bool = false) -> ShaderMaterial:
 	var key := "fade" if fade else "solid"
 	if not _roof_shaders.has(key):
-		var sh := Shader.new(); sh.code = ROOF_SHADER.replace("#FADE", "ALPHA = alpha;" if fade else "").replace("specular_disabled;", "specular_disabled, depth_draw_always;" if fade else "specular_disabled;")
+		# The fading copy dissolves with a fine dither instead of real transparency, so it never hides what's
+		# beneath it (transparent surfaces that write depth block the view of the room below).
+		var dither := "if (fract(52.9829189 * fract(dot(FRAGCOORD.xy, vec2(0.06711056, 0.00583715)))) >= alpha) discard;"
+		var sh := Shader.new(); sh.code = ROOF_SHADER.replace("#FADE", dither if fade else "")
 		_roof_shaders[key] = sh
 	var m := ShaderMaterial.new(); m.shader = _roof_shaders[key]
 	m.set_shader_parameter("color", Color(color) if color is String else color)
@@ -198,6 +201,14 @@ static func gable_roof_mesh(w: float, d: float, rise: float, oh: float, th: floa
 
 ## Roof, gable infill and ridge cap for a w x d building whose walls end at height h. Returns the roof node.
 static func roof_rise(w: float, d: float) -> float: return clampf(minf(w, d) * 0.36, 1.2, 2.0)
+
+## Rooms you can walk into (the workshop): while the player is inside, the camera stays within the walls.
+static func camera_rooms() -> Array:
+	var out: Array = []
+	for b in Data.layout.buildings:
+		if b.kind == "workshop":
+			out.append(AABB(Vector3(b.x - b.w / 2.0 + 0.35, -1.0, b.z - b.d / 2.0 + 0.35), Vector3(b.w - 0.7, 3.6, b.d - 0.7)))
+	return out
 
 ## Boxes the follow camera should not pass through: every building's walls and roof (overhang included).
 static func camera_blockers() -> Array:
@@ -371,10 +382,13 @@ static func workshop(b: Dictionary) -> Node3D:
 			faded = roof_material(b.roof, true)
 		else:
 			faded = (solid as StandardMaterial3D).duplicate()
-			faded.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA; faded.depth_draw_mode = BaseMaterial3D.DEPTH_DRAW_ALWAYS
+			faded.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_HASH; faded.alpha_hash_scale = 1.0
 		parts.append([m, solid, faded])
 	g.set_meta("fade_parts", parts)
-	_add(g, P.box(b.w + 0.06, 0.16, b.d + 0.06), P.mat(Color(b.roof).darkened(0.35).lerp(Color(P.WOOD_DARK), 0.6)), Vector3(0, h - 0.08, 0))
+	# trim beams along the wall tops: a frame, not a slab, so the room stays open when the roof fades
+	var trim := P.wood(Color(b.roof).darkened(0.35).lerp(Color(P.WOOD_DARK), 0.6))
+	for zs in [-1, 1]: _add(g, P.box(b.w + 0.06, 0.16, t + 0.06), trim, Vector3(0, h - 0.08, zs * (hd - t / 2.0)))
+	for xs in [-1, 1]: _add(g, P.box(t + 0.06, 0.16, b.d + 0.06), trim, Vector3(xs * (hw - t / 2.0), h - 0.08, 0))
 	_add(g, P.rbox(1.6, 0.5, 0.1, 0.05), P.wood("8b5a3c"), Vector3(hw + 0.1, 2.25, b.doorAt - b.z - 1.6), Vector3(0, PI / 2, 0))
 	var gear := _add(g, P.torus(0.22, 0.07, 10), P.mat(P.GOLD), Vector3(hw + 0.17, 2.25, b.doorAt - b.z - 1.6), Vector3(0, 0, PI / 2))
 	gear.name = "signGear"

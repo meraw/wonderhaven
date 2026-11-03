@@ -907,6 +907,7 @@
      "id": "find",
      "kind": "event",
      "event": "treasure",
+     "stat": "treasures",
      "count": 3,
      "text": "Find 3 treasures (chests, or dig where the tool hums)"
     },

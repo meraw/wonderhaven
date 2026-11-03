@@ -31,7 +31,11 @@ export class QuestEngine {
     const p = this.rec(qid)?.progress || {};
     const need = obj.count || 1;
     switch (obj.kind) {
-      case 'gather': case 'event': { const have = Math.min(need, p[obj.id] || 0); return { done: have >= need, have, need }; }
+      case 'gather': case 'event': {
+        const before = obj.stat ? (this.state.stats?.[obj.stat] || 0) : 0;   // finite finds made before accepting still count
+        const have = Math.min(need, Math.max(p[obj.id] || 0, before));
+        return { done: have >= need, have, need };
+      }
       case 'harmony': { const done = p[obj.id] === true || this.state.harmony >= obj.value; return { done, have: Math.min(this.state.harmony, obj.value), need: obj.value }; }
       case 'build': return { done: p[obj.id] === true || !!this.checks[obj.check]?.(), have: 0, need: 1 };
       case 'flag': return { done: p[obj.id] === true || !!this.state.flags[obj.flag], have: 0, need: 1 };

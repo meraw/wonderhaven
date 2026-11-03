@@ -478,16 +478,19 @@ func _build_ui() -> void:
 	# Help
 	var help := UiTheme.panel()
 	var hl := UiTheme.label("Left click — place / select\nRight click — cancel · right-drag — turn view\n%s rotate · %s colour · %s move\n%s remove · Ctrl+Z undo · Ctrl+Y redo\nWASD pan · wheel zoom · %s half-grid\n%s / %s leave build mode" % [Controls.key_label("rotate"), Controls.key_label("recolor"), Controls.key_label("move_piece"), Controls.key_label("remove"), Controls.key_label("half_grid"), Controls.key_label("pause"), Controls.key_label("build")], 12, UiTheme.INK2)
-	help.add_child(hl); help.position = Vector2(14, 170); help.mouse_filter = Control.MOUSE_FILTER_IGNORE; ui.add_child(help)
-	# Goals or selection
-	var right := VBoxContainer.new(); right.anchor_left = 1; right.anchor_right = 1; right.offset_left = -290; right.offset_right = -14; right.offset_top = 170; ui.add_child(right)
+	help.add_child(hl); help.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	# Right column: goals or the selected piece, then the controls (the left side holds the guide and tip cards)
+	var right := VBoxContainer.new(); right.anchor_left = 1; right.anchor_right = 1; right.offset_left = -290; right.offset_right = -14; right.offset_top = 160
+	right.add_theme_constant_override("separation", 10); right.mouse_filter = Control.MOUSE_FILTER_IGNORE; ui.add_child(right)
 	var goals: Dictionary = game.build_goals(current_zone)
 	if not goals.is_empty() and selected == -1 and moving.is_empty():
 		var gp := UiTheme.panel(Color("fffce6"), UiTheme.GOLD)
 		var gv := VBoxContainer.new(); gp.add_child(gv)
 		gv.add_child(UiTheme.label("📜 " + goals.title, 14))
-		if goals.has("hint"): var hh := UiTheme.label(goals.hint, 12, UiTheme.INK2); hh.autowrap_mode = TextServer.AUTOWRAP_WORD; gv.add_child(hh)
-		for it in goals.items: gv.add_child(UiTheme.label(("✔ " if it.ok else "○ ") + it.label, 13, Color("2f8a52") if it.ok else UiTheme.INK))
+		if goals.has("hint"): var hh := UiTheme.label(goals.hint, 12, UiTheme.INK2); hh.autowrap_mode = TextServer.AUTOWRAP_WORD; hh.custom_minimum_size.x = 246; gv.add_child(hh)
+		for it in goals.items:
+			var gl := UiTheme.label(("✔ " if it.ok else "○ ") + it.label, 13, Color("2f8a52") if it.ok else UiTheme.INK)
+			gl.autowrap_mode = TextServer.AUTOWRAP_WORD; gl.custom_minimum_size.x = 246; gv.add_child(gl)
 		right.add_child(gp)
 	if selected != -1 or not moving.is_empty():
 		var pl: Dictionary = moving.pl if not moving.is_empty() else _find(selected)
@@ -507,6 +510,7 @@ func _build_ui() -> void:
 				v.add_child(UiTheme.label("Removing refunds " + _cost_text(d.cost), 12, UiTheme.INK2))
 			else: v.add_child(UiTheme.label("Click to put it down · R rotate · right click to cancel", 12, UiTheme.INK2))
 			right.add_child(p)
+	right.add_child(help)
 	# Catalog
 	var cat := UiTheme.panel(Color(UiTheme.CREAM, 0.97), UiTheme.LILAC, 24)
 	cat.anchor_top = 1; cat.anchor_bottom = 1; cat.anchor_left = 0.5; cat.anchor_right = 0.5

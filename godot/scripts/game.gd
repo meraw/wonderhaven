@@ -83,6 +83,7 @@ func _ready() -> void:
 		get_viewport().size_changed.connect(_fit_outline); _fit_outline()
 	cam = FollowCamera.new(camera)
 	cam.blockers = Props.camera_blockers()
+	cam.rooms = Props.camera_rooms()
 	cam.occluders = village.occluders
 	piece_root.name = "Placements"; add_child(piece_root)
 	_build_ui()
@@ -745,7 +746,7 @@ func _world_reactions(dt: float) -> void:
 	var ws: Node3D = village.objects.workshop
 	var p := player.pos
 	var inside: bool = (p.x > -17.5 and p.x < -8.5 and p.z > 6.5 and p.z < 13.5) or (build.active and build.current_zone.get("id", "") == "workshop")
-	roof_alpha = lerpf(roof_alpha, 0.12 if inside else 1.0, minf(1.0, dt * 6.0))
+	roof_alpha = lerpf(roof_alpha, 0.0 if inside else 1.0, minf(1.0, dt * 6.0))
 	var fading := roof_alpha < 0.99
 	for part in ws.get_meta("fade_parts"):
 		var mi: MeshInstance3D = part[0]

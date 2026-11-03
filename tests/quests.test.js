@@ -134,3 +134,13 @@ test('clock, nights, weather and resting', () => {
   const kinds = new Set(); for (let d = 2; d < 60; d++) kinds.add(weatherAt({ day: d, minute: 600 }));
   assert.ok(kinds.has('rain') && kinds.has('sunny'));
 });
+
+test('treasures found before taking Odessa\'s request still count', () => {
+  const state = newGameState();
+  state.quests.tool = { status: 'done', progress: {} }; state.quests.bridge = { status: 'done', progress: {} };
+  state.stats.treasures = 3;
+  const e = new QuestEngine(state, {});
+  e.accept('treasure');
+  assert.ok(e.objective('treasure', QUEST.treasure.objectives[0]).done, 'three chests opened earlier complete the hunt');
+  assert.ok(e.isReady('treasure'));
+});
