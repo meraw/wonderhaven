@@ -37,18 +37,18 @@ func build(decor: Dictionary) -> void:
 	var stall := Props.market_stall(); stall.position = Vector3(-2, H.call(-2, 39), 39); stall.rotation.y = 0.2; add_child(stall)
 	var dock: Dictionary = Data.zone("dock")
 	for s in dock.fixedSupports:
-		add_child(P.mi(P.cyl(0.2, 0.24, 2.4, 8), P.mat("8a6a50"), Vector3(s[0] + 0.5, -1.0, s[1] + 0.5)))
-		add_child(P.mi(P.cyl(0.26, 0.26, 0.08, 8), P.mat("6a4a30"), Vector3(s[0] + 0.5, 0.02, s[1] + 0.5)))
-	add_child(P.mi(P.cyl(0.18, 0.22, 2.6, 8), P.mat("8a6a50"), Vector3(4.3, -0.6, 50.4)))
+		add_child(P.mi(P.cyl(0.2, 0.24, 2.4, 8), P.wood("8a6a50"), Vector3(s[0] + 0.5, -1.0, s[1] + 0.5)))
+		add_child(P.mi(P.cyl(0.26, 0.26, 0.08, 8), P.wood("6a4a30"), Vector3(s[0] + 0.5, 0.02, s[1] + 0.5)))
+	add_child(P.mi(P.cyl(0.18, 0.22, 2.6, 8), P.wood("8a6a50"), Vector3(4.3, -0.6, 50.4)))
 	for bp in [[-1.6, -17.2, 0.3], [1.8, -19.6, -0.4], [-0.4, -20.4, 0.2]]:
 		var p := Props.broken_post(); p.position = Vector3(bp[0], -0.2, bp[1]); p.rotation.z = bp[2]; add_child(p)
-	var plank := P.mi(P.box(0.9, 0.1, 1.6), P.mat("9a7a5a"), Vector3(1.2, -0.36, -16.6)); plank.rotation = Vector3(0.1, 0.7, 0.15); add_child(plank)
+	var plank := P.mi(P.box(0.9, 0.1, 1.6), P.wood("9a7a5a"), Vector3(1.2, -0.36, -16.6)); plank.rotation = Vector3(0.1, 0.7, 0.15); add_child(plank)
 	for l in [[-6, -3], [6, -3], [-6, 7.5], [6.8, 7.2], [-20, 5.2], [-30, 6.6], [2, -12.5], [12.6, 1.2], [4.6, 20.6], [20, 6.8], [7.4, 31.5]]:
 		var lp := Props.lamp_post(); lp.position = Vector3(l[0], H.call(l[0], l[1]), l[1]); add_child(lp); lamps.append(lp)
 	for fc in [[3.4, -12.2, 4, 0.0], [3.4, -8.0, 4, 0.0], [1.4, -10.1, 4, PI / 2], [-40, 2.5, 3, 0.0], [-40, 7.6, 3, 0.0]]:
 		var fe := Props.fence(fc[2]); fe.position = Vector3(fc[0], H.call(fc[0], fc[1]), fc[1]); fe.rotation.y = fc[3]; add_child(fe)
-	for bd in [[4.4, -9.4], [6.6, -9.4], [4.4, -11], [6.6, -11]]: add_child(P.mi(P.box(1.6, 0.16, 1.1), P.mat("9a6a45"), Vector3(bd[0], 0.08, bd[1])))
-	var pier := P.mi(P.box(7, 0.15, 2.2), P.mat("c49a6c"), Vector3(-48.5, 0.05, 5)); add_child(pier)
+	for bd in [[4.4, -9.4], [6.6, -9.4], [4.4, -11], [6.6, -11]]: add_child(P.mi(P.box(1.6, 0.16, 1.1), P.wood("9a6a45"), Vector3(bd[0], 0.08, bd[1])))
+	var pier := P.mi(P.box(7, 0.15, 2.2), P.wood("c49a6c"), Vector3(-48.5, 0.05, 5)); add_child(pier)
 	_build_decor(decor)
 	_build_nodes()
 	_build_features()

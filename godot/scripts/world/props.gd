@@ -11,15 +11,15 @@ static func _add(parent: Node3D, mesh: Mesh, material: Material, pos: Vector3, r
 ## Leaf material for single trees: tinted by the canopy mesh's light-to-dark gradient. Stays a StandardMaterial3D
 ## so the interaction highlight can tint it.
 static func leaf_mat(color: Color) -> StandardMaterial3D:
-	var m := P.unique_mat(color)
+	var m := P.unique_mat(color)   # untextured: the canopy gradient is the detail
 	m.vertex_color_use_as_albedo = true
 	m.vertex_color_is_srgb = true
 	return m
 
 static func round_tree(s: float = 1.0, hue: float = 0.5, fruit: bool = false) -> Node3D:
 	var g := Node3D.new()
-	_add(g, P.cyl(0.13, 0.24, 1.5, 9), P.mat(P.TRUNK), Vector3(0, 0.75, 0))
-	_add(g, P.cyl(0.05, 0.08, 0.6, 6), P.mat(P.TRUNK), Vector3(0.22, 1.35, 0.05), Vector3(0, 0, -0.7))
+	_add(g, P.cyl(0.13, 0.24, 1.5, 9), P.wood(P.TRUNK), Vector3(0, 0.75, 0))
+	_add(g, P.cyl(0.05, 0.08, 0.6, 6), P.wood(P.TRUNK), Vector3(0.22, 1.35, 0.05), Vector3(0, 0, -0.7))
 	var leaf := Color("6cc45e")
 	leaf.h += (hue - 0.5) * 0.06; leaf.v += (hue - 0.5) * 0.08
 	_add(g, Foliage.canopy(int(hue * 10.0) % 2), leaf_mat(leaf), Vector3(0, 2.0, 0), Vector3(0, hue * 6.0, 0))
@@ -42,9 +42,9 @@ static func bush(s: float = 1.0, color: String = "69bf5f") -> Node3D:
 
 static func rock(rich: bool = false) -> Node3D:
 	var g := Node3D.new()
-	_add(g, P.sphere(0.8, 6, 4), P.mat(P.STONE), Vector3(0, 0.4, 0), Vector3(0.2, 0.5, 0.1), Vector3(1.1, 0.75, 0.95))
-	_add(g, P.sphere(0.45, 6, 4), P.mat(P.STONE_DARK), Vector3(0.55, 0.25, 0.35), Vector3(0.4, 0, 0.2))
-	var vein = P.mat("8fe9ff", "3fbfff", 1.2) if rich else P.mat("d9a066")
+	_add(g, P.sphere(0.8, 6, 4), P.stone(P.STONE), Vector3(0, 0.4, 0), Vector3(0.2, 0.5, 0.1), Vector3(1.1, 0.75, 0.95))
+	_add(g, P.sphere(0.45, 6, 4), P.stone(P.STONE_DARK), Vector3(0.55, 0.25, 0.35), Vector3(0.4, 0, 0.2))
+	var vein = P.mat("8fe9ff", "3fbfff", 1.2) if rich else P.wood("d9a066")
 	for p in [[0.3, 0.75, 0.45], [-0.45, 0.55, 0.5], [0.1, 0.5, -0.7]]:
 		_add(g, P.sphere(0.2 if rich else 0.12, 4, 2), vein, Vector3(p[0], p[1], p[2]), Vector3(0.6, 0.6, 0))
 	return g
@@ -65,9 +65,9 @@ static func flower_patch() -> Node3D:
 
 static func chest() -> Node3D:
 	var g := Node3D.new()
-	_add(g, P.rbox(0.9, 0.45, 0.62, 0.05), P.mat("b5733f"), Vector3(0, 0.23, 0))
+	_add(g, P.rbox(0.9, 0.45, 0.62, 0.05), P.wood("b5733f"), Vector3(0, 0.23, 0))
 	var lid := Node3D.new(); lid.name = "lid"; lid.position = Vector3(0, 0.45, -0.31); g.add_child(lid)
-	_add(lid, P.rbox(0.9, 0.22, 0.62, 0.08), P.mat("c98447"), Vector3(0, 0.1, 0.31))
+	_add(lid, P.rbox(0.9, 0.22, 0.62, 0.08), P.wood("c98447"), Vector3(0, 0.1, 0.31))
 	for x in [-0.3, 0.3]: _add(g, P.box(0.08, 0.47, 0.64), P.mat(P.GOLD), Vector3(x, 0.24, 0))
 	_add(g, P.box(0.14, 0.16, 0.06), P.mat(P.GOLD), Vector3(0, 0.42, 0.33))
 	return g
@@ -79,14 +79,14 @@ static func fragment() -> Node3D:
 
 static func sign_post() -> Node3D:
 	var g := Node3D.new()
-	_add(g, P.cyl(0.06, 0.07, 1.1, 6), P.mat(P.WOOD_DARK), Vector3(0, 0.55, 0))
-	_add(g, P.rbox(1.0, 0.55, 0.1, 0.04), P.mat(P.WOOD), Vector3(0, 1.05, 0))
+	_add(g, P.cyl(0.06, 0.07, 1.1, 6), P.wood(P.WOOD_DARK), Vector3(0, 0.55, 0))
+	_add(g, P.rbox(1.0, 0.55, 0.1, 0.04), P.wood(P.WOOD), Vector3(0, 1.05, 0))
 	return g
 
 static func notice_board() -> Node3D:
 	var g := Node3D.new()
-	for x in [-0.6, 0.6]: _add(g, P.cyl(0.07, 0.08, 1.7, 6), P.mat(P.WOOD_DARK), Vector3(x, 0.85, 0))
-	_add(g, P.rbox(1.4, 0.9, 0.1, 0.04), P.mat("d9a066"), Vector3(0, 1.2, 0))
+	for x in [-0.6, 0.6]: _add(g, P.cyl(0.07, 0.08, 1.7, 6), P.wood(P.WOOD_DARK), Vector3(x, 0.85, 0))
+	_add(g, P.rbox(1.4, 0.9, 0.1, 0.04), P.wood("d9a066"), Vector3(0, 1.2, 0))
 	for n in [[-0.35, 1.3, "fff7e0"], [0.25, 1.15, "ffe0ec"], [-0.1, 0.98, "e0f4ff"]]: _add(g, P.box(0.4, 0.3, 0.01), P.mat(n[2]), Vector3(n[0], n[1], 0.06), Vector3.ZERO, Vector3.ONE, false)
 	_add(g, P.box(1.6, 0.08, 0.3), P.mat("c25b4a"), Vector3(0, 1.72, 0))
 	return g
@@ -223,8 +223,8 @@ static func _window(shutter = null) -> Node3D:
 	return w
 
 static func _flower_box(parent: Node3D, seed: int) -> void:
-	_add(parent, P.rbox(0.92, 0.2, 0.24, 0.04), P.mat(P.WOOD), Vector3(0, -0.62, 0.15))
-	_add(parent, P.box(0.84, 0.04, 0.18), P.mat("6b4a32"), Vector3(0, -0.51, 0.15), Vector3.ZERO, Vector3.ONE, false)
+	_add(parent, P.rbox(0.92, 0.2, 0.24, 0.04), P.wood(P.WOOD), Vector3(0, -0.62, 0.15))
+	_add(parent, P.box(0.84, 0.04, 0.18), P.wood("6b4a32"), Vector3(0, -0.51, 0.15), Vector3.ZERO, Vector3.ONE, false)
 	for i in 5:
 		var x := -0.34 + i * 0.17
 		_add(parent, P.sphere(0.09, 8, 6), P.mat("5fae4f"), Vector3(x, -0.47, 0.15 + (0.03 if i % 2 else -0.02)), Vector3.ZERO, Vector3(1, 0.8, 1), false)
@@ -242,34 +242,34 @@ static func _on_side(obj: Node3D, b: Dictionary, side: String, y: float, offset:
 static func _door(g: Node3D, b: Dictionary, color: String = "a0623a", canopy = null) -> void:
 	var door := Node3D.new()
 	_add(door, P.rbox(1.24, 1.86, 0.1, 0.04), P.mat("fffaf0"), Vector3(0, 0.1, -0.02))
-	_add(door, P.rbox(1.0, 1.62, 0.12, 0.05), P.mat(color), Vector3.ZERO)
+	_add(door, P.rbox(1.0, 1.62, 0.12, 0.05), P.wood(color), Vector3.ZERO)
 	for x in [-0.25, 0.25]: _add(door, P.box(0.04, 1.3, 0.02), P.mat(Color(color).darkened(0.2)), Vector3(x, 0, 0.065), Vector3.ZERO, Vector3.ONE, false)
 	_add(door, P.sphere(0.06, 8, 6), P.mat(P.GOLD), Vector3(0.33, 0, 0.09))
-	_add(door, P.rbox(1.5, 0.12, 0.6, 0.05), P.mat(P.STONE), Vector3(0, -0.76, 0.3))
+	_add(door, P.rbox(1.5, 0.12, 0.6, 0.05), P.stone(P.STONE), Vector3(0, -0.76, 0.3))
 	if canopy != null:
 		var cn := Node3D.new(); cn.position = Vector3(0, 1.16, 0.32); door.add_child(cn)
 		for s in [-1, 1]: _add(cn, P.rbox(0.82, 0.07, 0.72, 0.03), canopy, Vector3(s * 0.36, 0.17, 0), Vector3(0, 0, -s * 0.45))
-		for x in [-0.66, 0.66]: _add(cn, P.box(0.06, 0.06, 0.6), P.mat(P.WOOD_DARK), Vector3(x, -0.05, 0.0), Vector3(0.6, 0, 0))
+		for x in [-0.66, 0.66]: _add(cn, P.box(0.06, 0.06, 0.6), P.wood(P.WOOD_DARK), Vector3(x, -0.05, 0.0), Vector3(0.6, 0, 0))
 	_on_side(door, b, b.door, 0.8, float(b.get("doorOffset", 0)))
 	g.add_child(door)
 
 static func cottage(b: Dictionary) -> Node3D:
 	var g := Node3D.new(); var h := 2.4
-	var wall_mat := P.mat(b.wall)
+	var wall_mat := P.plaster(b.wall)
 	var trim := Color(b.roof).darkened(0.35).lerp(Color(P.WOOD_DARK), 0.6)
 	_add(g, P.rbox(b.w, h, b.d, 0.06), wall_mat, Vector3(0, h / 2.0, 0))
-	_add(g, P.rbox(b.w + 0.24, 0.4, b.d + 0.24, 0.08), P.mat("c9bfae"), Vector3(0, 0.15, 0))
+	_add(g, P.rbox(b.w + 0.24, 0.4, b.d + 0.24, 0.08), P.stone("c9bfae"), Vector3(0, 0.15, 0))
 	for c in [[-1, -1], [1, -1], [-1, 1], [1, 1]]:
-		_add(g, P.box(0.2, h, 0.2), P.mat(trim), Vector3(c[0] * (b.w / 2.0 - 0.06), h / 2.0, c[1] * (b.d / 2.0 - 0.06)))
-	_add(g, P.box(b.w + 0.06, 0.16, b.d + 0.06), P.mat(trim), Vector3(0, h - 0.08, 0))
+		_add(g, P.box(0.2, h, 0.2), P.wood(trim), Vector3(c[0] * (b.w / 2.0 - 0.06), h / 2.0, c[1] * (b.d / 2.0 - 0.06)))
+	_add(g, P.box(b.w + 0.06, 0.16, b.d + 0.06), P.wood(trim), Vector3(0, h - 0.08, 0))
 	var roof := _gable_roof(g, b.w, b.d, h, wall_mat, roof_material(b.roof), Color(b.roof).darkened(0.25))
 	var rise: float = roof.get_meta("rise"); var L: float = roof.get_meta("length"); var S: float = roof.get_meta("span")
 	# Stone chimney poking through one slope, near the ridge.
 	var ch_local := Vector3(L * 0.28, 0, -S * 0.18)
 	var ch := ch_local if b.w >= b.d else Vector3(-ch_local.z, 0, ch_local.x)
 	var top := h + rise + 0.55
-	_add(g, P.rbox(0.55, top - h, 0.55, 0.05), P.mat("b9ada0"), Vector3(ch.x, h + (top - h) / 2.0, ch.z))
-	_add(g, P.rbox(0.7, 0.14, 0.7, 0.04), P.mat("8f8378"), Vector3(ch.x, top, ch.z))
+	_add(g, P.rbox(0.55, top - h, 0.55, 0.05), P.stone("b9ada0"), Vector3(ch.x, h + (top - h) / 2.0, ch.z))
+	_add(g, P.rbox(0.7, 0.14, 0.7, 0.04), P.stone("8f8378"), Vector3(ch.x, top, ch.z))
 	g.set_meta("chimney", Vector3(ch.x, top + 0.2, ch.z))
 	# Round attic windows in both gable ends.
 	for s in [-1, 1]:
@@ -307,7 +307,7 @@ static func cottage(b: Dictionary) -> Node3D:
 static func workshop(b: Dictionary) -> Node3D:
 	var g := Node3D.new(); var h := 2.6; var t := 0.35
 	var hw: float = b.w / 2.0; var hd: float = b.d / 2.0
-	var wall_mat := P.unique_mat(b.wall)
+	var wall_mat := P.texturize(P.unique_mat(b.wall), "plaster")
 	var g0: float = b.doorAt - b.z - b.doorWidth / 2.0
 	var g1: float = b.doorAt - b.z + b.doorWidth / 2.0
 	var walls := Node3D.new(); walls.name = "walls"; g.add_child(walls)
@@ -315,25 +315,27 @@ static func workshop(b: Dictionary) -> Node3D:
 	addw.call(b.w, t, 0.0, -hd + t / 2.0); addw.call(b.w, t, 0.0, hd - t / 2.0); addw.call(t, b.d, -hw + t / 2.0, 0.0)
 	addw.call(t, g0 + hd, hw - t / 2.0, (-hd + g0) / 2.0); addw.call(t, hd - g1, hw - t / 2.0, (g1 + hd) / 2.0)
 	_add(walls, P.box(t, h - 1.9, g1 - g0), wall_mat, Vector3(hw - t / 2.0, 1.9 + (h - 1.9) / 2.0, (g0 + g1) / 2.0))
-	_add(g, P.box(b.w - 0.2, 0.06, b.d - 0.2), P.mat("d9b48a"), Vector3(0, 0.03, 0))
+	_add(g, P.box(b.w - 0.2, 0.06, b.d - 0.2), P.wood("d9b48a"), Vector3(0, 0.03, 0))
 	var x := -hw + 0.6
 	while x < hw:
-		_add(g, P.box(0.03, 0.065, b.d - 0.3), P.mat("c49a6c"), Vector3(x, 0.035, 0), Vector3.ZERO, Vector3.ONE, false); x += 0.9
-	var roof_mat := roof_material(b.roof, true)
-	# Fading parts write depth so they hide each other correctly while solid.
-	var infill_mat := P.unique_mat(b.wall); infill_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA; infill_mat.depth_draw_mode = BaseMaterial3D.DEPTH_DRAW_ALWAYS
-	var ceiling_mat := P.unique_mat(Color(b.roof).darkened(0.3)); ceiling_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA; ceiling_mat.depth_draw_mode = BaseMaterial3D.DEPTH_DRAW_ALWAYS
-	var roof := _gable_roof(g, b.w, b.d, h, infill_mat, roof_mat, Color(b.roof).darkened(0.25))
-	_add(roof, P.box(b.w if b.w >= b.d else b.d, 0.1, b.d if b.w >= b.d else b.w), ceiling_mat, Vector3(0, 0.05, 0))
+		_add(g, P.box(0.03, 0.065, b.d - 0.3), P.wood("c49a6c"), Vector3(x, 0.035, 0), Vector3.ZERO, Vector3.ONE, false); x += 0.9
+	# The roof is drawn solid; while you are inside, game.gd swaps each part to a see-through copy and fades it.
+	# (Keeping it solid otherwise avoids sorting glitches and keeps the ink lines from showing through it.)
+	var roof := _gable_roof(g, b.w, b.d, h, P.texturize(P.unique_mat(b.wall), "plaster"), roof_material(b.roof), Color(b.roof).darkened(0.25))
+	_add(roof, P.box(b.w if b.w >= b.d else b.d, 0.1, b.d if b.w >= b.d else b.w), P.unique_mat(Color(b.roof).darkened(0.3)), Vector3(0, 0.05, 0))
+	var parts: Array = []
 	for m in roof.find_children("*", "MeshInstance3D", true, false):
-		if m.material_override is StandardMaterial3D and m.material_override != infill_mat and m.material_override != ceiling_mat:
-			var rm: StandardMaterial3D = (m.material_override as StandardMaterial3D).duplicate(); rm.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA; rm.depth_draw_mode = BaseMaterial3D.DEPTH_DRAW_ALWAYS; m.material_override = rm
-	var fade: Array = [roof_mat]
-	for m in roof.find_children("*", "MeshInstance3D", true, false):
-		if m.material_override is StandardMaterial3D: fade.append(m.material_override)
-	g.set_meta("fade_mats", fade)
+		var solid: Material = m.material_override
+		var faded: Material
+		if solid is ShaderMaterial:
+			faded = roof_material(b.roof, true)
+		else:
+			faded = (solid as StandardMaterial3D).duplicate()
+			faded.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA; faded.depth_draw_mode = BaseMaterial3D.DEPTH_DRAW_ALWAYS
+		parts.append([m, solid, faded])
+	g.set_meta("fade_parts", parts)
 	_add(g, P.box(b.w + 0.06, 0.16, b.d + 0.06), P.mat(Color(b.roof).darkened(0.35).lerp(Color(P.WOOD_DARK), 0.6)), Vector3(0, h - 0.08, 0))
-	_add(g, P.rbox(1.6, 0.5, 0.1, 0.05), P.mat("8b5a3c"), Vector3(hw + 0.1, 2.25, b.doorAt - b.z - 1.6), Vector3(0, PI / 2, 0))
+	_add(g, P.rbox(1.6, 0.5, 0.1, 0.05), P.wood("8b5a3c"), Vector3(hw + 0.1, 2.25, b.doorAt - b.z - 1.6), Vector3(0, PI / 2, 0))
 	var gear := _add(g, P.torus(0.22, 0.07, 10), P.mat(P.GOLD), Vector3(hw + 0.17, 2.25, b.doorAt - b.z - 1.6), Vector3(0, 0, PI / 2))
 	gear.name = "signGear"
 	for off in [-1.8, 1.8]: var w := _window(Color(b.roof).lightened(0.05)); _on_side(w, b, "S", 1.5, off); g.add_child(w); _flower_box(w, int(off))
@@ -345,9 +347,9 @@ static func workshop(b: Dictionary) -> Node3D:
 
 static func caravan(b: Dictionary) -> Node3D:
 	var g := Node3D.new()
-	_add(g, P.rbox(b.w, 1.7, b.d, 0.3), P.mat(b.wall), Vector3(0, 1.35, 0))
+	_add(g, P.rbox(b.w, 1.7, b.d, 0.3), P.wood(b.wall), Vector3(0, 1.35, 0))
 	_add(g, P.cyl(b.d / 2.0 + 0.15, b.d / 2.0 + 0.15, b.w + 0.2, 14), P.mat(b.roof), Vector3(0, 2.15, 0), Vector3(0, 0, PI / 2), Vector3(1, 1, 0.9))
-	for p in [[-1.2, b.d / 2.0], [1.2, b.d / 2.0], [-1.2, -b.d / 2.0], [1.2, -b.d / 2.0]]: _add(g, P.torus(0.35, 0.08, 12), P.mat("8b5a3c"), Vector3(p[0], 0.38, p[1]), Vector3(PI / 2, 0, 0))
+	for p in [[-1.2, b.d / 2.0], [1.2, b.d / 2.0], [-1.2, -b.d / 2.0], [1.2, -b.d / 2.0]]: _add(g, P.torus(0.35, 0.08, 12), P.wood("8b5a3c"), Vector3(p[0], 0.38, p[1]), Vector3(PI / 2, 0, 0))
 	_add(g, P.cyl(0.12, 0.12, 0.7), P.mat("555555"), Vector3(1.3, 2.9, 0))
 	var cog := _add(g, P.torus(0.3, 0.09, 8), P.mat(P.GOLD), Vector3(0, 1.5, b.d / 2.0 + 0.05), Vector3(PI / 2, 0, 0)); cog.name = "cog"
 	_door(g, b, "7a4a8a")
@@ -355,23 +357,23 @@ static func caravan(b: Dictionary) -> Node3D:
 
 static func castle(b: Dictionary) -> Node3D:
 	var g := Node3D.new()
-	_add(g, P.rbox(b.w - 2, 4.2, b.d - 2, 0.15), P.mat(b.wall), Vector3(0, 2.1, 0))
+	_add(g, P.rbox(b.w - 2, 4.2, b.d - 2, 0.15), P.plaster(b.wall), Vector3(0, 2.1, 0))
 	var wall_h := 2.4
-	_add(g, P.rbox(b.w, wall_h, b.d, 0.12), P.mat("eadfcd"), Vector3(0, wall_h / 2.0, 0))
+	_add(g, P.rbox(b.w, wall_h, b.d, 0.12), P.stone("eadfcd"), Vector3(0, wall_h / 2.0, 0))
 	var x: float = -b.w / 2.0 + 0.4
 	while x <= b.w / 2.0 - 0.4:
-		for z in [-b.d / 2.0, b.d / 2.0]: _add(g, P.box(0.45, 0.45, 0.4), P.mat("eadfcd"), Vector3(x, wall_h + 0.22, z))
+		for z in [-b.d / 2.0, b.d / 2.0]: _add(g, P.box(0.45, 0.45, 0.4), P.stone("eadfcd"), Vector3(x, wall_h + 0.22, z))
 		x += 0.9
 	for c in [[-1, -1], [1, -1], [-1, 1], [1, 1]]:
 		var tx: float = c[0] * b.w / 2.0; var tz: float = c[1] * b.d / 2.0
-		_add(g, P.cyl(1.0, 1.1, 5.2, 14), P.mat(b.wall), Vector3(tx, 2.6, tz))
+		_add(g, P.cyl(1.0, 1.1, 5.2, 14), P.stone(b.wall), Vector3(tx, 2.6, tz))
 		_add(g, P.cone(1.3, 2.2, 14), P.mat(b.roof), Vector3(tx, 6.3, tz))
 		_add(g, P.cyl(0.03, 0.03, 0.9, 4), P.mat("666666"), Vector3(tx, 7.8, tz))
 		_add(g, P.box(0.6, 0.35, 0.02), P.mat("ff6f91"), Vector3(tx + 0.3, 8.05, tz))
 	var kr := P.mi(P.cone((b.w - 2) * 0.62, 2.6, 4), P.mat(b.roof), Vector3.ZERO); kr.rotation.y = PI / 4
 	var kh := Node3D.new(); kh.position.y = 5.5; kh.scale = Vector3(1, 1, (b.d - 2) / (b.w - 2)); kh.add_child(kr); g.add_child(kh)
-	_add(g, P.rbox(0.15, 2.0, 1.6, 0.06), P.mat("7a4a2a"), Vector3(-b.w / 2.0 - 0.05, 1.0, 0))
-	_add(g, P.torus(0.8, 0.12, 12), P.mat(P.STONE_DARK), Vector3(-b.w / 2.0 - 0.08, 1.8, 0), Vector3(0, PI / 2, 0), Vector3(1, 1, 1))
+	_add(g, P.rbox(0.15, 2.0, 1.6, 0.06), P.wood("7a4a2a"), Vector3(-b.w / 2.0 - 0.05, 1.0, 0))
+	_add(g, P.torus(0.8, 0.12, 12), P.stone(P.STONE_DARK), Vector3(-b.w / 2.0 - 0.08, 1.8, 0), Vector3(0, PI / 2, 0), Vector3(1, 1, 1))
 	_add(g, P.box(0.02, 1.6, 0.9), P.mat("ff6f91"), Vector3(-b.w / 2.0 - 0.08, 3.4, 0))
 	_add(g, P.sphere(0.25, 4, 2), P.mat(P.GOLD), Vector3(-b.w / 2.0 - 0.12, 3.5, 0))
 	for z in [-2.2, 2.2]: var w := _window(); w.position = Vector3(-b.w / 2.0 - 0.02, 1.5, z); w.rotation.y = -PI / 2; g.add_child(w)
@@ -379,17 +381,17 @@ static func castle(b: Dictionary) -> Node3D:
 
 static func fountain() -> Node3D:
 	var g := Node3D.new()
-	_add(g, P.cyl(2.05, 2.1, 0.12, 32), P.mat("cfc6b8"), Vector3(0, 0.06, 0))
-	_add(g, P.cyl(1.7, 1.8, 0.55, 32), P.mat(P.STONE), Vector3(0, 0.3, 0))
-	_add(g, P.cyl(1.45, 1.45, 0.58, 32), P.mat("b8b0a4"), Vector3(0, 0.32, 0))
+	_add(g, P.cyl(2.05, 2.1, 0.12, 32), P.stone("cfc6b8"), Vector3(0, 0.06, 0))
+	_add(g, P.cyl(1.7, 1.8, 0.55, 32), P.stone(P.STONE), Vector3(0, 0.3, 0))
+	_add(g, P.cyl(1.45, 1.45, 0.58, 32), P.stone("b8b0a4"), Vector3(0, 0.32, 0))
 	for i in 12:
 		var a := TAU * i / 12.0
-		_add(g, P.rbox(0.82, 0.16, 0.34, 0.05), P.mat("e3dccf" if i % 2 == 0 else "d8d0c2"), Vector3(cos(a) * 1.58, 0.62, sin(a) * 1.58), Vector3(0, -a + PI / 2, 0))
-	_add(g, P.cyl(0.42, 0.5, 0.3, 16), P.mat(P.STONE), Vector3(0, 0.6, 0))
-	_add(g, P.cyl(0.2, 0.28, 1.2, 16), P.mat(P.STONE), Vector3(0, 1.2, 0))
-	_add(g, P.torus(0.24, 0.05, 16), P.mat("e3dccf"), Vector3(0, 1.0, 0))
-	_add(g, P.cyl(0.78, 0.3, 0.28, 24), P.mat(P.STONE), Vector3(0, 1.72, 0))
-	_add(g, P.torus(0.77, 0.05, 24), P.mat("e3dccf"), Vector3(0, 1.86, 0))
+		_add(g, P.rbox(0.82, 0.16, 0.34, 0.05), P.stone("e3dccf" if i % 2 == 0 else "d8d0c2"), Vector3(cos(a) * 1.58, 0.62, sin(a) * 1.58), Vector3(0, -a + PI / 2, 0))
+	_add(g, P.cyl(0.42, 0.5, 0.3, 16), P.stone(P.STONE), Vector3(0, 0.6, 0))
+	_add(g, P.cyl(0.2, 0.28, 1.2, 16), P.stone(P.STONE), Vector3(0, 1.2, 0))
+	_add(g, P.torus(0.24, 0.05, 16), P.stone("e3dccf"), Vector3(0, 1.0, 0))
+	_add(g, P.cyl(0.78, 0.3, 0.28, 24), P.stone(P.STONE), Vector3(0, 1.72, 0))
+	_add(g, P.torus(0.77, 0.05, 24), P.stone("e3dccf"), Vector3(0, 1.86, 0))
 	var topper := _add(g, P.sphere(0.22, 4, 2), P.unique_mat("c9a8ff", "7a5cff", 0.0), Vector3(0, 2.15, 0)); topper.name = "topper"
 	var pool := _add(g, P.cyl(1.42, 1.42, 0.05, 24), P.glow_mat(Color("6fd8ee"), 0.85), Vector3(0, 0.5, 0), Vector3.ZERO, Vector3.ONE, false); pool.name = "pool"; pool.visible = false
 	var bw := _add(g, P.cyl(0.66, 0.66, 0.04, 16), P.glow_mat(Color("6fd8ee"), 0.85), Vector3(0, 1.82, 0), Vector3.ZERO, Vector3.ONE, false); bw.name = "bowlWater"; bw.visible = false
@@ -441,13 +443,13 @@ static func lamp_post() -> Node3D:
 static func fence(length: float = 2.0) -> Node3D:
 	var g := Node3D.new()
 	var x := 0.0
-	while x <= length: _add(g, P.box(0.12, 0.8, 0.12), P.mat("f4e6d0"), Vector3(x - length / 2.0, 0.4, 0)); x += 1.0
-	for y in [0.3, 0.6]: _add(g, P.box(length, 0.08, 0.06), P.mat("f4e6d0"), Vector3(0, y, 0))
+	while x <= length: _add(g, P.box(0.12, 0.8, 0.12), P.wood("f4e6d0"), Vector3(x - length / 2.0, 0.4, 0)); x += 1.0
+	for y in [0.3, 0.6]: _add(g, P.box(length, 0.08, 0.06), P.wood("f4e6d0"), Vector3(0, y, 0))
 	return g
 
 static func broken_post() -> Node3D:
 	var g := Node3D.new()
-	_add(g, P.cyl(0.16, 0.2, 1.3, 7), P.mat("8a6a50"), Vector3(0, -0.7, 0), Vector3(0, 0, 0.25))
+	_add(g, P.cyl(0.16, 0.2, 1.3, 7), P.wood("8a6a50"), Vector3(0, -0.7, 0), Vector3(0, 0, 0.25))
 	return g
 
 static func cliff(w: float) -> Node3D:
@@ -455,20 +457,20 @@ static func cliff(w: float) -> Node3D:
 	var n := int(ceil(w / 2.2))
 	for i in n:
 		var x := -w / 2.0 + (i + 0.5) * (w / n)
-		_add(g, P.sphere(1.4, 6, 4), P.mat("b9a993" if i % 2 else "c8b9a2"), Vector3(x, 0.9 + (i % 3) * 0.25, 0), Vector3(0, i * 1.7, 0), Vector3(1.2, 1.1 + (i % 2) * 0.3, 0.9))
+		_add(g, P.sphere(1.4, 6, 4), P.stone("b9a993" if i % 2 else "c8b9a2"), Vector3(x, 0.9 + (i % 3) * 0.25, 0), Vector3(0, i * 1.7, 0), Vector3(1.2, 1.1 + (i % 2) * 0.3, 0.9))
 		if i % 2 == 0:
 			var bu := bush(0.8, "5aa65a"); bu.position = Vector3(x, 2.2, 0.2); g.add_child(bu)
 	return g
 
 static func gate() -> Node3D:
 	var g := Node3D.new()
-	for x in [-2.6, 2.6]: _add(g, P.rbox(0.5, 2.6, 0.5, 0.06), P.mat(P.STONE), Vector3(x, 1.3, 0))
+	for x in [-2.6, 2.6]: _add(g, P.rbox(0.5, 2.6, 0.5, 0.06), P.stone(P.STONE), Vector3(x, 1.3, 0))
 	var doors := Node3D.new(); doors.name = "doors"; g.add_child(doors)
 	for s in [-1, 1]:
 		var d := Node3D.new(); d.position.x = s * 2.35; d.set_meta("side", s)
-		for n in 4: _add(d, P.box(0.14, 2, 0.1), P.mat("7a4a2a"), Vector3(-s * (0.3 + n * 0.55), 1.0, 0))
-		_add(d, P.box(2.2, 0.14, 0.12), P.mat("7a4a2a"), Vector3(-s * 1.1, 1.5, 0))
-		_add(d, P.box(2.2, 0.14, 0.12), P.mat("7a4a2a"), Vector3(-s * 1.1, 0.5, 0))
+		for n in 4: _add(d, P.box(0.14, 2, 0.1), P.wood("7a4a2a"), Vector3(-s * (0.3 + n * 0.55), 1.0, 0))
+		_add(d, P.box(2.2, 0.14, 0.12), P.wood("7a4a2a"), Vector3(-s * 1.1, 1.5, 0))
+		_add(d, P.box(2.2, 0.14, 0.12), P.wood("7a4a2a"), Vector3(-s * 1.1, 0.5, 0))
 		doors.add_child(d)
 	var seal := _add(g, P.torus(0.3, 0.07, 16), P.mat("ff6f91", "ff6f91", 0.6), Vector3(0, 1.4, 0.1), Vector3(PI / 2, 0, 0)); seal.name = "seal"
 	return g
@@ -476,8 +478,8 @@ static func gate() -> Node3D:
 static func boat() -> Node3D:
 	var g := Node3D.new()
 	_add(g, P.rbox(2.0, 0.8, 4.2, 0.35), P.mat("e8705a"), Vector3(0, 0.15, 0))
-	_add(g, P.box(1.8, 0.08, 4.0), P.mat("e0b07a"), Vector3(0, 0.58, 0))
-	_add(g, P.cyl(0.07, 0.08, 3.4, 6), P.mat("8b5a3c"), Vector3(0, 2.0, 0))
+	_add(g, P.box(1.8, 0.08, 4.0), P.wood("e0b07a"), Vector3(0, 0.58, 0))
+	_add(g, P.cyl(0.07, 0.08, 3.4, 6), P.wood("8b5a3c"), Vector3(0, 2.0, 0))
 	_add(g, P.box(0.02, 2.2, 1.6), P.mat("fff7e8"), Vector3(0.05, 2.3, 0.15))
 	_add(g, P.box(0.02, 0.3, 0.5), P.mat("5f9be0"), Vector3(0, 3.8, 0.25))
 	return g
@@ -501,8 +503,8 @@ static func oak() -> Node3D:
 
 static func market_stall() -> Node3D:
 	var g := Node3D.new()
-	_add(g, P.rbox(2.2, 0.9, 0.9, 0.05), P.mat("d9a066"), Vector3(0, 0.45, 0))
-	for x in [-1, 1]: _add(g, P.cyl(0.05, 0.05, 2.2, 6), P.mat("8b5a3c"), Vector3(x, 1.1, -0.3))
+	_add(g, P.rbox(2.2, 0.9, 0.9, 0.05), P.wood("d9a066"), Vector3(0, 0.45, 0))
+	for x in [-1, 1]: _add(g, P.cyl(0.05, 0.05, 2.2, 6), P.wood("8b5a3c"), Vector3(x, 1.1, -0.3))
 	_add(g, P.box(2.5, 0.1, 1.3), P.mat("ff8fab"), Vector3(0, 2.2, 0), Vector3(0.2, 0, 0))
 	for f in [[-0.6, "ffd84a"], [0.0, "7cc35a"], [0.6, "ff5a5f"]]: _add(g, P.sphere(0.16, 8, 6), P.mat(f[1]), Vector3(f[0], 1.0, 0.1))
 	return g

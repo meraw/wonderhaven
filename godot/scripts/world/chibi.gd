@@ -1,6 +1,6 @@
 class_name Chibi
 extends Node3D
-## Chibi character: big head, short limbs, a 3D cartoon face that blinks and emotes, bouncy procedural animation.
+## Chibi character: big head, short limbs, a painted face (FaceShader) that blinks and emotes, bouncy procedural animation.
 const P := preload("res://scripts/world/palette.gd")
 const HEAD_R := 0.4
 const ACTION_LENGTH := {"wave": 1.6, "clap": 1.4, "celebrate": 1.9, "surprised": 0.9, "chop": 0.55, "mine": 0.6, "dig": 0.7, "build": 0.9, "nod": 0.8, "shrug": 1.0, "feed": 1.0}
@@ -8,11 +8,8 @@ const ACTION_LENGTH := {"wave": 1.6, "clap": 1.4, "celebrate": 1.9, "surprised":
 var appearance: Dictionary
 var body: Node3D
 var head: Node3D
-var face: Node3D
 var arm_l: Node3D; var arm_r: Node3D; var leg_l: Node3D; var leg_r: Node3D
 var staff: Node3D
-var eyes: Array = []
-var mouths: Dictionary = {}
 var action := ""
 var action_t := 0.0
 var hold := ""
@@ -24,6 +21,10 @@ var mood_t := 0.0
 var talking := false
 var staff_visible := false
 var vis_layer := 1
+## Face style drawn by FaceShader on the head: "bean" (small shiny dot eyes, the game's look) or "painted" (big
+## glossy eyes, kept for comparison renders).
+static var face_style := "bean"
+var face_mat: ShaderMaterial
 
 func _init(app: Dictionary = {}) -> void:
 	set_appearance(app)
@@ -39,8 +40,42 @@ static func sanitize(a: Dictionary) -> Dictionary:
 	pick.call("hat", A.HATS); col.call("hatColor"); pick.call("accessory", A.ACCESSORIES)
 	return out
 
+# Lathe profiles (radius, height), bottom to top, in body or limb space.
+const TORSO := [Vector2(0, 0.27), Vector2(0.12, 0.274), Vector2(0.19, 0.3), Vector2(0.214, 0.36), Vector2(0.22, 0.44), Vector2(0.21, 0.53), Vector2(0.188, 0.6), Vector2(0.155, 0.66), Vector2(0.1, 0.71), Vector2(0, 0.735)]
+const WAIST := [Vector2(0, 0.262), Vector2(0.13, 0.266), Vector2(0.198, 0.292), Vector2(0.221, 0.35), Vector2(0.224, 0.42), Vector2(0.2, 0.424), Vector2(0, 0.424)]
+const SKIRT := [Vector2(0, 0.43), Vector2(0.215, 0.43), Vector2(0.235, 0.37), Vector2(0.27, 0.29), Vector2(0.29, 0.245), Vector2(0.275, 0.235), Vector2(0, 0.235)]
+const DRESS := [Vector2(0, 0.47), Vector2(0.205, 0.47), Vector2(0.226, 0.41), Vector2(0.27, 0.31), Vector2(0.31, 0.21), Vector2(0.33, 0.17), Vector2(0.32, 0.155), Vector2(0, 0.155)]
+const TUNIC_HEM := [Vector2(0, 0.43), Vector2(0.222, 0.43), Vector2(0.232, 0.36), Vector2(0.24, 0.3), Vector2(0.232, 0.285), Vector2(0, 0.285)]
+const LEG := [Vector2(0, 0.04), Vector2(0.062, 0.03), Vector2(0.074, 0.0), Vector2(0.07, -0.12), Vector2(0.063, -0.24), Vector2(0.05, -0.27), Vector2(0, -0.275)]
+const SHORTS_LEG := [Vector2(0, 0.03), Vector2(0.08, 0.02), Vector2(0.085, -0.04), Vector2(0.088, -0.1), Vector2(0.075, -0.108), Vector2(0, -0.108)]
+const ARM := [Vector2(0, 0.045), Vector2(0.045, 0.035), Vector2(0.058, 0.0), Vector2(0.054, -0.1), Vector2(0.048, -0.2), Vector2(0.04, -0.225), Vector2(0, -0.23)]
+const SLEEVE := [Vector2(0, 0.05), Vector2(0.05, 0.04), Vector2(0.068, 0.0), Vector2(0.07, -0.07), Vector2(0.066, -0.09), Vector2(0, -0.09)]
+
+static var _lathes: Dictionary = {}
+## Smooth surface of revolution from a (radius, height) profile, optionally squashed front-to-back.
+static func _lathe(key: String, profile: Array, zscale: float = 1.0) -> ArrayMesh:
+	var k := "%s|%.2f" % [key, zscale]
+	if _lathes.has(k): return _lathes[k]
+	var st := SurfaceTool.new(); st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var seg := 32
+	if profile[0].y < profile[profile.size() - 1].y:   # wind every profile top-down so faces point outward
+		profile = profile.duplicate(); profile.reverse()
+	for i in profile.size() - 1:
+		var p0: Vector2 = profile[i]; var p1: Vector2 = profile[i + 1]
+		for j in seg:
+			var a0 := TAU * j / seg; var a1 := TAU * (j + 1) / seg
+			var v00 := Vector3(cos(a0) * p0.x, p0.y, sin(a0) * p0.x * zscale)
+			var v01 := Vector3(cos(a1) * p0.x, p0.y, sin(a1) * p0.x * zscale)
+			var v10 := Vector3(cos(a0) * p1.x, p1.y, sin(a0) * p1.x * zscale)
+			var v11 := Vector3(cos(a1) * p1.x, p1.y, sin(a1) * p1.x * zscale)
+			for v in [v00, v10, v11, v00, v11, v01]: st.add_vertex(v)
+	st.index()
+	st.generate_normals()
+	_lathes[k] = st.commit()
+	return _lathes[k]
+
 func _m(mesh: Mesh, color, parent: Node3D, pos: Vector3, scl: Vector3 = Vector3.ONE, rot: Vector3 = Vector3.ZERO) -> MeshInstance3D:
-	var mi := P.mi(mesh, P.mat(color) if not color is Material else color, pos)
+	var mi := P.mi(mesh, P.fabric(color) if not color is Material else color, pos)
 	mi.scale = scl; mi.rotation = rot
 	parent.add_child(mi)
 	return mi
@@ -49,119 +84,130 @@ func set_appearance(app: Dictionary) -> void:
 	appearance = sanitize(app)
 	var a := appearance
 	for c in get_children(): c.queue_free(); remove_child(c)
-	eyes.clear(); mouths.clear()
 	body = Node3D.new(); add_child(body)
-	var skin = a.skin; var top = a.topColor; var bottom = a.bottomColor; var shoes = a.shoesColor
+	var skin = P.smooth(a.skin); var top = a.topColor; var bottom = a.bottomColor; var shoes = a.shoesColor
 	var bare_legs: bool = a.bottom in ["shorts", "skirt", "dress"]
+	var dark := func(c, k: float = 0.25) -> Color: return Color(c).darkened(k)
+	# Legs: tapered, with rounded two-tone shoes (soles a shade darker; sandals show the foot).
 	for s in [-1, 1]:
 		var hip := Node3D.new(); hip.position = Vector3(s * 0.1, 0.34, 0); body.add_child(hip)
-		_m(P.capsule(0.075, 0.16), skin if bare_legs else bottom, hip, Vector3(0, -0.14, 0))
-		_m(P.sphere(0.1, 10, 8), shoes, hip, Vector3(0, -0.29, 0.03), Vector3(0.9, 1.0 if a.shoes == "boots" else 0.6, 1.3))
-		if a.shoes == "boots": _m(P.cyl(0.09, 0.09, 0.12, 10), shoes, hip, Vector3(0, -0.21, 0))
+		_m(_lathe("leg", LEG), skin if bare_legs else bottom, hip, Vector3.ZERO)
+		if a.bottom == "shorts": _m(_lathe("shorts_leg", SHORTS_LEG), bottom, hip, Vector3.ZERO)
+		if a.bottom == "pants": _m(P.torus(0.066, 0.012, 32), dark.call(bottom, 0.15), hip, Vector3(0, -0.245, 0))
+		if a.shoes == "sandals":
+			_m(P.sphere(0.075, 28, 18), skin, hip, Vector3(0, -0.3, 0.035), Vector3(0.9, 0.5, 1.3))
+			_m(P.rbox(0.15, 0.035, 0.24, 0.015), shoes, hip, Vector3(0, -0.335, 0.03))
+			_m(P.torus(0.06, 0.012, 32), shoes, hip, Vector3(0, -0.3, 0.06), Vector3(1, 1, 0.8))
+		else:
+			_m(P.sphere(0.1, 28, 18), shoes, hip, Vector3(0, -0.29, 0.035), Vector3(0.85, 0.55, 1.3))
+			_m(P.rbox(0.17, 0.04, 0.27, 0.018), dark.call(shoes, 0.3), hip, Vector3(0, -0.33, 0.035))
+			if a.shoes == "sneakers":
+				_m(P.sphere(0.06, 28, 18), dark.call(shoes, 0.08), hip, Vector3(0, -0.3, 0.11), Vector3(1, 0.55, 0.9))
+			if a.shoes == "boots":
+				_m(P.cyl(0.075, 0.08, 0.15, 24), shoes, hip, Vector3(0, -0.22, 0))
+				_m(P.torus(0.078, 0.016, 32), dark.call(shoes, 0.2), hip, Vector3(0, -0.15, 0))
 		if s < 0: leg_l = hip
 		else: leg_r = hip
-	_m(P.sphere(0.22, 14, 12), bottom if a.top == "overalls" else top, body, Vector3(0, 0.5, 0), Vector3(1, 1.05, 0.88))
-	if a.bottom in ["shorts", "pants"]: _m(P.sphere(0.2, 12, 8), bottom, body, Vector3(0, 0.42, 0), Vector3(1, 0.8, 0.88))
-	if a.bottom == "skirt": _m(P.cyl(0.2, 0.3, 0.2, 14), bottom, body, Vector3(0, 0.36, 0))
-	if a.bottom == "dress": _m(P.cyl(0.19, 0.34, 0.36, 16), top, body, Vector3(0, 0.38, 0))
-	if a.top == "overalls":
-		_m(P.rbox(0.26, 0.2, 0.08, 0.03), bottom, body, Vector3(0, 0.58, 0.17))
-		_m(P.hemi(0.205, 12), top, body, Vector3(0, 0.56, 0))
-	if a.top == "tunic": _m(P.torus(0.205, 0.03, 16), "8b5a3c", body, Vector3(0, 0.44, 0))
-	if a.top == "jacket":
-		for s in [-1, 1]: _m(P.box(0.06, 0.26, 0.05), "ffffff", body, Vector3(s * 0.05, 0.53, 0.19), Vector3.ONE, Vector3(0, 0, s * 0.2))
-	if a.top == "sailor":
-		_m(P.cyl(0.17, 0.24, 0.07, 14), "2f5fa8", body, Vector3(0, 0.66, 0))
-		_m(P.cone(0.05, 0.12, 4), "e85d75", body, Vector3(0, 0.6, 0.2), Vector3.ONE, Vector3(PI, 0, 0))
-	if a.top == "sweater": _m(P.torus(0.19, 0.035, 16), top, body, Vector3(0, 0.33, 0))
+	# Torso: a soft bell shape in the top's colour, with the bottom garment over the hips.
+	var torso_col = bottom if a.top == "overalls" else top
+	_m(_lathe("torso", TORSO, 0.86), top, body, Vector3.ZERO)
+	if a.bottom in ["pants", "shorts"] or a.top == "overalls":
+		_m(_lathe("waist", WAIST, 0.87), bottom, body, Vector3.ZERO)
+		_m(P.torus(0.223, 0.012, 40), dark.call(bottom, 0.2), body, Vector3(0, 0.42, 0), Vector3(1, 1, 0.87))
+	if a.bottom == "skirt": _m(_lathe("skirt", SKIRT, 0.88), bottom, body, Vector3.ZERO); _m(P.torus(0.285, 0.012, 40), dark.call(bottom, 0.18), body, Vector3(0, 0.243, 0), Vector3(1, 1, 0.88))
+	if a.bottom == "dress": _m(_lathe("dress", DRESS, 0.88), top, body, Vector3.ZERO); _m(P.torus(0.325, 0.014, 40), Color(top).lightened(0.3), body, Vector3(0, 0.165, 0), Vector3(1, 1, 0.88))
+	match a.top:
+		"tee":
+			_m(P.torus(0.1, 0.018, 32), dark.call(top, 0.18), body, Vector3(0, 0.715, 0.0), Vector3(1, 1, 0.86))
+		"sweater":
+			_m(P.torus(0.105, 0.03, 32), dark.call(top, 0.12), body, Vector3(0, 0.71, 0.0), Vector3(1, 1, 0.86))
+			_m(P.torus(0.213, 0.022, 40), dark.call(top, 0.12), body, Vector3(0, 0.3, 0), Vector3(1, 1, 0.86))
+		"overalls":
+			_m(P.rbox(0.25, 0.22, 0.06, 0.03), torso_col, body, Vector3(0, 0.5, 0.17), Vector3.ONE, Vector3(-0.12, 0, 0))
+			_m(P.rbox(0.09, 0.06, 0.02, 0.01), dark.call(torso_col, 0.15), body, Vector3(0, 0.5, 0.205), Vector3.ONE, Vector3(-0.12, 0, 0))
+			for s in [-1, 1]:
+				_m(P.rbox(0.045, 0.2, 0.3, 0.015), torso_col, body, Vector3(s * 0.09, 0.62, 0.0), Vector3.ONE, Vector3(0, 0, -s * 0.12))
+				_m(P.sphere(0.018, 12, 8), P.GOLD, body, Vector3(s * 0.085, 0.585, 0.195))
+		"tunic":
+			_m(_lathe("tunic_hem", TUNIC_HEM, 0.87), top, body, Vector3.ZERO)
+			_m(P.torus(0.222, 0.02, 40), "8b5a3c", body, Vector3(0, 0.43, 0), Vector3(1, 1, 0.87))
+			_m(P.rbox(0.07, 0.06, 0.03, 0.01), P.GOLD, body, Vector3(0, 0.43, 0.195))
+		"jacket":
+			_m(P.rbox(0.09, 0.4, 0.04, 0.02), "fffaf0", body, Vector3(0, 0.5, 0.17), Vector3.ONE, Vector3(-0.08, 0, 0))
+			for s in [-1, 1]:
+				_m(P.rbox(0.07, 0.16, 0.03, 0.015), dark.call(top, 0.15), body, Vector3(s * 0.075, 0.64, 0.15), Vector3.ONE, Vector3(-0.35, 0, s * 0.35))
+				_m(P.sphere(0.015, 12, 8), P.GOLD, body, Vector3(s * 0.06, 0.48 - 0.0, 0.19))
+		"sailor":
+			_m(P.rbox(0.34, 0.06, 0.24, 0.03), "2f5fa8", body, Vector3(0, 0.7, -0.06), Vector3.ONE, Vector3(-0.15, 0, 0))
+			for s in [-1, 1]: _m(P.rbox(0.2, 0.05, 0.03, 0.015), "2f5fa8", body, Vector3(s * 0.06, 0.64, 0.17), Vector3.ONE, Vector3(-0.2, 0, s * 0.7))
+			_m(P.cone(0.05, 0.12, 16), "e85d75", body, Vector3(0, 0.58, 0.19), Vector3.ONE, Vector3(PI, 0, 0))
+	# Arms: tapered sleeves (short sleeves show the arm), mitten hands with a thumb.
+	var long_sleeves: bool = not a.top in ["tee", "overalls"]
 	for s in [-1, 1]:
 		var sh := Node3D.new(); sh.position = Vector3(s * 0.22, 0.62, 0); body.add_child(sh)
-		_m(P.capsule(0.058, 0.16), skin if a.top in ["tee", "overalls"] else top, sh, Vector3(0, -0.12, 0), Vector3.ONE, Vector3(0, 0, s * 0.15))
-		_m(P.sphere(0.07, 10, 8), skin, sh, Vector3(s * 0.03, -0.26, 0))
+		var arm := Node3D.new(); arm.rotation.z = s * 0.15; sh.add_child(arm)
+		_m(_lathe("arm", ARM), top if long_sleeves else skin, arm, Vector3.ZERO)
+		if long_sleeves: _m(P.torus(0.052, 0.012, 32), dark.call(top, 0.15), arm, Vector3(0, -0.205, 0))
+		else: _m(_lathe("sleeve", SLEEVE), top if a.top == "tee" else torso_col, arm, Vector3.ZERO)
+		_m(P.sphere(0.064, 28, 18), skin, arm, Vector3(0, -0.255, 0.005), Vector3(0.95, 1.05, 0.8))
+		_m(P.sphere(0.028, 16, 10), skin, arm, Vector3(-s * 0.0 + 0.0, -0.235, 0.05), Vector3(1, 1.2, 1))
 		if s < 0: arm_l = sh
 		else: arm_r = sh
 	staff = Node3D.new(); staff.position = Vector3(0.03, -0.26, 0.02); staff.rotation.x = 0.2; staff.visible = staff_visible; arm_r.add_child(staff)
-	_m(P.cyl(0.025, 0.03, 0.95, 6), "a0623a", staff, Vector3(0, 0.2, 0))
-	_m(P.torus(0.09, 0.022, 12), P.GOLD, staff, Vector3(0, 0.72, 0), Vector3.ONE, Vector3(PI / 2, 0, 0))
+	_m(P.cyl(0.025, 0.03, 0.95, 24), "a0623a", staff, Vector3(0, 0.2, 0))
+	_m(P.torus(0.09, 0.022, 32), P.GOLD, staff, Vector3(0, 0.72, 0), Vector3.ONE, Vector3(PI / 2, 0, 0))
 	var star := _m(P.sphere(0.1, 4, 2), P.unique_mat("fff2a8", "ffd35c", 2.0), staff, Vector3(0, 0.72, 0)); star.name = "star"
 	head = Node3D.new(); head.position.y = 0.7; body.add_child(head)
-	_m(P.sphere(HEAD_R, 24, 16), skin, head, Vector3(0, HEAD_R * 0.92, 0))
-	for s in [-1, 1]: _m(P.sphere(0.07, 8, 6), skin, head, Vector3(s * HEAD_R * 0.98, HEAD_R * 0.9, 0), Vector3(0.6, 1, 0.8))
-	_build_face(a)
-	_build_hair(a.hair, a.hairColor)
+	face_mat = FaceShader.material()
+	face_mat.set_shader_parameter("skin", Color(a.skin))
+	face_mat.set_shader_parameter("eye_color", Color(a.eyeColor))
+	face_mat.set_shader_parameter("brow_color", Color(a.hairColor).darkened(0.35))
+	face_mat.set_shader_parameter("style", 0 if face_style == "painted" else 1)
+	face_mat.set_shader_parameter("sparkle", a.eyeShape == "sparkle")
+	_m(P.sphere(HEAD_R, 48, 32), face_mat, head, Vector3(0, HEAD_R * 0.92, 0))
+	for s in [-1, 1]: _m(P.sphere(0.07, 28, 18), skin, head, Vector3(s * HEAD_R * 0.98, HEAD_R * 0.9, 0), Vector3(0.6, 1, 0.8))
+	_build_hair(a.hair, a.hairColor, a.hat)
 	call_deferred("apply_layer")
 	if a.hat != "none": _build_hat(a.hat, a.hatColor)
 	match a.accessory:
 		"glasses":
-			for s in [-1, 1]: _m(P.torus(0.08, 0.014, 16), "3a3a4a", head, Vector3(s * 0.15, HEAD_R * 0.85, HEAD_R * 0.97), Vector3.ONE, Vector3(PI / 2, 0, 0))
-		"beard": _m(P.sphere(0.26, 12, 8), a.hairColor, head, Vector3(0, HEAD_R * 0.45, 0.14), Vector3(1, 0.7, 0.8))
-		"scarf": _m(P.torus(0.17, 0.06, 16), a.hatColor, body, Vector3(0, 0.68, 0))
+			for s in [-1, 1]: _m(P.torus(0.08, 0.014, 32), "3a3a4a", head, Vector3(s * 0.15, HEAD_R * 0.85, HEAD_R * 0.97), Vector3.ONE, Vector3(PI / 2, 0, 0))
+		"beard": _m(P.sphere(0.26, 28, 18), P.smooth(a.hairColor), head, Vector3(0, HEAD_R * 0.45, 0.14), Vector3(1, 0.7, 0.8))
+		"scarf": _m(P.torus(0.17, 0.06, 32), a.hatColor, body, Vector3(0, 0.68, 0))
 		"backpack": _m(P.rbox(0.3, 0.32, 0.16, 0.06), a.hatColor, body, Vector3(0, 0.52, -0.25))
 		"bowtie":
-			for s in [-1, 1]: _m(P.cone(0.05, 0.1, 6), "e85d75", body, Vector3(s * 0.05, 0.66, 0.19), Vector3.ONE, Vector3(0, 0, s * PI / 2))
-
-# Face: features sit on the head's front surface and face outward.
-func _on_face(node: Node3D, x: float, y: float, inset: float = 0.0) -> void:
-	var c := Vector3(0, HEAD_R * 0.92, 0)
-	var dir := Vector3(x, y, 0)
-	dir.z = sqrt(maxf(0.0, HEAD_R * HEAD_R - x * x - y * y))
-	node.transform = Transform3D(Basis.looking_at(dir.normalized(), Vector3.UP), c + dir.normalized() * (HEAD_R - inset))
-
-func _build_face(a: Dictionary) -> void:
-	face = Node3D.new(); head.add_child(face)
-	for s in [-1, 1]:
-		var eye := Node3D.new(); face.add_child(eye)
-		_on_face(eye, s * 0.15, -0.02, 0.005)
-		var e := Node3D.new(); e.name = "open"; eye.add_child(e)
-		_m(P.sphere(0.075, 12, 8), "ffffff", e, Vector3(0, 0, 0), Vector3(1, 1.3, 0.35))
-		_m(P.sphere(0.064, 12, 8), a.eyeColor, e, Vector3(0, -0.005, -0.012), Vector3(1, 1.3, 0.35))
-		_m(P.sphere(0.034, 10, 6), "1d1414", e, Vector3(0, -0.002, -0.024), Vector3(1, 1.3, 0.35))
-		_m(P.sphere(0.017, 6, 4), P.glow_mat(Color.WHITE), e, Vector3(0.022 * s * -1, 0.03, -0.032))
-		if a.eyeShape == "sparkle": _m(P.sphere(0.01, 6, 4), P.glow_mat(Color.WHITE), e, Vector3(-0.015 * s * -1, -0.03, -0.032))
-		var closed := Node3D.new(); closed.name = "closed"; closed.visible = false; eye.add_child(closed)
-		_m(P.capsule(0.012, 0.09), "3a2a2a", closed, Vector3(0, 0, -0.01), Vector3.ONE, Vector3(0, 0, PI / 2))
-		var happy := Node3D.new(); happy.name = "happy"; happy.visible = false; eye.add_child(happy)
-		for k in [-1, 1]: _m(P.capsule(0.012, 0.05), "3a2a2a", happy, Vector3(k * 0.022, 0.01, -0.01), Vector3.ONE, Vector3(0, 0, PI / 2 + k * 0.7))
-		var brow := _m(P.capsule(0.01, 0.07), "6a4a3a", face, Vector3.ZERO, Vector3.ONE)
-		_on_face(brow, s * 0.15, 0.11, 0.0); brow.rotate_object_local(Vector3.FORWARD, PI / 2 + s * 0.12); brow.name = "brow"
-		eye.scale = Vector3.ONE * (1.15 if a.eyeShape == "wide" else 1.0)
-		eyes.append(eye)
-		var blush := _m(P.sphere(0.05, 8, 6), P.glow_mat(Color(1, 0.55, 0.6), 0.45), face, Vector3.ZERO, Vector3(1.3, 0.7, 0.2))
-		_on_face(blush, s * 0.25, -0.09, -0.005)
-	var mouth_pos := Vector2(0, -0.17)
-	var make := func(name: String) -> Node3D:
-		var m := Node3D.new(); m.name = name; m.visible = false; face.add_child(m); _on_face(m, mouth_pos.x, mouth_pos.y, 0.004); mouths[name] = m; return m
-	var red := "b94a55"
-	_m(P.hemi(0.05, 12), red, make.call("smile"), Vector3.ZERO, Vector3(1.1, 0.7, 0.3), Vector3(PI, 0, 0))
-	_m(P.hemi(0.07, 12), red, make.call("grin"), Vector3.ZERO, Vector3(1.1, 0.9, 0.3), Vector3(PI, 0, 0))
-	_m(P.sphere(0.035, 10, 6), red, make.call("o"), Vector3.ZERO, Vector3(1, 1.25, 0.3))
-	_m(P.capsule(0.012, 0.05), red, make.call("calm"), Vector3.ZERO, Vector3.ONE, Vector3(0, 0, PI / 2))
-	var cat: Node3D = make.call("cat")
-	for k in [-1, 1]: _m(P.hemi(0.025, 8), red, cat, Vector3(k * 0.024, 0, 0), Vector3(1, 0.7, 0.3), Vector3(PI, 0, 0))
-	_m(P.hemi(0.045, 12), red, make.call("sad"), Vector3(0, -0.01, 0), Vector3(1.1, 0.6, 0.3), Vector3.ZERO)
-	_refresh_face()
+			for s in [-1, 1]: _m(P.cone(0.05, 0.1, 16), "e85d75", body, Vector3(s * 0.05, 0.66, 0.19), Vector3.ONE, Vector3(0, 0, s * PI / 2))
 
 func apply_layer() -> void:
 	for m in find_children("*", "VisualInstance3D", true, false): m.layers = vis_layer
 
 func _refresh_face() -> void:
-	if eyes.is_empty(): return
+	if face_mat == null: return
+	_refresh_painted()
+
+const MOUTH_IDS := {"smile": 0, "grin": 1, "o": 2, "calm": 3, "cat": 4, "sad": 5}
+func _refresh_painted() -> void:
 	var shape: String = appearance.eyeShape
-	if mood == "happy": shape = "happy"
-	elif mood == "surprised": shape = "wide"
-	elif mood == "sleepy": shape = "sleepy"
-	for e in eyes:
-		var blink := blink_t > 0.0
-		e.get_node("open").visible = not blink and shape != "happy" and shape != "sleepy"
-		e.get_node("closed").visible = (blink and shape != "happy") or shape == "sleepy"
-		e.get_node("happy").visible = shape == "happy"
-		e.get_node("open").scale = Vector3.ONE * (1.2 if shape == "wide" else 1.0)
+	var mode := 0
+	match shape:
+		"happy": mode = 1
+		"sleepy": mode = 4
+		"wide": mode = 3
+	var raise := 0.0
+	match mood:
+		"happy": mode = 1
+		"surprised": mode = 3; raise = 1.0
+		"sleepy": mode = 2
+		"sad": raise = 0.4
 	var mouth: String = appearance.mouth
 	if mood == "happy": mouth = "grin"
 	elif mood == "surprised": mouth = "o"
 	elif mood == "sad": mouth = "sad"
 	elif talking and fmod(t * 9.0, 2.0) > 1.0: mouth = "o"
-	for k in mouths: mouths[k].visible = k == mouth
+	face_mat.set_shader_parameter("eye_mode", mode)
+	face_mat.set_shader_parameter("blink", 1.0 if blink_t > 0.0 else 0.0)
+	face_mat.set_shader_parameter("mouth", MOUTH_IDS.get(mouth, 0))
+	face_mat.set_shader_parameter("brow_raise", raise)
 
 func show_staff(v: bool) -> void:
 	staff_visible = v
@@ -183,66 +229,73 @@ func stop_hold() -> void: hold = ""
 
 func head_world_pos() -> Vector3: return head.to_global(Vector3(0, HEAD_R * 0.92, 0))
 
-func _build_hair(style: String, color: String) -> void:
+func _build_hair(style: String, color: String, hat: String = "none") -> void:
 	var g := Node3D.new(); g.position.y = HEAD_R * 0.92; head.add_child(g)
-	_m(P.hemi(HEAD_R * 1.06, 18), color, g, Vector3(0, HEAD_R * 0.04, -0.02), Vector3.ONE, Vector3(-0.22, 0, 0))
-	# fringe
-	_m(P.sphere(HEAD_R * 0.55, 12, 8), color, g, Vector3(0, HEAD_R * 0.55, HEAD_R * 0.45), Vector3(1.5, 0.45, 0.6))
+	var hm := P.smooth(color)
+	_m(P.hemi(HEAD_R * 1.06, 32), hm, g, Vector3(0, HEAD_R * 0.04, -0.02), Vector3.ONE, Vector3(-0.22, 0, 0))
+	# fringe: separate rounded locks across the forehead read as hair rather than a helmet
+	if not style in ["spiky", "curly"] and not hat in ["beanie", "captain", "chef"]:
+		var locks := [-0.95, -0.5, -0.05, 0.42, 0.88] if style != "short" else [-0.7, -0.15, 0.4, 0.85]
+		for i in locks.size():
+			var th: float = locks[i]
+			var lk := Node3D.new(); lk.rotation = Vector3(0, th, 0); g.add_child(lk)
+			var ln := 1.2 + 0.12 * sin(i * 2.3)
+			_m(P.sphere(0.12, 24, 16), hm, lk, Vector3(0, HEAD_R * 0.62, HEAD_R * 0.8), Vector3(1.0, ln, 0.55), Vector3(-0.55, 0, 0))
 	if style in ["bob", "long", "pigtails", "ponytail", "bun"]:
-		_m(P.sphere(HEAD_R * 1.06, 16, 10), color, g, Vector3(0, -0.02, -0.06), Vector3(1.04, 0.95, 0.95))
-		for s in [-1, 1]: _m(P.sphere(0.16, 10, 8), color, g, Vector3(s * 0.33, -0.12, 0.08), Vector3(0.7, 1.3, 0.9))
-	if style == "long": _m(P.rbox(0.7, 0.75, 0.25, 0.12), color, g, Vector3(0, -0.3, -0.25))
+		_m(P.sphere(HEAD_R * 1.06, 28, 18), hm, g, Vector3(0, -0.02, -0.06), Vector3(1.04, 0.95, 0.95))
+		for s in [-1, 1]: _m(P.sphere(0.16, 28, 18), hm, g, Vector3(s * 0.33, -0.12, 0.08), Vector3(0.7, 1.3, 0.9))
+	if style == "long": _m(P.rbox(0.7, 0.75, 0.25, 0.12), hm, g, Vector3(0, -0.3, -0.25))
 	if style == "pigtails":
-		for s in [-1, 1]: _m(P.sphere(0.15, 10, 8), color, g, Vector3(s * 0.47, -0.15, -0.05), Vector3(0.9, 1.4, 0.9))
-	if style == "ponytail": _m(P.sphere(0.14, 10, 8), color, g, Vector3(0, 0.0, -0.48), Vector3(0.9, 1.6, 0.9), Vector3(0.6, 0, 0))
-	if style == "bun": _m(P.sphere(0.17, 12, 10), color, g, Vector3(0, 0.42, -0.1))
+		for s in [-1, 1]: _m(P.sphere(0.15, 28, 18), hm, g, Vector3(s * 0.47, -0.15, -0.05), Vector3(0.9, 1.4, 0.9))
+	if style == "ponytail": _m(P.sphere(0.14, 28, 18), hm, g, Vector3(0, 0.0, -0.48), Vector3(0.9, 1.6, 0.9), Vector3(0.6, 0, 0))
+	if style == "bun": _m(P.sphere(0.17, 28, 18), hm, g, Vector3(0, 0.42, -0.1))
 	if style == "spiky":
 		for n in 7:
 			var a := n / 7.0 * TAU
-			_m(P.cone(0.1, 0.28, 6), color, g, Vector3(cos(a) * 0.22, 0.36, sin(a) * 0.22 - 0.05), Vector3.ONE, Vector3(sin(a) * 0.7, 0, -cos(a) * 0.7))
+			_m(P.cone(0.1, 0.28, 16), hm, g, Vector3(cos(a) * 0.22, 0.36, sin(a) * 0.22 - 0.05), Vector3.ONE, Vector3(sin(a) * 0.7, 0, -cos(a) * 0.7))
 	if style == "curly":
 		for n in 12:
 			var a := n / 12.0 * TAU
-			_m(P.sphere(0.13, 8, 6), color, g, Vector3(cos(a) * 0.36, 0.18 + (n % 2) * 0.1, sin(a) * 0.36 - 0.05))
-	if style == "short": _m(P.sphere(0.12, 8, 6), color, g, Vector3(0.05, 0.42, 0.1), Vector3(1.2, 0.5, 1))
+			_m(P.sphere(0.13, 28, 18), hm, g, Vector3(cos(a) * 0.36, 0.18 + (n % 2) * 0.1, sin(a) * 0.36 - 0.05))
+	if style == "short": _m(P.sphere(0.12, 28, 18), hm, g, Vector3(0.05, 0.42, 0.1), Vector3(1.2, 0.5, 1))
 
 func _build_hat(kind: String, color: String) -> void:
 	var g := Node3D.new(); g.position.y = HEAD_R * 0.92; head.add_child(g)
 	match kind:
-		"beret": _m(P.sphere(0.36, 14, 8), color, g, Vector3(0.06, 0.36, 0), Vector3(1.1, 0.4, 1.1), Vector3(0, 0, -0.25))
+		"beret": _m(P.sphere(0.36, 28, 18), color, g, Vector3(0.06, 0.36, 0), Vector3(1.1, 0.4, 1.1), Vector3(0, 0, -0.25))
 		"beanie":
-			_m(P.hemi(0.43, 16), color, g, Vector3(0, 0.08, 0))
-			_m(P.sphere(0.08), "ffffff", g, Vector3(0, 0.52, 0))
+			_m(P.hemi(0.43, 32), color, g, Vector3(0, 0.08, 0))
+			_m(P.sphere(0.08, 28, 18), "ffffff", g, Vector3(0, 0.52, 0))
 		"bow":
-			for s in [-1, 1]: _m(P.cone(0.1, 0.2, 8), color, g, Vector3(s * 0.12, 0.42, 0.05), Vector3.ONE, Vector3(0, 0, s * PI / 2))
-			_m(P.sphere(0.05), color, g, Vector3(0, 0.42, 0.05))
+			for s in [-1, 1]: _m(P.cone(0.1, 0.2, 16), color, g, Vector3(s * 0.12, 0.42, 0.05), Vector3.ONE, Vector3(0, 0, s * PI / 2))
+			_m(P.sphere(0.05, 28, 18), color, g, Vector3(0, 0.42, 0.05))
 		"sunhat":
-			_m(P.cyl(0.62, 0.62, 0.03, 20), "f2d27a", g, Vector3(0, 0.3, 0))
-			_m(P.cyl(0.3, 0.36, 0.24, 16), "f2d27a", g, Vector3(0, 0.42, 0))
-			_m(P.cyl(0.365, 0.365, 0.06, 16), color, g, Vector3(0, 0.34, 0))
+			_m(P.cyl(0.62, 0.62, 0.03, 24), "f2d27a", g, Vector3(0, 0.3, 0))
+			_m(P.cyl(0.3, 0.36, 0.24, 24), "f2d27a", g, Vector3(0, 0.42, 0))
+			_m(P.cyl(0.365, 0.365, 0.06, 24), color, g, Vector3(0, 0.34, 0))
 		"chef":
-			_m(P.cyl(0.3, 0.28, 0.25, 14), "ffffff", g, Vector3(0, 0.4, 0))
-			_m(P.sphere(0.33, 14, 10), "ffffff", g, Vector3(0, 0.6, 0), Vector3(1, 0.75, 1))
+			_m(P.cyl(0.3, 0.28, 0.25, 24), "ffffff", g, Vector3(0, 0.4, 0))
+			_m(P.sphere(0.33, 28, 18), "ffffff", g, Vector3(0, 0.6, 0), Vector3(1, 0.75, 1))
 		"flowerCrown":
 			for n in 9:
 				var a := n / 9.0 * TAU
-				_m(P.sphere(0.065, 8, 6), P.FLOWERS[n % 5], g, Vector3(cos(a) * 0.36, 0.3, sin(a) * 0.36))
+				_m(P.sphere(0.065, 28, 18), P.FLOWERS[n % 5], g, Vector3(cos(a) * 0.36, 0.3, sin(a) * 0.36))
 		"captain":
-			_m(P.cyl(0.4, 0.38, 0.22, 16), "ffffff", g, Vector3(0, 0.38, 0))
-			_m(P.cyl(0.39, 0.39, 0.07, 16), "2f3f6a", g, Vector3(0, 0.3, 0))
+			_m(P.cyl(0.4, 0.38, 0.22, 24), "ffffff", g, Vector3(0, 0.38, 0))
+			_m(P.cyl(0.39, 0.39, 0.07, 24), "2f3f6a", g, Vector3(0, 0.3, 0))
 			_m(P.box(0.4, 0.03, 0.18), "2f3f6a", g, Vector3(0, 0.28, 0.36))
-			_m(P.sphere(0.05, 4, 2), P.GOLD, g, Vector3(0, 0.4, 0.4))
+			_m(P.sphere(0.05, 28, 18), P.GOLD, g, Vector3(0, 0.4, 0.4))
 		"crown":
-			_m(P.cyl(0.24, 0.24, 0.16, 8), P.GOLD, g, Vector3(0, 0.45, 0))
+			_m(P.cyl(0.24, 0.24, 0.16, 24), P.GOLD, g, Vector3(0, 0.45, 0))
 			for n in 5:
 				var a := n / 5.0 * TAU
-				_m(P.cone(0.05, 0.12, 5), P.GOLD, g, Vector3(cos(a) * 0.23, 0.58, sin(a) * 0.23))
-			_m(P.sphere(0.04), "ff5a8a", g, Vector3(0, 0.46, 0.24))
+				_m(P.cone(0.05, 0.12, 16), P.GOLD, g, Vector3(cos(a) * 0.23, 0.58, sin(a) * 0.23))
+			_m(P.sphere(0.04, 28, 18), "ff5a8a", g, Vector3(0, 0.46, 0.24))
 		"goggles":
-			_m(P.torus(0.41, 0.03, 24), "6a4a3a", g, Vector3(0, 0.2, 0), Vector3.ONE, Vector3(-0.3, 0, 0))
+			_m(P.torus(0.41, 0.03, 32), "6a4a3a", g, Vector3(0, 0.2, 0), Vector3.ONE, Vector3(-0.3, 0, 0))
 			for s in [-1, 1]:
-				_m(P.cyl(0.09, 0.09, 0.07, 12), "c9a06e", g, Vector3(s * 0.13, 0.3, 0.33), Vector3.ONE, Vector3(PI / 2 - 0.5, 0, 0))
-				_m(P.sphere(0.07, 8, 6), P.mat("8fe0ff", "3fa9d6", 0.6), g, Vector3(s * 0.13, 0.31, 0.37), Vector3(1, 1, 0.4))
+				_m(P.cyl(0.09, 0.09, 0.07, 24), "c9a06e", g, Vector3(s * 0.13, 0.3, 0.33), Vector3.ONE, Vector3(PI / 2 - 0.5, 0, 0))
+				_m(P.sphere(0.07, 28, 18), P.mat("8fe0ff", "3fa9d6", 0.6), g, Vector3(s * 0.13, 0.31, 0.37), Vector3(1, 1, 0.4))
 
 func animate(dt: float, speed: float = 0.0, airborne: bool = false) -> void:
 	t += dt

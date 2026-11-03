@@ -15,7 +15,9 @@ static func make(id: String, color: String = "") -> Node3D:
 	var d := Data.piece(id)
 	var g := Node3D.new()
 	var t := P.unique_mat(color if color != "" else d.color)
-	var dark := P.mat(P.WOOD_DARK)
+	var cost: Dictionary = d.get("cost", {})
+	P.texturize(t, "stone" if cost.has("stone") else ("wood" if cost.has("wood") else ("fabric" if cost.has("fabric") else "mottle")))
+	var dark := P.wood(P.WOOD_DARK)
 	match id:
 		"bridgeDeck":
 			for n in 3: _b(g, P.rbox(0.31, 0.13, 0.98, 0.03), t, -0.33 + n * 0.33, 0.075, 0)
@@ -27,7 +29,7 @@ static func make(id: String, color: String = "") -> Node3D:
 			_b(g, P.box(1, 0.08, 0.12), t, 0, 0.66, N); _b(g, P.box(1, 0.06, 0.08), t, 0, 0.35, N)
 		"floor":
 			_b(g, P.rbox(0.99, 0.12, 0.99, 0.02), t, 0, 0.06, 0)
-			for x in [-0.25, 0.25]: _b(g, P.box(0.02, 0.122, 0.95), P.mat("b98a5a"), x, 0.061, 0)
+			for x in [-0.25, 0.25]: _b(g, P.box(0.02, 0.122, 0.95), P.wood("b98a5a"), x, 0.061, 0)
 		"stoneBlock": _b(g, P.rbox(0.99, 0.99, 0.99, 0.06), t, 0, 0.5, 0)
 		"foundation": _b(g, P.rbox(1.98, 0.3, 1.98, 0.05), t, 0, 0.15, 0)
 		"platform":
@@ -59,8 +61,8 @@ static func make(id: String, color: String = "") -> Node3D:
 			for x in [-0.9, 0.9]: _b(g, P.rbox(0.2, 0.45, 0.65, 0.08), t, x, 0.42, 0.02)
 			for x in [-0.45, 0.45]: _b(g, P.rbox(0.82, 0.1, 0.5, 0.05), P.mat("ffffff"), x, 0.5, 0.08)
 		"bed":
-			_b(g, P.rbox(0.9, 0.35, 1.9), P.mat("d9a066"), 0, 0.2, 0); _b(g, P.rbox(0.86, 0.15, 1.3, 0.06), t, 0, 0.43, 0.25)
-			_b(g, P.rbox(0.6, 0.15, 0.35, 0.07), P.mat("ffffff"), 0, 0.45, -0.65); _b(g, P.rbox(0.9, 0.7, 0.1), P.mat("c98a55"), 0, 0.4, -0.92)
+			_b(g, P.rbox(0.9, 0.35, 1.9), P.wood("d9a066"), 0, 0.2, 0); _b(g, P.rbox(0.86, 0.15, 1.3, 0.06), t, 0, 0.43, 0.25)
+			_b(g, P.rbox(0.6, 0.15, 0.35, 0.07), P.mat("ffffff"), 0, 0.45, -0.65); _b(g, P.rbox(0.9, 0.7, 0.1), P.wood("c98a55"), 0, 0.4, -0.92)
 		"cabinet":
 			_b(g, P.rbox(0.8, 1.2, 0.6), t, 0, 0.6, 0)
 			for y in [0.35, 0.8]: _b(g, P.sphere(0.035, 6, 4), P.mat(P.GOLD), 0, y, 0.31)
@@ -74,18 +76,18 @@ static func make(id: String, color: String = "") -> Node3D:
 			for x in [-0.85, 0.85]: _b(g, P.rbox(0.15, 0.7, 0.62), t, x, 0.35, 0)
 			_b(g, P.box(0.5, 0.02, 0.35), P.mat("e0f4ff"), -0.3, 0.77, 0)
 		"lamp":
-			_b(g, P.cyl(0.18, 0.2, 0.06), P.mat("5a3d2b"), 0, 0.03, 0); _b(g, P.cyl(0.025, 0.025, 1.0, 6), P.mat("5a3d2b"), 0, 0.53, 0); _b(g, P.cyl(0.12, 0.24, 0.28, 14), t, 0, 1.12, 0)
+			_b(g, P.cyl(0.18, 0.2, 0.06), P.wood("5a3d2b"), 0, 0.03, 0); _b(g, P.cyl(0.025, 0.025, 1.0, 6), P.wood("5a3d2b"), 0, 0.53, 0); _b(g, P.cyl(0.12, 0.24, 0.28, 14), t, 0, 1.12, 0)
 			_b(g, P.sphere(0.08), P.unique_mat("fff3b0", "ffcf6b", 0.3), 0, 1.05, 0).name = "bulb"
 		"rug": _b(g, P.cyl(0.95, 0.95, 0.04, 28), t, 0, 0.02, 0, Vector3.ZERO, Vector3(1, 1, 0.9)); _b(g, P.cyl(0.6, 0.6, 0.045, 24), P.mat("ffffff"), 0, 0.022, 0, Vector3.ZERO, Vector3(1, 1, 0.9))
-		"counter": _b(g, P.rbox(2, 0.85, 0.8), t, 0, 0.425, 0); _b(g, P.rbox(2.05, 0.1, 0.85), P.mat("c98a55"), 0, 0.9, 0); _b(g, P.sphere(0.13), P.mat("f5c27a"), -0.5, 1.05, 0)
+		"counter": _b(g, P.rbox(2, 0.85, 0.8), t, 0, 0.425, 0); _b(g, P.rbox(2.05, 0.1, 0.85), P.wood("c98a55"), 0, 0.9, 0); _b(g, P.sphere(0.13), P.mat("f5c27a"), -0.5, 1.05, 0)
 		"workbench":
 			_b(g, P.rbox(2, 0.1, 0.8), t, 0, 0.85, 0)
 			for c in [[-0.9, -0.3], [0.9, -0.3], [-0.9, 0.3], [0.9, 0.3]]: _b(g, P.box(0.1, 0.8, 0.1), dark, c[0], 0.4, c[1])
 			_b(g, P.box(1.8, 0.06, 0.7), dark, 0, 0.25, 0); _b(g, P.box(0.4, 0.1, 0.12), P.mat("9aa4b5"), 0.5, 0.95, 0)
-		"painting": _b(g, P.rbox(0.7, 0.55, 0.05), P.mat("c98a55"), 0, 0.35, N + 0.14); _b(g, P.box(0.58, 0.43, 0.02), t, 0, 0.35, N + 0.17); _b(g, P.sphere(0.08), P.mat("fff3b0"), 0.12, 0.42, N + 0.18)
+		"painting": _b(g, P.rbox(0.7, 0.55, 0.05), P.wood("c98a55"), 0, 0.35, N + 0.14); _b(g, P.box(0.58, 0.43, 0.02), t, 0, 0.35, N + 0.17); _b(g, P.sphere(0.08), P.mat("fff3b0"), 0.12, 0.42, N + 0.18)
 		"tree": _b(g, P.cyl(0.12, 0.17, 1.1, 7), P.mat(P.TRUNK), 0, 0.55, 0); _b(g, P.sphere(0.7, 9, 7), t, 0, 1.6, 0); _b(g, P.sphere(0.45, 9, 7), t, 0.3, 2.1, 0.1); _b(g, P.sphere(0.42, 9, 7), t, -0.35, 1.4, 0.25)
 		"flowerBed":
-			_b(g, P.rbox(0.9, 0.2, 0.9), P.mat("a0623a"), 0, 0.1, 0); _b(g, P.box(0.8, 0.04, 0.8), P.mat("7a4a2a"), 0, 0.21, 0)
+			_b(g, P.rbox(0.9, 0.2, 0.9), P.wood("a0623a"), 0, 0.1, 0); _b(g, P.box(0.8, 0.04, 0.8), P.wood("7a4a2a"), 0, 0.21, 0)
 			for n in 8: var a := n * 0.8; var r := 0.12 + (n % 3) * 0.1; _b(g, P.sphere(0.07, 6, 4), t if n % 2 else P.mat("ffffff"), cos(a) * r, 0.32, sin(a) * r)
 		"hedge": _b(g, P.rbox(0.98, 0.9, 0.98, 0.2), t, 0, 0.45, 0)
 		"bench":
@@ -96,7 +98,7 @@ static func make(id: String, color: String = "") -> Node3D:
 		"streetlight": _b(g, P.cyl(0.05, 0.08, 2.3, 8), t, 0, 1.15, 0); _b(g, P.sphere(0.18), P.unique_mat("fff3b0", "ffcf6b", 0.3), 0, 2.4, 0).name = "bulb"; _b(g, P.cone(0.26, 0.18, 8), t, 0, 2.58, 0)
 		"gardenPath":
 			for c in [[-0.2, -0.2, 0.28], [0.25, 0.15, 0.25], [-0.15, 0.3, 0.18], [0.3, -0.3, 0.15]]: _b(g, P.cyl(c[2], c[2], 0.05, 9), t, c[0], 0.025, c[1])
-		"pond": _b(g, P.torus(0.85, 0.12, 20), P.mat("bdb5a8"), 0, 0.12, 0); _b(g, P.cyl(0.85, 0.85, 0.12, 24), P.mat("5fcde4"), 0, 0.08, 0); _b(g, P.cyl(0.12, 0.12, 0.02, 8), P.mat("5cb85c"), 0.3, 0.15, 0.2)
+		"pond": _b(g, P.torus(0.85, 0.12, 20), P.stone("bdb5a8"), 0, 0.12, 0); _b(g, P.cyl(0.85, 0.85, 0.12, 24), P.mat("5fcde4"), 0, 0.08, 0); _b(g, P.cyl(0.12, 0.12, 0.02, 8), P.mat("5cb85c"), 0.3, 0.15, 0.2)
 		"miniFountain":
 			_b(g, P.cyl(0.4, 0.45, 0.35, 16), t, 0, 0.18, 0); _b(g, P.cyl(0.08, 0.1, 0.6, 8), t, 0, 0.6, 0); _b(g, P.cyl(0.22, 0.1, 0.12, 12), t, 0, 0.92, 0)
 			var w := _b(g, P.cyl(0.34, 0.34, 0.03, 16), P.mat("6fd8ee"), 0, 0.34, 0); w.name = "water"; w.visible = false
@@ -127,9 +129,9 @@ static func make(id: String, color: String = "") -> Node3D:
 			for z in [-0.25, 0.25]: _b(s, P.box(0.2, 0.05, 0.05), P.mat(P.GOLD), 0, 0, z)
 			for z in [-0.3, 0.3]: _b(g, P.box(0.14, 0.22, 0.1), dark, 0, 0.11, z)
 		"lever":
-			_b(g, P.rbox(0.45, 0.2, 0.75), P.mat("7a7f8a"), 0, 0.1, 0); _b(g, P.box(0.12, 0.12, 1.0), P.mat("a0623a"), 0, 0.12, 0)
+			_b(g, P.rbox(0.45, 0.2, 0.75), P.mat("7a7f8a"), 0, 0.1, 0); _b(g, P.box(0.12, 0.12, 1.0), P.wood("a0623a"), 0, 0.12, 0)
 			var h := Node3D.new(); h.name = "handle"; h.position.y = 0.2; g.add_child(h)
-			_b(h, P.cyl(0.03, 0.03, 0.5, 6), P.mat("5a3d2b"), 0, 0.25, 0); _b(h, P.sphere(0.08), t, 0, 0.52, 0)
+			_b(h, P.cyl(0.03, 0.03, 0.5, 6), P.wood("5a3d2b"), 0, 0.25, 0); _b(h, P.sphere(0.08), t, 0, 0.52, 0)
 		"pump":
 			_b(g, P.rbox(0.75, 0.6, 0.75), t, 0, 0.3, 0); _b(g, P.cyl(0.2, 0.2, 0.3), P.mat("7a7f8a"), 0, 0.75, 0)
 			_b(g, P.cyl(0.08, 0.08, 0.35, 8), P.mat(P.GOLD), 0, 0.95, 0).name = "piston"

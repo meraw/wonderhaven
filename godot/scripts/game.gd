@@ -50,10 +50,15 @@ var smoke_t := 0.0
 var last_autosave := -100.0
 var shot_cfg := {}
 var roof_alpha := 1.0
+var outline: MeshInstance3D
+var outline_override := ""   # look-dev renders force outlines on or off without touching saved settings
 var interact_cooldown := 0.0
 
 func _ready() -> void:
 	settings = SaveSystem.load_settings()
+	for a in OS.get_cmdline_user_args():   # look-dev overrides, read before any character is built
+		if a.begins_with("--face="): Chibi.face_style = a.trim_prefix("--face=")
+		if a.begins_with("--outline="): outline_override = a.trim_prefix("--outline=")
 	Controls.setup(settings.bindings)
 	state = GameState.new_game()
 	decor = WorldStatics.generate_decor()
@@ -71,6 +76,9 @@ func _ready() -> void:
 	player = PlayerController.new(player_char, walk, sp.x, sp.z, sp.yaw)
 	walk.dynamic.append(player.body)
 	camera = Camera3D.new(); camera.fov = 45; camera.far = 500; add_child(camera); camera.current = true
+	if Outline.supported():
+		outline = Outline.create(); camera.add_child(outline); _apply_outline()
+		get_viewport().size_changed.connect(_fit_outline); _fit_outline()
 	cam = FollowCamera.new(camera)
 	cam.blockers = Props.camera_blockers()
 	cam.occluders = village.occluders
@@ -334,6 +342,7 @@ func begin_play() -> void:
 
 func apply_settings() -> void:
 	Controls.setup(settings.bindings)
+	_apply_outline()
 	if audio: audio.set_volumes(settings.music, settings.sfx)
 	SaveSystem.store_settings(settings)
 
@@ -679,7 +688,12 @@ func _world_reactions(dt: float) -> void:
 	var p := player.pos
 	var inside: bool = (p.x > -17.5 and p.x < -8.5 and p.z > 6.5 and p.z < 13.5) or (build.active and build.current_zone.get("id", "") == "workshop")
 	roof_alpha = lerpf(roof_alpha, 0.12 if inside else 1.0, minf(1.0, dt * 6.0))
-	for m in ws.get_meta("fade_mats"):
+	var fading := roof_alpha < 0.99
+	for part in ws.get_meta("fade_parts"):
+		var mi: MeshInstance3D = part[0]
+		var m: Material = part[2] if fading else part[1]
+		if mi.material_override != m: mi.material_override = m
+		if not fading: continue
 		if m is ShaderMaterial: m.set_shader_parameter("alpha", roof_alpha)
 		else: m.albedo_color.a = roof_alpha
 
@@ -694,6 +708,13 @@ func _make_rain() -> void:
 	add_child(rain)
 
 # ---- Command-line hooks: -- --shot=out.png --pos=x,z,yaw --cam=yaw,pitch,dist --frames=N | --autoplay=res://tests/play_x.gd --out=dir
+func _apply_outline() -> void:
+	if outline: outline.visible = (outline_override == "1") if outline_override != "" else settings.get("outlines", true)
+
+## Ink lines scale with the screen so they read the same at 720p and 1440p.
+func _fit_outline() -> void:
+	if outline: (outline.material_override as ShaderMaterial).set_shader_parameter("width", clampf(get_viewport().get_visible_rect().size.y / 600.0, 1.2, 2.4))
+
 func _parse_args() -> void:
 	for a in OS.get_cmdline_user_args():
 		var kv: PackedStringArray = a.trim_prefix("--").split("=", true, 1)

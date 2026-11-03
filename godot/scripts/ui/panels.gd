@@ -198,8 +198,10 @@ func settings() -> void:
 		var key: String = pair[1]
 		sl.value_changed.connect(func(v): st[key] = v; game.apply_settings())
 		row.add_child(sl)
-	for pair in [["↕️ Invert camera Y", "invert_y"], ["🌦️ Weather effects", "weather"]]:
-		var cb := CheckBox.new(); cb.text = pair[0]; cb.button_pressed = st[pair[1]]
+	var toggles := [["↕️ Invert camera Y", "invert_y"], ["🌦️ Weather effects", "weather"]]
+	if Outline.supported(): toggles.append(["✏️ Ink outlines", "outlines"])
+	for pair in toggles:
+		var cb := CheckBox.new(); cb.text = pair[0]; cb.button_pressed = st.get(pair[1], true)
 		var key2: String = pair[1]
 		cb.toggled.connect(func(v): st[key2] = v; game.apply_settings())
 		body.add_child(cb)
