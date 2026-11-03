@@ -52,6 +52,9 @@ func face_and_press(target_id: String, x: float, z: float) -> bool:
 	for n in 8:
 		if game.target != null and game.target.id == target_id:
 			await tap(KEY_E); return true
+		if target_id.begins_with("npc:"):   # villagers walk their routines: aim at where they are now
+			var a = game.npcs[target_id.trim_prefix("npc:")]
+			x = a.pos.x; z = a.pos.z
 		var p: Vector3 = game.player.pos
 		game.player.yaw = atan2(x - p.x, z - p.z); game.player.sync()
 		steer(x, z); key(KEY_W, true); await frames(3); key(KEY_W, false); await frames(4)
@@ -59,7 +62,7 @@ func face_and_press(target_id: String, x: float, z: float) -> bool:
 	return false
 
 func talk(id: String, accept: bool = true) -> bool:
-	for attempt in 3:
+	for attempt in 6:
 		var a = game.npcs[id]
 		await walk_to(a.pos.x, a.pos.z, 1.5)
 		a = game.npcs[id]
