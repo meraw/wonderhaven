@@ -38,6 +38,18 @@ func test_steps_advance_in_order_and_finish():
 	t.ok(not s.on, "everything done switches the guided day off")
 	t.eq(Tutorial.current(s), {}, "no current step afterwards")
 
+func test_story_progress_skips_learning_steps():
+	var s := Tutorial.new_state(true)
+	var facts := {"moved": 5.0, "looked": 1.0, "flags": {"toolGiven": true}, "panels": [], "quests": {"tool": {"status": "done"}}}
+	Tutorial.advance(s, facts)
+	t.eq(Tutorial.current(s).id, "journal", "finishing Odessa's request skips the bag step nobody did")
+	facts.quests["bridge"] = {"status": "done"}
+	Tutorial.advance(s, facts)
+	t.ok(not s.on, "finishing the bridge ends the guided day even if the journal was never opened")
+	var early := Tutorial.new_state(true)
+	Tutorial.advance(early, {"moved": 0.0, "looked": 0.0, "flags": {}, "panels": ["journal", "inventory"], "quests": {}})
+	t.eq(Tutorial.current(early).id, "walk", "opening menus early doesn't skip ahead")
+
 func test_reveals_and_gating():
 	var s := Tutorial.new_state(true)
 	t.ok(not Tutorial.revealed(s, "harmony"), "Harmony bar hidden at first")

@@ -46,15 +46,26 @@ static func is_done(step: Dictionary, facts: Dictionary) -> bool:
 			return facts.has("objective") and facts.objective.call(parts[1], int(parts[2]))
 	return false
 
-## Moves past every step that is already done. Returns the ids of the steps completed; switches the guided day
-## off after the last one.
+## Steps finished by story progress (taking or finishing a request). If the player is already past one of these,
+## the guide catches up, so a learning step they skipped (say, opening the bag) can never hold the game back.
+const PROGRESS_KINDS := ["flag", "accepted", "quest", "ready", "objective"]
+
+## Moves past every step that is already done, and jumps ahead to just after the furthest story-progress step that
+## is done. Returns the ids of the steps passed; switches the guided day off after the last one.
 static func advance(t: Dictionary, facts: Dictionary) -> Array:
 	var out: Array = []
 	while t.get("on", false):
+		var i := int(t.step)
 		var st := current(t)
-		if st.is_empty() or not is_done(st, facts): break
-		out.append(st.id)
-		t.step = int(t.step) + 1
+		if st.is_empty(): break
+		var to := i + 1 if is_done(st, facts) else -1
+		for j in range(steps().size() - 1, i, -1):
+			var later: Dictionary = steps()[j]
+			if String(later.done).split(":")[0] in PROGRESS_KINDS and is_done(later, facts):
+				to = maxi(to, j + 1); break
+		if to < 0: break
+		for k in range(i, to): out.append(steps()[k].id)
+		t.step = to
 		if int(t.step) >= steps().size(): t.on = false
 	return out
 
