@@ -1,25 +1,26 @@
 // Quests. Objectives: gather (count of an item gained after accepting), event (count of a game event),
 // build (a construction check passes), harmony (reach a value), flag, talk (turn in; `final` ones unlock last).
 // Collection objectives latch: once done they stay done, even if you spend the materials building.
+// An event objective with `stat` also counts what you did before taking the quest (e.g. chests already opened).
 export const QUESTS = [
   {
     id: 'tool', title: 'The Starforge Tool', giver: 'odessa', main: true, type: 'character', chapter: 1,
-    description: 'Odessa has entrusted you with the Starforge Tool. Gather some materials and Spark Energy to wake it up.',
+    description: 'You came to Hearthglow answering Odessa\'s notice for a builder. She has trusted you with the Starforge Tool: gather some materials and Spark Energy to wake it up.',
     requires: {},
     onAccept: { flags: ['hasTool', 'toolGiven'] },
     objectives: [
-      { id: 'wood', kind: 'gather', item: 'wood', count: 3, text: 'Chop 3 wood from the trees west of the village', hint: { x: -24, z: 15 } },
+      { id: 'wood', kind: 'gather', item: 'wood', count: 3, text: 'Chop 3 wood from a tree with a pink ribbon (on the slope beside the village gate)', hint: { x: -29, z: 13.5 } },
       { id: 'frag', kind: 'gather', item: 'fragment', count: 1, text: 'Catch a floating magic fragment', hint: { x: -35.5, z: 6 } },
       { id: 'back', kind: 'talk', npc: 'odessa', final: true, text: 'Show Odessa what you found' },
     ],
     rewards: { harmony: 10, items: { spark: 5 } },
     dialogue: {
-      offer: ['Well, well! A new face — you must be the apprentice the letter mentioned. Welcome to Hearthglow, {name}!', 'I\'m Odessa Quill. Once upon a time I built half the things you can see. These days the village is… a little tired.', 'Here. This is the Starforge Tool. It builds anything you can imagine, if you feed it materials and Spark Energy.', 'Try it out: chop a little wood from the trees along the west road, and catch one of those floating fragments.'],
+      offer: ['Oh! A traveller! We hardly see a soul since the bridge fell. And dusty boots… you must have come about my notice. Builder wanted?', 'Then welcome to Hearthglow, {name}! I\'m Odessa Quill. I built half the things you can see, once upon a time. These days the village is a little tired, and so are my hands.', 'Room and board, as promised: you\'ll stay at the Lantern Inn, the blue-roofed house south-east of the square. Rest there whenever you like.', 'Now, the real reason I sent for a builder. This is the Starforge Tool. It builds anything you can imagine, if you feed it materials and Spark Energy.', 'Let\'s wake it up. See the trees with pink ribbons, on the slope just past this gate? I marked the ones that are ready for cutting. Chop a little wood, then catch one of those floating fragments.'],
       acceptLabel: 'Take the Starforge Tool', declineLabel: 'Not just yet',
-      accept: ['Wonderful! Press E next to a tree to chop it. The fragments sparkle — you can\'t miss them.'],
+      accept: ['Wonderful! Walk up to a ribboned tree and give it a good chop. The fragments only show themselves to the tool, so they\'ll appear now. They sparkle purple, you can\'t miss them.'],
       decline: ['Take your time. The village has waited years; it can wait another minute.'],
-      progress: ['Wood from the trees, a fragment from the air. Then come back and show me!'],
-      complete: ['Look at that — the tool is humming! It likes you.', 'Now, the village needs a builder. Fern the gardener has been fretting about her orchard bridge all week. She\'s in her garden, north of the square.', 'And whenever you want to build, press B. Your garden plot by your cottage is yours to practise on.'],
+      progress: ['Wood from a ribboned tree, a fragment from the air. Then come back and show me!'],
+      complete: ['Look at that, the tool is humming! It likes you.', 'Now, your first real job. Fern the gardener has been fretting about her orchard bridge all week. She\'s in her garden, north of the square.', 'Do good work and folk will want you to stay. Who knows, maybe one day you\'ll have a home of your own here.'],
     },
   },
   {
@@ -100,6 +101,25 @@ export const QUESTS = [
       decline: ['Very well. The decree shall remain decreed.'],
       progress: ['Harmony grows with every good deed. Check your Harmony with P — I find it very soothing.'],
       complete: ['By the authority vested in me by… me… I hereby lift Royal Decree Number Forty-Seven!', 'The harbor is open! Do go and see — and take this sailor\'s outfit. Ceremonially.'],
+    },
+  },
+  {
+    id: 'home', title: 'A Home of Your Own', giver: 'percival', main: true, type: 'construction', chapter: 1,
+    description: 'Lord Percival has granted you the empty plot beside the Lantern Inn. Build a little house there: walls, a door, a roof and a bed.',
+    requires: { quests: ['bridge'] },
+    onAccept: { flags: ['homePlot'], blueprints: ['woodWall', 'doorWall', 'windowWall', 'roof', 'bed'], items: { wood: 6, fabric: 2, clay: 1 } },
+    objectives: [
+      { id: 'house', kind: 'build', check: 'home', text: 'Build your home on the plot beside the inn: 3 walls, a door, a roof and a bed', hint: { x: 21.5, z: 12.5 } },
+      { id: 'show', kind: 'talk', npc: 'percival', final: true, text: 'Tell Lord Percival your home is ready' },
+    ],
+    rewards: { harmony: 20, items: { spark: 10 }, flags: ['ownHome'] },
+    dialogue: {
+      offer: ['Citizen {name}! A builder who mends bridges should not be sleeping above a soup kitchen forever.', 'By the powers vested in me, I grant you the empty plot beside the Lantern Inn. Build yourself a proper home. Four walls! Well, three will do. And a door, a roof and a bed.', 'I have drawn up the deed and some blueprints. And a few planks. The kingdom provides!'],
+      acceptLabel: 'A home of my own!', declineLabel: 'The inn suits me for now',
+      accept: ['Splendid! Build on the plot east of the inn. When it is done, come and tell me, and I shall make it official.'],
+      decline: ['As you wish. The deed shall wait, rolled up very neatly.'],
+      progress: ['Walls, a door, a roof and a bed. The Starforge Tool will show you what is still missing when you build on your plot.'],
+      complete: ['A house! With a roof and everything! I hereby declare it your official residence.', 'Sleep in your own bed whenever you like, and change your clothes at home. Welcome home, {name}.'],
     },
   },
   {
@@ -204,7 +224,7 @@ export const QUESTS = [
     description: 'Odessa hid her old notes in treasure chests and buried caches around the island. Find three of them.',
     requires: { quests: ['bridge'] },
     objectives: [
-      { id: 'find', kind: 'event', event: 'treasure', count: 3, text: 'Find 3 treasures (chests, or dig where the tool hums)' },
+      { id: 'find', kind: 'event', event: 'treasure', stat: 'treasures', count: 3, text: 'Find 3 treasures (chests, or dig where the tool hums)' },
       { id: 'tell', kind: 'talk', npc: 'odessa', final: true, text: 'Return to Odessa' },
     ],
     rewards: { harmony: 20, items: { crystal: 2 }, clothes: ['backpack'] },

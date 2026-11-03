@@ -13,6 +13,7 @@ var guide_card: PanelContainer
 var guide_text: RichTextLabel
 var guide_count: Label
 var tip_card: PanelContainer
+var left_stack: VBoxContainer   # guide card and tip cards, stacked so they never overlap
 var tip_queue: Array = []
 var tip_t := 0.0
 
@@ -36,8 +37,11 @@ func setup(g) -> void:
 
 # ---- Guided first day ---------------------------------------------------------------------------------
 func _build_guide() -> void:
+	left_stack = VBoxContainer.new(); left_stack.name = "left_stack"; left_stack.position = Vector2(14, 70)
+	left_stack.add_theme_constant_override("separation", 10); left_stack.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(left_stack)
 	guide_card = UiTheme.panel(Color("fffaf0"), UiTheme.PINK, 20); guide_card.name = "guide_card"
-	guide_card.position = Vector2(14, 70); guide_card.custom_minimum_size.x = 340
+	guide_card.custom_minimum_size.x = 340
 	var v := VBoxContainer.new(); v.add_theme_constant_override("separation", 4); guide_card.add_child(v)
 	var head := HBoxContainer.new(); v.add_child(head)
 	var t := UiTheme.label("🧭 Getting started", 14, UiTheme.PINK_DARK); t.size_flags_horizontal = Control.SIZE_EXPAND_FILL; head.add_child(t)
@@ -49,11 +53,10 @@ func _build_guide() -> void:
 	guide_text.add_theme_font_size_override("normal_font_size", 16); guide_text.add_theme_font_size_override("bold_font_size", 16)
 	guide_text.add_theme_color_override("default_color", UiTheme.INK); guide_text.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	v.add_child(guide_text)
-	guide_card.visible = false; add_child(guide_card)
+	guide_card.visible = false; left_stack.add_child(guide_card)
 	tip_card = UiTheme.panel(Color("fffdf3"), UiTheme.GOLD, 22); tip_card.name = "tip_card"
-	tip_card.anchor_top = 0.5; tip_card.anchor_bottom = 0.5; tip_card.offset_left = 14; tip_card.offset_top = -170   # left side, clear of the build catalog and dialogue box
-	tip_card.custom_minimum_size.x = 360; tip_card.visible = false
-	get_parent().add_child.call_deferred(tip_card)   # above the HUD so it shows in every mode
+	tip_card.custom_minimum_size.x = 340; tip_card.visible = false
+	left_stack.add_child(tip_card)
 
 func _key(action: String) -> String: return "[b][color=#e86f8f]%s[/color][/b]" % Controls.key_label(action)
 
@@ -111,6 +114,8 @@ func _next_tip() -> void:
 
 ## Per frame: guide card only in free play, tip cards fade out on their own after a while.
 func tick(dt: float) -> void:
+	tracker.visible = game.mode != "build" and game.mode != "dialogue"   # build mode shows its own checklist
+	left_stack.position.y = 160.0 if game.mode == "build" else 70.0          # below the build toolbar and status line
 	guide_card.visible = Tutorial.current(game.state.get("tutorial", {})).size() > 0 and game.mode in ["explore", "build"]
 	if guide_card.visible and Engine.get_process_frames() % 20 == 0: render_guide()
 	if game.mode in ["title", "creator"] and tip_card.visible: clear_tips()
@@ -126,19 +131,29 @@ func render_harmony() -> void:
 	harmony_label.text = ("%d / %d" % [h, int(nx.at)]) if not nx.is_empty() else str(h)
 
 func render_tracker() -> void:
-	for c in tracker.get_children(): c.queue_free()
+	for c in tracker.get_children(): tracker.remove_child(c); c.queue_free()
 	if not Tutorial.revealed(game.state.get("tutorial", {}), "quests"): return
 	var e: QuestEngine = game.story.engine
+	if not e.tracked_valid(): e.retrack()
 	var act := e.active()
 	var tracked = null
 	for q in act:
 		if q.id == game.state.tracked: tracked = q
-	if tracked == null and not act.is_empty(): tracked = act[0]
 	var show: Array = []
-	if tracked != null:
-		show.append(tracked)
-		for q in act:
-			if q != tracked and q.get("main", false) and show.size() < 2: show.append(q)
+	if tracked != null: show.append(tracked)
+	for q in act:
+		if q != tracked and q.get("main", false) and show.size() < 2: show.append(q)
+	# The next story request always has a line here, even while side requests are going.
+	var leads := e.story_leads()
+	if not leads.is_empty() and act.filter(func(q): return q.get("main", false)).is_empty():
+		var lq: Dictionary = leads[0]
+		var p := UiTheme.panel(Color("fff8e6"), UiTheme.GOLD, 18); p.mouse_filter = Control.MOUSE_FILTER_IGNORE; p.name = "story_lead"
+		var v := VBoxContainer.new(); p.add_child(v)
+		var mark := "📍 " if game.state.tracked == "lead:" + lq.id else "★ "
+		v.add_child(UiTheme.label(mark + "Next in the story", 15))
+		var l := UiTheme.label("Talk to %s — look for the ! over their head" % Data.npc(lq.giver).name, 13, UiTheme.INK2); l.autowrap_mode = TextServer.AUTOWRAP_WORD; l.custom_minimum_size.x = 260
+		v.add_child(l)
+		tracker.add_child(p)
 	for q in show:
 		var ready := e.is_ready(q.id)
 		var p := UiTheme.panel(); p.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -153,11 +168,6 @@ func render_tracker() -> void:
 			var l := UiTheme.label(txt, 13, Color("59a86f") if st.done else UiTheme.INK2); l.autowrap_mode = TextServer.AUTOWRAP_WORD; l.custom_minimum_size.x = 260
 			v.add_child(l)
 		tracker.add_child(p)
-	if show.is_empty():
-		for q in Data.quests:
-			if q.get("main", false) and e.can_offer(q.id):
-				var p := UiTheme.panel(); var l := UiTheme.label("✨ Next: look for the gold ! — %s needs help" % Data.npc(q.giver).name, 13); l.autowrap_mode = TextServer.AUTOWRAP_WORD; l.custom_minimum_size.x = 260; p.add_child(l); tracker.add_child(p)
-				break
 
 func update_compass(target: Dictionary) -> void:
 	if target.is_empty() or game.mode != "explore": compass.visible = false; return

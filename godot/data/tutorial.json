@@ -5,7 +5,7 @@
     {"id": "walk", "text": "Walk with {move}. Odessa is waving at the village gate. Go and say hello!", "done": "moved", "target": "npc:odessa"},
     {"id": "look", "text": "Look around: drag with the right mouse button, or press {cam_left} / {cam_right}. Scroll to zoom.", "done": "looked", "target": "npc:odessa"},
     {"id": "talk", "text": "Walk up to Odessa and press {interact} to talk.", "done": "flag:toolGiven", "target": "npc:odessa", "reveal": ["quests"]},
-    {"id": "chop", "text": "Stand by a tree and press {interact} to chop. Press {interact} again when the needle is in the green.", "done": "objective:tool:0", "reveal": ["resources"]},
+    {"id": "chop", "text": "Find a tree with a pink ribbon (the compass points to the nearest) and press {interact} to chop. Press {interact} again when the needle is in the green.", "done": "objective:tool:0", "reveal": ["resources"]},
     {"id": "bag", "text": "Press {inventory} to open your bag and see what you gathered.", "done": "panel:inventory", "reveal": ["key:inventory"]},
     {"id": "fragment", "text": "Catch a floating magic fragment: just walk through one. They sparkle purple.", "done": "objective:tool:1"},
     {"id": "return", "text": "Go back to Odessa and press {interact} to show her.", "done": "quest:tool", "target": "npc:odessa", "reveal": ["harmony", "key:progress"]},

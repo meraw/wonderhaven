@@ -14,8 +14,10 @@ Data="*res://scripts/core/data.gd"
 [display]
 window/size/viewport_width=1280
 window/size/viewport_height=720
+window/size/mode=2
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
+window/dpi/allow_hidpi=true
 
 [rendering]
 anti_aliasing/quality/msaa_3d=2

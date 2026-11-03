@@ -83,6 +83,7 @@ func _ready() -> void:
 		get_viewport().size_changed.connect(_fit_outline); _fit_outline()
 	cam = FollowCamera.new(camera)
 	cam.blockers = Props.camera_blockers()
+	cam.rooms = Props.camera_rooms()
 	cam.occluders = village.occluders
 	piece_root.name = "Placements"; add_child(piece_root)
 	_build_ui()
@@ -259,9 +260,16 @@ func _fade(on: bool) -> Tween:
 	var tw := create_tween(); tw.tween_property(r, "color:a", 1.0 if on else 0.0, 0.5)
 	return tw
 
+## Change outfit anywhere you're settled: by the inn's wardrobe, or at your own home once it's built.
 func open_wardrobe() -> void:
-	if screens and mode == "explore": screens.creator(true)
-	else: toast("Your wardrobe is just outside your cottage door.")
+	if screens == null or mode != "explore": return
+	var w: Dictionary = {}
+	for f in Data.layout.features:
+		if f.kind == "wardrobe": w = f
+	var near_inn := not w.is_empty() and Vector2(player.pos.x - w.x, player.pos.z - w.z).length() < 6.0
+	var at_home: bool = state.flags.get("ownHome", false) and BuildGrid.zone_contains(Data.zone("plot"), floorf(player.pos.x), floorf(player.pos.z), state.harmony)
+	if near_inn or at_home: screens.creator(true)
+	else: toast("Change your outfit at the Lantern Inn's wardrobe%s." % (", or at home" if state.flags.get("ownHome", false) else ""))
 
 func sail_to(isl: Dictionary) -> void:
 	panels.close()
@@ -351,6 +359,7 @@ func begin_play() -> void:
 func apply_settings() -> void:
 	Controls.setup(settings.bindings)
 	_apply_outline()
+	_apply_window()
 	if audio: audio.set_volumes(settings.music, settings.sfx)
 	SaveSystem.store_settings(settings)
 
@@ -576,6 +585,8 @@ func _input(event: InputEvent) -> void:
 	if mode == "build" and event is InputEventMouse: build.mouse = event.position
 
 func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and not event.echo and (event.physical_keycode == KEY_F11 or (event.physical_keycode == KEY_ENTER and event.alt_pressed)):
+		toggle_fullscreen(); get_viewport().set_input_as_handled(); return
 	if event is InputEventMouseButton:
 		var rot_button: bool = event.button_index in [MOUSE_BUTTON_RIGHT, MOUSE_BUTTON_MIDDLE] or (event.button_index == MOUSE_BUTTON_LEFT and mode == "explore")
 		if event.pressed and event.button_index in [MOUSE_BUTTON_LEFT, MOUSE_BUTTON_RIGHT, MOUSE_BUTTON_MIDDLE]:
@@ -735,7 +746,7 @@ func _world_reactions(dt: float) -> void:
 	var ws: Node3D = village.objects.workshop
 	var p := player.pos
 	var inside: bool = (p.x > -17.5 and p.x < -8.5 and p.z > 6.5 and p.z < 13.5) or (build.active and build.current_zone.get("id", "") == "workshop")
-	roof_alpha = lerpf(roof_alpha, 0.12 if inside else 1.0, minf(1.0, dt * 6.0))
+	roof_alpha = lerpf(roof_alpha, 0.0 if inside else 1.0, minf(1.0, dt * 6.0))
 	var fading := roof_alpha < 0.99
 	for part in ws.get_meta("fade_parts"):
 		var mi: MeshInstance3D = part[0]
@@ -757,12 +768,23 @@ func _make_rain() -> void:
 	add_child(rain)
 
 # ---- Command-line hooks: -- --shot=out.png --pos=x,z,yaw --cam=yaw,pitch,dist --frames=N | --autoplay=res://tests/play_x.gd --out=dir
+## Fullscreen when asked for; otherwise the window opens maximized (project setting) and can be resized freely.
+func _apply_window() -> void:
+	if DisplayServer.get_name() == "headless" or shot_cfg.has("shot") or shot_cfg.has("autoplay"): return
+	var full := DisplayServer.window_get_mode() in [DisplayServer.WINDOW_MODE_FULLSCREEN, DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN]
+	if settings.get("fullscreen", false) and not full: DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
+	elif not settings.get("fullscreen", false) and full: DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_MAXIMIZED)
+
+func toggle_fullscreen() -> void:
+	settings.fullscreen = not settings.get("fullscreen", false)
+	apply_settings()
+
 func _apply_outline() -> void:
 	if outline: outline.visible = (outline_override == "1") if outline_override != "" else settings.get("outlines", true)
 
 ## Ink lines scale with the screen so they read the same at 720p and 1440p.
 func _fit_outline() -> void:
-	if outline: (outline.material_override as ShaderMaterial).set_shader_parameter("width", clampf(get_viewport().get_visible_rect().size.y / 600.0, 1.2, 2.4))
+	if outline: (outline.material_override as ShaderMaterial).set_shader_parameter("width", clampf(float(get_window().size.y) / 600.0, 1.2, 3.0))
 
 func _parse_args() -> void:
 	for a in OS.get_cmdline_user_args():

@@ -14,6 +14,7 @@
 | Starforge build mode | B | X |
 | Bag · Journal · Map · Harmony · Wardrobe | I · J · M · P · C | D-pad up · Y · Back · D-pad down |
 | Menu / back | Esc | Start |
+| Fullscreen | F11 or Alt+Enter (also in Settings) | — |
 | Build: place / select · cancel | Left click · right click | — |
 | Build: rotate · colour · move · remove | R · T · N · Delete | RB · — · — · LB |
 | Build: undo · redo · half-grid | Ctrl+Z · Ctrl+Y · G | — |

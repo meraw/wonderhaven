@@ -24,6 +24,7 @@ var limits := {"explore": [3.5, 16.0, 0.12, 1.25], "build": [6.0, 30.0, 0.55, 1.
 var shake := 0.0
 var blockers: Array = []   # AABBs (buildings) the camera stays in front of
 var occluders: Array = []  # [centre: Vector3, radius: float] tree canopies and bushes the dialogue view avoids
+var rooms: Array = []      # AABBs of rooms you can walk into (inside walls, up to the wall tops); see Props.camera_rooms
 var col_dist := 8.5        # where the camera actually sits after collision
 var blend := 0.0           # seconds left of a slower blend after a mode change
 var _t := 0.0
@@ -114,6 +115,12 @@ func clear_distance(origin: Vector3, dir: Vector3, d: float) -> float:
 func _ray_clear(pivot: Vector3, o: Vector3, dir: Vector3, d: float) -> float:
 	var free := d
 	var seg := dir * d
+	# inside a room: stay within its walls, unless the view leaves over the top (the roof fades away)
+	for rm in rooms:
+		var room: AABB = rm
+		if not room.has_point(pivot): continue
+		var te := _exit_sides(o, seg, room)
+		if te < 1.0 and o.y + seg.y * te < room.end.y: free = minf(free, te * d - 0.3)
 	for b in blockers:
 		var box: AABB = b
 		if box.has_point(pivot): continue   # standing inside (the workshop): that building doesn't block
@@ -152,6 +159,17 @@ func _foliage_hits(a: Vector3, b: Vector3) -> int:
 		var t := clampf((c - a).dot(ab) / l2, 0.0, 1.0) if l2 > 0.0 else 0.0
 		if (a + ab * t).distance_to(c) < r: n += 1
 	return n
+
+## Fraction along from→from+dir where the segment leaves the box through a side wall (x or z), or 2 if it doesn't.
+static func _exit_sides(from: Vector3, dir: Vector3, box: AABB) -> float:
+	var t := 2.0
+	for a in [0, 2]:
+		var d: float = dir[a]
+		if absf(d) < 0.00001: continue
+		var bound: float = box.end[a] if d > 0.0 else box.position[a]
+		var ta: float = (bound - from[a]) / d
+		if ta >= 0.0: t = minf(t, ta)
+	return t
 
 ## Fraction along from→from+dir where the segment first enters the box, or -1.
 static func _ray_box(from: Vector3, dir: Vector3, box: AABB) -> float:

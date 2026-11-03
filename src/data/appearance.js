@@ -24,9 +24,10 @@ export const LABELS = {
 };
 
 export const DEFAULT_APPEARANCE = {
+  // a traveller just off the coast road: jacket, scarf and walking boots
   skin: SKIN_TONES[1], eyeShape: 'round', eyeColor: EYE_COLORS[0], hair: 'bob', hairColor: HAIR_COLORS[1], mouth: 'smile',
-  top: 'tee', topColor: '#ff8fab', bottom: 'pants', bottomColor: '#6cc4ff', shoes: 'sneakers', shoesColor: '#ffffff',
-  hat: 'none', hatColor: '#ffd166', accessory: 'none',
+  top: 'jacket', topColor: '#3fb5a3', bottom: 'pants', bottomColor: '#4a4a6a', shoes: 'boots', shoesColor: '#c9a27a',
+  hat: 'none', hatColor: '#ffd166', accessory: 'scarf',
 };
 
 // The pieces of clothing that start locked, and how they unlock.

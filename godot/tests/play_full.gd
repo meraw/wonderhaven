@@ -195,9 +195,13 @@ func play() -> void:
 	await shot("creator")
 	await click((game.screens.find_child("btn_start", true, false) as Control).get_global_rect().get_center())
 	await frames(20)
+	var card: Control = game.screens.find_child("btn_arrive", true, false)
+	var saw_card: bool = card != null and game.mode == "cutscene"
+	await shot("arrival-card")
+	if card: await click(card.get_global_rect().get_center()); await frames(20)
 	var a: Dictionary = game.state.appearance
-	check(1, "Start a new game and create a character", game.mode == "explore" and game.state.name == "Pip" and a.hair == "pigtails" and a.hat == "bow" and a.top != "overalls",
-		"name=%s hair=%s hat=%s locked overalls refused=%s" % [game.state.name, a.hair, a.hat, a.top != "overalls"])
+	check(1, "Start a new game and create a character", saw_card and game.mode == "explore" and game.state.name == "Pip" and a.hair == "pigtails" and a.hat == "bow" and a.top != "overalls",
+		"arrival card=%s name=%s hair=%s hat=%s locked overalls refused=%s" % [saw_card, game.state.name, a.hair, a.hat, a.top != "overalls"])
 	await shot("arrival")
 	# 2. Walk and camera
 	var p0: Vector3 = game.player.pos

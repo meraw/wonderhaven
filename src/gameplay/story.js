@@ -12,6 +12,12 @@ import { ZONES, NAV_NODES } from '../data/village-layout.js';
 import { LABELS } from '../data/appearance.js';
 import { banner, toast } from '../ui/dom.js';
 
+export const HOME_NEEDS = [
+  { any: ['woodWall', 'windowWall'], count: 3, label: 'Walls (3)' },
+  { any: ['doorWall'], label: 'A door' },
+  { any: ['roof'], label: 'A roof' },
+  { any: ['bed'], label: 'A bed' },
+];
 export const WORKSHOP_NEEDS = [
   { any: ['workbench'], label: 'A workbench' },
   { any: ['chair', 'sofa', 'bench'], label: 'Something to sit on' },
@@ -28,6 +34,7 @@ export class Story {
       bridge: () => this.pathOk('bridge'),
       dock: () => this.pathOk('dock'),
       workshop: () => roomChecklist(zone('workshop'), game.state.placements, WORKSHOP_NEEDS).every(r => r.ok),
+      home: () => roomChecklist(zone('plot'), game.state.placements, HOME_NEEDS).every(r => r.ok),
       fountain: () => !!game.mech.fed.fountain,
       lamp: () => game.mech.lamps.size > 0,
     };
