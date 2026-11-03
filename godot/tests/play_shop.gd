@@ -83,3 +83,30 @@ func play() -> void:
 		await tap(KEY_ESCAPE if not game.dialogue.choices.is_empty() else KEY_E)
 	var back := SaveSystem.deserialize(SaveSystem.serialize(s))
 	check("saved", "Coins and today's gift are kept in the save", int(back.inventory.get("coins", 0)) == 36 and int(back.relationships.mabel.get("gift_day", 0)) == int(s.time.day), str(back.inventory.get("coins", 0)))
+	# A request step paid in coins: the deed for your own plot
+	game.story.accept("home")
+	s.inventory["coins"] = 120; game.render_resources()
+	await frames(10)
+	check("deed-marker", "King Percival shows he's waiting for the deed money", game.story.marker_for("percival") == "ready", game.story.marker_for("percival"))
+	await choices_up("percival")
+	for n in 3:   # he opens with his own offer (the decree): not now
+		if not game.dialogue.choices.any(func(o): return o.kind == "no"): break
+		await pick("no")
+		for k in 60:
+			await frames(4)
+			if not game.dialogue.choices.is_empty(): break
+			if not game.dialogue.typing: await tap(KEY_E)
+	var has_pay: bool = game.dialogue.choices.any(func(o): return o.kind == "pay")
+	await shot("deed-choices")
+	await pick("pay")
+	for n in 60:
+		await frames(4)
+		if game.mode == "dialogue" and not game.dialogue.choices.is_empty(): break
+		if game.mode == "dialogue": await tap(KEY_E)
+	check("deed", "Paying 100 coins in conversation buys the deed: the plot opens with its blueprints", has_pay and game.state.flags.get("homePlot", false) and Shop.coins(s) == 20 and s.blueprints.has("roof") and game.story.engine.current_stage("home") == 1,
+		"pay offered=%s homePlot=%s coins=%d step=%d" % [has_pay, game.state.flags.get("homePlot", false), Shop.coins(s), game.story.engine.stage_index("home")])
+	await tap(KEY_ESCAPE)
+	for k in 30:
+		await frames(4)
+		if game.mode != "dialogue": break
+		await tap(KEY_ESCAPE if not game.dialogue.choices.is_empty() else KEY_E)
