@@ -1,13 +1,18 @@
 # Status
 
-Working title: **Wonderhaven: The Lost Isles** — first chapter, Hearthglow Village (the vertical slice).
+Working title: **Wonderhaven: The Lost Isles**. Two islands are playable: Hearthglow Village (chapter 1) and Clockwork Cove (chapter 2).
 
 - **Godot 4 (`godot/`)** is the game. See `godot/README.md`. Its content (`godot/data/*.json`) is edited directly.
 - **Web / Three.js (`index.html`, `src/`)** is the original prototype, **frozen**: kept as it was, no longer updated. Everything added since the Godot port (interiors, shops, staged requests, the guided day, the look) exists only in Godot.
 
 The story and characters are placeholders the user plans to rework; the focus is on mechanics that carry over to new islands.
 
-## What's in the slice (Godot)
+## Islands
+- **Island system:** each island has its own layout file (`godot/data/layout.json` for Hearthglow, `layout_<id>.json` for the others) and ground shape (`Heightfield`); villagers (`island` in `npcs.json`) and their requests belong to an island. Sailing (board the ferry, pick an island on the map) puts away what you built on the island you leave, reloads the scene and rebuilds the world for the destination; saves remember the island. Requests from another island keep their progress but don't point the compass while you're away.
+- **Clockwork Cove:** reached by the ferry once Hearthglow's dock is rebuilt. A round island with a bay, the cape lighthouse, the Old Clock Tower beside a millrace, Gearspring Hill and a small village square. Three villagers: Barnaby Sprocket (clockmaker, Tilly's uncle), Juniper Flint (lighthouse keeper) and Hazel Rivet (smith, with a shop). Requests: meet the neighbours; light the lighthouse (gather, then a windmill on the cape powering the tower's drive; the beam sweeps the bay at night); the stopped clock (gather, hand Barnaby parts, then a waterwheel in the millrace driving the clock); fuel Hazel's forge. Houses you can walk into, and a guest house to rest and change in.
+- **Machine targets** are data (`machines` in a layout): a cell that wants power or water. Hearthglow's fountain inlet, the lighthouse and the clock all use the same rule.
+
+## What's in Hearthglow (and shared systems)
 - **World:** island terrain from one shared heightfield; village with castle, cottages, workshop, bakery, caravan, dry fountain, river splitting off the orchard, spring and mill channel, quarry, harbor walled off by cliffs and a sealed gate; instanced trees, flowers, grass; ambient animals.
 - **Time and weather:** the day is split into dawn, morning, afternoon, evening and night, each with its own music and a sky that changes gradually; sunny, cloudy and rainy spells.
 - **Rooms you can walk into:** every house and shop and the castle: the bakery (Mabel bakes behind her counter), Fern's and Odessa's cottages, the Lantern Inn (your bed and wardrobe are inside), the Captain's hut and the castle's throne room. The Old Gatehouse is empty (someone could want help furnishing it) and Bram's workshop is his request. Inside, the roof fades and the camera looks down over the walls; villagers walk in to work and sleep. Rooms, furniture and routes are data (`interior` blocks in `layout.json`).
@@ -25,12 +30,12 @@ The story and characters are placeholders the user plans to rework; the focus is
 - **Look and sound:** ink outlines, surface textures, rounded fonts, soft lighting with SSAO and glow (Forward+), original procedural music and sound effects.
 
 ## How it was checked
-- `godot/run_tests.sh`: 66 headless tests of the rules (walk physics, placement, span rule, machines, bridge path, staged quest flow, paying and talk steps, shops and gifts, conversations, schedules, clock, minigames, gardening, save round-trip, tutorial, data integrity, camera collision and the indoor camera, interiors).
-- Scripted playthroughs with real key and mouse events, reviewed as screenshots: `play_core`, `play_build`, `play_story`, `play_dialogue`, `play_tutorial`, `play_camera`, `play_overlays`, `play_interiors` (walks into every room; Mabel at work; talking indoors), `play_shop` (buy, sell, give a gift), and the full playthrough in two parts (`play_full`, `play_full2`). See the latest PR description for which passed.
+- `godot/run_tests.sh`: 73 headless tests of the rules (walk physics, placement, span rule, machines, bridge path, staged quest flow, paying and talk steps, shops and gifts, conversations, schedules, clock, minigames, gardening, save round-trip, tutorial, data integrity, camera collision and the indoor camera, interiors, islands: every island a playable world, the cove's machine puzzles, travel keeping each island's pieces).
+- Scripted playthroughs with real key and mouse events, reviewed as screenshots: `play_core`, `play_build`, `play_story`, `play_dialogue`, `play_tutorial`, `play_camera`, `play_overlays`, `play_interiors` (walks into every room; Mabel at work; talking indoors), `play_shop` (buy, sell, give a gift, pay for the deed), `play_cove` (sail to Clockwork Cove, finish its requests with real input, sail home), and the full playthrough in two parts (`play_full`, `play_full2`, which ends by sailing to the cove and back). See the latest PR description for which passed.
 - Web (frozen): `npm test`, `npm run build`.
 - **Not checked:** how it feels on a real monitor at full frame rate, real gamepads, sound (the test machine has no audio device), Windows/macOS, and how long the requests take a real player. Please report anything that looks or feels off.
 
 ## Not done yet
 - Furnishing the Old Gatehouse as a request; more shop stock and clothes to buy.
 - Remapping gamepad buttons (keys can be remapped). Gamepad build controls exist but were not tested on a real controller.
-- The other four islands (Clockwork Cove, Blooming Wilds, Starlight Shores, Moonveil Hollow), Acts 2–3, the central landmark, programmable mechanisms and the elevator puzzle, postgame quests.
+- The other three islands (Blooming Wilds, Starlight Shores, Moonveil Hollow); more requests on Clockwork Cove (the Great Engine), Acts 2–3, the central landmark, programmable mechanisms and the elevator puzzle, postgame quests.

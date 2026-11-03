@@ -341,6 +341,10 @@ func on_quest_completed(qid: String) -> void:
 		"dock":
 			effects.sparkle(Vector3(5.5, 1, 51), 50)
 			get_tree().create_timer(4.4).timeout.connect(func(): banner("The ferry has arrived!", "Clockwork Cove now appears on your world map (%s)" % Controls.key_label("map"), [], 5.0))
+		"lighthouse": effects.sparkle(Vector3(-24, 7.5, -21), 50, Color("fff2a8"), 0.4); toast("The lighthouse turns again! Its beam sweeps the bay at night.", "good", 4.0)
+		"clocktower":
+			effects.sparkle(Vector3(12, 6, -13), 50); sfx("gate")
+			get_tree().create_timer(4.4).timeout.connect(func(): banner("Clockwork Cove is ticking again!", "The clock and the lighthouse run. More of the cove's story is coming.", [], 5.0))
 	for a in npcs.values():
 		if a.present and Vector2(a.pos.x - player.pos.x, a.pos.z - player.pos.z).length() < 12.0: a.character.play("clap" if randf() < 0.5 else "celebrate")
 

@@ -283,7 +283,7 @@ func map(from_boat: bool = false) -> void:
 		info.text = ("%s — %s" % [isl.name, isl.desc]) if revealed else "An unexplored island. Rumours say: " + isl.desc
 		for c in body.get_children():
 			if c.name == "sail": c.queue_free()
-		if isl.id == "hearthglow": info.text += "  (You are here.)"
+		if isl.id == Data.island: info.text += "  (You are here.)"
 		elif not revealed: info.text += "  Open Hearthglow's harbor and repair the dock to start sailing." if not game.state.flags.get("boatReady", false) else "  The Captain hasn't charted a route here yet."
 		elif from_boat or game.state.flags.get("boatReady", false):
 			var b := UiTheme.button("⛵ Sail to " + isl.name, func(): game.sail_to(isl), true); b.name = "sail"; body.add_child(b)
@@ -372,12 +372,14 @@ class MapView extends Control:
 			for k in 5: draw_circle(c + Vector2(cos(k * 1.3) * r * 0.5, sin(k * 1.7) * r * 0.35), 7, Color("4fae63") if revealed else Color("9aa5a9"))
 			var font := UiTheme.main_font()
 			var name: String = isl.name if revealed else "???"
-			draw_string_outline(font, c + Vector2(-r, r + 30), name, HORIZONTAL_ALIGNMENT_CENTER, r * 2, 18, 6, Color.WHITE)
-			draw_string(font, c + Vector2(-r, r + 30), name, HORIZONTAL_ALIGNMENT_CENTER, r * 2, 18, UiTheme.INK)
+			var lw := maxf(r * 2.0, 220.0)   # wide enough for the whole name
+			draw_string_outline(font, c + Vector2(-lw / 2.0, r + 30), name, HORIZONTAL_ALIGNMENT_CENTER, lw, 18, 6, Color.WHITE)
+			draw_string(font, c + Vector2(-lw / 2.0, r + 30), name, HORIZONTAL_ALIGNMENT_CENTER, lw, 18, UiTheme.INK)
 			if not revealed: draw_string(font, c + Vector2(-16, 10), "🔒", HORIZONTAL_ALIGNMENT_LEFT, -1, 30)
-			if isl.id == "hearthglow":
+			if isl.id == Data.island:   # you are here, with how many requests are open on this island
 				draw_string(font, c + Vector2(-r * 0.7, -r * 0.4), "📍", HORIZONTAL_ALIGNMENT_LEFT, -1, 24)
-				var n: int = game.story.engine.active().size() + Data.quests.filter(func(q): return game.story.engine.can_offer(q.id)).size()
+				var e: QuestEngine = game.story.engine
+				var n: int = e.active().filter(func(q): return e.here(q.id)).size() + Data.quests.filter(func(q): return e.can_offer(q.id) and e.here(q.id)).size()
 				if n > 0: draw_string(font, c + Vector2(r * 0.5, -r * 0.5), "❗%d" % n, HORIZONTAL_ALIGNMENT_LEFT, -1, 22, UiTheme.PINK_DARK)
 	func _gui_input(ev: InputEvent) -> void:
 		if ev is InputEventMouseButton and ev.pressed and ev.button_index == MOUSE_BUTTON_LEFT:

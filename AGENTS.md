@@ -4,6 +4,7 @@ The game is the Godot 4 project in `godot/` (see `godot/README.md`). The origina
 
 - Godot content lives in `godot/data/*.json` and is edited directly (quests, NPCs, pieces, layout, shops, tutorial). `npm run godot:data` would overwrite it from the frozen `src/data/` and refuses without `--force`.
 - Focus on mechanics and systems that carry over to new islands; the user will rework the story and characters later.
+- Islands: Hearthglow (`godot/data/layout.json`) and Clockwork Cove (`layout_clockwork.json`). Island-specific code is gated on `Data.island`; prefer layout data over code for a new island.
 
 - Frozen web version: Three.js 0.180.0 via an import map, plain ES modules, no bundler. Node 22.
 - Content is data (`godot/data/*.json`): quests, NPCs, dialogue, building pieces, resource nodes, zones, shops. Add content there, not in systems.
