@@ -71,6 +71,7 @@ func talk(agent) -> void:
 	conv = _conv(agent)
 	if not conv.main_offer.is_empty(): await offer(conv.main_offer.id, agent)
 	var greeted := false
+	var shop := false
 	while true:
 		conv = _conv(agent)
 		if not conv.turn_ins.is_empty():
@@ -86,9 +87,35 @@ func talk(agent) -> void:
 			"offer": await offer(choice.id, agent)
 			"progress": await ui.say(Conversation.quest_lines(choice.id, "progress", s.name) + progress_summary(choice.id))
 			"topic": await ui.say(Conversation.topic_lines(agent.def, choice.id, s.name))
+			"gift": await gift(agent)
+			"shop":
+				await ui.say([{"text": Conversation.fill(Shop.def(agent.def.id).get("greet", "Have a look!"), s.name), "anim": "wave"}])
+				shop = true
+		if shop: break
 	await give_gifts(agent)
 	game.exit_dialogue()
 	busy = false
+	if shop: game.panels.shop(agent.def.id)
+
+## Pick something from your bag to give; treats and things they love count for more.
+func gift(agent) -> void:
+	var ui: DialogueUI = game.dialogue
+	var npc: Dictionary = agent.def
+	var opts: Array = Shop.gift_options(game.state, npc).map(func(id): return {"label": "%s %s (%d)" % [Data.resources[id].icon, Data.resources[id].name, int(game.state.inventory.get(id, 0))], "kind": "item", "id": id})
+	opts.append({"label": "Never mind", "kind": "no"})
+	ui.set_text("🎁 What would you like to give %s? (One gift a day. Treats and favourite things mean the most.)" % npc.name.split(" ")[0])
+	var c: Dictionary = await ui.choose(opts)
+	if c.kind != "item": return
+	var r := Shop.give_gift(game.state, npc, c.id)
+	if not r.ok: return
+	game.render_resources()
+	var lines: Array = Data.shops.get("giftLines", {}).get("loved" if r.loved else "nice", ["Thank you!"])
+	var thanks := {"text": Conversation.fill(String(lines[randi() % lines.size()]).replace("{item}", Data.resources[c.id].name), game.state.name), "mood": "happy"}
+	if r.loved: thanks["anim"] = "clap"
+	await ui.say([thanks])
+	add_hearts(npc.id, int(r.hearts))
+	game.sfx("objective")
+	game.emit_event("gift", {"npc": npc.id, "item": c.id})
 
 func progress_summary(qid: String) -> Array:
 	var left: Array = []

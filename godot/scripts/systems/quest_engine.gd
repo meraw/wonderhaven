@@ -134,6 +134,13 @@ func next_step(qid: String) -> Dictionary:
 	return {}
 
 func blueprint_hint(id: String) -> String:
+	var hint := _blueprint_source(id)
+	for sid in Data.shops.get("shops", {}):
+		for line in Data.shops.shops[sid].get("stock", []):
+			if line.get("blueprint", "") == id: return "%s · or buy it at %s" % [hint, Data.shops.shops[sid].name]
+	return hint
+
+func _blueprint_source(id: String) -> String:
 	for q in Data.quests:
 		if q.get("onAccept", {}).get("blueprints", []).has(id): return "Accept “%s” from %s" % [q.title, Data.npc(q.giver).name]
 		if q.get("rewards", {}).get("blueprints", []).has(id): return "Complete “%s” for %s" % [q.title, Data.npc(q.giver).name]

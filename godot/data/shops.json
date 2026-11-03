@@ -1,0 +1,230 @@
+{
+ "_comment": "Godot-only content. A villager with an entry here gets a '🛍' choice in conversation that opens their shop. requires: {quests, harmony, flags} as in quests.json, for the whole shop or one stock line. buys: coins paid per item when you sell. stock: lines you can buy with coins: items (a bundle, as often as you like), blueprint or clothes (once). likes (in npcs.json) and treat (in resources.json) decide how much a gift raises friendship; giftLines are the generic thank-you lines ({item} is the gift's name).",
+ "currency": "coins",
+ "noGift": [
+  "spark",
+  "coins",
+  "fragment"
+ ],
+ "giftLines": {
+  "loved": [
+   "Oh! {item}! You remembered!",
+   "{item}? For me? This is my favourite!",
+   "You know me too well. {item}, how lovely!"
+  ],
+  "nice": [
+   "Thank you, that's very kind.",
+   "Oh, how thoughtful! Thank you!",
+   "For me? You're a dear."
+  ]
+ },
+ "shops": {
+  "bram": {
+   "name": "Bram's Timber & Tools",
+   "label": "Let's trade",
+   "greet": "Timber, tools and plans. Have a look, mind the sawdust!",
+   "requires": {
+    "quests": [
+     "bridge"
+    ]
+   },
+   "buys": {
+    "wood": 2,
+    "stone": 3
+   },
+   "stock": [
+    {
+     "items": {
+      "wood": 5
+     },
+     "price": 16
+    },
+    {
+     "items": {
+      "stone": 3
+     },
+     "price": 14
+    },
+    {
+     "blueprint": "rug",
+     "price": 30
+    },
+    {
+     "blueprint": "painting",
+     "price": 30
+    },
+    {
+     "blueprint": "desk",
+     "price": 35
+    },
+    {
+     "blueprint": "counter",
+     "price": 45
+    },
+    {
+     "blueprint": "bed",
+     "price": 50
+    },
+    {
+     "blueprint": "sofa",
+     "price": 60,
+     "requires": {
+      "quests": [
+       "workshop"
+      ]
+     }
+    }
+   ]
+  },
+  "fern": {
+   "name": "Fern's Garden Stall",
+   "label": "Anything for sale?",
+   "greet": "Seeds, saplings and garden plans. Everything here grew up happy!",
+   "requires": {
+    "quests": [
+     "bridge"
+    ]
+   },
+   "buys": {
+    "flowers": 3,
+    "fruit": 3,
+    "seeds": 2,
+    "acorn": 1
+   },
+   "stock": [
+    {
+     "items": {
+      "seeds": 3
+     },
+     "price": 10
+    },
+    {
+     "items": {
+      "flowers": 4
+     },
+     "price": 16
+    },
+    {
+     "blueprint": "pond",
+     "price": 60
+    },
+    {
+     "blueprint": "miniFountain",
+     "price": 70,
+     "requires": {
+      "harmony": 80
+     }
+    }
+   ]
+  },
+  "tilly": {
+   "name": "Sprocket Supplies",
+   "label": "Show me your gadgets",
+   "greet": "Bits, bobs and the occasional thingamajig. Don't touch the one that's humming.",
+   "requires": {
+    "quests": [
+     "workshop"
+    ]
+   },
+   "buys": {
+    "metal": 8,
+    "crystal": 15,
+    "clay": 3
+   },
+   "stock": [
+    {
+     "items": {
+      "metal": 2
+     },
+     "price": 20
+    },
+    {
+     "items": {
+      "clay": 3
+     },
+     "price": 10
+    },
+    {
+     "items": {
+      "crystal": 1
+     },
+     "price": 35
+    },
+    {
+     "blueprint": "poweredLamp",
+     "price": 50
+    },
+    {
+     "blueprint": "streetlight",
+     "price": 45
+    }
+   ]
+  },
+  "mabel": {
+   "name": "Crumb's Bakery",
+   "label": "What's fresh today?",
+   "greet": "Fresh from the oven! A treat makes a lovely gift, you know.",
+   "requires": {
+    "quests": [
+     "tool"
+    ]
+   },
+   "buys": {
+    "fruit": 4,
+    "acorn": 2,
+    "flowers": 2
+   },
+   "stock": [
+    {
+     "items": {
+      "bread": 1
+     },
+     "price": 8
+    },
+    {
+     "items": {
+      "pie": 1
+     },
+     "price": 18,
+     "requires": {
+      "quests": [
+       "squirrels"
+      ]
+     }
+    }
+   ]
+  },
+  "captain": {
+   "name": "Harbor Goods",
+   "label": "What's in the hold?",
+   "greet": "Goods from across the sea, and I pay well for a good catch.",
+   "requires": {
+    "quests": [
+     "decree"
+    ]
+   },
+   "buys": {
+    "fish": 10,
+    "wood": 3
+   },
+   "stock": [
+    {
+     "items": {
+      "fabric": 2
+     },
+     "price": 18
+    },
+    {
+     "items": {
+      "crystal": 1
+     },
+     "price": 30
+    },
+    {
+     "blueprint": "statue",
+     "price": 70
+    }
+   ]
+  }
+ }
+}

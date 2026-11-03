@@ -1,5 +1,5 @@
 extends Node
-## Game content loaded from data/*.json (exported from the shared content files by scripts/export-godot-data.mjs).
+## Game content loaded from data/*.json, edited directly (the browser version's src/data is frozen).
 
 var layout: Dictionary
 var pieces: Array
@@ -18,6 +18,7 @@ var resources: Dictionary
 var resource_order: Array
 var appearance: Dictionary
 var tutorial: Dictionary   # Godot-only: guided first day steps and tip cards (data/tutorial.json)
+var shops: Dictionary      # Godot-only: what villagers buy and sell, gift lines (data/shops.json)
 
 func _init() -> void:
 	load_all()
@@ -37,6 +38,7 @@ func load_all() -> void:
 	resources = r.resources; resource_order = r.order
 	appearance = _read("appearance")
 	tutorial = _read("tutorial")
+	shops = _read("shops")
 	_add_interior_nav()
 
 ## Rooms you can walk into add nav spots (inside the door, and where the owner works and sleeps) to the village graph.

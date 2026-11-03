@@ -1181,7 +1181,8 @@
    "z": -11,
    "loot": {
     "crystal": 2,
-    "spark": 12
+    "spark": 12,
+    "coins": 25
    },
    "blueprint": "statue"
   },
@@ -1192,7 +1193,8 @@
    "z": -14.5,
    "loot": {
     "metal": 3,
-    "spark": 10
+    "spark": 10,
+    "coins": 25
    },
    "blueprint": "windmill"
   },
@@ -1203,7 +1205,8 @@
    "z": -41,
    "loot": {
     "fabric": 3,
-    "spark": 10
+    "spark": 10,
+    "coins": 25
    },
    "outfit": "flowerCrown"
   },

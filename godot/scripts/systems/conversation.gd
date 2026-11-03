@@ -24,6 +24,8 @@ static func build(npc: Dictionary, engine: QuestEngine, flags: Dictionary, playe
 		if q.giver == npc.id and not turn_ins.has(q): options.append({"label": "📜 About: %s" % q.title, "kind": "progress", "id": q.id})
 	for t in npc.topics:
 		if not t.has("requires") or flags.get(t.requires, false): options.append({"label": "💬 " + t.label, "kind": "topic", "id": t.id})
+	if Shop.is_open(engine.state, npc.id): options.append({"label": "🛍 " + Shop.def(npc.id).get("label", "Let's trade"), "kind": "shop"})
+	if Shop.can_gift(engine.state, npc.id): options.append({"label": "🎁 Give a gift", "kind": "gift"})
 	options.append({"label": "Goodbye!", "kind": "bye"})
 	return {"turn_ins": turn_ins, "main_offer": main_offer, "greeting": greeting, "options": options}
 

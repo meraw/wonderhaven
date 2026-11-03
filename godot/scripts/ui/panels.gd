@@ -130,6 +130,76 @@ func inventory() -> void:
 		if game.state.relationships.has(n.id):
 			body.add_child(UiTheme.label("%s — %s   %s" % [n.name, n.title, "♥".repeat(int(game.state.relationships[n.id].get("hearts", 0)))], 15))
 
+## A villager's shop: buy bundles and blueprints with coins, or sell them what they want.
+func shop(npc_id: String, tab: String = "buy") -> void:
+	var d := Shop.def(npc_id)
+	if d.is_empty(): return
+	open_panel("shop", "🛍 " + String(d.name))
+	var s: Dictionary = game.state
+	var top := HBoxContainer.new(); top.add_theme_constant_override("separation", 10); body.add_child(top)
+	for pair in [["buy", "Buy"], ["sell", "Sell"]]:
+		var t: String = pair[0]
+		var b := UiTheme.button(pair[1], func(): shop(npc_id, t), tab == t); b.name = "tab_" + t; top.add_child(b)
+	var sp := Control.new(); sp.size_flags_horizontal = Control.SIZE_EXPAND_FILL; top.add_child(sp)
+	var purse := UiTheme.panel(Color("fff7cf"), UiTheme.GOLD, 999); purse.name = "purse"
+	purse.add_child(UiTheme.label("%s %d coins" % [Data.resources.coins.icon, Shop.coins(s)], 17)); top.add_child(purse)
+	if tab == "buy":
+		for e in Shop.stock(s, npc_id):
+			var row := _shop_row(e.icon, e.label, "" if e.owned else "%d %s" % [e.price, Data.resources.coins.icon])
+			var i: int = e.i
+			var b := UiTheme.button("Owned" if e.owned else "Buy", func(): _shop_buy(npc_id, i), not e.owned and e.afford)
+			b.name = "buy_%d" % i; b.disabled = e.owned or not e.afford; b.custom_minimum_size.x = 96
+			if not e.owned and not e.afford: b.tooltip_text = "You need %d more coins" % (e.price - Shop.coins(s))
+			row.add_child(b)
+	else:
+		var list := Shop.sellable(s, npc_id)
+		var wants: Array = d.get("buys", {}).keys().map(func(id): return "%s %s (%d each)" % [Data.resources[id].icon, Data.resources[id].name, Shop.sell_price(npc_id, id)])
+		body.add_child(_wrap("%s buys: %s." % [Data.npc(npc_id).name, ", ".join(wants)]))
+		if list.is_empty(): body.add_child(_wrap("You don't have anything they want right now.", 15, UiTheme.INK))
+		for e in list:
+			var r: Dictionary = Data.resources[e.id]
+			var row := _shop_row(r.icon, "%s × %d" % [r.name, e.have], "%d %s each" % [e.price, Data.resources.coins.icon])
+			var choices: Array = [[1, "Sell 1", "1"]]
+			if e.have > 5: choices.append([5, "Sell 5", "5"])
+			if e.have > 1: choices.append([e.have, "Sell all", "all"])
+			for c in choices:
+				var item: String = e.id; var count: int = c[0]
+				var b := UiTheme.button(c[1], func(): _shop_sell(npc_id, item, count))
+				b.name = "sell_%s_%s" % [e.id, c[2]]
+				row.add_child(b)
+
+func _shop_row(icon: String, text: String, price: String) -> HBoxContainer:
+	var p := UiTheme.panel(Color.WHITE, Color("f3dfc0"), 16)
+	var row := HBoxContainer.new(); row.add_theme_constant_override("separation", 12); p.add_child(row); body.add_child(p)
+	row.add_child(UiTheme.label(icon, 24))
+	var l := UiTheme.label(text, 17); l.size_flags_horizontal = Control.SIZE_EXPAND_FILL; row.add_child(l)
+	if price != "": row.add_child(UiTheme.label(price, 16, UiTheme.INK2))
+	return row
+
+func _shop_buy(npc_id: String, i: int) -> void:
+	var r := Shop.buy(game.state, npc_id, i)
+	if not r.ok:
+		game.toast("You need %d more coins." % int(r.get("need", 0)) if r.reason == "coins" else "You can't buy that.", "warn"); return
+	game.sfx("unlock")
+	if r.has("items"): game.render_resources(r.items.keys()); game.emit_event("gain", {"items": r.items})
+	if r.has("blueprint"): game.story.unlock_blueprints([r.blueprint])
+	if r.has("clothes"): game.story.unlock_clothes([r.clothes])
+	if r.has("items"): game.toast("Bought %s" % ", ".join(r.items.keys().map(func(k): return "%d %s %s" % [r.items[k], Data.resources[k].icon, Data.resources[k].name])), "good", 2.0)
+	game.render_resources(["coins"])
+	game.emit_event("shop", {"npc": npc_id, "buy": true})
+	game.autosave("shop")
+	shop(npc_id, "buy")
+
+func _shop_sell(npc_id: String, item: String, n: int) -> void:
+	var r := Shop.sell(game.state, npc_id, item, n)
+	if not r.ok: return
+	game.sfx("pick")
+	game.toast("Sold %d %s for %d %s" % [r.n, Data.resources[item].name, r.coins, Data.resources.coins.icon], "good", 2.0)
+	game.render_resources(["coins"])
+	game.emit_event("shop", {"npc": npc_id, "sell": true, "coins": r.coins})
+	game.autosave("shop")
+	shop(npc_id, "sell")
+
 func journal(tab: String = "active") -> void:
 	open_panel("journal", "📜 Quest Journal")
 	var e: QuestEngine = game.story.engine

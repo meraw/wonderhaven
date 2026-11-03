@@ -49,7 +49,8 @@
    "rewards": {
     "harmony": 10,
     "items": {
-     "spark": 5
+     "spark": 5,
+     "coins": 10
     }
    },
    "dialogue": {
@@ -138,7 +139,8 @@
     "harmony": 40,
     "items": {
      "spark": 10,
-     "seeds": 2
+     "seeds": 2,
+     "coins": 30
     },
     "blueprints": [
      "flowerBed",
@@ -227,7 +229,8 @@
    "rewards": {
     "harmony": 35,
     "items": {
-     "fabric": 2
+     "fabric": 2,
+     "coins": 40
     },
     "blueprints": [
      "sofa",
@@ -340,7 +343,8 @@
    "rewards": {
     "harmony": 50,
     "items": {
-     "crystal": 2
+     "crystal": 2,
+     "coins": 50
     },
     "blueprints": [
      "miniFountain",
@@ -409,7 +413,8 @@
    "rewards": {
     "harmony": 0,
     "items": {
-     "spark": 10
+     "spark": 10,
+     "coins": 30
     },
     "clothes": [
      "sailor"
@@ -493,7 +498,8 @@
    "rewards": {
     "harmony": 20,
     "items": {
-     "spark": 10
+     "spark": 10,
+     "coins": 20
     },
     "flags": [
      "ownHome"
@@ -568,7 +574,10 @@
     ],
     "blueprints": [
      "counter"
-    ]
+    ],
+    "items": {
+     "coins": 40
+    }
    },
    "dialogue": {
     "offer": [
@@ -639,7 +648,8 @@
    "rewards": {
     "harmony": 15,
     "items": {
-     "spark": 5
+     "spark": 5,
+     "coins": 15
     },
     "blueprints": [
      "pillar"
@@ -712,7 +722,8 @@
    "rewards": {
     "harmony": 20,
     "items": {
-     "spark": 8
+     "spark": 8,
+     "coins": 20
     },
     "clothes": [
      "chef"
@@ -801,7 +812,8 @@
     "harmony": 20,
     "items": {
      "flowers": 4,
-     "spark": 5
+     "spark": 5,
+     "coins": 20
     },
     "clothes": [
      "sunhat"
@@ -863,7 +875,8 @@
    "rewards": {
     "harmony": 15,
     "items": {
-     "spark": 8
+     "spark": 8,
+     "coins": 25
     },
     "clothes": [
      "captain"
@@ -922,7 +935,8 @@
    "rewards": {
     "harmony": 20,
     "items": {
-     "crystal": 2
+     "crystal": 2,
+     "coins": 30
     },
     "clothes": [
      "backpack"
@@ -980,7 +994,8 @@
     "harmony": 15,
     "items": {
      "metal": 2,
-     "crystal": 1
+     "crystal": 1,
+     "coins": 25
     }
    },
    "dialogue": {

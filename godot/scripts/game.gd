@@ -187,8 +187,9 @@ func render_resources(pop: Array = []) -> void:
 	for c in hud_res.get_children(): hud_res.remove_child(c); c.queue_free()   # remove first so new chips keep their names
 	for id in Data.resource_order:
 		var n: int = int(state.inventory.get(id, 0))
-		if id != "spark" and n <= 0: continue
-		var chip := UiTheme.panel(Color("fff7cf") if id == "spark" else Color.WHITE, UiTheme.GOLD if id == "spark" else Color("f3dfc0"), 999)
+		var money: bool = id in ["spark", "coins"]   # always shown, in gold
+		if not money and n <= 0: continue
+		var chip := UiTheme.panel(Color("fff7cf") if money else Color.WHITE, UiTheme.GOLD if money else Color("f3dfc0"), 999)
 		chip.name = "res_" + id
 		chip.add_child(UiTheme.label("%s %d" % [Data.resources[id].icon, n], 15))
 		hud_res.add_child(chip)

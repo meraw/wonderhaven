@@ -4,6 +4,11 @@
    "id": "odessa",
    "name": "Odessa Quill",
    "title": "Master Artisan",
+   "likes": [
+    "crystal",
+    "flowers",
+    "pie"
+   ],
    "voice": 0.85,
    "appearance": {
     "skin": "#f8cfa8",
@@ -170,6 +175,11 @@
    "id": "fern",
    "name": "Fern Marigold",
    "title": "Village Gardener",
+   "likes": [
+    "flowers",
+    "seeds",
+    "fruit"
+   ],
    "voice": 1.15,
    "appearance": {
     "skin": "#e9b083",
@@ -292,6 +302,11 @@
    "id": "bram",
    "name": "Bram Shavings",
    "title": "Carpenter",
+   "likes": [
+    "wood",
+    "pie",
+    "bread"
+   ],
    "voice": 0.95,
    "appearance": {
     "skin": "#c98a5e",
@@ -399,6 +414,10 @@
    "id": "percival",
    "name": "King Percival Puffington",
    "title": "King of Hearthglow",
+   "likes": [
+    "crystal",
+    "pie"
+   ],
    "voice": 0.75,
    "appearance": {
     "skin": "#ffe3cc",
@@ -524,6 +543,10 @@
    "id": "tilly",
    "name": "Tilly Sprocket",
    "title": "Inventor",
+   "likes": [
+    "metal",
+    "crystal"
+   ],
    "voice": 1.25,
    "appearance": {
     "skin": "#9a6442",
@@ -647,6 +670,11 @@
    "id": "mabel",
    "name": "Mabel Crumb",
    "title": "Baker",
+   "likes": [
+    "fruit",
+    "acorn",
+    "flowers"
+   ],
    "voice": 1.05,
    "appearance": {
     "skin": "#f8cfa8",
@@ -748,6 +776,10 @@
    "id": "captain",
    "name": "Captain Wendell Gale",
    "title": "Ferry Captain",
+   "likes": [
+    "fish",
+    "bread"
+   ],
    "voice": 0.7,
    "appearance": {
     "skin": "#c98a5e",
