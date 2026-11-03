@@ -41,6 +41,13 @@ func frames(n: int) -> void:
 func check(id, label: String, ok: bool, detail: String = "") -> void:
 	results.append({"id": id, "label": label, "ok": ok, "detail": detail})
 	print(("PASS " if ok else "FAIL "), "[", id, "] ", label, " — ", detail)
+	note(("PASS " if ok else "FAIL ") + "[%s] %s — %s" % [str(id), label, detail])
+
+## A progress line, written straight to <out>/progress.log (the console output is buffered until the end).
+func note(msg: String) -> void:
+	var f := FileAccess.open(out_dir + "/progress.log", FileAccess.READ_WRITE if FileAccess.file_exists(out_dir + "/progress.log") else FileAccess.WRITE)
+	if f == null: return
+	f.seek_end(); f.store_line("%s  %s" % [Time.get_time_string_from_system(), msg]); f.close()
 
 func shot(name: String) -> void:
 	shot_n += 1

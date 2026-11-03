@@ -59,6 +59,7 @@ func face_and_press(target_id: String, x: float, z: float) -> bool:
 		game.player.yaw = atan2(x - p.x, z - p.z); game.player.sync()
 		steer(x, z); key(KEY_W, true); await frames(3); key(KEY_W, false); await frames(4)
 	print("   could not target ", target_id, " (target: ", game.target.id if game.target else "none", ")")
+	note("could not target %s (target: %s, at %s)" % [target_id, game.target.id if game.target else "none", game.player.pos])
 	return false
 
 func talk(id: String, accept: bool = true) -> bool:
@@ -70,7 +71,8 @@ func talk(id: String, accept: bool = true) -> bool:
 	for n in 20:
 		if game.mode == "dialogue": break
 		await frames(2)
-	if game.mode != "dialogue": print("   no dialogue with ", id); return false
+	if game.mode != "dialogue": print("   no dialogue with ", id); note("no dialogue with %s" % id); return false
+	note("talking to %s" % id)
 	for n in 300:
 		await frames(4)
 		if game.mode != "dialogue": return true
@@ -103,26 +105,29 @@ func play_minigame() -> void:
 				elif mg.phase == "reel": key(KEY_E, mg.tension < 0.5)
 	key(KEY_E, false)
 
-func gather_node(id: String) -> void:
+func gather_node(id: String) -> bool:
 	var n := Data.node_def(id)
 	var p: Vector3 = game.player.pos
 	var d := maxf(0.01, Vector2(p.x - n.x, p.z - n.z).length())
 	var ax: float = n.x if n.kind == "fish" else n.x + (p.x - n.x) / d * 1.4
 	var az: float = n.z if n.kind == "fish" else n.z + (p.z - n.z) / d * 1.4
 	await walk_to(ax, az, 0.6)
-	if not await face_and_press(id, n.x, n.z): return
+	if not await face_and_press(id, n.x, n.z): return false
 	await frames(6)
 	if game.mode == "minigame": await play_minigame()
 	await frames(20)
+	return true
 
 func gather_until(kind: String, test: Callable, only: Array = [], rounds: int = 30) -> bool:
+	var unreachable := {}   # a node we couldn't get to is skipped after that, rather than tried every round
 	for r in rounds:
 		if test.call(): return true
 		var p: Vector3 = game.player.pos
-		var ready: Array = Data.layout.nodes.filter(func(n): return n.kind == kind and (only.is_empty() or only.has(n.id)) and game.actions.ready(n))
+		var ready: Array = Data.layout.nodes.filter(func(n): return n.kind == kind and (only.is_empty() or only.has(n.id)) and game.actions.ready(n) and not unreachable.has(n.id))
 		ready.sort_custom(func(a, b): return Vector2(a.x - p.x, a.z - p.z).length() < Vector2(b.x - p.x, b.z - p.z).length())
-		if ready.is_empty(): print("   waiting for ", kind, " to regrow"); await wait(15.0); continue
-		await gather_node(ready[0].id)
+		if ready.is_empty(): print("   waiting for ", kind, " to regrow"); note("waiting for %s to regrow" % kind); await wait(15.0); continue
+		note("gather %s (round %d) wood=%d metal=%d stone=%d crystal=%d" % [ready[0].id, r, inv("wood"), inv("metal"), inv("stone"), inv("crystal")])
+		if not await gather_node(ready[0].id): unreachable[ready[0].id] = true
 	return test.call()
 
 func settle() -> void:

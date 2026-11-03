@@ -116,3 +116,11 @@ func test_requests_belong_to_their_island():
 	t.eq(calls[0], 0, "a Hearthglow building check isn't run while you're on the cove")
 	t.ok(Shop.is_open(s, "hazel"), "Hazel's forge shop is open once you've arrived")
 	t.ok(Data.npcs_here().is_empty() or Data.npcs_here().all(func(n): return Data.npc_island(n.id) == Data.island), "only the island's own villagers are here")
+
+func test_rooms_only_count_from_inside():
+	_on("clockwork", func():
+		# right outside the Clock House's back wall, Barnaby's work spot inside is closest as the crow flies, but the
+		# way there is round through the door: the nearest spot to start from is outside
+		var n := Schedule.nearest_node(-19.0, 3.5, {})
+		t.ok(not n.contains(":"), "outside a house, the nearest nav spot is outdoors (%s)" % n)
+		t.eq(Schedule.nearest_node(-9.4, 4.3, {}), "clockHouse:spot", "inside it, the spot indoors is nearest"))
