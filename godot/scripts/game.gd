@@ -182,7 +182,7 @@ func sfx(name: String) -> void: if audio: audio.sfx(name)
 func voice(pitch: float, syllables: int) -> void: if audio: audio.voice(pitch, syllables)
 
 func render_resources(pop: Array = []) -> void:
-	for c in hud_res.get_children(): c.queue_free()
+	for c in hud_res.get_children(): hud_res.remove_child(c); c.queue_free()   # remove first so new chips keep their names
 	for id in Data.resource_order:
 		var n: int = int(state.inventory.get(id, 0))
 		if id != "spark" and n <= 0: continue

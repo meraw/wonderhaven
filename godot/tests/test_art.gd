@@ -65,6 +65,12 @@ func test_camera_eases_out_and_never_tilts_itself():
 	c.clamp_limits()
 	t.eq(c.pitch, 0.3, "a house behind the player doesn't change the pitch the player chose")
 
+func test_camera_never_ends_inside_walls():
+	var c := FollowCamera.new(null)
+	c.blockers = [AABB(Vector3(4, 0, -2), Vector3(4, 5, 4))]
+	var p := c._outside_walls(Vector3(0, 1, 0), Vector3(5, 2, 0))
+	t.ok(not (c.blockers[0] as AABB).grow(-0.35).has_point(p) and p.x < 4.4, "a point inside the walls is brought back out (x=%.2f)" % p.x)
+
 func test_camera_rays_ignore_a_thin_miss():
 	# A building just beside the line of sight still gets a little room thanks to the probe rays, so walking past
 	# a corner doesn't make the camera flick in and out.

@@ -83,6 +83,7 @@ func update(dt: float, follow: Vector3) -> void:
 	if mode == "explore" or mode == "dialogue": allowed = clear_distance(target, dir, cur.dist)
 	col_dist = settle(col_dist, allowed, dt)
 	var p: Vector3 = target + dir * col_dist
+	if mode == "explore" or mode == "dialogue": p = _outside_walls(target, p)
 	var ground := maxf(Heightfield.height(p.x, p.z), Heightfield.WATER_Y) + 0.45
 	if p.y < ground: p.y = ground
 	if shake > 0.0:
@@ -125,6 +126,16 @@ func _ray_clear(pivot: Vector3, o: Vector3, dir: Vector3, d: float) -> float:
 		if q.y < Heightfield.height(q.x, q.z) + 0.35: free = minf(free, s - 0.4); break
 		s += 0.5
 	return free
+
+## Last safety net: if the camera point is inside a building's walls (and the player isn't), bring it back along
+## the line to the player until it is outside.
+func _outside_walls(pivot: Vector3, p: Vector3) -> Vector3:
+	for b in blockers:
+		var walls: AABB = (b as AABB).grow(-0.35)
+		if walls.has_point(p) and not walls.has_point(pivot):
+			var t := _ray_box(pivot, p - pivot, walls)
+			if t >= 0.0: p = pivot + (p - pivot) * maxf(0.0, t - 0.02)
+	return p
 
 ## True when something stands between `from` and `to`.
 func blocked(from: Vector3, to: Vector3) -> bool:
