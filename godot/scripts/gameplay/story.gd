@@ -14,7 +14,7 @@ func _init(g) -> void:
 	engine.gate = func(qid: String) -> bool: return Tutorial.allows_offer(game.state.get("tutorial", {}), qid)
 	game.game_event.connect(_on_event)
 
-func attach(state: Dictionary) -> void: engine.state = state
+func attach(state: Dictionary) -> void: engine.state = state; engine.invalidate()
 
 func _on_event(type: String, data: Dictionary) -> void:
 	if type == "gain": handle(engine.on_gain(data.items))
@@ -147,7 +147,7 @@ func progress_summary(qid: String) -> Array:
 	var left: Array = []
 	for o in Data.quest(qid).objectives:
 		var st := engine.objective(qid, o)
-		if o.get("final", false) or st.done: continue
+		if not engine.is_current(qid, o) or st.done: continue   # this step only; later ones are a surprise
 		left.append(("%s (%d/%d)" % [o.text, st.have, st.need]) if st.need > 1 and o.kind != "harmony" else o.text)
 	return [] if left.is_empty() else ["Still to do: %s." % "; ".join(left)]
 

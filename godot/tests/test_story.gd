@@ -207,3 +207,23 @@ func test_home_of_your_own():
 	add.call("windowWall", 19, 11); add.call("roof", 19, 11); add.call("bed", 22, 12)
 	t.ok(Validate.room_checklist(z, pls, home_needs).all(func(r): return r.ok), "3 walls, a door, a roof and a bed make a home")
 	t.ok(Data.layout.buildings.any(func(b): return b.id == "playerHouse" and b.get("inn", false) and b.name == "The Lantern Inn"), "you start out at the Lantern Inn")
+
+func test_live_checks_are_cached_until_something_changes():
+	# villagers' markers, the compass and the tracker ask every frame; the bridge's path search runs once a frame
+	var s := GameState.new_game()
+	s.quests["tool"] = {"status": "done", "progress": {}}
+	var calls := [0]
+	var check := func():
+		calls[0] += 1
+		return false
+	var e := QuestEngine.new(s, {"bridge": check})
+	e.accept("bridge")
+	e.on_gain({"wood": 10, "spark": 8})
+	calls[0] = 0
+	for i in 20:
+		e.next_step("bridge"); e.is_ready("bridge"); e.current_stage("bridge"); e.shown_objectives("bridge")
+	t.ok(calls[0] <= 1, "asked 80 times, checked %d time(s)" % calls[0])
+	var before: int = calls[0]
+	e.invalidate()
+	e.is_ready("bridge")
+	t.eq(calls[0], before + 1, "checked again after invalidating (a new frame)")

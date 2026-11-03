@@ -18,8 +18,15 @@ var state: Dictionary
 var checks: Dictionary   # check id -> Callable returning bool
 var gate := Callable()   # optional (quest id) -> bool: extra condition on offers (the guided first day uses it)
 
+var _memo: Dictionary = {}   # objective results and current stages, until something changes (see invalidate)
+
 func _init(p_state: Dictionary, p_checks: Dictionary = {}) -> void:
 	state = p_state; checks = p_checks
+
+## Forget cached objective results. Called whenever quest state changes, and once a frame by the game (live
+## checks look at the world: a bridge's path, a fountain's water), so villagers' markers, the compass and the
+## tracker can all ask every frame without re-running those checks.
+func invalidate() -> void: _memo.clear()
 
 func rec(id: String) -> Dictionary: return state.quests.get(id, {})
 func status(id: String) -> String: return rec(id).get("status", "")
@@ -52,6 +59,7 @@ func tracked_valid() -> bool:
 	return status(t) == "active"
 
 func accept(id: String) -> Dictionary:
+	invalidate()
 	if not can_offer(id): return {}
 	state.quests[id] = {"status": "active", "progress": {}, "done": {}}
 	# picking up the story request you were heading for, or nothing tracked: follow the new request
@@ -63,9 +71,12 @@ const ALL_DONE := 1 << 30
 
 ## The lowest stage with an unfinished objective (ALL_DONE when everything but the hand-in is done).
 func current_stage(qid: String) -> int:
+	var key := "stage/" + qid
+	if _memo.has(key): return _memo[key]
 	var cur := ALL_DONE
 	for o in Data.quest(qid).get("objectives", []):
 		if not o.get("final", false) and not objective(qid, o).done: cur = mini(cur, stage_of(o))
+	_memo[key] = cur
 	return cur
 
 func is_current(qid: String, o: Dictionary) -> bool: return not o.get("final", false) and stage_of(o) == current_stage(qid)
@@ -95,6 +106,13 @@ func shown_objectives(qid: String) -> Dictionary:
 	return {"objectives": out, "later": later}
 
 func objective(qid: String, o: Dictionary) -> Dictionary:
+	var key: String = qid + "/" + String(o.get("id", ""))
+	if _memo.has(key): return _memo[key]
+	var r := _objective(qid, o)
+	_memo[key] = r
+	return r
+
+func _objective(qid: String, o: Dictionary) -> Dictionary:
 	var p: Dictionary = rec(qid).get("progress", {})
 	var need := int(o.get("count", 1))
 	match o.kind:
@@ -130,6 +148,7 @@ func is_ready(qid: String) -> bool:
 ## Objectives of later stages wait their turn: they neither latch nor get reported until their stage comes up, so
 ## finishing one stage can complete the next at once if it's already true (say, the bridge was built early).
 func refresh() -> Array:
+	invalidate()
 	var newly: Array = []
 	for q in active():
 		var r: Dictionary = state.quests[q.id]
@@ -149,6 +168,7 @@ func refresh() -> Array:
 	return newly
 
 func on_gain(items: Dictionary) -> Array:
+	invalidate()
 	for q in active():
 		for o in q.objectives:
 			if o.kind == "gather" and items.get(o.item, 0) > 0 and is_current(q.id, o):
@@ -157,6 +177,7 @@ func on_gain(items: Dictionary) -> Array:
 	return refresh()
 
 func on_event(name: String, n: int = 1) -> Array:
+	invalidate()
 	for q in active():
 		for o in q.objectives:
 			if o.kind == "event" and o.event == name and is_current(q.id, o):
@@ -166,6 +187,7 @@ func on_event(name: String, n: int = 1) -> Array:
 
 ## Talking to someone completes a current (non-final) talk objective for them.
 func on_talk(npc: String) -> Array:
+	invalidate()
 	for q in active():
 		for o in q.objectives:
 			if o.kind == "talk" and not o.get("final", false) and o.npc == npc and is_current(q.id, o):
@@ -182,6 +204,7 @@ func payments_for(npc: String) -> Array:
 
 ## Hands over the items. Returns {ok, missing: [{id, need}], newly}.
 func pay(qid: String, oid: String) -> Dictionary:
+	invalidate()
 	var o := {}
 	for x in Data.quest(qid).get("objectives", []):
 		if x.id == oid: o = x
@@ -206,6 +229,7 @@ func turn_ins_for(npc: String) -> Array:
 	return active().filter(func(q): return is_ready(q.id) and q.objectives.any(func(o): return o.get("final", false) and o.kind == "talk" and o.npc == npc))
 
 func complete(qid: String) -> Dictionary:
+	invalidate()
 	var q := Data.quest(qid)
 	if status(qid) != "active": return {}
 	var r: Dictionary = state.quests[qid]

@@ -609,6 +609,7 @@ func move_vector() -> Vector2: return Input.get_vector("move_left", "move_right"
 
 # ---- Loop ----------------------------------------------------------------------------------------
 func _process(dt: float) -> void:
+	if story: story.engine.invalidate()   # live quest checks look at the world: recompute them once a frame
 	dt = minf(dt, 0.1)
 	time += dt
 	interact_cooldown -= dt
