@@ -73,6 +73,14 @@ func test_bridge_is_walkable():
 	var p := Vector3(1.5, 0, -13.5)
 	for n in 120: p = walk.step_move(p, 0, -0.1).pos
 	t.ok(p.z < -22.5, "walked across (z=%.2f)" % p.z)
+	# railings along both sides (the bridge request's last step) keep the bridge walkable and count in its zone
+	var rails: Array = list.duplicate()
+	for k in [-16, -17, -18, -19]:
+		var v := place(rails, "railing", 1, k, 1 if k % 2 == 0 else 3, "bridge", 0.3)
+		t.ok(v.ok, "a railing fits along the bridge at k=%d (%s)" % [k, v.get("reason", "")])
+	walk.surfaces = BuildGrid.surfaces_for(rails)
+	t.ok(Validate.path_across(Data.zone("bridge"), walk).ok, "railings along the sides don't block the way")
+	t.eq(Validate.pieces_in_zone(Data.zone("bridge"), rails).filter(func(p): return p.id == "railing").size(), 4, "all four count as on the bridge")
 	list.append({"uid": 777, "id": "railing", "i": 1.0, "k": -19.0, "r": 0, "y": 0.15})
 	walk.surfaces = BuildGrid.surfaces_for(list)
 	t.ok(not Validate.path_across(Data.zone("bridge"), walk).ok, "railing blocks")

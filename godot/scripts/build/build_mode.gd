@@ -500,19 +500,22 @@ func _build_ui() -> void:
 	_render_status()
 	# Help
 	var help := UiTheme.panel()
-	var hl := UiTheme.label("Left click — place / select\nRight click — cancel · right-drag — turn view\n%s rotate · %s colour · %s move\n%s remove · Ctrl+Z undo · Ctrl+Y redo\nWASD pan · wheel zoom · %s half-grid\n%s / %s leave build mode" % [Controls.key_label("rotate"), Controls.key_label("recolor"), Controls.key_label("move_piece"), Controls.key_label("remove"), Controls.key_label("half_grid"), Controls.key_label("pause"), Controls.key_label("build")], 12, UiTheme.INK2)
+	var goals: Dictionary = game.build_goals(current_zone)
+	var keys := [Controls.key_label("rotate"), Controls.key_label("recolor"), Controls.key_label("move_piece"), Controls.key_label("remove"), Controls.key_label("half_grid"), Controls.key_label("pause"), Controls.key_label("build")]
+	# with a request checklist above it, the controls shrink to two lines so the column stays clear of the catalog
+	var hl := UiTheme.label(("%s rotate · %s colour · %s move · %s remove\nCtrl+Z undo · %s half-grid · %s leave" % [keys[0], keys[1], keys[2], keys[3], keys[4], keys[5]]) if not goals.is_empty() else
+		("Left click — place / select\nRight click — cancel · right-drag — turn view\n%s rotate · %s colour · %s move\n%s remove · Ctrl+Z undo · Ctrl+Y redo\nWASD pan · wheel zoom · %s half-grid\n%s / %s leave build mode" % keys), 12, UiTheme.INK2)
 	help.add_child(hl); help.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	# Right column: goals or the selected piece, then the controls (the left side holds the guide and tip cards)
 	var right := VBoxContainer.new(); right.anchor_left = 1; right.anchor_right = 1; right.offset_left = -290; right.offset_right = -14; right.offset_top = 160
 	right.add_theme_constant_override("separation", 10); right.mouse_filter = Control.MOUSE_FILTER_IGNORE; ui.add_child(right)
-	var goals: Dictionary = game.build_goals(current_zone)
 	if not goals.is_empty() and selected == -1 and moving.is_empty():
 		var gp := UiTheme.panel(Color("fffce6"), UiTheme.GOLD)
 		var gv := VBoxContainer.new(); gp.add_child(gv)
 		gv.add_child(UiTheme.label("📜 " + goals.title, 14))
 		if goals.has("hint"): var hh := UiTheme.label(goals.hint, 12, UiTheme.INK2); hh.autowrap_mode = TextServer.AUTOWRAP_WORD; hh.custom_minimum_size.x = 246; gv.add_child(hh)
 		for it in goals.items:
-			var gl := UiTheme.label(("✔ " if it.ok else "○ ") + it.label, 13, Color("2f8a52") if it.ok else UiTheme.INK)
+			var gl := UiTheme.label(("" if it.get("later", false) else ("✔ " if it.ok else "○ ")) + it.label, 13, Color("2f8a52") if it.ok else (UiTheme.INK2 if it.get("later", false) else UiTheme.INK))
 			gl.autowrap_mode = TextServer.AUTOWRAP_WORD; gl.custom_minimum_size.x = 246; gv.add_child(gl)
 		right.add_child(gp)
 	if selected != -1 or not moving.is_empty():

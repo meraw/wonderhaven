@@ -26,7 +26,7 @@ static func allows_offer(t: Dictionary, qid: String) -> bool:
 	return not t.get("on", false) or qid in Data.tutorial.get("offers", [])
 
 ## facts: moved (m), looked (radians), flags, panels, buildmode (bool), quests (state.quests),
-## ready (Callable qid -> bool), objective (Callable qid, index -> bool).
+## ready (Callable qid -> bool), objective (Callable qid, index -> bool), stage (Callable qid -> current stage).
 static func is_done(step: Dictionary, facts: Dictionary) -> bool:
 	var parts: PackedStringArray = String(step.get("done", "")).split(":")
 	var quests: Dictionary = facts.get("quests", {})
@@ -44,11 +44,14 @@ static func is_done(step: Dictionary, facts: Dictionary) -> bool:
 		"objective":
 			if quests.get(parts[1], {}).get("status", "") == "done": return true
 			return facts.has("objective") and facts.objective.call(parts[1], int(parts[2]))
+		"stage":
+			if quests.get(parts[1], {}).get("status", "") == "done": return true
+			return facts.has("stage") and facts.stage.call(parts[1]) >= int(parts[2])
 	return false
 
 ## Steps finished by story progress (taking or finishing a request). If the player is already past one of these,
 ## the guide catches up, so a learning step they skipped (say, opening the bag) can never hold the game back.
-const PROGRESS_KINDS := ["flag", "accepted", "quest", "ready", "objective"]
+const PROGRESS_KINDS := ["flag", "accepted", "quest", "ready", "objective", "stage"]
 
 ## Moves past every step that is already done, and jumps ahead to just after the furthest story-progress step that
 ## is done. Returns the ids of the steps passed; switches the guided day off after the last one.

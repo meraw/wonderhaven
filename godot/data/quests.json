@@ -86,7 +86,7 @@
    "main": true,
    "type": "construction",
    "chapter": 1,
-   "description": "The old bridge to Fern's orchard collapsed into the river. Build a new one that people can actually walk across.",
+   "description": "The old bridge to Fern's orchard collapsed into the river. Gather materials, build a bridge people can actually walk across, then make it safe with railings.",
    "requires": {
     "quests": [
      "tool"
@@ -107,24 +107,46 @@
      "id": "wood",
      "kind": "gather",
      "item": "wood",
-     "count": 6,
-     "text": "Gather 6 more wood"
+     "count": 10,
+     "stage": 0,
+     "text": "Gather 10 more wood (trees with a pink ribbon)"
     },
     {
      "id": "spark",
      "kind": "gather",
      "item": "spark",
-     "count": 5,
-     "text": "Gather 5 Spark Energy (chop, mine, pick, catch fragments)"
+     "count": 8,
+     "stage": 0,
+     "text": "Gather 8 Spark Energy (chop, mine, pick, catch fragments)"
     },
     {
      "id": "build",
      "kind": "build",
      "check": "bridge",
+     "zone": "bridge",
+     "stage": 1,
      "text": "Build a walkable bridge to the orchard (B at the bridge site)",
+     "goal": "Continuous walkable path from bank to bank",
+     "buildHint": "Planks reach 2 tiles from a bank or post.",
      "hint": {
       "x": 0,
       "z": -15
+     }
+    },
+    {
+     "id": "rails",
+     "kind": "pieces",
+     "zone": "bridge",
+     "any": [
+      "railing"
+     ],
+     "count": 4,
+     "stage": 2,
+     "text": "Add 4 railings along the bridge, so nobody tumbles in",
+     "buildHint": "Railings sit on the edge of a tile; R turns them.",
+     "hint": {
+      "x": 0,
+      "z": -18
      }
     },
     {
@@ -154,19 +176,19 @@
     "offer": [
      "Oh! You're the new builder? Thank goodness! It's an emergency. A gardening emergency!",
      "My orchard is just across the river, but the bridge fell in ages ago. The apple trees haven't had a visitor in years.",
-     "Could you build a new bridge? Planks can stretch two tiles over the water — after that they need a post underneath."
+     "Could you build a new bridge? Planks can stretch two tiles over the water — after that they need a post underneath. And railings, please. I can't swim."
     ],
     "acceptLabel": "I'll build you a bridge!",
     "declineLabel": "Maybe later",
     "accept": [
      "Hooray! I've sketched where it could go — you'll see my plan glowing at the bridge site. But build it however you like!",
-     "Here's some wood to start. You'll need a bit more, and some Spark Energy too."
+     "Here's some wood to start. Gather the rest and some Spark Energy, then build. Railings last!"
     ],
     "decline": [
      "That's alright. The trees are patient. Mostly."
     ],
     "progress": [
-     "Remember: planks reach two tiles from the bank or from a post. Build from both banks if you need to!"
+     "Gather the wood and Spark first, then build from bank to bank. Planks reach two tiles from the bank or a post. Then four railings!"
     ],
     "complete": [
      "You did it! A real bridge! I can hear the apple trees cheering. That's the rustling. Definitely cheering.",
@@ -181,7 +203,7 @@
    "main": true,
    "type": "construction",
    "chapter": 1,
-   "description": "Bram's workshop is empty and dusty. Furnish it with a workbench, a chair, a lamp and some shelves — and give something a splash of colour.",
+   "description": "Bram's workshop is empty and dusty. Gather wood, metal and a crystal, ask Bram what he needs, then furnish it.",
    "requires": {
     "quests": [
      "bridge"
@@ -205,13 +227,89 @@
      "id": "wood",
      "kind": "gather",
      "item": "wood",
-     "count": 3,
-     "text": "Gather 3 more wood"
+     "count": 10,
+     "stage": 0,
+     "text": "Gather 10 wood for the furniture"
+    },
+    {
+     "id": "metal",
+     "kind": "gather",
+     "item": "metal",
+     "count": 2,
+     "stage": 0,
+     "text": "Mine 2 metal in the old quarry (for the workbench)",
+     "hint": {
+      "x": -30,
+      "z": -12
+     }
+    },
+    {
+     "id": "crystal",
+     "kind": "gather",
+     "item": "crystal",
+     "count": 1,
+     "stage": 0,
+     "text": "Find a crystal for a second lamp (glowing blue rocks)",
+     "hint": {
+      "x": -30,
+      "z": -12
+     }
+    },
+    {
+     "id": "plan",
+     "kind": "talk",
+     "npc": "bram",
+     "stage": 1,
+     "text": "Ask Bram how he'd like his workshop",
+     "lines": [
+      "Oh! You've got everything. Okay. Deep breath.",
+      "A workbench, two places to sit, two lamps — it gets so dark in here — and two shelves or cabinets.",
+      "And one thing in a bright colour. For courage. Press T in build mode to paint it."
+     ]
     },
     {
      "id": "build",
-     "kind": "build",
-     "check": "workshop",
+     "kind": "room",
+     "zone": "workshop",
+     "needs": [
+      {
+       "any": [
+        "workbench"
+       ],
+       "label": "A workbench"
+      },
+      {
+       "any": [
+        "chair",
+        "sofa",
+        "bench"
+       ],
+       "count": 2,
+       "label": "Two places to sit"
+      },
+      {
+       "any": [
+        "lamp",
+        "poweredLamp",
+        "streetlight"
+       ],
+       "count": 2,
+       "label": "Two lamps"
+      },
+      {
+       "any": [
+        "cabinet",
+        "bookshelf"
+       ],
+       "count": 2,
+       "label": "Two shelves or cabinets"
+      },
+      {
+       "recolored": true,
+       "label": "Recolour a piece (T)"
+      }
+     ],
+     "stage": 2,
      "text": "Furnish the workshop (B inside it)",
      "hint": {
       "x": -12,
@@ -252,7 +350,7 @@
     "offer": [
      "Um. Hi. You're the one who built the bridge, right? It's very… bridge-y. In a good way.",
      "I was wondering… if you're not busy… could you help me set up my workshop again?",
-     "I need a workbench, a chair, a lamp, and a shelf or cabinet. And maybe… one thing in a bright colour? For courage."
+     "I'd need materials first — wood, a bit of metal, a crystal for the lamps. Then I'll tell you how I picture it."
     ],
     "acceptLabel": "Let's furnish it together",
     "declineLabel": "Not right now",
@@ -263,7 +361,7 @@
      "Oh — of course. No pressure. I'll just… be here. With the dust."
     ],
     "progress": [
-     "Workbench, chair, lamp, shelf, and something colourful. Press T in build mode to paint a piece!"
+     "Materials first, then come and talk to me. Then: workbench, two seats, two lamps, two shelves, something colourful."
     ],
     "complete": [
      "It's… it's perfect. I can already picture a coat rack shaped like a giraffe.",
@@ -305,30 +403,35 @@
      "kind": "gather",
      "item": "clay",
      "count": 6,
-     "text": "Dig 6 clay from the river bank (for pipes)",
-     "hint": {
-      "x": -14,
-      "z": -14.6
-     }
+     "stage": 0,
+     "text": "Dig 6 clay from the river bank (for pipes)"
     },
     {
      "id": "metal",
      "kind": "gather",
      "item": "metal",
-     "count": 1,
-     "text": "Mine some metal in the old quarry",
-     "hint": {
-      "x": -30,
-      "z": -7
-     }
+     "count": 3,
+     "stage": 0,
+     "text": "Mine 3 metal in the old quarry (for the pump)"
+    },
+    {
+     "id": "wood",
+     "kind": "gather",
+     "item": "wood",
+     "count": 6,
+     "stage": 0,
+     "text": "Gather 6 wood (for the waterwheel)"
     },
     {
      "id": "build",
      "kind": "build",
      "check": "fountain",
+     "zone": "plaza",
+     "stage": 1,
      "text": "Get water flowing into the fountain",
+     "buildHint": "Fountain inlet: east side, by the plaza edge.",
      "hint": {
-      "x": 7,
+      "x": 6,
       "z": 2
      }
     },
@@ -453,35 +556,123 @@
    "main": true,
    "type": "construction",
    "chapter": 1,
-   "description": "King Percival has granted you the empty plot beside the Lantern Inn. Build a little house there: walls, a door, a roof and a bed.",
+   "description": "King Percival will grant you the empty plot beside the Lantern Inn for 100 coins. Pay for the deed, build a little house there, then make it cosy.",
    "requires": {
     "quests": [
      "bridge"
     ]
    },
-   "onAccept": {
-    "flags": [
-     "homePlot"
-    ],
-    "blueprints": [
-     "woodWall",
-     "doorWall",
-     "windowWall",
-     "roof",
-     "bed"
-    ],
-    "items": {
-     "wood": 6,
-     "fabric": 2,
-     "clay": 1
-    }
-   },
+   "onAccept": {},
    "objectives": [
     {
+     "id": "deed",
+     "kind": "pay",
+     "npc": "percival",
+     "items": {
+      "coins": 100
+     },
+     "stage": 0,
+     "label": "Pay 100 coins for the deed",
+     "text": "Pay King Percival 100 coins for the plot's deed (sell spare goods at the shops)",
+     "lines": [
+      "Splendid! Signed, sealed and very slightly sticky. The plot beside the inn is yours.",
+      "Here are the house blueprints and a few planks to begin. The kingdom provides! Once paid for."
+     ],
+     "onDone": {
+      "flags": [
+       "homePlot"
+      ],
+      "blueprints": [
+       "woodWall",
+       "doorWall",
+       "windowWall",
+       "roof",
+       "bed"
+      ],
+      "items": {
+       "wood": 6,
+       "fabric": 2,
+       "clay": 1
+      }
+     }
+    },
+    {
      "id": "house",
-     "kind": "build",
-     "check": "home",
+     "kind": "room",
+     "zone": "plot",
+     "needs": [
+      {
+       "any": [
+        "woodWall",
+        "windowWall"
+       ],
+       "count": 3,
+       "label": "Walls (3)"
+      },
+      {
+       "any": [
+        "doorWall"
+       ],
+       "label": "A door"
+      },
+      {
+       "any": [
+        "roof"
+       ],
+       "label": "A roof"
+      },
+      {
+       "any": [
+        "bed"
+       ],
+       "label": "A bed"
+      }
+     ],
+     "stage": 1,
      "text": "Build your home on the plot beside the inn: 3 walls, a door, a roof and a bed",
+     "buildHint": "Walls stand on cell edges; the roof rests on top of them.",
+     "hint": {
+      "x": 21.5,
+      "z": 12.5
+     }
+    },
+    {
+     "id": "cosy",
+     "kind": "room",
+     "zone": "plot",
+     "stage": 2,
+     "needs": [
+      {
+       "any": [
+        "table",
+        "desk",
+        "counter"
+       ],
+       "label": "A table or desk"
+      },
+      {
+       "any": [
+        "chair",
+        "sofa",
+        "bench"
+       ],
+       "label": "Somewhere to sit"
+      },
+      {
+       "any": [
+        "rug",
+        "painting",
+        "lamp",
+        "bookshelf",
+        "cabinet",
+        "flowerBed",
+        "poweredLamp"
+       ],
+       "count": 2,
+       "label": "Two cosy touches (rug, painting, lamp, shelf…)"
+      }
+     ],
+     "text": "Make it cosy: a table, a seat and two homely touches",
      "hint": {
       "x": 21.5,
       "z": 12.5
@@ -508,19 +699,19 @@
    "dialogue": {
     "offer": [
      "Citizen {name}! A builder who mends bridges should not be sleeping above a soup kitchen forever.",
-     "By the powers vested in me, I grant you the empty plot beside the Lantern Inn. Build yourself a proper home. Four walls! Well, three will do. And a door, a roof and a bed.",
-     "I have drawn up the deed and some blueprints. And a few planks. The kingdom provides!"
+     "The empty plot beside the Lantern Inn could be yours. The deed costs 100 coins: a kingdom has upkeep, you know. Crowns don't polish themselves.",
+     "Sell your spare goods at the village shops, then bring me the coins."
     ],
     "acceptLabel": "A home of my own!",
     "declineLabel": "The inn suits me for now",
     "accept": [
-     "Splendid! Build on the plot east of the inn. When it is done, come and tell me, and I shall make it official."
+     "Splendid! Come back with 100 coins and the deed is yours."
     ],
     "decline": [
      "As you wish. The deed shall wait, rolled up very neatly."
     ],
     "progress": [
-     "Walls, a door, a roof and a bed. The Starforge Tool will show you what is still missing when you build on your plot."
+     "First the deed, then walls, a door, a roof and a bed, then something cosy. The Starforge Tool shows what is still missing."
     ],
     "complete": [
      "A house! With a roof and everything! I hereby declare it your official residence.",
@@ -549,12 +740,32 @@
    },
    "objectives": [
     {
+     "id": "wood",
+     "kind": "gather",
+     "item": "wood",
+     "count": 12,
+     "stage": 0,
+     "text": "Gather 12 wood for the planks"
+    },
+    {
+     "id": "spark",
+     "kind": "gather",
+     "item": "spark",
+     "count": 6,
+     "stage": 0,
+     "text": "Gather 6 Spark Energy"
+    },
+    {
      "id": "build",
      "kind": "build",
      "check": "dock",
+     "zone": "dock",
+     "stage": 1,
      "text": "Rebuild the dock out to the mooring post",
+     "goal": "Planks from the shore to the mooring post",
+     "buildHint": "The old pilings hold planks up.",
      "hint": {
-      "x": 5.5,
+      "x": 5,
       "z": 44
      }
     },
@@ -619,8 +830,8 @@
      "id": "stone",
      "kind": "gather",
      "item": "stone",
-     "count": 4,
-     "text": "Mine 4 stone in the old quarry",
+     "count": 10,
+     "text": "Mine 10 stone in the old quarry",
      "hint": {
       "x": -30,
       "z": -7
@@ -630,8 +841,8 @@
      "id": "crystal",
      "kind": "gather",
      "item": "crystal",
-     "count": 1,
-     "text": "Find a crystal (try the glowing blue rock)",
+     "count": 2,
+     "text": "Find 2 crystals (try the glowing blue rock)",
      "hint": {
       "x": -35,
       "z": -10
@@ -682,7 +893,7 @@
    "giver": "mabel",
    "type": "character",
    "chapter": 1,
-   "description": "Three squirrels have moved into Mabel's bakery. Lure them back to the oak tree with acorns.",
+   "description": "Three squirrels have moved into Mabel's bakery. Lure them back to the oak tree with acorns, then bring apples for a peace-offering pie.",
    "requires": {
     "quests": [
      "bridge"
@@ -698,7 +909,8 @@
      "hint": {
       "x": -16.5,
       "z": -1.5
-     }
+     },
+     "stage": 0
     },
     {
      "id": "feed",
@@ -709,7 +921,22 @@
      "hint": {
       "x": -11,
       "z": -3
-     }
+     },
+     "stage": 1
+    },
+    {
+     "id": "apples",
+     "kind": "pay",
+     "npc": "mabel",
+     "items": {
+      "fruit": 4
+     },
+     "stage": 2,
+     "label": "Hand over 4 apples",
+     "text": "Bring Mabel 4 apples from the orchard for a peace-offering pie",
+     "lines": [
+      "Apples! Perfect. A peace-offering pie for those rascals… and a few more for the shop window."
+     ]
     },
     {
      "id": "tell",
@@ -768,7 +995,7 @@
    },
    "onAccept": {
     "items": {
-     "seeds": 3
+     "seeds": 4
     },
     "flags": [
      "flowersQuest"
@@ -779,7 +1006,7 @@
      "id": "plant",
      "kind": "event",
      "event": "plant",
-     "count": 2,
+     "count": 4,
      "text": "Plant seeds in Fern's garden beds",
      "hint": {
       "x": 5.5,
@@ -790,15 +1017,15 @@
      "id": "water",
      "kind": "event",
      "event": "water",
-     "count": 2,
+     "count": 6,
      "text": "Water the seedlings"
     },
     {
      "id": "harvest",
      "kind": "event",
      "event": "harvest",
-     "count": 1,
-     "text": "Pick a fully grown bloom"
+     "count": 3,
+     "text": "Pick 3 fully grown blooms"
     },
     {
      "id": "tell",
@@ -857,8 +1084,8 @@
      "id": "fish",
      "kind": "event",
      "event": "fish",
-     "count": 3,
-     "text": "Catch 3 fish (fishing spots by the river and harbor)",
+     "count": 5,
+     "text": "Catch 5 fish (fishing spots by the river and harbor)",
      "hint": {
       "x": -8,
       "z": -14.6
@@ -921,8 +1148,8 @@
      "kind": "event",
      "event": "treasure",
      "stat": "treasures",
-     "count": 3,
-     "text": "Find 3 treasures (chests, or dig where the tool hums)"
+     "count": 5,
+     "text": "Find 5 treasures (chests, or dig where the tool hums)"
     },
     {
      "id": "tell",

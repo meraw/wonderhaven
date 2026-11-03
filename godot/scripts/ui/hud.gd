@@ -159,10 +159,13 @@ func render_tracker() -> void:
 		var p := UiTheme.panel(); p.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		var v := VBoxContainer.new(); p.add_child(v)
 		v.add_child(UiTheme.label(("📍 " if q == tracked else "📜 ") + q.title + ("   · Story" if q.get("main", false) else ""), 15))
-		for o in q.objectives:
-			if o.get("final", false) and not ready: continue
+		var n_st := e.stages(q.id).size()
+		if n_st > 1 and not ready:
+			v.add_child(UiTheme.label("Step %d of %d" % [e.stage_index(q.id), n_st], 12, Color("b34a6a")))
+		var cur := e.current_stage(q.id)
+		for o in e.shown_objectives(q.id).objectives:
 			var st := e.objective(q.id, o)
-			if q != tracked and st.done: continue
+			if (q != tracked or QuestEngine.stage_of(o) < cur) and st.done and not o.get("final", false): continue
 			var txt: String = ("✔ " if st.done else "○ ") + o.text
 			if st.need > 1 and not st.done: txt += " (%d/%d)" % [int(game.state.harmony) if o.kind == "harmony" else st.have, st.need]
 			var l := UiTheme.label(txt, 13, Color("59a86f") if st.done else UiTheme.INK2); l.autowrap_mode = TextServer.AUTOWRAP_WORD; l.custom_minimum_size.x = 260

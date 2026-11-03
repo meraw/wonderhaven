@@ -18,6 +18,10 @@ static func build(npc: Dictionary, engine: QuestEngine, flags: Dictionary, playe
 			if not g.has("flag") or flags.get(g.flag, false): lines = g.lines; break
 	var greeting := fill(lines[absi(seed) % lines.size()], player_name)
 	var options: Array = []
+	for pm in engine.payments_for(npc.id):
+		var o: Dictionary = pm.objective
+		var cost: Array = o.items.keys().map(func(k): return "%d %s" % [int(o.items[k]), Data.resources[k].name.to_lower()])
+		options.append({"label": "💰 " + String(o.get("label", "Hand over " + ", ".join(cost))), "kind": "pay", "id": pm.quest.id, "obj": o.id, "quest": true})
 	for q in offers:
 		if q != main_offer: options.append({"label": "✨ Request: %s" % q.title, "kind": "offer", "id": q.id, "quest": true})
 	for q in engine.active():

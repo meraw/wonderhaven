@@ -1,7 +1,18 @@
 class_name QuestEngine
 extends RefCounted
 ## Quests: offering, accepting, tracking objectives from events and live checks, turning in.
-## Objective kinds: gather, event, build, harmony, flag, talk (final ones unlock last). Collection objectives latch.
+## Objective kinds:
+##   gather {item, count, stat?}   items gained while the objective is current (stat: lifetime count instead)
+##   event  {event, count}         game events (fish, plant, feed, ...) while current
+##   build  {check}                a live check from `checks` (bridge walkable, fountain fed, ...)
+##   room   {zone, needs}          a room checklist in a build zone: needs = [{any: [piece ids], count?, label} | {recolored: true, label}]
+##   pieces {zone, any, count}     how many of these pieces stand in a build zone
+##   harmony {value}, flag {flag}
+##   pay    {npc, items}           hand items or coins to a villager (a choice in their conversation)
+##   talk   {npc, lines?}          talk to someone; `final` ones hand the request in
+## Stages: an objective may have a `stage` (0 by default). Only the lowest stage with something unfinished is
+## current: gathering and events only count for current objectives, and the journal and tracker show the request
+## step by step. onDone {flags, items, blueprints} on an objective is applied when it completes. Live checks latch.
 
 var state: Dictionary
 var checks: Dictionary   # check id -> Callable returning bool
@@ -47,6 +58,42 @@ func accept(id: String) -> Dictionary:
 	if state.tracked == "lead:" + id or not tracked_valid(): state.tracked = id
 	return Data.quest(id).get("onAccept", {})
 
+static func stage_of(o: Dictionary) -> int: return int(o.get("stage", 0))
+const ALL_DONE := 1 << 30
+
+## The lowest stage with an unfinished objective (ALL_DONE when everything but the hand-in is done).
+func current_stage(qid: String) -> int:
+	var cur := ALL_DONE
+	for o in Data.quest(qid).get("objectives", []):
+		if not o.get("final", false) and not objective(qid, o).done: cur = mini(cur, stage_of(o))
+	return cur
+
+func is_current(qid: String, o: Dictionary) -> bool: return not o.get("final", false) and stage_of(o) == current_stage(qid)
+
+## Stages as [stage numbers in order]; and which one you're on, counting from 1, for "Step 2 of 3".
+func stages(qid: String) -> Array:
+	var out: Array = []
+	for o in Data.quest(qid).get("objectives", []):
+		if not o.get("final", false) and not out.has(stage_of(o)): out.append(stage_of(o))
+	out.sort()
+	return out
+func stage_index(qid: String) -> int:
+	var st := stages(qid)
+	var cur := current_stage(qid)
+	return st.size() if cur == ALL_DONE else st.find(cur) + 1
+
+## Objectives to show: everything up to the current stage (and the hand-in once ready); `later` counts the rest.
+func shown_objectives(qid: String) -> Dictionary:
+	var cur := current_stage(qid)
+	var ready := is_ready(qid)
+	var out: Array = []; var later := 0
+	for o in Data.quest(qid).get("objectives", []):
+		if o.get("final", false):
+			if ready: out.append(o)
+		elif stage_of(o) <= cur: out.append(o)
+		else: later += 1
+	return {"objectives": out, "later": later}
+
 func objective(qid: String, o: Dictionary) -> Dictionary:
 	var p: Dictionary = rec(qid).get("progress", {})
 	var need := int(o.get("count", 1))
@@ -61,7 +108,16 @@ func objective(qid: String, o: Dictionary) -> Dictionary:
 			var c = checks.get(o.check)
 			return {"done": p.get(o.id, 0) == 1 or (c != null and c.call()), "have": 0, "need": 1}
 		"flag": return {"done": p.get(o.id, 0) == 1 or state.flags.get(o.flag, false), "have": 0, "need": 1}
-		"talk": return {"done": p.get(o.id, 0) == 1, "have": 0, "need": 1}
+		"talk", "pay": return {"done": p.get(o.id, 0) == 1, "have": 0, "need": 1}
+		"room":
+			if p.get(o.id, 0) == 1: return {"done": true, "have": o.needs.size(), "need": o.needs.size()}
+			var list := Validate.room_checklist(Data.zone(o.zone), state.get("placements", []), o.needs)
+			var ok := list.filter(func(r): return r.ok).size()
+			return {"done": ok == list.size(), "have": ok, "need": list.size()}
+		"pieces":
+			if p.get(o.id, 0) == 1: return {"done": true, "have": need, "need": need}
+			var n := Validate.pieces_in_zone(Data.zone(o.zone), state.get("placements", [])).filter(func(pl): return o.any.has(pl.id)).size()
+			return {"done": n >= need, "have": mini(n, need), "need": need}
 	return {"done": false, "have": 0, "need": need}
 
 func is_ready(qid: String) -> bool:
@@ -71,23 +127,31 @@ func is_ready(qid: String) -> bool:
 	return true
 
 ## Latch live objectives; report newly completed ones as [{quest, objective} | {quest, ready: true}].
+## Objectives of later stages wait their turn: they neither latch nor get reported until their stage comes up, so
+## finishing one stage can complete the next at once if it's already true (say, the bridge was built early).
 func refresh() -> Array:
 	var newly: Array = []
 	for q in active():
 		var r: Dictionary = state.quests[q.id]
 		if not r.has("done"): r["done"] = {}
-		for o in q.objectives:
-			if o.get("final", false): continue
-			var st := objective(q.id, o)
-			if st.done and o.kind in ["harmony", "build", "flag"]: r.progress[o.id] = 1
-			if st.done and not r.done.has(o.id): r.done[o.id] = true; newly.append({"quest": q, "objective": o})
+		var guard := 0
+		while guard < 8:   # a finished stage can finish the next one too
+			guard += 1
+			var cur := current_stage(q.id)
+			var any := false
+			for o in q.objectives:
+				if o.get("final", false) or stage_of(o) > cur: continue
+				var st := objective(q.id, o)
+				if st.done and o.kind in ["harmony", "build", "flag", "room", "pieces"]: r.progress[o.id] = 1
+				if st.done and not r.done.has(o.id): r.done[o.id] = true; newly.append({"quest": q, "objective": o}); any = true
+			if not any or current_stage(q.id) == cur: break
 		if is_ready(q.id) and not r.get("ready", false): r["ready"] = true; newly.append({"quest": q, "ready": true})
 	return newly
 
 func on_gain(items: Dictionary) -> Array:
 	for q in active():
 		for o in q.objectives:
-			if o.kind == "gather" and items.get(o.item, 0) > 0:
+			if o.kind == "gather" and items.get(o.item, 0) > 0 and is_current(q.id, o):
 				var p: Dictionary = state.quests[q.id].progress
 				p[o.id] = mini(int(o.count), int(p.get(o.id, 0)) + int(items[o.item]))
 	return refresh()
@@ -95,10 +159,38 @@ func on_gain(items: Dictionary) -> Array:
 func on_event(name: String, n: int = 1) -> Array:
 	for q in active():
 		for o in q.objectives:
-			if o.kind == "event" and o.event == name:
+			if o.kind == "event" and o.event == name and is_current(q.id, o):
 				var p: Dictionary = state.quests[q.id].progress
 				p[o.id] = mini(int(o.count), int(p.get(o.id, 0)) + n)
 	return refresh()
+
+## Talking to someone completes a current (non-final) talk objective for them.
+func on_talk(npc: String) -> Array:
+	for q in active():
+		for o in q.objectives:
+			if o.kind == "talk" and not o.get("final", false) and o.npc == npc and is_current(q.id, o):
+				state.quests[q.id].progress[o.id] = 1
+	return refresh()
+
+## Current pay objectives waiting at this villager: [{quest, objective}].
+func payments_for(npc: String) -> Array:
+	var out: Array = []
+	for q in active():
+		for o in q.objectives:
+			if o.kind == "pay" and o.npc == npc and is_current(q.id, o) and not objective(q.id, o).done: out.append({"quest": q, "objective": o})
+	return out
+
+## Hands over the items. Returns {ok, missing: [{id, need}], newly}.
+func pay(qid: String, oid: String) -> Dictionary:
+	var o := {}
+	for x in Data.quest(qid).get("objectives", []):
+		if x.id == oid: o = x
+	if o.is_empty() or o.kind != "pay" or not is_current(qid, o): return {"ok": false, "missing": []}
+	var cost: Dictionary = {}
+	for k in o.items: cost[k] = int(o.items[k])
+	if not Inventory.spend(state.inventory, cost): return {"ok": false, "missing": Inventory.missing(state.inventory, cost)}
+	state.quests[qid].progress[oid] = 1
+	return {"ok": true, "missing": [], "newly": refresh()}
 
 ## After finishing something: head for the next story request first, then any active story request, then the rest.
 func retrack() -> void:
@@ -130,7 +222,9 @@ func next_step(qid: String) -> Dictionary:
 		for o in q.objectives:
 			if o.get("final", false): return {"objective": o, "npc": o.get("npc", "")}
 	for o in q.objectives:
-		if not o.get("final", false) and not objective(qid, o).done: return {"objective": o, "hint": o.get("hint", {})}
+		if is_current(qid, o) and not objective(qid, o).done:
+			if o.kind in ["talk", "pay"]: return {"objective": o, "npc": o.npc}
+			return {"objective": o, "hint": o.get("hint", {})}
 	return {}
 
 func blueprint_hint(id: String) -> String:

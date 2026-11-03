@@ -51,6 +51,7 @@ func facts() -> Dictionary:
 	var e: QuestEngine = game.story.engine
 	return {"moved": moved, "looked": looked, "flags": game.state.flags, "panels": tstate().panels, "buildmode": buildmode,
 		"quests": game.state.quests, "ready": func(q: String) -> bool: return e.is_ready(q),
+		"stage": func(q: String) -> int: return e.current_stage(q) if e.status(q) == "active" else -1,
 		"objective": func(q: String, i: int) -> bool:
 			var quest := Data.quest(q)
 			return i < quest.objectives.size() and e.status(q) == "active" and e.objective(q, quest.objectives[i]).done}

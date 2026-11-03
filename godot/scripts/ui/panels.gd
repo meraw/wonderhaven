@@ -229,13 +229,15 @@ func journal(tab: String = "active") -> void:
 		v.add_child(UiTheme.label(q.title, 18))
 		v.add_child(_wrap(q.description))
 		if tab == "active":
-			var ready := e.is_ready(q.id)
-			for o in q.objectives:
-				if o.get("final", false) and not ready: continue
+			var shown := e.shown_objectives(q.id)
+			var n_st := e.stages(q.id).size()
+			if n_st > 1: v.add_child(UiTheme.label("Step %d of %d" % [e.stage_index(q.id), n_st], 13, Color("b34a6a")))
+			for o in shown.objectives:
 				var st := e.objective(q.id, o)
 				var txt: String = ("✔ " if st.done else "○ ") + o.text
 				if not st.done and st.need > 1: txt += " (%d/%d)" % [int(game.state.harmony) if o.kind == "harmony" else st.have, st.need]
 				v.add_child(UiTheme.label(txt, 14, Color("59a86f") if st.done else UiTheme.INK))
+			if shown.later > 0: v.add_child(UiTheme.label("🔒 More to do once this step is done", 13, UiTheme.INK2))
 			var qid: String = q.id
 			v.add_child(UiTheme.button("📍 Tracking" if game.state.tracked == qid else "📍 Track", func(): game.state.tracked = qid; game.hud.render_tracker(); close(); game.toast("Tracking “%s”" % q.title), game.state.tracked == qid))
 		if tab == "optional": v.add_child(UiTheme.label("Talk to %s to start." % Data.npc(q.giver).name, 13, Color("b34a6a")))
