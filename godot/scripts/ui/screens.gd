@@ -8,6 +8,7 @@ var wardrobe_mode := false
 var spin := 0.4
 var saved_yaw := 0.0
 var dragging := false
+var guided := true   # creator checkbox: start with the guided first day
 
 func setup(g) -> void:
 	game = g
@@ -17,12 +18,18 @@ func _clear() -> void:
 	for c in get_children(): c.queue_free()
 
 func title() -> void:
-	game.set_mode("title"); game.hud.visible = false; game.player_char.visible = false
+	game.set_mode("title"); game.hud.visible = false; game.player_char.visible = false; game.hud.clear_tips()
 	_clear(); visible = true; mouse_filter = Control.MOUSE_FILTER_STOP
-	var bg := ColorRect.new(); bg.color = Color(1, 0.88, 0.93, 0.25); bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT); bg.mouse_filter = Control.MOUSE_FILTER_IGNORE; add_child(bg)
+	# A soft vignette keeps the village vivid in the middle while the edges settle back behind the menu.
+	var vg := GradientTexture2D.new(); vg.fill = GradientTexture2D.FILL_RADIAL; vg.fill_from = Vector2(0.5, 0.45); vg.fill_to = Vector2(1.1, 1.1)
+	var gr := Gradient.new(); gr.colors = PackedColorArray([Color(0.35, 0.2, 0.35, 0.0), Color(0.35, 0.2, 0.35, 0.0), Color(0.25, 0.12, 0.3, 0.45)]); gr.offsets = PackedFloat32Array([0.0, 0.45, 1.0])
+	vg.gradient = gr
+	var bg := TextureRect.new(); bg.texture = vg; bg.stretch_mode = TextureRect.STRETCH_SCALE; bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT); bg.mouse_filter = Control.MOUSE_FILTER_IGNORE; add_child(bg)
 	var v := VBoxContainer.new(); v.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT); v.alignment = BoxContainer.ALIGNMENT_CENTER; v.add_theme_constant_override("separation", 14); add_child(v)
-	var l1 := UiTheme.label("Wonderhaven", 76, Color.WHITE); l1.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	l1.add_theme_color_override("font_outline_color", UiTheme.PINK_DARK); l1.add_theme_constant_override("outline_size", 22); v.add_child(l1)
+	var l1 := UiTheme.label("Wonderhaven", 88, Color.WHITE); l1.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	l1.add_theme_color_override("font_outline_color", UiTheme.PINK_DARK); l1.add_theme_constant_override("outline_size", 24)
+	l1.add_theme_color_override("font_shadow_color", Color(0.45, 0.15, 0.3, 0.45)); l1.add_theme_constant_override("shadow_offset_y", 7); l1.add_theme_constant_override("shadow_outline_size", 24)
+	v.add_child(l1)
 	var sub := UiTheme.panel(UiTheme.CREAM, UiTheme.LINE, 999); sub.add_child(UiTheme.label("✦ The Lost Isles ✦", 26))
 	var sc := CenterContainer.new(); sc.add_child(sub); v.add_child(sc)
 	var bb := VBoxContainer.new(); bb.custom_minimum_size.x = 280; bb.add_theme_constant_override("separation", 10)
@@ -33,9 +40,9 @@ func title() -> void:
 	if latest != "": var lb := UiTheme.button("📂 Load Game", load_list); lb.name = "btn_load"; bb.add_child(lb)
 	bb.add_child(UiTheme.button("⚙️ Settings", func(): game.panels.settings()))
 	for b in bb.get_children(): b.custom_minimum_size.y = 46; b.add_theme_font_size_override("font_size", 19)
-	var foot := UiTheme.label("A cozy kingdom-building adventure · Chapter 1: Hearthglow Village · keyboard + mouse or gamepad", 13, Color.WHITE)
-	foot.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; foot.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.35)); foot.add_theme_constant_override("outline_size", 6)
-	v.add_child(foot)
+	var fp := UiTheme.panel(Color(UiTheme.CREAM, 0.85), Color(UiTheme.LINE, 0.8), 999)
+	fp.add_child(UiTheme.label("A cozy kingdom-building adventure · Chapter 1: Hearthglow Village", 14, UiTheme.INK2))
+	var fc := CenterContainer.new(); fc.add_child(fp); v.add_child(fc)
 
 func load_list() -> void:
 	_clear()
@@ -132,6 +139,9 @@ func _render_creator() -> void:
 		v.add_child(UiTheme.label(sec[0], 14, UiTheme.INK2))
 		if sec[1] != null: v.add_child(pills.call(sec[1][0], sec[1][1]))
 		if sec[2] != null: v.add_child(swatches.call(sec[2], sec[3]))
+	if not wardrobe_mode:
+		var gd := CheckBox.new(); gd.name = "guided_toggle"; gd.text = "🧭 Guided first day (recommended)"; gd.button_pressed = guided; gd.tooltip_text = "Odessa shows you around one step at a time."
+		gd.toggled.connect(func(v): guided = v); outer.add_child(gd)
 	var row := HBoxContainer.new(); outer.add_child(row)
 	row.add_child(UiTheme.button("🎲 Surprise me", _randomize))
 	var sp := Control.new(); sp.size_flags_horizontal = Control.SIZE_EXPAND_FILL; row.add_child(sp)
@@ -167,6 +177,7 @@ func close_wardrobe(keep: bool) -> void:
 func start_new_game() -> void:
 	var n := String(draft.name).strip_edges()
 	var state := GameState.new_game(n if n != "" else "Apprentice", draft.appearance)
+	state.tutorial = Tutorial.new_state(guided)
 	_close()
 	var sp: Dictionary = Data.layout.spawn
 	game.load_state(state)
@@ -174,7 +185,7 @@ func start_new_game() -> void:
 	game.cam.yaw = sp.yaw + PI; game.cam.snap()
 	game.begin_play()
 	game.banner("Welcome to Hearthglow, %s!" % state.name, "A sleepy village is waiting for a builder", [], 4.5)
-	game.get_tree().create_timer(2.5).timeout.connect(func(): game.toast("Someone is waving at you by the village gate. Walk over with %s%s%s%s and press %s to talk." % [Controls.key_label("move_forward"), Controls.key_label("move_left"), Controls.key_label("move_back"), Controls.key_label("move_right"), Controls.key_label("interact")], "", 6.0))
+	if not guided: game.get_tree().create_timer(2.5).timeout.connect(func(): game.toast("Someone is waving at you by the village gate. Walk over with %s%s%s%s and press %s to talk." % [Controls.key_label("move_forward"), Controls.key_label("move_left"), Controls.key_label("move_back"), Controls.key_label("move_right"), Controls.key_label("interact")], "", 6.0))
 	game.sfx("morning")
 
 func _gui_input(ev: InputEvent) -> void:

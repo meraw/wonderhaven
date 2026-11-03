@@ -23,6 +23,7 @@ var hud_res: HBoxContainer
 var prompt_panel: PanelContainer
 var prompt_label: Label
 var hotkeys: Label
+var hotkey_row: HBoxContainer
 var banner_box: VBoxContainer
 var dialogue: DialogueUI
 var minigame: MinigameUI
@@ -50,6 +51,7 @@ var smoke_t := 0.0
 var last_autosave := -100.0
 var shot_cfg := {}
 var roof_alpha := 1.0
+var guide: Guide
 var outline: MeshInstance3D
 var outline_override := ""   # look-dev renders force outlines on or off without touching saved settings
 var interact_cooldown := 0.0
@@ -86,6 +88,7 @@ func _ready() -> void:
 	_build_ui()
 	build = BuildMode.new(); build.name = "BuildMode"; add_child(build); build.setup(self)
 	story = Story.new(self)
+	guide = Guide.new(self)
 	for d in Data.npcs:
 		var a := NpcAgent.new(self, d)
 		npcs[d.id] = a
@@ -128,7 +131,9 @@ func _build_ui() -> void:
 	var pc := CenterContainer.new(); pc.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	pc.anchor_right = 1; pc.anchor_top = 1; pc.anchor_bottom = 1; pc.offset_top = -150; pc.offset_bottom = -100
 	pc.add_child(prompt_panel); prompt_panel.visible = false; ui_root.add_child(pc)
-	var hk := UiTheme.panel(); hotkeys = UiTheme.label("", 13, UiTheme.INK2); hk.add_child(hotkeys); hk.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var hk := UiTheme.panel(); hk.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	hotkey_row = HBoxContainer.new(); hotkey_row.add_theme_constant_override("separation", 12); hk.add_child(hotkey_row)
+	hotkeys = UiTheme.label("", 13, UiTheme.INK2); hotkeys.visible = false; hotkey_row.add_child(hotkeys)   # plain-text copy of the bar
 	hk.anchor_top = 1; hk.anchor_bottom = 1; hk.offset_left = 14; hk.offset_top = -56; hk.offset_bottom = -14; hk.grow_vertical = Control.GROW_DIRECTION_BEGIN
 	hud.add_child(hk)
 	toasts = VBoxContainer.new(); toasts.anchor_left = 0.5; toasts.anchor_right = 0.5; toasts.offset_left = -300; toasts.offset_right = 300; toasts.offset_top = 72
@@ -227,6 +232,7 @@ func exit_dialogue() -> void:
 func start_minigame(kind: String, mg) -> void:
 	set_mode("minigame")
 	minigame.start(kind, mg)
+	emit_event("minigame", {"kind": kind})
 
 func minigame_done(kind: String, mg) -> void:
 	set_mode("explore")
@@ -333,12 +339,14 @@ func load_state(s: Dictionary) -> void:
 	actions.refresh_all()
 	build.history.clear()
 	render_resources(); hud.render_harmony(); hud.render_tracker()
+	guide.reset()
 
 func begin_play() -> void:
 	started = true
 	hud.visible = true
 	render_resources(); hud.render_harmony(); hud.render_tracker()
 	set_mode("explore")
+	guide.reset()
 
 func apply_settings() -> void:
 	Controls.setup(settings.bindings)
@@ -629,7 +637,9 @@ func _process(dt: float) -> void:
 	cam.update(dt, player.pos)
 	_update_interaction()
 	_update_hotkeys()
-	hud.update_compass(story.tracked_target())
+	guide.update(dt)
+	hud.tick(dt)
+	hud.update_compass(guide.target())
 	_world_reactions(dt)
 	var vflags: Dictionary = state.flags.duplicate(); vflags["fountainFlowing"] = mech.fed.get("fountain", false)
 	village.update_world(dt, time, vflags)
@@ -642,12 +652,28 @@ func _process(dt: float) -> void:
 	if audio: audio.update_music(self, dt)
 	_tick_shot()
 
+## The key list grows as the guided day introduces each part of the game. Drawn as little key chips.
 func _update_hotkeys() -> void:
 	var k := func(a): return Controls.key_label(a)
-	var t: String = "%s%s%s%s Move · Drag/%s%s Camera · %s Interact" % [k.call("move_forward"), k.call("move_left"), k.call("move_back"), k.call("move_right"), k.call("cam_left"), k.call("cam_right"), k.call("interact")]
-	if state.flags.get("hasTool", false): t += " · %s Build" % k.call("build")
-	t += " · %s Bag · %s Journal · %s Map · %s Harmony · %s Menu" % [k.call("inventory"), k.call("journal"), k.call("map"), k.call("progress"), k.call("pause")]
+	var tut: Dictionary = state.get("tutorial", {})
+	var entries: Array = [["%s%s%s%s" % [k.call("move_forward"), k.call("move_left"), k.call("move_back"), k.call("move_right")], "Move"],
+		["Drag/%s%s" % [k.call("cam_left"), k.call("cam_right")], "Camera"], [k.call("interact"), "Interact"]]
+	if state.flags.get("hasTool", false) and Tutorial.revealed(tut, "key:build"): entries.append([k.call("build"), "Build"])
+	for pair in [["inventory", "Bag"], ["journal", "Journal"], ["map", "Map"], ["progress", "Harmony"]]:
+		if Tutorial.revealed(tut, "key:" + pair[0]): entries.append([k.call(pair[0]), pair[1]])
+	entries.append([k.call("pause"), "Menu"])
+	var t: String = " · ".join(entries.map(func(e): return "%s %s" % e))
+	if t == hotkeys.text: return
 	hotkeys.text = t
+	for c in hotkey_row.get_children():
+		if c != hotkeys: c.queue_free()
+	for e in entries:
+		var item := HBoxContainer.new(); item.add_theme_constant_override("separation", 5); hotkey_row.add_child(item)
+		var chip := UiTheme.panel(Color.WHITE, Color("f0d6ae"), 8)
+		var cs: StyleBoxFlat = chip.get_theme_stylebox("panel").duplicate(); cs.content_margin_left = 6; cs.content_margin_right = 6; cs.content_margin_top = 1; cs.content_margin_bottom = 2; cs.shadow_size = 0; cs.border_width_bottom = 4
+		chip.add_theme_stylebox_override("panel", cs)
+		chip.add_child(UiTheme.label(e[0], 13, UiTheme.PINK_DARK)); item.add_child(chip)
+		item.add_child(UiTheme.label(e[1], 13, UiTheme.INK2))
 
 func _update_world_time(dt: float) -> void:
 	var s := state
