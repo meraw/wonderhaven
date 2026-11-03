@@ -178,12 +178,15 @@ void sky() {
 	// glow around the sun (warm haze near the horizon at sunrise and sunset)
 	col += sun_color.rgb * (pow(sd, 10.0) * 0.28 + pow(sd, 90.0) * 0.5) * (1.0 - night) * (1.0 - clouds * 0.6);
 	if (!AT_CUBEMAP_PASS) {
-		// stars, twinkling, only at night and above the haze
-		vec3 sp = d * 180.0;
-		vec2 cell = floor(sp.xz / (abs(sp.y) + 40.0) * 60.0);
-		float star = step(0.9965, h2(cell + floor(sp.y))) * smoothstep(0.08, 0.35, up);
-		star *= 0.6 + 0.4 * sin(TIME * 2.0 + h2(cell) * 40.0);
-		col += vec3(0.9, 0.95, 1.0) * star * night * (1.0 - clouds);
+		// stars: round dots on a 3D grid of directions, a few per patch of sky, twinkling, above the haze
+		vec3 sp = d * 90.0;
+		vec3 cell = floor(sp);
+		float sh = fract(sin(dot(cell, vec3(127.1, 311.7, 74.7))) * 43758.5453);
+		vec3 off = vec3(fract(sh * 13.1), fract(sh * 71.7), fract(sh * 37.3)) * 0.6 + 0.2;
+		float dotd = length(fract(sp) - off);
+		float star = step(0.982, sh) * smoothstep(0.17, 0.06, dotd) * smoothstep(0.08, 0.35, up);
+		star *= 0.65 + 0.35 * sin(TIME * (1.5 + sh * 3.0) + sh * 60.0);
+		col += vec3(0.92, 0.95, 1.0) * star * night * (1.0 - clouds);
 		// sun and moon discs
 		col = mix(col, sun_color.rgb * 1.6 + 0.2, smoothstep(0.99935, 0.99965, sd) * (1.0 - night) * (1.0 - clouds * 0.8));
 		float moon = smoothstep(0.99905, 0.9993, md);

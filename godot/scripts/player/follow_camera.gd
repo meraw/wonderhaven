@@ -29,7 +29,7 @@ var blend := 0.0           # seconds left of a slower blend after a mode change
 var _t := 0.0
 
 const MARGIN := 0.35       # how far the camera stays from walls
-const MIN_DIST := 0.45     # closest the camera comes (the player is hidden this close; see game.gd)
+const MIN_DIST := 0.15     # closest the camera comes: at the player's head, never inside a wall (the player is hidden this close; see game.gd)
 const PROBES := [Vector2(0, 0), Vector2(0.28, 0), Vector2(-0.28, 0), Vector2(0, 0.22), Vector2(0, -0.18)]
 
 func _init(cam: Camera3D) -> void: camera = cam

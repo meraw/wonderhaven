@@ -710,11 +710,12 @@ func _update_world_time(dt: float) -> void:
 	sky_mat.set_shader_parameter("sun_dir", Daylight.sun_dir(h)); sky_mat.set_shader_parameter("moon_dir", Daylight.moon_dir(h))
 	sky_mat.set_shader_parameter("sun_color", look.sun_color); sky_mat.set_shader_parameter("night", nt)
 	sky_mat.set_shader_parameter("clouds", clouds); sky_mat.set_shader_parameter("cloud_dark", wet)
-	e.fog_light_color = bottom.lerp(top, 0.25)
+	e.fog_light_color = bottom.lerp(top, 0.25).lerp(Color("eef1f4"), fog * 0.55)
+	e.fog_depth_curve = lerpf(1.6, 0.9, fog)
 	# morning mist and rain pull the haze in close
-	e.fog_depth_begin = lerpf(45.0, 4.0, fog)
-	e.fog_depth_end = lerpf(220.0, 70.0, fog)
-	e.fog_density = lerpf(0.55, 0.8, fog)
+	e.fog_depth_begin = lerpf(45.0, 2.0, fog)
+	e.fog_depth_end = lerpf(220.0, 45.0, fog)
+	e.fog_density = lerpf(0.55, 0.92, fog)
 	(village.water.material_override as ShaderMaterial).set_shader_parameter("night", nt)
 	rain.emitting = wet > 0.05
 	rain.amount_ratio = clampf(wet, 0.05, 1.0)
@@ -751,6 +752,7 @@ func _make_rain() -> void:
 	rain.process_material = pm
 	var q := QuadMesh.new(); q.size = Vector2(0.03, 0.4)
 	var m := Palette.glow_mat(Color("cfe8ff"), 0.6); m.billboard_mode = BaseMaterial3D.BILLBOARD_FIXED_Y; q.material = m
+	m.distance_fade_mode = BaseMaterial3D.DISTANCE_FADE_PIXEL_ALPHA; m.distance_fade_min_distance = 1.5; m.distance_fade_max_distance = 5.0   # no giant streaks right at the lens
 	rain.draw_pass_1 = q
 	add_child(rain)
 

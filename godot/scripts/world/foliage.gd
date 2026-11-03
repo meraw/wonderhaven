@@ -22,6 +22,10 @@ void vertex() {
 	is_center = UV.x;
 }
 void fragment() {
+	// Leaves right in front of the camera dissolve (dithered), so a tree behind the player never fills the screen.
+	float near_fade = smoothstep(1.9, 2.8, length(VERTEX));
+	float ign = fract(52.9829189 * fract(dot(FRAGCOORD.xy, vec2(0.06711056, 0.00583715))));
+	if (ign > near_fade) discard;
 	vec3 c = COLOR.rgb * tint.rgb;
 	c = mix(c / 12.92, pow((c + 0.055) / 1.055, vec3(2.4)), step(0.04045, c));
 	if (flower && is_center > 0.5) c = center_color.rgb;
