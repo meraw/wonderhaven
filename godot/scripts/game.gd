@@ -314,6 +314,7 @@ func travel(id: String) -> void:
 	snapshot()
 	var dest := Data.read_layout(id)
 	Travel.leave(state, Data.island, id, dest.get("arrive", dest.spawn))   # where the ferry lands
+	traveling = true
 	Data.pending_state = state
 	Data.use_island(id)
 	get_tree().reload_current_scene()
@@ -386,6 +387,7 @@ func load_from(slot: String) -> bool:
 func load_state(s: Dictionary) -> void:
 	if build.active: build.close()
 	if s.get("island", "hearthglow") != Data.island:   # a save made on another island: rebuild the world for it
+		traveling = true
 		Data.pending_state = s
 		Data.use_island(s.get("island", "hearthglow"))
 		get_tree().reload_current_scene()
@@ -668,7 +670,10 @@ func _unhandled_input(event: InputEvent) -> void:
 func move_vector() -> Vector2: return Input.get_vector("move_left", "move_right", "move_back", "move_forward")
 
 # ---- Loop ----------------------------------------------------------------------------------------
+var traveling := false   # between switching islands and the scene reload: the old world must not update
+
 func _process(dt: float) -> void:
+	if traveling: return
 	if story: story.engine.invalidate()   # live quest checks look at the world: recompute them once a frame
 	dt = minf(dt, 0.1)
 	time += dt
