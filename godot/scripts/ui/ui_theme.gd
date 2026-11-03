@@ -42,17 +42,33 @@ static func build() -> Theme:
 	t.set_stylebox("panel", "TabContainer", box(Color(CREAM, 0.0), Color(0, 0, 0, 0), 0, 0, 0, false))
 	return t
 
-static var _font: SystemFont
-## Rounded, friendly system fonts with a colour-emoji fallback for the icons (Windows, macOS and Linux names).
-static func main_font() -> SystemFont:
-	if _font: return _font
-	var emoji := SystemFont.new()
-	emoji.font_names = PackedStringArray(["Noto Color Emoji", "Segoe UI Emoji", "Apple Color Emoji", "Twemoji Mozilla"])
-	_font = SystemFont.new()
-	_font.font_names = PackedStringArray(["Nunito", "Quicksand", "Varela Round", "Trebuchet MS", "Segoe UI", "Helvetica Neue", "Noto Sans", "DejaVu Sans"])
-	_font.font_weight = 700
-	_font.fallbacks = [emoji]
+static var _font: Font
+static var _title: Font
+static var _emoji: SystemFont
+
+static func _emoji_font() -> SystemFont:
+	if _emoji == null:
+		_emoji = SystemFont.new()
+		_emoji.font_names = PackedStringArray(["Noto Color Emoji", "Segoe UI Emoji", "Apple Color Emoji", "Twemoji Mozilla"])
+	return _emoji
+
+static func _variant(path: String, weight: int) -> Font:
+	var fv := FontVariation.new()
+	fv.base_font = load(path)
+	var ts := TextServerManager.get_primary_interface()
+	fv.variation_opentype = {ts.name_to_tag("wght"): weight}
+	fv.fallbacks = [_emoji_font()]
+	return fv
+
+## Body text: Nunito (bundled, SIL Open Font License), rounded and easy to read, with colour-emoji fallback.
+static func main_font() -> Font:
+	if _font == null: _font = _variant("res://assets/fonts/Nunito.ttf", 750)
 	return _font
+
+## Headings and big numbers: Fredoka (bundled, SIL Open Font License), soft and playful.
+static func title_font() -> Font:
+	if _title == null: _title = _variant("res://assets/fonts/Fredoka.ttf", 600)
+	return _title
 
 static func primary(b: Button) -> Button:
 	b.add_theme_stylebox_override("normal", box(PINK, PINK_DARK, 999, 3, 6, false))
@@ -61,9 +77,11 @@ static func primary(b: Button) -> Button:
 	b.add_theme_color_override("font_hover_color", Color.WHITE)
 	return b
 
+## Labels of 20 px and up are headings and use the title font.
 static func label(text: String, size: int = 17, color: Color = INK, bold: bool = true) -> Label:
 	var l := Label.new(); l.text = text
 	l.add_theme_font_size_override("font_size", size)
+	if size >= 20: l.add_theme_font_override("font", title_font())
 	l.add_theme_color_override("font_color", color)
 	if bold: l.add_theme_constant_override("outline_size", 0)
 	return l

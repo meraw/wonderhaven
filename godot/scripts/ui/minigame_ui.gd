@@ -16,7 +16,7 @@ var mouse_press := false
 var mouse_hold := false
 
 const TITLES := {"chop": "🪓 Chop the tree!", "mine": "⛏️ Strike the rock!", "fish": "🎣 Fishing"}
-const HINTS := {"chop": "Press E (or click) when the needle is in the green. Gold is perfect!", "mine": "Press E when the dark ring lines up with the green circle.", "fish": ""}
+const HINTS := {"chop": "Press {interact} (or click) when the needle is in the green. Gold is perfect!", "mine": "Press {interact} when the dark ring lines up with the green circle.", "fish": ""}
 
 func setup(g) -> void:
 	game = g
@@ -41,7 +41,7 @@ func start(kind: String, mg) -> void:
 	dots = HBoxContainer.new(); dots.alignment = BoxContainer.ALIGNMENT_CENTER; v.add_child(dots)
 	if kind != "fish":
 		for n in 3: var d := UiTheme.label("●", 18, Color("ecd2a8")); dots.add_child(d)
-	hint = UiTheme.label(HINTS[kind], 13, UiTheme.INK2); hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; hint.autowrap_mode = TextServer.AUTOWRAP_WORD; v.add_child(hint)
+	hint = UiTheme.label(Tutorial.fill(HINTS[kind], func(a): return Controls.key_label(a)), 13, UiTheme.INK2); hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; hint.autowrap_mode = TextServer.AUTOWRAP_WORD; v.add_child(hint)
 	result = UiTheme.label("", 20, UiTheme.PINK_DARK); result.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(result)
 	v.add_child(UiTheme.label("Esc to stop", 11, UiTheme.INK2))
 	add_child(p)
@@ -75,7 +75,7 @@ func _render() -> void:
 			var r: String = mg.results[n] if n < mg.results.size() else ""
 			d.add_theme_color_override("font_color", {"miss": Color("ffb3b3"), "perfect": Color("ffcf5c"), "good": Color("8fe0b0")}.get(r, Color("ecd2a8")))
 	else:
-		hint.text = {"wait": "Waiting for a bite… (don't pull yet!)", "bite": "❗ A bite! Press E!", "reel": "Hold E to reel — keep the line in the green"}.get(mg.phase, "")
+		hint.text = Tutorial.fill({"wait": "Waiting for a bite… (don't pull yet!)", "bite": "❗ A bite! Press {interact}!", "reel": "Hold {interact} to reel — keep the line in the green"}.get(mg.phase, ""), func(a): return Controls.key_label(a))
 		hint.add_theme_color_override("font_color", UiTheme.PINK_DARK if mg.phase == "bite" else UiTheme.INK2)
 		if mg.phase == "bite" and not bite_played: bite_played = true; game.sfx("bite"); game.player_char.play("surprised")
 	if mg.done:

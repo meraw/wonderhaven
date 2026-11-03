@@ -15,6 +15,7 @@ func play() -> void:
 	game.state.quests["bridge"] = {"status": "done", "progress": {}}
 	game.state.quests["workshop"] = {"status": "active", "progress": {}}
 	game.state.flags["orchardOpen"] = true; game.state.flags["hasTool"] = true; game.state.flags["toolGiven"] = true
+	game.state.tutorial.on = false; game.hud.apply_reveals()   # this test sets up mid-game state directly
 	for id in ["odessa", "mabel", "percival"]:
 		await open_choices(id)
 		await frames(10)

@@ -17,6 +17,7 @@ func _init(g) -> void:
 		"bridge": func(): return path_ok("bridge"), "dock": func(): return path_ok("dock"),
 		"workshop": func(): return Validate.room_checklist(Data.zone("workshop"), game.state.placements, WORKSHOP_NEEDS).all(func(r): return r.ok),
 		"fountain": func(): return game.mech.fed.get("fountain", false), "lamp": func(): return not game.mech.lamps.is_empty()})
+	engine.gate = func(qid: String) -> bool: return Tutorial.allows_offer(game.state.get("tutorial", {}), qid)
 	game.game_event.connect(_on_event)
 
 func attach(state: Dictionary) -> void: engine.state = state
@@ -54,6 +55,7 @@ func _conv(agent) -> Dictionary:
 func talk(agent) -> void:
 	if busy: return
 	busy = true
+	game.emit_event("talk", {"npc": agent.def.id})
 	var ui: DialogueUI = game.dialogue
 	var s: Dictionary = game.state
 	game.enter_dialogue(agent)
@@ -196,6 +198,7 @@ func add_harmony(n: int) -> void:
 	var before := int(s.harmony)
 	s.harmony = before + n
 	game.hud.render_harmony()
+	if n > 0: game.emit_event("harmony", {"n": n})
 	for u in Harmony.between(before, s.harmony): apply_unlock(u)
 	handle(engine.refresh())
 

@@ -14,11 +14,68 @@ const FLOWERS := [Color("ff7aa8"), Color("ffd84a"), Color("ffffff"), Color("b98c
 
 static var _cache: Dictionary = {}
 
-## Cached toon material (shared: do not modify; use unique_mat for per-object changes).
+## Cached material with a faint painted mottle (shared: do not modify; use unique_mat for per-object changes).
 static func mat(color, emissive = null, energy: float = 0.0) -> StandardMaterial3D:
 	var key := "%s|%s|%s" % [str(color), str(emissive), energy]
-	if not _cache.has(key): _cache[key] = unique_mat(color, emissive, energy)
+	if not _cache.has(key): _cache[key] = texturize(unique_mat(color, emissive, energy), "mottle")
 	return _cache[key]
+
+## Shared materials with a surface texture. Kinds: plaster (walls), wood (grain), stone (cells), fabric (weave),
+## mottle (default), smooth (none: skin, hair, glass).
+static func detailed(color, kind: String) -> StandardMaterial3D:
+	var key := "%s|%s" % [str(color), kind]
+	if not _cache.has(key): _cache[key] = texturize(unique_mat(color), kind)
+	return _cache[key]
+static func plaster(color) -> StandardMaterial3D: return detailed(color, "plaster")
+static func wood(color) -> StandardMaterial3D: return detailed(color, "wood")
+static func stone(color) -> StandardMaterial3D: return detailed(color, "stone")
+static func fabric(color) -> StandardMaterial3D: return detailed(color, "fabric")
+static func smooth(color) -> StandardMaterial3D: return detailed(color, "smooth")
+
+# Triplanar scale (repeats per metre) for each kind; textures are grey multipliers close to 1 so colours stay true.
+const DETAIL_SCALE := {"mottle": 0.6, "plaster": 0.45, "wood": 1.1, "stone": 0.9, "fabric": 4.0}
+static var _detail_tex: Dictionary = {}
+
+## Adds the kind's detail texture to a material (in place) and returns it.
+static func texturize(m: StandardMaterial3D, kind: String) -> StandardMaterial3D:
+	if kind == "smooth" or not DETAIL_SCALE.has(kind): return m
+	m.albedo_texture = detail_texture(kind)
+	m.uv1_triplanar = true
+	m.uv1_triplanar_sharpness = 2.0
+	m.uv1_scale = Vector3.ONE * DETAIL_SCALE[kind]
+	m.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
+	return m
+
+static func detail_texture(kind: String) -> Texture2D:
+	if _detail_tex.has(kind): return _detail_tex[kind]
+	var n := 128
+	var img := Image.create(n, n, false, Image.FORMAT_L8)
+	var nz := FastNoiseLite.new(); nz.seed = kind.hash() & 0xffff; nz.noise_type = FastNoiseLite.TYPE_SIMPLEX_SMOOTH
+	nz.fractal_octaves = 4
+	var cell := FastNoiseLite.new(); cell.seed = 5; cell.noise_type = FastNoiseLite.TYPE_CELLULAR
+	cell.cellular_return_type = FastNoiseLite.RETURN_DISTANCE2_SUB; cell.frequency = 1.0
+	for y in n:
+		for x in n:
+			var u := float(x) / n; var v := float(y) / n
+			# 4D-torus sampling keeps the noise seamless
+			var t := func(nn: FastNoiseLite, f: float) -> float:
+				return nn.get_noise_3d(cos(u * TAU) * f, sin(u * TAU) * f, cos(v * TAU) * f + sin(v * TAU) * f * 0.5)
+			var g := 1.0
+			match kind:
+				"mottle": g = 0.955 + 0.045 * t.call(nz, 2.0)
+				"plaster": g = 0.94 + 0.05 * t.call(nz, 3.0) + 0.02 * t.call(nz, 14.0)
+				"wood":
+					var ring := sin(TAU * (v * 9.0 + 0.35 * sin(TAU * u * 2.0) + 0.15 * sin(TAU * (u * 5.0 + v))))
+					g = 0.93 + 0.05 * ring + 0.025 * sin(TAU * (v * 48.0 + 0.5 * sin(TAU * u * 3.0)))
+				"stone":
+					var c := clampf(t.call(cell, 2.4) * 1.4 + 0.6, 0.0, 1.0)
+					g = 0.86 + 0.12 * smoothstep(0.0, 0.25, c) + 0.03 * t.call(nz, 6.0)
+				"fabric":
+					g = 0.95 + 0.03 * sin(TAU * u * 16.0) * sin(TAU * v * 16.0) + 0.02 * t.call(nz, 3.0)
+			img.set_pixel(x, y, Color(g, g, g))
+	img.generate_mipmaps()
+	_detail_tex[kind] = ImageTexture.create_from_image(img)
+	return _detail_tex[kind]
 
 static func unique_mat(color, emissive = null, energy: float = 0.0) -> StandardMaterial3D:
 	var m := StandardMaterial3D.new()
@@ -66,8 +123,8 @@ static func cyl(rt: float, rb: float, h: float, seg: int = 12) -> CylinderMesh:
 
 static func cone(r: float, h: float, seg: int = 10) -> CylinderMesh: return cyl(0.001, r, h, seg)
 
-static func capsule(r: float, len: float) -> CapsuleMesh:
-	var c := CapsuleMesh.new(); c.radius = r; c.height = len + r * 2.0; c.radial_segments = 10; c.rings = 4; return c
+static func capsule(r: float, len: float, seg: int = 10, rings: int = 4) -> CapsuleMesh:
+	var c := CapsuleMesh.new(); c.radius = r; c.height = len + r * 2.0; c.radial_segments = seg; c.rings = rings; return c
 
 static func torus(r: float, tube: float, seg: int = 16) -> TorusMesh:
 	var t := TorusMesh.new(); t.inner_radius = r - tube; t.outer_radius = r + tube; t.rings = seg; t.ring_segments = 6; return t

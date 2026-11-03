@@ -31,6 +31,7 @@ func count(id: String, k = null) -> int:
 func play() -> void:
 	# Test setup: the bridge quest has been accepted (quests come in G3).
 	game.state.flags["hasTool"] = true
+	game.state.tutorial.on = false; game.hud.apply_reveals()   # this test sets up mid-game state directly
 	game.state.quests["bridge"] = {"status": "active", "progress": {}}
 	game.state.inventory.merge({"wood": 30, "spark": 30, "stone": 10}, true)
 	for b in ["bridgeDeck", "bridgePost", "railing"]: game.state.blueprints.append(b)

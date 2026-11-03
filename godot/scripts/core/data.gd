@@ -17,6 +17,7 @@ var islands: Array
 var resources: Dictionary
 var resource_order: Array
 var appearance: Dictionary
+var tutorial: Dictionary   # Godot-only: guided first day steps and tip cards (data/tutorial.json)
 
 func _init() -> void:
 	load_all()
@@ -35,6 +36,7 @@ func load_all() -> void:
 	var r := _read("resources")
 	resources = r.resources; resource_order = r.order
 	appearance = _read("appearance")
+	tutorial = _read("tutorial")
 
 func piece(id: String) -> Dictionary: return piece_by_id.get(id, {})
 func npc(id: String) -> Dictionary: return npc_by_id.get(id, {})

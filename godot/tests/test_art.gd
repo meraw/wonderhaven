@@ -57,3 +57,18 @@ func test_camera_rises_over_a_house_behind_the_player():
 	var lift := c._lift_needed(Vector3(0, 1, 0), PI / 2, 0.3, 9.0)   # camera looking from +x, house in between
 	t.ok(lift > 0.0 and lift < 1.2, "camera lifts above the roof (lift=%.2f)" % lift)
 	t.eq(c._lift_needed(Vector3(0, 1, 0), -PI / 2, 0.3, 9.0), 0.0, "no lift when the view is clear")
+
+func test_character_lathes_face_outward():
+	t.ok(_outward(Chibi._lathe("torso", Chibi.TORSO, 0.86), Vector3(0, 0.5, 0)) > 0.9, "torso normals point outward")
+	t.ok(_outward(Chibi._lathe("leg", Chibi.LEG), Vector3(0, -0.12, 0)) > 0.9, "leg normals point outward")
+
+func test_face_follows_mood_and_blink():
+	var c := Chibi.new({})
+	var fm: ShaderMaterial = c.face_mat
+	t.ok(fm != null, "characters have a painted face")
+	c.set_mood("happy")
+	t.eq(fm.get_shader_parameter("eye_mode"), 1, "happy shows ^^ eyes")
+	t.eq(fm.get_shader_parameter("mouth"), 1, "happy shows a grin")
+	c.set_mood("neutral"); c.blink_t = 0.1; c._refresh_face()
+	t.eq(fm.get_shader_parameter("blink"), 1.0, "blinking closes the eyes")
+	c.free()

@@ -1,0 +1,29 @@
+{
+  "_comment": "Godot-only content: the guided first day (steps shown one at a time by Odessa's guide card) and one-time tip cards. {action} is replaced by the player's current key for that action; {move} by the four movement keys. done: moved | looked | flag:X | panel:X | buildmode | accepted:Q | ready:Q | quest:Q | objective:Q:index. reveal: HUD parts that appear from this step on.",
+  "offers": ["tool", "bridge"],
+  "steps": [
+    {"id": "walk", "text": "Walk with {move}. Odessa is waving at the village gate. Go and say hello!", "done": "moved", "target": "npc:odessa"},
+    {"id": "look", "text": "Look around: drag with the right mouse button, or press {cam_left} / {cam_right}. Scroll to zoom.", "done": "looked", "target": "npc:odessa"},
+    {"id": "talk", "text": "Walk up to Odessa and press {interact} to talk.", "done": "flag:toolGiven", "target": "npc:odessa", "reveal": ["quests"]},
+    {"id": "chop", "text": "Stand by a tree and press {interact} to chop. Press {interact} again when the needle is in the green.", "done": "objective:tool:0", "reveal": ["resources"]},
+    {"id": "bag", "text": "Press {inventory} to open your bag and see what you gathered.", "done": "panel:inventory", "reveal": ["key:inventory"]},
+    {"id": "fragment", "text": "Catch a floating magic fragment: just walk through one. They sparkle purple.", "done": "objective:tool:1"},
+    {"id": "return", "text": "Go back to Odessa and press {interact} to show her.", "done": "quest:tool", "target": "npc:odessa", "reveal": ["harmony", "key:progress"]},
+    {"id": "journal", "text": "Press {journal} to open your journal. Every request you take on is kept there.", "done": "panel:journal", "reveal": ["key:journal"]},
+    {"id": "fern", "text": "Fern wants a bridge to the orchard. Find her by the river and press {interact}.", "done": "accepted:bridge", "target": "npc:fern"},
+    {"id": "build", "text": "Walk to the river and press {build} to use the Starforge Tool.", "done": "buildmode", "target": "zone:bridge", "reveal": ["key:build"]},
+    {"id": "bridge", "text": "Lay planks from bank to bank. A plank must be within 2 tiles of a bank or a post.", "done": "ready:bridge", "target": "zone:bridge"},
+    {"id": "finish", "text": "Tell Fern her bridge is ready!", "done": "quest:bridge", "target": "npc:fern", "reveal": ["key:map"]}
+  ],
+  "tips": {
+    "talk": {"title": "Talking", "lines": ["Click an answer, or press its number.", "Gold answers start a request.", "Esc says goodbye."]},
+    "chop": {"title": "Chopping", "lines": ["Press {interact} when the needle is in the green. Gold is a perfect swing.", "Three swings fell the tree. It grows back after a while."]},
+    "mine": {"title": "Mining", "lines": ["Press {interact} when the dark ring lines up with the green circle.", "Glowing rocks hide crystals."]},
+    "fish": {"title": "Fishing", "lines": ["Wait for the bobber to dip, then press {interact}.", "Keep the fish inside the green bar to reel it in."]},
+    "build": {"title": "Starforge building", "lines": ["Pick a piece at the bottom, then click to place it. {rotate} turns it.", "Green means it fits; red tells you why it doesn't.", "Click a placed piece to move, recolour or remove it. Ctrl+Z undoes. Esc leaves."]},
+    "harmony": {"title": "Kingdom Harmony", "lines": ["Helping villagers and building things raise Harmony.", "New blueprints, places and surprises unlock as it grows. Press {progress} to see what's next."]},
+    "journal": {"title": "Your journal", "lines": ["Active requests, finished ones, and what's still to do.", "Track a request to point the compass at it."]},
+    "map": {"title": "The world map", "lines": ["Hearthglow is the first of five isles.", "The others open as the story goes on."]},
+    "requests": {"title": "More villagers need you", "lines": ["An orange ! above someone means they have a request. A green ★ means a request is ready to hand in.", "Take them in any order. There's no rush."]}
+  }
+}

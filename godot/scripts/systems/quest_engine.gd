@@ -5,6 +5,7 @@ extends RefCounted
 
 var state: Dictionary
 var checks: Dictionary   # check id -> Callable returning bool
+var gate := Callable()   # optional (quest id) -> bool: extra condition on offers (the guided first day uses it)
 
 func _init(p_state: Dictionary, p_checks: Dictionary = {}) -> void:
 	state = p_state; checks = p_checks
@@ -24,7 +25,7 @@ func requirements_met(q: Dictionary) -> bool:
 
 func can_offer(id: String) -> bool:
 	var q := Data.quest(id)
-	return not q.is_empty() and not state.quests.has(id) and requirements_met(q)
+	return not q.is_empty() and not state.quests.has(id) and requirements_met(q) and (not gate.is_valid() or gate.call(id))
 func offers_for(npc: String) -> Array: return Data.quests.filter(func(q): return q.giver == npc and can_offer(q.id))
 func active() -> Array: return Data.quests.filter(func(q): return status(q.id) == "active")
 func done() -> Array: return Data.quests.filter(func(q): return is_done(q.id))

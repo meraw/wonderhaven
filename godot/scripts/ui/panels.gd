@@ -13,18 +13,30 @@ func setup(g) -> void:
 
 func open_panel(name: String, title: String) -> VBoxContainer:
 	for c in get_children(): c.queue_free()
-	var dim := ColorRect.new(); dim.color = Color(0.35, 0.24, 0.16, 0.25); dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	# Soft blurred backdrop so the open menu reads clearly against the busy world.
+	var dim := ColorRect.new(); dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	var sm := ShaderMaterial.new(); sm.shader = _backdrop_shader(); dim.material = sm
 	dim.gui_input.connect(func(ev): if ev is InputEventMouseButton and ev.pressed: close())
 	add_child(dim)
 	var p := UiTheme.panel(UiTheme.CREAM, UiTheme.LINE, 30)
+	var ps: StyleBoxFlat = p.get_theme_stylebox("panel").duplicate(); ps.shadow_size = 18; ps.shadow_offset = Vector2(0, 8); ps.shadow_color = Color(0.3, 0.15, 0.25, 0.3)
+	ps.border_width_top = 3; ps.content_margin_top = 14; ps.content_margin_left = 22; ps.content_margin_right = 22
+	p.add_theme_stylebox_override("panel", ps)
 	p.anchor_left = 0.5; p.anchor_right = 0.5; p.anchor_top = 0.5; p.anchor_bottom = 0.5
 	p.offset_left = -450; p.offset_right = 450; p.offset_top = -310; p.offset_bottom = 310
 	add_child(p)
-	var outer := VBoxContainer.new(); p.add_child(outer)
+	p.pivot_offset = Vector2(450, 310); p.scale = Vector2(0.96, 0.96); p.modulate.a = 0.0
+	var tw := p.create_tween().set_parallel(); tw.tween_property(p, "scale", Vector2.ONE, 0.18).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT); tw.tween_property(p, "modulate:a", 1.0, 0.12)
+	var outer := VBoxContainer.new(); outer.add_theme_constant_override("separation", 10); p.add_child(outer)
 	var head := HBoxContainer.new(); outer.add_child(head)
-	head.add_child(UiTheme.label(title, 26))
+	var ribbon := UiTheme.panel(UiTheme.PINK, UiTheme.PINK_DARK, 999)
+	var rs: StyleBoxFlat = ribbon.get_theme_stylebox("panel").duplicate(); rs.content_margin_left = 20; rs.content_margin_right = 20; rs.content_margin_top = 4; rs.content_margin_bottom = 6
+	ribbon.add_theme_stylebox_override("panel", rs)
+	var tl := UiTheme.label(title, 26, Color.WHITE); tl.add_theme_color_override("font_shadow_color", Color(0.6, 0.2, 0.35, 0.35)); tl.add_theme_constant_override("shadow_offset_y", 2)
+	ribbon.add_child(tl); head.add_child(ribbon)
 	var sp := Control.new(); sp.size_flags_horizontal = Control.SIZE_EXPAND_FILL; head.add_child(sp)
-	var cb := UiTheme.button("✕ Close", close); cb.name = "close"; head.add_child(cb)
+	var cb := UiTheme.button("✕", close); cb.name = "close"; cb.tooltip_text = "Close (Esc)"; cb.custom_minimum_size = Vector2(44, 44); cb.add_theme_font_size_override("font_size", 20)
+	head.add_child(cb)
 	var scroll := ScrollContainer.new(); scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL; scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	outer.add_child(scroll)
 	body = VBoxContainer.new(); body.size_flags_horizontal = Control.SIZE_EXPAND_FILL; body.add_theme_constant_override("separation", 8)
@@ -32,7 +44,36 @@ func open_panel(name: String, title: String) -> VBoxContainer:
 	current = name; visible = true
 	if game.mode != "title": game.set_mode("menu")
 	game.sfx("open")
+	game.emit_event("panel", {"id": name})
 	return body
+
+## A first-time tip shown inside the open panel, at the top, instead of a floating card over it.
+func inline_tip(tip: Dictionary) -> void:
+	if body == null: return
+	var p := UiTheme.panel(Color("fffdf3"), UiTheme.GOLD, 16)
+	var v := VBoxContainer.new(); p.add_child(v)
+	v.add_child(UiTheme.label("💡 " + String(tip.title), 16))
+	for line in tip.lines:
+		var l := RichTextLabel.new(); l.bbcode_enabled = true; l.fit_content = true; l.scroll_active = false; l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		l.text = Tutorial.fill(line, func(a): return "[b][color=#e86f8f]%s[/color][/b]" % Controls.key_label(a))
+		l.add_theme_font_size_override("normal_font_size", 14); l.add_theme_font_size_override("bold_font_size", 14); l.add_theme_color_override("default_color", UiTheme.INK2)
+		v.add_child(l)
+	body.add_child(p); body.move_child(p, 0)
+
+static var _backdrop: Shader
+static func _backdrop_shader() -> Shader:
+	if _backdrop == null:
+		_backdrop = Shader.new()
+		_backdrop.code = """
+shader_type canvas_item;
+uniform sampler2D screen : hint_screen_texture, filter_linear_mipmap;
+void fragment() {
+	vec3 c = textureLod(screen, SCREEN_UV, 2.5).rgb;
+	c = mix(c, vec3(0.42, 0.3, 0.38), 0.32);
+	COLOR = vec4(c, 1.0);
+}
+"""
+	return _backdrop
 
 func close() -> void:
 	if current == "": return
@@ -68,9 +109,12 @@ func _wrap(text: String, size: int = 14, color: Color = UiTheme.INK2) -> Label:
 func inventory() -> void:
 	open_panel("inventory", "🎒 Your Bag")
 	var grid := GridContainer.new(); grid.columns = 5; grid.add_theme_constant_override("h_separation", 10); grid.add_theme_constant_override("v_separation", 10); body.add_child(grid)
-	for id in Data.resource_order:
+	# Things you have come first; ones not found yet stay faint so the bag doesn't read as a wall of zeros.
+	var order: Array = Data.resource_order.filter(func(i): return int(game.state.inventory.get(i, 0)) > 0) + Data.resource_order.filter(func(i): return int(game.state.inventory.get(i, 0)) <= 0)
+	for id in order:
 		var r: Dictionary = Data.resources[id]
 		var p := UiTheme.panel(Color.WHITE, Color("f3dfc0"), 18); p.custom_minimum_size = Vector2(150, 0); p.name = "item_" + id
+		if int(game.state.inventory.get(id, 0)) <= 0: p.modulate = Color(1, 1, 1, 0.4)
 		var v := VBoxContainer.new(); p.add_child(v)
 		for l in [UiTheme.label(r.icon, 30), UiTheme.label(str(int(game.state.inventory.get(id, 0))), 22), UiTheme.label(r.name, 12, UiTheme.INK2)]:
 			l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(l)
@@ -198,8 +242,10 @@ func settings() -> void:
 		var key: String = pair[1]
 		sl.value_changed.connect(func(v): st[key] = v; game.apply_settings())
 		row.add_child(sl)
-	for pair in [["↕️ Invert camera Y", "invert_y"], ["🌦️ Weather effects", "weather"]]:
-		var cb := CheckBox.new(); cb.text = pair[0]; cb.button_pressed = st[pair[1]]
+	var toggles := [["↕️ Invert camera Y", "invert_y"], ["🌦️ Weather effects", "weather"]]
+	if Outline.supported(): toggles.append(["✏️ Ink outlines", "outlines"])
+	for pair in toggles:
+		var cb := CheckBox.new(); cb.text = pair[0]; cb.button_pressed = st.get(pair[1], true)
 		var key2: String = pair[1]
 		cb.toggled.connect(func(v): st[key2] = v; game.apply_settings())
 		body.add_child(cb)

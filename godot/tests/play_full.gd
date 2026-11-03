@@ -38,16 +38,23 @@ func walk_to(x: float, z: float, tol: float = 0.8) -> bool:
 		var a: Array = Data.layout.nav_nodes[path[i]]
 		pts.append(Vector2(a[0], a[1]))
 		if i + 1 < path.size(): pts.append_array(game.crossing_path(path[i], path[i + 1]))
-	var goal := Vector2(x, z)
-	for pt in pts:
-		if pt.distance_to(goal) > Vector2(game.player.pos.x, game.player.pos.z).distance_to(goal): continue
-		await walk_direct(pt.x, pt.y, 1.2)
+	# Follow the waypoints in order from the one nearest the player. (Skipping every waypoint farther from the goal
+	# used to cut straight through buildings, e.g. into the workshop's back wall.)
+	var here := Vector2(game.player.pos.x, game.player.pos.z)
+	var start := 0
+	for i in pts.size():
+		if pts[i].distance_to(here) < pts[start].distance_to(here): start = i
+	for i in range(start, pts.size()):
+		await walk_direct(pts[i].x, pts[i].y, 1.2)
 	return await walk_direct(x, z, tol)
 
 func face_and_press(target_id: String, x: float, z: float) -> bool:
 	for n in 8:
 		if game.target != null and game.target.id == target_id:
 			await tap(KEY_E); return true
+		if target_id.begins_with("npc:"):   # villagers walk their routines: aim at where they are now
+			var a = game.npcs[target_id.trim_prefix("npc:")]
+			x = a.pos.x; z = a.pos.z
 		var p: Vector3 = game.player.pos
 		game.player.yaw = atan2(x - p.x, z - p.z); game.player.sync()
 		steer(x, z); key(KEY_W, true); await frames(3); key(KEY_W, false); await frames(4)
@@ -55,7 +62,7 @@ func face_and_press(target_id: String, x: float, z: float) -> bool:
 	return false
 
 func talk(id: String, accept: bool = true) -> bool:
-	for attempt in 3:
+	for attempt in 6:
 		var a = game.npcs[id]
 		await walk_to(a.pos.x, a.pos.z, 1.5)
 		a = game.npcs[id]
@@ -252,9 +259,10 @@ func play() -> void:
 	await shot("bridge-built")
 	await leave_build()
 	# 7. Cross the bridge
-	var crossed: bool = await walk_direct(0.5, -14.2, 0.6) and await walk_direct(0.5, -24.0, 0.7)
+	await walk_direct(0.5, -14.2, 0.6); await walk_direct(0.5, -24.0, 0.7)
 	await shot("crossed-bridge")
-	check(7, "A completed bridge can actually be crossed", crossed and game.player.pos.z < -23.0 and game.player.pos.y > -0.3, "z=%.1f y=%.2f" % [game.player.pos.z, game.player.pos.y])
+	# On the far bank (z < -23; the river is -21..-15) and on dry ground, however far past the target the walk stopped.
+	check(7, "A completed bridge can actually be crossed", game.player.pos.z < -23.0 and game.player.pos.y > -0.3, "z=%.1f y=%.2f" % [game.player.pos.z, game.player.pos.y])
 	await walk_direct(0.5, -13.5, 0.7)
 	var bp0: int = game.state.blueprints.size()
 	var h0: int = game.state.harmony

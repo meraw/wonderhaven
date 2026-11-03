@@ -22,6 +22,7 @@ func _init(g) -> void:
 	for n in Data.layout.nodes: _register_node(n)
 	for f in Data.layout.features: _register_feature(f)
 	_build_gardens(); _build_squirrels()
+	game.game_event.connect(func(type: String, data: Dictionary): if type == "flag" and data.get("flag", "") == "hasTool": refresh_all())
 	bobber = P.mi(P.sphere(0.09, 10, 8), P.mat("ff5a5f")); bobber.visible = false; game.add_child(bobber)
 	line = MeshInstance3D.new(); line.material_override = P.glow_mat(Color.WHITE); line.visible = false; game.add_child(line)
 
@@ -34,6 +35,8 @@ func ready(n: Dictionary) -> bool:
 	if s.get("done", false): return false
 	if n.has("flag") and not state().flags.get(n.flag, false): return false
 	if n.kind == "fruit" and not state().flags.get("orchardOpen", false): return false
+	# Fragments only show themselves to the Starforge Tool, so new players can't scoop up Odessa's one by accident.
+	if n.kind == "fragment" and not state().flags.get("hasTool", false): return false
 	return not (s.get("ready_at", -1.0) > now())
 
 func deplete(n: Dictionary) -> void:
