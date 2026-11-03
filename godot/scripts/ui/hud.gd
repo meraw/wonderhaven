@@ -51,7 +51,7 @@ func _build_guide() -> void:
 	v.add_child(guide_text)
 	guide_card.visible = false; add_child(guide_card)
 	tip_card = UiTheme.panel(Color("fffdf3"), UiTheme.GOLD, 22); tip_card.name = "tip_card"
-	tip_card.anchor_top = 0.5; tip_card.anchor_bottom = 0.5; tip_card.offset_left = 14; tip_card.offset_top = -10
+	tip_card.anchor_top = 0.5; tip_card.anchor_bottom = 0.5; tip_card.offset_left = 14; tip_card.offset_top = -170   # left side, clear of the build catalog and dialogue box
 	tip_card.custom_minimum_size.x = 360; tip_card.visible = false
 	get_parent().add_child.call_deferred(tip_card)   # above the HUD so it shows in every mode
 
