@@ -24,9 +24,9 @@ func build(decor: Dictionary) -> void:
 			"castle": o = Props.castle(b)
 			"caravan": o = Props.caravan(b)
 			_: o = Props.cottage(b)
-		o.position = Vector3(b.x, (H.call(b.x, b.z) - 0.05) if b.kind == "castle" else maxf(0.0, H.call(b.x, b.z)), b.z)
+		o.position = Vector3(b.x, Heightfield.CASTLE_MOUND.y if b.kind == "castle" else maxf(0.0, H.call(b.x, b.z)), b.z)
 		o.name = b.id; add_child(o); objects[b.id] = o
-		if Interiors.enterable(b): _furnish(b, o.position.y)
+		if Interiors.enterable(b): _furnish(b, o.position.y + (Props.CASTLE_FLOOR if b.kind == "castle" else 0.0))
 		for gl in o.get_meta("glasses", []): window_mats.append(gl.material_override)
 		for ln in o.find_children("inn_lantern", "MeshInstance3D", true, false): window_mats.append(ln.material_override)
 	var f := Props.fountain(); var F: Dictionary = Data.layout.fountain; f.position = Vector3(F.x, 0, F.z); add_child(f); objects["fountain"] = f

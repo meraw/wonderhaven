@@ -28,7 +28,7 @@ static func height(x: float, z: float) -> float:
 	var ring := ss(32, 42, r) * (1.0 - ss(46, 50, r))
 	var h := ring * (0.9 + 0.7 * sin(x * 0.13 + 1.3) * cos(z * 0.11 - 0.4))
 	var dc := Vector2(x - CASTLE_MOUND.x, z - CASTLE_MOUND.z).length()
-	h += CASTLE_MOUND.y * (1.0 - ss(CASTLE_R - 3.0, CASTLE_R, dc))
+	h = lerpf(h, maxf(h, CASTLE_MOUND.y), 1.0 - ss(CASTLE_R - 3.0, CASTLE_R, dc))   # a level mound: the castle floor sits flat on it
 	var edge := _island_radius(a) - r
 	h = lerpf(-2.4, h, ss(-2, 7, edge))
 	var m := 1.0 - ss(20, 28, absf(x - 4.0))

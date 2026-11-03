@@ -229,7 +229,7 @@ static func camera_rooms() -> Array:
 		if b.kind == "workshop":
 			out.append(AABB(Vector3(b.x - b.w / 2.0 + 0.35, -1.0, b.z - b.d / 2.0 + 0.35), Vector3(b.w - 0.7, 3.6, b.d - 0.7)))
 		elif Interiors.enterable(b):
-			out.append(Interiors.room(b, Heightfield.height(b.x, b.z) if b.kind == "castle" else 0.0))
+			out.append(Interiors.room(b, Heightfield.CASTLE_MOUND.y if b.kind == "castle" else 0.0))
 	return out
 
 ## Boxes the follow camera should not pass through: every building's walls and roof (overhang included).
@@ -454,6 +454,9 @@ static func caravan(b: Dictionary) -> Node3D:
 	_door(g, b, "7a4a8a")
 	return g
 
+## Height of the castle's floor above its mound: furniture stands on it.
+const CASTLE_FLOOR := 0.02
+
 static func castle(b: Dictionary) -> Node3D:
 	if not Interiors.enterable(b): return _castle_closed(b)
 	# Curtain wall and keep, both with a gateway on the door side; a throne room inside the keep.
@@ -478,7 +481,9 @@ static func castle(b: Dictionary) -> Node3D:
 		var c: Vector2 = Vector2(b.x, b.z) + di.out * (pair[0] - pair[1] / 2.0) - Vector2(b.x, b.z)
 		var size := Vector3(Interiors.DOOR_W, pair[2] - Interiors.DOOR_H, pair[1]) if di.out.y != 0.0 else Vector3(pair[1], pair[2] - Interiors.DOOR_H, Interiors.DOOR_W)
 		_add(g, P.box(size.x, size.y, size.z), light if pair[2] < 3.0 else keep_mat, Vector3(c.x, (pair[2] + Interiors.DOOR_H) / 2.0, c.y))
-	_add(g, P.box(b.w - 2.4, 0.05, b.d - 2.4), P.stone("d8d0c2"), Vector3(0, 0.03, 0), Vector3.ZERO, Vector3.ONE, false)
+	# a stone base under the whole castle (it hides where the mound slopes away at the corners) and the hall's floor
+	_add(g, P.box(b.w + 0.1, 1.2, b.d + 0.1), P.stone("cfc6b6"), Vector3(0, CASTLE_FLOOR - 0.01 - 0.6, 0), Vector3.ZERO, Vector3.ONE, false)
+	_add(g, P.box(b.w - 2.4, 0.02, b.d - 2.4), P.stone("d8d0c2"), Vector3(0, CASTLE_FLOOR - 0.01, 0), Vector3.ZERO, Vector3.ONE, false)
 	for c in [[-1, -1], [1, -1], [-1, 1], [1, 1]]:
 		var tx: float = c[0] * b.w / 2.0; var tz: float = c[1] * b.d / 2.0
 		_add(g, P.cyl(1.0, 1.1, 5.2, 14), P.stone(b.wall), Vector3(tx, 2.6, tz))
