@@ -17,6 +17,7 @@ uniform float blink = 0.0;      // 0 open .. 1 shut
 uniform int mouth = 0;          // 0 smile, 1 grin, 2 o, 3 calm, 4 cat, 5 sad
 uniform vec2 look = vec2(0.0);  // pupil offset
 uniform bool sparkle = false;
+uniform int eye_style = 0;      // dot eyes: 0 round dots, 1 sparkly, 2 big & shiny
 uniform float brow_raise = 0.0;
 uniform float highlight = 0.0;  // interaction highlight glow
 varying vec3 op;
@@ -84,11 +85,39 @@ void fragment() {
 					col = mix(col, vec3(1.0), hl);
 					emit += vec3(0.25) * hl;
 				} else {
-					// bean: a small glossy dark oval
-					col = mix(col, mix(line_color.rgb, eye_color.rgb, 0.4), fill(d));
-					float h1 = length(ec - vec2(-sx * 0.018, rr.y * 0.4)) - 0.022 * open;
-					col = mix(col, vec3(1.0), fill(h1));
-					emit += vec3(0.25) * fill(h1);
+					// dot eyes, in three looks that are easy to tell apart
+					float k = eye_style == 2 ? 1.55 : (eye_style == 1 ? 1.22 : 1.0);
+					vec2 er = vec2(r.x, r.y) * k;
+					if (eye_mode == 3) er *= 1.12;
+					vec2 sr = vec2(er.x, er.y * open);
+					vec2 ecc = e - vec2(0.0, -er.y * (1.0 - open));
+					float dd = ellipse(ecc, sr);
+					vec3 ink = mix(line_color.rgb, eye_color.rgb, eye_style == 2 ? 0.8 : 0.45);
+					if (eye_style == 2) {
+						// big & shiny: coloured iris, darker at the top, with a lash line
+						float g = clamp((ecc.y + sr.y) / (2.0 * sr.y), 0.0, 1.0);
+						ink = mix(eye_color.rgb * 1.25 + 0.05, eye_color.rgb * 0.45, g);
+						col = mix(col, ink, fill(dd));
+						col = mix(col, line_color.rgb, fill(ellipse(ecc - vec2(0.0, -sr.y * 0.1), sr * vec2(0.45, 0.5))) * 0.85);
+						col = mix(col, line_color.rgb, fill(max(abs(dd + 0.006) - 0.013, -(ecc.y - sr.y * 0.25))));
+					} else {
+						col = mix(col, ink, fill(dd));
+					}
+					// highlights
+					float hs = er.x * (eye_style == 2 ? 0.34 : 0.3);
+					float h1 = length(ecc - vec2(-sx * er.x * 0.28, sr.y * 0.42)) - hs * open;
+					float hl = fill(h1);
+					if (eye_style >= 1) hl = max(hl, fill(length(ecc - vec2(sx * er.x * 0.32, -sr.y * 0.4)) - er.x * 0.14 * open));
+					if (eye_style == 1) {
+						// a four-point star glint
+						vec2 sp = ecc - vec2(-sx * er.x * 0.22, sr.y * 0.3);
+						float star = min(abs(sp.x) * 0.22 + abs(sp.y), abs(sp.y) * 0.22 + abs(sp.x)) - er.x * 0.16;
+						hl = max(hl, fill(star));
+					}
+					col = mix(col, vec3(1.0), hl);
+					emit += vec3(0.25) * hl;
+					// sleepy: a heavy lid across the top of the half-open eye
+					if (eye_mode == 4) col = mix(col, line_color.rgb, fill(max(abs(ecc.y - sr.y + 0.004) - 0.014, abs(ecc.x) - er.x * 1.2)));
 				}
 			}
 			// brow: a short soft arc
@@ -102,7 +131,7 @@ void fragment() {
 		vec2 m = p - vec2(0.0, -0.33);
 		float md = 1.0;
 		vec3 mc = line_color.rgb;
-		if (mouth == 0) { md = max(arc(m, vec2(0.0, 0.07), 0.1, 0.016), m.y - 0.02); }
+		if (mouth == 0) { md = max(arc(m, vec2(0.0, 0.08), 0.115, 0.018), m.y - 0.02); }
 		else if (mouth == 1) {
 			md = max(ellipse(m - vec2(0.0, 0.01), vec2(0.11, 0.09)), m.y - 0.01);
 			mc = mouth_color.rgb;
@@ -113,8 +142,8 @@ void fragment() {
 			mc = line_color.rgb;
 		}
 		else if (mouth == 2) { md = ellipse(m, vec2(0.045, 0.06)); mc = mouth_color.rgb; col = mix(col, mc, fill(md)); md = abs(md + 0.006) - 0.007; mc = line_color.rgb; }
-		else if (mouth == 3) { md = max(arc(m, vec2(0.0, 0.25), 0.26, 0.015), abs(m.x) - 0.06); }
-		else if (mouth == 4) { md = min(max(arc(m, vec2(-0.045, 0.03), 0.045, 0.014), m.y - 0.02), max(arc(m, vec2(0.045, 0.03), 0.045, 0.014), m.y - 0.02)); }
+		else if (mouth == 3) { md = max(abs(m.y + 0.005 - m.x * m.x * 2.4) - 0.015, abs(m.x) - 0.075); }
+		else if (mouth == 4) { md = min(max(arc(m, vec2(-0.052, 0.035), 0.052, 0.016), m.y - 0.02), max(arc(m, vec2(0.052, 0.035), 0.052, 0.016), m.y - 0.02)); }
 		else if (mouth == 5) { md = max(arc(m, vec2(0.0, -0.1), 0.09, 0.016), -(m.y + 0.04)); }
 		col = mix(col, mc, fill(md));
 	}

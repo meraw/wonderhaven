@@ -164,6 +164,7 @@ func set_appearance(app: Dictionary) -> void:
 	face_mat.set_shader_parameter("brow_color", Color(a.hairColor).darkened(0.35))
 	face_mat.set_shader_parameter("style", 0 if face_style == "painted" else 1)
 	face_mat.set_shader_parameter("sparkle", a.eyeShape == "sparkle")
+	face_mat.set_shader_parameter("eye_style", {"sparkle": 1, "wide": 2}.get(a.eyeShape, 0))
 	_m(P.sphere(HEAD_R, 48, 32), face_mat, head, Vector3(0, HEAD_R * 0.92, 0))
 	for s in [-1, 1]: _m(P.sphere(0.07, 28, 18), skin, head, Vector3(s * HEAD_R * 0.98, HEAD_R * 0.9, 0), Vector3(0.6, 1, 0.8))
 	_build_hair(a.hair, a.hairColor, a.hat)
@@ -192,7 +193,6 @@ func _refresh_painted() -> void:
 	match shape:
 		"happy": mode = 1
 		"sleepy": mode = 4
-		"wide": mode = 3
 	var raise := 0.0
 	match mood:
 		"happy": mode = 1
@@ -229,35 +229,123 @@ func stop_hold() -> void: hold = ""
 
 func head_world_pos() -> Vector3: return head.to_global(Vector3(0, HEAD_R * 0.92, 0))
 
+# ---- Hair ------------------------------------------------------------------------------------------------
+## Hair is a sculpted cap: a sphere around the head whose points sink inside the head wherever there should be no
+## hair (the face, below the hairline), so the edges form a soft, scalloped hairline with no seams. Clumps,
+## a nape and style pieces (tails, buns, spikes, curls) sit on top, and everything shares a hair shader with
+## fine strands and a shine band.
+const HAIR_SHADER := """
+shader_type spatial;
+render_mode diffuse_lambert_wrap, specular_disabled;
+uniform vec4 color : source_color = vec4(0.45, 0.28, 0.16, 1.0);
+varying vec3 lp;
+varying vec3 ln;
+float h1(float x) { return fract(sin(x * 127.1) * 43758.5453); }
+float n1(float x) { float i = floor(x), f = fract(x); return mix(h1(i), h1(i + 1.0), f * f * (3.0 - 2.0 * f)); }
+void vertex() { lp = VERTEX; ln = NORMAL; }
+void fragment() {
+	vec3 c = color.rgb;
+	float ang = atan(lp.x, lp.z);
+	c *= 0.9 + 0.12 * n1(ang * 22.0 + lp.y * 3.0) + 0.05 * n1(ang * 61.0);
+	float band = smoothstep(0.42, 0.55, ln.y) * smoothstep(0.78, 0.62, ln.y);
+	band *= 0.6 + 0.4 * n1(ang * 9.0);
+	c = mix(c, c * 1.32 + vec3(0.07), band * 0.7);
+	c *= mix(0.86, 1.0, smoothstep(-0.6, 0.2, ln.y));
+	ALBEDO = c;
+	ROUGHNESS = 1.0;
+	RIM = 0.25;
+	RIM_TINT = 0.8;
+}
+"""
+static var _hair_shader: Shader
+static var _hair_mats: Dictionary = {}
+static var _hair_caps: Dictionary = {}
+
+static func hair_material(color) -> ShaderMaterial:
+	var key := str(color)
+	if _hair_mats.has(key): return _hair_mats[key]
+	if _hair_shader == null: _hair_shader = Shader.new(); _hair_shader.code = HAIR_SHADER
+	var m := ShaderMaterial.new(); m.shader = _hair_shader
+	m.set_shader_parameter("color", Color(color))
+	_hair_mats[key] = m
+	return m
+
+## Per style: fringe height, side and back length (as the y of the head direction), bottom flare, and
+## whether the fringe sweeps to one side.
+const HAIR_SHAPES := {
+	"short": {"fringe": 0.38, "side": -0.12, "back": -0.74, "flare": 0.0, "sweep": 0.18},
+	"bob": {"fringe": 0.3, "side": -0.62, "back": -0.84, "flare": 0.08, "sweep": 0.0},
+	"pigtails": {"fringe": 0.3, "side": -0.25, "back": -0.78, "flare": 0.0, "sweep": 0.0},
+	"bun": {"fringe": 0.36, "side": -0.2, "back": -0.76, "flare": 0.0, "sweep": 0.12},
+	"long": {"fringe": 0.3, "side": -0.7, "back": -0.95, "flare": 0.03, "sweep": 0.0},
+	"spiky": {"fringe": 0.46, "side": -0.05, "back": -0.7, "flare": 0.0, "sweep": 0.0},
+	"curly": {"fringe": 0.4, "side": -0.3, "back": -0.8, "flare": 0.04, "sweep": 0.0},
+	"ponytail": {"fringe": 0.32, "side": -0.22, "back": -0.76, "flare": 0.0, "sweep": 0.1},
+}
+
+## How much hair grows at head direction d (0 none .. 1 full).
+static func hair_amount(d: Vector3, shape: Dictionary) -> float:
+	var front := smoothstep(0.05, 0.4, d.z)                     # the face side of the head
+	var cheek := 1.0 - smoothstep(0.5, 0.72, absf(d.x))         # within the face's width
+	var fringe: float = shape.fringe + shape.sweep * d.x + 0.045 * sin(d.x * 15.0 + 0.6) + 0.02 * sin(d.x * 31.0)
+	var face := front * cheek * smoothstep(fringe + 0.045, fringe - 0.07, d.y)
+	var backness := smoothstep(-0.2, -0.85, d.z)
+	var low: float = lerpf(shape.side, shape.back, backness) + 0.035 * sin(atan2(d.x, d.z) * 9.0)
+	var length := smoothstep(low - 0.06, low + 0.06, d.y)
+	return clampf((1.0 - face) * length, 0.0, 1.0)
+
+static func hair_cap(style: String) -> ArrayMesh:
+	if _hair_caps.has(style): return _hair_caps[style]
+	var shape: Dictionary = HAIR_SHAPES.get(style, HAIR_SHAPES.bob)
+	var sm := SphereMesh.new(); sm.radius = 1.0; sm.height = 2.0; sm.radial_segments = 112; sm.rings = 64
+	var arr := sm.get_mesh_arrays()
+	var v: PackedVector3Array = arr[Mesh.ARRAY_VERTEX]
+	var nz := FastNoiseLite.new(); nz.seed = style.hash() & 0xffff; nz.frequency = 1.0; nz.noise_type = FastNoiseLite.TYPE_SIMPLEX_SMOOTH
+	for i in v.size():
+		var d := v[i].normalized() if v[i].length() > 0.0001 else Vector3.UP
+		var amt := hair_amount(d, shape)
+		var ang := atan2(d.x, d.z)
+		var clumps := 0.022 * nz.get_noise_2d(ang * 3.2, d.y * 1.4) + 0.012 * nz.get_noise_2d(ang * 9.0, d.y * 4.0)
+		var top := 0.025 * smoothstep(0.3, 0.9, d.y)
+		var flare: float = shape.flare * smoothstep(0.1, -0.5, d.y)
+		var r := lerpf(0.965, 1.085 + clumps + top + flare, amt)
+		v[i] = d * HEAD_R * r
+	arr[Mesh.ARRAY_VERTEX] = v
+	arr[Mesh.ARRAY_NORMAL] = null
+	var am := ArrayMesh.new(); am.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arr)
+	var st := SurfaceTool.new(); st.create_from(am, 0); st.generate_normals()
+	_hair_caps[style] = st.commit()
+	return _hair_caps[style]
+
 func _build_hair(style: String, color: String, hat: String = "none") -> void:
 	var g := Node3D.new(); g.position.y = HEAD_R * 0.92; head.add_child(g)
-	var hm := P.smooth(color)
-	_m(P.hemi(HEAD_R * 1.06, 32), hm, g, Vector3(0, HEAD_R * 0.04, -0.02), Vector3.ONE, Vector3(-0.22, 0, 0))
-	# fringe: separate rounded locks across the forehead read as hair rather than a helmet
-	if not style in ["spiky", "curly"] and not hat in ["beanie", "captain", "chef"]:
-		var locks := [-0.95, -0.5, -0.05, 0.42, 0.88] if style != "short" else [-0.7, -0.15, 0.4, 0.85]
-		for i in locks.size():
-			var th: float = locks[i]
-			var lk := Node3D.new(); lk.rotation = Vector3(0, th, 0); g.add_child(lk)
-			var ln := 1.2 + 0.12 * sin(i * 2.3)
-			_m(P.sphere(0.12, 24, 16), hm, lk, Vector3(0, HEAD_R * 0.62, HEAD_R * 0.8), Vector3(1.0, ln, 0.55), Vector3(-0.55, 0, 0))
-	if style in ["bob", "long", "pigtails", "ponytail", "bun"]:
-		_m(P.sphere(HEAD_R * 1.06, 28, 18), hm, g, Vector3(0, -0.02, -0.06), Vector3(1.04, 0.95, 0.95))
-		for s in [-1, 1]: _m(P.sphere(0.16, 28, 18), hm, g, Vector3(s * 0.33, -0.12, 0.08), Vector3(0.7, 1.3, 0.9))
-	if style == "long": _m(P.rbox(0.7, 0.75, 0.25, 0.12), hm, g, Vector3(0, -0.3, -0.25))
-	if style == "pigtails":
-		for s in [-1, 1]: _m(P.sphere(0.15, 28, 18), hm, g, Vector3(s * 0.47, -0.15, -0.05), Vector3(0.9, 1.4, 0.9))
-	if style == "ponytail": _m(P.sphere(0.14, 28, 18), hm, g, Vector3(0, 0.0, -0.48), Vector3(0.9, 1.6, 0.9), Vector3(0.6, 0, 0))
-	if style == "bun": _m(P.sphere(0.17, 28, 18), hm, g, Vector3(0, 0.42, -0.1))
-	if style == "spiky":
-		for n in 7:
-			var a := n / 7.0 * TAU
-			_m(P.cone(0.1, 0.28, 16), hm, g, Vector3(cos(a) * 0.22, 0.36, sin(a) * 0.22 - 0.05), Vector3.ONE, Vector3(sin(a) * 0.7, 0, -cos(a) * 0.7))
-	if style == "curly":
-		for n in 12:
-			var a := n / 12.0 * TAU
-			_m(P.sphere(0.13, 28, 18), hm, g, Vector3(cos(a) * 0.36, 0.18 + (n % 2) * 0.1, sin(a) * 0.36 - 0.05))
-	if style == "short": _m(P.sphere(0.12, 28, 18), hm, g, Vector3(0.05, 0.42, 0.1), Vector3(1.2, 0.5, 1))
+	var hm := hair_material(color)
+	_m(hair_cap(style), hm, g, Vector3.ZERO)
+	var lock := func(pos: Vector3, scl: Vector3, rot: Vector3) -> void: _m(P.sphere(0.1, 24, 16), hm, g, pos, scl, rot)
+	match style:
+		"long":
+			# a soft fall of hair down the back, in three overlapping locks that taper
+			for k in 3:
+				var x := (k - 1) * 0.17
+				lock.call(Vector3(x, -0.36, -0.27 + absf(x) * 0.25), Vector3(1.05, 3.4, 0.75), Vector3(0.18, 0, -x * 0.5))
+		"pigtails":
+			for s in [-1, 1]:
+				_m(P.sphere(0.05, 16, 10), P.fabric("ff8fab"), g, Vector3(s * 0.4, -0.04, -0.1))
+				lock.call(Vector3(s * 0.47, -0.2, -0.12), Vector3(1.3, 2.3, 1.2), Vector3(0, 0, s * 0.35))
+		"ponytail":
+			_m(P.sphere(0.05, 16, 10), P.fabric("ff8fab"), g, Vector3(0, 0.06, -0.42))
+			lock.call(Vector3(0, -0.12, -0.5), Vector3(1.25, 2.6, 1.15), Vector3(0.55, 0, 0))
+		"bun": _m(P.sphere(0.15, 28, 18), hm, g, Vector3(0, 0.43, -0.12), Vector3(1, 0.9, 1))
+		"spiky":
+			for n in 9:
+				var a := n / 9.0 * TAU
+				_m(P.cone(0.1, 0.3, 16), hm, g, Vector3(cos(a) * 0.2, 0.34, sin(a) * 0.2 - 0.06), Vector3.ONE, Vector3(sin(a) * 0.75, 0, -cos(a) * 0.75))
+		"curly":
+			for n in 14:
+				var a := n / 14.0 * TAU
+				_m(P.sphere(0.12, 24, 16), hm, g, Vector3(cos(a) * 0.37, 0.12 + (n % 2) * 0.12, sin(a) * 0.37 - 0.04))
+		"short":
+			for s in [-1, 1]: lock.call(Vector3(s * 0.38, 0.0, 0.05), Vector3(0.6, 1.1, 0.9), Vector3(0, 0, s * 0.2))
 
 func _build_hat(kind: String, color: String) -> void:
 	var g := Node3D.new(); g.position.y = HEAD_R * 0.92; head.add_child(g)

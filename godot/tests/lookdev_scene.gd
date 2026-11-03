@@ -18,7 +18,24 @@ func run(tree: SceneTree, args: Dictionary) -> void:
 	for n in Data.npcs: cast.append(n.appearance)
 	var chars: Array = []
 	var view: String = args.get("view", "lineup")
-	if view == "close":
+	if view == "eyes" or view == "mouths":
+		var key := "eyeShape" if view == "eyes" else "mouth"
+		var opts: Array = Data.appearance.EYE_SHAPES if view == "eyes" else Data.appearance.MOUTHS
+		for i in opts.size():
+			var a: Dictionary = cast[0].duplicate(); a[key] = opts[i]
+			var c := Chibi.new(a); world.add_child(c)
+			c.position = Vector3(-1.6 + i * 0.8, 0, 5.0)
+			chars.append(c)
+		cam.fov = 24
+		cam.position = Vector3(0, 1.3, 9.6); cam.look_at(Vector3(0, 1.05, 5.0))
+	elif view == "back":
+		for i in cast.size():
+			var c := Chibi.new(cast[i]); world.add_child(c)
+			c.position = Vector3(-3.15 + i * 0.9, 0, 5.0); c.rotation.y = PI + (i - 3.5) * 0.06
+			chars.append(c)
+		cam.fov = 34
+		cam.position = Vector3(0, 1.6, 11.6); cam.look_at(Vector3(0, 0.75, 5.0))
+	elif view == "close":
 		var pick := [0, 2, 6, 3]
 		for i in pick.size():
 			var c := Chibi.new(cast[pick[i]]); world.add_child(c)

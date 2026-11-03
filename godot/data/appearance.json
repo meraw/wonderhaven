@@ -111,15 +111,15 @@
   "hair": "bob",
   "hairColor": "#7a4a2a",
   "mouth": "smile",
-  "top": "tee",
-  "topColor": "#ff8fab",
+  "top": "jacket",
+  "topColor": "#3fb5a3",
   "bottom": "pants",
-  "bottomColor": "#6cc4ff",
-  "shoes": "sneakers",
-  "shoesColor": "#ffffff",
+  "bottomColor": "#4a4a6a",
+  "shoes": "boots",
+  "shoesColor": "#c9a27a",
   "hat": "none",
   "hatColor": "#ffd166",
-  "accessory": "none"
+  "accessory": "scarf"
  },
  "locked": {
   "overalls": "Help Bram furnish his workshop",

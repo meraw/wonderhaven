@@ -9,6 +9,7 @@ var spin := 0.4
 var saved_yaw := 0.0
 var dragging := false
 var guided := true   # creator checkbox: start with the guided first day
+var face_cam: Camera3D  # close-up of the face in the creator
 
 func setup(g) -> void:
 	game = g
@@ -152,6 +153,31 @@ func _render_creator() -> void:
 	var hint := UiTheme.label("Drag to turn · locked pieces unlock as you play", 15, Color.WHITE)
 	hint.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.35)); hint.add_theme_constant_override("outline_size", 6)
 	hint.position = Vector2(30, get_viewport_rect().size.y - 50); add_child(hint)
+	_face_inset()
+
+## A large live close-up of the face, so eye styles, expressions and hair are easy to compare.
+func _face_inset() -> void:
+	var frame := UiTheme.panel(Color("ffefd2"), UiTheme.LINE, 26); frame.name = "face_inset"
+	frame.position = Vector2(30, 30)
+	var svc := SubViewportContainer.new(); svc.stretch = true; svc.custom_minimum_size = Vector2(240, 240)
+	var vp := SubViewport.new(); vp.size = Vector2i(480, 480); vp.own_world_3d = false
+	vp.world_3d = game.get_viewport().world_3d
+	vp.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	face_cam = Camera3D.new(); face_cam.fov = 26; face_cam.cull_mask = 1 | 2   # the player is on layer 2
+	vp.add_child(face_cam); svc.add_child(vp)
+	var v := VBoxContainer.new(); frame.add_child(v)
+	v.add_child(svc)
+	var l := UiTheme.label("Face", 14, UiTheme.INK2); l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(l)
+	add_child(frame)
+	_aim_face_cam()
+
+func _aim_face_cam() -> void:
+	if face_cam == null or not is_instance_valid(face_cam): return
+	var ch: Chibi = game.player_char
+	var head := ch.head_world_pos()
+	var y: float = ch.rotation.y
+	face_cam.global_position = head + Vector3(sin(y) * 2.1, 0.05, cos(y) * 2.1)
+	face_cam.look_at(head - Vector3(0, 0.05, 0), Vector3.UP)
 
 func _randomize() -> void:
 	var A: Dictionary = Data.appearance
@@ -238,6 +264,7 @@ func update(dt: float) -> void:
 		var p: Vector3 = game.player.pos
 		cam.global_position = Vector3(p.x + 0.9, p.y + 1.15, p.z + 3.6)
 		cam.look_at(Vector3(p.x + 0.9, p.y + 0.85, p.z), Vector3.UP)
+		_aim_face_cam()
 		if wardrobe_mode:
 			for n in game.npcs.values(): n.update(dt)
 	game.village.update_world(dt, game.time, game.state.flags)
