@@ -182,7 +182,7 @@ func sfx(name: String) -> void: if audio: audio.sfx(name)
 func voice(pitch: float, syllables: int) -> void: if audio: audio.voice(pitch, syllables)
 
 func render_resources(pop: Array = []) -> void:
-	for c in hud_res.get_children(): c.queue_free()
+	for c in hud_res.get_children(): hud_res.remove_child(c); c.queue_free()   # remove first so new chips keep their names
 	for id in Data.resource_order:
 		var n: int = int(state.inventory.get(id, 0))
 		if id != "spark" and n <= 0: continue
@@ -635,6 +635,7 @@ func _process(dt: float) -> void:
 	for a in npcs.values(): a.update(dt)
 	actions.update(dt)
 	cam.update(dt, player.pos)
+	if mode == "explore": player_char.visible = cam.col_dist > 0.85   # a wall right behind: don't fill the view with the back of the head
 	_update_interaction()
 	_update_hotkeys()
 	guide.update(dt)
@@ -675,30 +676,51 @@ func _update_hotkeys() -> void:
 		chip.add_child(UiTheme.label(e[0], 13, UiTheme.PINK_DARK)); item.add_child(chip)
 		item.add_child(UiTheme.label(e[1], 13, UiTheme.INK2))
 
+## Sky, light, fog and rain follow the clock: keyframed colours through dawn, day, dusk and night, the sun and
+## moon crossing the sky, and weather that drifts between clear, fair, cloudy, drizzle, rain and morning mist.
+var weather_now: Dictionary = {}
 func _update_world_time(dt: float) -> void:
 	var s := state
 	if mode != "menu": Clock.advance(s.time, dt); s.play_time += dt
 	var night := Clock.is_night(s.time)
 	if night != s.flags.get("night", false): s.flags["night"] = night
-	var d := Clock.daylight(s.time)
 	var h: float = s.time.minute / 60.0
-	var weather: String = Clock.weather(s.time) if settings.weather else "sunny"
-	var cloud := 0.35 if weather == "cloudy" else (0.55 if weather == "rain" else 0.0)
-	var sunset := maxf(0.0, 1.0 - absf(h - 19.0) / 1.8) + maxf(0.0, 1.0 - absf(h - 6.5) / 1.5)
-	sun.light_energy = (0.1 + 0.52 * d) * (1.0 - cloud * 0.6)
-	sun.light_color = Color("fff1d6").lerp(Color("ff9a5a"), minf(1.0, sunset) * 0.6)
+	var look := Daylight.sample(h)
+	var nt := Daylight.nightness(h)
+	var forced: String = shot_cfg.get("weather", "")   # screenshots: --weather=rain etc.
+	var w: Dictionary = Daylight.weather(s.time) if settings.weather and forced == "" else Daylight.WEATHER.get(forced if forced != "" else "clear", Daylight.WEATHER.clear).duplicate()
+	if not w.has("type"): w["type"] = forced if forced != "" else "clear"
+	# ease the weather values too, so switching the setting or loading a save doesn't snap the sky
+	for k in ["clouds", "rain", "fog", "sun"]:
+		weather_now[k] = lerpf(weather_now.get(k, w[k]), w[k], 1.0 - exp(-dt * 0.8))
+	weather_now["type"] = w.type
+	var clouds: float = weather_now.clouds; var wet: float = weather_now.rain; var fog: float = weather_now.fog
+	var grey := clampf((clouds - 0.4) * 1.1, 0.0, 0.7)
+	sun.light_energy = look.sun_energy * weather_now.sun
+	sun.light_color = look.sun_color.lerp(Color("d8dde2"), grey * 0.6)
+	var ld := Daylight.light_dir(h)
+	sun.global_transform.basis = Basis.looking_at(-ld, Vector3.UP if absf(ld.y) < 0.99 else Vector3.FORWARD)
 	var e: Environment = env.environment
-	e.ambient_light_energy = 0.2 + 0.2 * d
-	e.ambient_light_color = Color("8fa0d8").lerp(Color("c9dcf0"), d).lerp(Color("c8ced2"), cloud * 0.5)
+	e.ambient_light_energy = look.ambient_energy * lerpf(1.0, 0.92, grey)
+	e.ambient_light_color = look.ambient.lerp(Color("c4cad0"), grey * 0.5)
 	var sky_mat: ShaderMaterial = e.sky.sky_material
-	var top := Color("1d2a5a").lerp(Color("6cc4ff"), d).lerp(Color("9aa9b8"), cloud)
-	var bottom := Color("3b4a80").lerp(Color("d9f2ff"), d).lerp(Color("ffb88a"), minf(1.0, sunset) * (0.5 * d + 0.3)).lerp(Color("c9d3dc"), cloud)
+	var top: Color = look.zenith.lerp(Color("8f9cab"), grey)
+	var bottom: Color = look.horizon.lerp(Color("c3cbd3"), grey)
 	sky_mat.set_shader_parameter("top_color", top); sky_mat.set_shader_parameter("bottom_color", bottom)
-	e.fog_light_color = bottom.lerp(top, 0.25)
-	(village.water.material_override as ShaderMaterial).set_shader_parameter("night", 1.0 - d)
-	rain.emitting = weather == "rain"
+	sky_mat.set_shader_parameter("sun_dir", Daylight.sun_dir(h)); sky_mat.set_shader_parameter("moon_dir", Daylight.moon_dir(h))
+	sky_mat.set_shader_parameter("sun_color", look.sun_color); sky_mat.set_shader_parameter("night", nt)
+	sky_mat.set_shader_parameter("clouds", clouds); sky_mat.set_shader_parameter("cloud_dark", wet)
+	e.fog_light_color = bottom.lerp(top, 0.25).lerp(Color("eef1f4"), fog * 0.55)
+	e.fog_depth_curve = lerpf(1.6, 0.9, fog)
+	# morning mist and rain pull the haze in close
+	e.fog_depth_begin = lerpf(45.0, 2.0, fog)
+	e.fog_depth_end = lerpf(220.0, 45.0, fog)
+	e.fog_density = lerpf(0.55, 0.92, fog)
+	(village.water.material_override as ShaderMaterial).set_shader_parameter("night", nt)
+	rain.emitting = wet > 0.05
+	rain.amount_ratio = clampf(wet, 0.05, 1.0)
 	rain.position = camera.global_position + Vector3(0, 8, 0)
-	var icon: String = "🌙" if night else ("🌧️" if weather == "rain" else ("⛅" if weather == "cloudy" else "☀️"))
+	var icon: String = "🌙" if night else ({"rain": "🌧️", "drizzle": "🌦️", "cloudy": "☁️", "mist": "🌫️", "fair": "⛅"}.get(weather_now.type, "☀️"))
 	hud.clock_label.text = "%s %s%s" % [icon, Clock.text(s.time), ("  " + "🎵".repeat(actions.hum)) if actions.hum > 0 else ""]
 
 func _world_reactions(dt: float) -> void:
@@ -730,6 +752,7 @@ func _make_rain() -> void:
 	rain.process_material = pm
 	var q := QuadMesh.new(); q.size = Vector2(0.03, 0.4)
 	var m := Palette.glow_mat(Color("cfe8ff"), 0.6); m.billboard_mode = BaseMaterial3D.BILLBOARD_FIXED_Y; q.material = m
+	m.distance_fade_mode = BaseMaterial3D.DISTANCE_FADE_PIXEL_ALPHA; m.distance_fade_min_distance = 1.5; m.distance_fade_max_distance = 5.0   # no giant streaks right at the lens
 	rain.draw_pass_1 = q
 	add_child(rain)
 

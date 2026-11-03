@@ -94,14 +94,24 @@ func _draw_body(body: Control) -> void:
 	match active.kind:
 		"chop":
 			var y := 44.0
-			body.draw_rect(Rect2(10, y, w - 20, 30), Color("f3e3c8"))
-			body.draw_rect(Rect2(10 + (mg.center - mg.width / 2.0) * (w - 20), y, mg.width * (w - 20), 30), Color("8fe0b0"))
-			body.draw_rect(Rect2(10 + (mg.center - mg.perfect / 2.0) * (w - 20), y, mg.perfect * (w - 20), 30), Color("ffcf5c"))
-			body.draw_rect(Rect2(10 + mg.needle() * (w - 20) - 4, y - 6, 8, 42), UiTheme.INK)
+			var bw := w - 20
+			body.draw_rect(Rect2(10, y, bw, 30), Color("f3e3c8"))
+			body.draw_rect(Rect2(10 + (mg.center - mg.width / 2.0) * bw, y, mg.width * bw, 30), Color("8fe0b0"))
+			body.draw_rect(Rect2(10 + (mg.center - mg.perfect / 2.0) * bw, y, mg.perfect * bw, 30), Color("ffcf5c"))
+			var at: float = mg.hit_at if mg.hit_at >= 0.0 else mg.needle()
+			var nc: Color = UiTheme.INK if mg.hit_at < 0.0 else _result_color(mg.last)
+			body.draw_rect(Rect2(10 + at * bw - 4, y - 6, 8, 42), nc)
+			if mg.pause > 0.0: _flash(body, mg.last, Vector2(10 + at * bw, y - 14))
 		"mine":
+			# The green band is drawn exactly over the radii that score (draw_arc strokes are centred on the radius).
 			var c := Vector2(w / 2.0, 60)
-			body.draw_arc(c, mg.target[1] * 70.0, 0, TAU, 48, Color("8fe0b0"), (mg.target[1] - mg.target[0]) * 70.0)
-			body.draw_arc(c, maxf(0.02, mg.r) * 70.0, 0, TAU, 48, UiTheme.INK, 4.0)
+			var k := 70.0
+			var t0: float = mg.target[0]; var t1: float = mg.target[1]
+			body.draw_arc(c, (t0 + t1) / 2.0 * k, 0, TAU, 64, Color("8fe0b0"), (t1 - t0) * k)
+			body.draw_arc(c, (t0 + t1) / 2.0 * k, 0, TAU, 64, Color("ffcf5c"), 0.06 * k)
+			var rc: Color = UiTheme.INK if mg.pause <= 0.0 else _result_color(mg.last)
+			body.draw_arc(c, maxf(0.02, mg.r) * k, 0, TAU, 64, rc, 4.0)
+			if mg.pause > 0.0: _flash(body, mg.last, c + Vector2(0, -k * 0.55 - 6))
 		"fish":
 			if mg.phase == "reel":
 				var x := w / 2.0 - 120
@@ -113,6 +123,16 @@ func _draw_body(body: Control) -> void:
 				body.draw_string(UiTheme.main_font(), Vector2(x + 70, 40), "Catch", HORIZONTAL_ALIGNMENT_LEFT, -1, 14, UiTheme.INK2)
 			elif mg.phase == "bite":
 				body.draw_string(UiTheme.main_font(), Vector2(w / 2.0 - 20, 80), "❗", HORIZONTAL_ALIGNMENT_LEFT, -1, 48, UiTheme.PINK_DARK)
+
+func _result_color(r: String) -> Color:
+	return {"perfect": Color("e0a400"), "good": Color("2f9a5c"), "miss": Color("d0505a")}.get(r, UiTheme.INK)
+
+func _flash(body: Control, r: String, at: Vector2) -> void:
+	var txt: String = {"perfect": "Perfect!", "good": "Good!", "miss": "Miss"}.get(r, "")
+	var f := UiTheme.title_font()
+	var sz := f.get_string_size(txt, HORIZONTAL_ALIGNMENT_LEFT, -1, 20)
+	body.draw_string_outline(f, at - Vector2(sz.x / 2.0, 0), txt, HORIZONTAL_ALIGNMENT_LEFT, -1, 20, 6, Color.WHITE)
+	body.draw_string(f, at - Vector2(sz.x / 2.0, 0), txt, HORIZONTAL_ALIGNMENT_LEFT, -1, 20, _result_color(r))
 
 func _finish(cancelled: bool) -> void:
 	var a := active

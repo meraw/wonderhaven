@@ -1,6 +1,16 @@
 class_name FollowCamera
 extends RefCounted
-## Orbit follow camera: drag or right stick to rotate, wheel/triggers to zoom, eases into build and dialogue views.
+## Third-person orbit camera. Drag, Q/Z or the right stick rotate it; the wheel or triggers zoom; it blends
+## smoothly into the build and dialogue views.
+##
+## Stability rules:
+## - The pivot follows the player smoothly: steadily sideways, more gently up and down, so steps and hops don't
+##   bob the view.
+## - Mouse look is nearly direct, with a little smoothing to remove jitter.
+## - Collision is checked along several rays (centre plus four offsets) against buildings and the ground. The
+##   camera pulls in at once when something comes between, so it never shows the inside of a wall, and eases back
+##   out slowly so it doesn't pop.
+## - The camera never changes its own pitch.
 
 var camera: Camera3D
 var yaw := PI * 1.5
@@ -12,13 +22,20 @@ var focus := Vector3.ZERO
 var mode := "explore"
 var limits := {"explore": [3.5, 16.0, 0.12, 1.25], "build": [6.0, 30.0, 0.55, 1.35], "dialogue": [2.5, 6.0, 0.1, 0.6]}
 var shake := 0.0
-var blockers: Array = []   # AABBs (buildings) the camera rises over (or, failing that, pulls in front of)
-var lift := 0.0            # extra pitch currently added to clear a building
+var blockers: Array = []   # AABBs (buildings) the camera stays in front of
 var occluders: Array = []  # [centre: Vector3, radius: float] tree canopies and bushes the dialogue view avoids
+var col_dist := 8.5        # where the camera actually sits after collision
+var blend := 0.0           # seconds left of a slower blend after a mode change
+var _t := 0.0
+
+const MARGIN := 0.35       # how far the camera stays from walls
+const MIN_DIST := 0.15     # closest the camera comes: at the player's head, never inside a wall (the player is hidden this close; see game.gd)
+const PROBES := [Vector2(0, 0), Vector2(0.28, 0), Vector2(-0.28, 0), Vector2(0, 0.22), Vector2(0, -0.18)]
 
 func _init(cam: Camera3D) -> void: camera = cam
 
 func set_mode(m: String) -> void:
+	if m != mode: blend = 0.7
 	mode = m
 	if m == "build": pitch = maxf(pitch, 0.95); dist = maxf(dist, 15.0)
 	if m == "explore": pitch = clampf(pitch, 0.25, 0.75); dist = clampf(dist, 5.0, 11.0)
@@ -26,18 +43,15 @@ func set_mode(m: String) -> void:
 func frame_dialogue(a: Vector3, b: Vector3) -> void:
 	focus = (a + b) / 2.0 + Vector3(0, 0.9, 0)
 	pitch = 0.28; dist = 4.6
-	# Try a few angles around the pair and keep the one whose view isn't blocked by a hill.
+	# Try a few angles around the pair; keep the one with the clearest view (no hill, house or tree in the way).
 	var base := atan2(b.x - a.x, b.z - a.z) + PI / 2.0
 	var best := base + 0.6
 	var best_block := INF
 	for off in [0.6, -0.6, 1.1, -1.1, 0.2, -0.2, PI - 0.6, PI + 0.6]:
 		var y: float = base + off
-		var cam_pos := focus + Vector3(sin(y) * cos(pitch), sin(pitch), cos(y) * cos(pitch)) * dist
-		var block := 0.0
-		for k in range(1, 9):
-			var p := focus.lerp(cam_pos, k / 8.0)
-			block = maxf(block, Heightfield.height(p.x, p.z) + 0.3 - p.y)
-		if not _avoid_blockers(focus, cam_pos).is_equal_approx(cam_pos): block += 5.0
+		var dir := Vector3(sin(y) * cos(pitch), sin(pitch), cos(y) * cos(pitch))
+		var cam_pos := focus + dir * dist
+		var block := (dist - clear_distance(focus, dir, dist)) * 2.0
 		block += 2.0 * _foliage_hits(focus, cam_pos)
 		if block < best_block - 0.05: best_block = block; best = y
 	yaw = best
@@ -52,27 +66,81 @@ func clamp_limits() -> void:
 	dist = clampf(dist, l[0], l[1]); pitch = clampf(pitch, l[2], l[3])
 
 func update(dt: float, follow: Vector3) -> void:
+	_t += dt
 	clamp_limits()
 	if mode != "dialogue" and mode != "build": focus = follow + Vector3(0, 1.0, 0)
-	var k := 1.0 - exp(-10.0 * dt)
-	target = target.lerp(focus, k)
-	cur.yaw = lerp_angle(cur.yaw, yaw, 1.0 - exp(-12.0 * dt))
-	cur.pitch = lerpf(cur.pitch, pitch, 1.0 - exp(-8.0 * dt))
-	cur.dist = lerpf(cur.dist, dist, 1.0 - exp(-8.0 * dt))
-	var avoid := mode == "explore" or mode == "dialogue"
-	# Rise over a house behind the player (fast up, slow down) rather than zooming into their face.
-	var need := _lift_needed(target, cur.yaw, cur.pitch, cur.dist) if avoid and mode == "explore" else 0.0
-	lift = lerpf(lift, need, 1.0 - exp(-(10.0 if need > lift else 2.0) * dt))
-	var pitch_now: float = minf(1.4, cur.pitch + lift)
-	var p: Vector3 = target + Vector3(sin(cur.yaw) * cos(pitch_now), sin(pitch_now), cos(cur.yaw) * cos(pitch_now)) * cur.dist
-	if avoid: p = _avoid_blockers(target, p)
-	var min_y := Heightfield.height(p.x, p.z) + 0.6
-	if p.y < min_y: p.y = min_y
+	blend = maxf(0.0, blend - dt)
+	var slow := blend > 0.0
+	var kxz := 1.0 - exp(-(5.0 if slow else 14.0) * dt)
+	var ky := 1.0 - exp(-(4.0 if slow else 7.0) * dt)
+	target = Vector3(lerpf(target.x, focus.x, kxz), lerpf(target.y, focus.y, ky), lerpf(target.z, focus.z, kxz))
+	var kr := 1.0 - exp(-(6.0 if slow else 28.0) * dt)
+	cur.yaw = lerp_angle(cur.yaw, yaw, kr)
+	cur.pitch = lerpf(cur.pitch, pitch, kr)
+	cur.dist = lerpf(cur.dist, dist, 1.0 - exp(-(5.0 if slow else 12.0) * dt))
+	var dir := _dir(cur.yaw, cur.pitch)
+	var allowed: float = cur.dist
+	if mode == "explore" or mode == "dialogue": allowed = clear_distance(target, dir, cur.dist)
+	col_dist = settle(col_dist, allowed, dt)
+	var p: Vector3 = target + dir * col_dist
+	if mode == "explore" or mode == "dialogue": p = _outside_walls(target, p)
+	var ground := maxf(Heightfield.height(p.x, p.z), Heightfield.WATER_Y) + 0.45
+	if p.y < ground: p.y = ground
 	if shake > 0.0:
-		shake -= dt
-		p += Vector3(randf() - 0.5, randf() - 0.5, 0) * shake * 0.3
+		shake = maxf(0.0, shake - dt)
+		p += Vector3(sin(_t * 41.0), sin(_t * 33.0 + 1.3), 0.0) * shake * 0.12
 	camera.global_position = p
 	camera.look_at(target, Vector3.UP)
+
+## Collision distance filter: jump in at once, ease out slowly (exponentially, and never faster than 3.5 m/s,
+## so a low frame rate can't make it lurch).
+static func settle(current: float, allowed: float, dt: float) -> float:
+	if allowed < current: return allowed
+	return minf(lerpf(current, allowed, 1.0 - exp(-2.5 * dt)), current + 3.5 * dt)
+
+static func _dir(y: float, p: float) -> Vector3: return Vector3(sin(y) * cos(p), sin(p), cos(y) * cos(p))
+
+## How far the camera can sit from `origin` along `dir` (up to `d`) without a building or the ground in the way,
+## using a small bundle of rays so a thin edge can't flicker it in and out.
+func clear_distance(origin: Vector3, dir: Vector3, d: float) -> float:
+	var right := dir.cross(Vector3.UP)
+	right = right.normalized() if right.length() > 0.001 else Vector3.RIGHT
+	var up := right.cross(dir).normalized()
+	var best := d
+	for pr in PROBES:
+		best = minf(best, _ray_clear(origin, origin + right * pr.x + up * pr.y, dir, d))
+	return clampf(best, minf(MIN_DIST, d), d)
+
+func _ray_clear(pivot: Vector3, o: Vector3, dir: Vector3, d: float) -> float:
+	var free := d
+	var seg := dir * d
+	for b in blockers:
+		var box: AABB = b
+		if box.has_point(pivot): continue   # standing inside (the workshop): that building doesn't block
+		var grown := box.grow(MARGIN)
+		var t := _ray_box(o, seg, box if grown.has_point(pivot) else grown)
+		if t >= 0.0: free = minf(free, t * d - 0.15)
+	var s := 0.5
+	while s <= d:
+		var q := o + dir * s
+		if q.y < Heightfield.height(q.x, q.z) + 0.35: free = minf(free, s - 0.4); break
+		s += 0.5
+	return free
+
+## Last safety net: if the camera point is inside a building's walls (and the player isn't), bring it back along
+## the line to the player until it is outside.
+func _outside_walls(pivot: Vector3, p: Vector3) -> Vector3:
+	for b in blockers:
+		var walls: AABB = (b as AABB).grow(-0.35)
+		if walls.has_point(p) and not walls.has_point(pivot):
+			var t := _ray_box(pivot, p - pivot, walls)
+			if t >= 0.0: p = pivot + (p - pivot) * maxf(0.0, t - 0.02)
+	return p
+
+## True when something stands between `from` and `to`.
+func blocked(from: Vector3, to: Vector3) -> bool:
+	var v := to - from
+	return v.length() > 0.01 and clear_distance(from, v.normalized(), v.length()) < v.length() - 0.01
 
 ## How many canopies or bushes the line from a to b passes through.
 func _foliage_hits(a: Vector3, b: Vector3) -> int:
@@ -84,32 +152,6 @@ func _foliage_hits(a: Vector3, b: Vector3) -> int:
 		var t := clampf((c - a).dot(ab) / l2, 0.0, 1.0) if l2 > 0.0 else 0.0
 		if (a + ab * t).distance_to(c) < r: n += 1
 	return n
-
-## Smallest extra pitch (in 0.1 steps) that gives a clear view over the buildings, or 0.
-func _lift_needed(from: Vector3, y: float, p: float, d: float) -> float:
-	for k in 13:
-		var pk := minf(1.4, p + k * 0.1)
-		var to := from + Vector3(sin(y) * cos(pk), sin(pk), cos(y) * cos(pk)) * d
-		if _avoid_blockers(from, to).is_equal_approx(to): return pk - p
-	return 0.0
-
-## Pulls the camera toward the target when a building sits between them. Buildings get a small margin, dropped
-## when the target stands within it (a villager by their door); a target inside the walls (the workshop) skips it.
-const MARGIN := 0.35
-func _avoid_blockers(from: Vector3, to: Vector3) -> Vector3:
-	var dir := to - from
-	var len := dir.length()
-	if len < 0.01: return to
-	var hit := 1.0
-	for b in blockers:
-		var box: AABB = b
-		if box.has_point(from): continue
-		var grown := box.grow(MARGIN)
-		var t := _ray_box(from, dir, box if grown.has_point(from) else grown)
-		if t >= 0.0 and t < hit: hit = t
-	if hit >= 1.0: return to
-	var d := hit * len
-	return from + dir / len * (d - 0.25 if d > 1.0 else d * 0.75)
 
 ## Fraction along from→from+dir where the segment first enters the box, or -1.
 static func _ray_box(from: Vector3, dir: Vector3, box: AABB) -> float:
@@ -127,6 +169,6 @@ static func _ray_box(from: Vector3, dir: Vector3, box: AABB) -> float:
 	return t0
 
 func snap() -> void:
-	cur.yaw = yaw; cur.pitch = pitch; cur.dist = dist; target = focus
+	cur.yaw = yaw; cur.pitch = pitch; cur.dist = dist; target = focus; col_dist = dist; blend = 0.0
 
 func move_yaw() -> float: return cur.yaw

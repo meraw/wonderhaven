@@ -81,6 +81,27 @@ func test_minigames():
 	t.eq(f.result, "caught")
 	var early := Minigames.Fish.new(Rng.new(1)); early.step(0.1, true); t.eq(early.result, "early")
 
+func test_minigames_judge_what_is_shown():
+	# A press judges the needle/ring where it was drawn, even at a low frame rate (big dt), and the result stays
+	# on screen during the pause instead of jumping to the next round.
+	var c := Minigames.Chop.new(Rng.new(7))
+	c.phase = asin((c.center + c.width / 2.0 - 0.01) * 2.0 - 1.0)   # needle just inside the green edge
+	var shown := c.needle()
+	c.step(0.1, true)
+	t.eq(c.last, "good", "needle shown inside the green counts (needle at %.3f, zone %.3f ± %.3f)" % [shown, c.center, c.width / 2.0])
+	t.ok(absf(c.hit_at - shown) < 0.0001 and c.pause > 0.0, "the hit is shown where it landed during the pause")
+	var center_before := c.center
+	c.step(0.3, false)
+	t.eq(c.center, center_before, "the zone doesn't move until the pause is over")
+	var m := Minigames.Mine.new(false, Rng.new(2))
+	m.r = m.target[1] - 0.005
+	m.step(0.1, true)
+	t.ok(m.last != "miss", "ring shown inside the band counts (%s)" % m.last)
+	var m2 := Minigames.Mine.new(false, Rng.new(2))
+	m2.r = m2.target[1] + 0.06
+	m2.step(0.016, true)
+	t.eq(m2.last, "miss", "ring clearly outside the band misses")
+
 func test_gardening():
 	var gd := {}
 	t.eq(Gardening.action(gd, "bed0", {"seeds": 1}), "plant")

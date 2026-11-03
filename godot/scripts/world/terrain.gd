@@ -158,9 +158,54 @@ const SKY_SHADER := """
 shader_type sky;
 uniform vec4 top_color : source_color = vec4(0.42, 0.77, 1.0, 1.0);
 uniform vec4 bottom_color : source_color = vec4(0.85, 0.95, 1.0, 1.0);
+uniform vec3 sun_dir = vec3(0.3, 0.8, 0.4);
+uniform vec4 sun_color : source_color = vec4(1.0, 0.95, 0.85, 1.0);
+uniform vec3 moon_dir = vec3(-0.3, 0.6, -0.4);
+uniform float night = 0.0;
+uniform float clouds = 0.25;
+uniform float cloud_dark = 0.0;
+float h2(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+float n2(vec2 p) { vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 * f);
+	return mix(mix(h2(i), h2(i + vec2(1, 0)), u.x), mix(h2(i + vec2(0, 1)), h2(i + vec2(1, 1)), u.x), u.y); }
+float fbm(vec2 p) { float v = 0.0, a = 0.5; for (int i = 0; i < 5; i++) { v += a * n2(p); p = p * 2.03 + 11.7; a *= 0.5; } return v; }
 void sky() {
-	float t = smoothstep(-0.05, 0.6, EYEDIR.y);
-	COLOR = mix(bottom_color.rgb, top_color.rgb, t);
+	vec3 d = normalize(EYEDIR);
+	float up = d.y;
+	vec3 col = mix(bottom_color.rgb, top_color.rgb, smoothstep(-0.02, 0.55, up));
+	if (up < 0.0) col = mix(bottom_color.rgb, bottom_color.rgb * 0.75, smoothstep(0.0, -0.3, up));
+	float sd = max(dot(d, normalize(sun_dir)), 0.0);
+	float md = max(dot(d, normalize(moon_dir)), 0.0);
+	// glow around the sun (warm haze near the horizon at sunrise and sunset)
+	col += sun_color.rgb * (pow(sd, 10.0) * 0.28 + pow(sd, 90.0) * 0.5) * (1.0 - night) * (1.0 - clouds * 0.6);
+	if (!AT_CUBEMAP_PASS) {
+		// stars: round dots on a 3D grid of directions, a few per patch of sky, twinkling, above the haze
+		vec3 sp = d * 90.0;
+		vec3 cell = floor(sp);
+		float sh = fract(sin(dot(cell, vec3(127.1, 311.7, 74.7))) * 43758.5453);
+		vec3 off = vec3(fract(sh * 13.1), fract(sh * 71.7), fract(sh * 37.3)) * 0.6 + 0.2;
+		float dotd = length(fract(sp) - off);
+		float star = step(0.982, sh) * smoothstep(0.17, 0.06, dotd) * smoothstep(0.08, 0.35, up);
+		star *= 0.65 + 0.35 * sin(TIME * (1.5 + sh * 3.0) + sh * 60.0);
+		col += vec3(0.92, 0.95, 1.0) * star * night * (1.0 - clouds);
+		// sun and moon discs
+		col = mix(col, sun_color.rgb * 1.6 + 0.2, smoothstep(0.99935, 0.99965, sd) * (1.0 - night) * (1.0 - clouds * 0.8));
+		float moon = smoothstep(0.99905, 0.9993, md);
+		col = mix(col, vec3(0.93, 0.95, 1.0), moon * night * (1.0 - clouds * 0.85));
+		col += vec3(0.5, 0.6, 0.9) * pow(md, 40.0) * 0.12 * night;
+		// clouds: drifting fbm on a dome, lit by the sun's colour, greyer when it rains
+		if (up > 0.0) {
+			vec2 uv = d.xz / (up + 0.18) * 0.9 + vec2(TIME * 0.006, TIME * 0.003);
+			float n = fbm(uv * 1.3);
+			float cov = smoothstep(1.0 - clouds - 0.12, 1.0 - clouds + 0.28, n);
+			cov *= smoothstep(0.0, 0.18, up);
+			vec3 lit = mix(vec3(1.0), sun_color.rgb, 0.35) * mix(1.0, 0.42, night);
+			vec3 shade = mix(top_color.rgb * 0.9 + 0.15, vec3(0.42, 0.45, 0.5), cloud_dark);
+			vec3 cc = mix(lit, shade, smoothstep(0.35, 0.95, n) * 0.7 + cloud_dark * 0.4);
+			cc = mix(cc, cc * vec3(0.55, 0.6, 0.8), night);
+			col = mix(col, cc, cov * 0.92);
+		}
+	}
+	COLOR = col;
 }
 """
 
@@ -220,6 +265,7 @@ static func build_environment() -> WorldEnvironment:
 	var sh := Shader.new(); sh.code = SKY_SHADER
 	var sm := ShaderMaterial.new(); sm.shader = sh
 	sky.sky_material = sm
+	sky.radiance_size = Sky.RADIANCE_SIZE_32   # ambient light comes from a colour, so the sky's reflection map can be tiny
 	env.background_mode = Environment.BG_SKY
 	env.sky = sky
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR

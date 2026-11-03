@@ -14,6 +14,9 @@ static func leaf_mat(color: Color) -> StandardMaterial3D:
 	var m := P.unique_mat(color)   # untextured: the canopy gradient is the detail
 	m.vertex_color_use_as_albedo = true
 	m.vertex_color_is_srgb = true
+	# dissolve leaves right in front of the camera, like the instanced trees (Foliage.PLANT_SHADER)
+	m.distance_fade_mode = BaseMaterial3D.DISTANCE_FADE_PIXEL_DITHER
+	m.distance_fade_min_distance = 1.9; m.distance_fade_max_distance = 2.8
 	return m
 
 static func round_tree(s: float = 1.0, hue: float = 0.5, fruit: bool = false) -> Node3D:
