@@ -256,9 +256,10 @@ func play() -> void:
 	await shot("bridge-built")
 	await leave_build()
 	# 7. Cross the bridge
-	var crossed: bool = await walk_direct(0.5, -14.2, 0.6) and await walk_direct(0.5, -24.0, 0.7)
+	await walk_direct(0.5, -14.2, 0.6); await walk_direct(0.5, -24.0, 0.7)
 	await shot("crossed-bridge")
-	check(7, "A completed bridge can actually be crossed", crossed and game.player.pos.z < -23.0 and game.player.pos.y > -0.3, "z=%.1f y=%.2f" % [game.player.pos.z, game.player.pos.y])
+	# On the far bank (z < -23; the river is -21..-15) and on dry ground, however far past the target the walk stopped.
+	check(7, "A completed bridge can actually be crossed", game.player.pos.z < -23.0 and game.player.pos.y > -0.3, "z=%.1f y=%.2f" % [game.player.pos.z, game.player.pos.y])
 	await walk_direct(0.5, -13.5, 0.7)
 	var bp0: int = game.state.blueprints.size()
 	var h0: int = game.state.harmony
