@@ -52,10 +52,10 @@ func _on_done(o: Dictionary) -> void:
 
 func marker_for(npc: String) -> String:
 	if not engine.turn_ins_for(npc).is_empty(): return "ready"
-	if not engine.offers_for(npc).is_empty(): return "offer"
-	for q in engine.active():   # a request step waiting at this villager (talk to them, or pay them)
+	for q in engine.active():   # a step of a request you took on waits at this villager (talk to them, or pay them)
 		var st := engine.next_step(q.id)
 		if not st.is_empty() and st.get("npc", "") == npc and not st.objective.get("final", false): return "ready"
+	if not engine.offers_for(npc).is_empty(): return "offer"
 	return ""
 
 func _conv(agent) -> Dictionary:
