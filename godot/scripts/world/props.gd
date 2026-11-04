@@ -561,7 +561,7 @@ static func fountain() -> Node3D:
 	_add(g, P.torus(0.24, 0.05, 16), P.stone("e3dccf"), Vector3(0, 1.0, 0))
 	_add(g, P.cyl(0.78, 0.3, 0.28, 24), P.stone(P.STONE), Vector3(0, 1.72, 0))
 	_add(g, P.torus(0.77, 0.05, 24), P.stone("e3dccf"), Vector3(0, 1.86, 0))
-	var topper := _add(g, P.sphere(0.22, 4, 2), P.unique_mat("c9a8ff", "7a5cff", 0.0), Vector3(0, 2.15, 0)); topper.name = "topper"
+	var topper := _add(g, P.sphere(0.17, 14, 10), P.unique_mat("ddd4c4", "fff1c8", 0.0), Vector3(0, 2.12, 0)); topper.name = "topper"   # a stone finial; it catches the light when the water runs
 	var pool := _add(g, P.cyl(1.42, 1.42, 0.05, 24), P.glow_mat(Color("6fd8ee"), 0.85), Vector3(0, 0.5, 0), Vector3.ZERO, Vector3.ONE, false); pool.name = "pool"; pool.visible = false
 	var bw := _add(g, P.cyl(0.66, 0.66, 0.04, 16), P.glow_mat(Color("6fd8ee"), 0.85), Vector3(0, 1.82, 0), Vector3.ZERO, Vector3.ONE, false); bw.name = "bowlWater"; bw.visible = false
 	var cracks := Node3D.new(); cracks.name = "cracks"; g.add_child(cracks)

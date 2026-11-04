@@ -61,7 +61,7 @@ func play() -> void:
 	await helper.talk_through(false)
 	check("t12", "Turning in shows the approval bar and moves on to the journal", await wait_step("journal") and game.hud.harmony_box.visible, step_id())
 	await tap(KEY_J); await frames(10); await tap(KEY_ESCAPE); await frames(5)
-	check("t13", "Opening the journal moves on to meeting Fern", await wait_step("fern"), step_id())
+	check("t13", "Opening the journal moves on to meeting Gigia", await wait_step("fern"), step_id())
 	await shot("guide-fern")
 	var skip: Control = game.hud.guide_card.find_child("guide_skip", true, false)
 	await frames(5)
