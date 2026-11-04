@@ -66,7 +66,7 @@ func play() -> void:
 	await go("park_gate", "back up to the park gate")
 	await go("pond_w", "round the duck pond")
 	await shot("park")
-	check("lawn", "the park is grass", Ground.kind_at(-140, -112) == "grass" and not Ground.paved(-104, -140), "")
+	check("lawn", "the park is grass", Ground.kind_at(-140, -140) == "grass" and not Ground.paved(-104, -140), "%s, %s" % [Ground.kind_at(-140, -140), Ground.kind_at(-104, -140)])
 	var napped := await sleep_at(P + "bench_park1", 18)
 	check("nap", "a nap on a park bench until evening", napped and game.state.time.minute >= 17.9 * 60.0 and game.state.time.minute < 19.5 * 60.0, "%.1f h" % (game.state.time.minute / 60.0))
 	game.state.flags["boatReady"] = true   # the train only runs once you've opened the line elsewhere
