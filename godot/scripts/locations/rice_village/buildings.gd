@@ -241,8 +241,11 @@ static func church(b: Dictionary) -> Node3D:
 	# pilasters on the front and down the long sides
 	for x in [-b.w / 2.0 + 0.2, -b.w / 6.0, b.w / 6.0, b.w / 2.0 - 0.2]:
 		over.append(_add(g, P.box(0.4, h + 1.6, 0.12), Tex.brick(Color(b.wall).darkened(0.08)), Vector3(x, (h + 1.6) / 2.0, fs * (b.d / 2.0 + 0.05))))
+	var wh := Interiors.WALL_H
 	for z in range(-int(b.d / 2.0) + 2, int(b.d / 2.0) - 1, 3):
-		for xs in [-1, 1]: _add(g, P.box(0.14, h, 0.45), Tex.brick(Color(b.wall).darkened(0.08)), Vector3(xs * (b.w / 2.0 + 0.06), h / 2.0, z))
+		for xs in [-1, 1]:   # down the long sides; the part above the room's walls fades with the roof
+			_add(g, P.box(0.14, wh, 0.45), Tex.brick(Color(b.wall).darkened(0.08)), Vector3(xs * (b.w / 2.0 + 0.06), wh / 2.0, z))
+			over.append(_add(g, P.box(0.14, h - wh, 0.45), Tex.brick(Color(b.wall).darkened(0.08)), Vector3(xs * (b.w / 2.0 + 0.06), (h + wh) / 2.0, z)))
 	# tall arched windows down the sides, high up
 	for z in range(-int(b.d / 2.0) + 3, int(b.d / 2.0) - 1, 3):
 		for s in ["E", "W"]:
