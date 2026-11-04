@@ -1444,6 +1444,18 @@
   "gatehouse": [
    -16.8,
    -10
+  ],
+  "bakeryWest": [
+   -15.2,
+   -3.2
+  ],
+  "fernCorner": [
+   6.8,
+   -5.8
+  ],
+  "gatehouseNE": [
+   -16.4,
+   -7.0
   ]
  },
  "nav_edges": [
@@ -1497,6 +1509,10 @@
   ],
   [
    "fernGarden",
+   "fernCorner"
+  ],
+  [
+   "fernCorner",
    "fernDoor"
   ],
   [
@@ -1541,10 +1557,18 @@
   ],
   [
    "bakeryDoor",
+   "bakeryWest"
+  ],
+  [
+   "bakeryWest",
    "gatehouse"
   ],
   [
    "quarry",
+   "gatehouseNE"
+  ],
+  [
+   "gatehouseNE",
    "gatehouse"
   ],
   [

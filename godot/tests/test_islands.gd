@@ -124,3 +124,20 @@ func test_rooms_only_count_from_inside():
 		var n := Schedule.nearest_node(-19.0, 3.5, {})
 		t.ok(not n.contains(":"), "outside a house, the nearest nav spot is outdoors (%s)" % n)
 		t.eq(Schedule.nearest_node(-9.4, 4.3, {}), "clockHouse:spot", "inside it, the spot indoors is nearest"))
+
+func test_nav_edges_go_round_buildings():
+	# Walkers (villagers, and the playthrough harness) follow nav edges in straight lines: an edge that cuts through a
+	# building would walk them into its walls, or in through a doorway and stuck against the back wall.
+	for id in _islands_with_layouts():
+		_on(id, func():
+			for e in Data.layout.nav_edges:
+				var a: Array = Data.layout.nav_nodes[e[0]]; var b: Array = Data.layout.nav_nodes[e[1]]
+				for bd in Data.layout.buildings:
+					var inside := func(q: Array) -> bool: return absf(q[0] - bd.x) < bd.w / 2.0 and absf(q[1] - bd.z) < bd.d / 2.0
+					if inside.call(a) or inside.call(b): continue   # the way into a room through its door
+					var hit := false
+					for k in 41:
+						var t := k / 40.0
+						var x: float = lerpf(a[0], b[0], t); var z: float = lerpf(a[1], b[1], t)
+						if absf(x - bd.x) < bd.w / 2.0 - 0.05 and absf(z - bd.z) < bd.d / 2.0 - 0.05: hit = true
+					t.ok(not hit, "%s: the path %s-%s goes round %s" % [id, e[0], e[1], bd.id]))
