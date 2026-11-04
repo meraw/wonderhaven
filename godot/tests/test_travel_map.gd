@@ -32,3 +32,15 @@ func test_the_view_widens_as_places_appear():
 		t.ok(f.has_point(Vector2(300, 330)) and f.grow(-60).has_point(Vector2(300, 330 + 70)), "Monteforchetta and its name fit")
 	t.ok(two.has_point(Vector2(600, 150 - 80)) and two.has_point(Vector2(600 + 80, 150)), "and so does the city")
 	t.eq(Travel.map_frame([]), Rect2(0, 0, 800, 500), "with nothing on it, the whole map")
+
+func test_stops_on_a_line():
+	var a := {"id": "a", "kind": "stop", "line": "tram", "x": 0, "z": 0}
+	var b := {"id": "b", "kind": "stop", "line": "tram", "x": 80, "z": 0}
+	var c := {"id": "c", "kind": "stop", "line": "tram", "x": 80, "z": 60}
+	var other := {"id": "x", "kind": "stop", "line": "funicular", "x": 5, "z": 5}
+	var sign := {"id": "s", "kind": "sign", "x": 1, "z": 1}
+	var fs := [a, sign, b, other, c]
+	t.eq(Travel.stops_on(b, fs).map(func(f): return f.id), ["c", "a"], "the other stops on the line, the next one first")
+	t.eq(Travel.stops_on(other, fs), [], "a line with one stop goes nowhere")
+	t.ok(is_equal_approx(Travel.ride_minutes(a, b), 10.0), "80 m at tram speed is ten game minutes (%.1f)" % Travel.ride_minutes(a, b))
+	t.eq(Travel.ride_minutes(a, {"x": 3, "z": 0}), 2.0, "even the shortest ride takes a couple of minutes")

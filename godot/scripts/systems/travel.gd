@@ -44,3 +44,21 @@ static func map_frame(places: Array, min_size := Vector2(360, 225), margin := 30
 	if w / h > 1.6: h = w / 1.6
 	else: w = h * 1.6
 	return Rect2(box.get_center() - Vector2(w, h) / 2.0, Vector2(w, h))
+
+# ---- Rides within a place (trams, funiculars, lifts) ------------------------------------------------------------
+## A place can have stops: features {"kind": "stop", "line": "<id>", "name": "...", "x", "z", "ride_label"?,
+## "arrive_text"?}. At a stop you choose another stop on the same line and ride there: the screen fades, the clock
+## moves on by the ride's length and you step off at the other stop (game.ride_to).
+const RIDE_SPEED := 8.0   # metres per second, so a ride across a city takes a few game minutes
+
+## The other stops on `stop`'s line, in the order the line runs (the layout's order), starting with the next one.
+static func stops_on(stop: Dictionary, features: Array) -> Array:
+	var line: Array = features.filter(func(f): return f.get("kind", "") == "stop" and f.get("line", "") == stop.get("line", ""))
+	var i := line.find(stop)
+	if i < 0: return line
+	return line.slice(i + 1) + line.slice(0, i)
+
+## How many game minutes a ride from one stop to another takes (at least a couple).
+static func ride_minutes(from: Dictionary, to: Dictionary) -> float:
+	var d := Vector2(float(to.x) - float(from.x), float(to.z) - float(from.z)).length()
+	return maxf(2.0, d / RIDE_SPEED * Clock.MINUTES_PER_SECOND)   # a game minute for each second riding

@@ -35,15 +35,28 @@ static func is_stream_cell(i: float, k: float) -> bool:
 	return CANAL_A.has_point(p) or CANAL_B.has_point(p)
 
 const Kit := preload("res://scripts/locations/metropolis/kit.gd")
+const Scenery := preload("res://scripts/locations/metropolis/scenery.gd")
+const Landmarks := preload("res://scripts/locations/metropolis/landmarks.gd")
+
+## Scenery added after everything else (Village calls this): see scenery.gd.
+static func dress(village: Node3D) -> void: Scenery.dress(village)
 
 ## Models for Toriano's buildings. City blocks and the backdrop use the painted-façade kit; landmarks not yet
 ## modelled stay plain blocks of their wall colour at full height (the camera knows it from "h").
 static func building(b: Dictionary) -> Node3D:
 	var style: int = Kit.ARCHED if b.kind == "galleria" else Kit.PLAIN
-	if Interiors.enterable(b) and b.kind != "duomo": return Kit.room(b, style)
 	match String(b.kind):
-		"city_block", "tenement", "galleria", "tenement_low", "depot": return Kit.block(b, style)
+		"duomo": return Landmarks.duomo_nave(b)
+		"duomo_front": return Landmarks.duomo_front(b)
+		"duomo_aisle": return Landmarks.duomo_aisle(b)
+		"teatro": return Landmarks.teatro(b)
+		"castello": return Landmarks.castello(b)
+		"centrale": return Landmarks.centrale(b)
+		"tenement_low": return Landmarks.tenement_low(b)
+		"depot": return Kit.block(b, Kit.BRICK)
 		"backdrop": return Kit.block(b, Kit.BLANK)
+	if Interiors.enterable(b): return Kit.room(b, style)
+	if b.kind in ["city_block", "tenement", "galleria"]: return Kit.block(b, style)
 	return _plain(b)
 
 static func _plain(b: Dictionary) -> Node3D:

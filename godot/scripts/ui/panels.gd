@@ -310,6 +310,16 @@ func sleep(where: String, seat = null) -> void:
 	if where == "bench" and seat != null:
 		var st := UiTheme.button("🪑  Just sit a while", func(): close(); game.sit_on(seat), true); st.name = "just_sit"; v.add_child(st)
 
+## Where to from a stop (a tram stop, say): the other stops on its line, and how long the ride takes.
+func stops(stop: Dictionary) -> void:
+	open_panel("stops", "🚋 " + String(stop.get("name", "Stop")))
+	body.add_child(_wrap("Where to?", 16, UiTheme.INK))
+	var v := VBoxContainer.new(); v.custom_minimum_size.x = 420; v.size_flags_horizontal = Control.SIZE_SHRINK_CENTER; v.add_theme_constant_override("separation", 8); body.add_child(v)
+	for to in Travel.stops_on(stop, Data.layout.features):
+		var dest: Dictionary = to
+		var b := UiTheme.button("%s   (about %d min)" % [String(to.get("name", to.id)), int(round(Travel.ride_minutes(stop, to)))], func(): game.ride_to(stop, dest))
+		b.name = "ride_" + String(to.id); b.alignment = HORIZONTAL_ALIGNMENT_LEFT; v.add_child(b)
+
 func pause() -> void:
 	open_panel("pause", "🌟 Paused")
 	var v := VBoxContainer.new(); v.custom_minimum_size.x = 300; v.size_flags_horizontal = Control.SIZE_SHRINK_CENTER; v.add_theme_constant_override("separation", 10); body.add_child(v)

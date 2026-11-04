@@ -192,14 +192,19 @@ class Merge:
 			for i in tri:
 				st.set_color(col); st.set_normal(nn); st.add_vertex(corners[i])
 		count += 1
-	func _tri(a: Vector3, b: Vector3, c: Vector3, col: Color) -> void:
-		var n := (b - a).cross(c - a).normalized()
-		for v in [a, b, c]: st.set_color(col); st.set_normal(n); st.add_vertex(v)
+	## A triangle facing away from `center` (front faces wind clockwise in Godot, as in box()).
+	func _tri(a: Vector3, b: Vector3, c: Vector3, col: Color, center: Vector3) -> void:
+		var n := (b - a).cross(c - a)
+		if n.dot((a + b + c) / 3.0 - center) > 0.0:
+			var t := b; b = c; c = t; n = -n
+		var normal := -n.normalized()
+		for v in [a, b, c]: st.set_color(col); st.set_normal(normal); st.add_vertex(v)
 	## A square pyramid (a spire's top) on a base centred at c, half-width r, height h.
 	func pyramid(c: Vector3, r: float, h: float, col: Color) -> void:
 		var top := c + Vector3(0, h, 0)
 		var q := [c + Vector3(-r, 0, -r), c + Vector3(r, 0, -r), c + Vector3(r, 0, r), c + Vector3(-r, 0, r)]
-		for i in 4: _tri(q[i], top, q[(i + 1) % 4], col)
+		var mid := c + Vector3(0, h * 0.3, 0)
+		for i in 4: _tri(q[i], top, q[(i + 1) % 4], col, mid)
 		count += 1
 	## An upright prism with `sides` faces (a round tower, a drum), centred at c's base, radius r, height h.
 	func cyl(c: Vector3, r: float, h: float, col: Color, sides: int = 12, cap: bool = true) -> void:
@@ -207,15 +212,17 @@ class Merge:
 			var a0 := TAU * i / sides; var a1 := TAU * (i + 1) / sides
 			var p0 := c + Vector3(cos(a0) * r, 0, sin(a0) * r); var p1 := c + Vector3(cos(a1) * r, 0, sin(a1) * r)
 			var up := Vector3(0, h, 0)
-			_tri(p0, p1 + up, p1, col); _tri(p0, p0 + up, p1 + up, col)
-			if cap: _tri(c + up, p1 + up, p0 + up, col)
+			var mid := c + Vector3(0, h / 2.0, 0)
+			_tri(p0, p1 + up, p1, col, mid); _tri(p0, p0 + up, p1 + up, col, mid)
+			if cap: _tri(c + up, p1 + up, p0 + up, col, c)
 		count += 1
 	## A cone (a spire, a tent roof) on a base centred at c.
 	func cone(c: Vector3, r: float, h: float, col: Color, sides: int = 10) -> void:
 		var top := c + Vector3(0, h, 0)
+		var mid := c + Vector3(0, h * 0.3, 0)
 		for i in sides:
 			var a0 := TAU * i / sides; var a1 := TAU * (i + 1) / sides
-			_tri(c + Vector3(cos(a0) * r, 0, sin(a0) * r), top, c + Vector3(cos(a1) * r, 0, sin(a1) * r), col)
+			_tri(c + Vector3(cos(a0) * r, 0, sin(a0) * r), top, c + Vector3(cos(a1) * r, 0, sin(a1) * r), col, mid)
 		count += 1
 	## A gable (a pediment, a church front's peak): a triangle w wide and h high, depth d, facing +z, base centred at c.
 	func gable(c: Vector3, w: float, h: float, d: float, col: Color, ry: float = 0.0) -> void:
@@ -223,9 +230,10 @@ class Merge:
 		var f := [Vector3(-w / 2.0, 0, d / 2.0), Vector3(w / 2.0, 0, d / 2.0), Vector3(0, h, d / 2.0)]
 		var k := [Vector3(-w / 2.0, 0, -d / 2.0), Vector3(w / 2.0, 0, -d / 2.0), Vector3(0, h, -d / 2.0)]
 		var t := func(v: Vector3) -> Vector3: return c + b * v
-		_tri(t.call(f[0]), t.call(f[1]), t.call(f[2]), col); _tri(t.call(k[1]), t.call(k[0]), t.call(k[2]), col)
+		var mid: Vector3 = t.call(Vector3(0, h * 0.3, 0))
+		_tri(t.call(f[0]), t.call(f[1]), t.call(f[2]), col, mid); _tri(t.call(k[1]), t.call(k[0]), t.call(k[2]), col, mid)
 		for e in [[0, 2], [2, 1]]:
-			_tri(t.call(f[e[0]]), t.call(k[e[1]]), t.call(f[e[1]]), col); _tri(t.call(f[e[0]]), t.call(k[e[0]]), t.call(k[e[1]]), col)
+			_tri(t.call(f[e[0]]), t.call(k[e[1]]), t.call(f[e[1]]), col, mid); _tri(t.call(f[e[0]]), t.call(k[e[0]]), t.call(k[e[1]]), col, mid)
 		count += 1
 	func node(mat: Material, name: String = "parts") -> MeshInstance3D:
 		var m := MeshInstance3D.new(); m.name = name
@@ -246,9 +254,11 @@ static func hip_roof(w: float, d: float, rise: float, oh: float = 0.4) -> ArrayM
 	if long_x: tris = [[a, b, r1], [a, r1, r0], [c, e, r0], [c, r0, r1], [b, c, r1], [e, a, r0]]
 	else: tris = [[b, c, r1], [b, r1, r0], [e, a, r0], [e, r0, r1], [a, b, r0], [c, e, r1]]
 	for t in tris:
-		var n: Vector3 = (t[1] - t[0]).cross(t[2] - t[0]).normalized()
-		if n.y < 0.0: t = [t[0], t[2], t[1]]; n = -n
-		for v in t: st.set_normal(n); st.add_vertex(v)
+		# front faces wind clockwise seen from outside (above): cross product pointing down
+		var n: Vector3 = (t[1] - t[0]).cross(t[2] - t[0])
+		if n.y > 0.0: t = [t[0], t[2], t[1]]; n = -n
+		var normal := -n.normalized()
+		for v in t: st.set_normal(normal); st.add_vertex(v)
 	return st.commit()
 
 ## A railing of upright bars along x from -len/2 to len/2 at the origin: top rail, bottom rail, bars.
@@ -283,7 +293,7 @@ static func block(b: Dictionary, style: int = PLAIN) -> Node3D:
 	g.add_child(body)
 	var parts := Merge.new()
 	var stone := Color("d9d2c4")
-	parts.box(Vector3(0, h + 0.2, 0), Vector3(w + 0.5, 0.4, d + 0.5), stone)        # cornice
+	cornice(parts, w, d, h, stone, b.get("flat", false) or style == BLANK, not b.get("roof_walk", false))
 	if style != BLANK:
 		# balconies on the first floor of the long sides, on about half the blocks
 		if hsh.call(3.0) > 0.45:
@@ -367,7 +377,7 @@ static func room(b: Dictionary, style: int = PLAIN) -> Node3D:
 		var up := MeshInstance3D.new(); var ub := BoxMesh.new(); ub.size = Vector3(w, h - storey, d); up.mesh = ub
 		up.position.y = storey + (h - storey) / 2.0; up.material_override = mat.duplicate(); g.add_child(up); over.append(up)
 	var top := Merge.new()
-	top.box(Vector3(0, h + 0.2, 0), Vector3(w + 0.5, 0.4, d + 0.5), Color("d9d2c4"))
+	cornice(top, w, d, h, Color("d9d2c4"), b.get("flat", false))
 	var cap := top.node(vc_mat(), "cornice"); g.add_child(cap); over.append(cap)
 	if not b.get("flat", false):
 		var roof := MeshInstance3D.new(); roof.name = "roof"
@@ -376,3 +386,17 @@ static func room(b: Dictionary, style: int = PLAIN) -> Node3D:
 		roof.position.y = h + 0.4; g.add_child(roof); over.append(roof)
 	g.set_meta("fade_parts", fade_parts(over))
 	return g
+
+## The stone cornice round the top of a building's walls, and on a flat roof the roof itself: grey tar paper with a
+## little parapet, a chimney pot or two.
+static func cornice(m: Merge, w: float, d: float, h: float, stone: Color, flat: bool, chimneys: bool = true) -> void:
+	var t := 0.45
+	for s in [-1, 1]:
+		m.box(Vector3(0, h + 0.2, s * (d / 2.0 + 0.25 - t / 2.0)), Vector3(w + 0.5, 0.4, t), stone)
+		m.box(Vector3(s * (w / 2.0 + 0.25 - t / 2.0), h + 0.2, 0), Vector3(t, 0.4, d + 0.5 - 2.0 * t), stone)
+	if flat:
+		m.box(Vector3(0, h + 0.05, 0), Vector3(w - 0.1, 0.1, d - 0.1), Color("6f6a64"))
+		var n := (int(w * d / 120.0) + 1) if chimneys else 0
+		for i in n:
+			var fx := fposmod(sin(w * 3.1 + i * 7.7) * 437.0, 1.0) - 0.5; var fz := fposmod(sin(d * 5.3 + i * 3.9) * 291.0, 1.0) - 0.5
+			m.box(Vector3(fx * (w - 3.0), h + 0.7, fz * (d - 3.0)), Vector3(0.7, 1.3, 0.7), Color("b3826a"))   # chimney stacks

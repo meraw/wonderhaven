@@ -91,6 +91,19 @@ func test_a_departure_point_with_its_own_id():
 		t.eq(bus[0].label.call(), "Catch the bus", "without a label it's still the bus")
 		g.free())
 
+func test_a_stop_offers_a_ride():
+	_with_layout({"nodes": [], "features": [{"id": "stop_a", "kind": "stop", "line": "tram", "name": "Duomo", "x": 3, "z": 4, "ride_label": "Take the tram"}]}, func():
+		Data.island = "zz_elsewhere"
+		var g := FakeGame.new()
+		WorldActions.new(g)
+		Data.island = "hearthglow"
+		var stop: Array = g.registered.filter(func(d): return d.get("id", "") == "stop_a")
+		t.eq(stop.size(), 1, "a stop is something you can do")
+		t.eq(stop[0].label.call(), "Take the tram", "it says what you ride")
+		var statics := WorldStatics.build_statics({"trees": [], "bushes": [], "flowers": [], "grass": []})
+		t.ok(statics.any(func(s): return s.get("tag", "") == "stop_a"), "its sign post is solid")
+		g.free())
+
 func test_raised_floors_carry_you_and_what_you_build():
 	# a balcony along x 0..8 at 3.2 m, reached by stairs climbing from z 5.5 (ground) to its edge at z 1.5
 	var floors := [

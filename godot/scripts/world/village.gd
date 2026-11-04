@@ -196,7 +196,7 @@ func _build_features() -> void:
 	for f in Data.layout.features:
 		var o: Node3D
 		match f.kind:
-			"sign": o = Props.sign_post()
+			"sign", "stop": o = Props.sign_post()
 			"board": o = Props.notice_board()
 			"wardrobe": o = Props.wardrobe()
 			"boat": o = Props.boat(); o.visible = false
