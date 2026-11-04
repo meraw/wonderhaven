@@ -57,7 +57,8 @@ static func overlap2(a: Dictionary, b: Dictionary, e: float = EPS) -> bool:
 	return a.minX < b.maxX - e and a.maxX > b.minX + e and a.minZ < b.maxZ - e and a.maxZ > b.minZ + e
 static func overlap3(a: Dictionary, b: Dictionary) -> bool:
 	return overlap2(a, b) and a.bottom < b.top - EPS and a.top > b.bottom + EPS
-static func ground_at(i: float, k: float) -> float: return Heightfield.height(i + 0.5, k + 0.5)
+## The ground a piece in cell (i, k) rests on: the terrain, or a raised floor above it (a roof terrace, a balcony).
+static func ground_at(i: float, k: float) -> float: return maxf(Heightfield.height(i + 0.5, k + 0.5), WorldStatics.floor_top(i + 0.5, k + 0.5))
 
 # ---- Zones
 static func zone_bounds(zone: Dictionary, harmony: float = 0) -> Dictionary:
@@ -178,7 +179,7 @@ static func validate_placement(pl: Dictionary, ctx: Dictionary) -> Dictionary:
 		var locked := zone_at(ctx.get("locked_zones", []), cs[0].x, cs[0].y, harmony)
 		return {"ok": false, "reason": ("%s isn't open for building yet" % locked.name) if not locked.is_empty() else "Outside a building area — look for the glowing grid"}
 	var b := bounds(pl)
-	if b.top > MAX_HEIGHT: return {"ok": false, "reason": "Too high to build safely"}
+	if b.top - float(zone.get("floorY", 0.0)) > MAX_HEIGHT: return {"ok": false, "reason": "Too high to build safely"}   # floorY: a site up on a roof
 	var env := _env_for(zone)
 	if d.get("placeOn", "") == "stream":
 		for c in cs:

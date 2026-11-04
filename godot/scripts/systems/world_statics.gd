@@ -102,9 +102,70 @@ static func generate_decor(seed: int = 7) -> Dictionary:
 		grass.append({"x": x, "z": z, "r": rng.range_f(0, PI), "s": rng.range_f(0.6, 1.3)})
 	return {"trees": trees, "bushes": bushes, "flowers": flowers, "grass": grass}
 
+# ---- Raised floors --------------------------------------------------------------------------------------------
+## Places above the ground you can walk on, and build on: a layout's "floors" and every building with a walkable
+## roof ("roof_walk": true, solid up to its height "h" instead of a wall to the sky). A floor is
+##   {"rect": [x0, z0, x1, z1], "top": y, "bottom"?: y (default top - 0.3, a slab you can walk under),
+##    "rise"?: [y0, y1], "axis"?: "x" | "z"   (stairs: the top climbs from y0 to y1 across the rect),
+##    "walkable"?: true, "solid"?: true}
+## They become WalkWorld floors (game.gd), count as the ground for building (BuildGrid.ground_at), and stop
+## nothing below their bottom, so you walk under a balcony but not into the block under a roof terrace. A room
+## upstairs (an enterable building with "y") adds its walls here too, standing on its own storey.
+static var _floors_src = null
+static var _floors: Array = []
+
+static func floors() -> Array:
+	if is_same(_floors_src, Data.layout): return _floors
+	_floors_src = Data.layout
+	_floors = []
+	for f in Data.layout.get("floors", []): _floors.append(floor_surface(f))
+	for b in Data.layout.buildings:
+		if Interiors.enterable(b) and b.has("y"):
+			# a room with its own storey ("y": a flat off a balcony, or a shop below one at street level): its walls
+			# stand on that storey only, so rooms stacked above and below keep their own doors; what it stands on is
+			# the ground or a floor of the layout
+			var y := float(b.y)
+			for r in Interiors.walls(b):
+				_floors.append({"minX": r.minX, "maxX": r.maxX, "minZ": r.minZ, "maxZ": r.maxZ, "bottom": y - 1.0, "top": y + float(r.h) + 0.6, "walkable": false, "solid": true, "tag": b.id})
+			for it in Interiors.items(b):
+				var st := Interiors.item_static(it)
+				if st.is_empty(): continue
+				if st.get("type", "") == "circle": st = {"minX": st.x - st.r, "maxX": st.x + st.r, "minZ": st.z - st.r, "maxZ": st.z + st.r}
+				_floors.append({"minX": st.minX, "maxX": st.maxX, "minZ": st.minZ, "maxZ": st.maxZ, "bottom": y, "top": y + 1.2, "walkable": false, "solid": true, "tag": b.id})
+			continue
+		if not b.get("roof_walk", false): continue
+		var base := float(b.get("y", maxf(0.0, Heightfield.height(b.x, b.z))))
+		_floors.append({"minX": b.x - b.w / 2.0, "maxX": b.x + b.w / 2.0, "minZ": b.z - b.d / 2.0, "maxZ": b.z + b.d / 2.0,
+			"bottom": -2.0, "top": base + float(b.h), "walkable": true, "solid": true, "tag": b.id})
+	return _floors
+
+static func floor_surface(f: Dictionary) -> Dictionary:
+	var r: Array = f.rect
+	var s := {"minX": minf(r[0], r[2]), "maxX": maxf(r[0], r[2]), "minZ": minf(r[1], r[3]), "maxZ": maxf(r[1], r[3]),
+		"walkable": f.get("walkable", true), "solid": f.get("solid", true), "tag": String(f.get("id", "floor"))}
+	if f.has("rise"):
+		var y0 := float(f.rise[0]); var y1 := float(f.rise[1])
+		var along_x: bool = f.get("axis", "z") == "x"
+		var lo: float = s.minX if along_x else s.minZ
+		var span: float = (s.maxX - s.minX) if along_x else (s.maxZ - s.minZ)
+		s["top"] = maxf(y0, y1); s["bottom"] = float(f.get("bottom", minf(y0, y1) - 0.3))
+		s["ramp"] = func(x: float, z: float) -> float: return lerpf(y0, y1, clampf(((x if along_x else z) - lo) / span, 0.0, 1.0))
+	else:
+		s["top"] = float(f.top); s["bottom"] = float(f.get("bottom", float(f.top) - 0.3))
+	return s
+
+## The highest raised floor's top at (x, z), or -INF where there's none.
+static func floor_top(x: float, z: float) -> float:
+	var y := -INF
+	for s in floors():
+		if not s.walkable or x < s.minX or x > s.maxX or z < s.minZ or z > s.maxZ: continue
+		y = maxf(y, s.ramp.call(x, z) if s.has("ramp") else s.top)
+	return y
+
 static func build_statics(decor: Dictionary) -> Array:
 	var out: Array = []
 	for b in Data.layout.buildings:
+		if not b.get("solid", true): continue   # scenery only: what you bump into there is in the layout's floors
 		var minX: float = b.x - b.w / 2.0
 		var maxX: float = b.x + b.w / 2.0
 		var minZ: float = b.z - b.d / 2.0
@@ -119,6 +180,7 @@ static func build_statics(decor: Dictionary) -> Array:
 			out.append(_box(maxX - t, maxX, minZ, g0, b.id))
 			out.append(_box(maxX - t, maxX, g1, maxZ, b.id))
 		elif Interiors.enterable(b):
+			if b.has("y"): continue   # an upstairs room's walls and furniture are floors (floors()), on its own storey
 			for r in Interiors.walls(b): out.append(_box(r.minX, r.maxX, r.minZ, r.maxZ, b.id))
 			if b.interior.get("shell", "house") == "castle":
 				for c in [[-1, -1], [1, -1], [-1, 1], [1, 1]]: out.append({"type": "circle", "x": b.x + c[0] * b.w / 2.0, "z": b.z + c[1] * b.d / 2.0, "r": 1.15, "tag": b.id})
@@ -127,7 +189,7 @@ static func build_statics(decor: Dictionary) -> Array:
 				if st.is_empty(): continue
 				if st.get("type", "") == "circle": st["tag"] = b.id; out.append(st)
 				else: out.append(_box(st.minX, st.maxX, st.minZ, st.maxZ, b.id))
-		else:
+		elif not b.get("roof_walk", false):   # a walkable roof is a raised floor instead (floors())
 			out.append(_box(minX, maxX, minZ, maxZ, b.id))
 	if Data.layout.has("fountain"):
 		var F: Dictionary = Data.layout.fountain

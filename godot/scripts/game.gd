@@ -78,6 +78,7 @@ func _ready() -> void:
 	decor = WorldStatics.generate_decor()
 	statics = WorldStatics.build_statics(decor)
 	walk = WalkWorld.new(statics, func(f): return state.flags.get(f, false))
+	walk.floors = WorldStatics.floors()   # balconies, roof terraces and decks from the layout
 	env = TerrainBuilder.build_environment(); add_child(env)
 	sun = DirectionalLight3D.new(); sun.shadow_enabled = true; sun.light_energy = 0.62; sun.light_color = Color("fff1d6")
 	sun.directional_shadow_max_distance = 70.0; sun.rotation_degrees = Vector3(-50, 35, 0)

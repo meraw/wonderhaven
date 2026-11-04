@@ -9,7 +9,8 @@ const PLAYER_RADIUS := 0.32
 const PLAYER_HEIGHT := 1.3
 
 var statics: Array = []
-var surfaces: Array = []
+var surfaces: Array = []         # from placed pieces (rebuilt as you build)
+var floors: Array = []           # raised floors from the layout: balconies, roof terraces, bridge decks (WorldStatics.floors)
 var dynamic: Array = []          # moving bodies: {x, z, r}
 var flag_fn: Callable = func(_f): return false
 
@@ -25,11 +26,12 @@ func surface_at(x: float, z: float, feet_y: float = INF) -> Dictionary:
 	var g := Heightfield.height(x, z)
 	var y := g
 	var walkable := g >= Heightfield.WALKABLE_MIN
-	for s in surfaces:
-		if not s.walkable or x < s.minX or x > s.maxX or z < s.minZ or z > s.maxZ: continue
-		var t := top_of(s, x, z)
-		if t <= feet_y + STEP_UP + 1e-6 and (t > y or not walkable):
-			y = t; walkable = true
+	for list in [floors, surfaces]:
+		for s in list:
+			if not s.walkable or x < s.minX or x > s.maxX or z < s.minZ or z > s.maxZ: continue
+			var t := top_of(s, x, z)
+			if t <= feet_y + STEP_UP + 1e-6 and (t > y or not walkable):
+				y = t; walkable = true
 	return {"y": y, "walkable": walkable, "ground": g}
 
 func static_active(c: Dictionary) -> bool:
@@ -46,12 +48,13 @@ func blocked(x: float, z: float, feet_y: float, r: float = PLAYER_RADIUS, ignore
 		if c.type == "circle":
 			if Vector2(x - c.x, z - c.z).length() < c.r + r: return true
 		elif circle_box(x, z, r, c): return true
-	for s in surfaces:
-		if not s.solid: continue
-		var top: float = top_of(s, x, z) if s.has("ramp") else s.top
-		if s.walkable and top <= feet_y + STEP_UP + 1e-6: continue
-		if top <= feet_y + 0.05 or s.bottom >= feet_y + PLAYER_HEIGHT: continue
-		if circle_box(x, z, r * 0.9, s): return true
+	for list in [floors, surfaces]:
+		for s in list:
+			if not s.solid: continue
+			var top: float = top_of(s, x, z) if s.has("ramp") else s.top
+			if s.walkable and top <= feet_y + STEP_UP + 1e-6: continue
+			if top <= feet_y + 0.05 or s.bottom >= feet_y + PLAYER_HEIGHT: continue
+			if circle_box(x, z, r * 0.9, s): return true
 	for d in dynamic:
 		if is_same(d, ignore) or d.r <= 0.0: continue
 		if Vector2(x - d.x, z - d.z).length() < d.r + r * 0.8: return true
