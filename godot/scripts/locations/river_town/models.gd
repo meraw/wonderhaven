@@ -68,8 +68,9 @@ static func _upper(g: Node3D, b: Dictionary, wall: Material, extra_x: float = 0.
 	return n
 
 ## Windows with shutters on every side but the door's (and beside the door when the wall is long), on each floor.
-## Returns the glass panes (they glow at night).
-static func _windows(g: Node3D, b: Dictionary, floors: int, skip: Array = []) -> Array:
+## Upper-floor windows go on `upper` (so they fade with it while you're in the room below). Returns the glass panes
+## (they glow at night).
+static func _windows(g: Node3D, b: Dictionary, floors: int, skip: Array = [], upper: Node3D = null) -> Array:
 	var glasses: Array = []
 	var enter := Interiors.enterable(b)
 	for s in ["N", "S", "E", "W"]:
@@ -80,7 +81,8 @@ static func _windows(g: Node3D, b: Dictionary, floors: int, skip: Array = []) ->
 			var y := 1.4 if f == 0 else Interiors.WALL_H + 1.0
 			for off in offs:
 				if f == 0 and s == b.door and absf(off - float(b.get("doorOffset", 0.0))) < 1.3: continue
-				var w := Props._window(SHUTTER); Props._on_side(w, b, s, y, off); g.add_child(w); glasses.append(w.get_node("glass"))
+				var host: Node3D = upper if f > 0 and upper != null else g
+				var w := Props._window(SHUTTER); Props._on_side(w, b, s, y, off); host.add_child(w); glasses.append(w.get_node("glass"))
 				if f == 0 and enter:
 					var wi := Props._window(); Props._on_side(wi, b, s, y, off, -Interiors.WALL_T - 0.03); wi.rotation.y += PI; g.add_child(wi); glasses.append(wi.get_node("glass"))
 	return glasses
@@ -136,7 +138,7 @@ static func town_house(b: Dictionary) -> Node3D:
 	_plinth_and_tide(g, b)
 	var top := Interiors.WALL_H + UPPER
 	var roof := _roof(g, b, top, wall)
-	var glasses := _windows(g, b, 2)
+	var glasses := _windows(g, b, 2, [], up)
 	_balcony(up, b, b.door)
 	Props._door(g, b, "6a4a30")
 	return _finish(g, glasses, [up, roof], b)
@@ -149,7 +151,7 @@ static func bar(b: Dictionary) -> Node3D:
 	var up := _upper(g, b, wall)
 	_plinth_and_tide(g, b)
 	var roof := _roof(g, b, Interiors.WALL_H + UPPER, wall)
-	var glasses := _windows(g, b, 2)
+	var glasses := _windows(g, b, 2, [], up)
 	Props._door(g, b, "3f5a3a")
 	# the awning, striped, over the whole front
 	var aw := Node3D.new(); Props._on_side(aw, b, b.door, 2.15, 0.0, 0.5); g.add_child(aw)
@@ -267,7 +269,7 @@ static func keeper_house(b: Dictionary) -> Node3D:
 	var up := _upper(g, b, wall)
 	_plinth_and_tide(g, b, 0.5)
 	var roof := _roof(g, b, Interiors.WALL_H + UPPER, wall)
-	var glasses := _windows(g, b, 2)
+	var glasses := _windows(g, b, 2, [], up)
 	Props._door(g, b, "3a4a3f")
 	var stone := P.stone("efe6d6")
 	for c in [[-1, -1], [1, -1], [-1, 1], [1, 1]]:
@@ -287,7 +289,7 @@ static func station(b: Dictionary) -> Node3D:
 	var up := _upper(g, b, brick)
 	_plinth_and_tide(g, b, 0.4)
 	_roof(g, b, Interiors.WALL_H + UPPER, brick)
-	var glasses := _windows(g, b, 2)
+	var glasses := _windows(g, b, 2, [], up)
 	Props._door(g, b, "3f5a3a")
 	_sign(up, b, b.door, Interiors.WALL_H + 0.3, "BOCCAPIOPPO", "#efe6d6", "#2f3a34", 3.2)
 	_sign(g, b, "E", 2.2, "BOCCAPIOPPO", "#efe6d6", "#2f3a34", 2.4)
