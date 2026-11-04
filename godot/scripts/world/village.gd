@@ -157,6 +157,7 @@ func _build_decor(decor: Dictionary) -> void:
 		var x := rng.range_f(-46, 46) if area.is_empty() else rng.range_f(area[0], area[2])
 		var z := rng.range_f(-44, 42) if area.is_empty() else rng.range_f(area[1], area[3])
 		if Heightfield.height(x, z) < 0.02 or WorldStatics.dist_to_paths(x, z) < 1.25 or Ground.paved(x, z): continue
+		if Heightfield.meadow(x, z) < 0.5: continue   # no grass tufts on a location's bare ground
 		var sq: Dictionary = Data.layout.get("square", {"x": 0, "z": 0, "r": -1.0})
 		if Vector2(x - sq.x, z - sq.z).length() < sq.r + 0.4: continue
 		if WorldStatics._near_building(x, z, 0.15) or WorldStatics._in_zone(x, z, 0.3): continue
