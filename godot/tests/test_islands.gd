@@ -21,12 +21,14 @@ func test_every_island_is_a_playable_world():
 		_on(id, func():
 			var statics := WorldStatics.build_statics(WorldStatics.generate_decor())
 			var w := WalkWorld.new(statics, func(_f): return true)
+			w.floors = WorldStatics.floors()
 			var sp: Dictionary = Data.layout.spawn
 			t.ok(not Heightfield.is_water(sp.x, sp.z) and not w.can_stand(sp.x, sp.z, Heightfield.height(sp.x, sp.z), 0.3).is_empty(), "%s: you arrive on open ground" % id)
 			for k in Data.layout.nav_nodes:
 				if k == "workshopInside": continue
 				var p: Array = Data.layout.nav_nodes[k]
-				t.ok(not w.can_stand(p[0], p[1], Heightfield.height(p[0], p[1]), 0.3).is_empty(), "%s: nav spot %s is free" % [id, k])
+				var feet := maxf(Heightfield.height(p[0], p[1]), WorldStatics.floor_top(p[0], p[1]))   # on a balcony or a terrace, if there's one
+				t.ok(not w.can_stand(p[0], p[1], feet, 0.3).is_empty(), "%s: nav spot %s is free" % [id, k])
 			for e in Data.layout.nav_edges:
 				t.ok(Data.layout.nav_nodes.has(e[0]) and Data.layout.nav_nodes.has(e[1]), "%s: path %s-%s joins real spots" % [id, e[0], e[1]])
 			for n in Data.npcs_here():
