@@ -1,7 +1,7 @@
 extends "res://tests/full_base.gd"
 ## Toriano with real input. Stage 1 (ground and map): arrive at Toriano Centrale and walk the street plan with real
 ## keys, through the Galleria to the cathedral square, into the courtyard of number 14, round the Darsena, over the
-## old bridge to the bars, into the park; nap on a park bench; check that the canals and the edge of the city stop
+## old bridge to the bars, into the park; nap on a park bench; check that the quays and the edge of the city stop
 ## you; and come back to the train. Later stages add the trams and the requests.
 ## Run: TIMEOUT=1500 ./play.sh res://tests/play_metropolis.gd /tmp/out --island=metropolis --limit=1400
 
@@ -57,18 +57,18 @@ func play() -> void:
 	var wet := await push_towards(-118, 105, 2.5)
 	check("quay", "the quay stops you at the Darsena's edge", not Heightfield.is_water(wet.x, wet.z) and wet.z < 92.5, "stopped at %s" % wet)
 	await shot("darsena")
-	await go("bars_quay", "round by the old bridge to the bars on the far bank")
+	# The edge of the city: from the west canal's quay, walk straight at the backdrop blocks 6 m away.
+	await go("canal_a_n", "along the quay to the old bridge")
+	var edge := await push_towards(-200, 95, 5.0)
+	check("edge", "the backdrop at the city's edge stops you", edge.x < -161.0 and edge.x > -163.6 and not Heightfield.is_water(edge.x, edge.z), "stopped at %s" % edge)
+	await shot("edge")
+	await go("bars_quay", "over the old bridge to the bars on the far bank")
 	await go("park_gate", "back up to the park gate")
 	await go("pond_w", "round the duck pond")
 	await shot("park")
 	check("lawn", "the park is grass", Ground.kind_at(-140, -112) == "grass" and not Ground.paved(-104, -140), "")
 	var napped := await sleep_at(P + "bench_park1", 18)
 	check("nap", "a nap on a park bench until evening", napped and game.state.time.minute >= 17.9 * 60.0 and game.state.time.minute < 19.5 * 60.0, "%.1f h" % (game.state.time.minute / 60.0))
-	# The edge of the city: the backdrop blocks stop you.
-	await go("pond_n", "back to the path")
-	var edge := await push_towards(-150, -200, 4.0)
-	check("edge", "the city's edge stops you", edge.z > -163.0 and edge.x > -163.0, "stopped at %s" % edge)
-	await shot("edge")
 	game.state.flags["boatReady"] = true   # the train only runs once you've opened the line elsewhere
 	await go("station", "back across the city to the station")
 	var train: Dictionary = feature(P + "train")
