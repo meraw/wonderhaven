@@ -1,6 +1,7 @@
 class_name MinigameUI
 extends Control
-## Overlays for the gathering minigames. Press = E / Space / click; hold = keep E / Space / mouse button down.
+## The gathering minigames, in a small panel at the right while the camera watches your character work.
+## Press = E / Space / click; hold = keep E / Space / mouse button down.
 
 var game
 var active := {}
@@ -26,22 +27,24 @@ func start(kind: String, mg) -> void:
 	active = {"kind": kind, "mg": mg}
 	result_t = 0.0; last_results = 0; bite_played = false
 	for c in get_children(): c.queue_free()
-	var p := UiTheme.panel(UiTheme.CREAM, UiTheme.LINE, 26)
-	p.anchor_left = 0.5; p.anchor_right = 0.5; p.anchor_top = 1; p.anchor_bottom = 1
-	p.offset_left = -220; p.offset_right = 220; p.offset_top = -380; p.offset_bottom = -150
+	var p := UiTheme.panel(Color(UiTheme.CREAM, 0.94), UiTheme.LINE, 22)
+	p.name = "minigame_panel"
+	p.anchor_left = 1; p.anchor_right = 1; p.anchor_top = 1; p.anchor_bottom = 1
+	p.offset_left = -360; p.offset_right = -20; p.offset_top = -330; p.offset_bottom = -40
+	p.grow_vertical = Control.GROW_DIRECTION_BEGIN
 	p.gui_input.connect(func(ev):
 		if ev is InputEventMouseButton and ev.button_index == MOUSE_BUTTON_LEFT:
 			mouse_hold = ev.pressed
 			if ev.pressed: mouse_press = true)
 	var v := VBoxContainer.new(); v.alignment = BoxContainer.ALIGNMENT_CENTER; p.add_child(v)
-	title = UiTheme.label(TITLES[kind], 20); title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(title)
-	body = Control.new(); body.custom_minimum_size = Vector2(400, 120); v.add_child(body)
+	title = UiTheme.label(TITLES[kind], 18); title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(title)
+	body = Control.new(); body.custom_minimum_size = Vector2(300, 120); v.add_child(body)
 	var b := body
 	body.draw.connect(func(): _draw_body(b))
 	dots = HBoxContainer.new(); dots.alignment = BoxContainer.ALIGNMENT_CENTER; v.add_child(dots)
 	if kind != "fish":
 		for n in 3: var d := UiTheme.label("●", 18, Color("ecd2a8")); dots.add_child(d)
-	hint = UiTheme.label(Tutorial.fill(HINTS[kind], func(a): return Controls.key_label(a)), 13, UiTheme.INK2); hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; hint.autowrap_mode = TextServer.AUTOWRAP_WORD; v.add_child(hint)
+	hint = UiTheme.label(Tutorial.fill(HINTS[kind], func(a): return Controls.key_label(a)), 13, UiTheme.INK2); hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; hint.autowrap_mode = TextServer.AUTOWRAP_WORD; hint.custom_minimum_size.x = 300; v.add_child(hint)
 	result = UiTheme.label("", 20, UiTheme.PINK_DARK); result.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(result)
 	v.add_child(UiTheme.label("Esc to stop", 11, UiTheme.INK2))
 	add_child(p)
@@ -64,6 +67,7 @@ func update(dt: float) -> void:
 			var r: String = mg.results.back()
 			game.sfx("miss" if r == "miss" else ("perfect" if r == "perfect" else "hit"))
 			game.player_char.play("mine" if active.kind == "mine" else "chop")
+			game.actions.minigame_hit(active.kind, r)
 			if r != "miss": game.cam.shake = 0.25
 	_render()
 

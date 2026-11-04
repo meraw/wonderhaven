@@ -204,3 +204,23 @@ func save_to(slot: String) -> bool:
 	if s1: await click(s1.get_global_rect().get_center()); await frames(5)
 	game.panels.close(); await frames(3)
 	return found_menu and found_slot and float(SaveSystem.meta(slot).get("saved_at", 0.0)) > before
+
+func feature(id: String) -> Dictionary:
+	for f in Data.layout.features:
+		if f.id == id: return f
+	return {}
+
+## Opens the sleep panel (walk up to it first) at a bed or bench and picks a wake-up time with a click.
+func sleep_at(id: String, hour: int) -> bool:
+	var f := feature(id)
+	if not await face_and_press(id, f.x, f.z): return false
+	await frames(6)
+	var b := game.panels.find_child("wake_%d" % hour, true, false) as Button
+	if b == null: note("no wake button in panel '%s'" % game.panels.current); return false
+	await click(b.get_global_rect().get_center())
+	for n in 200:
+		await frames(2)
+		if game.mode == "explore": break
+	await frames(10)
+	return true
+

@@ -21,7 +21,7 @@ var cur := {"yaw": PI * 1.5, "pitch": 0.5, "dist": 8.5}
 var target := Vector3.ZERO
 var focus := Vector3.ZERO
 var mode := "explore"
-var limits := {"explore": [3.5, 16.0, 0.12, 1.25], "build": [6.0, 30.0, 0.55, 1.35], "dialogue": [2.5, 6.0, 0.1, 0.6]}
+var limits := {"explore": [3.5, 16.0, 0.12, 1.25], "build": [6.0, 30.0, 0.55, 1.35], "dialogue": [2.5, 6.0, 0.1, 0.6], "action": [3.0, 9.0, 0.12, 0.9]}
 var shake := 0.0
 var blockers: Array = []   # AABBs (buildings) the camera stays in front of
 var occluders: Array = []  # [centre: Vector3, radius: float] tree canopies and bushes the dialogue view avoids
@@ -49,7 +49,18 @@ func set_mode(m: String) -> void:
 func frame_dialogue(a: Vector3, b: Vector3) -> void:
 	focus = (a + b) / 2.0 + Vector3(0, 0.9, 0)
 	pitch = 0.28; dist = 4.6
-	# Try a few angles around the pair; keep the one with the clearest view (no hill, house or tree in the way).
+	yaw = _clear_side_yaw(a, b)
+
+## Gathering minigames: a side view of you and the tree, rock or water, a little farther out, with the pair left of
+## centre so the minigame panel on the right doesn't cover them.
+func frame_action(a: Vector3, b: Vector3) -> void:
+	focus = (a + b) / 2.0 + Vector3(0, 0.9, 0)
+	pitch = 0.3; dist = 6.4
+	yaw = _clear_side_yaw(a, b)
+	focus += Vector3(cos(yaw), 0.0, -sin(yaw)) * 1.5   # the screen's right: moving the focus there shifts the scene left
+
+## Of a few angles round a pair, the one with the clearest view (no hill, house or tree in the way).
+func _clear_side_yaw(a: Vector3, b: Vector3) -> float:
 	var base := atan2(b.x - a.x, b.z - a.z) + PI / 2.0
 	var best := base + 0.6
 	var best_block := INF
@@ -60,7 +71,7 @@ func frame_dialogue(a: Vector3, b: Vector3) -> void:
 		var block := (dist - clear_distance(focus, dir, dist)) * 2.0
 		block += 2.0 * _foliage_hits(focus, cam_pos)
 		if block < best_block - 0.05: best_block = block; best = y
-	yaw = best
+	return best
 
 func rotate_by(dx: float, dy: float) -> void:
 	yaw -= dx; pitch += dy
@@ -74,7 +85,7 @@ func clamp_limits() -> void:
 func update(dt: float, follow: Vector3) -> void:
 	_t += dt
 	clamp_limits()
-	if mode != "dialogue" and mode != "build": focus = follow + Vector3(0, 1.0, 0)
+	if mode == "explore": focus = follow + Vector3(0, 1.0, 0)
 	blend = maxf(0.0, blend - dt)
 	var slow := blend > 0.0
 	var kxz := 1.0 - exp(-(5.0 if slow else 14.0) * dt)
@@ -99,10 +110,10 @@ func update(dt: float, follow: Vector3) -> void:
 		indoor_pitch = maxf(cur.pitch, INDOOR_PITCH)
 	var dir := _dir(cur.yaw, pv)
 	var allowed: float = dv
-	if mode == "explore" or mode == "dialogue": allowed = clear_distance(target, dir, dv)
+	if mode in ["explore", "dialogue", "action"]: allowed = clear_distance(target, dir, dv)
 	col_dist = settle(col_dist, allowed, dt)
 	var p: Vector3 = target + dir * col_dist
-	if mode == "explore" or mode == "dialogue": p = _outside_walls(target, p)
+	if mode in ["explore", "dialogue", "action"]: p = _outside_walls(target, p)
 	var ground := maxf(Heightfield.height(p.x, p.z), Heightfield.WATER_Y) + 0.45
 	if p.y < ground: p.y = ground
 	if shake > 0.0:

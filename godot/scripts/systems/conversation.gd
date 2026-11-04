@@ -26,6 +26,8 @@ static func build(npc: Dictionary, engine: QuestEngine, flags: Dictionary, playe
 		if q != main_offer: options.append({"label": "✨ Request: %s" % q.title, "kind": "offer", "id": q.id, "quest": true})
 	for q in engine.active():
 		if q.giver == npc.id and not turn_ins.has(q): options.append({"label": "📜 About: %s" % q.title, "kind": "progress", "id": q.id})
+	for q in engine.later_for(npc.id):   # a request they'd ask at another time of day
+		options.append({"label": "🕒 %s (%s)" % [q.title, Clock.hours_text(q.hours)], "kind": "later", "id": q.id})
 	for t in npc.topics:
 		if not t.has("requires") or flags.get(t.requires, false): options.append({"label": "💬 " + t.label, "kind": "topic", "id": t.id})
 	if Shop.is_open(engine.state, npc.id): options.append({"label": "🛍 " + Shop.def(npc.id).get("label", "Let's trade"), "kind": "shop"})

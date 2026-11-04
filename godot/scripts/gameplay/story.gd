@@ -99,6 +99,9 @@ func talk(agent) -> void:
 			"progress": await ui.say(Conversation.quest_lines(choice.id, "progress", s.name) + progress_summary(choice.id))
 			"topic": await ui.say(Conversation.topic_lines(agent.def, choice.id, s.name))
 			"gift": await gift(agent)
+			"later":
+				var lq := Data.quest(choice.id)
+				await ui.say([Conversation.fill(lq.dialogue.get("later", "Come back %s and I'll tell you all about it!" % Clock.hours_text(lq.hours)), s.name)])
 			"pay": await pay(choice.id, choice.obj, agent)
 			"shop":
 				await ui.say([{"text": Conversation.fill(Shop.def(agent.def.id).get("greet", "Have a look!"), s.name), "anim": "wave"}])

@@ -138,6 +138,9 @@ static func build_statics(decor: Dictionary) -> Array:
 		elif nd.kind == "chest": out.append(_box(nd.x - 0.45, nd.x + 0.45, nd.z - 0.32, nd.z + 0.32, nd.id))
 	for f in Data.layout.features:
 		if f.kind in ["sign", "board", "wardrobe"]: out.append({"type": "circle", "x": f.x, "z": f.z, "r": 0.3, "tag": f.id})
+		if f.kind == "bench":
+			var st := Interiors.item_static({"piece": true, "id": "bench", "x": f.x, "z": f.z, "r": int(f.get("r", 0))})
+			out.append(_box(st.minX, st.maxX, st.minZ, st.maxZ, f.id))
 	for t in decor.trees: out.append({"type": "circle", "x": t.x, "z": t.z, "r": 0.42 * t.s, "tag": "tree"})
 	return out
 

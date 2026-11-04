@@ -10,6 +10,8 @@ extends RefCounted
 ##   harmony {value}, flag {flag}
 ##   pay    {npc, items}           hand items or coins to a villager (a choice in their conversation)
 ##   talk   {npc, lines?}          talk to someone; `final` ones hand the request in
+## Time of day: a request with `hours: [from, to]` is only offered between those hours; a step with `hours` only
+## counts then (talking, gathering, events, paying). Windows can wrap past midnight.
 ## Stages: an objective may have a `stage` (0 by default). Only the lowest stage with something unfinished is
 ## current: gathering and events only count for current objectives, and the journal and tracker show the request
 ## step by step. onDone {flags, items, blueprints} on an objective is applied when it completes. Live checks latch.
@@ -45,9 +47,19 @@ func requirements_met(q: Dictionary) -> bool:
 		if not state.flags.get(f, false): return false
 	return true
 
+func now_minute() -> float: return float(state.get("time", {}).get("minute", 480.0))
+
+## A request with `hours` is only offered then; a step with `hours` only counts then (see Clock.in_hours).
 func can_offer(id: String) -> bool:
 	var q := Data.quest(id)
-	return not q.is_empty() and not state.quests.has(id) and requirements_met(q) and (not gate.is_valid() or gate.call(id))
+	return not q.is_empty() and not state.quests.has(id) and requirements_met(q) and (not gate.is_valid() or gate.call(id)) and Clock.in_hours(q.get("hours", []), now_minute())
+
+## Requests this villager would offer at another time of day: [quest].
+func later_for(npc: String) -> Array:
+	return Data.quests.filter(func(q): return q.giver == npc and q.has("hours") and not state.quests.has(q.id) and requirements_met(q) \
+		and (not gate.is_valid() or gate.call(q.id)) and not Clock.in_hours(q.hours, now_minute()))
+
+func step_open(o: Dictionary) -> bool: return Clock.in_hours(o.get("hours", []), now_minute())
 func offers_for(npc: String) -> Array: return Data.quests.filter(func(q): return q.giver == npc and can_offer(q.id))
 func active() -> Array: return Data.quests.filter(func(q): return status(q.id) == "active")
 func done() -> Array: return Data.quests.filter(func(q): return is_done(q.id))
@@ -179,7 +191,7 @@ func on_gain(items: Dictionary) -> Array:
 	invalidate()
 	for q in active():
 		for o in q.objectives:
-			if o.kind == "gather" and items.get(o.item, 0) > 0 and is_current(q.id, o):
+			if o.kind == "gather" and items.get(o.item, 0) > 0 and is_current(q.id, o) and step_open(o):
 				var p: Dictionary = state.quests[q.id].progress
 				p[o.id] = mini(int(o.count), int(p.get(o.id, 0)) + int(items[o.item]))
 	return refresh()
@@ -188,7 +200,7 @@ func on_event(name: String, n: int = 1) -> Array:
 	invalidate()
 	for q in active():
 		for o in q.objectives:
-			if o.kind == "event" and o.event == name and is_current(q.id, o):
+			if o.kind == "event" and o.event == name and is_current(q.id, o) and step_open(o):
 				var p: Dictionary = state.quests[q.id].progress
 				p[o.id] = mini(int(o.count), int(p.get(o.id, 0)) + n)
 	return refresh()
@@ -198,7 +210,7 @@ func on_talk(npc: String) -> Array:
 	invalidate()
 	for q in active():
 		for o in q.objectives:
-			if o.kind == "talk" and not o.get("final", false) and o.npc == npc and is_current(q.id, o):
+			if o.kind == "talk" and not o.get("final", false) and o.npc == npc and is_current(q.id, o) and step_open(o):
 				state.quests[q.id].progress[o.id] = 1
 	return refresh()
 
@@ -207,7 +219,7 @@ func payments_for(npc: String) -> Array:
 	var out: Array = []
 	for q in active():
 		for o in q.objectives:
-			if o.kind == "pay" and o.npc == npc and is_current(q.id, o) and not objective(q.id, o).done: out.append({"quest": q, "objective": o})
+			if o.kind == "pay" and o.npc == npc and is_current(q.id, o) and step_open(o) and not objective(q.id, o).done: out.append({"quest": q, "objective": o})
 	return out
 
 ## Hands over the items. Returns {ok, missing: [{id, need}], newly}.

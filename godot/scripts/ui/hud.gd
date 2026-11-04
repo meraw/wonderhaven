@@ -166,7 +166,7 @@ func render_tracker() -> void:
 		for o in e.shown_objectives(q.id).objectives:
 			var st := e.objective(q.id, o)
 			if (q != tracked or QuestEngine.stage_of(o) < cur) and st.done and not o.get("final", false): continue
-			var txt: String = ("✔ " if st.done else "○ ") + o.text
+			var txt: String = ("✔ " if st.done else "○ ") + o.text + ("  🕒 " + Clock.hours_text(o.hours) if o.has("hours") and not st.done else "")
 			if st.need > 1 and not st.done: txt += " (%d/%d)" % [int(game.state.harmony) if o.kind == "harmony" else st.have, st.need]
 			var l := UiTheme.label(txt, 13, Color("59a86f") if st.done else UiTheme.INK2); l.autowrap_mode = TextServer.AUTOWRAP_WORD; l.custom_minimum_size.x = 260
 			v.add_child(l)

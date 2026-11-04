@@ -38,7 +38,17 @@ func play() -> void:
 		await approach(n.x, n.z + 1.4, n.x, n.z)
 		await tap(KEY_E); await frames(5)
 		if game.mode != "minigame": continue
-		if attempt == 0: await shot("minigame")
+		if attempt == 0:
+			await frames(20)
+			await shot("minigame")
+			# the minigame sits in a panel at the side; the camera keeps you and the tree in view
+			var vs: Vector2 = game.get_viewport().get_visible_rect().size
+			var panel: Control = game.minigame.find_child("minigame_panel", true, false)
+			var r: Rect2 = panel.get_global_rect() if panel else Rect2()
+			var head: Vector2 = game.camera.unproject_position(game.player_char.head_world_pos())
+			var on_screen: bool = Rect2(Vector2.ZERO, vs).has_point(head) and not r.has_point(head) and not game.camera.is_position_behind(game.player_char.head_world_pos())
+			check("m1", "The minigame is a small panel at the side, not over the middle", panel != null and r.position.x > vs.x * 0.6 and r.get_area() < vs.x * vs.y * 0.15, "panel %s" % r)
+			check("m2", "You can watch your character chop while you play", game.cam.mode == "action" and on_screen, "camera %s, head at %s" % [game.cam.mode, head])
 		for k in 300:
 			await frames(1)
 			var mg = game.minigame.active.get("mg")

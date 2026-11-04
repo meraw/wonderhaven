@@ -550,6 +550,34 @@
    "x": -3.95,
    "z": 20.4,
    "label": "Change outfit"
+  },
+  {
+   "id": "benchPlaza",
+   "kind": "bench",
+   "x": 2.6,
+   "z": 14.6,
+   "r": 0
+  },
+  {
+   "id": "benchCape",
+   "kind": "bench",
+   "x": -25.6,
+   "z": -12.4,
+   "r": 0
+  },
+  {
+   "id": "benchBeach",
+   "kind": "bench",
+   "x": 6.9,
+   "z": 26.4,
+   "r": 0
+  },
+  {
+   "id": "benchYard",
+   "kind": "bench",
+   "x": 3.0,
+   "z": -6.5,
+   "r": 1
   }
  ],
  "nav_nodes": {
