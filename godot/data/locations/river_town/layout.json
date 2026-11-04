@@ -1,5 +1,5 @@
 {
- "_comment": "Boccapioppo (river_town). Same format as ../../layout_clockwork.json. The ground shape is scripts/locations/river_town.gd; see docs/locations/river_town.md. Zones unlock with requests that come in stage 3.",
+ "_comment": "Boccapioppo (river_town). Same format as ../../layout_clockwork.json. The ground shape and the buildings' models are scripts/locations/river_town.gd (and river_town/); see docs/locations/river_town.md. Props of kind river_town_* are invisible colliders the location script draws: tree (poplar, column, willow, locust, plane), column, post, saw, logs, planks, car, ferry, gauge. Zones unlock with requests that come in stage 3.",
  "spawn": {
   "x": -45,
   "z": 22,
@@ -14,7 +14,7 @@
  "safeText": "Back at the bus stop on the levee.",
  "decor": {
   "radius": 56,
-  "trees": 45
+  "trees": 0
  },
  "buildings": [
   {
@@ -22,13 +22,63 @@
    "kind": "keeper_house",
    "name": "Ermes's house",
    "x": -16,
-   "z": 17.5,
+   "z": 14.3,
    "w": 5,
-   "d": 4.5,
+   "d": 4,
    "wall": "#7a2e2a",
    "roof": "#b5653a",
    "door": "S",
-   "navDoor": "ermesDoor"
+   "navDoor": "ermesDoor",
+   "interior": {
+    "items": [
+     [
+      "desk",
+      -1.2,
+      -1.2,
+      0
+     ],
+     [
+      "chair",
+      -1.2,
+      -0.3,
+      2
+     ],
+     [
+      "bookshelf",
+      1.8,
+      -1.3,
+      0
+     ],
+     [
+      "bed",
+      1.7,
+      0.65,
+      0
+     ],
+     [
+      "oven",
+      -1.85,
+      1.3,
+      0
+     ],
+     [
+      "lamp",
+      0.2,
+      -1.4,
+      0
+     ]
+    ],
+    "route": [
+     [
+      0.0,
+      1.3
+     ],
+     [
+      -0.6,
+      0.3
+     ]
+    ]
+   }
   },
   {
    "id": "river_town_bar",
@@ -41,13 +91,85 @@
    "wall": "#e8c77a",
    "roof": "#b5653a",
    "door": "S",
-   "navDoor": "barDoor"
+   "navDoor": "barDoor",
+   "interior": {
+    "items": [
+     [
+      "counter",
+      -1.6,
+      -0.6,
+      0
+     ],
+     [
+      "bookshelf",
+      -2.8,
+      -1.55,
+      0
+     ],
+     [
+      "table",
+      1.6,
+      0.6,
+      0
+     ],
+     [
+      "chair",
+      1.6,
+      1.4,
+      2
+     ],
+     [
+      "chair",
+      0.8,
+      0.6,
+      1
+     ],
+     [
+      "table",
+      2.6,
+      -1.3,
+      0
+     ],
+     [
+      "chair",
+      1.8,
+      -1.3,
+      1
+     ],
+     [
+      "barrel",
+      2.85,
+      1.55,
+      0
+     ],
+     [
+      "lamp",
+      -2.8,
+      1.55,
+      0
+     ]
+    ],
+    "route": [
+     [
+      0.0,
+      1.5
+     ],
+     [
+      -0.2,
+      -1.6
+     ],
+     [
+      -1.6,
+      -1.6
+     ]
+    ]
+   }
   },
   {
    "id": "river_town_arcade",
    "kind": "arcade",
    "name": "The arcade",
-   "x": -5,
+   "x": -6,
    "z": 4,
    "w": 4,
    "d": 9,
@@ -60,10 +182,10 @@
    "id": "river_town_church",
    "kind": "church",
    "name": "The church",
-   "x": -6,
+   "x": -7.5,
    "z": -17,
-   "w": 7,
-   "d": 10,
+   "w": 10,
+   "d": 6,
    "wall": "#a5523a",
    "roof": "#b5653a",
    "door": "E",
@@ -79,8 +201,62 @@
    "d": 5,
    "wall": "#e8c77a",
    "roof": "#b5653a",
-   "door": "N",
-   "navDoor": "workshopDoor"
+   "door": "S",
+   "navDoor": "workshopDoor",
+   "interior": {
+    "items": [
+     [
+      "workbench",
+      -1.4,
+      -1.6,
+      0
+     ],
+     [
+      "crate",
+      2.2,
+      -1.7,
+      0
+     ],
+     [
+      "crate",
+      2.3,
+      -0.9,
+      0
+     ],
+     [
+      "cabinet",
+      -2.3,
+      1.7,
+      0
+     ],
+     [
+      "lamp",
+      2.3,
+      1.8,
+      0
+     ],
+     [
+      "bookshelf",
+      2.3,
+      0.8,
+      3
+     ]
+    ],
+    "route": [
+     [
+      0.0,
+      1.6
+     ],
+     [
+      -0.2,
+      -0.4
+     ],
+     [
+      -1.4,
+      -0.6
+     ]
+    ]
+   }
   },
   {
    "id": "river_town_pierina_house",
@@ -93,7 +269,64 @@
    "wall": "#d9935a",
    "roof": "#b5653a",
    "door": "N",
-   "navDoor": "pierinaDoor"
+   "navDoor": "pierinaDoor",
+   "interior": {
+    "items": [
+     [
+      "bed",
+      -1.6,
+      1.3,
+      0
+     ],
+     [
+      "table",
+      1.3,
+      0.6,
+      0
+     ],
+     [
+      "chair",
+      1.3,
+      1.4,
+      2
+     ],
+     [
+      "cabinet",
+      1.8,
+      -1.6,
+      0
+     ],
+     [
+      "crate",
+      -1.8,
+      -1.4,
+      0
+     ],
+     [
+      "crate",
+      -1.8,
+      -0.6,
+      0
+     ],
+     [
+      "rug",
+      0.0,
+      0.5,
+      0,
+      "#d9a441"
+     ]
+    ],
+    "route": [
+     [
+      0.0,
+      -1.5
+     ],
+     [
+      0.2,
+      0.4
+     ]
+    ]
+   }
   },
   {
    "id": "river_town_house1",
@@ -131,20 +364,20 @@
    "d": 5,
    "wall": "#e8c77a",
    "roof": "#b5653a",
-   "door": "N",
+   "door": "S",
    "navDoor": "house3Door"
   },
   {
    "id": "river_town_house4",
    "kind": "house",
    "name": "A house",
-   "x": -14,
+   "x": -19,
    "z": -16,
    "w": 5,
    "d": 6,
    "wall": "#d9935a",
    "roof": "#b5653a",
-   "door": "N",
+   "door": "S",
    "navDoor": "house4Door"
   },
   {
@@ -170,7 +403,7 @@
    "d": 5,
    "wall": "#d9935a",
    "roof": "#b5653a",
-   "door": "N",
+   "door": "S",
    "navDoor": "house6Door"
   },
   {
@@ -236,7 +469,48 @@
    "wall": "#e9e2d0",
    "roof": "#3f5a3a",
    "door": "E",
-   "navDoor": "houseboat"
+   "navDoor": "houseboat",
+   "interior": {
+    "items": [
+     [
+      "bed",
+      -2.5,
+      -0.85,
+      1
+     ],
+     [
+      "table",
+      0.0,
+      -0.9,
+      0
+     ],
+     [
+      "chair",
+      0.0,
+      -0.1,
+      2
+     ],
+     [
+      "cabinet",
+      1.3,
+      -0.9,
+      0
+     ],
+     [
+      "lamp",
+      -1.1,
+      -0.95,
+      0
+     ],
+     [
+      "rug",
+      -1.2,
+      0.5,
+      0,
+      "#c8553d"
+     ]
+    ]
+   }
   },
   {
    "id": "river_town_shack",
@@ -246,35 +520,92 @@
    "z": 32.5,
    "w": 4.5,
    "d": 4,
-   "wall": "#8a6a50",
-   "roof": "#5b4a3a",
+   "wall": "#4f4034",
+   "roof": "#6f6a62",
    "door": "E",
-   "navDoor": "shackDoor"
+   "navDoor": "shackDoor",
+   "interior": {
+    "items": [
+     [
+      "bed",
+      -1.4,
+      -0.75,
+      0
+     ],
+     [
+      "barrel",
+      -1.5,
+      1.3,
+      0
+     ],
+     [
+      "table",
+      0.4,
+      -1.2,
+      0
+     ],
+     [
+      "chair",
+      0.4,
+      -0.4,
+      2
+     ],
+     [
+      "crate",
+      0.5,
+      1.3,
+      0
+     ]
+    ],
+    "route": [
+     [
+      1.4,
+      0.0
+     ],
+     [
+      -0.1,
+      0.4
+     ]
+    ]
+   }
   },
   {
    "id": "river_town_dance_hall",
    "kind": "dance_hall",
    "name": "Wanda's dance hall",
    "x": 16,
-   "z": 31,
+   "z": 31.5,
    "w": 9,
-   "d": 7,
+   "d": 6,
    "wall": "#f4f1ea",
    "roof": "#8fc0dc",
-   "door": "N",
-   "navDoor": "danceDoor"
+   "door": "W",
+   "navDoor": "danceDoor",
+   "interior": {
+    "empty": true,
+    "route": [
+     [
+      -3.6,
+      0.0
+     ],
+     [
+      0.5,
+      0.0
+     ]
+    ]
+   }
   },
   {
    "id": "river_town_sawmill",
    "kind": "sawmill",
    "name": "Ines's sawmill",
-   "x": 45,
-   "z": 20,
-   "w": 10,
-   "d": 7,
+   "x": 49,
+   "z": 21,
+   "w": 4,
+   "d": 4,
    "wall": "#a5523a",
    "roof": "#6a5a4a",
-   "door": "N",
+   "door": "W",
    "navDoor": "sawmillDoor"
   }
  ],
@@ -322,7 +653,7 @@
    "name": "Wanda's dance hall",
    "minI": 12,
    "maxI": 19,
-   "minK": 28,
+   "minK": 29,
    "maxK": 33,
    "interior": true,
    "unlock": {
@@ -357,9 +688,9 @@
   {
    "id": "river_town_mooring",
    "name": "The houseboat's mooring",
-   "minI": -29,
-   "maxI": -19,
-   "minK": 27,
+   "minI": -28,
+   "maxI": -20,
+   "minK": 30,
    "maxK": 34,
    "unlock": {
     "quest": "river_town_houseboat"
@@ -370,50 +701,50 @@
   {
    "id": "river_town_poplar0",
    "kind": "chop",
-   "x": 46,
-   "z": -34
+   "x": 46.0,
+   "z": -35.5
   },
   {
    "id": "river_town_poplar1",
    "kind": "chop",
-   "x": 50,
-   "z": -34
+   "x": 49.5,
+   "z": -35.5
   },
   {
    "id": "river_town_poplar2",
    "kind": "chop",
-   "x": 46,
-   "z": -26
+   "x": 46.0,
+   "z": -28.5
   },
   {
    "id": "river_town_poplar3",
    "kind": "chop",
-   "x": 50,
-   "z": -26
+   "x": 49.5,
+   "z": -28.5
   },
   {
    "id": "river_town_poplar4",
    "kind": "chop",
-   "x": 46,
-   "z": -18
+   "x": 46.0,
+   "z": -21.5
   },
   {
    "id": "river_town_poplar5",
    "kind": "chop",
-   "x": 50,
-   "z": -18
+   "x": 49.5,
+   "z": -21.5
   },
   {
    "id": "river_town_poplar6",
    "kind": "chop",
-   "x": 48,
-   "z": -4
+   "x": 46.0,
+   "z": -7.5
   },
   {
    "id": "river_town_poplar7",
    "kind": "chop",
-   "x": 50,
-   "z": 4
+   "x": 49.5,
+   "z": -0.5
   },
   {
    "id": "river_town_boulder0",
@@ -436,7 +767,7 @@
   {
    "id": "river_town_boulder3",
    "kind": "mine",
-   "x": 37.5,
+   "x": 37.0,
    "z": -21
   },
   {
@@ -484,7 +815,7 @@
   {
    "id": "river_town_asters2",
    "kind": "flowers",
-   "x": 12,
+   "x": 11,
    "z": 25
   },
   {
@@ -517,7 +848,7 @@
   {
    "id": "river_town_fish3",
    "kind": "fish",
-   "x": 37,
+   "x": 36.6,
    "z": -28,
    "facing": -1.5707963267948966
   },
@@ -579,7 +910,7 @@
   {
    "id": "river_town_bench_river",
    "kind": "bench",
-   "x": 23.2,
+   "x": 23.6,
    "z": -5,
    "r": 1
   },
@@ -589,6 +920,20 @@
    "x": 39.5,
    "z": 30.5,
    "r": 3
+  },
+  {
+   "id": "river_town_bed",
+   "kind": "rest",
+   "x": -26.5,
+   "z": 28.15,
+   "label": "Sleep in the houseboat"
+  },
+  {
+   "id": "river_town_wardrobe",
+   "kind": "wardrobe",
+   "x": -21.4,
+   "z": 28.1,
+   "label": "Change outfit"
   }
  ],
  "nav_nodes": {
@@ -602,7 +947,7 @@
   ],
   "ermesDoor": [
    -16,
-   20.8
+   17.2
   ],
   "leveeMid": [
    -6,
@@ -661,7 +1006,7 @@
    -7.6
   ],
   "house4Door": [
-   -14,
+   -19,
    -11.9
   ],
   "laneN2": [
@@ -682,7 +1027,7 @@
   ],
   "laneS3": [
    -13,
-   12
+   10.5
   ],
   "house1Door": [
    -13,
@@ -690,7 +1035,7 @@
   ],
   "laneS2": [
    -24,
-   12
+   10.5
   ],
   "house2Door": [
    -24,
@@ -698,7 +1043,7 @@
   ],
   "laneS1": [
    -36,
-   12
+   10.5
   ],
   "house5Door": [
    -36,
@@ -741,24 +1086,20 @@
    -44
   ],
   "eastNorth": [
-   41,
-   -38
+   39,
+   -40
   ],
   "eastMid": [
-   43,
+   39,
    -12
   ],
   "eastSouth": [
-   43,
-   8
-  ],
-  "bridgeEast": [
-   38.5,
-   10
+   38.8,
+   9.5
   ],
   "sawmillDoor": [
-   45,
-   15.4
+   45.9,
+   21
   ],
   "eastBank": [
    38.5,
@@ -785,15 +1126,15 @@
    27.5
   ],
   "danceDoor": [
-   16,
-   26.3
+   6.6,
+   31.5
   ],
   "gauge": [
    -10,
    35.5
   ],
   "houseboat": [
-   -17.6,
+   -19.2,
    29
   ],
   "boatNorth": [
@@ -972,14 +1313,10 @@
   ],
   [
    "eastSouth",
-   "bridgeEast"
-  ],
-  [
-   "eastSouth",
    "sawmillDoor"
   ],
   [
-   "bridgeEast",
+   "eastSouth",
    "eastBank"
   ],
   [
@@ -1058,20 +1395,16 @@
     -44
    ],
    [
-    41,
-    -38
+    39,
+    -40
    ],
    [
-    43,
+    39,
     -12
    ],
    [
-    43,
-    8
-   ],
-   [
-    38.5,
-    10
+    38.8,
+    9.5
    ]
   ],
   [
@@ -1099,11 +1432,11 @@
   [
    [
     -36,
-    12
+    10.5
    ],
    [
     -1,
-    12
+    10.5
    ]
   ],
   [
@@ -1140,8 +1473,8 @@
     27.5
    ],
    [
-    16,
-    26.3
+    6.6,
+    31.5
    ]
   ],
   [
@@ -1174,8 +1507,8 @@
   ],
   [
    [
-    38.5,
-    10
+    38.8,
+    9.5
    ],
    [
     38.5,
@@ -1188,12 +1521,12 @@
   ],
   [
    [
-    43,
-    8
+    38.8,
+    9.5
    ],
    [
-    45,
-    15.4
+    45.9,
+    21
    ]
   ],
   [
@@ -1217,5 +1550,1904 @@
    ]
   ]
  ],
- "props": []
+ "props": [
+  {
+   "kind": "river_town_column",
+   "x": -2.4,
+   "z": -0.3,
+   "rad": 0.2
+  },
+  {
+   "kind": "river_town_column",
+   "x": -2.4,
+   "z": 2.6,
+   "rad": 0.2
+  },
+  {
+   "kind": "river_town_column",
+   "x": -2.4,
+   "z": 5.4,
+   "rad": 0.2
+  },
+  {
+   "kind": "river_town_column",
+   "x": -2.4,
+   "z": 8.3,
+   "rad": 0.2
+  },
+  {
+   "kind": "river_town_column",
+   "x": -19.8,
+   "z": -43.6,
+   "rad": 0.14
+  },
+  {
+   "kind": "river_town_column",
+   "x": -19.8,
+   "z": -40.4,
+   "rad": 0.14
+  },
+  {
+   "kind": "river_town_post",
+   "x": 39.8,
+   "z": 16.3,
+   "rad": 0.18
+  },
+  {
+   "kind": "river_town_post",
+   "x": 46.2,
+   "z": 16.3,
+   "rad": 0.18
+  },
+  {
+   "kind": "river_town_post",
+   "x": 39.8,
+   "z": 23.7,
+   "rad": 0.18
+  },
+  {
+   "kind": "river_town_post",
+   "x": 43.0,
+   "z": 23.7,
+   "rad": 0.18
+  },
+  {
+   "kind": "river_town_post",
+   "x": 46.2,
+   "z": 23.7,
+   "rad": 0.18
+  },
+  {
+   "kind": "river_town_saw",
+   "x": 42.8,
+   "z": 20.4,
+   "rad": 0.75
+  },
+  {
+   "kind": "river_town_logs",
+   "x": 49.5,
+   "z": 15.8,
+   "rad": 1.0
+  },
+  {
+   "kind": "river_town_logs",
+   "x": 49.5,
+   "z": 26.2,
+   "rad": 1.0
+  },
+  {
+   "kind": "river_town_planks",
+   "x": 46.8,
+   "z": 27.6,
+   "rad": 0.8
+  },
+  {
+   "kind": "river_town_car",
+   "x": 50.5,
+   "z": 32.0,
+   "rad": 1.2
+  },
+  {
+   "kind": "river_town_ferry",
+   "x": 26.4,
+   "z": 9.6,
+   "solid": false
+  },
+  {
+   "kind": "river_town_gauge",
+   "x": -12.5,
+   "z": 39.8,
+   "solid": false
+  },
+  {
+   "kind": "lamp_post",
+   "x": 0.2,
+   "z": -1.4,
+   "rad": 0.25
+  },
+  {
+   "kind": "lamp_post",
+   "x": 11.2,
+   "z": 9.6,
+   "rad": 0.25
+  },
+  {
+   "kind": "lamp_post",
+   "x": -2.6,
+   "z": -8.4,
+   "rad": 0.25
+  },
+  {
+   "kind": "lamp_post",
+   "x": -2.6,
+   "z": -24.0,
+   "rad": 0.25
+  },
+  {
+   "kind": "lamp_post",
+   "x": -10.6,
+   "z": 12.3,
+   "rad": 0.25
+  },
+  {
+   "kind": "lamp_post",
+   "x": -43.0,
+   "z": 20.6,
+   "rad": 0.25
+  },
+  {
+   "kind": "lamp_post",
+   "x": -23.5,
+   "z": -36.4,
+   "rad": 0.25
+  },
+  {
+   "kind": "lamp_post",
+   "x": 15.8,
+   "z": 20.7,
+   "rad": 0.25
+  },
+  {
+   "kind": "piece",
+   "x": 2.4,
+   "z": 0.4,
+   "id": "table",
+   "rad": 0.55,
+   "color": "#f4f1ea"
+  },
+  {
+   "kind": "piece",
+   "x": 2.4,
+   "z": 2.6,
+   "id": "table",
+   "rad": 0.55,
+   "color": "#f4f1ea"
+  },
+  {
+   "kind": "piece",
+   "id": "chair",
+   "x": 2.4,
+   "z": 1.15,
+   "r": 3.141592653589793,
+   "solid": false,
+   "color": "#3f5a3a"
+  },
+  {
+   "kind": "piece",
+   "id": "chair",
+   "x": 1.65,
+   "z": 0.4,
+   "r": 1.5707963267948966,
+   "solid": false,
+   "color": "#3f5a3a"
+  },
+  {
+   "kind": "piece",
+   "id": "chair",
+   "x": 2.4,
+   "z": 3.35,
+   "r": 3.141592653589793,
+   "solid": false,
+   "color": "#3f5a3a"
+  },
+  {
+   "kind": "piece",
+   "id": "chair",
+   "x": 1.65,
+   "z": 2.6,
+   "r": 1.5707963267948966,
+   "solid": false,
+   "color": "#3f5a3a"
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "poplar",
+   "x": 42.54,
+   "z": -46.14,
+   "s": 0.96,
+   "hue": 0.22,
+   "rad": 0.35,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "poplar",
+   "x": 42.57,
+   "z": -42.45,
+   "s": 1.06,
+   "hue": 0.09,
+   "rad": 0.35,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "poplar",
+   "x": 42.48,
+   "z": -39.14,
+   "s": 0.95,
+   "hue": 0.51,
+   "rad": 0.35,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "poplar",
+   "x": 42.36,
+   "z": -35.59,
+   "s": 1.02,
+   "hue": 0.54,
+   "rad": 0.35,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "poplar",
+   "x": 42.42,
+   "z": -31.97,
+   "s": 1.05,
+   "hue": 0.01,
+   "rad": 0.35,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "poplar",
+   "x": 42.59,
+   "z": -28.44,
+   "s": 0.97,
+   "hue": 0.16,
+   "rad": 0.35,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "poplar",
+   "x": 42.64,
+   "z": -25.05,
+   "s": 0.93,
+   "hue": 0.1,
+   "rad": 0.35,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "poplar",
+   "x": 42.6,
+   "z": -21.47,
+   "s": 1.05,
+   "hue": 0.73,
+   "rad": 0.35,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "poplar",
+   "x": 42.51,
+   "z": -17.86,
+   "s": 0.98,
+   "hue": 0.55,
+   "rad": 0.35,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "poplar",
+   "x": 42.6,
+   "z": -14.46,
+   "s": 1.06,
+   "hue": 0.58,
+   "rad": 0.35,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "poplar",
+   "x": 42.56,
+   "z": -11.14,
+   "s": 0.96,
+   "hue": 0.29,
+   "rad": 0.35,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "poplar",
+   "x": 42.37,
+   "z": -7.58,
+   "s": 0.94,
+   "hue": 0.28,
+   "rad": 0.35,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "poplar",
+   "x": 42.54,
+   "z": -4.04,
+   "s": 0.98,
+   "hue": 0.21,
+   "rad": 0.35,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "poplar",
+   "x": 42.43,
+   "z": -0.37,
+   "s": 1.02,
+   "hue": 0.61,
+   "rad": 0.35,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "poplar",
+   "x": 42.4,
+   "z": 3.07,
+   "s": 0.95,
+   "hue": 0.38,
+   "rad": 0.35,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "poplar",
+   "x": 42.65,
+   "z": 6.54,
+   "s": 1.01,
+   "hue": 0.68,
+   "rad": 0.35,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "poplar",
+   "x": 42.6,
+   "z": 10.08,
+   "s": 0.96,
+   "hue": 0.03,
+   "rad": 0.35,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "poplar",
+   "x": 45.94,
+   "z": -46.07,
+   "s": 0.95,
+   "hue": 0.94,
+   "rad": 0.35,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "poplar",
+   "x": 46.11,
+   "z": -42.56,
+   "s": 1.02,
+   "hue": 0.4,
+   "rad": 0.35,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "poplar",
+   "x": 46.12,
+   "z": -39.01,
+   "s": 0.96,
+   "hue": 0.25,
+   "rad": 0.35,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "poplar",
+   "x": 46.02,
+   "z": -32.07,
+   "s": 1.01,
+   "hue": 0.9,
+   "rad": 0.35,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "poplar",
+   "x": 45.97,
+   "z": -25.08,
+   "s": 1.08,
+   "hue": 0.51,
+   "rad": 0.35,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "poplar",
+   "x": 45.88,
+   "z": -18.14,
+   "s": 0.94,
+   "hue": 0.63,
+   "rad": 0.35,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "poplar",
+   "x": 46.09,
+   "z": -14.52,
+   "s": 0.93,
+   "hue": 0.38,
+   "rad": 0.35,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "poplar",
+   "x": 46.15,
+   "z": -10.99,
+   "s": 1.08,
+   "hue": 0.86,
+   "rad": 0.35,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "poplar",
+   "x": 45.85,
+   "z": -3.93,
+   "s": 1.03,
+   "hue": 0.54,
+   "rad": 0.35,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "poplar",
+   "x": 45.93,
+   "z": -0.46,
+   "s": 0.94,
+   "hue": 0.43,
+   "rad": 0.35,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "poplar",
+   "x": 45.99,
+   "z": 3.14,
+   "s": 1.06,
+   "hue": 0.26,
+   "rad": 0.35,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "poplar",
+   "x": 46.0,
+   "z": 6.4,
+   "s": 1.07,
+   "hue": 0.87,
+   "rad": 0.35,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "poplar",
+   "x": 45.94,
+   "z": 10.04,
+   "s": 1.02,
+   "hue": 0.15,
+   "rad": 0.35,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "poplar",
+   "x": 49.58,
+   "z": -45.99,
+   "s": 1.04,
+   "hue": 0.53,
+   "rad": 0.35,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "poplar",
+   "x": 49.35,
+   "z": -42.55,
+   "s": 0.92,
+   "hue": 0.93,
+   "rad": 0.35,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "poplar",
+   "x": 49.61,
+   "z": -38.9,
+   "s": 0.97,
+   "hue": 0.06,
+   "rad": 0.35,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "poplar",
+   "x": 49.61,
+   "z": -31.87,
+   "s": 0.93,
+   "hue": 0.49,
+   "rad": 0.35,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "poplar",
+   "x": 49.37,
+   "z": -24.92,
+   "s": 1.04,
+   "hue": 0.13,
+   "rad": 0.35,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "poplar",
+   "x": 49.49,
+   "z": -17.99,
+   "s": 0.96,
+   "hue": 0.87,
+   "rad": 0.35,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "poplar",
+   "x": 49.48,
+   "z": -14.59,
+   "s": 1.01,
+   "hue": 0.73,
+   "rad": 0.35,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "poplar",
+   "x": 49.41,
+   "z": -11.06,
+   "s": 1.08,
+   "hue": 0.65,
+   "rad": 0.35,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "poplar",
+   "x": 49.48,
+   "z": -7.49,
+   "s": 0.94,
+   "hue": 0.22,
+   "rad": 0.35,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "poplar",
+   "x": 49.45,
+   "z": -3.97,
+   "s": 0.96,
+   "hue": 0.22,
+   "rad": 0.35,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "poplar",
+   "x": 49.37,
+   "z": 3.04,
+   "s": 0.96,
+   "hue": 0.91,
+   "rad": 0.35,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "poplar",
+   "x": 49.61,
+   "z": 6.37,
+   "s": 0.96,
+   "hue": 0.67,
+   "rad": 0.35,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "poplar",
+   "x": 49.41,
+   "z": 9.89,
+   "s": 1.07,
+   "hue": 0.57,
+   "rad": 0.35,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": -4.12,
+   "z": -26.0,
+   "s": 0.99,
+   "hue": 0.78,
+   "rad": 0.35,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": -7.82,
+   "z": -28.56,
+   "s": 0.94,
+   "hue": 0.1,
+   "rad": 0.35,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": -4.86,
+   "z": -32.84,
+   "s": 0.99,
+   "hue": 0.42,
+   "rad": 0.35,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": -11.52,
+   "z": -31.12,
+   "s": 0.99,
+   "hue": 0.73,
+   "rad": 0.35,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": -8.56,
+   "z": -35.4,
+   "s": 1.03,
+   "hue": 0.98,
+   "rad": 0.35,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": -15.31,
+   "z": -39.01,
+   "s": 0.98,
+   "hue": 0.34,
+   "rad": 0.35,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": -25.3,
+   "z": -36.15,
+   "s": 0.94,
+   "hue": 0.45,
+   "rad": 0.35,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": -60.18,
+   "z": -58.75,
+   "s": 1.13,
+   "hue": 0.44,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": -55.71,
+   "z": -58.45,
+   "s": 0.91,
+   "hue": 1.0,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": -51.73,
+   "z": -58.03,
+   "s": 1.13,
+   "hue": 0.85,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": -48.27,
+   "z": -58.51,
+   "s": 0.95,
+   "hue": 0.4,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": -44.35,
+   "z": -58.62,
+   "s": 1.15,
+   "hue": 0.27,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": -39.77,
+   "z": -58.54,
+   "s": 1.01,
+   "hue": 0.96,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": -35.6,
+   "z": -58.44,
+   "s": 1.08,
+   "hue": 0.15,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": -32.16,
+   "z": -58.03,
+   "s": 1.04,
+   "hue": 0.54,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": -27.8,
+   "z": -58.94,
+   "s": 1.05,
+   "hue": 0.5,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": -23.72,
+   "z": -58.84,
+   "s": 1.14,
+   "hue": 0.08,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": -20.25,
+   "z": -58.4,
+   "s": 1.07,
+   "hue": 0.24,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": -16.3,
+   "z": -58.11,
+   "s": 0.96,
+   "hue": 0.59,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": -11.9,
+   "z": -58.58,
+   "s": 1.05,
+   "hue": 0.52,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": -7.65,
+   "z": -58.8,
+   "s": 1.08,
+   "hue": 0.24,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": -4.08,
+   "z": -58.33,
+   "s": 0.97,
+   "hue": 0.32,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": 0.2,
+   "z": -58.93,
+   "s": 1.01,
+   "hue": 1.0,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": 4.4,
+   "z": -58.93,
+   "s": 0.95,
+   "hue": 0.27,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": 8.35,
+   "z": -58.12,
+   "s": 1.12,
+   "hue": 0.37,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": 11.73,
+   "z": -58.17,
+   "s": 1.08,
+   "hue": 0.61,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": 16.39,
+   "z": -58.35,
+   "s": 0.9,
+   "hue": 0.82,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": 19.84,
+   "z": -58.34,
+   "s": 1.13,
+   "hue": 0.13,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": 35.69,
+   "z": -58.89,
+   "s": 1.04,
+   "hue": 0.27,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": 40.08,
+   "z": -58.28,
+   "s": 0.95,
+   "hue": 0.63,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": 43.81,
+   "z": -58.51,
+   "s": 1.13,
+   "hue": 0.85,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": 47.67,
+   "z": -58.58,
+   "s": 0.97,
+   "hue": 0.0,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": 52.22,
+   "z": -58.36,
+   "s": 0.97,
+   "hue": 0.74,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": 56.04,
+   "z": -58.57,
+   "s": 0.9,
+   "hue": 0.08,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": 60.31,
+   "z": -58.1,
+   "s": 1.04,
+   "hue": 0.83,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": -60.43,
+   "z": -54.28,
+   "s": 0.93,
+   "hue": 0.31,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": 60.82,
+   "z": -53.76,
+   "s": 1.12,
+   "hue": 0.9,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": -60.73,
+   "z": -50.2,
+   "s": 0.93,
+   "hue": 0.78,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": 60.81,
+   "z": -50.07,
+   "s": 1.06,
+   "hue": 0.15,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": -60.16,
+   "z": -45.71,
+   "s": 1.14,
+   "hue": 0.81,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": 60.81,
+   "z": -46.38,
+   "s": 1.08,
+   "hue": 0.33,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": -60.16,
+   "z": -41.76,
+   "s": 1.12,
+   "hue": 0.81,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": 60.31,
+   "z": -41.77,
+   "s": 0.93,
+   "hue": 0.87,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": -60.21,
+   "z": -38.22,
+   "s": 1.1,
+   "hue": 0.46,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": 60.34,
+   "z": -37.76,
+   "s": 0.96,
+   "hue": 0.02,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": -60.75,
+   "z": -34.14,
+   "s": 1.12,
+   "hue": 0.97,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": 60.32,
+   "z": -33.89,
+   "s": 1.0,
+   "hue": 0.98,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": -60.47,
+   "z": -29.65,
+   "s": 0.93,
+   "hue": 0.97,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": 60.24,
+   "z": -29.63,
+   "s": 0.97,
+   "hue": 0.11,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": -60.55,
+   "z": -25.82,
+   "s": 0.98,
+   "hue": 0.61,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": 60.51,
+   "z": -26.09,
+   "s": 1.04,
+   "hue": 0.25,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": -60.33,
+   "z": -22.4,
+   "s": 1.13,
+   "hue": 0.54,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": 60.68,
+   "z": -21.81,
+   "s": 1.07,
+   "hue": 0.36,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": -60.84,
+   "z": -17.87,
+   "s": 0.98,
+   "hue": 0.31,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": 60.78,
+   "z": -17.82,
+   "s": 0.98,
+   "hue": 0.31,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": -60.57,
+   "z": -14.08,
+   "s": 0.97,
+   "hue": 0.13,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": 60.44,
+   "z": -13.65,
+   "s": 1.07,
+   "hue": 0.9,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": -60.41,
+   "z": -10.16,
+   "s": 1.04,
+   "hue": 0.0,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": 60.33,
+   "z": -10.06,
+   "s": 1.04,
+   "hue": 0.65,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": -60.53,
+   "z": -6.05,
+   "s": 0.95,
+   "hue": 0.47,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": 60.82,
+   "z": -5.76,
+   "s": 0.94,
+   "hue": 0.08,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": -60.49,
+   "z": -1.89,
+   "s": 0.98,
+   "hue": 0.82,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": 60.7,
+   "z": -1.86,
+   "s": 0.96,
+   "hue": 0.2,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": -60.88,
+   "z": 1.8,
+   "s": 1.02,
+   "hue": 0.85,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": 60.16,
+   "z": 1.93,
+   "s": 1.06,
+   "hue": 0.19,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": -60.34,
+   "z": 6.0,
+   "s": 0.96,
+   "hue": 0.66,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": 60.1,
+   "z": 6.2,
+   "s": 1.09,
+   "hue": 0.11,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": -60.56,
+   "z": 9.74,
+   "s": 1.14,
+   "hue": 0.52,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": 60.14,
+   "z": 9.8,
+   "s": 1.11,
+   "hue": 0.46,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": -60.26,
+   "z": 14.13,
+   "s": 1.15,
+   "hue": 0.6,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": 60.86,
+   "z": 14.31,
+   "s": 1.05,
+   "hue": 0.72,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": -60.5,
+   "z": 18.26,
+   "s": 1.04,
+   "hue": 0.9,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": 60.69,
+   "z": 17.98,
+   "s": 0.96,
+   "hue": 0.25,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": -60.39,
+   "z": 22.21,
+   "s": 1.03,
+   "hue": 0.63,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": 60.32,
+   "z": 21.66,
+   "s": 0.97,
+   "hue": 0.27,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": -60.64,
+   "z": 26.03,
+   "s": 0.93,
+   "hue": 0.23,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": 60.66,
+   "z": 26.17,
+   "s": 0.92,
+   "hue": 0.41,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": -60.47,
+   "z": 29.93,
+   "s": 0.95,
+   "hue": 0.42,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": 60.82,
+   "z": 30.07,
+   "s": 1.07,
+   "hue": 0.86,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": -60.29,
+   "z": 33.9,
+   "s": 0.9,
+   "hue": 0.35,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "column",
+   "x": 60.7,
+   "z": 34.28,
+   "s": 1.14,
+   "hue": 0.42,
+   "rad": 0.35,
+   "solid": false
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "willow",
+   "x": 23.85,
+   "z": -7.54,
+   "s": 0.97,
+   "hue": 0.13,
+   "rad": 0.4,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "willow",
+   "x": 35.25,
+   "z": -40.58,
+   "s": 0.97,
+   "hue": 0.05,
+   "rad": 0.4,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "willow",
+   "x": 35.53,
+   "z": -34.19,
+   "s": 0.9,
+   "hue": 0.33,
+   "rad": 0.4,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "willow",
+   "x": 36.73,
+   "z": -16.4,
+   "s": 0.87,
+   "hue": 0.02,
+   "rad": 0.4,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "willow",
+   "x": 37.0,
+   "z": -9.94,
+   "s": 1.1,
+   "hue": 0.35,
+   "rad": 0.4,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "willow",
+   "x": -33.5,
+   "z": 32.2,
+   "s": 1.09,
+   "hue": 0.2,
+   "rad": 0.4,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "willow",
+   "x": -15.5,
+   "z": 32.4,
+   "s": 0.86,
+   "hue": 0.15,
+   "rad": 0.4,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "willow",
+   "x": 23.6,
+   "z": 32.8,
+   "s": 1.02,
+   "hue": 0.56,
+   "rad": 0.4,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "willow",
+   "x": 23.2,
+   "z": 26.6,
+   "s": 0.9,
+   "hue": 0.7,
+   "rad": 0.4,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "willow",
+   "x": -46,
+   "z": 34.5,
+   "s": 1.04,
+   "hue": 0.17,
+   "rad": 0.4,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "willow",
+   "x": -44.5,
+   "z": 28.0,
+   "s": 1.0,
+   "hue": 0.75,
+   "rad": 0.4,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "willow",
+   "x": -4,
+   "z": 35.6,
+   "s": 0.88,
+   "hue": 0.82,
+   "rad": 0.4,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "willow",
+   "x": 2,
+   "z": 36.6,
+   "s": 1.09,
+   "hue": 0.11,
+   "rad": 0.4,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "willow",
+   "x": 13.5,
+   "z": 36.6,
+   "s": 0.86,
+   "hue": 0.31,
+   "rad": 0.4,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "willow",
+   "x": 41.5,
+   "z": 35.8,
+   "s": 1.09,
+   "hue": 0.4,
+   "rad": 0.4,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "locust",
+   "x": -47.72,
+   "z": 30.08,
+   "s": 0.93,
+   "hue": 0.34,
+   "rad": 0.3,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "locust",
+   "x": -42.35,
+   "z": 28.97,
+   "s": 1.0,
+   "hue": 0.54,
+   "rad": 0.3,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "locust",
+   "x": -49.32,
+   "z": 35.37,
+   "s": 1.01,
+   "hue": 0.09,
+   "rad": 0.3,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "locust",
+   "x": -45.54,
+   "z": 31.4,
+   "s": 1.0,
+   "hue": 0.09,
+   "rad": 0.3,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "locust",
+   "x": -49.78,
+   "z": 33.61,
+   "s": 0.88,
+   "hue": 0.58,
+   "rad": 0.3,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "locust",
+   "x": -47.27,
+   "z": 31.84,
+   "s": 0.91,
+   "hue": 0.75,
+   "rad": 0.3,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "locust",
+   "x": -50.8,
+   "z": 31.89,
+   "s": 0.99,
+   "hue": 0.19,
+   "rad": 0.3,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "locust",
+   "x": -12.26,
+   "z": -44.75,
+   "s": 0.86,
+   "hue": 0.1,
+   "rad": 0.3,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "locust",
+   "x": -20.86,
+   "z": -47.73,
+   "s": 0.84,
+   "hue": 0.01,
+   "rad": 0.3,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "locust",
+   "x": -17.12,
+   "z": -47.26,
+   "s": 0.99,
+   "hue": 0.55,
+   "rad": 0.3,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "locust",
+   "x": -15.33,
+   "z": -48.74,
+   "s": 0.97,
+   "hue": 0.49,
+   "rad": 0.3,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "locust",
+   "x": -18.59,
+   "z": -49.26,
+   "s": 0.93,
+   "hue": 0.05,
+   "rad": 0.3,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "locust",
+   "x": 41.79,
+   "z": 32.75,
+   "s": 0.93,
+   "hue": 0.99,
+   "rad": 0.3,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "locust",
+   "x": 49.49,
+   "z": 28.71,
+   "s": 0.98,
+   "hue": 0.45,
+   "rad": 0.3,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "locust",
+   "x": 45.31,
+   "z": 36.32,
+   "s": 1.1,
+   "hue": 0.31,
+   "rad": 0.3,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "locust",
+   "x": 47.45,
+   "z": 33.32,
+   "s": 1.04,
+   "hue": 0.95,
+   "rad": 0.3,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "locust",
+   "x": 48.44,
+   "z": 31.45,
+   "s": 1.02,
+   "hue": 0.92,
+   "rad": 0.3,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "locust",
+   "x": 49.45,
+   "z": 33.5,
+   "s": 1.02,
+   "hue": 0.93,
+   "rad": 0.3,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "locust",
+   "x": 45.1,
+   "z": 32.53,
+   "s": 1.01,
+   "hue": 0.91,
+   "rad": 0.3,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "locust",
+   "x": 43.69,
+   "z": 34.99,
+   "s": 0.99,
+   "hue": 0.29,
+   "rad": 0.3,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "locust",
+   "x": 41.49,
+   "z": 34.26,
+   "s": 1.02,
+   "hue": 0.94,
+   "rad": 0.3,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "locust",
+   "x": -47.0,
+   "z": -43.09,
+   "s": 0.82,
+   "hue": 0.04,
+   "rad": 0.3,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "locust",
+   "x": -47.68,
+   "z": -45.49,
+   "s": 0.85,
+   "hue": 0.09,
+   "rad": 0.3,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "locust",
+   "x": -42.38,
+   "z": -38.3,
+   "s": 0.92,
+   "hue": 0.95,
+   "rad": 0.3,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "locust",
+   "x": -42.0,
+   "z": -40.59,
+   "s": 0.85,
+   "hue": 0.04,
+   "rad": 0.3,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "willow",
+   "x": -37.34,
+   "z": 28.0,
+   "s": 0.97,
+   "hue": 0.63,
+   "rad": 0.4,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "willow",
+   "x": -47.63,
+   "z": 35.18,
+   "s": 1.05,
+   "hue": 0.24,
+   "rad": 0.4,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "willow",
+   "x": -50.56,
+   "z": 29.25,
+   "s": 1.0,
+   "hue": 0.18,
+   "rad": 0.4,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "plane",
+   "x": -30.5,
+   "z": -6.0,
+   "s": 0.97,
+   "hue": 0.54,
+   "rad": 0.4,
+   "solid": true
+  },
+  {
+   "kind": "river_town_tree",
+   "tree": "plane",
+   "x": -20.0,
+   "z": -4.0,
+   "s": 1.1,
+   "hue": 0.53,
+   "rad": 0.4,
+   "solid": true
+  }
+ ]
 }

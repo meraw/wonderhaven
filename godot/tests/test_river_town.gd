@@ -37,7 +37,8 @@ func test_ground_shape():
 		t.ok(not Heightfield.is_water(RT.SANDBANK.x, RT.SANDBANK.z), "the sandbank reaches out into the Po")
 		t.ok(H.call(RT.alpine_center(RT.ROMAN_Z), RT.ROMAN_Z) > 1.5, "the Roman bridge's walkway arches over the river")
 		var b: Dictionary = Data.layout.buildings.filter(func(x): return x.id == "river_town_ermes_house")[0]
-		t.ok(absf(H.call(b.x, b.z) - crest) < 0.1, "the warden's house stands at the levee's height"))
+		t.ok(absf(H.call(b.x, b.z) - town) < 0.15 and H.call(b.x, b.z + b.d / 2.0 + 4.5) > crest - 0.1, "the warden's house stands at the foot of the levee, the levee road just behind it")
+		t.ok(absf(H.call(16.0, 31.5) - RT.DANCE_H) < 0.01 and H.call(16.0, 31.5) - H.call(16.0, 36.0) > 0.6, "the dance hall's floor is a raised platform above the floodplain"))
 
 ## Cells you can walk to from the bus stop, stepping half a metre at a time over the bare ground (buildings and
 ## trees left out). `cut` marks cells to treat as blocked.
@@ -100,3 +101,47 @@ func test_build_zones_fit_their_jobs():
 		t.ok(BuildGrid.zone_contains(moor, floor(RT.BACKWATER.x), floor(RT.BACKWATER.z - RT.BACKWATER_HALF.y), 999), "and reaches the backwater")
 		for z in Data.layout.zones:
 			t.ok(String(z.id).begins_with("river_town_"), "zone %s has the location's prefix" % z.id))
+
+## Villagers and the playthrough walk the nav graph in straight lines: every edge must be walkable with the real
+## collision (buildings, room walls and furniture, tree trunks, columns, posts), up ramps and over the Roman bridge.
+func test_every_nav_edge_is_walkable():
+	_on(func():
+		var w := WalkWorld.new(WorldStatics.build_statics(WorldStatics.generate_decor()), func(_f): return true)
+		var nodes: Dictionary = Data.layout.nav_nodes
+		for e in Data.layout.nav_edges:
+			var a: Array = nodes[e[0]]; var b: Array = nodes[e[1]]
+			var steps := maxi(1, int(Vector2(b[0] - a[0], b[1] - a[1]).length() / 0.2))
+			var feet := Heightfield.height(a[0], a[1])
+			var blocked := ""
+			for k in range(1, steps + 1):
+				var x: float = lerpf(a[0], b[0], float(k) / steps); var z: float = lerpf(a[1], b[1], float(k) / steps)
+				var s := w.can_stand(x, z, feet, 0.3)
+				if s.is_empty(): blocked = "at %.1f, %.1f" % [x, z]; break
+				feet = s.y
+			t.ok(blocked == "", "walkable: %s to %s %s" % [e[0], e[1], blocked]))
+
+func test_scenery_props_are_drawn_and_placed():
+	_on(func():
+		var kinds := {}
+		for p in Data.layout.props: kinds[String(p.get("tree", p.kind))] = true
+		for k in ["poplar", "column", "willow", "locust", "river_town_column", "river_town_post", "river_town_logs", "lamp_post"]:
+			t.ok(kinds.has(k), "the layout places %s" % k)
+		for p in Data.layout.props:
+			if p.get("solid", true) and p.kind != "river_town_gauge": t.ok(not Heightfield.is_water(p.x, p.z), "%s at %.1f, %.1f stands on land" % [p.get("tree", p.kind), p.x, p.z])
+		var Scenery = load("res://scripts/locations/river_town/scenery.gd")
+		for k in ["poplar", "column", "willow", "locust", "plane"]:
+			t.ok(Scenery.canopy(k).get_surface_count() > 0, "a %s canopy mesh is built" % k))
+
+func test_rooms_you_can_walk_into():
+	_on(func():
+		var rooms := ["river_town_houseboat", "river_town_dance_hall", "river_town_bar", "river_town_workshop", "river_town_ermes_house", "river_town_pierina_house", "river_town_shack"]
+		for id in rooms:
+			var b: Dictionary = Data.layout.buildings.filter(func(x): return x.id == id)[0]
+			t.ok(Interiors.enterable(b), "%s is a room you can walk into" % id)
+		var hall: Dictionary = Data.layout.buildings.filter(func(x): return x.id == "river_town_dance_hall")[0]
+		t.ok(hall.interior.get("empty", false), "the dance hall stands empty, waiting for its request")
+		var feats: Array = Data.layout.features.map(func(f): return f.kind)
+		t.ok(feats.has("rest") and feats.has("wardrobe"), "the houseboat has a bed to sleep in and a wardrobe")
+		var boat: Dictionary = Data.layout.buildings.filter(func(x): return x.id == "river_town_houseboat")[0]
+		for f in Data.layout.features.filter(func(f): return f.kind in ["rest", "wardrobe"]):
+			t.ok(Interiors.room(boat).has_point(Vector3(f.x, 0.5, f.z)), "the %s is inside the houseboat" % f.kind))

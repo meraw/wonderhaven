@@ -1,7 +1,8 @@
 # Boccapioppo: design for the river town
 
-Working id `river_town`. Agreed with the user on 2026-11-04 in a design interview. **Nothing here is built yet.** This
-doc is the plan the build stages follow. The rules every location shares are in `docs/WORLD.md`;
+Working id `river_town`. Agreed with the user on 2026-11-04 in a design interview. **Stages 1 (ground and map) and 2
+(buildings and scenery) are built; stages 3 and 4 are not.** See "Build status" at the end. This doc is the plan the
+build stages follow. The rules every location shares are in `docs/WORLD.md`;
 `docs/MONTEFORCHETTA.md` is the model this doc follows.
 
 ## The concept
@@ -285,6 +286,40 @@ One pull request per stage. Each keeps the game playable and the tests passing.
 - **The houseboat moves** from the mud to its mooring, and its room moves with it. If that fights the interiors
   code, the fallback is that it is pulled level where it lies and floats when the finale's storm raises the water.
 - **Parallel shared changes** with Toriano. Merging main often keeps the two from colliding.
+
+## Build status
+What exists now, and the choices made while building that the design above didn't settle.
+
+**Stage 1, the ground and the map** (merged):
+- The ground shape is code in `godot/scripts/locations/river_town.gd`, and the map is `godot/data/locations/river_town/layout.json`.
+- The map is land on every side, so irrigation ditches along the north, west and east edges and the Po along the
+  south keep you on it. Beyond the edge lies flat far land.
+- The levee is 2.8 m high, with the breach as a walkable gap.
+
+**Stage 2, the buildings and scenery** (this stage):
+- **Models** are in `godot/scripts/locations/river_town/models.gd`: houses with balconies and green shutters, Rina's bar with
+  its awning and payphone, the arcade's covered walk, the brick church with its bell tower and clock, Primo's
+  workshop, Ermes's keeper's house, the station, the farm courtyard, the houseboat, the shack, the dance hall and the
+  sawmill's office. Walls near the water carry the flood's tide line.
+- **Rooms you can walk into:** the houseboat (bed and wardrobe), the dance hall (empty), the bar, Primo's workshop,
+  Ermes's house, Pierina's house and the shack. Rina, Primo, Ermes, Pierina and Gildo have a spot to work at.
+- **Ermes's house** stands at the landward foot of the levee, not on its crest. The shared indoor camera expects a
+  room's floor near ground level.
+- **The dance hall's floor** is a raised platform in the ground shape, so you really walk on it. A lattice skirt
+  and stilts hide the platform's sides, and you reach it by a ramp from the west.
+- **The sawmill** is a small brick office beside an open shed you walk under.
+- **Trees** are drawn by the location script. Their trunks are invisible solid props in the layout (`river_town_tree`),
+  so they block you like any tree. The kinds are hybrid poplars in a plantation grid, Lombardy column poplars along the
+  station avenue and beyond the ditches, white willows, black locust and a few big shade trees. The eight chopping
+  trees look like plantation poplars.
+- **Scenery** is in `godot/scripts/locations/river_town/scenery.gd`:
+  - The Roman bridge, the sawmill's shed and log piles, the station's track, the river gauge post and the bus stop.
+  - The flood's leftovers: the flooded piazza, mud, the sunken ferry, a car on its roof, a fridge, a bathtub, the
+    sandbag patch and debris against the bridge.
+  - Leaning bicycles, reeds and maize stubble.
+  - The horizon: the Alps, lines of poplars, other villages' bell towers and the Apennine hills.
+- **The flooded piazza** is a water surface named `river_town_pond`, which stage 3 hides when the piazza drains. Until
+  paved ground keeps greenery off squares for every location, the scenery script clears grass and flowers from it.
 
 ## Checks for every stage
 `godot/run_tests.sh`, `npm test` and `npm run build`; screenshots of Boccapioppo in both renderers
