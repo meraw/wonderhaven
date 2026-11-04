@@ -50,7 +50,8 @@ var rain: GPUParticles3D
 var smoke_t := 0.0
 var last_autosave := -100.0
 var shot_cfg := {}
-var roof_alpha := 1.0
+var roof_alpha := 1.0   # the workshop's roof (kept for tests)
+var roof_fade: Dictionary = {}   # building id -> roof opacity
 var guide: Guide
 var outline: MeshInstance3D
 var outline_override := ""   # look-dev renders force outlines on or off without touching saved settings
@@ -62,7 +63,18 @@ func _ready() -> void:
 		if a.begins_with("--face="): Chibi.face_style = a.trim_prefix("--face=")
 		if a.begins_with("--outline="): outline_override = a.trim_prefix("--outline=")
 	Controls.setup(settings.bindings)
-	state = GameState.new_game()
+	# Arriving from another island (or loading a save made on one): the state came across the scene reload.
+	var arriving: Dictionary = Data.pending_state
+	Data.pending_state = {}
+	var start_island := "hearthglow"   # --island=<id> starts there (screenshots, playthrough tests)
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--island=") and Data.has_island(a.trim_prefix("--island=")): start_island = a.trim_prefix("--island=")
+	if arriving.is_empty() and Data.island != start_island: Data.use_island(start_island)
+	state = arriving if not arriving.is_empty() else GameState.new_game()
+	if arriving.is_empty() and start_island != "hearthglow":
+		var sp0: Dictionary = Data.layout.spawn
+		state.island = start_island; state.player = {"x": sp0.x, "z": sp0.z, "yaw": sp0.yaw}
+		state.tutorial = Tutorial.new_state(false, true)
 	decor = WorldStatics.generate_decor()
 	statics = WorldStatics.build_statics(decor)
 	walk = WalkWorld.new(statics, func(f): return state.flags.get(f, false))
@@ -90,7 +102,7 @@ func _ready() -> void:
 	build = BuildMode.new(); build.name = "BuildMode"; add_child(build); build.setup(self)
 	story = Story.new(self)
 	guide = Guide.new(self)
-	for d in Data.npcs:
+	for d in Data.npcs_here():
 		var a := NpcAgent.new(self, d)
 		npcs[d.id] = a
 		var ag := a
@@ -106,12 +118,18 @@ func _ready() -> void:
 	apply_settings()
 	_parse_args()
 	cam.update(0.016, player.pos); cam.snap()
-	if screens and ((not shot_cfg.has("autoplay") and not shot_cfg.has("skiptitle")) or shot_cfg.has("title")): screens.title()
+	if not arriving.is_empty():
+		load_state(state)
+		begin_play()
+		_arrived()
+	elif screens and ((not shot_cfg.has("autoplay") and not shot_cfg.has("skiptitle")) or shot_cfg.has("title")): screens.title()
 	else: begin_play()
-	if shot_cfg.has("autoplay"):
+	if shot_cfg.has("autoplay") and not Data.autoplay_started:
+		Data.autoplay_started = true
 		var script: Script = load(shot_cfg.autoplay)
 		if script == null or not script.can_instantiate(): push_error("Autoplay script failed to load"); get_tree().quit(2); return
-		var runner = script.new(); add_child(runner); runner.call_deferred("run", self)
+		# The runner lives beside the game scene, so it keeps going when sailing reloads the scene.
+		var runner = script.new(); get_tree().root.add_child.call_deferred(runner); runner.call_deferred("run", self)
 
 func _load_optional_modules() -> void:
 	if ResourceLoader.exists("res://scripts/ui/screens.gd"):
@@ -186,8 +204,9 @@ func render_resources(pop: Array = []) -> void:
 	for c in hud_res.get_children(): hud_res.remove_child(c); c.queue_free()   # remove first so new chips keep their names
 	for id in Data.resource_order:
 		var n: int = int(state.inventory.get(id, 0))
-		if id != "spark" and n <= 0: continue
-		var chip := UiTheme.panel(Color("fff7cf") if id == "spark" else Color.WHITE, UiTheme.GOLD if id == "spark" else Color("f3dfc0"), 999)
+		var money: bool = id in ["spark", "coins"]   # always shown, in gold
+		if not money and n <= 0: continue
+		var chip := UiTheme.panel(Color("fff7cf") if money else Color.WHITE, UiTheme.GOLD if money else Color("f3dfc0"), 999)
 		chip.name = "res_" + id
 		chip.add_child(UiTheme.label("%s %d" % [Data.resources[id].icon, n], 15))
 		hud_res.add_child(chip)
@@ -267,13 +286,15 @@ func open_wardrobe() -> void:
 	for f in Data.layout.features:
 		if f.kind == "wardrobe": w = f
 	var near_inn := not w.is_empty() and Vector2(player.pos.x - w.x, player.pos.z - w.z).length() < 6.0
-	var at_home: bool = state.flags.get("ownHome", false) and BuildGrid.zone_contains(Data.zone("plot"), floorf(player.pos.x), floorf(player.pos.z), state.harmony)
+	var plot := Data.zone("plot")
+	var at_home: bool = state.flags.get("ownHome", false) and not plot.is_empty() and BuildGrid.zone_contains(plot, floorf(player.pos.x), floorf(player.pos.z), state.harmony)
 	if near_inn or at_home: screens.creator(true)
 	else: toast("Change your outfit at the Lantern Inn's wardrobe%s." % (", or at home" if state.flags.get("ownHome", false) else ""))
 
 func sail_to(isl: Dictionary) -> void:
 	panels.close()
-	if isl.id == "hearthglow": toast("You are already in Hearthglow!"); return
+	if isl.id == Data.island: toast("You are already in %s!" % isl.name); return
+	if Data.has_island(isl.id): travel(isl.id); return
 	set_mode("cutscene"); sfx("sail")
 	await _fade(true).finished
 	await get_tree().create_timer(0.6).timeout
@@ -282,6 +303,30 @@ func sail_to(isl: Dictionary) -> void:
 	set_flag("sailedOnce")
 	player_char.play("celebrate")
 	set_mode("explore")
+	autosave("travel", true)
+
+## Sail to another island: this island's buildings are put away in the save, the state crosses a scene reload,
+## and the world is rebuilt from the new island's layout. You arrive at its spawn point (the dock).
+func travel(id: String) -> void:
+	if build.active: build.close()
+	set_mode("cutscene"); sfx("sail")
+	await _fade(true).finished
+	snapshot()
+	var dest := Data.read_layout(id)
+	Travel.leave(state, Data.island, id, dest.get("arrive", dest.spawn))   # where the ferry lands
+	traveling = true
+	Data.pending_state = state
+	Data.use_island(id)
+	get_tree().reload_current_scene()
+
+## Just arrived (from a voyage or by loading a save made on this island).
+func _arrived() -> void:
+	var first: bool = not state.flags.get("arrived_" + Data.island, false)
+	set_flag("arrived_" + Data.island)
+	var isl := Data.island_def(Data.island)
+	_fade(false)
+	if first and Data.island != "hearthglow": banner(isl.get("name", ""), isl.get("desc", ""), [], 5.0); sfx("fanfare")
+	else: toast("⛵ %s" % isl.get("name", ""), "good", 2.5)
 	autosave("travel", true)
 
 func to_title() -> void:
@@ -297,6 +342,10 @@ func on_quest_completed(qid: String) -> void:
 		"dock":
 			effects.sparkle(Vector3(5.5, 1, 51), 50)
 			get_tree().create_timer(4.4).timeout.connect(func(): banner("The ferry has arrived!", "Clockwork Cove now appears on your world map (%s)" % Controls.key_label("map"), [], 5.0))
+		"lighthouse": effects.sparkle(Vector3(-24, 7.5, -21), 50, Color("fff2a8"), 0.4); toast("The lighthouse turns again! Its beam sweeps the bay at night.", "good", 4.0)
+		"clocktower":
+			effects.sparkle(Vector3(12, 6, -13), 50); sfx("gate")
+			get_tree().create_timer(4.4).timeout.connect(func(): banner("Clockwork Cove is ticking again!", "The clock and the lighthouse run. More of the cove's story is coming.", [], 5.0))
 	for a in npcs.values():
 		if a.present and Vector2(a.pos.x - player.pos.x, a.pos.z - player.pos.z).length() < 12.0: a.character.play("clap" if randf() < 0.5 else "celebrate")
 
@@ -337,6 +386,12 @@ func load_from(slot: String) -> bool:
 
 func load_state(s: Dictionary) -> void:
 	if build.active: build.close()
+	if s.get("island", "hearthglow") != Data.island:   # a save made on another island: rebuild the world for it
+		traveling = true
+		Data.pending_state = s
+		Data.use_island(s.get("island", "hearthglow"))
+		get_tree().reload_current_scene()
+		return
 	state = s
 	story.attach(s)
 	player_char.set_appearance(s.appearance)
@@ -479,10 +534,19 @@ func rebuild_all_pieces() -> void:
 	for pl in state.placements: _add_piece_node(pl, false)
 	on_build_changed({"action": "load"})
 
+## Cells where a machine delivers water or power to something in the world (layout `machines`; Hearthglow's
+## fountain inlet too).
+func machine_targets() -> Array:
+	var out: Array = []
+	if Data.layout.has("fountain"):
+		var F: Dictionary = Data.layout.fountain
+		out.append({"id": "fountain", "cell": F.inlet.cell, "side": F.inlet.side, "type": "water"})
+	out.append_array(Data.layout.get("machines", []))
+	return out
+
 func on_build_changed(ev: Dictionary) -> void:
 	walk.surfaces = BuildGrid.surfaces_for(state.placements)
-	var F: Dictionary = Data.layout.fountain
-	mech = Mechanics.solve(state.placements, [{"id": "fountain", "cell": F.inlet.cell, "side": F.inlet.side}])
+	mech = Mechanics.solve(state.placements, machine_targets())
 	_refresh_piece_interactables()
 	build.refresh_plan()
 	emit_event("build", ev)
@@ -606,7 +670,11 @@ func _unhandled_input(event: InputEvent) -> void:
 func move_vector() -> Vector2: return Input.get_vector("move_left", "move_right", "move_back", "move_forward")
 
 # ---- Loop ----------------------------------------------------------------------------------------
+var traveling := false   # between switching islands and the scene reload: the old world must not update
+
 func _process(dt: float) -> void:
+	if traveling: return
+	if story: story.engine.invalidate()   # live quest checks look at the world: recompute them once a frame
 	dt = minf(dt, 0.1)
 	time += dt
 	interact_cooldown -= dt
@@ -654,6 +722,7 @@ func _process(dt: float) -> void:
 	hud.update_compass(guide.target())
 	_world_reactions(dt)
 	var vflags: Dictionary = state.flags.duplicate(); vflags["fountainFlowing"] = mech.fed.get("fountain", false)
+	for id in mech.fed: vflags["fed:" + id] = mech.fed[id]
 	village.update_world(dt, time, vflags)
 	for pl in state.placements:
 		var n: Node3D = piece_nodes.get(pl.uid)
@@ -735,7 +804,7 @@ func _update_world_time(dt: float) -> void:
 	hud.clock_label.text = "%s %s%s" % [icon, Clock.text(s.time), ("  " + "🎵".repeat(actions.hum)) if actions.hum > 0 else ""]
 
 func _world_reactions(dt: float) -> void:
-	if state.flags.get("fountainFlowing", false) != mech.fed.get("fountain", false): set_flag("fountainFlowing", mech.fed.get("fountain", false))
+	if Data.layout.has("fountain") and state.flags.get("fountainFlowing", false) != mech.fed.get("fountain", false): set_flag("fountainFlowing", mech.fed.get("fountain", false))
 	smoke_t -= dt
 	if smoke_t < 0.0:
 		smoke_t = 0.5
@@ -743,18 +812,27 @@ func _world_reactions(dt: float) -> void:
 			var o: Node3D = village.objects.get(pair[0])
 			if pair[1] and o and o.has_meta("chimney"): effects.smoke(o.to_global(o.get_meta("chimney")))
 	if state.harmony >= 160 and player.moving and randf() < dt * 8.0: effects.sparkle(player.pos + Vector3(0, 0.1, 0), 1, Color("fff2a8"), 0.18)
-	var ws: Node3D = village.objects.workshop
+	# Roofs dissolve over the room you're standing in (and over the workshop while you furnish it).
 	var p := player.pos
-	var inside: bool = (p.x > -17.5 and p.x < -8.5 and p.z > 6.5 and p.z < 13.5) or (build.active and build.current_zone.get("id", "") == "workshop")
-	roof_alpha = lerpf(roof_alpha, 0.0 if inside else 1.0, minf(1.0, dt * 6.0))
-	var fading := roof_alpha < 0.99
-	for part in ws.get_meta("fade_parts"):
-		var mi: MeshInstance3D = part[0]
-		var m: Material = part[2] if fading else part[1]
-		if mi.material_override != m: mi.material_override = m
-		if not fading: continue
-		if m is ShaderMaterial: m.set_shader_parameter("alpha", roof_alpha)
-		else: m.albedo_color.a = roof_alpha
+	for bd in Data.layout.buildings:
+		var o: Node3D = village.objects.get(bd.id)
+		if o == null or not o.has_meta("fade_parts"): continue
+		var room: AABB = Interiors.room(bd, o.position.y) if Interiors.enterable(bd) else AABB(Vector3(bd.x - bd.w / 2.0 + 0.3, -1.0, bd.z - bd.d / 2.0 + 0.3), Vector3(bd.w - 0.6, 4.0, bd.d - 0.6))
+		var inside: bool = room.has_point(Vector3(p.x, room.position.y + 1.0, p.z)) or (build.active and build.current_zone.get("id", "") == bd.id)
+		var a0: float = roof_fade.get(bd.id, 1.0)
+		var a1: float = lerpf(a0, 0.0 if inside else 1.0, minf(1.0, dt * 6.0))
+		if a1 > 0.995: a1 = 1.0
+		roof_fade[bd.id] = a1
+		if a1 == a0 and (a1 == 1.0 or a1 < 0.001): continue
+		var fading := a1 < 0.99
+		for part in o.get_meta("fade_parts"):
+			var mi: MeshInstance3D = part[0]
+			var m: Material = part[2] if fading else part[1]
+			if mi.material_override != m: mi.material_override = m
+			if not fading: continue
+			if m is ShaderMaterial: m.set_shader_parameter("alpha", a1)
+			else: m.albedo_color.a = a1
+	roof_alpha = roof_fade.get("workshop", 1.0)
 
 func _make_rain() -> void:
 	rain = GPUParticles3D.new(); rain.amount = 1500; rain.lifetime = 1.6; rain.emitting = false; rain.visibility_aabb = AABB(Vector3(-30, -20, -30), Vector3(60, 40, 60))
@@ -774,6 +852,16 @@ func _apply_window() -> void:
 	var full := DisplayServer.window_get_mode() in [DisplayServer.WINDOW_MODE_FULLSCREEN, DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN]
 	if settings.get("fullscreen", false) and not full: DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
 	elif not settings.get("fullscreen", false) and full: DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_MAXIMIZED)
+
+## Pause menu "I'm stuck": back to the Lantern Inn's door, wherever you were.
+func unstick() -> void:
+	var safe: String = Data.layout.get("safeSpot", "cottageDoor")
+	var door: Array = Data.layout.nav_nodes.get(safe, [Data.layout.spawn.x, Data.layout.spawn.z])
+	var spot := walk.free_spot(float(door[0]), float(door[1]), Rect2(), 10.0, WalkWorld.PLAYER_RADIUS, player.body)
+	if spot.is_empty(): return
+	player.teleport(spot.x, spot.z); cam.snap()
+	effects.sparkle(player.pos + Vector3(0, 1, 0), 16)
+	toast(Data.layout.get("safeText", "Back at the Lantern Inn."))
 
 func toggle_fullscreen() -> void:
 	settings.fullscreen = not settings.get("fullscreen", false)

@@ -40,10 +40,13 @@ func setup(g) -> void:
 func state() -> Dictionary: return game.state
 func unlocked_zones() -> Array: return Data.layout.zones.filter(func(z): return game.zone_unlocked(z))
 
+var opened_at := Vector3.INF   # where the player stood when build mode opened
+
 func open(zone_id: String = "") -> bool:
 	if not state().flags.get("hasTool", false):
 		game.toast("You need the Starforge Tool first — Odessa might know where it is!", "warn"); return false
 	active = true
+	opened_at = game.player.pos
 	var zones := unlocked_zones()
 	var p: Vector3 = game.player.pos
 	var zone := {}
@@ -65,6 +68,7 @@ func open(zone_id: String = "") -> bool:
 
 func close() -> void:
 	if not moving.is_empty(): cancel_move()
+	var zone_was: Dictionary = current_zone
 	active = false; item_id = ""; selected = -1
 	_clear_ghost(); sel_box.visible = false; grid_root.visible = false
 	game.cam.set_mode("explore")
@@ -72,6 +76,25 @@ func close() -> void:
 	if ui: ui.queue_free(); ui = null
 	if pad_cursor: pad_cursor.visible = false
 	game.emit_event("buildmode", {"open": false})
+	step_out_of(zone_was)
+
+## Leaving build mode while standing on the site (or boxed in by what you built): step to the nearest free spot
+## outside the highlighted zone, preferring where you stood when you started building.
+func step_out_of(zone: Dictionary) -> void:
+	if zone.is_empty() or zone.get("interior", false): return
+	var b := BuildGrid.zone_bounds(zone, game.state.harmony)
+	var rect := Rect2(b.minI, b.minK, b.maxI - b.minI + 1, b.maxK - b.minK + 1)
+	var p: Vector3 = game.player.pos
+	var w: WalkWorld = game.walk
+	var inside := rect.grow(0.2).has_point(Vector2(p.x, p.z))
+	if not inside and not w.stuck(p, WalkWorld.PLAYER_RADIUS, game.player.body): return
+	var from: Vector3 = opened_at if opened_at != Vector3.INF else p
+	var spot := w.free_spot(from.x, from.z, rect, 14.0, WalkWorld.PLAYER_RADIUS, game.player.body)
+	if spot.is_empty(): spot = w.free_spot(p.x, p.z, rect, 30.0, WalkWorld.PLAYER_RADIUS, game.player.body)
+	if spot.is_empty(): return
+	game.player.teleport(spot.x, spot.z)
+	game.effects.sparkle(game.player.pos + Vector3(0, 1, 0), 12)
+	game.toast("You step off the build site.")
 
 func _over_ui(p: Vector2) -> bool:
 	if ui == null: return false
@@ -477,19 +500,22 @@ func _build_ui() -> void:
 	_render_status()
 	# Help
 	var help := UiTheme.panel()
-	var hl := UiTheme.label("Left click — place / select\nRight click — cancel · right-drag — turn view\n%s rotate · %s colour · %s move\n%s remove · Ctrl+Z undo · Ctrl+Y redo\nWASD pan · wheel zoom · %s half-grid\n%s / %s leave build mode" % [Controls.key_label("rotate"), Controls.key_label("recolor"), Controls.key_label("move_piece"), Controls.key_label("remove"), Controls.key_label("half_grid"), Controls.key_label("pause"), Controls.key_label("build")], 12, UiTheme.INK2)
+	var goals: Dictionary = game.build_goals(current_zone)
+	var keys := [Controls.key_label("rotate"), Controls.key_label("recolor"), Controls.key_label("move_piece"), Controls.key_label("remove"), Controls.key_label("half_grid"), Controls.key_label("pause"), Controls.key_label("build")]
+	# with a request checklist above it, the controls shrink to two lines so the column stays clear of the catalog
+	var hl := UiTheme.label(("%s rotate · %s colour · %s move · %s remove\nCtrl+Z undo · %s half-grid · %s leave" % [keys[0], keys[1], keys[2], keys[3], keys[4], keys[5]]) if not goals.is_empty() else
+		("Left click — place / select\nRight click — cancel · right-drag — turn view\n%s rotate · %s colour · %s move\n%s remove · Ctrl+Z undo · Ctrl+Y redo\nWASD pan · wheel zoom · %s half-grid\n%s / %s leave build mode" % keys), 12, UiTheme.INK2)
 	help.add_child(hl); help.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	# Right column: goals or the selected piece, then the controls (the left side holds the guide and tip cards)
 	var right := VBoxContainer.new(); right.anchor_left = 1; right.anchor_right = 1; right.offset_left = -290; right.offset_right = -14; right.offset_top = 160
 	right.add_theme_constant_override("separation", 10); right.mouse_filter = Control.MOUSE_FILTER_IGNORE; ui.add_child(right)
-	var goals: Dictionary = game.build_goals(current_zone)
 	if not goals.is_empty() and selected == -1 and moving.is_empty():
 		var gp := UiTheme.panel(Color("fffce6"), UiTheme.GOLD)
 		var gv := VBoxContainer.new(); gp.add_child(gv)
 		gv.add_child(UiTheme.label("📜 " + goals.title, 14))
 		if goals.has("hint"): var hh := UiTheme.label(goals.hint, 12, UiTheme.INK2); hh.autowrap_mode = TextServer.AUTOWRAP_WORD; hh.custom_minimum_size.x = 246; gv.add_child(hh)
 		for it in goals.items:
-			var gl := UiTheme.label(("✔ " if it.ok else "○ ") + it.label, 13, Color("2f8a52") if it.ok else UiTheme.INK)
+			var gl := UiTheme.label(("" if it.get("later", false) else ("✔ " if it.ok else "○ ")) + it.label, 13, Color("2f8a52") if it.ok else (UiTheme.INK2 if it.get("later", false) else UiTheme.INK))
 			gl.autowrap_mode = TextServer.AUTOWRAP_WORD; gl.custom_minimum_size.x = 246; gv.add_child(gl)
 		right.add_child(gp)
 	if selected != -1 or not moving.is_empty():

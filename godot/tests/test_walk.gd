@@ -52,3 +52,15 @@ func test_harbor_gate_flag():
 	t.ok(w.blocked(5, 34.7, 0.2), "gate closed")
 	open[0] = true
 	t.ok(not w.blocked(5, 34.7, 0.2), "gate open")
+
+func test_free_spot_steps_off_a_build_site():
+	# a body boxed in by solid pieces is stuck; free_spot finds open ground outside the zone
+	var w := WalkWorld.new([], func(_f): return false)
+	w.surfaces = []
+	for c in [Vector2(9, 5), Vector2(11, 5), Vector2(10, 4), Vector2(10, 6)]:
+		w.surfaces.append({"minX": c.x - 0.5, "maxX": c.x + 0.5, "minZ": c.y - 0.5, "maxZ": c.y + 0.5, "top": 2.2, "bottom": 0.0, "walkable": false, "solid": true})
+	t.ok(w.stuck(Vector3(10, 0, 5)), "walled in on four sides is stuck")
+	var zone := Rect2(8, 3, 5, 5)
+	var spot := w.free_spot(10, 5, zone)
+	t.ok(not spot.is_empty() and not zone.grow(0.4).has_point(Vector2(spot.x, spot.z)), "the free spot is outside the build zone (%s)" % str(spot))
+	t.ok(not w.stuck(Vector3(spot.x, spot.y, spot.z)), "and you can move from there")

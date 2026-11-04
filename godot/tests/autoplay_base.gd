@@ -41,11 +41,43 @@ func frames(n: int) -> void:
 func check(id, label: String, ok: bool, detail: String = "") -> void:
 	results.append({"id": id, "label": label, "ok": ok, "detail": detail})
 	print(("PASS " if ok else "FAIL "), "[", id, "] ", label, " — ", detail)
+	note(("PASS " if ok else "FAIL ") + "[%s] %s — %s" % [str(id), label, detail])
+
+## A progress line, written straight to <out>/progress.log (the console output is buffered until the end).
+func note(msg: String) -> void:
+	var f := FileAccess.open(out_dir + "/progress.log", FileAccess.READ_WRITE if FileAccess.file_exists(out_dir + "/progress.log") else FileAccess.WRITE)
+	if f == null: return
+	f.seek_end(); f.store_line("%s  %s" % [Time.get_time_string_from_system(), msg]); f.close()
 
 func shot(name: String) -> void:
 	shot_n += 1
 	await frames(2)
 	get_viewport().get_texture().get_image().save_png("%s/%02d-%s.png" % [out_dir, shot_n, name])
+
+## After sailing, the scene reloads with the new island. Waits for it, then follows the new game.
+func await_island(id: String, max_s: float = 90.0) -> bool:
+	var old_id: int = game.get_instance_id()
+	var t0 := Time.get_ticks_msec()
+	while Time.get_ticks_msec() - t0 < max_s * 1000.0:
+		await frames(2)
+		var cur = get_tree().current_scene
+		if cur != null and cur.get_instance_id() != old_id and cur.get("started") == true and Data.island == id:
+			game = cur
+			await frames(20)
+			return true
+	return false
+
+## Board the ferry (E by the boat), pick an island on the map and sail; waits for the island to load.
+func sail(to: String) -> bool:
+	var mv: Control = game.panels.find_child("map_view", true, false)
+	if mv == null: return false
+	var isl: Dictionary = Data.island_def(to)
+	await click(mv.get_global_rect().position + Vector2(isl.x, isl.y) * (mv.size / Vector2(800, 500)))
+	await frames(4)
+	var b: Control = game.panels.find_child("sail", true, false)
+	if b == null: return false
+	await click(b.get_global_rect().get_center())
+	return await await_island(to)
 
 func finish() -> void:
 	var fails := results.filter(func(r): return not r.ok).size()

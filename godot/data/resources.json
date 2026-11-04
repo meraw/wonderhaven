@@ -5,6 +5,11 @@
    "icon": "✨",
    "color": "#ffcf5c"
   },
+  "coins": {
+   "name": "Coins",
+   "icon": "💰",
+   "color": "#f2b33d"
+  },
   "wood": {
    "name": "Wood",
    "icon": "🪵",
@@ -64,10 +69,23 @@
    "name": "Flower Seeds",
    "icon": "🌱",
    "color": "#7bd389"
+  },
+  "bread": {
+   "name": "Honey Bread",
+   "icon": "🍞",
+   "color": "#e8b06a",
+   "treat": 2
+  },
+  "pie": {
+   "name": "Apple Pie",
+   "icon": "🥧",
+   "color": "#d98b5f",
+   "treat": 3
   }
  },
  "order": [
   "spark",
+  "coins",
   "wood",
   "stone",
   "metal",
@@ -79,6 +97,8 @@
   "fish",
   "fruit",
   "acorn",
-  "seeds"
+  "seeds",
+  "bread",
+  "pie"
  ]
 }

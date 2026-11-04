@@ -1,12 +1,14 @@
 class_name Village
 extends Node3D
-## Builds Hearthglow Village from the layout data: terrain, water, buildings, decor, resource nodes, features.
+## Builds the island you're on from its layout data: terrain, water, buildings, decor, resource nodes, features,
+## and scenery props (layout `props`; Hearthglow's older dressing is built in code below).
 const P := preload("res://scripts/world/palette.gd")
 
 var objects: Dictionary = {}
 var node_visuals: Dictionary = {}
 var lamps: Array = []
 var lamp_glow := 0.0
+var lamp_bulbs: Array = []    # indoor lamps (build-piece models) that glow at night
 var window_mats: Array = []   # house window glass, lit warm at night
 var occluders: Array = []     # [centre, radius] of canopies and bushes, for camera framing
 var terrain: MeshInstance3D
@@ -22,11 +24,23 @@ func build(decor: Dictionary) -> void:
 			"workshop": o = Props.workshop(b)
 			"castle": o = Props.castle(b)
 			"caravan": o = Props.caravan(b)
+			"lighthouse": o = Props.lighthouse(b)
+			"clocktower": o = Props.clocktower(b)
 			_: o = Props.cottage(b)
-		o.position = Vector3(b.x, (H.call(b.x, b.z) - 0.05) if b.kind == "castle" else maxf(0.0, H.call(b.x, b.z)), b.z)
+		o.position = Vector3(b.x, Heightfield.CASTLE_MOUND.y if b.kind == "castle" else maxf(0.0, H.call(b.x, b.z)), b.z)
 		o.name = b.id; add_child(o); objects[b.id] = o
+		if Interiors.enterable(b): _furnish(b, o.position.y + (Props.CASTLE_FLOOR if b.kind == "castle" else 0.0))
 		for gl in o.get_meta("glasses", []): window_mats.append(gl.material_override)
 		for ln in o.find_children("inn_lantern", "MeshInstance3D", true, false): window_mats.append(ln.material_override)
+	if Data.island == "hearthglow": _dress_hearthglow(H)
+	_build_props()
+	_build_decor(decor)
+	_build_nodes()
+	_build_features()
+
+## Hearthglow's scenery: fountain, harbor cliffs and gate, market stall, dock pilings, the broken bridge, lamp
+## posts, fences, garden beds and the west pier.
+func _dress_hearthglow(H: Callable) -> void:
 	var f := Props.fountain(); var F: Dictionary = Data.layout.fountain; f.position = Vector3(F.x, 0, F.z); add_child(f); objects["fountain"] = f
 	for c in Data.layout.harbor_cliffs:
 		var w: float = c.maxX - c.minX
@@ -50,9 +64,33 @@ func build(decor: Dictionary) -> void:
 		var fe := Props.fence(fc[2]); fe.position = Vector3(fc[0], H.call(fc[0], fc[1]), fc[1]); fe.rotation.y = fc[3]; add_child(fe)
 	for bd in [[4.4, -9.4], [6.6, -9.4], [4.4, -11], [6.6, -11]]: add_child(P.mi(P.box(1.6, 0.16, 1.1), P.wood("9a6a45"), Vector3(bd[0], 0.08, bd[1])))
 	var pier := P.mi(P.box(7, 0.15, 2.2), P.wood("c49a6c"), Vector3(-48.5, 0.05, 5)); add_child(pier)
-	_build_decor(decor)
-	_build_nodes()
-	_build_features()
+
+## Scenery from the layout: props [{kind, x, z, r?, ...}] with kind lamp_post, fence (n), crate, barrel, gear,
+## piece (any build piece model, id), pier (w, d), market_stall, rock.
+func _build_props() -> void:
+	for pr in Data.layout.get("props", []):
+		var o: Node3D
+		match String(pr.kind):
+			"lamp_post": o = Props.lamp_post(); lamps.append(o)
+			"fence": o = Props.fence(int(pr.get("n", 3)))
+			"piece": o = PieceMeshes.make(pr.id, pr.get("color", ""))
+			"pier": o = Node3D.new(); o.add_child(P.mi(P.box(float(pr.w), 0.15, float(pr.d)), P.wood("c49a6c"), Vector3(0, 0.05, 0)))
+			"market_stall": o = Props.market_stall()
+			"rock": o = Props.rock(false); o.scale = Vector3.ONE * float(pr.get("s", 1.0))
+			_: o = Props.interior_prop(pr.kind)
+		var y: float = float(pr.y) if pr.has("y") else Heightfield.height(pr.x, pr.z)
+		o.position = Vector3(pr.x, y, pr.z); o.rotation.y = float(pr.get("r", 0.0))
+		if pr.has("id") and pr.kind != "piece": o.name = pr.id; objects[pr.id] = o
+		add_child(o)
+
+## Furniture inside a building (build-piece models, or interior props), from layout.json.
+func _furnish(b: Dictionary, base_y: float) -> void:
+	for it in Interiors.items(b):
+		var n: Node3D = PieceMeshes.make(it.id, it.color) if it.piece else Props.interior_prop(it.id)
+		n.position = Vector3(it.x, base_y, it.z); n.rotation.y = -it.r * PI / 2.0
+		n.name = "%s_%s" % [b.id, it.id]
+		add_child(n)
+		for m in n.find_children("bulb", "MeshInstance3D", true, false): lamp_bulbs.append(m)
 
 func _multimesh(mesh: Mesh, material: Material, items: Array, place: Callable, shadow: bool = true) -> void:
 	var mm := MultiMesh.new()
@@ -109,7 +147,8 @@ func _build_decor(decor: Dictionary) -> void:
 		tries += 1
 		var x := rng.range_f(-46, 46); var z := rng.range_f(-44, 42)
 		if Heightfield.height(x, z) < 0.02 or WorldStatics.dist_to_paths(x, z) < 1.25: continue
-		if Vector2(x - Data.layout.square.x, z - Data.layout.square.z).length() < Data.layout.square.r + 0.4: continue
+		var sq: Dictionary = Data.layout.get("square", {"x": 0, "z": 0, "r": -1.0})
+		if Vector2(x - sq.x, z - sq.z).length() < sq.r + 0.4: continue
 		if WorldStatics._near_building(x, z, 0.15) or WorldStatics._in_zone(x, z, 0.3): continue
 		grass.append({"x": x, "z": z, "r": rng.range_f(0, TAU), "s": rng.range_f(0.7, 1.35)})
 	var grass_cols := [Color("92d86a"), Color("86d062"), Color("a2de76"), Color("8cd466")]
@@ -155,24 +194,33 @@ func _build_features() -> void:
 		o.name = f.id; add_child(o); objects[f.id] = o
 
 func update_world(dt: float, t: float, flags: Dictionary) -> void:
-	Props.animate_fountain(objects.fountain, t, flags.get("fountainFlowing", false))
+	if objects.has("fountain"): Props.animate_fountain(objects.fountain, t, flags.get("fountainFlowing", false))
 	for n in Data.layout.nodes:
 		if n.kind == "fragment":
 			var o: Node3D = node_visuals[n.id]
 			if o.visible:
 				o.position.y = Heightfield.height(n.x, n.z) + 1.0 + sin(t * 2.0 + n.x) * 0.15
 				o.rotation.y = t * 1.5
-	var open := 1.0 if flags.get("harborOpen", false) else 0.0
-	for d in objects.harborGate.get_node("doors").get_children():
-		d.rotation.y = lerpf(d.rotation.y, -float(d.get_meta("side")) * open * 1.6, 1.0 - exp(-dt * 2.0))
-	objects.harborGate.get_node("seal").visible = not flags.get("harborOpen", false)
-	var boat: Node3D = objects.boat
-	boat.visible = flags.get("boatReady", false)
-	if boat.visible: boat.position.y = -0.45 + sin(t * 1.3) * 0.06; boat.rotation.z = sin(t * 0.9) * 0.03
-	var ws: Node3D = objects.workshop
-	ws.get_node("clutter").visible = not flags.get("workshopDone", false)
-	if flags.get("workshopDone", false): ws.get_node("signGear").rotation.x = t * 1.5
-	objects.caravan.get_node("cog").rotation.y = t * 0.8
+	if objects.has("harborGate"):
+		var open := 1.0 if flags.get("harborOpen", false) else 0.0
+		for d in objects.harborGate.get_node("doors").get_children():
+			d.rotation.y = lerpf(d.rotation.y, -float(d.get_meta("side")) * open * 1.6, 1.0 - exp(-dt * 2.0))
+		objects.harborGate.get_node("seal").visible = not flags.get("harborOpen", false)
+	if objects.has("boat"):
+		var boat: Node3D = objects.boat
+		var bf: Dictionary = {}
+		for f in Data.layout.features:
+			if f.id == "boat": bf = f
+		boat.visible = not bf.has("flag") or flags.get(bf.flag, false)
+		if boat.visible: boat.position.y = -0.45 + sin(t * 1.3) * 0.06; boat.rotation.z = sin(t * 0.9) * 0.03
+	if objects.has("workshop"):
+		var ws: Node3D = objects.workshop
+		ws.get_node("clutter").visible = not flags.get("workshopDone", false)
+		if flags.get("workshopDone", false): ws.get_node("signGear").rotation.x = t * 1.5
+	if objects.has("caravan"): objects.caravan.get_node("cog").rotation.y = t * 0.8
+	# machines that come to life when a machine target is fed (lighthouse lamp, clock hands)
+	for b in Data.layout.buildings:
+		if b.kind in ["lighthouse", "clocktower"] and objects.has(b.id): Props.animate_machine(objects[b.id], b, t, dt, flags.get("fed:" + String(b.get("machine", "")), false), flags.get("night", false))
 	var night: bool = flags.get("night", false)
 	lamp_glow = lerpf(lamp_glow, 1.0 if night else 0.0, 1.0 - exp(-dt * 1.5))
 	for l in lamps:
@@ -180,3 +228,4 @@ func update_world(dt: float, t: float, flags: Dictionary) -> void:
 		var li: OmniLight3D = l.get_node("light")
 		li.visible = lamp_glow > 0.02; li.light_energy = 1.6 * lamp_glow
 	for m in window_mats: (m as StandardMaterial3D).emission_energy_multiplier = 1.4 * lamp_glow
+	for bl in lamp_bulbs: (bl.material_override as StandardMaterial3D).emission_energy_multiplier = 0.3 + 2.4 * lamp_glow

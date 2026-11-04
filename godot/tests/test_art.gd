@@ -79,7 +79,28 @@ func test_camera_stays_inside_a_room():
 	t.ok(level < 4.0, "looking sideways, the camera stops inside the wall (d=%.2f)" % level)
 	var steep := c.clear_distance(pivot, Vector3(0.3, 1.0, 0).normalized(), 9.0)
 	t.ok(steep > 5.0, "looking down from above, it may rise out over the faded roof (d=%.2f)" % steep)
-	t.ok(Props.camera_rooms().size() == 1, "the workshop is a room you can walk into")
+	var enterable: int = Data.layout.buildings.filter(func(b): return b.kind == "workshop" or Interiors.enterable(b)).size()
+	t.eq(Props.camera_rooms().size(), enterable, "every building you can walk into is a camera room")
+
+func test_indoor_cutaway_looks_over_the_walls():
+	var c := FollowCamera.new(null)
+	c.rooms = [AABB(Vector3(0, -1, 0), Vector3(8, 3.4, 6))]   # walls up to y = 2.4
+	t.ok(absf(c.room_top_at(Vector3(4, 1, 3)) - 2.4) < 0.001, "inside the room the camera knows the wall height")
+	t.eq(c.room_top_at(Vector3(-2, 1, 3)), -INF, "outside it isn't indoors")
+	var pivot := Vector3(4, 1, 5.6)   # back against the south wall, camera looking from the south
+	var usual := c.clear_distance(pivot, FollowCamera._dir(0.0, 0.5), 7.5)
+	t.ok(usual < 1.0, "at the usual pitch the wall right behind pins the camera to the head (d=%.2f)" % usual)
+	var p := c.wall_clear_pitch(pivot, 0.0)
+	var over := c.clear_distance(pivot, FollowCamera._dir(0.0, p), 7.5)
+	t.ok(p > FollowCamera.INDOOR_PITCH and over > 7.0, "the cutaway tilts down enough to rise over that wall (pitch %.2f, d=%.2f)" % [p, over])
+	var hall := FollowCamera.new(null)
+	hall.rooms = [AABB(Vector3(0, -0.1, 0), Vector3(8, 5.2, 6))]   # a throne room with walls 3.2 m above the head
+	var door := Vector3(0.39, 1.9, 3)   # just inside the doorway, camera looking back out of it
+	var hp := hall.wall_clear_pitch(door, -PI / 2)
+	var hd := hall.clear_distance(door, FollowCamera._dir(-PI / 2, hp), 7.5)
+	t.ok(hd > 7.0, "even in the doorway of a tall hall the view rises over the wall (pitch %.2f, d=%.2f)" % [hp, hd])
+	var mid := c.wall_clear_pitch(Vector3(4, 1, 3), 0.0)
+	t.ok(mid < FollowCamera.INDOOR_PITCH, "in the middle of the room the usual cutaway pitch already clears the walls (needs %.2f)" % mid)
 
 func test_camera_rays_ignore_a_thin_miss():
 	# A building just beside the line of sight still gets a little room thanks to the probe rays, so walking past
@@ -103,3 +124,17 @@ func test_face_follows_mood_and_blink():
 	c.set_mood("neutral"); c.blink_t = 0.1; c._refresh_face()
 	t.eq(fm.get_shader_parameter("blink"), 1.0, "blinking closes the eyes")
 	c.free()
+
+func test_castle_hall_floor_is_level():
+	# The throne room floor and its rugs sit just above the mound; the ground must not poke through anywhere inside.
+	var castle: Dictionary = Data.layout.buildings.filter(func(b): return b.kind == "castle")[0]
+	var worst_above := -INF; var worst_below := INF
+	for i in 41:
+		for k in 41:
+			var x: float = castle.x - castle.w / 2.0 + castle.w * i / 40.0
+			var z: float = castle.z - castle.d / 2.0 + castle.d * k / 40.0
+			var h := Heightfield.height(x, z)
+			worst_above = maxf(worst_above, h - Heightfield.CASTLE_MOUND.y)
+			if Interiors.room(castle).has_point(Vector3(x, 0.0, z)): worst_below = minf(worst_below, h - Heightfield.CASTLE_MOUND.y)
+	t.ok(worst_above < Props.CASTLE_FLOOR - 0.005, "no ground above the castle floor (highest %.3f m over the mound)" % worst_above)
+	t.ok(worst_below > -0.001, "the throne room's ground is level with the mound (lowest %.3f)" % worst_below)

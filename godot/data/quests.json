@@ -49,7 +49,8 @@
    "rewards": {
     "harmony": 10,
     "items": {
-     "spark": 5
+     "spark": 5,
+     "coins": 10
     }
    },
    "dialogue": {
@@ -85,7 +86,7 @@
    "main": true,
    "type": "construction",
    "chapter": 1,
-   "description": "The old bridge to Fern's orchard collapsed into the river. Build a new one that people can actually walk across.",
+   "description": "The old bridge to Fern's orchard collapsed into the river. Gather materials, build a bridge people can actually walk across, then make it safe with railings.",
    "requires": {
     "quests": [
      "tool"
@@ -106,24 +107,46 @@
      "id": "wood",
      "kind": "gather",
      "item": "wood",
-     "count": 6,
-     "text": "Gather 6 more wood"
+     "count": 10,
+     "stage": 0,
+     "text": "Gather 10 more wood (trees with a pink ribbon)"
     },
     {
      "id": "spark",
      "kind": "gather",
      "item": "spark",
-     "count": 5,
-     "text": "Gather 5 Spark Energy (chop, mine, pick, catch fragments)"
+     "count": 8,
+     "stage": 0,
+     "text": "Gather 8 Spark Energy (chop, mine, pick, catch fragments)"
     },
     {
      "id": "build",
      "kind": "build",
      "check": "bridge",
+     "zone": "bridge",
+     "stage": 1,
      "text": "Build a walkable bridge to the orchard (B at the bridge site)",
+     "goal": "Continuous walkable path from bank to bank",
+     "buildHint": "Planks reach 2 tiles from a bank or post.",
      "hint": {
       "x": 0,
       "z": -15
+     }
+    },
+    {
+     "id": "rails",
+     "kind": "pieces",
+     "zone": "bridge",
+     "any": [
+      "railing"
+     ],
+     "count": 4,
+     "stage": 2,
+     "text": "Add 4 railings along the bridge, so nobody tumbles in",
+     "buildHint": "Railings sit on the edge of a tile; R turns them.",
+     "hint": {
+      "x": 0,
+      "z": -18
      }
     },
     {
@@ -138,7 +161,8 @@
     "harmony": 40,
     "items": {
      "spark": 10,
-     "seeds": 2
+     "seeds": 2,
+     "coins": 30
     },
     "blueprints": [
      "flowerBed",
@@ -152,19 +176,19 @@
     "offer": [
      "Oh! You're the new builder? Thank goodness! It's an emergency. A gardening emergency!",
      "My orchard is just across the river, but the bridge fell in ages ago. The apple trees haven't had a visitor in years.",
-     "Could you build a new bridge? Planks can stretch two tiles over the water — after that they need a post underneath."
+     "Could you build a new bridge? Planks can stretch two tiles over the water — after that they need a post underneath. And railings, please. I can't swim."
     ],
     "acceptLabel": "I'll build you a bridge!",
     "declineLabel": "Maybe later",
     "accept": [
      "Hooray! I've sketched where it could go — you'll see my plan glowing at the bridge site. But build it however you like!",
-     "Here's some wood to start. You'll need a bit more, and some Spark Energy too."
+     "Here's some wood to start. Gather the rest and some Spark Energy, then build. Railings last!"
     ],
     "decline": [
      "That's alright. The trees are patient. Mostly."
     ],
     "progress": [
-     "Remember: planks reach two tiles from the bank or from a post. Build from both banks if you need to!"
+     "Gather the wood and Spark first, then build from bank to bank. Planks reach two tiles from the bank or a post. Then four railings!"
     ],
     "complete": [
      "You did it! A real bridge! I can hear the apple trees cheering. That's the rustling. Definitely cheering.",
@@ -179,7 +203,7 @@
    "main": true,
    "type": "construction",
    "chapter": 1,
-   "description": "Bram's workshop is empty and dusty. Furnish it with a workbench, a chair, a lamp and some shelves — and give something a splash of colour.",
+   "description": "Bram's workshop is empty and dusty. Gather wood, metal and a crystal, ask Bram what he needs, then furnish it.",
    "requires": {
     "quests": [
      "bridge"
@@ -203,13 +227,89 @@
      "id": "wood",
      "kind": "gather",
      "item": "wood",
-     "count": 3,
-     "text": "Gather 3 more wood"
+     "count": 10,
+     "stage": 0,
+     "text": "Gather 10 wood for the furniture"
+    },
+    {
+     "id": "metal",
+     "kind": "gather",
+     "item": "metal",
+     "count": 2,
+     "stage": 0,
+     "text": "Mine 2 metal in the old quarry (for the workbench)",
+     "hint": {
+      "x": -30,
+      "z": -12
+     }
+    },
+    {
+     "id": "crystal",
+     "kind": "gather",
+     "item": "crystal",
+     "count": 1,
+     "stage": 0,
+     "text": "Find a crystal for a second lamp (glowing blue rocks)",
+     "hint": {
+      "x": -30,
+      "z": -12
+     }
+    },
+    {
+     "id": "plan",
+     "kind": "talk",
+     "npc": "bram",
+     "stage": 1,
+     "text": "Ask Bram how he'd like his workshop",
+     "lines": [
+      "Oh! You've got everything. Okay. Deep breath.",
+      "A workbench, two places to sit, two lamps — it gets so dark in here — and two shelves or cabinets.",
+      "And one thing in a bright colour. For courage. Press T in build mode to paint it."
+     ]
     },
     {
      "id": "build",
-     "kind": "build",
-     "check": "workshop",
+     "kind": "room",
+     "zone": "workshop",
+     "needs": [
+      {
+       "any": [
+        "workbench"
+       ],
+       "label": "A workbench"
+      },
+      {
+       "any": [
+        "chair",
+        "sofa",
+        "bench"
+       ],
+       "count": 2,
+       "label": "Two places to sit"
+      },
+      {
+       "any": [
+        "lamp",
+        "poweredLamp",
+        "streetlight"
+       ],
+       "count": 2,
+       "label": "Two lamps"
+      },
+      {
+       "any": [
+        "cabinet",
+        "bookshelf"
+       ],
+       "count": 2,
+       "label": "Two shelves or cabinets"
+      },
+      {
+       "recolored": true,
+       "label": "Recolour a piece (T)"
+      }
+     ],
+     "stage": 2,
      "text": "Furnish the workshop (B inside it)",
      "hint": {
       "x": -12,
@@ -227,7 +327,8 @@
    "rewards": {
     "harmony": 35,
     "items": {
-     "fabric": 2
+     "fabric": 2,
+     "coins": 40
     },
     "blueprints": [
      "sofa",
@@ -249,7 +350,7 @@
     "offer": [
      "Um. Hi. You're the one who built the bridge, right? It's very… bridge-y. In a good way.",
      "I was wondering… if you're not busy… could you help me set up my workshop again?",
-     "I need a workbench, a chair, a lamp, and a shelf or cabinet. And maybe… one thing in a bright colour? For courage."
+     "I'd need materials first — wood, a bit of metal, a crystal for the lamps. Then I'll tell you how I picture it."
     ],
     "acceptLabel": "Let's furnish it together",
     "declineLabel": "Not right now",
@@ -260,7 +361,7 @@
      "Oh — of course. No pressure. I'll just… be here. With the dust."
     ],
     "progress": [
-     "Workbench, chair, lamp, shelf, and something colourful. Press T in build mode to paint a piece!"
+     "Materials first, then come and talk to me. Then: workbench, two seats, two lamps, two shelves, something colourful."
     ],
     "complete": [
      "It's… it's perfect. I can already picture a coat rack shaped like a giraffe.",
@@ -302,30 +403,35 @@
      "kind": "gather",
      "item": "clay",
      "count": 6,
-     "text": "Dig 6 clay from the river bank (for pipes)",
-     "hint": {
-      "x": -14,
-      "z": -14.6
-     }
+     "stage": 0,
+     "text": "Dig 6 clay from the river bank (for pipes)"
     },
     {
      "id": "metal",
      "kind": "gather",
      "item": "metal",
-     "count": 1,
-     "text": "Mine some metal in the old quarry",
-     "hint": {
-      "x": -30,
-      "z": -7
-     }
+     "count": 3,
+     "stage": 0,
+     "text": "Mine 3 metal in the old quarry (for the pump)"
+    },
+    {
+     "id": "wood",
+     "kind": "gather",
+     "item": "wood",
+     "count": 6,
+     "stage": 0,
+     "text": "Gather 6 wood (for the waterwheel)"
     },
     {
      "id": "build",
      "kind": "build",
      "check": "fountain",
+     "zone": "plaza",
+     "stage": 1,
      "text": "Get water flowing into the fountain",
+     "buildHint": "Fountain inlet: east side, by the plaza edge.",
      "hint": {
-      "x": 7,
+      "x": 6,
       "z": 2
      }
     },
@@ -340,7 +446,8 @@
    "rewards": {
     "harmony": 50,
     "items": {
-     "crystal": 2
+     "crystal": 2,
+     "coins": 50
     },
     "blueprints": [
      "miniFountain",
@@ -385,7 +492,7 @@
    "main": true,
    "type": "character",
    "chapter": 1,
-   "description": "Royal Decree No. 47 keeps the harbor sealed until the village reaches 120 Kingdom Harmony.",
+   "description": "King Percival's Royal Decree No. 47 keeps the harbor sealed until the village reaches 120 Kingdom Harmony.",
    "requires": {
     "quests": [
      "bridge"
@@ -403,13 +510,14 @@
      "kind": "talk",
      "npc": "percival",
      "final": true,
-     "text": "Petition Lord Percival to open the harbor"
+     "text": "Petition King Percival to open the harbor"
     }
    ],
    "rewards": {
     "harmony": 0,
     "items": {
-     "spark": 10
+     "spark": 10,
+     "coins": 30
     },
     "clothes": [
      "sailor"
@@ -420,7 +528,7 @@
    },
    "dialogue": {
     "offer": [
-     "Ahem! Citizen {name}! Your bridge has been noticed at the very highest levels. By me.",
+     "Ahem! Citizen {name}! Your bridge has been noticed at the very highest levels. By me. The king.",
      "You may have heard: the harbor is sealed by Royal Decree Number Forty-Seven, until the kingdom is in Harmony once more.",
      "Help the villagers, mend what is broken, and when Hearthglow's Harmony reaches one hundred and twenty, I shall lift the decree!"
     ],
@@ -448,35 +556,123 @@
    "main": true,
    "type": "construction",
    "chapter": 1,
-   "description": "Lord Percival has granted you the empty plot beside the Lantern Inn. Build a little house there: walls, a door, a roof and a bed.",
+   "description": "King Percival will grant you the empty plot beside the Lantern Inn for 100 coins. Pay for the deed, build a little house there, then make it cosy.",
    "requires": {
     "quests": [
      "bridge"
     ]
    },
-   "onAccept": {
-    "flags": [
-     "homePlot"
-    ],
-    "blueprints": [
-     "woodWall",
-     "doorWall",
-     "windowWall",
-     "roof",
-     "bed"
-    ],
-    "items": {
-     "wood": 6,
-     "fabric": 2,
-     "clay": 1
-    }
-   },
+   "onAccept": {},
    "objectives": [
     {
+     "id": "deed",
+     "kind": "pay",
+     "npc": "percival",
+     "items": {
+      "coins": 100
+     },
+     "stage": 0,
+     "label": "Pay 100 coins for the deed",
+     "text": "Pay King Percival 100 coins for the plot's deed (sell spare goods at the shops)",
+     "lines": [
+      "Splendid! Signed, sealed and very slightly sticky. The plot beside the inn is yours.",
+      "Here are the house blueprints and a few planks to begin. The kingdom provides! Once paid for."
+     ],
+     "onDone": {
+      "flags": [
+       "homePlot"
+      ],
+      "blueprints": [
+       "woodWall",
+       "doorWall",
+       "windowWall",
+       "roof",
+       "bed"
+      ],
+      "items": {
+       "wood": 6,
+       "fabric": 2,
+       "clay": 1
+      }
+     }
+    },
+    {
      "id": "house",
-     "kind": "build",
-     "check": "home",
+     "kind": "room",
+     "zone": "plot",
+     "needs": [
+      {
+       "any": [
+        "woodWall",
+        "windowWall"
+       ],
+       "count": 3,
+       "label": "Walls (3)"
+      },
+      {
+       "any": [
+        "doorWall"
+       ],
+       "label": "A door"
+      },
+      {
+       "any": [
+        "roof"
+       ],
+       "label": "A roof"
+      },
+      {
+       "any": [
+        "bed"
+       ],
+       "label": "A bed"
+      }
+     ],
+     "stage": 1,
      "text": "Build your home on the plot beside the inn: 3 walls, a door, a roof and a bed",
+     "buildHint": "Walls stand on cell edges; the roof rests on top of them.",
+     "hint": {
+      "x": 21.5,
+      "z": 12.5
+     }
+    },
+    {
+     "id": "cosy",
+     "kind": "room",
+     "zone": "plot",
+     "stage": 2,
+     "needs": [
+      {
+       "any": [
+        "table",
+        "desk",
+        "counter"
+       ],
+       "label": "A table or desk"
+      },
+      {
+       "any": [
+        "chair",
+        "sofa",
+        "bench"
+       ],
+       "label": "Somewhere to sit"
+      },
+      {
+       "any": [
+        "rug",
+        "painting",
+        "lamp",
+        "bookshelf",
+        "cabinet",
+        "flowerBed",
+        "poweredLamp"
+       ],
+       "count": 2,
+       "label": "Two cosy touches (rug, painting, lamp, shelf…)"
+      }
+     ],
+     "text": "Make it cosy: a table, a seat and two homely touches",
      "hint": {
       "x": 21.5,
       "z": 12.5
@@ -487,13 +683,14 @@
      "kind": "talk",
      "npc": "percival",
      "final": true,
-     "text": "Tell Lord Percival your home is ready"
+     "text": "Tell King Percival your home is ready"
     }
    ],
    "rewards": {
     "harmony": 20,
     "items": {
-     "spark": 10
+     "spark": 10,
+     "coins": 20
     },
     "flags": [
      "ownHome"
@@ -502,19 +699,19 @@
    "dialogue": {
     "offer": [
      "Citizen {name}! A builder who mends bridges should not be sleeping above a soup kitchen forever.",
-     "By the powers vested in me, I grant you the empty plot beside the Lantern Inn. Build yourself a proper home. Four walls! Well, three will do. And a door, a roof and a bed.",
-     "I have drawn up the deed and some blueprints. And a few planks. The kingdom provides!"
+     "The empty plot beside the Lantern Inn could be yours. The deed costs 100 coins: a kingdom has upkeep, you know. Crowns don't polish themselves.",
+     "Sell your spare goods at the village shops, then bring me the coins."
     ],
     "acceptLabel": "A home of my own!",
     "declineLabel": "The inn suits me for now",
     "accept": [
-     "Splendid! Build on the plot east of the inn. When it is done, come and tell me, and I shall make it official."
+     "Splendid! Come back with 100 coins and the deed is yours."
     ],
     "decline": [
      "As you wish. The deed shall wait, rolled up very neatly."
     ],
     "progress": [
-     "Walls, a door, a roof and a bed. The Starforge Tool will show you what is still missing when you build on your plot."
+     "First the deed, then walls, a door, a roof and a bed, then something cosy. The Starforge Tool shows what is still missing."
     ],
     "complete": [
      "A house! With a roof and everything! I hereby declare it your official residence.",
@@ -543,12 +740,32 @@
    },
    "objectives": [
     {
+     "id": "wood",
+     "kind": "gather",
+     "item": "wood",
+     "count": 12,
+     "stage": 0,
+     "text": "Gather 12 wood for the planks"
+    },
+    {
+     "id": "spark",
+     "kind": "gather",
+     "item": "spark",
+     "count": 6,
+     "stage": 0,
+     "text": "Gather 6 Spark Energy"
+    },
+    {
      "id": "build",
      "kind": "build",
      "check": "dock",
+     "zone": "dock",
+     "stage": 1,
      "text": "Rebuild the dock out to the mooring post",
+     "goal": "Planks from the shore to the mooring post",
+     "buildHint": "The old pilings hold planks up.",
      "hint": {
-      "x": 5.5,
+      "x": 5,
       "z": 44
      }
     },
@@ -568,7 +785,10 @@
     ],
     "blueprints": [
      "counter"
-    ]
+    ],
+    "items": {
+     "coins": 40
+    }
    },
    "dialogue": {
     "offer": [
@@ -599,7 +819,7 @@
    "giver": "percival",
    "type": "collection",
    "chapter": 1,
-   "description": "Lord Percival wants stone and a sparkling crystal to \"restore the castle's dignity\".",
+   "description": "King Percival wants stone and a sparkling crystal to \"restore the castle's dignity\".",
    "requires": {
     "quests": [
      "tool"
@@ -610,8 +830,8 @@
      "id": "stone",
      "kind": "gather",
      "item": "stone",
-     "count": 4,
-     "text": "Mine 4 stone in the old quarry",
+     "count": 10,
+     "text": "Mine 10 stone in the old quarry",
      "hint": {
       "x": -30,
       "z": -7
@@ -621,8 +841,8 @@
      "id": "crystal",
      "kind": "gather",
      "item": "crystal",
-     "count": 1,
-     "text": "Find a crystal (try the glowing blue rock)",
+     "count": 2,
+     "text": "Find 2 crystals (try the glowing blue rock)",
      "hint": {
       "x": -35,
       "z": -10
@@ -633,13 +853,14 @@
      "kind": "talk",
      "npc": "percival",
      "final": true,
-     "text": "Bring them to Lord Percival"
+     "text": "Bring them to King Percival"
     }
    ],
    "rewards": {
     "harmony": 15,
     "items": {
-     "spark": 5
+     "spark": 5,
+     "coins": 15
     },
     "blueprints": [
      "pillar"
@@ -672,7 +893,7 @@
    "giver": "mabel",
    "type": "character",
    "chapter": 1,
-   "description": "Three squirrels have moved into Mabel's bakery. Lure them back to the oak tree with acorns.",
+   "description": "Three squirrels have moved into Mabel's bakery. Lure them back to the oak tree with acorns, then bring apples for a peace-offering pie.",
    "requires": {
     "quests": [
      "bridge"
@@ -688,7 +909,8 @@
      "hint": {
       "x": -16.5,
       "z": -1.5
-     }
+     },
+     "stage": 0
     },
     {
      "id": "feed",
@@ -699,7 +921,22 @@
      "hint": {
       "x": -11,
       "z": -3
-     }
+     },
+     "stage": 1
+    },
+    {
+     "id": "apples",
+     "kind": "pay",
+     "npc": "mabel",
+     "items": {
+      "fruit": 4
+     },
+     "stage": 2,
+     "label": "Hand over 4 apples",
+     "text": "Bring Mabel 4 apples from the orchard for a peace-offering pie",
+     "lines": [
+      "Apples! Perfect. A peace-offering pie for those rascals… and a few more for the shop window."
+     ]
     },
     {
      "id": "tell",
@@ -712,7 +949,8 @@
    "rewards": {
     "harmony": 20,
     "items": {
-     "spark": 8
+     "spark": 8,
+     "coins": 20
     },
     "clothes": [
      "chef"
@@ -757,7 +995,7 @@
    },
    "onAccept": {
     "items": {
-     "seeds": 3
+     "seeds": 4
     },
     "flags": [
      "flowersQuest"
@@ -768,7 +1006,7 @@
      "id": "plant",
      "kind": "event",
      "event": "plant",
-     "count": 2,
+     "count": 4,
      "text": "Plant seeds in Fern's garden beds",
      "hint": {
       "x": 5.5,
@@ -779,15 +1017,15 @@
      "id": "water",
      "kind": "event",
      "event": "water",
-     "count": 2,
+     "count": 6,
      "text": "Water the seedlings"
     },
     {
      "id": "harvest",
      "kind": "event",
      "event": "harvest",
-     "count": 1,
-     "text": "Pick a fully grown bloom"
+     "count": 3,
+     "text": "Pick 3 fully grown blooms"
     },
     {
      "id": "tell",
@@ -801,7 +1039,8 @@
     "harmony": 20,
     "items": {
      "flowers": 4,
-     "spark": 5
+     "spark": 5,
+     "coins": 20
     },
     "clothes": [
      "sunhat"
@@ -845,8 +1084,8 @@
      "id": "fish",
      "kind": "event",
      "event": "fish",
-     "count": 3,
-     "text": "Catch 3 fish (fishing spots by the river and harbor)",
+     "count": 5,
+     "text": "Catch 5 fish (fishing spots by the river and harbor)",
      "hint": {
       "x": -8,
       "z": -14.6
@@ -863,7 +1102,8 @@
    "rewards": {
     "harmony": 15,
     "items": {
-     "spark": 8
+     "spark": 8,
+     "coins": 25
     },
     "clothes": [
      "captain"
@@ -908,8 +1148,8 @@
      "kind": "event",
      "event": "treasure",
      "stat": "treasures",
-     "count": 3,
-     "text": "Find 3 treasures (chests, or dig where the tool hums)"
+     "count": 5,
+     "text": "Find 5 treasures (chests, or dig where the tool hums)"
     },
     {
      "id": "tell",
@@ -922,7 +1162,8 @@
    "rewards": {
     "harmony": 20,
     "items": {
-     "crystal": 2
+     "crystal": 2,
+     "coins": 30
     },
     "clothes": [
      "backpack"
@@ -980,7 +1221,8 @@
     "harmony": 15,
     "items": {
      "metal": 2,
-     "crystal": 1
+     "crystal": 1,
+     "coins": 25
     }
    },
    "dialogue": {
@@ -1001,6 +1243,403 @@
     ],
     "complete": [
      "Glowing! Beautiful! I'm going to stare at it until I see spots."
+    ]
+   }
+  },
+  {
+   "id": "cove",
+   "title": "Welcome to Clockwork Cove",
+   "giver": "barnaby",
+   "main": true,
+   "type": "character",
+   "chapter": 2,
+   "description": "Barnaby Sprocket, Tilly's uncle and the cove's clockmaker, wants you to meet the neighbours before he asks for help.",
+   "requires": {
+    "flags": [
+     "arrived_clockwork"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "juniper",
+     "kind": "talk",
+     "npc": "juniper",
+     "stage": 0,
+     "text": "Say hello to Juniper, the lighthouse keeper",
+     "lines": [
+      "Barnaby sent you? Then you must be good with machines. Come and find me when he's done talking. It may be a while."
+     ],
+     "hint": {
+      "x": -4.5,
+      "z": 7.5
+     }
+    },
+    {
+     "id": "hazel",
+     "kind": "talk",
+     "npc": "hazel",
+     "stage": 0,
+     "text": "Meet Hazel at Rivet's Forge",
+     "lines": [
+      "A builder! Finally, a customer who doesn't just want me to fix a kettle. Shop's open whenever you are."
+     ],
+     "hint": {
+      "x": 6.1,
+      "z": 12
+     }
+    },
+    {
+     "id": "back",
+     "kind": "talk",
+     "npc": "barnaby",
+     "final": true,
+     "text": "Go back to Barnaby"
+    }
+   ],
+   "rewards": {
+    "harmony": 15,
+    "items": {
+     "coins": 20,
+     "spark": 5
+    },
+    "blueprints": [
+     "windmill",
+     "shaft",
+     "gear"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "So you're Tilly's builder! Splendid. Clockwork Cove is a bit… stuck, I'm afraid. Everything stopped when the Great Engine jammed.",
+     "Before we start tinkering, go and meet the neighbours: Juniper at the lighthouse cottage and Hazel at the forge."
+    ],
+    "acceptLabel": "I'll go and say hello",
+    "declineLabel": "In a moment",
+    "accept": [
+     "Off you go! Juniper's usually by the square in the day, and Hazel never leaves her forge."
+    ],
+    "decline": [
+     "Take your time. The clock certainly is."
+    ],
+    "progress": [
+     "Juniper and Hazel. Then come back and I'll show you some plans."
+    ],
+    "complete": [
+     "Wonderful. Now you know everyone worth knowing, and Hazel.",
+     "Here: windmill, shaft and gear plans. On this cove, everything worth doing involves at least one gear."
+    ]
+   }
+  },
+  {
+   "id": "lighthouse",
+   "title": "Light the Lighthouse",
+   "giver": "juniper",
+   "main": true,
+   "type": "mechanism",
+   "chapter": 2,
+   "description": "The cape lighthouse turns by wind power through a drive on its south side. Gather materials, then build a windmill on the cape and carry its power to the drive.",
+   "requires": {
+    "quests": [
+     "cove"
+    ]
+   },
+   "onAccept": {
+    "blueprints": [
+     "windmill",
+     "shaft",
+     "gear"
+    ],
+    "items": {
+     "fabric": 2
+    }
+   },
+   "objectives": [
+    {
+     "id": "wood",
+     "kind": "gather",
+     "item": "wood",
+     "count": 8,
+     "stage": 0,
+     "text": "Gather 8 wood for a windmill and a shaft"
+    },
+    {
+     "id": "metal",
+     "kind": "gather",
+     "item": "metal",
+     "count": 2,
+     "stage": 0,
+     "text": "Mine 2 metal on Gearspring Hill (for gear boxes)",
+     "hint": {
+      "x": 21,
+      "z": -9
+     }
+    },
+    {
+     "id": "light",
+     "kind": "build",
+     "check": "fed:lighthouse",
+     "zone": "lighthouse",
+     "stage": 1,
+     "text": "Bring wind power to the lighthouse's drive (south side)",
+     "goal": "Power reaches the drive by the lighthouse door",
+     "buildHint": "Windmills push power out of their south side. Shafts carry it in a line; gear boxes turn corners. The drive cell is just east of the door.",
+     "hint": {
+      "x": -23,
+      "z": -17
+     }
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "juniper",
+     "final": true,
+     "text": "Tell Juniper the lighthouse is working"
+    }
+   ],
+   "rewards": {
+    "harmony": 30,
+    "items": {
+     "coins": 40
+    },
+    "flags": [
+     "lighthouseLit"
+    ],
+    "blueprints": [
+     "streetlight"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "You're the builder Barnaby keeps going on about? Then please, help me light the lighthouse.",
+     "The lamp turns by wind. A windmill on the cape, and power carried to the drive on the tower's south side. Shafts go straight; gear boxes turn corners."
+    ],
+    "acceptLabel": "Let's light it up!",
+    "declineLabel": "Not yet",
+    "accept": [
+     "Thank you! Here's some sailcloth for the windmill. You'll need wood, and a bit of metal for the gear boxes."
+    ],
+    "decline": [
+     "The dark will wait. It's good at waiting."
+    ],
+    "progress": [
+     "Windmill on the cape, power to the drive on the south side. The light comes on at night!"
+    ],
+    "complete": [
+     "She's turning! I can feel it in the floorboards. Tonight the whole bay will see her.",
+     "Here, a little thanks, and the plans for a proper street light."
+    ]
+   }
+  },
+  {
+   "id": "clocktower",
+   "title": "The Stopped Clock",
+   "giver": "barnaby",
+   "main": true,
+   "type": "mechanism",
+   "chapter": 2,
+   "description": "The Old Clock Tower stopped at 4:17 when the Great Engine jammed. Bring Barnaby parts for a new escapement, then drive the clock with water power from the millrace.",
+   "requires": {
+    "quests": [
+     "lighthouse"
+    ]
+   },
+   "onAccept": {
+    "blueprints": [
+     "waterwheel",
+     "shaft",
+     "gear"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "metal",
+     "kind": "gather",
+     "item": "metal",
+     "count": 3,
+     "stage": 0,
+     "text": "Mine 3 metal on Gearspring Hill (or buy some at the forge)",
+     "hint": {
+      "x": 21,
+      "z": -9
+     }
+    },
+    {
+     "id": "crystal",
+     "kind": "gather",
+     "item": "crystal",
+     "count": 1,
+     "stage": 0,
+     "text": "Find a crystal (the glowing rocks)",
+     "hint": {
+      "x": 12,
+      "z": -21
+     }
+    },
+    {
+     "id": "parts",
+     "kind": "pay",
+     "npc": "barnaby",
+     "items": {
+      "metal": 2,
+      "crystal": 1
+     },
+     "stage": 1,
+     "label": "Hand over 2 metal and a crystal",
+     "text": "Give Barnaby 2 metal and a crystal for the escapement",
+     "lines": [
+      "Perfect! A crystal escapement, the finest kind. I'll fit it tonight.",
+      "Now the clock needs turning. The millrace by the tower flows day and night: a waterwheel there, and power up to the drive on the tower's south side."
+     ],
+     "onDone": {
+      "flags": [
+       "clockParts"
+      ]
+     }
+    },
+    {
+     "id": "drive",
+     "kind": "build",
+     "check": "fed:clock",
+     "zone": "clockyard",
+     "stage": 2,
+     "text": "Drive the clock with a waterwheel in the millrace",
+     "goal": "Power reaches the clock's drive by the tower door",
+     "buildHint": "Waterwheels sit in the flowing millrace and push power north and south. Shafts carry it to the drive by the tower door.",
+     "hint": {
+      "x": 12,
+      "z": -9
+     }
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "barnaby",
+     "final": true,
+     "text": "Tell Barnaby the clock is ticking"
+    }
+   ],
+   "rewards": {
+    "harmony": 40,
+    "items": {
+     "coins": 60,
+     "crystal": 1
+    },
+    "flags": [
+     "clockRunning"
+    ],
+    "blueprints": [
+     "lever",
+     "pump"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "The lighthouse shines! Then there's hope for my poor clock.",
+     "It needs a new escapement: metal and a crystal. And then something to turn it. The millrace runs right beside the tower…"
+    ],
+    "acceptLabel": "Let's get it ticking",
+    "declineLabel": "Later",
+    "accept": [
+     "Splendid! Bring me the parts first, then we'll talk waterwheels."
+    ],
+    "decline": [
+     "Of course. It's been 4:17 for thirty years. It can be 4:17 a little longer."
+    ],
+    "progress": [
+     "Parts first: 2 metal and a crystal. Then a waterwheel in the millrace and power to the drive."
+    ],
+    "complete": [
+     "Listen! Tick… tock… tick… She's alive! Thirty years, and she hasn't lost a second. Well, she's lost all of them, but she's catching up.",
+     "Take these: my lever and pump plans. The cove is yours to tinker with."
+    ]
+   }
+  },
+  {
+   "id": "forge",
+   "title": "Fuel for the Forge",
+   "giver": "hazel",
+   "type": "character",
+   "chapter": 2,
+   "description": "Hazel's forge is running cold. Bring her stone for the furnace lining and wood for the fire.",
+   "requires": {
+    "quests": [
+     "cove"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "stone",
+     "kind": "gather",
+     "item": "stone",
+     "count": 6,
+     "stage": 0,
+     "text": "Mine 6 stone",
+     "hint": {
+      "x": 24,
+      "z": -15
+     }
+    },
+    {
+     "id": "wood",
+     "kind": "gather",
+     "item": "wood",
+     "count": 6,
+     "stage": 0,
+     "text": "Chop 6 wood"
+    },
+    {
+     "id": "deliver",
+     "kind": "pay",
+     "npc": "hazel",
+     "items": {
+      "stone": 4,
+      "wood": 4
+     },
+     "stage": 1,
+     "label": "Hand over 4 stone and 4 wood",
+     "text": "Bring Hazel 4 stone and 4 wood",
+     "lines": [
+      "Into the furnace with you! Listen to that roar."
+     ],
+     "onDone": {
+      "flags": [
+       "forgeLit"
+      ]
+     }
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "hazel",
+     "final": true,
+     "text": "See how the forge is doing"
+    }
+   ],
+   "rewards": {
+    "harmony": 15,
+    "items": {
+     "coins": 30,
+     "metal": 2
+    }
+   },
+   "dialogue": {
+    "offer": [
+     "My forge is running colder than a gull's feet. I need stone for the furnace lining and wood for the fire.",
+     "Bring me some and I'll make it worth your while."
+    ],
+    "acceptLabel": "I'll fuel your forge",
+    "declineLabel": "Maybe later",
+    "accept": [
+     "Hah! Excellent. Stone and wood, the more the merrier. Well, four of each."
+    ],
+    "decline": [
+     "Suit yourself. I'll just warm my hands on this candle."
+    ],
+    "progress": [
+     "Four stone, four wood. The furnace is hungry!"
+    ],
+    "complete": [
+     "Roaring like a dragon with a cold. Perfect! Here, coins and some fresh metal."
     ]
    }
   }

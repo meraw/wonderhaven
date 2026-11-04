@@ -10,7 +10,8 @@ extends RefCounted
 ## - Collision is checked along several rays (centre plus four offsets) against buildings and the ground. The
 ##   camera pulls in at once when something comes between, so it never shows the inside of a wall, and eases back
 ##   out slowly so it doesn't pop.
-## - The camera never changes its own pitch.
+## - The camera never changes its own pitch, except indoors: inside a room you can walk into it looks down over
+##   the walls through the faded roof (a cutaway), rising just enough to clear the wall behind you.
 
 var camera: Camera3D
 var yaw := PI * 1.5
@@ -27,10 +28,14 @@ var occluders: Array = []  # [centre: Vector3, radius: float] tree canopies and 
 var rooms: Array = []      # AABBs of rooms you can walk into (inside walls, up to the wall tops); see Props.camera_rooms
 var col_dist := 8.5        # where the camera actually sits after collision
 var blend := 0.0           # seconds left of a slower blend after a mode change
+var indoor_k := 0.0        # 0 outdoors .. 1 fully in the indoor cutaway view
+var indoor_pitch := 0.95   # smoothed pitch the cutaway uses
 var _t := 0.0
 
 const MARGIN := 0.35       # how far the camera stays from walls
 const MIN_DIST := 0.15     # closest the camera comes: at the player's head, never inside a wall (the player is hidden this close; see game.gd)
+const INDOOR_PITCH := 0.95 # indoors the view looks down at least this steeply (radians)
+const INDOOR_DIST := [6.0, 9.0]
 const PROBES := [Vector2(0, 0), Vector2(0.28, 0), Vector2(-0.28, 0), Vector2(0, 0.22), Vector2(0, -0.18)]
 
 func _init(cam: Camera3D) -> void: camera = cam
@@ -79,9 +84,22 @@ func update(dt: float, follow: Vector3) -> void:
 	cur.yaw = lerp_angle(cur.yaw, yaw, kr)
 	cur.pitch = lerpf(cur.pitch, pitch, kr)
 	cur.dist = lerpf(cur.dist, dist, 1.0 - exp(-(5.0 if slow else 12.0) * dt))
-	var dir := _dir(cur.yaw, cur.pitch)
-	var allowed: float = cur.dist
-	if mode == "explore" or mode == "dialogue": allowed = clear_distance(target, dir, cur.dist)
+	# Indoors: blend into a cutaway that looks down over the walls instead of hugging the back of the head.
+	var room_top := room_top_at(target) if mode == "explore" else -INF
+	indoor_k = lerpf(indoor_k, 1.0 if room_top > -INF else 0.0, 1.0 - exp(-4.0 * dt))
+	if indoor_k < 0.002: indoor_k = 0.0
+	var pv: float = cur.pitch
+	var dv: float = cur.dist
+	if indoor_k > 0.0:
+		var want := maxf(maxf(cur.pitch, INDOOR_PITCH), wall_clear_pitch(target, cur.yaw))
+		indoor_pitch = lerpf(indoor_pitch, want, 1.0 - exp(-6.0 * dt)) if room_top > -INF else indoor_pitch
+		pv = lerpf(cur.pitch, indoor_pitch, indoor_k)
+		dv = lerpf(cur.dist, clampf(cur.dist, INDOOR_DIST[0], INDOOR_DIST[1]), indoor_k)
+	else:
+		indoor_pitch = maxf(cur.pitch, INDOOR_PITCH)
+	var dir := _dir(cur.yaw, pv)
+	var allowed: float = dv
+	if mode == "explore" or mode == "dialogue": allowed = clear_distance(target, dir, dv)
 	col_dist = settle(col_dist, allowed, dt)
 	var p: Vector3 = target + dir * col_dist
 	if mode == "explore" or mode == "dialogue": p = _outside_walls(target, p)
@@ -99,6 +117,25 @@ static func settle(current: float, allowed: float, dt: float) -> float:
 	if allowed < current: return allowed
 	return minf(lerpf(current, allowed, 1.0 - exp(-2.5 * dt)), current + 3.5 * dt)
 
+## The wall-top height of the walk-in room around `p`, or -INF when `p` isn't in one.
+func room_top_at(p: Vector3) -> float:
+	for rm in rooms:
+		var room: AABB = rm
+		if room.has_point(p): return room.end.y
+	return -INF
+
+## Pitch the view needs, looking from `origin` towards yaw `y`, to pass over the wall of the room it is in
+## (with a little headroom), capped just short of straight down.
+func wall_clear_pitch(origin: Vector3, y: float) -> float:
+	var need := 0.0
+	var hd := Vector3(sin(y), 0.0, cos(y)) * 50.0
+	for rm in rooms:
+		var room: AABB = rm
+		if not room.has_point(origin): continue
+		var to_wall := _exit_sides(origin, hd, room) * 50.0
+		need = maxf(need, atan2(room.end.y + 0.4 - origin.y, maxf(to_wall - 0.1, 0.1)))
+	return minf(need, 1.52)
+
 static func _dir(y: float, p: float) -> Vector3: return Vector3(sin(y) * cos(p), sin(p), cos(y) * cos(p))
 
 ## How far the camera can sit from `origin` along `dir` (up to `d`) without a building or the ground in the way,
@@ -115,12 +152,13 @@ func clear_distance(origin: Vector3, dir: Vector3, d: float) -> float:
 func _ray_clear(pivot: Vector3, o: Vector3, dir: Vector3, d: float) -> float:
 	var free := d
 	var seg := dir * d
-	# inside a room: stay within its walls, unless the view leaves over the top (the roof fades away)
+	# inside a room: stay within its walls, unless the line of sight to the player leaves over the top (the roof
+	# fades away). Measured on the centre line: the probes are for building edges outside.
 	for rm in rooms:
 		var room: AABB = rm
 		if not room.has_point(pivot): continue
-		var te := _exit_sides(o, seg, room)
-		if te < 1.0 and o.y + seg.y * te < room.end.y: free = minf(free, te * d - 0.3)
+		var te := _exit_sides(pivot, seg, room)
+		if te < 1.0 and pivot.y + seg.y * te < room.end.y: free = minf(free, te * d - 0.3)
 	for b in blockers:
 		var box: AABB = b
 		if box.has_point(pivot): continue   # standing inside (the workshop): that building doesn't block
@@ -188,5 +226,7 @@ static func _ray_box(from: Vector3, dir: Vector3, box: AABB) -> float:
 
 func snap() -> void:
 	cur.yaw = yaw; cur.pitch = pitch; cur.dist = dist; target = focus; col_dist = dist; blend = 0.0
+	indoor_k = 1.0 if mode == "explore" and room_top_at(target) > -INF else 0.0
+	if indoor_k > 0.0: indoor_pitch = maxf(maxf(pitch, INDOOR_PITCH), wall_clear_pitch(target, yaw)); col_dist = clampf(dist, INDOOR_DIST[0], INDOOR_DIST[1])
 
 func move_yaw() -> float: return cur.yaw

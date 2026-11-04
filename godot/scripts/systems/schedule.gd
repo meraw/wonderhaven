@@ -57,6 +57,14 @@ static func nearest_node(x: float, z: float, flags: Dictionary) -> String:
 	var bd := INF
 	for id in Data.layout.nav_nodes:
 		if not reachable.has(id): continue
+		if String(id).contains(":") and not _in_room(String(id).get_slice(":", 0), x, z): continue   # spots indoors only count from inside
 		var d := _pos(id).distance_to(Vector2(x, z))
 		if d < bd: bd = d; best = id
 	return best
+
+static func _in_room(bid: String, x: float, z: float) -> bool:
+	for b in Data.layout.buildings:
+		if b.id == bid and Interiors.enterable(b):
+			var r := Interiors.room(b)
+			return x >= r.position.x - 0.4 and x <= r.end.x + 0.4 and z >= r.position.z - 0.4 and z <= r.end.z + 0.4
+	return false

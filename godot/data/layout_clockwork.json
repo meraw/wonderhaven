@@ -1,0 +1,943 @@
+{
+ "_comment": "Clockwork Cove, the second island. Same format as layout.json; Hearthglow-only keys (fountain, harbor_gate, harbor_cliffs) are left out. machines: cells where a machine delivers power (or water) to something in the world; build objectives check them as fed:<id>. props: scenery. decor: how much procedural greenery. safeSpot: where 'I'm stuck' takes you.",
+ "spawn": {
+  "x": 2,
+  "z": 28.4,
+  "yaw": 3.141592653589793
+ },
+ "square": {
+  "x": 0,
+  "z": 10,
+  "r": 5
+ },
+ "safeSpot": "plaza",
+ "safeText": "Back at the cove's square.",
+ "decor": {
+  "radius": 38,
+  "trees": 60
+ },
+ "buildings": [
+  {
+   "id": "clockHouse",
+   "kind": "cottage",
+   "name": "Barnaby's Clock House",
+   "x": -9,
+   "z": 4,
+   "w": 6,
+   "d": 5,
+   "wall": "#f3e2c4",
+   "roof": "#b5653a",
+   "door": "E",
+   "navDoor": "clockHouseDoor",
+   "interior": {
+    "items": [
+     [
+      "workbench",
+      -1.8,
+      -1.7,
+      0
+     ],
+     [
+      "bookshelf",
+      2.2,
+      -2.0,
+      0
+     ],
+     [
+      "table",
+      0.4,
+      -1.6,
+      0
+     ],
+     [
+      "chair",
+      0.4,
+      -0.7,
+      2
+     ],
+     [
+      "bed",
+      -2.3,
+      1.2,
+      0
+     ],
+     [
+      "lamp",
+      2.4,
+      1.9,
+      0
+     ],
+     [
+      "crate",
+      1.0,
+      1.8,
+      0
+     ],
+     [
+      "rug",
+      0.0,
+      0.9,
+      0,
+      "#d9a441"
+     ]
+    ],
+    "route": [
+     [
+      1.9,
+      0.0
+     ],
+     [
+      -0.6,
+      0.4
+     ]
+    ]
+   }
+  },
+  {
+   "id": "forge",
+   "kind": "cottage",
+   "name": "Rivet's Forge",
+   "x": 10,
+   "z": 12,
+   "w": 5,
+   "d": 5,
+   "wall": "#d6d0c8",
+   "roof": "#4f5d6b",
+   "door": "W",
+   "navDoor": "forgeDoor",
+   "interior": {
+    "items": [
+     [
+      "oven",
+      1.6,
+      -1.4,
+      0
+     ],
+     [
+      "workbench",
+      -0.4,
+      -1.9,
+      0
+     ],
+     [
+      "bed",
+      1.6,
+      0.2,
+      0
+     ],
+     [
+      "barrel",
+      1.9,
+      1.85,
+      0
+     ],
+     [
+      "crate",
+      0.8,
+      1.8,
+      0
+     ],
+     [
+      "lamp",
+      -1.9,
+      1.9,
+      0
+     ]
+    ],
+    "route": [
+     [
+      -1.8,
+      0.0
+     ],
+     [
+      -0.2,
+      0.6
+     ]
+    ]
+   }
+  },
+  {
+   "id": "keeperCottage",
+   "kind": "cottage",
+   "name": "Keeper's Cottage",
+   "x": -19,
+   "z": -10,
+   "w": 4.5,
+   "d": 4.5,
+   "wall": "#e6f0f7",
+   "roof": "#3f7fb5",
+   "door": "S",
+   "navDoor": "keeperDoor",
+   "interior": {
+    "items": [
+     [
+      "bed",
+      -1.4,
+      -1.5,
+      0
+     ],
+     [
+      "table",
+      1.1,
+      -1.3,
+      0
+     ],
+     [
+      "chair",
+      1.1,
+      -0.4,
+      2
+     ],
+     [
+      "bookshelf",
+      -1.4,
+      1.5,
+      2
+     ],
+     [
+      "lamp",
+      1.5,
+      1.5,
+      0
+     ]
+    ],
+    "route": [
+     [
+      0.0,
+      1.4
+     ],
+     [
+      0.1,
+      0.1
+     ]
+    ]
+   }
+  },
+  {
+   "id": "guestHouse",
+   "kind": "cottage",
+   "name": "The Cove Guest House",
+   "x": -6,
+   "z": 19,
+   "w": 5,
+   "d": 4,
+   "wall": "#fff1d6",
+   "roof": "#7a9a4a",
+   "door": "N",
+   "navDoor": "guestDoor",
+   "interior": {
+    "items": [
+     [
+      "bed",
+      -1.7,
+      0.2,
+      0
+     ],
+     [
+      "table",
+      1.4,
+      0.9,
+      0
+     ],
+     [
+      "lamp",
+      1.7,
+      -1.2,
+      0
+     ],
+     [
+      "rug",
+      0.2,
+      0.4,
+      0,
+      "#7fb5d6"
+     ]
+    ]
+   }
+  },
+  {
+   "id": "lighthouse",
+   "kind": "lighthouse",
+   "name": "Cape Lighthouse",
+   "x": -24,
+   "z": -21,
+   "w": 4,
+   "d": 4,
+   "roof": "#c94a44",
+   "door": "S",
+   "machine": "lighthouse"
+  },
+  {
+   "id": "clocktower",
+   "kind": "clocktower",
+   "name": "The Old Clock Tower",
+   "x": 12,
+   "z": -13,
+   "w": 4,
+   "d": 4,
+   "wall": "#d9cdb8",
+   "roof": "#5f7fd8",
+   "door": "S",
+   "machine": "clock"
+  }
+ ],
+ "machines": [
+  {
+   "id": "lighthouse",
+   "cell": [
+    -23,
+    -19
+   ],
+   "side": "N",
+   "type": "power",
+   "label": "The lighthouse's drive (south side)"
+  },
+  {
+   "id": "clock",
+   "cell": [
+    12,
+    -11
+   ],
+   "side": "N",
+   "type": "power",
+   "label": "The clock's drive (south side)"
+  }
+ ],
+ "zones": [
+  {
+   "id": "lighthouse",
+   "name": "Lighthouse cape",
+   "minI": -27,
+   "maxI": -17,
+   "minK": -20,
+   "maxK": -14,
+   "unlock": {
+    "quest": "lighthouse"
+   }
+  },
+  {
+   "id": "clockyard",
+   "name": "Clock tower yard",
+   "minI": 9,
+   "maxI": 15,
+   "minK": -11,
+   "maxK": -6,
+   "unlock": {
+    "quest": "clocktower"
+   }
+  }
+ ],
+ "nodes": [
+  {
+   "id": "cove_tree0",
+   "kind": "chop",
+   "x": -14,
+   "z": 13
+  },
+  {
+   "id": "cove_tree1",
+   "kind": "chop",
+   "x": -20,
+   "z": 3
+  },
+  {
+   "id": "cove_tree2",
+   "kind": "chop",
+   "x": -27,
+   "z": -1
+  },
+  {
+   "id": "cove_tree3",
+   "kind": "chop",
+   "x": -11,
+   "z": 25
+  },
+  {
+   "id": "cove_tree4",
+   "kind": "chop",
+   "x": 16,
+   "z": 21
+  },
+  {
+   "id": "cove_tree5",
+   "kind": "chop",
+   "x": 22,
+   "z": 8
+  },
+  {
+   "id": "cove_tree6",
+   "kind": "chop",
+   "x": 25,
+   "z": -3
+  },
+  {
+   "id": "cove_tree7",
+   "kind": "chop",
+   "x": -30,
+   "z": 9
+  },
+  {
+   "id": "cove_rock0",
+   "kind": "mine",
+   "x": 21,
+   "z": -9,
+   "rich": false
+  },
+  {
+   "id": "cove_rock1",
+   "kind": "mine",
+   "x": 26,
+   "z": -16,
+   "rich": false
+  },
+  {
+   "id": "cove_rock2",
+   "kind": "mine",
+   "x": 12,
+   "z": -21,
+   "rich": true
+  },
+  {
+   "id": "cove_rock3",
+   "kind": "mine",
+   "x": 23,
+   "z": -24,
+   "rich": false
+  },
+  {
+   "id": "cove_rock4",
+   "kind": "mine",
+   "x": -30,
+   "z": -17,
+   "rich": true
+  },
+  {
+   "id": "cove_clay0",
+   "kind": "clay",
+   "x": 6.6,
+   "z": -6.2
+  },
+  {
+   "id": "cove_clay1",
+   "kind": "clay",
+   "x": 16.4,
+   "z": -7.4
+  },
+  {
+   "id": "cove_fish0",
+   "kind": "fish",
+   "x": -2.6,
+   "z": 31.4,
+   "facing": 0.0
+  },
+  {
+   "id": "cove_fish1",
+   "kind": "fish",
+   "x": 6.8,
+   "z": 31.4,
+   "facing": 0.0
+  },
+  {
+   "id": "cove_flowers0",
+   "kind": "flowers",
+   "x": -12,
+   "z": 12.5
+  },
+  {
+   "id": "cove_flowers1",
+   "kind": "flowers",
+   "x": 10,
+   "z": 20
+  },
+  {
+   "id": "cove_frag0",
+   "kind": "fragment",
+   "x": -16,
+   "z": 19
+  },
+  {
+   "id": "cove_frag1",
+   "kind": "fragment",
+   "x": 20,
+   "z": 14
+  },
+  {
+   "id": "cove_frag2",
+   "kind": "fragment",
+   "x": -29,
+   "z": -6
+  },
+  {
+   "id": "cove_frag3",
+   "kind": "fragment",
+   "x": 27,
+   "z": 2
+  },
+  {
+   "id": "cove_frag4",
+   "kind": "fragment",
+   "x": 3,
+   "z": -17
+  },
+  {
+   "id": "cove_chest0",
+   "kind": "chest",
+   "x": 21.5,
+   "z": -21.5,
+   "loot": {
+    "crystal": 1,
+    "metal": 3,
+    "coins": 30
+   },
+   "blueprint": "streetlight"
+  },
+  {
+   "id": "cove_chest1",
+   "kind": "chest",
+   "x": -27.5,
+   "z": -16.5,
+   "loot": {
+    "fabric": 2,
+    "spark": 10,
+    "coins": 25
+   }
+  },
+  {
+   "id": "cove_dig0",
+   "kind": "dig",
+   "x": -24,
+   "z": 20
+  },
+  {
+   "id": "cove_dig1",
+   "kind": "dig",
+   "x": 24,
+   "z": 22
+  }
+ ],
+ "features": [
+  {
+   "id": "boat",
+   "kind": "boat",
+   "x": 4.4,
+   "z": 32.6,
+   "label": "Board the ferry"
+  },
+  {
+   "id": "welcomeSign",
+   "kind": "sign",
+   "x": 4.6,
+   "z": 26.5,
+   "text": "Welcome to Clockwork Cove! Mind the gears, and the gulls."
+  },
+  {
+   "id": "clockSign",
+   "kind": "sign",
+   "x": 8.6,
+   "z": -10.6,
+   "text": "The Old Clock Tower. Stopped at 4:17 since the Great Jam."
+  },
+  {
+   "id": "coveBed",
+   "kind": "rest",
+   "x": -7.2,
+   "z": 19.7,
+   "label": "Rest at the guest house"
+  },
+  {
+   "id": "coveWardrobe",
+   "kind": "wardrobe",
+   "x": -3.95,
+   "z": 20.4,
+   "label": "Change outfit"
+  }
+ ],
+ "nav_nodes": {
+  "dock": [
+   2,
+   28.4
+  ],
+  "beach": [
+   1.5,
+   22
+  ],
+  "plaza": [
+   0,
+   10
+  ],
+  "plazaW": [
+   -4.5,
+   7.5
+  ],
+  "plazaE": [
+   4.5,
+   8
+  ],
+  "clockCorner": [
+   -5,
+   -0.5
+  ],
+  "westRoad": [
+   -12,
+   -4.5
+  ],
+  "capeWest": [
+   -23,
+   -6.5
+  ],
+  "capePath": [
+   -23.5,
+   -12.6
+  ],
+  "forgeRoad": [
+   5.6,
+   12
+  ],
+  "eastRoad": [
+   6.4,
+   -3
+  ],
+  "towerPath": [
+   5.6,
+   -10.2
+  ],
+  "hillFoot": [
+   16,
+   -4.6
+  ],
+  "hillTop": [
+   18.5,
+   -15
+  ],
+  "guestPath": [
+   -3.5,
+   14.2
+  ],
+  "keeperDoor": [
+   -19,
+   -6.4
+  ],
+  "clockHouseDoor": [
+   -4.6,
+   4
+  ],
+  "forgeDoor": [
+   6.1,
+   12
+  ],
+  "guestDoor": [
+   -6,
+   15.6
+  ]
+ },
+ "nav_edges": [
+  [
+   "dock",
+   "beach"
+  ],
+  [
+   "beach",
+   "plaza"
+  ],
+  [
+   "plaza",
+   "plazaW"
+  ],
+  [
+   "plaza",
+   "plazaE"
+  ],
+  [
+   "plazaW",
+   "clockCorner"
+  ],
+  [
+   "clockCorner",
+   "clockHouseDoor"
+  ],
+  [
+   "clockCorner",
+   "westRoad"
+  ],
+  [
+   "westRoad",
+   "keeperDoor"
+  ],
+  [
+   "westRoad",
+   "capeWest"
+  ],
+  [
+   "capeWest",
+   "capePath"
+  ],
+  [
+   "plazaE",
+   "forgeRoad"
+  ],
+  [
+   "forgeRoad",
+   "forgeDoor"
+  ],
+  [
+   "plazaE",
+   "eastRoad"
+  ],
+  [
+   "eastRoad",
+   "towerPath"
+  ],
+  [
+   "eastRoad",
+   "hillFoot"
+  ],
+  [
+   "hillFoot",
+   "hillTop"
+  ],
+  [
+   "plaza",
+   "guestPath"
+  ],
+  [
+   "guestPath",
+   "guestDoor"
+  ]
+ ],
+ "paths": [
+  [
+   [
+    2,
+    29
+   ],
+   [
+    1.5,
+    22
+   ],
+   [
+    0.5,
+    15
+   ],
+   [
+    0,
+    10
+   ]
+  ],
+  [
+   [
+    0,
+    10
+   ],
+   [
+    -4.5,
+    7.5
+   ],
+   [
+    -5,
+    -0.5
+   ],
+   [
+    -12,
+    -4.5
+   ],
+   [
+    -19,
+    -6.4
+   ]
+  ],
+  [
+   [
+    -12,
+    -4.5
+   ],
+   [
+    -23,
+    -6.5
+   ],
+   [
+    -23.5,
+    -12.6
+   ],
+   [
+    -23.5,
+    -16.5
+   ]
+  ],
+  [
+   [
+    0,
+    10
+   ],
+   [
+    4.5,
+    8
+   ],
+   [
+    5.6,
+    12
+   ],
+   [
+    6.1,
+    12
+   ]
+  ],
+  [
+   [
+    4.5,
+    8
+   ],
+   [
+    6.4,
+    -3
+   ],
+   [
+    5.6,
+    -10.2
+   ],
+   [
+    11,
+    -10.3
+   ]
+  ],
+  [
+   [
+    6.4,
+    -3
+   ],
+   [
+    16,
+    -4.6
+   ],
+   [
+    18.5,
+    -15
+   ]
+  ],
+  [
+   [
+    0,
+    10
+   ],
+   [
+    -3.5,
+    14.2
+   ],
+   [
+    -6,
+    15.6
+   ]
+  ]
+ ],
+ "props": [
+  {
+   "kind": "lamp_post",
+   "x": -5.4,
+   "z": 12.6
+  },
+  {
+   "kind": "lamp_post",
+   "x": 5.2,
+   "z": 13.2
+  },
+  {
+   "kind": "lamp_post",
+   "x": -3.2,
+   "z": 4.6
+  },
+  {
+   "kind": "lamp_post",
+   "x": 3.8,
+   "z": 4.2
+  },
+  {
+   "kind": "lamp_post",
+   "x": 3.6,
+   "z": 23
+  },
+  {
+   "kind": "lamp_post",
+   "x": -14,
+   "z": -6
+  },
+  {
+   "kind": "lamp_post",
+   "x": 4.2,
+   "z": -8.8
+  },
+  {
+   "kind": "lamp_post",
+   "x": -21.6,
+   "z": -14.2
+  },
+  {
+   "kind": "pier",
+   "x": 1.6,
+   "z": 31.4,
+   "w": 2.2,
+   "d": 3.0,
+   "y": 0.0,
+   "solid": false
+  },
+  {
+   "kind": "barrel",
+   "x": 13.4,
+   "z": 9.2,
+   "rad": 0.4
+  },
+  {
+   "kind": "crate",
+   "x": 13.6,
+   "z": 10.4,
+   "r": 0.4,
+   "rad": 0.45
+  },
+  {
+   "kind": "barrel",
+   "x": -1.2,
+   "z": 26.4,
+   "rad": 0.4
+  },
+  {
+   "kind": "crate",
+   "x": 4.6,
+   "z": 29.4,
+   "rad": 0.45
+  },
+  {
+   "kind": "crate",
+   "x": 5.3,
+   "z": 28.8,
+   "r": 0.7,
+   "rad": 0.45
+  },
+  {
+   "kind": "piece",
+   "id": "windmill",
+   "x": 19.5,
+   "z": -18.5,
+   "rad": 0.5
+  },
+  {
+   "kind": "piece",
+   "id": "gear",
+   "x": 7.0,
+   "z": -11.6,
+   "rad": 0.4
+  },
+  {
+   "kind": "piece",
+   "id": "gear",
+   "x": -12.6,
+   "z": 6.6,
+   "rad": 0.4
+  },
+  {
+   "kind": "fence",
+   "n": 3,
+   "x": -9,
+   "z": 9.2,
+   "r": 0.0,
+   "solid": false
+  }
+ ]
+}

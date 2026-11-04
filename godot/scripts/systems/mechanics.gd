@@ -8,7 +8,8 @@ static func ports_of(pl: Dictionary) -> Dictionary:
 	for side in m.get("ports", {}): out[BuildGrid.rot_side(side, int(pl.r))] = m.ports[side]
 	return out
 
-## inlets: [{id, cell: [i, k], side}]
+## inlets: machine targets [{id, cell: [i, k], side, type?}]: fed when a watered pipe (type "water", the default) or a
+## powered shaft/gear (type "power") at that cell has a port facing that side (a fountain's inlet, a lighthouse's drive).
 static func solve(placements: Array, inlets: Array = []) -> Dictionary:
 	var nodes := placements.filter(func(p):
 		var m: Dictionary = Data.piece(p.id).get("mech", {})
@@ -51,8 +52,10 @@ static func solve(placements: Array, inlets: Array = []) -> Dictionary:
 	var fed := {}
 	for inlet in inlets:
 		fed[inlet.id] = false
+		var type: String = inlet.get("type", "water")
+		var net: Dictionary = powered if type == "power" else watered
 		for n in at.get("%d,%d" % [int(inlet.cell[0]), int(inlet.cell[1])], []):
-			if watered.has(n.uid) and ports_of(n).get(inlet.side, "") == "water": fed[inlet.id] = true
+			if net.has(n.uid) and ports_of(n).get(inlet.side, "") == type: fed[inlet.id] = true
 	var lamps := {}
 	var fountains := {}
 	for n in nodes:

@@ -202,12 +202,34 @@ static func gable_roof_mesh(w: float, d: float, rise: float, oh: float, th: floa
 ## Roof, gable infill and ridge cap for a w x d building whose walls end at height h. Returns the roof node.
 static func roof_rise(w: float, d: float) -> float: return clampf(minf(w, d) * 0.36, 1.2, 2.0)
 
+## For each mesh under `nodes`: [mesh, solid material, dissolving copy]. game.gd swaps to the copies and dissolves
+## them while you're inside, so the roof (and anything resting on it) gets out of the way.
+static func fade_parts(nodes: Array) -> Array:
+	var parts: Array = []
+	for nd in nodes:
+		var meshes: Array = nd.find_children("*", "MeshInstance3D", true, false)
+		if nd is MeshInstance3D: meshes.append(nd)
+		for m in meshes:
+			var solid: Material = m.material_override
+			var faded: Material
+			if solid is ShaderMaterial:
+				var c = (solid as ShaderMaterial).get_shader_parameter("color")
+				faded = roof_material(c if c != null else Color.WHITE, true)
+			elif solid is StandardMaterial3D:
+				faded = (solid as StandardMaterial3D).duplicate()
+				faded.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_HASH; faded.alpha_hash_scale = 1.0
+			else: continue
+			parts.append([m, solid, faded])
+	return parts
+
 ## Rooms you can walk into (the workshop): while the player is inside, the camera stays within the walls.
 static func camera_rooms() -> Array:
 	var out: Array = []
 	for b in Data.layout.buildings:
 		if b.kind == "workshop":
 			out.append(AABB(Vector3(b.x - b.w / 2.0 + 0.35, -1.0, b.z - b.d / 2.0 + 0.35), Vector3(b.w - 0.7, 3.6, b.d - 0.7)))
+		elif Interiors.enterable(b):
+			out.append(Interiors.room(b, Heightfield.CASTLE_MOUND.y if b.kind == "castle" else 0.0))
 	return out
 
 ## Boxes the follow camera should not pass through: every building's walls and roof (overhang included).
@@ -215,7 +237,7 @@ static func camera_blockers() -> Array:
 	var out: Array = []
 	for b in Data.layout.buildings:
 		var pad := 1.1 if b.kind == "castle" else 0.4
-		var top: float = 6.5 if b.kind == "castle" else (3.0 if b.kind == "caravan" else 2.6 + roof_rise(b.w, b.d) + 0.3)
+		var top: float = 6.5 if b.kind == "castle" else (3.0 if b.kind == "caravan" else (9.0 if b.kind in ["lighthouse", "clocktower"] else 2.6 + roof_rise(b.w, b.d) + 0.3))
 		out.append(AABB(Vector3(b.x - b.w / 2.0 - pad, -1.0, b.z - b.d / 2.0 - pad), Vector3(b.w + pad * 2.0, top + 1.0, b.d + pad * 2.0)))
 	return out
 
@@ -267,10 +289,20 @@ static func _on_side(obj: Node3D, b: Dictionary, side: String, y: float, offset:
 
 static func _door(g: Node3D, b: Dictionary, color: String = "a0623a", canopy = null) -> void:
 	var door := Node3D.new()
-	_add(door, P.rbox(1.24, 1.86, 0.1, 0.04), P.mat("fffaf0"), Vector3(0, 0.1, -0.02))
-	_add(door, P.rbox(1.0, 1.62, 0.12, 0.05), P.wood(color), Vector3.ZERO)
-	for x in [-0.25, 0.25]: _add(door, P.box(0.04, 1.3, 0.02), P.mat(Color(color).darkened(0.2)), Vector3(x, 0, 0.065), Vector3.ZERO, Vector3.ONE, false)
-	_add(door, P.sphere(0.06, 8, 6), P.mat(P.GOLD), Vector3(0.33, 0, 0.09))
+	var open := Interiors.enterable(b)
+	if open:
+		# a frame round an open doorway, the door swung inwards against the wall
+		var fm := P.mat("fffaf0")
+		for x in [-0.66, 0.66]: _add(door, P.box(0.12, 2.05, 0.3), fm, Vector3(x, 0.22, -0.08))
+		_add(door, P.box(1.44, 0.14, 0.3), fm, Vector3(0, 1.25, -0.08))
+		var hinge := Node3D.new(); hinge.position = Vector3(-0.56, 0, -0.2); hinge.rotation.y = 1.75; door.add_child(hinge)
+		_add(hinge, P.rbox(1.0, 1.62, 0.08, 0.04), P.wood(color), Vector3(0.5, 0, 0))
+		_add(hinge, P.sphere(0.06, 8, 6), P.mat(P.GOLD), Vector3(0.85, 0, 0.06))
+	else:
+		_add(door, P.rbox(1.24, 1.86, 0.1, 0.04), P.mat("fffaf0"), Vector3(0, 0.1, -0.02))
+		_add(door, P.rbox(1.0, 1.62, 0.12, 0.05), P.wood(color), Vector3.ZERO)
+		for x in [-0.25, 0.25]: _add(door, P.box(0.04, 1.3, 0.02), P.mat(Color(color).darkened(0.2)), Vector3(x, 0, 0.065), Vector3.ZERO, Vector3.ONE, false)
+		_add(door, P.sphere(0.06, 8, 6), P.mat(P.GOLD), Vector3(0.33, 0, 0.09))
 	_add(door, P.rbox(1.5, 0.12, 0.6, 0.05), P.stone(P.STONE), Vector3(0, -0.76, 0.3))
 	if canopy != null:
 		var cn := Node3D.new(); cn.position = Vector3(0, 1.16, 0.32); door.add_child(cn)
@@ -283,11 +315,28 @@ static func cottage(b: Dictionary) -> Node3D:
 	var g := Node3D.new(); var h := 2.4
 	var wall_mat := P.plaster(b.wall)
 	var trim := Color(b.roof).darkened(0.35).lerp(Color(P.WOOD_DARK), 0.6)
-	_add(g, P.rbox(b.w, h, b.d, 0.06), wall_mat, Vector3(0, h / 2.0, 0))
-	_add(g, P.rbox(b.w + 0.24, 0.4, b.d + 0.24, 0.08), P.stone("c9bfae"), Vector3(0, 0.15, 0))
+	var enter := Interiors.enterable(b)
+	if enter:
+		# walls with a doorway (the same rectangles the collision uses), a lintel, a plank floor and a plinth ring
+		for r in Interiors.walls(b):
+			_add(g, P.box(r.maxX - r.minX, h, r.maxZ - r.minZ), wall_mat, Vector3((r.minX + r.maxX) / 2.0 - b.x, h / 2.0, (r.minZ + r.maxZ) / 2.0 - b.z))
+		var di := Interiors.door_info(b)
+		var dc: Vector2 = di.c - Vector2(b.x, b.z) - di.out * (Interiors.WALL_T / 2.0)
+		var lw := Vector3(Interiors.DOOR_W, h - Interiors.DOOR_H, Interiors.WALL_T) if di.out.y != 0.0 else Vector3(Interiors.WALL_T, h - Interiors.DOOR_H, Interiors.DOOR_W)
+		_add(g, P.box(lw.x, lw.y, lw.z), wall_mat, Vector3(dc.x, (h + Interiors.DOOR_H) / 2.0, dc.y))
+		_add(g, P.box(b.w - 0.1, 0.05, b.d - 0.1), P.wood("d9b48a"), Vector3(0, 0.025, 0), Vector3.ZERO, Vector3.ONE, false)
+		for zs in [-1, 1]: _add(g, P.box(b.w + 0.24, 0.32, 0.14), P.stone("c9bfae"), Vector3(0, 0.1, zs * (b.d / 2.0 + 0.05)))
+		for xs in [-1, 1]: _add(g, P.box(0.14, 0.32, b.d + 0.24), P.stone("c9bfae"), Vector3(xs * (b.w / 2.0 + 0.05), 0.1, 0))
+	else:
+		_add(g, P.rbox(b.w, h, b.d, 0.06), wall_mat, Vector3(0, h / 2.0, 0))
+		_add(g, P.rbox(b.w + 0.24, 0.4, b.d + 0.24, 0.08), P.stone("c9bfae"), Vector3(0, 0.15, 0))
 	for c in [[-1, -1], [1, -1], [-1, 1], [1, 1]]:
 		_add(g, P.box(0.2, h, 0.2), P.wood(trim), Vector3(c[0] * (b.w / 2.0 - 0.06), h / 2.0, c[1] * (b.d / 2.0 - 0.06)))
-	_add(g, P.box(b.w + 0.06, 0.16, b.d + 0.06), P.wood(trim), Vector3(0, h - 0.08, 0))
+	if enter:
+		for zs in [-1, 1]: _add(g, P.box(b.w + 0.06, 0.16, 0.3), P.wood(trim), Vector3(0, h - 0.08, zs * (b.d / 2.0 - 0.12)))
+		for xs in [-1, 1]: _add(g, P.box(0.3, 0.16, b.d + 0.06), P.wood(trim), Vector3(xs * (b.w / 2.0 - 0.12), h - 0.08, 0))
+	else:
+		_add(g, P.box(b.w + 0.06, 0.16, b.d + 0.06), P.wood(trim), Vector3(0, h - 0.08, 0))
 	var roof := _gable_roof(g, b.w, b.d, h, wall_mat, roof_material(b.roof), Color(b.roof).darkened(0.25))
 	var rise: float = roof.get_meta("rise"); var L: float = roof.get_meta("length"); var S: float = roof.get_meta("span")
 	# Stone chimney poking through one slope, near the ridge.
@@ -295,11 +344,13 @@ static func cottage(b: Dictionary) -> Node3D:
 	var ch := ch_local if b.w >= b.d else Vector3(-ch_local.z, 0, ch_local.x)
 	var top := h + rise + 0.55
 	_add(g, P.rbox(0.55, top - h, 0.55, 0.05), P.stone("b9ada0"), Vector3(ch.x, h + (top - h) / 2.0, ch.z))
-	_add(g, P.rbox(0.7, 0.14, 0.7, 0.04), P.stone("8f8378"), Vector3(ch.x, top, ch.z))
+	var chim := _add(g, P.rbox(0.7, 0.14, 0.7, 0.04), P.stone("8f8378"), Vector3(ch.x, top, ch.z))
+	var chimney_mesh: MeshInstance3D = g.get_child(g.get_child_count() - 2)
 	g.set_meta("chimney", Vector3(ch.x, top + 0.2, ch.z))
+	var over_room: Array = [roof, chim, chimney_mesh]   # what fades away while you're inside
 	# Round attic windows in both gable ends.
 	for s in [-1, 1]:
-		var aw := Node3D.new()
+		var aw := Node3D.new(); over_room.append(aw)
 		var gx: float = (b.w / 2.0 + 0.02) * s if b.w >= b.d else 0.0
 		var gz: float = 0.0 if b.w >= b.d else (b.d / 2.0 + 0.02) * s
 		aw.position = Vector3(gx, h + rise * 0.42, gz); aw.rotation.y = (PI / 2 if s > 0 else -PI / 2) if b.w >= b.d else (0.0 if s > 0 else PI)
@@ -310,17 +361,21 @@ static func cottage(b: Dictionary) -> Node3D:
 	var shutter := Color(b.roof).lightened(0.05)
 	var glasses: Array = []
 	var seed := int(absf(b.x * 3.0 + b.z))
+	var spots: Array = []   # [side, offset] of every window
 	for s in ["N", "S", "E", "W"]:
 		if s == b.door: continue
 		var long: float = b.w if s in ["N", "S"] else b.d
-		for off in ([-long * 0.25, long * 0.25] if long > 4.5 else [0.0]):
-			var w := _window(shutter); _on_side(w, b, s, 1.4, off); g.add_child(w); glasses.append(w.get_node("glass"))
-			_flower_box(w, seed); seed += 2
+		for off in ([-long * 0.25, long * 0.25] if long > 4.5 else [0.0]): spots.append([s, off])
 	if b.door in ["N", "S"]:
-		for off in [-b.w * 0.3, b.w * 0.3]:
-			var w := _window(shutter); _on_side(w, b, b.door, 1.4, off); g.add_child(w); glasses.append(w.get_node("glass"))
-			_flower_box(w, seed); seed += 3
+		for off in [-b.w * 0.3, b.w * 0.3]: spots.append([b.door, off])
+	for sp in spots:
+		var w := _window(shutter); _on_side(w, b, sp[0], 1.4, sp[1]); g.add_child(w); glasses.append(w.get_node("glass"))
+		_flower_box(w, seed); seed += 2
+		if enter:
+			# the same window seen from inside
+			var wi := _window(); _on_side(wi, b, sp[0], 1.4, sp[1], -Interiors.WALL_T - 0.03); wi.rotation.y += PI; g.add_child(wi); glasses.append(wi.get_node("glass"))
 	g.set_meta("glasses", glasses)
+	if enter: g.set_meta("fade_parts", fade_parts(over_room))
 	if b.get("inn", false): _inn_sign(g, b)
 	if b.has("awning"):
 		var aw := Node3D.new(); _on_side(aw, b, b.door, 2.12, 0, 0.4)
@@ -374,17 +429,7 @@ static func workshop(b: Dictionary) -> Node3D:
 	# (Keeping it solid otherwise avoids sorting glitches and keeps the ink lines from showing through it.)
 	var roof := _gable_roof(g, b.w, b.d, h, P.texturize(P.unique_mat(b.wall), "plaster"), roof_material(b.roof), Color(b.roof).darkened(0.25))
 	_add(roof, P.box(b.w if b.w >= b.d else b.d, 0.1, b.d if b.w >= b.d else b.w), P.unique_mat(Color(b.roof).darkened(0.3)), Vector3(0, 0.05, 0))
-	var parts: Array = []
-	for m in roof.find_children("*", "MeshInstance3D", true, false):
-		var solid: Material = m.material_override
-		var faded: Material
-		if solid is ShaderMaterial:
-			faded = roof_material(b.roof, true)
-		else:
-			faded = (solid as StandardMaterial3D).duplicate()
-			faded.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_HASH; faded.alpha_hash_scale = 1.0
-		parts.append([m, solid, faded])
-	g.set_meta("fade_parts", parts)
+	g.set_meta("fade_parts", fade_parts([roof]))
 	# trim beams along the wall tops: a frame, not a slab, so the room stays open when the roof fades
 	var trim := P.wood(Color(b.roof).darkened(0.35).lerp(Color(P.WOOD_DARK), 0.6))
 	for zs in [-1, 1]: _add(g, P.box(b.w + 0.06, 0.16, t + 0.06), trim, Vector3(0, h - 0.08, zs * (hd - t / 2.0)))
@@ -409,7 +454,53 @@ static func caravan(b: Dictionary) -> Node3D:
 	_door(g, b, "7a4a8a")
 	return g
 
+## Height of the castle's floor above its mound: furniture stands on it.
+const CASTLE_FLOOR := 0.02
+
 static func castle(b: Dictionary) -> Node3D:
+	if not Interiors.enterable(b): return _castle_closed(b)
+	# Curtain wall and keep, both with a gateway on the door side; a throne room inside the keep.
+	var g := Node3D.new()
+	var light := P.stone("eadfcd"); var keep_mat := P.stone(b.wall)
+	for r in Interiors.walls(b):
+		var hh: float = r.h
+		_add(g, P.box(r.maxX - r.minX, hh, r.maxZ - r.minZ), light if hh < 3.0 else keep_mat, Vector3((r.minX + r.maxX) / 2.0 - b.x, hh / 2.0, (r.minZ + r.maxZ) / 2.0 - b.z))
+		if hh < 3.0:
+			# crenellations along the curtain wall
+			var horiz: bool = r.maxX - r.minX > r.maxZ - r.minZ
+			var length: float = (r.maxX - r.minX) if horiz else (r.maxZ - r.minZ)
+			var n := int(length / 0.9)
+			for i in n:
+				var t := (i + 0.5) / n
+				var cx: float = lerpf(r.minX, r.maxX, t) if horiz else (r.minX + r.maxX) / 2.0
+				var cz: float = (r.minZ + r.maxZ) / 2.0 if horiz else lerpf(r.minZ, r.maxZ, t)
+				_add(g, P.box(0.45, 0.45, 0.45), light, Vector3(cx - b.x, hh + 0.22, cz - b.z))
+	# lintels over both gateways
+	var di := Interiors.door_info(b)
+	for pair in [[b.w / 2.0, 0.5, 2.4], [b.w / 2.0 - 1.0, 0.35, 4.2]]:
+		var c: Vector2 = Vector2(b.x, b.z) + di.out * (pair[0] - pair[1] / 2.0) - Vector2(b.x, b.z)
+		var size := Vector3(Interiors.DOOR_W, pair[2] - Interiors.DOOR_H, pair[1]) if di.out.y != 0.0 else Vector3(pair[1], pair[2] - Interiors.DOOR_H, Interiors.DOOR_W)
+		_add(g, P.box(size.x, size.y, size.z), light if pair[2] < 3.0 else keep_mat, Vector3(c.x, (pair[2] + Interiors.DOOR_H) / 2.0, c.y))
+	# a stone base under the whole castle (it hides where the mound slopes away at the corners) and the hall's floor
+	_add(g, P.box(b.w + 0.1, 1.2, b.d + 0.1), P.stone("cfc6b6"), Vector3(0, CASTLE_FLOOR - 0.01 - 0.6, 0), Vector3.ZERO, Vector3.ONE, false)
+	_add(g, P.box(b.w - 2.4, 0.02, b.d - 2.4), P.stone("d8d0c2"), Vector3(0, CASTLE_FLOOR - 0.01, 0), Vector3.ZERO, Vector3.ONE, false)
+	for c in [[-1, -1], [1, -1], [-1, 1], [1, 1]]:
+		var tx: float = c[0] * b.w / 2.0; var tz: float = c[1] * b.d / 2.0
+		_add(g, P.cyl(1.0, 1.1, 5.2, 14), P.stone(b.wall), Vector3(tx, 2.6, tz))
+		_add(g, P.cone(1.3, 2.2, 14), P.mat(b.roof), Vector3(tx, 6.3, tz))
+		_add(g, P.cyl(0.03, 0.03, 0.9, 4), P.mat("666666"), Vector3(tx, 7.8, tz))
+		_add(g, P.box(0.6, 0.35, 0.02), P.mat("ff6f91"), Vector3(tx + 0.3, 8.05, tz))
+	var kr := P.mi(P.cone((b.w - 2) * 0.62, 2.6, 4), P.mat(b.roof), Vector3.ZERO); kr.rotation.y = PI / 4
+	var kh := Node3D.new(); kh.position.y = 5.5; kh.scale = Vector3(1, 1, (b.d - 2) / (b.w - 2)); kh.add_child(kr); g.add_child(kh)
+	var ceiling := _add(g, P.box(b.w - 2.0, 0.1, b.d - 2.0), P.stone("d8d0c2"), Vector3(0, 4.25, 0))
+	g.set_meta("fade_parts", fade_parts([kh, ceiling]))
+	# banner over the gate
+	var gate_c: Vector2 = di.out * (b.w / 2.0 + 0.08)
+	var bn := _add(g, P.box(0.02, 1.6, 0.9) if di.out.y == 0.0 else P.box(0.9, 1.6, 0.02), P.fabric("ff6f91"), Vector3(gate_c.x, 3.4, gate_c.y))
+	_add(g, P.sphere(0.25, 4, 2), P.mat(P.GOLD), Vector3(gate_c.x * 1.01, 3.5, gate_c.y * 1.01))
+	return g
+
+static func _castle_closed(b: Dictionary) -> Node3D:
 	var g := Node3D.new()
 	_add(g, P.rbox(b.w - 2, 4.2, b.d - 2, 0.15), P.plaster(b.wall), Vector3(0, 2.1, 0))
 	var wall_h := 2.4
@@ -478,6 +569,78 @@ static func animate_fountain(g: Node3D, t: float, flowing: bool) -> void:
 			d.position = Vector3(cos(a) * r, 1.95 + sin(p * PI) * 0.35 - p * 0.15, sin(a) * r)
 		else: d.position = Vector3(0, 2.2 + p * 0.6, 0)
 		d.scale = Vector3.ONE * (1.0 - p * 0.5)
+
+## A striped lighthouse on a stone plinth. Its lamp room lights and the beam sweeps round when its drive is powered
+## (see animate_machine).
+static func lighthouse(b: Dictionary) -> Node3D:
+	var g := Node3D.new()
+	var r := minf(b.w, b.d) / 2.0 - 0.15
+	_add(g, P.cyl(r + 0.1, r + 0.3, 0.6, 22), P.stone("cfc6b6"), Vector3(0, 0.3, 0))
+	for i in 4:
+		var rt := r * (0.86 - i * 0.07); var rb := r * (0.93 - i * 0.07)
+		_add(g, P.cyl(rt, rb, 1.5, 22), P.plaster("fffaf0" if i % 2 == 0 else "e0594f"), Vector3(0, 0.6 + i * 1.5 + 0.75, 0))
+	var top := 6.6
+	_add(g, P.cyl(r * 0.78, r * 0.7, 0.18, 22), P.mat("3e4f48"), Vector3(0, top + 0.09, 0))
+	for i in 12:   # gallery railing
+		var a := TAU * i / 12.0
+		_add(g, P.cyl(0.03, 0.03, 0.5, 4), P.mat("3e4f48"), Vector3(cos(a) * r * 0.74, top + 0.43, sin(a) * r * 0.74))
+	var lamp := _add(g, P.cyl(r * 0.42, r * 0.42, 1.0, 16), P.unique_mat(Color("fff6c8"), Color("ffd866"), 0.2), Vector3(0, top + 0.68, 0))
+	lamp.name = "lamp"
+	_add(g, P.cone(r * 0.6, 0.9, 16), P.mat(b.get("roof", "c94a44")), Vector3(0, top + 1.63, 0))
+	_add(g, P.sphere(0.14, 8, 6), P.mat(P.GOLD), Vector3(0, top + 2.15, 0))
+	var pivot := Node3D.new(); pivot.name = "beam"; pivot.position.y = top + 0.7; pivot.visible = false; g.add_child(pivot)
+	var bm := P.glow_mat(Color(1.0, 0.95, 0.7), 0.28); bm.cull_mode = BaseMaterial3D.CULL_DISABLED
+	for side in [-1, 1]:
+		var beam := P.mi(P.cyl(0.35, 1.6, 14.0, 10), bm, Vector3(side * 7.2, 0, 0), false); beam.rotation.z = side * PI / 2; pivot.add_child(beam)
+	var li := OmniLight3D.new(); li.name = "light"; li.position.y = top + 0.7; li.omni_range = 16.0; li.light_color = Color("ffe9a8"); li.visible = false; g.add_child(li)
+	var di := Interiors.door_info(b)
+	var dp: Vector2 = di.out * (r * 0.93 + 0.02)
+	var door := _add(g, P.box(0.9, 1.7, 0.08) if di.out.y != 0.0 else P.box(0.08, 1.7, 0.9), P.wood("7a4a2a"), Vector3(dp.x, 1.45, dp.y))
+	door.name = "door"
+	return g
+
+## A stone clock tower with a face on each side; the hands turn once its drive is powered.
+static func clocktower(b: Dictionary) -> Node3D:
+	var g := Node3D.new()
+	var w: float = b.w - 0.4
+	_add(g, P.rbox(w + 0.3, 0.5, w + 0.3, 0.08), P.stone("bdb5a8"), Vector3(0, 0.25, 0))
+	_add(g, P.rbox(w, 4.6, w, 0.1), P.stone(b.get("wall", "d9cdb8")), Vector3(0, 2.8, 0))
+	_add(g, P.rbox(w * 0.86, 1.8, w * 0.86, 0.08), P.plaster("f4ecdf"), Vector3(0, 6.0, 0))
+	var roof := _add(g, P.cone(w * 0.72, 1.8, 4), P.mat(b.get("roof", "5f7fd8")), Vector3(0, 7.8, 0)); roof.rotation.y = PI / 4
+	_add(g, P.cyl(0.03, 0.03, 0.8, 4), P.mat("666666"), Vector3(0, 9.0, 0))
+	var hands := Node3D.new(); hands.name = "hands"; g.add_child(hands)
+	for k in 4:
+		var a := k * PI / 2.0
+		var face := Node3D.new(); face.position = Vector3(sin(a) * (w * 0.43 + 0.02), 6.0, cos(a) * (w * 0.43 + 0.02)); face.rotation.y = a; g.add_child(face)
+		var disc := _add(face, P.cyl(0.62, 0.62, 0.06, 24), P.mat("fffaf0"), Vector3.ZERO); disc.rotation.x = PI / 2
+		var rim := _add(face, P.torus(0.62, 0.05, 24), P.mat(P.GOLD), Vector3(0, 0, 0.02)); rim.rotation.x = PI / 2
+		for m in [["minute", 0.5, 0.05], ["hour", 0.34, 0.07]]:
+			var hp := Node3D.new(); hp.name = m[0]; hp.position.z = 0.05; face.add_child(hp)
+			_add(hp, P.box(m[2], m[1], 0.02), P.mat("3a2e2a"), Vector3(0, m[1] / 2.0, 0))
+			hp.set_meta("hand", m[0]); face.set_meta(m[0], hp)
+		face.add_to_group("clock_face_%s" % b.id)
+		g.set_meta("face%d" % k, face)
+	var di := Interiors.door_info(b)
+	var dp: Vector2 = di.out * (w / 2.0 + 0.02)
+	_add(g, P.box(1.0, 1.9, 0.08) if di.out.y != 0.0 else P.box(0.08, 1.9, 1.0), P.wood("7a4a2a"), Vector3(dp.x, 1.45, dp.y))
+	return g
+
+## Lighthouse lamp and beam, clock hands: alive while their machine is fed.
+static func animate_machine(o: Node3D, b: Dictionary, t: float, dt: float, on: bool, night: bool) -> void:
+	match b.kind:
+		"lighthouse":
+			var lamp: MeshInstance3D = o.get_node("lamp")
+			(lamp.material_override as StandardMaterial3D).emission_energy_multiplier = (2.6 + sin(t * 3.0) * 0.3) if on else 0.2
+			var beam: Node3D = o.get_node("beam")
+			beam.visible = on and night
+			beam.rotation.y = t * 0.7
+			(o.get_node("light") as OmniLight3D).visible = on and night
+		"clocktower":
+			if not on: return
+			for k in 4:
+				var face: Node3D = o.get_meta("face%d" % k)
+				(face.get_meta("minute") as Node3D).rotation.z = -t * 0.6
+				(face.get_meta("hour") as Node3D).rotation.z = -t * 0.05
 
 static func lamp_post() -> Node3D:
 	var g := Node3D.new()
@@ -553,6 +716,38 @@ static func oak() -> Node3D:
 	var ac := Node3D.new(); ac.name = "acorns"
 	for p in [[0.6, 0.5], [-0.5, 0.7], [0.3, -0.7]]: _add(ac, P.sphere(0.08, 6, 5), P.mat("9a6a3a"), Vector3(p[0], 0.05, p[1]))
 	g.add_child(ac)
+	return g
+
+## Furniture that isn't a build piece, for interiors.
+static func interior_prop(id: String) -> Node3D:
+	var g := Node3D.new()
+	match id:
+		"oven":
+			_add(g, P.rbox(0.9, 1.1, 0.8, 0.08), P.stone("c98a6a"), Vector3(0, 0.55, 0))
+			_add(g, P.cyl(0.32, 0.32, 0.06, 18), P.mat("2a1a14"), Vector3(0, 0.55, 0.38), Vector3(PI / 2, 0, 0))
+			_add(g, P.cyl(0.26, 0.26, 0.07, 18), P.unique_mat("ff9a40", "ff7a20", 1.4), Vector3(0, 0.52, 0.37), Vector3(PI / 2, 0, 0), Vector3(1, 1, 0.6))
+			_add(g, P.cyl(0.12, 0.14, 0.8, 10), P.stone("b07a5a"), Vector3(0.2, 1.4, -0.15))
+		"barrel":
+			_add(g, P.cyl(0.3, 0.32, 0.8, 16), P.wood("a0623a"), Vector3(0, 0.4, 0))
+			for y in [0.15, 0.65]: _add(g, P.torus(0.315, 0.02, 20), P.mat("4a4a5a"), Vector3(0, y, 0))
+		"crate":
+			_add(g, P.rbox(0.7, 0.6, 0.7, 0.03), P.wood("c49a6c"), Vector3(0, 0.3, 0))
+			for s in [-1, 1]: _add(g, P.box(0.04, 0.6, 0.72), P.wood("9a6a45"), Vector3(s * 0.33, 0.3, 0))
+		"throne":
+			_add(g, P.rbox(1.1, 0.5, 0.9, 0.06), P.wood("b5733f"), Vector3(0, 0.25, 0))
+			_add(g, P.rbox(1.0, 0.18, 0.8, 0.06), P.fabric("c0304a"), Vector3(0, 0.55, 0.02))
+			_add(g, P.rbox(1.1, 1.6, 0.18, 0.08), P.wood("b5733f"), Vector3(0, 1.2, -0.38))
+			_add(g, P.rbox(0.9, 1.2, 0.06, 0.05), P.fabric("c0304a"), Vector3(0, 1.15, -0.28))
+			for x in [-0.55, 0.55]: _add(g, P.sphere(0.09, 12, 8), P.mat(P.GOLD), Vector3(x, 2.05, -0.38))
+			_add(g, P.cone(0.16, 0.3, 5), P.mat(P.GOLD), Vector3(0, 2.15, -0.38))
+		"banner":
+			_add(g, P.box(0.06, 0.06, 1.0), P.mat(P.GOLD), Vector3(0, 3.1, 0))
+			_add(g, P.box(0.04, 1.8, 0.8), P.fabric("5f7fd8"), Vector3(0, 2.15, 0))
+			_add(g, P.sphere(0.12, 12, 8), P.mat(P.GOLD), Vector3(-0.04, 2.3, 0))
+		"pillar":
+			_add(g, P.cyl(0.25, 0.3, 4.0, 16), P.stone("eadfcd"), Vector3(0, 2.0, 0))
+			_add(g, P.rbox(0.75, 0.2, 0.75, 0.04), P.stone("d8d0c2"), Vector3(0, 0.1, 0))
+			_add(g, P.rbox(0.7, 0.2, 0.7, 0.04), P.stone("d8d0c2"), Vector3(0, 4.0, 0))
 	return g
 
 static func market_stall() -> Node3D:

@@ -2,14 +2,6 @@ class_name Story
 extends RefCounted
 ## Quests, conversations, rewards, friendship, Kingdom Harmony and the build-mode checklists.
 
-const HOME_NEEDS := [
-	{"any": ["woodWall", "windowWall"], "count": 3, "label": "Walls (3)"}, {"any": ["doorWall"], "label": "A door"},
-	{"any": ["roof"], "label": "A roof"}, {"any": ["bed"], "label": "A bed"}]
-const WORKSHOP_NEEDS := [
-	{"any": ["workbench"], "label": "A workbench"}, {"any": ["chair", "sofa", "bench"], "label": "Something to sit on"},
-	{"any": ["lamp", "poweredLamp", "streetlight"], "label": "A lamp"}, {"any": ["cabinet", "bookshelf"], "label": "A shelf or cabinet"},
-	{"recolored": true, "label": "Recolour a piece (T)"}]
-
 var game
 var engine: QuestEngine
 var busy := false
@@ -18,13 +10,13 @@ func _init(g) -> void:
 	game = g
 	engine = QuestEngine.new(game.state, {
 		"bridge": func(): return path_ok("bridge"), "dock": func(): return path_ok("dock"),
-		"workshop": func(): return Validate.room_checklist(Data.zone("workshop"), game.state.placements, WORKSHOP_NEEDS).all(func(r): return r.ok),
-		"home": func(): return Validate.room_checklist(Data.zone("plot"), game.state.placements, HOME_NEEDS).all(func(r): return r.ok),
-		"fountain": func(): return game.mech.fed.get("fountain", false), "lamp": func(): return not game.mech.lamps.is_empty()})
+		"fountain": func(): return game.mech.fed.get("fountain", false), "lamp": func(): return not game.mech.lamps.is_empty(),
+		# "fed:<machine>": water or power delivered to a machine target in the layout (a lighthouse's drive, a clock)
+		"*": func(name: String) -> bool: return name.begins_with("fed:") and game.mech.fed.get(name.substr(4), false)})
 	engine.gate = func(qid: String) -> bool: return Tutorial.allows_offer(game.state.get("tutorial", {}), qid)
 	game.game_event.connect(_on_event)
 
-func attach(state: Dictionary) -> void: engine.state = state
+func attach(state: Dictionary) -> void: engine.state = state; engine.invalidate()
 
 func _on_event(type: String, data: Dictionary) -> void:
 	if type == "gain": handle(engine.on_gain(data.items))
@@ -41,6 +33,7 @@ func event(name: String, n: int = 1) -> void: handle(engine.on_event(name, n))
 
 func handle(list: Array) -> void:
 	for x in list:
+		if x.has("objective"): _on_done(x.objective)
 		if x.has("ready"):
 			for o in x.quest.objectives:
 				if o.get("final", false): game.toast("📜 %s: %s" % [x.quest.title, o.text], "good", 4.0)
@@ -48,8 +41,20 @@ func handle(list: Array) -> void:
 		elif x.has("objective"): game.toast("✔ " + x.objective.text, "good", 3.0); game.sfx("objective")
 	game.hud.render_tracker()
 
+## Effects of finishing one step of a request (onDone in quests.json): flags, items, blueprints.
+func _on_done(o: Dictionary) -> void:
+	var eff: Dictionary = o.get("onDone", {})
+	if eff.is_empty(): return
+	for f in eff.get("flags", []): game.set_flag(f)
+	if eff.has("items"): game.give(_ints(eff.items))
+	if eff.has("blueprints"): unlock_blueprints(eff.blueprints)
+	if eff.has("flags"): game.build.rebuild_grid()
+
 func marker_for(npc: String) -> String:
 	if not engine.turn_ins_for(npc).is_empty(): return "ready"
+	for q in engine.active():   # a step of a request you took on waits at this villager (talk to them, or pay them)
+		var st := engine.next_step(q.id)
+		if not st.is_empty() and st.get("npc", "") == npc and not st.objective.get("final", false): return "ready"
 	if not engine.offers_for(npc).is_empty(): return "offer"
 	return ""
 
@@ -66,11 +71,18 @@ func talk(agent) -> void:
 	if not s.relationships.has(agent.def.id): s.relationships[agent.def.id] = {"hearts": 0, "talked_day": 0, "gifts": []}
 	var rel: Dictionary = s.relationships[agent.def.id]
 	if rel.talked_day != s.time.day: rel.talked_day = s.time.day; add_hearts(agent.def.id, 1)
+	# a request step that was "talk to me": they explain the next part
+	var talked := engine.on_talk(agent.def.id)
+	for x in talked:
+		if x.has("objective") and x.objective.get("npc", "") == agent.def.id and x.objective.has("lines"):
+			await ui.say(x.objective.lines.map(func(l): return Conversation.fill(l, s.name)))
+	handle(talked)
 	var conv := _conv(agent)
 	for q in conv.turn_ins: await complete_quest(q.id, agent)
 	conv = _conv(agent)
 	if not conv.main_offer.is_empty(): await offer(conv.main_offer.id, agent)
 	var greeted := false
+	var shop := false
 	while true:
 		conv = _conv(agent)
 		if not conv.turn_ins.is_empty():
@@ -86,15 +98,58 @@ func talk(agent) -> void:
 			"offer": await offer(choice.id, agent)
 			"progress": await ui.say(Conversation.quest_lines(choice.id, "progress", s.name) + progress_summary(choice.id))
 			"topic": await ui.say(Conversation.topic_lines(agent.def, choice.id, s.name))
+			"gift": await gift(agent)
+			"pay": await pay(choice.id, choice.obj, agent)
+			"shop":
+				await ui.say([{"text": Conversation.fill(Shop.def(agent.def.id).get("greet", "Have a look!"), s.name), "anim": "wave"}])
+				shop = true
+		if shop: break
 	await give_gifts(agent)
 	game.exit_dialogue()
 	busy = false
+	if shop: game.panels.shop(agent.def.id)
+
+## A "pay" step: hand over coins or items; the villager reacts with the objective's lines.
+func pay(qid: String, oid: String, agent) -> void:
+	var ui: DialogueUI = game.dialogue
+	var r := engine.pay(qid, oid)
+	if not r.ok:
+		var short: Array = r.missing.map(func(m): return "%d more %s" % [m.need, Data.resources[m.id].name.to_lower()])
+		await ui.say([{"text": "Ah, not quite enough yet. You'll need %s." % " and ".join(short), "mood": "sad"}])
+		return
+	game.render_resources()
+	game.sfx("unlock")
+	var o := {}
+	for x in Data.quest(qid).objectives:
+		if x.id == oid: o = x
+	if o.has("lines"): await ui.say(o.lines.map(func(l): return {"text": Conversation.fill(l, game.state.name), "mood": "happy"}))
+	handle(r.newly)
+
+## Pick something from your bag to give; treats and things they love count for more.
+func gift(agent) -> void:
+	var ui: DialogueUI = game.dialogue
+	var npc: Dictionary = agent.def
+	var opts: Array = Shop.gift_options(game.state, npc).map(func(id): return {"label": "%s %s (%d)" % [Data.resources[id].icon, Data.resources[id].name, int(game.state.inventory.get(id, 0))], "kind": "item", "id": id})
+	opts.append({"label": "Never mind", "kind": "no"})
+	ui.set_text("🎁 What would you like to give %s? (One gift a day. Treats and favourite things mean the most.)" % npc.name.split(" ")[0])
+	var c: Dictionary = await ui.choose(opts)
+	if c.kind != "item": return
+	var r := Shop.give_gift(game.state, npc, c.id)
+	if not r.ok: return
+	game.render_resources()
+	var lines: Array = Data.shops.get("giftLines", {}).get("loved" if r.loved else "nice", ["Thank you!"])
+	var thanks := {"text": Conversation.fill(String(lines[randi() % lines.size()]).replace("{item}", Data.resources[c.id].name), game.state.name), "mood": "happy"}
+	if r.loved: thanks["anim"] = "clap"
+	await ui.say([thanks])
+	add_hearts(npc.id, int(r.hearts))
+	game.sfx("objective")
+	game.emit_event("gift", {"npc": npc.id, "item": c.id})
 
 func progress_summary(qid: String) -> Array:
 	var left: Array = []
 	for o in Data.quest(qid).objectives:
 		var st := engine.objective(qid, o)
-		if o.get("final", false) or st.done: continue
+		if not engine.is_current(qid, o) or st.done: continue   # this step only; later ones are a surprise
 		left.append(("%s (%d/%d)" % [o.text, st.have, st.need]) if st.need > 1 and o.kind != "harmony" else o.text)
 	return [] if left.is_empty() else ["Still to do: %s." % "; ".join(left)]
 
@@ -221,30 +276,54 @@ func first_of_kind(id: String) -> void:
 	add_harmony(1)
 	game.toast("First %s! +1 💖 Harmony" % Data.piece(id).name, "", 2.0)
 
+## The build-mode checklist for a zone: the active request that builds here, its current step's items, and what
+## is still to do before its building step (materials first) if that hasn't come up yet.
 func build_goals(z: Dictionary) -> Dictionary:
 	if z.is_empty(): return {}
-	var active := func(q): return game.state.quests.get(q, {}).get("status", "") == "active"
-	match z.id:
-		"bridge":
-			if active.call("bridge"): return {"title": "Orchard Bridge", "hint": "Planks reach 2 tiles from a bank or post.", "items": [{"label": "Continuous walkable path from bank to bank", "ok": path_ok("bridge")}]}
-		"dock":
-			if active.call("dock"): return {"title": "Harbor Dock", "hint": "The old pilings hold planks up.", "items": [{"label": "Planks from the shore to the mooring post", "ok": path_ok("dock")}]}
-		"plot":
-			if active.call("home"): return {"title": "Your Home", "hint": "Walls stand on cell edges; the roof rests on top of them.", "items": Validate.room_checklist(z, game.state.placements, HOME_NEEDS).map(func(r): return {"label": r.label + ("" if r.ok or int(r.get("count", 1)) <= 1 else " (%d/%d)" % [r.have, int(r.count)]), "ok": r.ok})}
-		"workshop":
-			if active.call("workshop"): return {"title": "Bram's Workshop", "items": Validate.room_checklist(z, game.state.placements, WORKSHOP_NEEDS).map(func(r): return {"label": r.label, "ok": r.ok})}
-		"plaza":
-			if active.call("fountain"):
+	for q in engine.active().filter(func(x): return engine.here(x.id)):
+		var cur := engine.current_stage(q.id)
+		var here: Array = q.objectives.filter(func(o): return o.get("zone", "") == z.id and not o.get("final", false))
+		if here.is_empty(): continue
+		var items: Array = []
+		var hint := ""
+		# materials and other steps that come before building here
+		var first_build := 1 << 30
+		for o in here: first_build = mini(first_build, QuestEngine.stage_of(o))
+		if cur < first_build:
+			# not this step yet: what to do first, then one line for the building to come
+			for o in q.objectives:
+				if engine.is_current(q.id, o) and not engine.objective(q.id, o).done:
+					var st := engine.objective(q.id, o)
+					items.append({"label": o.text + (" (%d/%d)" % [st.have, st.need] if st.need > 1 else ""), "ok": false})
+			items.append({"label": "Then: " + String(here[0].text), "ok": false, "later": true})
+			return {"title": q.title, "hint": "First:", "items": items}
+		for o in here:
+			if QuestEngine.stage_of(o) > cur: continue
+			if o.has("buildHint") and hint == "": hint = o.buildHint
+			items.append_array(_zone_items(q.id, o))
+		return {"title": q.title, "hint": hint, "items": items} if hint != "" else {"title": q.title, "items": items}
+	return {}
+
+func _zone_items(qid: String, o: Dictionary) -> Array:
+	var st := engine.objective(qid, o)
+	match o.kind:
+		"room":
+			return Validate.room_checklist(Data.zone(o.zone), game.state.placements, o.needs).map(func(r): return {"label": r.label + ("" if r.ok or int(r.get("count", 1)) <= 1 else " (%d/%d)" % [r.have, int(r.count)]), "ok": r.ok or st.done})
+		"pieces": return [{"label": o.text + ("" if st.done else " (%d/%d)" % [st.have, st.need]), "ok": st.done}]
+		"build":
+			if o.check == "fountain":
 				var m: Dictionary = game.mech
 				var wheel: bool = game.state.placements.any(func(p): return p.id == "waterwheel" and m.sources.has(p.uid))
-				return {"title": "Garden Fountain", "hint": "Fountain inlet: east side, by the plaza edge.", "items": [{"label": "Waterwheel turning in the channel", "ok": wheel}, {"label": "Pump next to water, powered", "ok": not m.pumps.is_empty()}, {"label": "Water reaches the fountain inlet", "ok": m.fed.get("fountain", false)}]}
-	return {}
+				return [{"label": "Waterwheel turning in the channel", "ok": wheel}, {"label": "Pump next to water, powered", "ok": not m.pumps.is_empty()}, {"label": "Water reaches the fountain inlet", "ok": m.fed.get("fountain", false)}]
+			return [{"label": o.get("goal", o.text), "ok": st.done}]
+	return [{"label": o.text, "ok": st.done}]
 
 func tracked_target() -> Dictionary:
 	var s: Dictionary = game.state
 	if not engine.tracked_valid(): engine.retrack()
 	var t: String = s.tracked
 	if t == "": return {}
+	if not engine.here(t.trim_prefix("lead:")): return {}   # a request on another island: no compass here
 	if t.begins_with("lead:"):
 		var q := Data.quest(t.trim_prefix("lead:"))
 		var a = game.npcs.get(q.giver)

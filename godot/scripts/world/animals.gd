@@ -9,6 +9,7 @@ var chickens: Array = []
 
 func setup(g) -> void:
 	game = g
+	if Data.island != "hearthglow": return   # Hearthglow's ducks, chickens and butterflies live along its river and meadows
 	var spots := [[-20, -2], [18, -12], [-9, 25], [22, 21], [3, -38], [4, 6], [-6, 4], [12, 18]]
 	var cols := ["ffd84a", "ff9ec7", "9fd8ff", "c9a8ff"]
 	for n in spots.size():

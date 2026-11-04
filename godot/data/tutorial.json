@@ -1,5 +1,5 @@
 {
-  "_comment": "Godot-only content: the guided first day (steps shown one at a time by Odessa's guide card) and one-time tip cards. {action} is replaced by the player's current key for that action; {move} by the four movement keys. done: moved | looked | flag:X | panel:X | buildmode | accepted:Q | ready:Q | quest:Q | objective:Q:index. reveal: HUD parts that appear from this step on.",
+  "_comment": "Godot-only content: the guided first day (steps shown one at a time by Odessa's guide card) and one-time tip cards. {action} is replaced by the player's current key for that action; {move} by the four movement keys. done: moved | looked | flag:X | panel:X | buildmode | accepted:Q | ready:Q | quest:Q | objective:Q:index | stage:Q:N (request Q has reached its Nth stage, counting from 0). reveal: HUD parts that appear from this step on.",
   "offers": ["tool", "bridge"],
   "steps": [
     {"id": "walk", "text": "Walk with {move}. Odessa is waving at the village gate. Go and say hello!", "done": "moved", "target": "npc:odessa"},
@@ -11,8 +11,10 @@
     {"id": "return", "text": "Go back to Odessa and press {interact} to show her.", "done": "quest:tool", "target": "npc:odessa", "reveal": ["harmony", "key:progress"]},
     {"id": "journal", "text": "Press {journal} to open your journal. Every request you take on is kept there.", "done": "panel:journal", "reveal": ["key:journal"]},
     {"id": "fern", "text": "Fern wants a bridge to the orchard. Find her by the river and press {interact}.", "done": "accepted:bridge", "target": "npc:fern"},
-    {"id": "build", "text": "Walk to the river and press {build} to use the Starforge Tool.", "done": "buildmode", "target": "zone:bridge", "reveal": ["key:build"]},
-    {"id": "bridge", "text": "Lay planks from bank to bank. A plank must be within 2 tiles of a bank or a post.", "done": "ready:bridge", "target": "zone:bridge"},
+    {"id": "gather", "text": "Fern needs 10 more wood and 8 Spark Energy for the bridge. Chop ribbon trees and catch fragments; the request card in the corner counts for you.", "done": "stage:bridge:1"},
+    {"id": "build", "text": "You have the materials! Walk to the river and press {build} to use the Starforge Tool.", "done": "buildmode", "target": "zone:bridge", "reveal": ["key:build"]},
+    {"id": "bridge", "text": "Lay planks from bank to bank. A plank must be within 2 tiles of a bank or a post.", "done": "stage:bridge:2", "target": "zone:bridge"},
+    {"id": "rails", "text": "Fern asked for railings: place 4 along the sides of the bridge. A railing sits on a tile's edge; {rotate} turns it.", "done": "ready:bridge", "target": "zone:bridge"},
     {"id": "finish", "text": "Tell Fern her bridge is ready!", "done": "quest:bridge", "target": "npc:fern", "reveal": ["key:map"]}
   ],
   "tips": {

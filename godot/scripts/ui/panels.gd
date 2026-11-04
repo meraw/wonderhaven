@@ -130,6 +130,76 @@ func inventory() -> void:
 		if game.state.relationships.has(n.id):
 			body.add_child(UiTheme.label("%s — %s   %s" % [n.name, n.title, "♥".repeat(int(game.state.relationships[n.id].get("hearts", 0)))], 15))
 
+## A villager's shop: buy bundles and blueprints with coins, or sell them what they want.
+func shop(npc_id: String, tab: String = "buy") -> void:
+	var d := Shop.def(npc_id)
+	if d.is_empty(): return
+	open_panel("shop", "🛍 " + String(d.name))
+	var s: Dictionary = game.state
+	var top := HBoxContainer.new(); top.add_theme_constant_override("separation", 10); body.add_child(top)
+	for pair in [["buy", "Buy"], ["sell", "Sell"]]:
+		var t: String = pair[0]
+		var b := UiTheme.button(pair[1], func(): shop(npc_id, t), tab == t); b.name = "tab_" + t; top.add_child(b)
+	var sp := Control.new(); sp.size_flags_horizontal = Control.SIZE_EXPAND_FILL; top.add_child(sp)
+	var purse := UiTheme.panel(Color("fff7cf"), UiTheme.GOLD, 999); purse.name = "purse"
+	purse.add_child(UiTheme.label("%s %d coins" % [Data.resources.coins.icon, Shop.coins(s)], 17)); top.add_child(purse)
+	if tab == "buy":
+		for e in Shop.stock(s, npc_id):
+			var row := _shop_row(e.icon, e.label, "" if e.owned else "%d %s" % [e.price, Data.resources.coins.icon])
+			var i: int = e.i
+			var b := UiTheme.button("Owned" if e.owned else "Buy", func(): _shop_buy(npc_id, i), not e.owned and e.afford)
+			b.name = "buy_%d" % i; b.disabled = e.owned or not e.afford; b.custom_minimum_size.x = 96
+			if not e.owned and not e.afford: b.tooltip_text = "You need %d more coins" % (e.price - Shop.coins(s))
+			row.add_child(b)
+	else:
+		var list := Shop.sellable(s, npc_id)
+		var wants: Array = d.get("buys", {}).keys().map(func(id): return "%s %s (%d each)" % [Data.resources[id].icon, Data.resources[id].name, Shop.sell_price(npc_id, id)])
+		body.add_child(_wrap("%s buys: %s." % [Data.npc(npc_id).name, ", ".join(wants)]))
+		if list.is_empty(): body.add_child(_wrap("You don't have anything they want right now.", 15, UiTheme.INK))
+		for e in list:
+			var r: Dictionary = Data.resources[e.id]
+			var row := _shop_row(r.icon, "%s × %d" % [r.name, e.have], "%d %s each" % [e.price, Data.resources.coins.icon])
+			var choices: Array = [[1, "Sell 1", "1"]]
+			if e.have > 5: choices.append([5, "Sell 5", "5"])
+			if e.have > 1: choices.append([e.have, "Sell all", "all"])
+			for c in choices:
+				var item: String = e.id; var count: int = c[0]
+				var b := UiTheme.button(c[1], func(): _shop_sell(npc_id, item, count))
+				b.name = "sell_%s_%s" % [e.id, c[2]]
+				row.add_child(b)
+
+func _shop_row(icon: String, text: String, price: String) -> HBoxContainer:
+	var p := UiTheme.panel(Color.WHITE, Color("f3dfc0"), 16)
+	var row := HBoxContainer.new(); row.add_theme_constant_override("separation", 12); p.add_child(row); body.add_child(p)
+	row.add_child(UiTheme.label(icon, 24))
+	var l := UiTheme.label(text, 17); l.size_flags_horizontal = Control.SIZE_EXPAND_FILL; row.add_child(l)
+	if price != "": row.add_child(UiTheme.label(price, 16, UiTheme.INK2))
+	return row
+
+func _shop_buy(npc_id: String, i: int) -> void:
+	var r := Shop.buy(game.state, npc_id, i)
+	if not r.ok:
+		game.toast("You need %d more coins." % int(r.get("need", 0)) if r.reason == "coins" else "You can't buy that.", "warn"); return
+	game.sfx("unlock")
+	if r.has("items"): game.render_resources(r.items.keys()); game.emit_event("gain", {"items": r.items})
+	if r.has("blueprint"): game.story.unlock_blueprints([r.blueprint])
+	if r.has("clothes"): game.story.unlock_clothes([r.clothes])
+	if r.has("items"): game.toast("Bought %s" % ", ".join(r.items.keys().map(func(k): return "%d %s %s" % [r.items[k], Data.resources[k].icon, Data.resources[k].name])), "good", 2.0)
+	game.render_resources(["coins"])
+	game.emit_event("shop", {"npc": npc_id, "buy": true})
+	game.autosave("shop")
+	shop(npc_id, "buy")
+
+func _shop_sell(npc_id: String, item: String, n: int) -> void:
+	var r := Shop.sell(game.state, npc_id, item, n)
+	if not r.ok: return
+	game.sfx("pick")
+	game.toast("Sold %d %s for %d %s" % [r.n, Data.resources[item].name, r.coins, Data.resources.coins.icon], "good", 2.0)
+	game.render_resources(["coins"])
+	game.emit_event("shop", {"npc": npc_id, "sell": true, "coins": r.coins})
+	game.autosave("shop")
+	shop(npc_id, "sell")
+
 func journal(tab: String = "active") -> void:
 	open_panel("journal", "📜 Quest Journal")
 	var e: QuestEngine = game.story.engine
@@ -159,13 +229,15 @@ func journal(tab: String = "active") -> void:
 		v.add_child(UiTheme.label(q.title, 18))
 		v.add_child(_wrap(q.description))
 		if tab == "active":
-			var ready := e.is_ready(q.id)
-			for o in q.objectives:
-				if o.get("final", false) and not ready: continue
+			var shown := e.shown_objectives(q.id)
+			var n_st := e.stages(q.id).size()
+			if n_st > 1: v.add_child(UiTheme.label("Step %d of %d" % [e.stage_index(q.id), n_st], 13, Color("b34a6a")))
+			for o in shown.objectives:
 				var st := e.objective(q.id, o)
 				var txt: String = ("✔ " if st.done else "○ ") + o.text
 				if not st.done and st.need > 1: txt += " (%d/%d)" % [int(game.state.harmony) if o.kind == "harmony" else st.have, st.need]
 				v.add_child(UiTheme.label(txt, 14, Color("59a86f") if st.done else UiTheme.INK))
+			if shown.later > 0: v.add_child(UiTheme.label("🔒 More to do once this step is done", 13, UiTheme.INK2))
 			var qid: String = q.id
 			v.add_child(UiTheme.button("📍 Tracking" if game.state.tracked == qid else "📍 Track", func(): game.state.tracked = qid; game.hud.render_tracker(); close(); game.toast("Tracking “%s”" % q.title), game.state.tracked == qid))
 		if tab == "optional": v.add_child(UiTheme.label("Talk to %s to start." % Data.npc(q.giver).name, 13, Color("b34a6a")))
@@ -207,21 +279,24 @@ func map(from_boat: bool = false) -> void:
 	var info := _wrap("Where shall we sail? Pick an island." if from_boat else "Click an island to learn about it.", 15, UiTheme.INK)
 	var canvas := MapView.new(); canvas.game = game; canvas.custom_minimum_size = Vector2(800, 430); canvas.name = "map_view"
 	canvas.picked.connect(func(isl: Dictionary):
-		var revealed: bool = isl.get("built", false) or game.state.flags.get(isl.get("reveal", "-"), false)
+		var revealed: bool = (isl.get("built", false) and not isl.has("reveal")) or game.state.flags.get(isl.get("reveal", "-"), false)
 		info.text = ("%s — %s" % [isl.name, isl.desc]) if revealed else "An unexplored island. Rumours say: " + isl.desc
 		for c in body.get_children():
 			if c.name == "sail": c.queue_free()
-		if isl.id == "hearthglow": info.text += "  (You are here.)"
+		if isl.id == Data.island: info.text += "  (You are here.)"
 		elif not revealed: info.text += "  Open Hearthglow's harbor and repair the dock to start sailing." if not game.state.flags.get("boatReady", false) else "  The Captain hasn't charted a route here yet."
 		elif from_boat or game.state.flags.get("boatReady", false):
 			var b := UiTheme.button("⛵ Sail to " + isl.name, func(): game.sail_to(isl), true); b.name = "sail"; body.add_child(b)
+			# with a tip card above the map the button can fall below the fold: bring it into view once laid out
+			var sc := body.get_parent() as ScrollContainer
+			if sc: get_tree().create_timer(0.1).timeout.connect(func(): if is_instance_valid(b) and is_instance_valid(sc): sc.ensure_control_visible(b))
 		game.sfx("select"))
 	body.add_child(canvas); body.add_child(info)
 
 func pause() -> void:
 	open_panel("pause", "🌟 Paused")
 	var v := VBoxContainer.new(); v.custom_minimum_size.x = 300; v.size_flags_horizontal = Control.SIZE_SHRINK_CENTER; v.add_theme_constant_override("separation", 10); body.add_child(v)
-	for pair in [["▶ Resume", close, true], ["💾 Save game", func(): saves("save"), false], ["📂 Load game", func(): saves("load"), false], ["👗 Wardrobe", func(): close(); game.open_wardrobe(), false], ["⚙️ Settings & controls", settings, false], ["🏠 Quit to title", func(): close(); game.to_title(), false]]:
+	for pair in [["▶ Resume", close, true], ["💾 Save game", func(): saves("save"), false], ["📂 Load game", func(): saves("load"), false], ["👗 Wardrobe", func(): close(); game.open_wardrobe(), false], ["⚙️ Settings & controls", settings, false], ["🆘 I'm stuck", func(): close(); game.unstick(), false], ["🏠 Quit to title", func(): close(); game.to_title(), false]]:
 		var b := UiTheme.button(pair[0], pair[1], pair[2]); b.name = "btn_" + str(pair[0]).substr(2).to_lower().replace(" ", "_"); v.add_child(b)
 
 func saves(mode: String) -> void:
@@ -292,7 +367,7 @@ class MapView extends Control:
 				if k % 2 == 1: continue
 				draw_line(a.lerp(b, float(k) / steps), a.lerp(b, float(k + 1) / steps), Color(1, 1, 1, 0.95 if revealed else 0.4), 4)
 		for isl in Data.islands:
-			var revealed: bool = isl.get("built", false) or game.state.flags.get(isl.get("reveal", "-"), false)
+			var revealed: bool = (isl.get("built", false) and not isl.has("reveal")) or game.state.flags.get(isl.get("reveal", "-"), false)
 			var c := Vector2(isl.x, isl.y) * s
 			var r: float = isl.r * s.x
 			draw_circle(c + Vector2(0, 8), r + 12, Color("f0dfae"))
@@ -300,12 +375,14 @@ class MapView extends Control:
 			for k in 5: draw_circle(c + Vector2(cos(k * 1.3) * r * 0.5, sin(k * 1.7) * r * 0.35), 7, Color("4fae63") if revealed else Color("9aa5a9"))
 			var font := UiTheme.main_font()
 			var name: String = isl.name if revealed else "???"
-			draw_string_outline(font, c + Vector2(-r, r + 30), name, HORIZONTAL_ALIGNMENT_CENTER, r * 2, 18, 6, Color.WHITE)
-			draw_string(font, c + Vector2(-r, r + 30), name, HORIZONTAL_ALIGNMENT_CENTER, r * 2, 18, UiTheme.INK)
+			var lw := maxf(r * 2.0, 220.0)   # wide enough for the whole name
+			draw_string_outline(font, c + Vector2(-lw / 2.0, r + 30), name, HORIZONTAL_ALIGNMENT_CENTER, lw, 18, 6, Color.WHITE)
+			draw_string(font, c + Vector2(-lw / 2.0, r + 30), name, HORIZONTAL_ALIGNMENT_CENTER, lw, 18, UiTheme.INK)
 			if not revealed: draw_string(font, c + Vector2(-16, 10), "🔒", HORIZONTAL_ALIGNMENT_LEFT, -1, 30)
-			if isl.id == "hearthglow":
+			if isl.id == Data.island:   # you are here, with how many requests are open on this island
 				draw_string(font, c + Vector2(-r * 0.7, -r * 0.4), "📍", HORIZONTAL_ALIGNMENT_LEFT, -1, 24)
-				var n: int = game.story.engine.active().size() + Data.quests.filter(func(q): return game.story.engine.can_offer(q.id)).size()
+				var e: QuestEngine = game.story.engine
+				var n: int = e.active().filter(func(q): return e.here(q.id)).size() + Data.quests.filter(func(q): return e.can_offer(q.id) and e.here(q.id)).size()
 				if n > 0: draw_string(font, c + Vector2(r * 0.5, -r * 0.5), "❗%d" % n, HORIZONTAL_ALIGNMENT_LEFT, -1, 22, UiTheme.PINK_DARK)
 	func _gui_input(ev: InputEvent) -> void:
 		if ev is InputEventMouseButton and ev.pressed and ev.button_index == MOUSE_BUTTON_LEFT:

@@ -11,7 +11,8 @@ func test_tutorial_data_is_valid():
 		if tg.begins_with("npc:"): t.ok(not Data.npc(tg.trim_prefix("npc:")).is_empty(), "%s targets a real villager" % st.id)
 		if tg.begins_with("zone:"): t.ok(not Data.zone(tg.trim_prefix("zone:")).is_empty(), "%s targets a real zone" % st.id)
 		var d: PackedStringArray = String(st.done).split(":")
-		if d[0] in ["accepted", "quest", "ready", "objective"]: t.ok(not Data.quest(d[1]).is_empty(), "%s waits on a real quest" % st.id)
+		if d[0] in ["accepted", "quest", "ready", "objective", "stage"]: t.ok(not Data.quest(d[1]).is_empty(), "%s waits on a real quest" % st.id)
+		if d[0] == "stage": t.ok(int(d[2]) < QuestEngine.new(GameState.new_game()).stages(d[1]).size(), "%s waits on a real step" % st.id)
 		if d[0] == "objective": t.ok(int(d[2]) < Data.quest(d[1]).objectives.size(), "%s waits on a real objective" % st.id)
 		if d[0] == "panel": t.ok(d[1] in ["inventory", "journal", "map", "progress"], "%s waits on a real panel" % st.id)
 	for q in Data.tutorial.offers: t.ok(Data.quest(q).get("main", false), "guided offers are main quests (%s)" % q)
@@ -74,3 +75,11 @@ func test_old_saves_skip_the_guided_day():
 	fresh.tutorial.step = 3; fresh.tutorial.panels = ["inventory"]
 	var back := SaveSystem.deserialize(JSON.stringify(fresh))
 	t.ok(back.tutorial.on and back.tutorial.step == 3 and back.tutorial.panels == ["inventory"], "tutorial progress survives saving")
+
+func test_stage_steps():
+	var step := {"done": "stage:bridge:1"}
+	var facts := {"quests": {"bridge": {"status": "active"}}, "stage": func(q): return 0}
+	t.ok(not Tutorial.is_done(step, facts), "still gathering for the bridge")
+	facts.stage = func(q): return 1
+	t.ok(Tutorial.is_done(step, facts), "materials gathered")
+	t.ok(Tutorial.is_done(step, {"quests": {"bridge": {"status": "done"}}}), "a finished request counts as past every step")

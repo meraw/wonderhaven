@@ -21,7 +21,7 @@ func _init(g) -> void:
 	game = g
 	for n in Data.layout.nodes: _register_node(n)
 	for f in Data.layout.features: _register_feature(f)
-	_build_gardens(); _build_squirrels()
+	if Data.island == "hearthglow": _build_gardens(); _build_squirrels()   # Fern's beds and the bakery squirrels
 	game.game_event.connect(func(type: String, data: Dictionary): if type == "flag" and data.get("flag", "") == "hasTool": refresh_all())
 	bobber = P.mi(P.sphere(0.09, 10, 8), P.mat("ff5a5f")); bobber.visible = false; game.add_child(bobber)
 	line = MeshInstance3D.new(); line.material_override = P.glow_mat(Color.WHITE); line.visible = false; game.add_child(line)
@@ -115,7 +115,7 @@ func dig(n: Dictionary) -> void:
 	var p := _src(n, 0.3)
 	game.player_char.play("dig"); game.sfx("dig")
 	var digs: Array = Data.layout.nodes.filter(func(x): return x.kind == "dig")
-	var loot: Dictionary = [{"crystal": 1, "spark": 6}, {"fabric": 2, "spark": 6}, {"metal": 2, "spark": 6}, {"crystal": 1, "fabric": 1, "spark": 6}, {"metal": 1, "crystal": 1, "spark": 6}][digs.find(n) % 5]
+	var loot: Dictionary = [{"crystal": 1, "spark": 6, "coins": 8}, {"fabric": 2, "spark": 6, "coins": 5}, {"metal": 2, "spark": 6, "coins": 5}, {"crystal": 1, "fabric": 1, "spark": 6, "coins": 8}, {"metal": 1, "crystal": 1, "spark": 6, "coins": 10}][digs.find(n) % 5]
 	game.give(loot, p); game.effects.sparkle(p, 22)
 	state().stats.dug += 1; state().stats.treasures += 1
 	deplete(n); game.sfx("chest")

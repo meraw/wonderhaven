@@ -34,21 +34,30 @@ static func deserialize(text: String) -> Dictionary:
 		s.tutorial = t
 	else:
 		s.tutorial = Tutorial.new_state(false, true)
-	var pls: Array = []
-	var max_uid := 0
-	for p in (raw.get("placements", []) if raw.get("placements") is Array else []):
-		if not p is Dictionary or Data.piece(str(p.get("id", ""))).is_empty(): continue
-		var pl := {"uid": int(p.get("uid", 0)), "id": str(p.id), "i": float(p.get("i", 0)), "k": float(p.get("k", 0)), "r": posmod(int(p.get("r", 0)), 4), "y": float(p.get("y", 0))}
-		if p.has("color"): pl["color"] = str(p.color)
-		if p.get("state") is Dictionary: pl["state"] = p.state
-		pls.append(pl); max_uid = maxi(max_uid, pl.uid)
-	s.placements = pls
-	s.next_uid = maxi(int(raw.get("next_uid", 1)), max_uid + 1)
+	s.placements = _placements(raw.get("placements", []))
+	# what you built on the other islands (see Travel)
+	var away := {}
+	if raw.get("away") is Dictionary:
+		for isl in raw.away:
+			if raw.away[isl] is Dictionary: away[str(isl)] = {"placements": _placements(raw.away[isl].get("placements", []))}
+	s.away = away
+	if not Data.has_island(str(s.get("island", "hearthglow"))): s.island = "hearthglow"
+	s.next_uid = maxi(int(raw.get("next_uid", 1)), Travel.max_uid(s) + 1)
 	s.harmony = int(s.harmony)
 	for k in s.inventory: s.inventory[k] = int(s.inventory[k])
 	s.time = {"day": int(s.time.get("day", 1)), "minute": float(s.time.get("minute", 480)), "total": float(s.time.get("total", 0))}
 	s.version = GameState.SAVE_VERSION
 	return s
+
+static func _placements(list) -> Array:
+	var pls: Array = []
+	for p in (list if list is Array else []):
+		if not p is Dictionary or Data.piece(str(p.get("id", ""))).is_empty(): continue
+		var pl := {"uid": int(p.get("uid", 0)), "id": str(p.id), "i": float(p.get("i", 0)), "k": float(p.get("k", 0)), "r": posmod(int(p.get("r", 0)), 4), "y": float(p.get("y", 0))}
+		if p.has("color"): pl["color"] = str(p.color)
+		if p.get("state") is Dictionary: pl["state"] = p.state
+		pls.append(pl)
+	return pls
 
 static func write(slot: String, state: Dictionary) -> bool:
 	var f := FileAccess.open(path(slot), FileAccess.WRITE)

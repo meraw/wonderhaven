@@ -4,6 +4,11 @@
   "z": 5,
   "yaw": 1.5707963267948966
  },
+ "arrive": {
+  "x": 5,
+  "z": 38.5,
+  "yaw": 3.141592653589793
+ },
  "square": {
   "x": 0,
   "z": 2,
@@ -47,7 +52,88 @@
    "wall": "#ffe4ec",
    "roof": "#e98aa8",
    "door": "S",
-   "awning": "#ff9fb8"
+   "awning": "#ff9fb8",
+   "navDoor": "bakeryDoor",
+   "interior": {
+    "shell": "house",
+    "items": [
+     [
+      "counter",
+      -1.0,
+      -0.4,
+      0,
+      "#e9b07a"
+     ],
+     [
+      "oven",
+      -2.05,
+      -1.7,
+      0
+     ],
+     [
+      "bookshelf",
+      0.95,
+      -1.75,
+      0,
+      "#d9a066"
+     ],
+     [
+      "bookshelf",
+      1.95,
+      -1.75,
+      0,
+      "#d9a066"
+     ],
+     [
+      "table",
+      1.65,
+      1.0,
+      0,
+      "#fff3d6"
+     ],
+     [
+      "chair",
+      0.85,
+      1.0,
+      1,
+      "#ff9fb8"
+     ],
+     [
+      "chair",
+      2.45,
+      1.0,
+      3,
+      "#ff9fb8"
+     ],
+     [
+      "rug",
+      -1.0,
+      1.25,
+      0,
+      "#ff9fb8"
+     ],
+     [
+      "lamp",
+      -2.25,
+      1.75,
+      0
+     ]
+    ],
+    "route": [
+     [
+      0.0,
+      1.7
+     ],
+     [
+      0.35,
+      -1.1
+     ],
+     [
+      -0.8,
+      -1.45
+     ]
+    ]
+   }
   },
   {
    "id": "fernHouse",
@@ -59,7 +145,75 @@
    "d": 5,
    "wall": "#e9f5d8",
    "roof": "#6fae5c",
-   "door": "S"
+   "door": "S",
+   "navDoor": "fernDoor",
+   "interior": {
+    "shell": "house",
+    "items": [
+     [
+      "bed",
+      -1.7,
+      -1.1,
+      0,
+      "#9fdc7a"
+     ],
+     [
+      "table",
+      1.2,
+      -0.8,
+      0
+     ],
+     [
+      "chair",
+      0.45,
+      -0.8,
+      1,
+      "#7bd389"
+     ],
+     [
+      "chair",
+      1.95,
+      -0.8,
+      3,
+      "#7bd389"
+     ],
+     [
+      "bookshelf",
+      -0.4,
+      -1.8,
+      0
+     ],
+     [
+      "rug",
+      0.0,
+      0.9,
+      0,
+      "#7bd389"
+     ],
+     [
+      "flowerBed",
+      -1.75,
+      1.6,
+      0
+     ],
+     [
+      "flowerBed",
+      1.75,
+      1.6,
+      0
+     ]
+    ],
+    "route": [
+     [
+      0.0,
+      1.6
+     ],
+     [
+      0.1,
+      0.2
+     ]
+    ]
+   }
   },
   {
    "id": "odessaHouse",
@@ -71,7 +225,74 @@
    "d": 5,
    "wall": "#efe3ff",
    "roof": "#8f78d6",
-   "door": "N"
+   "door": "N",
+   "navDoor": "odessaDoor",
+   "interior": {
+    "shell": "house",
+    "items": [
+     [
+      "bookshelf",
+      -2.2,
+      1.75,
+      0
+     ],
+     [
+      "bookshelf",
+      -1.2,
+      1.75,
+      0
+     ],
+     [
+      "bookshelf",
+      -0.2,
+      1.75,
+      0
+     ],
+     [
+      "bed",
+      2.2,
+      0.9,
+      0,
+      "#b59cff"
+     ],
+     [
+      "desk",
+      -1.6,
+      -0.5,
+      0
+     ],
+     [
+      "chair",
+      -1.6,
+      0.4,
+      2,
+      "#b59cff"
+     ],
+     [
+      "rug",
+      0.6,
+      -0.2,
+      0,
+      "#b59cff"
+     ],
+     [
+      "lamp",
+      2.2,
+      -1.6,
+      0
+     ]
+    ],
+    "route": [
+     [
+      0.0,
+      -1.6
+     ],
+     [
+      0.5,
+      0.65
+     ]
+    ]
+   }
   },
   {
    "id": "playerHouse",
@@ -84,7 +305,90 @@
    "d": 6,
    "wall": "#fff3d6",
    "roof": "#5f9be0",
-   "door": "S"
+   "door": "S",
+   "navDoor": "cottageDoor",
+   "interior": {
+    "shell": "house",
+    "items": [
+     [
+      "counter",
+      -1.6,
+      -1.6,
+      0,
+      "#5f9be0"
+     ],
+     [
+      "bed",
+      2.2,
+      -1.5,
+      0,
+      "#ffb3c7"
+     ],
+     [
+      "table",
+      1.6,
+      1.2,
+      0
+     ],
+     [
+      "chair",
+      0.8,
+      1.2,
+      1,
+      "#5f9be0"
+     ],
+     [
+      "chair",
+      2.4,
+      1.2,
+      3,
+      "#5f9be0"
+     ],
+     [
+      "table",
+      -1.6,
+      1.2,
+      0
+     ],
+     [
+      "chair",
+      -2.4,
+      1.2,
+      1,
+      "#5f9be0"
+     ],
+     [
+      "chair",
+      -0.8,
+      1.2,
+      3,
+      "#5f9be0"
+     ],
+     [
+      "rug",
+      0.0,
+      -0.3,
+      0,
+      "#ffd166"
+     ],
+     [
+      "lamp",
+      0.4,
+      -2.2,
+      0
+     ]
+    ],
+    "route": [
+     [
+      0.0,
+      2.2
+     ],
+     [
+      0.0,
+      0.6
+     ]
+    ]
+   }
   },
   {
    "id": "caravan",
@@ -101,14 +405,49 @@
   {
    "id": "percivalHouse",
    "kind": "cottage",
-   "name": "Gatehouse",
+   "name": "Old Gatehouse",
    "x": -20,
    "z": -10,
    "w": 5,
    "d": 4,
    "wall": "#f5ead2",
    "roof": "#c25b6a",
-   "door": "E"
+   "door": "E",
+   "navDoor": "gatehouse",
+   "interior": {
+    "shell": "house",
+    "empty": true,
+    "items": [
+     [
+      "crate",
+      -1.6,
+      -1.15,
+      0
+     ],
+     [
+      "crate",
+      -1.6,
+      -0.3,
+      1
+     ],
+     [
+      "barrel",
+      -1.75,
+      1.15,
+      0
+     ]
+    ],
+    "route": [
+     [
+      1.4,
+      0.0
+     ],
+     [
+      0.0,
+      0.2
+     ]
+    ]
+   }
   },
   {
    "id": "captainHut",
@@ -120,7 +459,60 @@
    "d": 4,
    "wall": "#d6eef7",
    "roof": "#3f7fb5",
-   "door": "W"
+   "door": "W",
+   "navDoor": "harborHut",
+   "interior": {
+    "shell": "house",
+    "items": [
+     [
+      "bed",
+      0.9,
+      -0.8,
+      0,
+      "#5f9be0"
+     ],
+     [
+      "table",
+      1.0,
+      1.0,
+      0
+     ],
+     [
+      "chair",
+      0.2,
+      1.0,
+      1
+     ],
+     [
+      "barrel",
+      -1.2,
+      1.3,
+      0
+     ],
+     [
+      "barrel",
+      -1.2,
+      -1.3,
+      0
+     ],
+     [
+      "lamp",
+      1.25,
+      0.25,
+      0
+     ]
+    ],
+    "route": [
+     [
+      -1.0,
+      0.0
+     ],
+     [
+      -0.1,
+      0.05
+     ]
+    ]
+   }
   },
   {
    "id": "castle",
@@ -132,7 +524,98 @@
    "d": 9,
    "wall": "#f4ecdf",
    "roof": "#5f7fd8",
-   "door": "W"
+   "door": "W",
+   "navDoor": "castleSteps",
+   "interior": {
+    "shell": "castle",
+    "items": [
+     [
+      "throne",
+      3.55,
+      0.0,
+      1
+     ],
+     [
+      "rug",
+      -2.6,
+      0.0,
+      0,
+      "#c0304a"
+     ],
+     [
+      "rug",
+      -0.6,
+      0.0,
+      0,
+      "#c0304a"
+     ],
+     [
+      "rug",
+      1.4,
+      0.0,
+      0,
+      "#c0304a"
+     ],
+     [
+      "pillar",
+      -2.0,
+      -2.3,
+      0
+     ],
+     [
+      "pillar",
+      -2.0,
+      2.3,
+      0
+     ],
+     [
+      "pillar",
+      1.6,
+      -2.3,
+      0
+     ],
+     [
+      "pillar",
+      1.6,
+      2.3,
+      0
+     ],
+     [
+      "banner",
+      4.15,
+      -1.9,
+      1
+     ],
+     [
+      "banner",
+      4.15,
+      1.9,
+      1
+     ],
+     [
+      "lamp",
+      -3.7,
+      -2.7,
+      0
+     ],
+     [
+      "lamp",
+      -3.7,
+      2.7,
+      0
+     ]
+    ],
+    "route": [
+     [
+      -3.6,
+      0.0
+     ],
+     [
+      2.7,
+      0.0
+     ]
+    ]
+   }
   }
  ],
  "workshop_interior": {
@@ -703,7 +1186,8 @@
    "z": -11,
    "loot": {
     "crystal": 2,
-    "spark": 12
+    "spark": 12,
+    "coins": 25
    },
    "blueprint": "statue"
   },
@@ -714,7 +1198,8 @@
    "z": -14.5,
    "loot": {
     "metal": 3,
-    "spark": 10
+    "spark": 10,
+    "coins": 25
    },
    "blueprint": "windmill"
   },
@@ -725,7 +1210,8 @@
    "z": -41,
    "loot": {
     "fabric": 3,
-    "spark": 10
+    "spark": 10,
+    "coins": 25
    },
    "outfit": "flowerCrown"
   },
@@ -794,15 +1280,15 @@
   {
    "id": "wardrobe",
    "kind": "wardrobe",
-   "x": 11.4,
-   "z": 17,
+   "x": 11.65,
+   "z": 12.6,
    "label": "Change outfit"
   },
   {
    "id": "bed",
    "kind": "rest",
-   "x": 16.4,
-   "z": 16.6,
+   "x": 16.2,
+   "z": 11.5,
    "label": "Rest at the Lantern Inn"
   },
   {
@@ -958,6 +1444,18 @@
   "gatehouse": [
    -16.8,
    -10
+  ],
+  "bakeryWest": [
+   -15.2,
+   -3.2
+  ],
+  "fernCorner": [
+   6.8,
+   -5.8
+  ],
+  "gatehouseNE": [
+   -16.4,
+   -7.0
   ]
  },
  "nav_edges": [
@@ -1011,6 +1509,10 @@
   ],
   [
    "fernGarden",
+   "fernCorner"
+  ],
+  [
+   "fernCorner",
    "fernDoor"
   ],
   [
@@ -1055,10 +1557,18 @@
   ],
   [
    "bakeryDoor",
+   "bakeryWest"
+  ],
+  [
+   "bakeryWest",
    "gatehouse"
   ],
   [
    "quarry",
+   "gatehouseNE"
+  ],
+  [
+   "gatehouseNE",
    "gatehouse"
   ],
   [

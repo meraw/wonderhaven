@@ -4,11 +4,11 @@ const SAVE_VERSION := 1
 const START_MINUTE := 8 * 60
 
 static func new_game(player_name: String = "Apprentice", appearance: Dictionary = {}) -> Dictionary:
-	var sp: Dictionary = Data.layout.spawn
+	var sp: Dictionary = Data.read_layout("hearthglow").spawn if Data.island != "hearthglow" else Data.layout.spawn
 	return {
 		"version": SAVE_VERSION, "name": player_name.substr(0, 16) if player_name != "" else "Apprentice",
 		"appearance": Chibi.sanitize(appearance), "created": Time.get_unix_time_from_system(), "play_time": 0.0,
-		"island": "hearthglow", "player": {"x": sp.x, "z": sp.z, "yaw": sp.yaw},
+		"island": "hearthglow", "away": {}, "player": {"x": sp.x, "z": sp.z, "yaw": sp.yaw},
 		"inventory": {"spark": 10}, "harmony": 0, "flags": {}, "quests": {}, "tracked": "",
 		"placements": [], "next_uid": 1, "blueprints": Data.starter_blueprints.duplicate(), "new_blueprints": [],
 		"clothes_owned": [], "relationships": {}, "nodes": {}, "gardens": {}, "crossings": {},
