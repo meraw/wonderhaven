@@ -119,7 +119,10 @@ func play() -> void:
 	await open_build("workshop")
 	await shot("workshop-goals")
 	await select_piece("workbench"); print("   workbench: ", await place_at(-15, 7, 0.1, 0))
-	await select_piece("chair"); print("   chair: ", await place_at(-14, 9, 0.1, 2)); print("   chair: ", await place_at(-13, 9, 0.1, 2))
+	await select_piece("chair"); print("   chair: ", await place_at(-14, 9, 0.1, 2))
+	for c in [[-13, 9], [-16, 9], [-15, 10], [-13, 11]]:   # wherever you're not standing
+		if game.state.placements.filter(func(p): return p.id == "chair").size() >= 2: break
+		print("   chair: ", await place_at(c[0], c[1], 0.1, 2))
 	await select_piece("lamp"); print("   lamp: ", await place_at(-16, 11)); print("   lamp: ", await place_at(-11, 11))
 	await select_piece("cabinet"); print("   cabinet: ", await place_at(-12, 7, 0.1, 0)); print("   cabinet: ", await place_at(-11, 7, 0.1, 0))
 	await tap(KEY_ESCAPE)
