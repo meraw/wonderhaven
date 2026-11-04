@@ -74,8 +74,8 @@ func play() -> void:
 	await shot("houseboat")
 	s.time.minute = 22 * 60.0
 	var day := int(s.time.day)
-	var slept := await sleep_at("river_town_bed", 7)
-	check("r13", "Slept in the houseboat until the next morning", slept and int(s.time.day) == day + 1 and absf(s.time.minute - 7 * 60.0) < 2.0, Clock.text(s.time))
+	var slept := await sleep_at("river_town_bed", 6)
+	check("r13", "Slept in the houseboat until dawn the next day", slept and int(s.time.day) == day + 1 and absf(s.time.minute - 6 * 60.0) < 2.0, Clock.text(s.time))
 	# up the ramp and into Wanda's dance hall, standing empty on its stilts
 	check("r14", "Up the ramp and into the empty dance hall, on its raised floor", await enter("river_town_dance_hall", "dance-hall") and game.player.pos.y > RiverTown.DANCE_H - 0.1, str(game.player.pos))
 	# through the breach, from the floodplain back into the town
