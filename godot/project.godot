@@ -23,3 +23,34 @@ window/dpi/allow_hidpi=true
 anti_aliasing/quality/msaa_3d=2
 lights_and_shadows/directional_shadow/size=4096
 environment/defaults/default_clear_color=Color(0.75, 0.9, 1, 1)
+
+[shader_globals]
+
+world_wind={
+"type": "vec4",
+"value": Vector4(0.8, 0.6, 0.7, 0.5)
+}
+world_sun_dir={
+"type": "vec3",
+"value": Vector3(0.35, 0.8, 0.45)
+}
+world_sun_color={
+"type": "vec3",
+"value": Vector3(1, 0.89, 0.71)
+}
+world_weather={
+"type": "vec4",
+"value": Vector4(1, 0, 0, 0.25)
+}
+world_sky_horizon={
+"type": "vec3",
+"value": Vector3(0.69, 0.89, 1)
+}
+world_sky_zenith={
+"type": "vec3",
+"value": Vector3(0.15, 0.55, 1)
+}
+world_cloud_drift={
+"type": "vec2",
+"value": Vector2(0, 0)
+}

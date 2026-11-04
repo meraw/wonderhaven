@@ -17,6 +17,7 @@ static func leaf_mat(color: Color) -> StandardMaterial3D:
 	# dissolve leaves right in front of the camera, like the instanced trees (Foliage.PLANT_SHADER)
 	m.distance_fade_mode = BaseMaterial3D.DISTANCE_FADE_PIXEL_DITHER
 	m.distance_fade_min_distance = 1.9; m.distance_fade_max_distance = 2.8
+	m.backlight_enabled = true; m.backlight = Color(color).darkened(0.35)   # sunlight glows through the leaves
 	return m
 
 static func round_tree(s: float = 1.0, hue: float = 0.5, fruit: bool = false) -> Node3D:
