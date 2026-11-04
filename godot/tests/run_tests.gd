@@ -13,6 +13,10 @@ func _initialize() -> void:
 	for path in _scripts("res://scripts"):
 		var sc = load(path)
 		if sc == null: failures += 1; print("FAIL could not load ", path)
+	# ...and every scripted playthrough, so a parse error there shows up here and not an hour into a run
+	for f in DirAccess.open("res://tests").get_files():
+		if (f.begins_with("play_") or f.ends_with("_base.gd")) and f.ends_with(".gd"):
+			if load("res://tests/" + f) == null: failures += 1; print("FAIL could not load tests/", f)
 	var dir := DirAccess.open("res://tests")
 	var files: Array = []
 	for f in dir.get_files():

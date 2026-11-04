@@ -5,8 +5,8 @@ extends "res://tests/full_base.gd"
 
 func play() -> void:
 	await frames(20)
-	var lb: Control = game.screens.find_child("btn_load", true, false)
-	if lb: await click(lb.get_global_rect().get_center()); await frames(10)
+	var title_load: Control = game.screens.find_child("btn_load", true, false)
+	if title_load: await click(title_load.get_global_rect().get_center()); await frames(10)
 	var l3: Control = game.screens.find_child("load_slot3", true, false)
 	if l3: await click(l3.get_global_rect().get_center()); await frames(30)
 	check("B1", "Loaded part one's save from the title screen", game.mode == "explore" and q("workshop").get("status", "") == "done", "mode %s, workshop %s" % [game.mode, q("workshop").get("status", "")])
