@@ -13,7 +13,6 @@ const P := preload("res://scripts/world/palette.gd")
 static var _meshes: Dictionary = {}
 
 static func dress(village: Node3D, rt) -> void:
-	_clear_greenery(village, Vector2(rt.PIAZZA.x, rt.PIAZZA.z), rt.PIAZZA_R + 0.4)
 	_trees(village)
 	_chop_trees(village)
 	_roman_bridge(village, rt)
@@ -27,16 +26,6 @@ static func dress(village: Node3D, rt) -> void:
 	_horizon(village, rt)
 
 static func H(x: float, z: float) -> float: return Heightfield.height(x, z)
-
-## No grass or flowers in the flooded piazza: flatten the shared greenery's instances that stand in it. (Once paved
-## ground keeps greenery off squares for every location, this does nothing.)
-static func _clear_greenery(village: Node3D, c: Vector2, r: float) -> void:
-	for mmi in village.get_children():
-		if not mmi is MultiMeshInstance3D: continue
-		var mm: MultiMesh = (mmi as MultiMeshInstance3D).multimesh
-		for i in mm.instance_count:
-			var o := mm.get_instance_transform(i).origin
-			if Vector2(o.x - c.x, o.z - c.y).length() < r: mm.set_instance_transform(i, Transform3D(Basis().scaled(Vector3.ZERO), o))
 
 static func _props(kind: String) -> Array:
 	return Data.layout.get("props", []).filter(func(p): return p.kind == kind)

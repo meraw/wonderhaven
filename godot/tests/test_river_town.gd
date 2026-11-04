@@ -14,7 +14,8 @@ func test_the_pack_is_loaded():
 	t.ok(Data.location_ids().has("river_town"), "Boccapioppo is a location pack")
 	var d := Data.island_def("river_town")
 	t.eq(d.get("name", ""), "Boccapioppo", "its map entry is named")
-	t.ok(d.get("hidden", false), "it stays off the travel map until the bus line reveals it")
+	t.ok(d.get("reveal", "") == "river_town_revealed" and not Travel.on_map(d, {}, "hearthglow"), "it stays off the travel map until the bus line reveals it")
+	t.ok(Travel.on_map(d, {"river_town_revealed": true}, "hearthglow"), "...and turns up once it does")
 	t.ok(d.get("look", {}).has("light"), "it has its own look")
 
 func test_ground_shape():
@@ -35,6 +36,7 @@ func test_ground_shape():
 		t.ok(Heightfield.is_water(RT.SUMP.x, RT.SUMP.y), "the old sump at the piazza's edge holds water")
 		t.ok(Heightfield.is_water(RT.BACKWATER.x, RT.BACKWATER.z), "the backwater lies on the floodplain")
 		t.ok(not Heightfield.is_water(RT.SANDBANK.x, RT.SANDBANK.z), "the sandbank reaches out into the Po")
+		t.eq(Ground.kind_at(RT.PIAZZA.x, RT.PIAZZA.z), "setts", "the piazza is paved, so no grass grows in it")
 		t.ok(H.call(RT.alpine_center(RT.ROMAN_Z), RT.ROMAN_Z) > 1.5, "the Roman bridge's walkway arches over the river")
 		var b: Dictionary = Data.layout.buildings.filter(func(x): return x.id == "river_town_ermes_house")[0]
 		t.ok(absf(H.call(b.x, b.z) - town) < 0.15 and H.call(b.x, b.z + b.d / 2.0 + 4.5) > crest - 0.1, "the warden's house stands at the foot of the levee, the levee road just behind it")

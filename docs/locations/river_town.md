@@ -318,8 +318,11 @@ What exists now, and the choices made while building that the design above didn'
     sandbag patch and debris against the bridge.
   - Leaning bicycles, reeds and maize stubble.
   - The horizon: the Alps, lines of poplars, other villages' bell towers and the Apennine hills.
-- **The flooded piazza** is a water surface named `river_town_pond`, which stage 3 hides when the piazza drains. Until
-  paved ground keeps greenery off squares for every location, the scenery script clears grass and flowers from it.
+- **The flooded piazza** is a water surface named `river_town_pond`, which stage 3 hides when the piazza drains.
+- **Paved ground** uses the shared `ground` list in the layout, which keeps greenery off: setts in the piazza, slabs
+  under the arcade's covered walk and on the station platform, and gravel in the sawmill yard.
+- **The travel map** shows Boccapioppo once its `reveal` flag (`river_town_revealed`) is set. Nothing sets it yet:
+  Monteforchetta's bus line will, once the flag is agreed with that session.
 
 ## Checks for every stage
 `godot/run_tests.sh`, `npm test` and `npm run build`; screenshots of Boccapioppo in both renderers

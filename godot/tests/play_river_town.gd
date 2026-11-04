@@ -61,7 +61,7 @@ func play() -> void:
 	await walk_to(38.8, 9.5)
 	var bank := RiverTown.alpine_center(9.5) + RiverTown.ALPINE_HALF
 	await walk_direct(bank + 0.8, 9.5, 0.6)
-	var reached := game.player.pos.x < bank + 1.6
+	var reached: bool = game.player.pos.x < bank + 1.6
 	await walk_direct(RiverTown.alpine_center(9.5), 9.5, 0.5, 6.0)
 	check("r10", "The Alpine river stops you at its bank: no wading across before the pontoon bridge exists",
 		reached and game.player.pos.x > bank - 1.0, "bank at %.1f, stopped at %s" % [bank, game.player.pos])
@@ -88,6 +88,8 @@ func play() -> void:
 	check("r15", "Walked through the breach in the levee, well below its crest", at(5, 16) and low < RiverTown.LEVEE_H - 1.5, "in the gap at %.2f" % low)
 	# the canal at the west edge keeps you on the map
 	await walk_to(-45, 22)
-	await walk_direct(-62, 22, 0.5, 6.0)
-	check("r16", "The canal at the west end of the levee keeps you on the map", game.player.pos.x > RiverTown.CANAL_W + RiverTown.CANAL_HALF - 0.5, str(game.player.pos))
+	await walk_direct(-62, 22, 0.5, 25.0)
+	var edge: float = RiverTown.CANAL_W + RiverTown.CANAL_HALF
+	check("r16", "The canal at the west end of the levee keeps you on the map: you reach its bank and stop",
+		game.player.pos.x < edge + 2.0 and game.player.pos.x > edge - 0.5, "canal's edge at %.1f, stopped at %s" % [edge, game.player.pos])
 	await shot("west-canal")
