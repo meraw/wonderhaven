@@ -31,7 +31,9 @@ Shared rules for everyone building a location, people and Claude sessions alike,
 - **Progress meter:** the approval rating belongs to Monteforchetta's mayor. If your location wants its own meter,
   ask the user before building one.
 - **Travel:** Monteforchetta's finale opens the bus line to the city and the travel map. Each location has an entry
-  on that map. For now every location needs a departure point, a feature of kind `boat`, because the islands test
+  on that map, which stays off it until the place is unlocked: every place is a surprise, and the map grows as the
+  game goes on (its view widens to take in what's there). Give the entry a `reveal` flag, set by whatever opens the
+  way there. For now every location needs a departure point, a feature of kind `boat`, because the islands test
   expects one. It becomes a general stop once Monteforchetta's bus is built. Transport inside a location, like
   trams or funiculars, is that location's own design.
 - **Look:** shared shaders and the atmosphere module (`docs/GRAPHICS.md`) give every location wind, light,

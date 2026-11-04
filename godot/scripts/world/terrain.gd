@@ -2,8 +2,8 @@ class_name TerrainBuilder
 ## Terrain mesh from the shared heightfield, with painted vertex colours; water; sky.
 
 static func build_terrain() -> MeshInstance3D:
-	var size := 124.0
-	var seg := 150
+	var size := Data.map_size()   # 124 m unless the layout says otherwise; vertex spacing stays the same
+	var seg := int(round(150.0 * size / Data.DEFAULT_MAP_SIZE))
 	var st := SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
 	var grass := Color("8fd16a"); var grass2 := Color("76c25a"); var grass3 := Color("a6dc74")
@@ -22,6 +22,10 @@ static func build_terrain() -> MeshInstance3D:
 			c = c.lightened((rng.next() - 0.5) * 0.04) if rng.next() > 0.5 else c.darkened((rng.next()) * 0.02)
 			if Data.island == "hearthglow" and x >= 7.7 and x <= 12 and z >= 0.7 and z <= 2.3: c = stone   # the mill channel's stone lining
 			if Data.island == "clockwork" and x >= 9.6 and x <= 15.4 and z >= -8.4 and z <= -6.6: c = stone
+			if Heightfield.has_paint():   # a location's own ground colour (alpha: how much meadow grows there)
+				var g := Heightfield.paint(x, z)
+				c = Color(g.r, g.g, g.b).lightened((rng.next() - 0.5) * 0.05)
+				c.a = g.a
 			colors[j * (seg + 1) + i] = c
 	for j in seg + 1:
 		for i in seg + 1:
@@ -50,6 +54,13 @@ static func build_terrain() -> MeshInstance3D:
 	var sq: Dictionary = Data.layout.get("square", {"x": 0.0, "z": 0.0, "r": 0.0})
 	mt.set_shader_parameter("square", Vector3(sq.x, sq.z, sq.r))
 	mt.set_shader_parameter("water_y", Heightfield.WATER_Y)
+	mt.set_shader_parameter("path_reach", size / 2.0 - 2.0)
+	# Streets, squares and quays painted over the grass (Ground): one byte per half metre, the kind of paving.
+	if not Ground.shapes().is_empty():
+		var rect := Rect2(-size / 2.0, -size / 2.0, size, size)
+		mt.set_shader_parameter("ground_map", ImageTexture.create_from_image(Ground.bake(Ground.shapes(), rect)))
+		mt.set_shader_parameter("ground_rect", Vector4(rect.position.x, rect.position.y, rect.size.x, rect.size.y))
+		mt.set_shader_parameter("has_ground", true)
 	m.material_override = mt
 	# The same heights, as a texture, let the water shader tint by depth and draw shore foam.
 	var img := Image.create(seg + 1, seg + 1, false, Image.FORMAT_RF)
@@ -111,6 +122,11 @@ uniform vec4 bed_col : source_color = vec4(0.78, 0.7, 0.52, 1.0);
 uniform vec4 cobble_a : source_color = vec4(0.93, 0.89, 0.82, 1.0);
 uniform vec4 cobble_b : source_color = vec4(0.85, 0.8, 0.74, 1.0);
 uniform vec4 grout : source_color = vec4(0.72, 0.68, 0.6, 1.0);
+uniform float path_reach = 60.0;   // dirt paths are drawn within this many metres of the middle (half the map)
+// Paved ground (Ground): kind index per texel (0 grass, 1 asphalt, 2 setts, 3 slabs, 4 gravel).
+uniform bool has_ground = false;
+uniform sampler2D ground_map : filter_nearest, repeat_disable;
+uniform vec4 ground_rect = vec4(-62.0, -62.0, 124.0, 124.0);
 // Shared world values (Atmosphere): sun direction, weather (x sunlit, y night, z wet, w clouds), sky colours (linear).
 global uniform vec3 world_sun_dir;
 global uniform vec4 world_weather;
@@ -138,6 +154,57 @@ float caustics(vec2 p, float t) {
 	float a = caustic_layer(p * 1.25 + w + vec2(t * 0.09, t * 0.05));
 	float b = caustic_layer(p * 1.55 - w + vec2(-t * 0.06, t * 0.08));
 	return clamp(a * 0.65 + b * 0.5, 0.0, 1.0);
+}
+// Paving, painted rather than modelled: each stone a slightly different tone, thin grout, a lit edge toward the sun
+// and a shaded edge away from it. Fine detail fades with distance; rain darkens it and leaves puddles that mirror
+// the sky.
+vec3 paving(int kind, vec2 p, vec2 sp, vec2 sun2, float direct, float fine, float wet, float graze, vec3 sky_seen) {
+	vec3 c;
+	float puddle_amt = 0.0;
+	if (kind == 1) {   // asphalt: warm mid grey, soft patches, fine grit and a few repaired squares
+		c = vec3(0.29, 0.282, 0.272) * (0.88 + 0.22 * fbm(p * 0.21));
+		c *= mix(1.0, 0.92 + 0.16 * noise(p * 11.0), fine);   // grit
+		float mended = step(0.86, hq(floor(p * 0.33) + 17.0));
+		c *= 1.0 + 0.1 * mended;
+		puddle_amt = smoothstep(0.62, 0.68, fbm(p * 0.27 + 3.0));
+	} else if (kind == 2) {   // setts: small square stones in staggered rows, reddish-grey porphyry
+		vec2 q = p * 6.0;
+		float row = floor(q.y);
+		q.x += row * 0.5 + hq(vec2(row, 4.0)) * 0.3;
+		vec2 cell = floor(q); vec2 f = fract(q) - 0.5;
+		float h = hq(cell);
+		c = mix(vec3(0.42, 0.33, 0.3), vec3(0.47, 0.44, 0.41), h) * (0.92 + 0.12 * hq(cell + 3.1));
+		float edge = 0.5 - max(abs(f.x), abs(f.y));
+		float lit = dot(normalize(f + 0.0001), sun2) * smoothstep(0.12, 0.02, edge);
+		c *= 1.0 + lit * 0.14 * direct * fine;
+		c = mix(mix(c, vec3(0.26, 0.24, 0.22), smoothstep(0.06, 0.0, edge)), c * 0.92 + 0.03, 1.0 - fine);
+		puddle_amt = smoothstep(0.64, 0.7, fbm(p * 0.4 + 7.0));
+	} else if (kind == 3) {   // slabs: big pale granite flags in a staggered bond
+		vec2 q = p / vec2(1.4, 0.9);
+		float row = floor(q.y);
+		q.x += mod(row, 2.0) * 0.5;
+		vec2 cell = floor(q); vec2 f = fract(q);
+		c = vec3(0.66, 0.64, 0.6) * (0.93 + 0.1 * hq(cell)) * (0.95 + 0.08 * noise(p * 4.0));
+		c *= mix(1.0, 0.95 + 0.1 * noise(p * 13.0), fine);   // granite mottle
+		vec2 e2 = min(f, 1.0 - f) * vec2(1.4, 0.9);
+		float edge = min(e2.x, e2.y);
+		c = mix(c, c * 0.72, smoothstep(0.03, 0.0, edge) * fine);
+		puddle_amt = smoothstep(0.66, 0.72, fbm(p * 0.3 + 11.0));
+	} else {   // gravel: pale crunchy park paths with paler pebbles lit from the sun's side
+		c = vec3(0.78, 0.71, 0.58) * (0.9 + 0.14 * noise(p * 1.3));
+		vec4 v = voronoi_dir(p * 5.0);
+		float pd = length(v.xy);
+		float peb = step(0.6, v.w) * smoothstep(0.3, 0.22, pd);
+		c = mix(c, c * 1.08, peb * fine);
+		c *= 1.0 + peb * dot(-v.xy / max(pd, 0.0001), sun2) * 0.12 * direct * fine;
+		puddle_amt = smoothstep(0.6, 0.66, fbm(p * 0.33 + 41.0));
+	}
+	c *= mix(vec3(1.0), mix(vec3(1.0), vec3(1.04, 1.03, 0.97), smoothstep(0.72, 0.79, noise(sp * vec2(2.6, 14.0)))), fine * 0.5);
+	c *= 1.0 - 0.3 * wet;
+	float puddle = wet * puddle_amt;
+	c = mix(c, mix(c * 0.45, sky_seen, 0.35 + 0.5 * graze), puddle);
+	c += vec3(0.8, 0.88, 1.0) * drops(p * 2.2, TIME) * puddle * 0.3 * fine;
+	return c;
 }
 void vertex() {
 	wpos = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
@@ -170,13 +237,15 @@ void fragment() {
 	float slope = 1.0 - clamp(normalize(wnrm + vec3(0.0, 0.00001, 0.0)).y, 0.0, 1.0);
 	col = mix(col, col * vec3(0.9, 0.8, 0.64), smoothstep(0.06, 0.28, slope) * 0.6);
 	col *= mix(vec3(1.0), vec3(1.05, 1.02, 0.86), smoothstep(0.5, 1.6, wpos.y));
-	// Clover sprigs and tiny wildflowers, gathered in loose drifts.
+	// Clover sprigs and tiny wildflowers, gathered in loose drifts, only where meadow grows (vertex alpha: a
+	// location's ground paint, see Heightfield.paint).
+	float meadow = COLOR.a;
 	float drift = smoothstep(0.42, 0.68, fbm(p * 0.09 + 23.0));
 	vec2 cl = scatter(p * 1.9);
-	float clover = step(0.55 - 0.35 * drift, cl.y) * smoothstep(0.17, 0.11, cl.x) * fine;
+	float clover = step(0.55 - 0.35 * drift, cl.y) * smoothstep(0.17, 0.11, cl.x) * fine * meadow;
 	col = mix(col, col * vec3(0.78, 0.92, 0.86), clover * 0.55);
 	vec2 fl = scatter(p * 2.2 + 31.0);
-	float bloom = step(1.0 - 0.2 * drift, fl.y) * smoothstep(0.1, 0.07, fl.x) * fine;
+	float bloom = step(1.0 - 0.2 * drift, fl.y) * smoothstep(0.1, 0.07, fl.x) * fine * meadow;
 	vec3 petal = fl.y > 0.985 ? vec3(0.95, 0.55, 0.7) : (fl.y > 0.955 ? vec3(1.0, 0.8, 0.3) : vec3(0.97, 0.96, 0.9));
 	petal = mix(petal, vec3(1.0, 0.85, 0.35), smoothstep(0.04, 0.02, fl.x));   // a golden eye
 	col = mix(col, petal, bloom * 0.9);
@@ -186,7 +255,7 @@ void fragment() {
 	vec3 sand = sand_col.rgb * (0.94 + 0.08 * noise(p * 5.0));
 	sand = mix(sand, sand * 0.84, smoothstep(water_y + 0.25, water_y + 0.02, wpos.y));
 	sand *= 1.0 - 0.2 * wet;
-	col = mix(col, sand, smoothstep(shore + 0.03, shore - 0.03, wpos.y));
+	col = mix(col, sand, smoothstep(shore + 0.03, shore - 0.03, wpos.y) * meadow);
 	// River and pond beds, with caustics dancing over the shallows when the sun is out.
 	float under = smoothstep(water_y + 0.02, water_y - 0.12, wpos.y);
 	if (under > 0.0) {
@@ -198,7 +267,16 @@ void fragment() {
 	}
 	// Dirt paths: uneven edges, raised pebbles lit from the sun's side, a worn rim, a darker grass lip, and
 	// puddles that mirror the sky after rain.
-	if (wpos.y > -0.25 && abs(p.x) < 60.0) {
+	if (has_ground) {
+		vec2 guv = (p - ground_rect.xy) / ground_rect.zw;
+		int kind = int(texture(ground_map, guv).r * 255.0 + 0.5);
+		// Lawns and gravel meet along a soft wobble instead of the map's half-metre steps; kerbs stay straight.
+		vec2 jit = (vec2(noise(p * 1.7), noise(p * 1.7 + 5.3)) - 0.5) * 0.9;
+		int kj = int(texture(ground_map, guv + jit / ground_rect.zw).r * 255.0 + 0.5);
+		if ((kind == 0 || kind == 4) && (kj == 0 || kj == 4)) kind = kj;
+		if (kind > 0 && guv.x > 0.0 && guv.x < 1.0 && guv.y > 0.0 && guv.y < 1.0) col = mix(col, paving(kind, p, sp, sun2, direct, fine, wet, graze, sky_seen), 1.0 - under);
+	}
+	if (wpos.y > -0.25 && abs(p.x) < path_reach) {
 		float d = 1000.0;
 		for (int i = 0; i < seg_count; i++) d = min(d, seg_dist(p, segs[i]));
 		float w = 1.0 + (fbm(p * 0.9) - 0.5) * 0.6;
@@ -399,7 +477,8 @@ void fragment() {
 """
 
 static func build_water(terrain: MeshInstance3D) -> MeshInstance3D:
-	var p := PlaneMesh.new(); p.size = Vector2(420, 420); p.subdivide_width = 0; p.subdivide_depth = 0
+	var ws := maxf(420.0, Data.map_size() * 3.4)   # the sea reaches the horizon whatever the map's size
+	var p := PlaneMesh.new(); p.size = Vector2(ws, ws); p.subdivide_width = 0; p.subdivide_depth = 0
 	var m := MeshInstance3D.new(); m.mesh = p
 	var sh := Shader.new(); sh.code = WATER_SHADER
 	var sm := ShaderMaterial.new(); sm.shader = sh

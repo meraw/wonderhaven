@@ -43,11 +43,19 @@ static func generate_decor(seed: int = 7) -> Dictionary:
 	var F: Dictionary = Data.layout.get("fountain", {"x": 1000.0, "z": 1000.0})
 	var D: Dictionary = Data.layout.get("decor", {})
 	var radius := float(D.get("radius", 50.0))
+	# "area": [x0, z0, x1, z1] puts the greenery in that box instead of round the middle (a city's park, say).
+	var area: Array = D.get("area", [])
+	var boxed := not area.is_empty()
+	var rx := func(lo: float, hi: float) -> float: return rng.range_f(area[0], area[2]) if boxed else rng.range_f(lo, hi)
+	var rz := func(lo: float, hi: float) -> float: return rng.range_f(area[1], area[3]) if boxed else rng.range_f(lo, hi)
+	var out_of_reach := func(x: float, z: float, r: float) -> bool: return not boxed and sqrt(x * x + z * z) > r
 	var hearth := Data.island == "hearthglow"
 	var clear := func(x: float, z: float, pad: float) -> bool:
 		var h := Heightfield.height(x, z)
 		if h < Heightfield.WALKABLE_MIN + 0.25: return false
-		if sqrt(x * x + z * z) > radius: return false
+		if out_of_reach.call(x, z, radius): return false
+		if Ground.paved(x, z): return false
+		if Heightfield.meadow(x, z) < 0.5: return false   # a location's bare ground (stubble, mud): no trees or bushes
 		if dist_to_paths(x, z) < pad + 1.2: return false
 		if _near_building(x, z, pad + 1): return false
 		if _in_zone(x, z, pad + 0.6): return false
@@ -58,10 +66,10 @@ static func generate_decor(seed: int = 7) -> Dictionary:
 	var n := 0
 	while n < 900 and trees.size() < int(D.get("trees", 95)):
 		n += 1
-		var x := rng.range_f(-50, 50)
-		var z := rng.range_f(-48, 46)
+		var x: float = rx.call(-50, 50)
+		var z: float = rz.call(-48, 46)
 		var r := sqrt(x * x + z * z)
-		if r < 12 and rng.next() < 0.8: continue
+		if not boxed and r < 12 and rng.next() < 0.8: continue
 		if not clear.call(x, z, 0.9): continue
 		var crowded := false
 		for t in trees:
@@ -69,10 +77,10 @@ static func generate_decor(seed: int = 7) -> Dictionary:
 		if crowded: continue
 		trees.append({"x": x, "z": z, "s": rng.range_f(0.85, 1.3), "kind": "pine" if rng.next() < 0.3 else "round", "hue": rng.next()})
 	n = 0
-	while n < 600 and bushes.size() < 70:
+	while n < 600 and bushes.size() < int(D.get("bushes", 70)):
 		n += 1
-		var x := rng.range_f(-48, 48)
-		var z := rng.range_f(-46, 44)
+		var x: float = rx.call(-48, 48)
+		var z: float = rz.call(-46, 44)
 		if not clear.call(x, z, 0.4): continue
 		var crowded := false
 		for t in trees:
@@ -80,18 +88,20 @@ static func generate_decor(seed: int = 7) -> Dictionary:
 		if crowded: continue
 		bushes.append({"x": x, "z": z, "s": rng.range_f(0.6, 1.1), "hue": rng.next()})
 	n = 0
-	while n < 2500 and flowers.size() < 520:
+	while n < 2500 and flowers.size() < int(D.get("flowers", 520)):
 		n += 1
-		var x := rng.range_f(-48, 48)
-		var z := rng.range_f(-46, 44)
-		if Heightfield.height(x, z) < 0 or dist_to_paths(x, z) < 0.9 or _near_building(x, z, 0.3) or _in_zone(x, z, 0.2) or sqrt(x * x + z * z) > 49: continue
+		var x: float = rx.call(-48, 48)
+		var z: float = rz.call(-46, 44)
+		if Heightfield.height(x, z) < 0 or dist_to_paths(x, z) < 0.9 or _near_building(x, z, 0.3) or _in_zone(x, z, 0.2) or out_of_reach.call(x, z, 49.0) or Ground.paved(x, z): continue
+		if Heightfield.meadow(x, z) < 0.5: continue
 		flowers.append({"x": x, "z": z, "c": rng.int_range(0, 4), "s": rng.range_f(0.7, 1.2)})
 	n = 0
-	while n < 4000 and grass.size() < 1400:
+	while n < 4000 and grass.size() < int(D.get("grass", 1400)):
 		n += 1
-		var x := rng.range_f(-49, 49)
-		var z := rng.range_f(-47, 45)
-		if Heightfield.height(x, z) < 0.02 or dist_to_paths(x, z) < 0.8 or _near_building(x, z, 0.1) or sqrt(x * x + z * z) > 50: continue
+		var x: float = rx.call(-49, 49)
+		var z: float = rz.call(-47, 45)
+		if Heightfield.height(x, z) < 0.02 or dist_to_paths(x, z) < 0.8 or _near_building(x, z, 0.1) or out_of_reach.call(x, z, 50.0) or Ground.paved(x, z): continue
+		if Heightfield.meadow(x, z) < 0.5: continue
 		grass.append({"x": x, "z": z, "r": rng.range_f(0, PI), "s": rng.range_f(0.6, 1.3)})
 	return {"trees": trees, "bushes": bushes, "flowers": flowers, "grass": grass}
 

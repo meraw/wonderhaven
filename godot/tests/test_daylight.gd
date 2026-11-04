@@ -52,6 +52,21 @@ func test_weather_slots_and_blending():
 		if Daylight.slot_weather(slot) == "mist": t.eq(slot % 6, 1, "mist only in the early-morning slot")
 	t.eq(Daylight.weather({"day": 9, "minute": 700.0}), Daylight.weather({"day": 9, "minute": 700.0}), "the same moment always has the same weather")
 
+func test_a_location_can_limit_its_weather():
+	# A location's look block can list the weather it allows; anything else turns into the first type listed.
+	var kept := {}
+	for day in range(2, 30):
+		for m in range(0, 1440, 30):
+			var tm := {"day": day, "minute": float(m)}
+			t.eq(Daylight.weather(tm, ["clear"]).type, "clear", "only clear weather where only clear is allowed (day %d, %d min)" % [day, m])
+			t.eq(Daylight.weather(tm, ["clear"]).rain, 0.0, "and never a drop of rain")
+			var two: String = Daylight.weather(tm, ["fair", "clear"]).type
+			t.ok(two in ["fair", "clear"], "two allowed types stay within them (%s)" % two)
+			kept[two] = true
+	t.ok(kept.has("fair") and kept.has("clear"), "both allowed types still happen")
+	t.eq(Daylight.weather({"day": 9, "minute": 700.0}, []), Daylight.weather({"day": 9, "minute": 700.0}), "an empty list allows everything")
+	t.eq(Daylight.allowed_here(), [], "Monteforchetta allows any weather")
+
 func test_day_songs():
 	for part in ["dawn", "morning", "afternoon", "evening", "night"]:
 		var id: String = AudioDirector.DAY_SONGS[part]

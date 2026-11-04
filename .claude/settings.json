@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(GODOT=* godot/run_tests.sh)",
+      "Bash(GODOT=* godot/run_tests.sh *)",
+      "Bash(GODOT=* godot/shot.sh *)",
+      "Bash(GODOT=* RENDERER=* godot/shot.sh *)",
+      "Bash(RENDERER=* GODOT=* godot/shot.sh *)",
+      "Bash(GODOT=* godot/play.sh *)",
+      "Bash(GODOT=* RENDERER=* godot/play.sh *)",
+      "Bash(GODOT=* TIMEOUT=* godot/play.sh *)"
+    ]
+  }
+}

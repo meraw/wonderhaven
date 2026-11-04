@@ -1,8 +1,24 @@
 # Toriano: design for the city
 
-Working id `metropolis`. Agreed with the user on 2026-11-04 in a design interview. **Nothing here is built yet.** This doc
-is the plan the build stages follow. The rules every location shares are in `docs/WORLD.md`; `docs/MONTEFORCHETTA.md`
-is the model this doc follows.
+Working id `metropolis`. Agreed with the user on 2026-11-04 in a design interview. This doc is the plan the build
+stages follow. The rules every location shares are in `docs/WORLD.md`; `docs/MONTEFORCHETTA.md` is the model this doc
+follows.
+
+## Status
+**Stage 1, ground and map, is built.** Stages 2 to 4 are still to do.
+- **What's there:** the city is 372 m across, with flat paved ground (asphalt streets, stone-slab pavements and
+  squares, setts along the tram loop and in the courtyard, gravel in the park and the building sites). The Darsena
+  and its two canals have stone quays, and the old street bridge over the west canal is solid ground for now. The
+  park has its pond, lawns, trees and gravel paths. Every building on the street plan stands as a plain coloured
+  block of its full height, with a stand-in spire on the Duomo; the city's edge is a ring of tall backdrop blocks.
+  There are nav paths, six benches, two signs, the departure point at the station ("Take the train") and the
+  ground-level build zones, which stay locked until their requests exist.
+- **On the travel map**, Toriano stays off the map until the flag `rice_village_trainStops` is set, then turns up as a
+  surprise (every place does, as the user decided after stage 1). That's the flag the rice village's design proposes
+  for its finale, when the regional train stops there again.
+- **No villagers, requests, trams, gathering or interiors yet.** Those come in stages 2 and 3.
+- **Shared changes made in stage 1:** map size per layout, ground paint, greenery kept to a decor area and off
+  paving, a building's height for the camera, and a departure point with its own id and label. See the table below.
 
 ## The concept
 Toriano is the big city of the game: Milan with a few Turin touches, in the weeks before Christmas, around the year
@@ -77,10 +93,10 @@ number 14) can change.
 ## Getting there and around
 - **Arrival by regional train.** The bus covers the small villages; one of them, the rice village (the real Turin to
   Milan railway runs past the rice fields), has the little station where you change to the regional train for
-  Toriano. Toriano isn't reachable from Monteforchetta directly until later in the story. **The rice village's
-  session would add that station; this needs agreeing between the two.**
-- **Until that link exists**, Toriano stays hidden on the travel map (its `reveal` flag isn't set by anything yet) and
-  tests reach it with `--island=metropolis`.
+  Toriano. Toriano isn't reachable from Monteforchetta directly until later in the story. The rice village
+  (Casalrana, `docs/locations/rice_village.md`) adds that station. Its finale gets the regional train stopping again
+  and sets `rice_village_trainStops`, the flag Toriano's map entry reveals on.
+- **Until that link exists**, Toriano stays off the travel map and tests reach it with `--island=metropolis`.
 - **The departure point** is the station platform. For now it's a feature of kind `boat`, as `docs/WORLD.md` asks,
   labelled as the train.
 - **Trams.** Old orange trams run one loop line with five stops: Toriano Centrale, the opera square, the castle park,
@@ -223,8 +239,10 @@ Other locations can reuse all of them.
 
 | Change | Why | Stage |
 | --- | --- | --- |
-| **Map size per layout:** a `size` in a layout, defaulting to today's 124 m, used by the terrain mesh, its height texture and the water plane | The city is about 370 m across | 1 |
-| **Ground paint from the location script:** paving, cobbles, asphalt and tram tracks instead of grass, with the terrain shader's clover and flowers kept off paved ground | A city isn't a meadow | 1 |
+| **Map size per layout:** a `size` in a layout, defaulting to today's 124 m, used by the terrain mesh, its height texture and the water plane. *Done in stage 1.* | The city is about 370 m across | 1 |
+| **Ground paint:** a layout's `ground` list of rectangles, circles and lines painted over the grass (asphalt, setts, slabs, gravel), drawn by the terrain shader, with greenery kept off paving and inside a decor `area`. *Done in stage 1, as layout data rather than script code.* | A city isn't a meadow | 1 |
+| **A building's height (`h`) for the camera**, so it doesn't pass through the upper floors of a tall block. *Done in stage 1.* | City blocks are 12 to 22 m tall | 1 |
+| **A departure point with any id**, and an optional `depart_label` ("Take the train"). *Done in stage 1.* | The station isn't a bus stop called `boat` | 1 |
 | **Raised floors** in a layout that you can walk and build on, read by `WalkWorld` and build mode | The cathedral's roof terraces and the tenement's roof terrace | 1 or 2 |
 | **Rides between stops:** a feature kind for a stop where you choose another stop and take a short ride | The trams. Funiculars, public lifts and cable cars elsewhere could reuse it | 2 |
 | **A path check for any zone** (`path:<zone>` in place of the hard-coded `bridge` and `dock`), with endpoints that may be at different heights | The footbridge, and the scaffolding climb | 3 |
