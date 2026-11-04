@@ -3,25 +3,6 @@ extends "res://tests/full_base.gd"
 ## evening, find Mabel's morning request isn't offered then, sleep in the inn until morning and find it is; and a
 ## bench can also just be sat on.
 
-func feature(id: String) -> Dictionary:
-	for f in Data.layout.features:
-		if f.id == id: return f
-	return {}
-
-## Opens the sleep panel at a bed or bench and picks a wake-up time with a click.
-func sleep_at(id: String, hour: int) -> bool:
-	var f := feature(id)
-	if not await face_and_press(id, f.x, f.z): return false
-	await frames(6)
-	var b := game.panels.find_child("wake_%d" % hour, true, false) as Button
-	if b == null: note("no wake button in panel '%s'" % game.panels.current); return false
-	await click(b.get_global_rect().get_center())
-	for n in 200:
-		await frames(2)
-		if game.mode == "explore": break
-	await frames(10)
-	return true
-
 func play() -> void:
 	var s: Dictionary = game.state
 	for q in ["tool", "bridge"]: s.quests[q] = {"status": "done", "progress": {}, "done": {}}

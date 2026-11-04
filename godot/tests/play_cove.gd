@@ -77,18 +77,25 @@ func play() -> void:
 	await select_piece("shaft"); print("   shaft: ", await place_at(-22, -19, 1.3, 1))
 	await select_piece("gear"); print("   gear: ", await place_at(-23, -19, 1.3, 0))
 	await frames(10)
-	check("c9", "Windmill → gear → shaft → gear powers the lighthouse's drive", game.mech.fed.get("lighthouse", false) and eng().is_ready("lighthouse"), "fed=%s pieces=%d" % [game.mech.fed.get("lighthouse", false), s.placements.size()])
+	check("c9", "Windmill → gear → shaft → gear powers the lighthouse's drive", game.mech.fed.get("lighthouse", false) and eng().current_stage("lighthouse") == 2, "fed=%s pieces=%d" % [game.mech.fed.get("lighthouse", false), s.placements.size()])
 	await leave_build()
-	s.time.minute = 21.5 * 60.0
+	check("c9b", "Its last step waits for the night", not eng().is_ready("lighthouse") and eng().next_step("lighthouse").objective.has("hours"), "")
+	# Nap on the cape bench until 9 PM, see the beam, and watch it with Juniper
+	var bench := feature("benchCape")
+	await walk_to(bench.x + 1.5, bench.z, 0.5)
+	var napped := await sleep_at("benchCape", 21)
+	check("c10a", "A nap on the cape bench until 9 PM", napped and absf(s.time.minute - 21 * 60.0) < 3.0, Clock.text(s.time))
 	await frames(40)
 	var beam: Node3D = game.village.objects.lighthouse.get_node("beam")
 	game.cam.yaw = 0.4; game.cam.pitch = 0.25; game.cam.dist = 14.0
 	await frames(30)
 	await shot("lighthouse-night")
 	check("c10", "At night the lighthouse beam sweeps the bay", beam.visible, "beam visible=%s" % beam.visible)
-	s.time.minute = 9 * 60.0
 	await talk("juniper")
-	check("c11", "The lighthouse request is done", eng().is_done("lighthouse") and s.flags.get("lighthouseLit", false), eng().status("lighthouse"))
+	check("c11", "Watching the first night beam with Juniper finishes the lighthouse", eng().is_done("lighthouse") and s.flags.get("lighthouseLit", false), eng().status("lighthouse"))
+	await walk_to(bench.x + 1.5, bench.z, 0.5)
+	napped = await sleep_at("benchCape", 9)
+	check("c11b", "...then a nap on the bench until morning", napped and absf(s.time.minute - 9 * 60.0) < 3.0, Clock.text(s.time))
 	# The Stopped Clock: parts for Barnaby, then a waterwheel in the millrace
 	await talk("barnaby")
 	check("c12", "Barnaby asks about his clock", eng().status("clocktower") == "active", eng().status("clocktower"))
