@@ -11,15 +11,43 @@ uniform float sway_from = 0.0;
 uniform bool flat_normals = false;
 uniform bool flower = false;
 uniform vec4 center_color : source_color = vec4(1.0, 0.82, 0.3, 1.0);
+uniform float flutter = 0.0;      // small leaf rustle along the surface (leafy masses only)
+uniform float clumps = 0.0;       // painted leaf clusters on canopies and bushes (0 = off)
+uniform float backlight = 0.3;    // light shining through leaves from behind
+// One world for every plant: wind (xy direction, z strength, w gust), sun and weather (Atmosphere sets them).
+global uniform vec4 world_wind;
+global uniform vec3 world_sun_dir;
+global uniform vec3 world_sun_color;   // linear
+global uniform vec4 world_weather;   // x sunlit, y night, z wet, w clouds
 varying float is_center;
+varying vec3 lpos;
+varying vec3 wpos;
+varying vec3 wnrm;
+float h3(vec3 p) { return fract(sin(dot(p, vec3(127.1, 311.7, 74.7))) * 43758.5453); }
+float n3(vec3 p) {
+	vec3 i = floor(p), f = fract(p); vec3 u = f * f * (3.0 - 2.0 * f);
+	return mix(mix(mix(h3(i), h3(i + vec3(1, 0, 0)), u.x), mix(h3(i + vec3(0, 1, 0)), h3(i + vec3(1, 1, 0)), u.x), u.y),
+		mix(mix(h3(i + vec3(0, 0, 1)), h3(i + vec3(1, 0, 1)), u.x), mix(h3(i + vec3(0, 1, 1)), h3(i + vec3(1, 1, 1)), u.x), u.y), u.z);
+}
 void vertex() {
+	lpos = VERTEX;
 	vec3 origin = MODEL_MATRIX[3].xyz;
 	float t = TIME * 1.4 + origin.x * 0.37 + origin.z * 0.23;
 	float k = max(0.0, VERTEX.y - sway_from);
-	VERTEX.x += sin(t) * sway * k;
-	VERTEX.z += cos(t * 0.83) * sway * 0.6 * k;
+	// Gusts roll across the island downwind, so neighbouring plants lean together in waves instead of each
+	// swaying on its own beat.
+	vec2 wd = normalize(world_wind.xy + vec2(0.0001));
+	float wave = 0.5 + 0.5 * sin(dot(origin.xz, wd) * 0.32 - TIME * 1.7);
+	wave *= 0.65 + 0.35 * sin(dot(origin.xz, vec2(wd.y, -wd.x)) * 0.11 + TIME * 0.31);
+	float push = world_wind.z * (0.35 + 1.1 * wave * (0.5 + world_wind.w));
+	vec3 wl = normalize(transpose(mat3(MODEL_MATRIX)) * vec3(wd.x, 0.0, wd.y));   // wind direction in the mesh's space
+	VERTEX.x += (sin(t) * 0.6 + wl.x * push) * sway * k;
+	VERTEX.z += (cos(t * 0.83) * 0.36 + wl.z * push) * sway * k;
+	if (flutter > 0.0) VERTEX += NORMAL * flutter * (0.4 + world_wind.z) * sin(TIME * 7.3 + dot(lpos, vec3(9.1, 7.3, 8.7)));
 	if (flat_normals) NORMAL = vec3(0.0, 1.0, 0.0);
 	is_center = UV.x;
+	wpos = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
+	wnrm = (MODEL_MATRIX * vec4(NORMAL, 0.0)).xyz;   // normalised per pixel: a vertex can carry a zero normal
 }
 void fragment() {
 	// Leaves right in front of the camera dissolve (dithered), so a tree behind the player never fills the screen.
@@ -29,8 +57,31 @@ void fragment() {
 	vec3 c = COLOR.rgb * tint.rgb;
 	c = mix(c / 12.92, pow((c + 0.055) / 1.055, vec3(2.4)), step(0.04045, c));
 	if (flower && is_center > 0.5) c = center_color.rgb;
+	if (clumps > 0.0) {
+		// Painted leaf clusters: soft blotches of light and shade, with sunny dabs on the upper side.
+		float n = n3(lpos * 2.6) * 0.7 + n3(lpos * 6.3 + 3.7) * 0.3;
+		float blot = smoothstep(0.4, 0.6, n);
+		c *= mix(1.0 - 0.07 * clumps, 1.0 + 0.06 * clumps, blot);
+		float up = normalize(wnrm + vec3(0.0, 0.00001, 0.0)).y;
+		float dab = smoothstep(0.64, 0.7, n) * smoothstep(0.15, 0.7, up);
+		c = mix(c, c * vec3(1.14, 1.13, 0.88), dab * clumps * 0.7);
+	}
+	if (flat_normals) {
+		// Grass blades: sun-kissed tips over a cooler, deeper root.
+		float tip = smoothstep(0.12, 0.38, lpos.y);
+		c = mix(c * vec3(0.9, 0.96, 1.0), c * vec3(1.12, 1.08, 0.78), tip);
+	}
+	// Wet plants after rain: a little darker and richer.
+	c *= 1.0 - 0.14 * world_weather.z;
 	ALBEDO = c;
 	ROUGHNESS = 1.0;
+	BACKLIGHT = c * backlight;
+	// Looking toward a low sun, leaf and blade edges glow as light shines through them.
+	vec3 vdir = normalize(wpos - CAMERA_POSITION_WORLD);
+	float toward = pow(max(dot(vdir, normalize(world_sun_dir)), 0.0), 3.0);
+	float rim = 1.0 - abs(dot(NORMAL, VIEW));
+	float low_sun = 1.0 - 0.6 * smoothstep(0.35, 0.8, world_sun_dir.y);
+	EMISSION = c * world_sun_color * toward * rim * rim * low_sun * world_weather.x * (1.0 - world_weather.y) * 0.9;
 }
 """
 
@@ -44,6 +95,12 @@ static func plant_material(sway: float, sway_from: float, flat_normals: bool = f
 	m.set_shader_parameter("sway_from", sway_from)
 	m.set_shader_parameter("flat_normals", flat_normals)
 	m.set_shader_parameter("flower", flower)
+	# Leafy masses (canopies, pines, bushes: gentle sway, real normals) rustle and show painted leaf clusters;
+	# thin stems, flowers and grass keep their shape.
+	var leafy := not flat_normals and not flower and sway < 0.05
+	m.set_shader_parameter("flutter", 0.012 if leafy else 0.0)
+	m.set_shader_parameter("clumps", 1.0 if leafy else 0.0)
+	m.set_shader_parameter("backlight", 0.3 if leafy else (0.15 if flat_normals else 0.2))
 	return m
 
 static func _noise(seed: int, freq: float) -> FastNoiseLite:

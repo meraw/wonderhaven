@@ -120,6 +120,8 @@ func _load_optional_modules() -> void:
 		audio = load("res://scripts/audio/audio_director.gd").new(); audio.name = "Audio"; add_child(audio)
 	if ResourceLoader.exists("res://scripts/world/animals.gd"):
 		var an = load("res://scripts/world/animals.gd").new(); an.name = "Animals"; add_child(an); an.setup(self)
+	if ResourceLoader.exists("res://scripts/world/atmosphere.gd"):
+		var at = load("res://scripts/world/atmosphere.gd").new(); add_child(at); at.setup(self)
 
 func _build_ui() -> void:
 	var layer := CanvasLayer.new(); add_child(layer)
