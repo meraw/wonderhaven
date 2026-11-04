@@ -13,8 +13,9 @@ follows.
   block of its full height, with a stand-in spire on the Duomo; the city's edge is a ring of tall backdrop blocks.
   There are nav paths, six benches, two signs, the departure point at the station ("Take the train") and the
   ground-level build zones, which stay locked until their requests exist.
-- **On the travel map**, Toriano shows as a locked place ("???") until the flag `rice_village_trainStops` is set.
-  That's the name the rice village's design proposes for its finale, when the regional train stops there again.
+- **On the travel map**, Toriano stays off the map until the flag `rice_village_trainStops` is set, then turns up as a
+  surprise (every place does, as the user decided after stage 1). That's the flag the rice village's design proposes
+  for its finale, when the regional train stops there again.
 - **No villagers, requests, trams, gathering or interiors yet.** Those come in stages 2 and 3.
 - **Shared changes made in stage 1:** map size per layout, ground paint, greenery kept to a decor area and off
   paving, a building's height for the camera, and a departure point with its own id and label. See the table below.
@@ -95,8 +96,7 @@ number 14) can change.
   Toriano. Toriano isn't reachable from Monteforchetta directly until later in the story. The rice village
   (Casalrana, `docs/locations/rice_village.md`) adds that station. Its finale gets the regional train stopping again
   and sets `rice_village_trainStops`, the flag Toriano's map entry reveals on.
-- **Until that link exists**, Toriano shows on the travel map as a locked place ("???") and tests reach it with
-  `--island=metropolis`.
+- **Until that link exists**, Toriano stays off the travel map and tests reach it with `--island=metropolis`.
 - **The departure point** is the station platform. For now it's a feature of kind `boat`, as `docs/WORLD.md` asks,
   labelled as the train.
 - **Trams.** Old orange trams run one loop line with five stops: Toriano Centrale, the opera square, the castle park,

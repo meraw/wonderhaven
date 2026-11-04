@@ -12,7 +12,8 @@ See `docs/WORLD.md` for the rules and the file shapes. A pack is picked up when 
   - `h` on a building: its height, for the camera.
   - `depart_label` on the departure point: how you leave, for example "Take the train".
   See `metropolis/` for a city that uses them.
-- `location.json`: its entry on the travel map (`name`, `desc`, `x`, `y`, `r`, `color`, `reveal`) and its `look`.
+- `location.json`: its entry on the travel map (`name`, `desc`, `x`, `y`, `r`, `color`, `reveal`) and its `look`. The
+  place stays off the map until its `reveal` flag is set (`Travel.on_map`).
 - `npcs.json`, `quests.json`, `shops.json`, `resources.json`: the same shapes as the shared files in `..`, holding
   only this location's entries. Prefix every id with the location id.
 
