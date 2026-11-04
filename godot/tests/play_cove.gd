@@ -1,5 +1,5 @@
 extends "res://tests/full_base.gd"
-## Clockwork Cove with real input: board Hearthglow's ferry after the dock is rebuilt, sail to the cove, meet its
+## Clockwork Cove with real input: catch the bus once Monteforchetta's turnaround is paved, sail to the cove, meet its
 ## three villagers, light the lighthouse with a windmill, get the old clock ticking with a waterwheel, trade at
 ## Hazel's forge, then sail home and find Hearthglow as you left it.
 ## Run: TIMEOUT=6000 ./play.sh res://tests/play_cove.gd /tmp/out
@@ -31,22 +31,26 @@ func buy_at(id: String, item: String, done: Callable) -> void:
 	await tap(KEY_ESCAPE); await frames(10)
 
 func play() -> void:
-	# Hearthglow, after its story: the harbor is open and the dock rebuilt
+	# Monteforchetta (the "hearthglow" id), after its story: the turning circle on the belvedere is paved
 	var s: Dictionary = game.state
-	for qid in ["tool", "bridge", "workshop", "fountain", "decree", "dock"]: s.quests[qid] = {"status": "done", "progress": {}, "done": {}}
-	for f in ["hasTool", "toolGiven", "orchardOpen", "workshopDone", "harborOpen", "boatReady", "clockworkRevealed", "fountainRestored"]: s.flags[f] = true
+	for qid in ["tool", "bridge", "workshop", "fountain", "dock"]: s.quests[qid] = {"status": "done", "progress": {}, "done": {}}
+	for f in ["hasTool", "toolGiven", "orchardOpen", "workshopDone", "boatReady", "clockworkRevealed", "fountainRestored"]: s.flags[f] = true
 	s.tutorial = Tutorial.new_state(false, true); s.harmony = 140
 	s.inventory = {"coins": 30}
 	game.player_char.show_staff(true)
-	for k in range(41, 50):
-		var pl := {"uid": int(s.next_uid), "id": "bridgeDeck", "i": 5.0, "k": float(k), "r": 0, "y": BuildGrid.suggest_bottom("bridgeDeck", 5, k, 0, 0.15, s.placements, Data.zone("dock"))}
+	for i in range(1, 7):
+		var pl := {"uid": int(s.next_uid), "id": "gardenPath", "i": float(i), "k": 35.0, "r": 0, "y": BuildGrid.suggest_bottom("gardenPath", i, 35, 0, 0.15, s.placements, Data.zone("dock"))}
 		game.commit_place(pl, false, false)
 	game.hud.apply_reveals(); game.render_resources(); game.hud.render_harmony(); game.hud.render_tracker()
 	s.time.minute = 9 * 60.0
 	var dock_pieces: int = s.placements.size()
-	game.player.teleport(5.5, 48.5, 0.0); game.cam.snap(); await frames(10)
-	await walk_direct(5.5, 49.6, 0.5)
-	await face_and_press("boat", 5.5, 51.6); await frames(10)
+	var bus: Dictionary = {}
+	for f in Data.layout.features:
+		if f.id == "boat": bus = f
+	var stop: Array = Data.layout.nav_nodes.dockStart
+	game.player.teleport(stop[0], stop[1] - 1.0, 0.0); game.cam.snap(); await frames(10)
+	await walk_direct(stop[0], stop[1], 0.5)
+	await face_and_press("boat", bus.x, bus.z); await frames(10)
 	check("c1", "Catching the bus opens the travel map (the Cove itself is hidden for now and reached by a test-only route)", game.panels.current == "map" and game.panels.find_child("map_view", true, false) != null, game.panels.current)
 	await shot("map")
 	var ok := await sail("clockwork")

@@ -261,7 +261,7 @@ static func camera_blockers() -> Array:
 	var out: Array = []
 	for b in Data.layout.buildings:
 		var pad := 1.1 if b.kind == "castle" else 0.4
-		var top: float = 6.5 if b.kind == "castle" else (3.0 if b.kind == "caravan" else (9.0 if b.kind in ["lighthouse", "clocktower"] else 2.6 + roof_rise(b.w, b.d) + 0.3))
+		var top: float = 6.5 if b.kind == "castle" else (3.0 if b.kind == "caravan" else (9.0 if b.kind in ["lighthouse", "clocktower"] else (11.5 if b.kind == "church" else 2.6 + roof_rise(b.w, b.d) + 0.3)))
 		out.append(AABB(Vector3(b.x - b.w / 2.0 - pad, -1.0, b.z - b.d / 2.0 - pad), Vector3(b.w + pad * 2.0, top + 1.0, b.d + pad * 2.0)))
 	return out
 
@@ -513,14 +513,14 @@ static func castle(b: Dictionary) -> Node3D:
 		_add(g, P.cyl(1.0, 1.1, 5.2, 14), P.stone(b.wall), Vector3(tx, 2.6, tz))
 		_add(g, P.cone(1.3, 2.2, 14), P.mat(b.roof), Vector3(tx, 6.3, tz))
 		_add(g, P.cyl(0.03, 0.03, 0.9, 4), P.mat("666666"), Vector3(tx, 7.8, tz))
-		_add(g, P.box(0.6, 0.35, 0.02), P.mat("ff6f91"), Vector3(tx + 0.3, 8.05, tz))
+		for k in 3: _add(g, P.box(0.2, 0.36, 0.02), P.fabric(["2e8b57", "f4f1ea", "c8323c"][k]), Vector3(tx + 0.1 + k * 0.2, 8.05, tz))   # the tricolour
 	var kr := P.mi(P.cone((b.w - 2) * 0.62, 2.6, 4), P.mat(b.roof), Vector3.ZERO); kr.rotation.y = PI / 4
 	var kh := Node3D.new(); kh.position.y = 5.5; kh.scale = Vector3(1, 1, (b.d - 2) / (b.w - 2)); kh.add_child(kr); g.add_child(kh)
 	var ceiling := _add(g, P.box(b.w - 2.0, 0.1, b.d - 2.0), P.stone("d8d0c2"), Vector3(0, 4.25, 0))
 	g.set_meta("fade_parts", fade_parts([kh, ceiling]))
 	# banner over the gate
 	var gate_c: Vector2 = di.out * (b.w / 2.0 + 0.08)
-	var bn := _add(g, P.box(0.02, 1.6, 0.9) if di.out.y == 0.0 else P.box(0.9, 1.6, 0.02), P.fabric("ff6f91"), Vector3(gate_c.x, 3.4, gate_c.y))
+	var bn := _add(g, P.box(0.02, 1.6, 0.9) if di.out.y == 0.0 else P.box(0.9, 1.6, 0.02), P.fabric("2f5f9e"), Vector3(gate_c.x, 3.4, gate_c.y))   # the town banner
 	_add(g, P.sphere(0.25, 4, 2), P.mat(P.GOLD), Vector3(gate_c.x * 1.01, 3.5, gate_c.y * 1.01))
 	return g
 
@@ -538,7 +538,7 @@ static func _castle_closed(b: Dictionary) -> Node3D:
 		_add(g, P.cyl(1.0, 1.1, 5.2, 14), P.stone(b.wall), Vector3(tx, 2.6, tz))
 		_add(g, P.cone(1.3, 2.2, 14), P.mat(b.roof), Vector3(tx, 6.3, tz))
 		_add(g, P.cyl(0.03, 0.03, 0.9, 4), P.mat("666666"), Vector3(tx, 7.8, tz))
-		_add(g, P.box(0.6, 0.35, 0.02), P.mat("ff6f91"), Vector3(tx + 0.3, 8.05, tz))
+		for k in 3: _add(g, P.box(0.2, 0.36, 0.02), P.fabric(["2e8b57", "f4f1ea", "c8323c"][k]), Vector3(tx + 0.1 + k * 0.2, 8.05, tz))   # the tricolour
 	var kr := P.mi(P.cone((b.w - 2) * 0.62, 2.6, 4), P.mat(b.roof), Vector3.ZERO); kr.rotation.y = PI / 4
 	var kh := Node3D.new(); kh.position.y = 5.5; kh.scale = Vector3(1, 1, (b.d - 2) / (b.w - 2)); kh.add_child(kr); g.add_child(kh)
 	_add(g, P.rbox(0.15, 2.0, 1.6, 0.06), P.wood("7a4a2a"), Vector3(-b.w / 2.0 - 0.05, 1.0, 0))
@@ -780,4 +780,106 @@ static func market_stall() -> Node3D:
 	for x in [-1, 1]: _add(g, P.cyl(0.05, 0.05, 2.2, 6), P.wood("8b5a3c"), Vector3(x, 1.1, -0.3))
 	_add(g, P.box(2.5, 0.1, 1.3), P.mat("ff8fab"), Vector3(0, 2.2, 0), Vector3(0.2, 0, 0))
 	for f in [[-0.6, "ffd84a"], [0.0, "7cc35a"], [0.6, "ff5a5f"]]: _add(g, P.sphere(0.16, 8, 6), P.mat(f[1]), Vector3(f[0], 1.0, 0.1))
+	return g
+
+
+# ---- Monteforchetta --------------------------------------------------------------------------------------------
+
+## The parish church: a plastered nave with a rose window over an arched door, a terracotta roof, and a brick bell
+## tower with a clock and an open belfry. Its door faces the layout's `door` side; the tower stands at the far end of
+## the east side. Not a room you can walk into (it opens for Mass on Sundays).
+static func church(b: Dictionary) -> Node3D:
+	var g := Node3D.new()
+	var tower_w := 2.4
+	var nave_w: float = b.w - tower_w
+	var nave_x := -tower_w / 2.0   # the nave sits west of the tower
+	var h := 4.6
+	var wall := P.plaster(b.get("wall", "#ead2a0"))
+	var brick := P.stone("b8673f")
+	var nave := Node3D.new(); nave.position.x = nave_x; g.add_child(nave)
+	_add(nave, P.rbox(nave_w, h, b.d, 0.06), wall, Vector3(0, h / 2.0, 0))
+	_add(nave, P.rbox(nave_w + 0.24, 0.45, b.d + 0.24, 0.08), P.stone("c9bfae"), Vector3(0, 0.18, 0))
+	_gable_roof(nave, nave_w, b.d, h, wall, roof_material(b.get("roof", "#c4623a")), Color(b.get("roof", "#c4623a")).darkened(0.25))
+	# facade on the door side (north): arched door, steps, rose window, a little cornice
+	var dz: float = -b.d / 2.0 - 0.02 if b.door == "N" else b.d / 2.0 + 0.02
+	var sgn := -1.0 if b.door == "N" else 1.0
+	var face := Node3D.new(); face.position = Vector3(0, 0, dz); face.rotation.y = 0.0 if b.door == "S" else PI; nave.add_child(face)
+	_add(face, P.rbox(1.5, 2.3, 0.14, 0.04), P.mat("fffaf0"), Vector3(0, 1.25, 0.0))
+	_add(face, P.rbox(1.2, 2.05, 0.16, 0.04), P.wood("6b3a22"), Vector3(0, 1.1, 0.01))
+	_add(face, P.cyl(0.6, 0.6, 0.16, 18), P.wood("6b3a22"), Vector3(0, 2.12, 0.01), Vector3(PI / 2, 0, 0), Vector3(1, 1, 1))
+	_add(face, P.rbox(2.6, 0.18, 1.2, 0.05), P.stone("d8d0c2"), Vector3(0, 0.09, 0.55))
+	_add(face, P.rbox(2.0, 0.18, 0.7, 0.05), P.stone("d8d0c2"), Vector3(0, 0.27, 0.35))
+	_add(face, P.torus(0.55, 0.08, 24), P.mat("fffaf0"), Vector3(0, 3.55, 0.04), Vector3(PI / 2, 0, 0))
+	var glass := _add(face, P.cyl(0.5, 0.5, 0.04, 24), P.unique_mat("8a6fb8", "ffcf6b", 0.0), Vector3(0, 3.55, 0.02), Vector3(PI / 2, 0, 0))
+	glass.name = "glass"
+	g.set_meta("glasses", [glass])
+	# side windows: tall narrow arches
+	for side in [-1, 1]:
+		for zz in [-b.d * 0.22, b.d * 0.22]:
+			_add(nave, P.rbox(0.1, 1.5, 0.55, 0.04), P.unique_mat("a9c4df"), Vector3(side * (nave_w / 2.0 + 0.02), 2.6, zz))
+	# the bell tower
+	var tw := Node3D.new(); tw.position = Vector3(b.w / 2.0 - tower_w / 2.0, 0, -sgn * (b.d / 2.0 - tower_w / 2.0)); g.add_child(tw)
+	var th := 8.4
+	_add(tw, P.rbox(tower_w, th, tower_w, 0.05), brick, Vector3(0, th / 2.0, 0))
+	for y in [3.0, 6.0]: _add(tw, P.rbox(tower_w + 0.16, 0.16, tower_w + 0.16, 0.04), P.stone("d8c7a8"), Vector3(0, y, 0))
+	# clock face on the side toward the piazza
+	var clock := Node3D.new(); clock.position = Vector3(0, 6.9, sgn * (tower_w / 2.0 + 0.02)); clock.rotation.y = 0.0 if sgn > 0 else PI; tw.add_child(clock)
+	_add(clock, P.cyl(0.62, 0.62, 0.06, 28), P.mat("f4f1ea"), Vector3.ZERO, Vector3(PI / 2, 0, 0))
+	_add(clock, P.torus(0.62, 0.05, 28), P.mat("3a2c22"), Vector3(0, 0, 0.02), Vector3(PI / 2, 0, 0))
+	var hh := _add(clock, P.box(0.05, 0.38, 0.03), P.mat("2a2a2a"), Vector3(0, 0.15, 0.05)); hh.rotation.z = -0.6
+	_add(clock, P.box(0.04, 0.5, 0.03), P.mat("2a2a2a"), Vector3(0.12, 0.2, 0.06), Vector3(0, 0, -0.45))
+	# open belfry with a bell, then a cornice and a low pyramid roof
+	var by := th + 1.0
+	for c in [[-1, -1], [1, -1], [-1, 1], [1, 1]]: _add(tw, P.box(0.35, 2.0, 0.35), brick, Vector3(c[0] * (tower_w / 2.0 - 0.18), th + 1.0, c[1] * (tower_w / 2.0 - 0.18)))
+	_add(tw, P.cyl(0.32, 0.45, 0.6, 14), P.mat("b8862e"), Vector3(0, by + 0.1, 0))
+	_add(tw, P.rbox(tower_w + 0.3, 0.22, tower_w + 0.3, 0.05), P.stone("d8c7a8"), Vector3(0, th + 2.05, 0))
+	var pr := P.mi(P.cone(tower_w * 0.82, 1.7, 4), roof_material(b.get("roof", "#c4623a")), Vector3(0, th + 3.0, 0)); pr.rotation.y = PI / 4; tw.add_child(pr)
+	_add(tw, P.sphere(0.14, 10, 8), P.mat(P.GOLD), Vector3(0, th + 3.95, 0))
+	return g
+
+## A bus: the old blue country bus, or the region's new orange city bus. Its long side runs along x.
+static func bus(length: float = 6.4, color: String = "3a6fb5", sign_text: String = "MONTEFORCHETTA") -> Node3D:
+	var g := Node3D.new()
+	var body := P.mat(color); var white := P.mat("f2f0ea"); var glass := P.unique_mat("9fc6e0"); var dark := P.mat("26282a")
+	_add(g, P.rbox(length, 2.2, 2.3, 0.25), body, Vector3(0, 1.5, 0))
+	_add(g, P.rbox(length + 0.02, 0.35, 2.32, 0.05), white, Vector3(0, 0.75, 0))
+	_add(g, P.rbox(length - 1.0, 0.75, 2.34, 0.08), glass, Vector3(-0.2, 1.95, 0))
+	_add(g, P.rbox(0.1, 1.0, 2.0, 0.06), glass, Vector3(length / 2.0 + 0.01, 1.85, 0))
+	_add(g, P.rbox(0.55, 1.7, 0.06, 0.04), glass, Vector3(length / 2.0 - 0.8, 1.35, 1.17))   # the door
+	for x in [-length / 2.0 + 1.1, length / 2.0 - 1.3]:
+		for z in [-1.12, 1.12]: _add(g, P.cyl(0.45, 0.45, 0.3, 16), dark, Vector3(x, 0.45, z), Vector3(PI / 2, 0, 0))
+	_add(g, P.rbox(0.12, 0.3, 2.2, 0.04), P.mat("9aa4b5"), Vector3(length / 2.0 + 0.06, 0.55, 0))
+	var lbl := Label3D.new(); lbl.text = sign_text; lbl.font = UiTheme.title_font(); lbl.font_size = 48; lbl.pixel_size = 0.004
+	lbl.modulate = Color("ffcf5c"); lbl.outline_size = 8; lbl.outline_modulate = Color("1d1d1d")
+	lbl.position = Vector3(length / 2.0 + 0.08, 2.48, 0); lbl.rotation.y = PI / 2
+	g.add_child(lbl)
+	return g
+
+## A bus-stop sign: a pole with a round blue plate.
+static func bus_stop_sign() -> Node3D:
+	var g := Node3D.new()
+	_add(g, P.cyl(0.05, 0.05, 2.4, 8), P.mat("9aa4b5"), Vector3(0, 1.2, 0))
+	_add(g, P.cyl(0.36, 0.36, 0.05, 20), P.mat("2f5f9e"), Vector3(0, 2.35, 0), Vector3(PI / 2, 0, 0))
+	var lbl := Label3D.new(); lbl.text = "BUS"; lbl.font = UiTheme.title_font(); lbl.font_size = 64; lbl.pixel_size = 0.005; lbl.modulate = Color.WHITE
+	lbl.position = Vector3(0, 2.35, 0.04); g.add_child(lbl)
+	return g
+
+## A stretch of tumbledown dry-stone wall (the ruined farmhouse), `length` metres along x.
+static func ruin_wall(length: float = 3.0, seed: int = 1) -> Node3D:
+	var g := Node3D.new()
+	var rng := RandomNumberGenerator.new(); rng.seed = seed
+	var n := int(ceil(length / 0.7))
+	for i in n:
+		var hgt := rng.randf_range(0.3, 1.5) if i % 3 != 0 else rng.randf_range(0.2, 0.6)
+		_add(g, P.rbox(length / n + 0.05, hgt, 0.55, 0.06), P.stone("bfb19a" if i % 2 else "a89a85"), Vector3(-length / 2.0 + (i + 0.5) * length / n, hgt / 2.0, rng.randf_range(-0.05, 0.05)))
+	for i in 3: _add(g, P.rbox(0.35, 0.22, 0.3, 0.05), P.stone("a89a85"), Vector3(rng.randf_range(-length / 2.0, length / 2.0), 0.11, rng.randf_range(0.4, 0.8)), Vector3(0, rng.randf() * PI, 0))
+	return g
+
+## A cluster of porcini mushrooms.
+static func porcini() -> Node3D:
+	var g := Node3D.new()
+	for c in [[0.0, 0.0, 1.0], [0.18, 0.1, 0.75], [-0.14, 0.15, 0.6]]:
+		var s: float = c[2]
+		_add(g, P.cyl(0.05 * s, 0.07 * s, 0.16 * s, 10), P.mat("f1e6cf"), Vector3(c[0], 0.08 * s, c[1]))
+		_add(g, P.hemi(0.11 * s, 14), P.mat("8a5a2e"), Vector3(c[0], 0.15 * s, c[1]), Vector3.ZERO, Vector3(1, 0.75, 1))
 	return g

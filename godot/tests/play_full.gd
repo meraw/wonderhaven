@@ -1,7 +1,7 @@
 extends "res://tests/full_base.gd"
-## Full playthrough, part one: a new game through the guided first requests, the staged bridge and Bram's
-## workshop, with real key and mouse input. Checks acceptance tests 1-7, 9 and 10, then saves to slot 3 for
-## play_full2.gd (the fountain, the harbor, sailing, saving and loading).
+## Full playthrough, part one: a new game through the guided first requests, the staged crossing and Elio's
+## shop, with real key and mouse input. Checks acceptance tests 1-7, 9 and 10, then saves to slot 3 for
+## play_full2.gd (the fountain, the bus turnaround, travel, saving and loading).
 ## Run: TIMEOUT=6000 ./play.sh res://tests/play_full.gd /tmp/out   (play.sh passes --title for both parts)
 
 # ---- the playthrough ----------------------------------------------------------------------------
@@ -53,8 +53,8 @@ func play() -> void:
 		"wood %d, lost things %d" % [inv("wood"), inv("fragment")])
 	await talk("percival")
 	print("   tool: ", q("tool").get("status", ""), " harmony ", game.state.harmony)
-	# Bridge quest: materials first (step 1 of 3)
-	await talk("fern")
+	# Bridge quest (Aldo, stuck at the bus stop): materials first (step 1 of 3)
+	await talk("captain")
 	await gather_until("chop", func(): return int(q("bridge").progress.get("wood", 0)) >= 10 and inv("wood") >= 16, [], 26)
 	print("   materials: wood ", inv("wood"), " step ", game.story.engine.stage_index("bridge"))
 	check("A1", "Staged request: the bridge's building step opens once the materials are gathered", game.story.engine.current_stage("bridge") == 1, "step %d of %d" % [game.story.engine.stage_index("bridge"), game.story.engine.stages("bridge").size()])
@@ -104,7 +104,7 @@ func play() -> void:
 	await walk_direct(0.5, -13.5, 0.7)
 	var bp0: int = game.state.blueprints.size()
 	var h0: int = game.state.harmony
-	await talk("fern")
+	await talk("captain")
 	check(9, "Completing a quest changes the world and grants rewards", q("bridge").get("status", "") == "done" and game.state.flags.get("orchardOpen", false) and game.state.harmony > h0, "harmony %d→%d, orchardOpen=%s" % [h0, game.state.harmony, game.state.flags.get("orchardOpen", false)])
 	check(10, "New blueprints become available as you progress", game.state.blueprints.size() > bp0 and game.state.blueprints.has("flowerBed"), "%d→%d blueprints" % [bp0, game.state.blueprints.size()])
 	# Workshop: materials, then Bram's plan, then furnishing

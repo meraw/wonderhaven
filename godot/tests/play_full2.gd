@@ -1,7 +1,7 @@
 extends "res://tests/full_base.gd"
 ## Full playthrough, part two: loads the slot-3 save that play_full.gd made (from the title screen, like a player),
-## then the fountain machine, the King's decree, the dock, saving and loading, and sailing to Clockwork Cove and
-## back. Checks acceptance tests 8, 11 and 12. Run play_full.gd first.
+## then the fountain machine, the bus turnaround on the belvedere, saving and loading, and catching the bus to the
+## travel map. Checks acceptance tests 8, 11 and 12. Run play_full.gd first.
 
 func play() -> void:
 	await frames(20)
@@ -33,18 +33,18 @@ func play() -> void:
 	await leave_build()
 	await talk("tilly")
 	print("   fountain: ", q("fountain").get("status", ""), " harmony ", game.state.harmony)
-	# Harbor
-	await talk("percival")
-	print("   decree: ", q("decree").get("status", ""), " harborOpen ", game.state.flags.get("harborOpen", false))
-	await walk_to(5.0, 37.0, 1.0)
+	# The city bus (Aldo): stone first, then pave the turning circle on the belvedere, with a bench and a sign
 	await talk("captain")
-	await gather_until("chop", func(): return int(q("dock").progress.get("wood", 0)) >= 12 and inv("wood") >= 9, [], 20)
-	await walk_to(5.0, 37.0, 1.0)
-	await walk_direct(5.5, 40.6, 0.6)
+	await gather_until("mine", func(): return int(q("dock").progress.get("stone", 0)) >= 10 and inv("stone") >= 12, ["rock5", "rock0", "rock1", "rock2", "rock3", "rock4"], 24)
+	await gather_until("chop", func(): return inv("wood") >= 4, [], 6)
+	await walk_to(4.0, 32.6, 1.0)
 	await open_build("dock")
-	await select_piece("bridgeDeck")
-	for k in [41, 42, 43, 44, 45, 46, 47, 48, 49]: await place_at(5, k, 0.15)
-	await shot("dock-built")
+	await select_piece("gardenPath")
+	for i in range(1, 7):
+		for k in [35, 36]: await place_at(i, k, 0.1)
+	await select_piece("bench"); print("   bench: ", await place_at(2, 38, 0.1, 0))
+	await select_piece("signpost"); print("   sign: ", await place_at(6, 38, 0.1, 0))
+	await shot("turnaround-built")
 	await leave_build()
 	await talk("captain")
 	print("   dock: ", q("dock").get("status", ""), " boatReady ", game.state.flags.get("boatReady", false))
@@ -74,8 +74,12 @@ func play() -> void:
 	check(11, "Save, exit, reload: constructions and quest progress intact", same_build and qs.call(saved) == qs.call(game.state) and game.state.harmony == saved.harmony and game.mech.fed.get("fountain", false),
 		"%d pieces, harmony %d, fountain flowing=%s" % [game.state.placements.size(), game.state.harmony, game.mech.fed.get("fountain", false)])
 	# Catch the bus: the travel map opens (Clockwork Cove is hidden until it is reworked, so there is nowhere new to go yet)
-	await walk_direct(5.5, 47.0, 0.6); await walk_direct(5.5, 49.6, 0.5)
-	await face_and_press("boat", 5.5, 51.6); await frames(10)
+	var stop: Array = Data.layout.nav_nodes.dockStart
+	var bus: Dictionary = {}
+	for f in Data.layout.features:
+		if f.id == "boat": bus = f
+	await walk_to(stop[0], stop[1] - 1.0, 0.8); await walk_direct(stop[0], stop[1], 0.5)
+	await face_and_press("boat", bus.x, bus.z); await frames(10)
 	await shot("world-map")
 	var mv: Control = game.panels.find_child("map_view", true, false)
 	check("B2", "The new stop works: catching the bus opens the travel map, with the old Clockwork Cove kept off it", game.panels.current == "map" and mv != null and not mv.call("_shown").any(func(i): return i.id == "clockwork"), game.panels.current)

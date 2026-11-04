@@ -30,7 +30,7 @@ func play() -> void:
 	game.state.tutorial.on = false; game.hud.apply_reveals()
 	game.state.time.minute = 10 * 60.0
 	await frames(10)
-	for bid in ["bakery", "playerHouse", "odessaHouse", "fernHouse", "captainHut", "percivalHouse", "castle"]:
+	for bid in ["bakery", "playerHouse", "fernHouse", "captainHut", "percivalHouse", "castle"]:
 		var ok := await walk_in(bid)
 		await frames(20)
 		check("in-" + bid, "Walked in through the door of %s" % bid, ok and game.roof_fade.get(bid, 1.0) < 0.05, "pos %s roof %.2f" % [game.player.pos, game.roof_fade.get(bid, 1.0)])

@@ -1,7 +1,8 @@
 class_name WalkWorld
 extends RefCounted
 ## Walkable-surface model shared by player movement and construction validation.
-## Statics: {type:"circle", x, z, r} | {type:"box", minX, maxX, minZ, maxZ, flag?}
+## Statics: {type:"circle", x, z, r} | {type:"box", minX, maxX, minZ, maxZ, flag?, whileFlag?}: a `flag` static stops
+## blocking once that flag is set (a gate that opens); a `whileFlag` one only blocks while it's set (a bus that arrives).
 ## Surfaces (from pieces): {minX, maxX, minZ, maxZ, bottom, top, walkable, solid, ramp?: Callable(x, z) -> top}
 
 const STEP_UP := 0.45
@@ -33,6 +34,7 @@ func surface_at(x: float, z: float, feet_y: float = INF) -> Dictionary:
 	return {"y": y, "walkable": walkable, "ground": g}
 
 func static_active(c: Dictionary) -> bool:
+	if c.has("whileFlag") and not flag_fn.call(c.whileFlag): return false
 	return not (c.has("flag") and flag_fn.call(c.flag))
 
 static func circle_box(x: float, z: float, r: float, b: Dictionary) -> bool:

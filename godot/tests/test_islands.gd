@@ -100,7 +100,7 @@ func test_travel_keeps_each_islands_buildings():
 
 func test_requests_belong_to_their_island():
 	var s := GameState.new_game()
-	for q in ["tool", "bridge", "workshop", "decree", "dock"]: s.quests[q] = {"status": "done", "progress": {}}
+	for q in ["tool", "bridge", "workshop", "fountain", "dock"]: s.quests[q] = {"status": "done", "progress": {}}
 	s.flags["arrived_clockwork"] = true
 	var e := QuestEngine.new(s)
 	t.eq(Data.quest_island("lighthouse"), "clockwork", "the lighthouse request is on the cove")

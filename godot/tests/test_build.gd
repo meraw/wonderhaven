@@ -32,11 +32,11 @@ func test_rotation_round_trip():
 
 func test_stacking_and_overlap():
 	var list: Array = []
-	t.ok(place(list, "stoneBlock", 20, 10).ok)
-	var second := place(list, "stoneBlock", 20, 10, 0, "plot", 1.0)
+	t.ok(place(list, "stoneBlock", 17, -35).ok)
+	var second := place(list, "stoneBlock", 17, -35, 0, "plot", 1.0)
 	t.ok(second.ok, second.get("reason", ""))
 	t.ok(absf(second.pl.y - (list[0].y + 1.0)) < 1e-6, "stacked")
-	var clash := {"uid": 999, "id": "table", "i": 20.0, "k": 10.0, "r": 0, "y": list[0].y}
+	var clash := {"uid": 999, "id": "table", "i": 17.0, "k": -35.0, "r": 0, "y": list[0].y}
 	var v := BuildGrid.validate_placement(clash, {"placements": list, "zones": [Data.zone("plot")], "statics": statics})
 	t.ok(not v.ok and "Bumps into" in v.reason, v.get("reason", ""))
 
@@ -46,7 +46,7 @@ func test_zone_warnings():
 	t.ok(not v.ok and "Outside" in v.reason)
 	pl.i = 0.0; pl.k = -16.0
 	v = BuildGrid.validate_placement(pl, {"placements": [], "zones": [Data.zone("plot")], "locked_zones": Data.layout.zones, "statics": statics})
-	t.ok("Orchard Bridge site" in v.reason, v.reason)
+	t.ok("The washout" in v.reason, v.reason)
 
 func test_span_rule_and_removal():
 	var list: Array = []
@@ -97,10 +97,10 @@ func test_door_and_stairs():
 	for n in 20: p = walk.step_move(p, 0, -0.1).pos
 	t.ok(p.z < 9.9, "open door lets you through")
 	var list: Array = []
-	t.ok(place(list, "platform", 20, 10).ok)
-	t.ok(place(list, "stairs", 20, 12).ok)
+	t.ok(place(list, "platform", 17, -36).ok)
+	t.ok(place(list, "stairs", 17, -34).ok)
 	walk.surfaces = BuildGrid.surfaces_for(list)
-	p = Vector3(20.5, walk.surface_at(20.5, 13.6).y, 13.6)
+	p = Vector3(17.5, walk.surface_at(17.5, -32.4).y, -32.4)
 	var y0 := p.y
 	for n in 40: p = walk.step_move(p, 0, -0.08).pos
 	t.ok(p.y > y0 + 0.9, "climbed (y=%.2f)" % p.y)
@@ -137,12 +137,25 @@ func test_history():
 	h.redo(apply)
 	t.eq(log, ["undo:2", "undo:1", "redo:1"], "order")
 
-func test_dock():
+func test_bus_turnaround():
+	# the finale: pave the turning circle on the belvedere, then a bench and a sign for the stop
 	var list: Array = []
 	var z: Dictionary = Data.zone("dock")
-	for e in z.blueprint:
-		var r := place(list, "bridgeDeck", e[0], e[1], 0, "dock", 0.2)
-		t.ok(r.ok, "%s: %s" % [str(e), r.get("reason", "")])
-	var walk := WalkWorld.new(statics, func(_f): return true)
+	var paving := 0
+	for i in range(int(z.minI) + 1, int(z.maxI)):
+		for k in [int(z.minK) + 1, int(z.minK) + 2]:
+			var r := place(list, "gardenPath", i, k, 0, "dock", 0.3)
+			t.ok(r.ok, "paving at %d,%d: %s" % [i, k, r.get("reason", "")])
+			if r.ok: paving += 1
+	var bench := place(list, "bench", int(z.minI) + 2, int(z.maxK) - 1, 0, "dock", 0.3)
+	t.ok(bench.ok, bench.get("reason", ""))
+	var sign := place(list, "signpost", int(z.maxI) - 1, int(z.maxK) - 1, 0, "dock", 0.3)
+	t.ok(sign.ok, sign.get("reason", ""))
+	var q := Data.quest("dock")
+	for o in q.objectives:
+		if o.kind != "pieces": continue
+		var n := Validate.pieces_in_zone(z, list).filter(func(pl): return o.any.has(pl.id)).size()
+		t.ok(n >= int(o.get("count", 1)), "%s (%d placed)" % [o.text, n])
+	var walk := WalkWorld.new(statics)
 	walk.surfaces = BuildGrid.surfaces_for(list)
-	t.ok(Validate.path_across(z, walk).ok, "dock path")
+	t.ok(walk.surface_at(float(z.minI) + 2.5, float(z.minK) + 1.5).walkable, "you can walk on the paving")

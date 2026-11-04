@@ -1,5 +1,5 @@
 class_name Heightfield
-## The island's ground shape: shared by the terrain mesh, movement, building and quest checks.
+## The ground shape of the place you're on: shared by the terrain mesh, movement, building and quest checks.
 
 const WATER_Y := -0.4
 const WALKABLE_MIN := -0.3
@@ -50,18 +50,21 @@ static func _island_radius(a: float) -> float:
 static func height(x: float, z: float) -> float:
 	if _pack_height: return _pack.height(x, z)
 	if island == "clockwork": return _cove(x, z)
+	return _monteforchetta(x, z)
+
+## Monteforchetta (the "hearthglow" id): a hilltop. The village and its fields are nearly level, with the castle on
+## a mound; past the edge the hill falls away in long vineyard slopes to the valley floor far below. A stream runs
+## through a fold in the hilltop (the washed-out road crosses it), fed by the spring by the mill channel.
+const VALLEY_Y := -28.0
+const SLOPE_RUN := -48.0   # how far past the edge the hillside reaches the valley floor (metres; gentle enough to see the vines)
+static func _monteforchetta(x: float, z: float) -> float:
 	var r := sqrt(x * x + z * z)
 	var a := atan2(z, x)
-	var ring := ss(32, 42, r) * (1.0 - ss(46, 50, r))
-	var h := ring * (0.9 + 0.7 * sin(x * 0.13 + 1.3) * cos(z * 0.11 - 0.4))
+	var h := 0.12 * sin(x * 0.13 + 1.3) * cos(z * 0.11 - 0.4) * ss(28, 40, r)
 	var dc := Vector2(x - CASTLE_MOUND.x, z - CASTLE_MOUND.z).length()
 	h = lerpf(h, maxf(h, CASTLE_MOUND.y), 1.0 - ss(CASTLE_R - 3.0, CASTLE_R, dc))   # a level mound: the castle floor sits flat on it
 	var edge := _island_radius(a) - r
-	h = lerpf(-2.4, h, ss(-2, 7, edge))
-	var m := 1.0 - ss(20, 28, absf(x - 4.0))
-	if z > 34.0 and m > 0.0:
-		var hh := 0.25 - maxf(0.0, z - 40.0) * 0.3
-		if hh < h: h = lerpf(h, maxf(hh, -2.4), m)
+	h = lerpf(VALLEY_Y, h, ss(SLOPE_RUN, 4, edge))   # the slopes down to the valley (unwalkable, like water)
 	var dz := absf(z - river_center(x))
 	if dz < RIVER_HALF + RIVER_BANK:
 		var rh := -1.4 if dz < RIVER_HALF else lerpf(-1.4, h, (dz - RIVER_HALF) / RIVER_BANK)
