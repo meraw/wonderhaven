@@ -70,7 +70,7 @@ static func height(x: float, z: float) -> float:
 	h = maxf(h, lerpf(LEVEE, h, _ss(3.6, 5.2, dc)))
 	if dc < 2.4:
 		var bed := BED
-		if dc < 1.3 and fposmod(z * 0.071 + 0.3, 1.0) < 0.3: bed = -0.55   # puddles left in the drained canal
+		if dc < 0.8 + 0.5 * sin(z * 0.53) and fposmod(z * 0.071 + 0.3, 1.0) < 0.3: bed = -0.55   # puddles left in the drained canal
 		h = minf(h, lerpf(bed, h, _ss(1.9, 2.4, dc)))
 	h = minf(h, lerpf(BED, h, _ss(0.0, 0.6, _box_d(x, z, WINTER.grow(-0.6)))))
 	var dp := Vector2(x - POOL.x, z - POOL.y).length()
@@ -84,11 +84,11 @@ static func is_stream_cell(i: float, k: float) -> bool:
 
 const STUBBLE_A := Color("c8ad74")
 const STUBBLE_B := Color("d4bd88")
-const BANK_GRASS := Color("a2a878")
+const BANK_GRASS := Color("aba684")
 const GRAVEL := Color("cbbf9f")
-const BRICK := Color("b77f66")
+const BRICK := Color("c99d84")
 const BALLAST := Color("9a948c")
-const MUD := Color("86745a")
+const MUD := Color("a08b6c")
 const DRY_PADDY := Color("a08d66")
 const GROVE := Color("88ad66")
 const UNDER_POPLARS := Color("aeaa7c")
@@ -112,7 +112,7 @@ static func ground(x: float, z: float) -> Color:
 	else:
 		var cell := Vector2i(_cell(x, BANK_X), _cell(z, BANK_Z))
 		c = STUBBLE_A.lerp(STUBBLE_B, fposmod(sin(cell.x * 12.9898 + cell.y * 78.233) * 43758.5453, 1.0))
-		if _in_puddle(x, z) < 1.25: c = c.lerp(MUD, 0.45)   # damp ground round a puddle
+		if _in_puddle(x, z) < 1.15: c = c.lerp(MUD, 0.2)   # damp ground round a puddle
 	return Color(c.r, c.g, c.b, 0.0)
 
 static func _on_pad(x: float, z: float) -> bool:

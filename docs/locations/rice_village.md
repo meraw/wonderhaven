@@ -1,7 +1,7 @@
 # Casalrana: design for the rice village
 
-Working id `rice_village`. Agreed with the user on 2026-11-04 in a design interview. **Nothing here is built yet.** This
-doc is the plan the build stages follow. The rules every location shares are in `docs/WORLD.md`; `docs/MONTEFORCHETTA.md`
+Working id `rice_village`. Agreed with the user on 2026-11-04 in a design interview. **Stage 1 (ground and map) is
+built**; stages 2 to 4 are not. This doc is the plan the build stages follow. The rules every location shares are in `docs/WORLD.md`; `docs/MONTEFORCHETTA.md`
 and `docs/locations/metropolis.md` are the models this doc follows.
 
 ## The concept
@@ -309,6 +309,30 @@ One pull request per stage. Each keeps the game playable and the tests passing.
   `docs/GRAPHICS.md` describes.
 - **Links to other locations.** Arriving depends on Monteforchetta's bus and travel stops; leaving by train depends on
   Toriano's map entry using Casalrana's flag. Both are agreed with those sessions, not changed in their files.
+
+## Status
+**Stage 1, ground and map: built.**
+- **The ground** (`godot/scripts/locations/rice_village.gd`):
+  - Harvested paddies on a grid of banks, with 34 puddles that mirror the sky.
+  - The drained canal (a muddy bed with puddles) and the sunken, dry winter paddy.
+  - The spring pool in its green grove, the railway bed, and flooded paddies past the edge.
+  - Painted stubble, banks, gravel, brick and ballast.
+- **The layout** (`godot/data/locations/rice_village/layout.json`):
+  - The bus stop where you arrive, 43 nav spots, paths, four benches, signs and a notice board.
+  - Basic gathering: poplars, cobble heaps, clay, the spring pool, hellebores.
+  - Seven build sites. Your yard opens with `rice_village_homePlot`; the six request sites open with requests that
+    stage 3 adds.
+- **Plain boxes for the buildings.** The railway is two blocks with the level crossing between them.
+- **The map entry:** hidden, with an always-clear look.
+- **Verified:**
+  - `test_rice_village.gd` (unit tests).
+  - `play_rice_village.gd`: a walk with real input over the crossing and to every part of the village, checking
+    that the line and the canal keep you out.
+  - Screenshots in both renderers.
+- **Not yet:**
+  - The edge still shows the shared water plane as open water. The flooded paddies, poplar rows and white haze come
+    in stage 2.
+  - The sky is the shared blue; the look comes in stage 4.
 
 ## Checks for every stage
 `godot/run_tests.sh`, `npm test` and `npm run build`; screenshots of Casalrana in both renderers
