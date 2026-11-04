@@ -58,9 +58,13 @@ func play() -> void:
 	await walk_to(45.9, 21)
 	check("r9", "Down the east bank through the poplar plantation, under the sawmill's open shed", at(45.9, 21), str(game.player.pos))
 	await shot("sawmill")
-	await walk_direct(RiverTown.alpine_center(13.0), 13.0, 0.5, 6.0)
-	check("r10", "The Alpine river stops you: no wading across before the pontoon bridge exists",
-		game.player.pos.x > RiverTown.alpine_center(13.0) + RiverTown.ALPINE_HALF - 1.0, str(game.player.pos))
+	await walk_to(38.8, 9.5)
+	var bank := RiverTown.alpine_center(9.5) + RiverTown.ALPINE_HALF
+	await walk_direct(bank + 0.8, 9.5, 0.6)
+	var reached := game.player.pos.x < bank + 1.6
+	await walk_direct(RiverTown.alpine_center(9.5), 9.5, 0.5, 6.0)
+	check("r10", "The Alpine river stops you at its bank: no wading across before the pontoon bridge exists",
+		reached and game.player.pos.x > bank - 1.0, "bank at %.1f, stopped at %s" % [bank, game.player.pos])
 	# back over the bridge and onto the floodplain
 	check("r11", "Gildo and Mattia's fishing shack by the Po: in through its door", await enter("river_town_shack", "shack"), str(game.player.pos))
 	await walk_to(-19.2, 29)
