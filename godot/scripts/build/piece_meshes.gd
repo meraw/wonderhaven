@@ -24,9 +24,10 @@ static func make(id: String, color: String = "") -> Node3D:
 			_b(g, P.box(1, 0.04, 0.12), dark, 0, 0.02, 0.3); _b(g, P.box(1, 0.04, 0.12), dark, 0, 0.02, -0.3)
 		"bridgePost":
 			_b(g, P.cyl(0.26, 0.3, 1.4, 10), t, 0, 0.7, 0); _b(g, P.cyl(0.32, 0.32, 0.1, 10), dark, 0, 1.35, 0); _b(g, P.box(1.0, 0.1, 0.16), dark, 0, 1.33, 0)
-		"railing":
-			for x in [-0.42, 0.0, 0.42]: _b(g, P.box(0.1, 0.7, 0.1), t, x, 0.35, N)
-			_b(g, P.box(1, 0.08, 0.12), t, 0, 0.66, N); _b(g, P.box(1, 0.06, 0.08), t, 0, 0.35, N)
+		"railing":   # hugs the outer 0.1 m of its edge, so a one-tile bridge with railings both sides still fits a walker
+			var rn := -0.5 + 0.05
+			for x in [-0.42, 0.0, 0.42]: _b(g, P.box(0.09, 0.7, 0.09), t, x, 0.35, rn)
+			_b(g, P.box(1, 0.08, 0.1), t, 0, 0.66, rn); _b(g, P.box(1, 0.06, 0.07), t, 0, 0.35, rn)
 		"floor":
 			_b(g, P.rbox(0.99, 0.12, 0.99, 0.02), t, 0, 0.06, 0)
 			for x in [-0.25, 0.25]: _b(g, P.box(0.02, 0.122, 0.95), P.wood("b98a5a"), x, 0.061, 0)

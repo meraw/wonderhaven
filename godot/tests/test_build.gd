@@ -81,6 +81,14 @@ func test_bridge_is_walkable():
 	walk.surfaces = BuildGrid.surfaces_for(rails)
 	t.ok(Validate.path_across(Data.zone("bridge"), walk).ok, "railings along the sides don't block the way")
 	t.eq(Validate.pieces_in_zone(Data.zone("bridge"), rails).filter(func(p): return p.id == "railing").size(), 4, "all four count as on the bridge")
+	# ...and with railings on both sides of the same tiles, a walker still fits between them
+	for k in [-16, -17, -18, -19]:
+		var v := place(rails, "railing", 1, k, 3 if k % 2 == 0 else 1, "bridge", 0.3)
+		t.ok(v.ok, "a railing fits on the other side at k=%d (%s)" % [k, v.get("reason", "")])
+	walk.surfaces = BuildGrid.surfaces_for(rails)
+	var q := Vector3(1.44, 0, -13.5)   # a little off the middle, as real steering is
+	for n in 140: q = walk.step_move(q, 0, -0.1).pos
+	t.ok(q.z < -22.5, "walked between railings on both sides, a little off-centre (z=%.2f)" % q.z)
 	list.append({"uid": 777, "id": "railing", "i": 1.0, "k": -19.0, "r": 0, "y": 0.15})
 	walk.surfaces = BuildGrid.surfaces_for(list)
 	t.ok(not Validate.path_across(Data.zone("bridge"), walk).ok, "railing blocks")
