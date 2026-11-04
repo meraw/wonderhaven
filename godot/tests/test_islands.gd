@@ -12,7 +12,8 @@ func _on(id: String, fn: Callable) -> void:
 func _islands_with_layouts() -> Array: return Data.islands.filter(func(i): return Data.has_island(i.id)).map(func(i): return i.id)
 
 func test_two_islands_are_built():
-	t.eq(_islands_with_layouts(), ["hearthglow", "clockwork"], "Hearthglow and Clockwork Cove have layouts")
+	var ids := _islands_with_layouts()
+	t.ok(ids.has("hearthglow") and ids.has("clockwork"), "Hearthglow and Clockwork Cove have layouts (plus any location packs)")
 	t.eq(Data.island, "hearthglow", "the game starts on Hearthglow")
 
 func test_every_island_is_a_playable_world():

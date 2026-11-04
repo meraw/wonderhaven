@@ -19,8 +19,8 @@ var resource_order: Array
 var appearance: Dictionary
 var tutorial: Dictionary   # Godot-only: guided first day steps and tip cards (data/tutorial.json)
 var shops: Dictionary      # Godot-only: what villagers buy and sell, gift lines (data/shops.json)
-## The island you're on. `layout` is that island's layout (data/layout.json for Hearthglow, layout_<id>.json for
-## the others); Heightfield follows it. Sailing reloads the scene with the new island (see game.travel).
+## The island you're on. `layout` is that island's layout (data/layout.json for Hearthglow, layout_<id>.json or a
+## location pack's layout for the others); Heightfield follows it. Sailing reloads the scene with the new island.
 var island := "hearthglow"
 var pending_state: Dictionary = {}   # the game state carried across that reload
 var autoplay_started := false         # a scripted playthrough keeps running across island reloads
@@ -44,7 +44,58 @@ func load_all() -> void:
 	appearance = _read("appearance")
 	tutorial = _read("tutorial")
 	shops = _read("shops")
+	var lists := {"islands": islands, "npcs": npcs, "quests": quests, "shops": shops.get("shops", {}), "resources": resources, "order": resource_order}
+	for id in location_ids():
+		var dir := "%s/%s/" % [LOCATIONS, id]
+		merge_pack(lists, id, {"location": _read_opt(dir + "location"), "npcs": _read_opt(dir + "npcs"), "quests": _read_opt(dir + "quests"),
+			"shops": _read_opt(dir + "shops"), "resources": _read_opt(dir + "resources")})
+	for n in npcs: npc_by_id[n.id] = n
+	for q in quests: quest_by_id[q.id] = q
 	_add_interior_nav()
+
+# ---- Location packs ---------------------------------------------------------------------------------------------
+## A location can live in its own folder, so several people can build locations at once without touching shared
+## files: data/locations/<id>/ holds layout.json and, if it needs them, location.json (its map entry and look),
+## npcs.json, quests.json, shops.json and resources.json, in the same shapes as the shared files. They are merged
+## into the shared lists when the game loads. Its code (ground shape, its own buildings, extra scenery) lives in
+## scripts/locations/<id>.gd. See docs/WORLD.md.
+const LOCATIONS := "locations"
+
+## Ids of the location packs, sorted (folders in data/locations that have a layout.json).
+static func location_ids() -> Array:
+	var out: Array = []
+	if not DirAccess.dir_exists_absolute("res://data/" + LOCATIONS): return out
+	for d in DirAccess.get_directories_at("res://data/" + LOCATIONS):
+		if FileAccess.file_exists("res://data/%s/%s/layout.json" % [LOCATIONS, d]): out.append(d)
+	out.sort()
+	return out
+
+## Merges one pack into the shared lists (in place). Villagers default to living in the pack's location, its map
+## entry gets the pack's id, shops and resources are added by key, and nothing already defined is replaced.
+static func merge_pack(lists: Dictionary, id: String, pack: Dictionary) -> void:
+	var loc: Dictionary = pack.get("location", {})
+	if not loc.is_empty() and not lists.islands.any(func(i): return i.id == id):
+		var entry := loc.duplicate(true); entry["id"] = id
+		lists.islands.append(entry)
+	for n in pack.get("npcs", {}).get("npcs", []):
+		var npc: Dictionary = n.duplicate(true)
+		if not npc.has("island"): npc["island"] = id
+		if not lists.npcs.any(func(x): return x.id == npc.id): lists.npcs.append(npc)
+	for q in pack.get("quests", {}).get("quests", []):
+		if not lists.quests.any(func(x): return x.id == q.id): lists.quests.append(q)
+	var sh: Dictionary = pack.get("shops", {}).get("shops", {})
+	for k in sh:
+		if not lists.shops.has(k): lists.shops[k] = sh[k]
+	var res: Dictionary = pack.get("resources", {})
+	for k in res.get("resources", {}):
+		if not lists.resources.has(k): lists.resources[k] = res.resources[k]
+	for k in res.get("order", res.get("resources", {}).keys()):
+		if not lists.order.has(k): lists.order.append(k)
+
+## The location's own script (scripts/locations/<id>.gd), or null when it has none.
+static func location_script(id: String) -> Script:
+	var path := "res://scripts/locations/%s.gd" % id
+	return load(path) if ResourceLoader.exists(path) else null
 
 ## Rooms you can walk into add nav spots (inside the door, and where the owner works and sleeps) to the village graph.
 func _add_interior_nav() -> void:
@@ -54,7 +105,10 @@ func _add_interior_nav() -> void:
 		for k in n.nodes: layout.nav_nodes[k] = n.nodes[k]
 		for e in n.edges: layout.nav_edges.append(e)
 
-static func layout_file(id: String) -> String: return "layout" if id == "hearthglow" else "layout_" + id
+static func layout_file(id: String) -> String:
+	if id == "hearthglow": return "layout"
+	if FileAccess.file_exists("res://data/%s/%s/layout.json" % [LOCATIONS, id]): return "%s/%s/layout" % [LOCATIONS, id]
+	return "layout_" + id
 func has_island(id: String) -> bool: return FileAccess.file_exists("res://data/%s.json" % layout_file(id))
 func island_def(id: String) -> Dictionary:
 	for i in islands:
@@ -64,7 +118,7 @@ func island_def(id: String) -> Dictionary:
 ## Switch to another island's layout and ground (the world is rebuilt from it when the scene loads).
 func use_island(id: String) -> void:
 	island = id
-	Heightfield.island = id
+	Heightfield.use(id)
 	layout = _read(layout_file(id))
 	_add_interior_nav()
 
@@ -97,6 +151,10 @@ func node_def(id: String) -> Dictionary:
 	for n in layout.nodes:
 		if n.id == id: return n
 	return {}
+
+## Like _read, for files a location pack may leave out.
+func _read_opt(name: String) -> Dictionary:
+	return _read(name) if FileAccess.file_exists("res://data/%s.json" % name) else {}
 
 func _read(name: String) -> Dictionary:
 	var f := FileAccess.open("res://data/%s.json" % name, FileAccess.READ)

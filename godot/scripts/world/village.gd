@@ -18,15 +18,20 @@ func build(decor: Dictionary) -> void:
 	terrain = TerrainBuilder.build_terrain(); add_child(terrain)
 	water = TerrainBuilder.build_water(terrain); add_child(water)
 	var H := func(x: float, z: float) -> float: return Heightfield.height(x, z)
+	# A location pack's script may build its own kinds of building (building(b) returns a Node3D, or null to use the
+	# shared ones) and add scenery of its own (dress(village)). See docs/WORLD.md.
+	var pack = Data.location_script(Data.island)
+	var pack_fns: Array = pack.get_script_method_list().map(func(m): return m.name) if pack else []
 	for b in Data.layout.buildings:
-		var o: Node3D
-		match b.kind:
-			"workshop": o = Props.workshop(b)
-			"castle": o = Props.castle(b)
-			"caravan": o = Props.caravan(b)
-			"lighthouse": o = Props.lighthouse(b)
-			"clocktower": o = Props.clocktower(b)
-			_: o = Props.cottage(b)
+		var o: Node3D = pack.building(b) if pack_fns.has("building") else null
+		if o == null:
+			match b.kind:
+				"workshop": o = Props.workshop(b)
+				"castle": o = Props.castle(b)
+				"caravan": o = Props.caravan(b)
+				"lighthouse": o = Props.lighthouse(b)
+				"clocktower": o = Props.clocktower(b)
+				_: o = Props.cottage(b)
 		o.position = Vector3(b.x, Heightfield.CASTLE_MOUND.y if b.kind == "castle" else maxf(0.0, H.call(b.x, b.z)), b.z)
 		o.name = b.id; add_child(o); objects[b.id] = o
 		if Interiors.enterable(b): _furnish(b, o.position.y + (Props.CASTLE_FLOOR if b.kind == "castle" else 0.0))
@@ -37,6 +42,7 @@ func build(decor: Dictionary) -> void:
 	_build_decor(decor)
 	_build_nodes()
 	_build_features()
+	if pack_fns.has("dress"): pack.dress(self)
 
 ## Hearthglow's scenery: fountain, harbor cliffs and gate, market stall, dock pilings, the broken bridge, lamp
 ## posts, fences, garden beds and the west pier.

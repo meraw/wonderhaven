@@ -29,7 +29,7 @@ A Langhe-style hilltop village with a side valley, in autumn at harvest time.
 
 | Area | What's there |
 | --- | --- |
-| Hilltop | The castle at the top, now the town hall. Below it the piazza with the dry fountain, the church and bell tower, the newsstand and tobacconist, Ornella's bakery, Elio's shop, village houses. |
+| Hilltop | The castle at the top, now the town hall. Below it the piazza with the dry fountain, the church and bell tower, the newsstand and tobacconist, Ornella's bakery, Elio's shop, village houses, and a row of big green street garbage bins. |
 | Slopes | Vineyard rows striped across the hillsides, with a rose bush at the end of each row. |
 | Hazelnut groves | Gigia's groves, low and leafy. |
 | Side valley | Oak and chestnut woods with boars, mushrooms and chestnuts, a stream fed by a spring, and the ruined farmhouse that becomes the player's home. It sits where the vines meet the woods. The user left the spot open. |
@@ -59,7 +59,7 @@ late-1990s outfits. Internal ids such as `fern` and `bram` can stay for now to l
 | --- | --- | --- |
 | King Percival | **Sindaco Commendator Gustavo Dalmasso** | The pompous mayor. Runs things from the castle town hall, wants re-election, and takes credit for everything. He also greets the player and runs the guided first day as a long-winded comic tour the player can skip ahead in. The player lodges in his castle's spare room. |
 | Fern | **Gigia Ghisolfi** | Hazelnut farmer who talks to her trees. Down to earth, stubborn and kind. |
-| Bram | **Elio "Fusibile" Manzone** | Shy electrician with wildly extravagant secret designs. Nicknamed "Fusibile", the Fuse, ever since he blacked out the whole village during a football match. |
+| Bram | **Elio Fusibile** | Shy electrician with wildly extravagant secret designs. His surname means "fuse", and the village has never let him forget it since he blacked out every house during a football match. |
 | Tilly | **Federica "Fede" Cauda** | Teenage computer whiz, convinced the village needs a website. |
 | Mabel | **Ornella Tealdi** | Brisk baker who treats the wild boars as a personal insult. |
 | Captain Wendell | **Aldo "Tornanti" Barbero** | Bus driver who knows every hairpin bend in the valley and has a tall tale about each one. |
@@ -85,6 +85,7 @@ Outfit ideas:
 | Magic fragments | **Villagers' lost things**: keys, reading glasses, a dog's ball. You return them for thanks and gossip. The tutorial's first pickup could be the mayor's dropped reading glasses. |
 | Treasure hunt guided by the tool's hum | **A metal detector** that beeps faster near buried finds: old coins, junk and the occasional real treasure. |
 | Gathering | Chopping wood in the woods and quarrying the local sandstone stay. New: hazelnut picking, which replaces acorns and apples, pumpkins in the garden beds, and foraging mushrooms and chestnuts. |
+| Crystal | **Copper wire**, which Elio loves. You dig it out of the village's big street garbage bins, head first, as a running gag. |
 | Fishing | None in Monteforchetta. It stays in the game for other locations. |
 | The ferry and island map | Aldo's bus and a travel map. |
 | Truffles | Talked about in the woods. A truffle-dog quest comes later, not in the first pass. |
@@ -96,11 +97,11 @@ Today Hearthglow has 13 requests, 7 of them main story. They map like this:
 | --- | --- | --- | --- |
 | The Starforge Tool | **Welcome, Geometra** | Mayor | His long-winded tour. Gather a little wood and stone, receive the kit. |
 | Repair the Orchard Bridge | **The Washed-Out Road** | Aldo | Gather materials, rebuild the missing stretch of road so the bus can come up, then add railings. Same rule as the bridge: any continuous, supported path counts. |
-| Furnish the Workshop | **Elio's Shop** | Elio | Gather materials, hear his plan, then fit out his shop: seats, lamps, shelves, a workbench, a splash of colour. |
+| Furnish the Workshop | **Elio's Shop** | Elio | Gather wood, metal and copper wire, hear his plan, then fit out his shop: seats, lamps, shelves, a workbench, a splash of colour. |
 | Restore the Garden Fountain | **A Fountain for the Website** | Fede | A waterwheel in the valley stream drives a pump that sends water up through pipes to the piazza fountain. Fede photographs it for the village's first website. |
 | A Home of Your Own | **A Roof of Your Own** | Mayor | Pay the mayor in lire for the deed to the ruined farmhouse, rebuild walls, door, roof and bed, then make it cosy. |
 | The Royal Decree and All Aboard! | **The City Bus**, the finale | Aldo | The new city bus is too long for the old turnaround, so you rebuild the stop and turning circle. This opens the bus line to the city and the travel map. There is no approval-rating gate. |
-| Shiny Stones for the Castle | **A Plinth for the Sindaco** | Mayor | He wants local sandstone for a plinth to hold a bust of himself. |
+| Shiny Stones for the Castle | **A Plinth for the Sindaco** | Mayor | He wants local sandstone and copper wire for a plinth that lights up a bust of himself. |
 | Squirrels in the Scones | **Boars in the Bakery** | Ornella | Lure the boars back to the woods with chestnuts, then deal with the aftermath. |
 | Petals for the Plaza | **Pumpkins for Gigia** | Gigia | Grow pumpkins in her garden beds. |
 | A Fishy Tale | **Aldo's Porcini Bet** | Aldo | He bets you can't find three porcini mushrooms. |
@@ -133,8 +134,7 @@ Each stage keeps the game playable and the tests passing, and ends with a pull r
 5. **Later.** The comedy layer, the truffle dog, more locations and transport, the euro switch somewhere else,
    and a new game title.
 
-## Open points
-- Is "Fusibile" Elio's nickname, as written above, or his actual surname?
-- What replaces the crystal material, and do metal and clay stay? One idea: metal comes from scrap and old iron in
-  the farmhouse, and crystal becomes copper wire, which suits Elio.
+## Settled after the first review
+- Elio's surname is Fusibile.
+- Copper wire replaces crystal, dug out of the big street garbage bins.
 - The farmhouse's exact spot is open. This doc places it where the vines meet the woods.
