@@ -249,13 +249,16 @@ func exit_dialogue() -> void:
 	cam.set_mode("explore"); set_mode("explore")
 	hud.tracker.visible = true
 
-func start_minigame(kind: String, mg) -> void:
+## Gathering minigames play in a small panel at the side while the camera watches you work.
+func start_minigame(kind: String, mg, target: Vector3 = Vector3.INF) -> void:
 	set_mode("minigame")
 	minigame.start(kind, mg)
+	if target != Vector3.INF: cam.set_mode("action"); cam.frame_action(player.pos, target)
 	emit_event("minigame", {"kind": kind})
 
 func minigame_done(kind: String, mg) -> void:
 	set_mode("explore")
+	cam.set_mode("explore")
 	interact_cooldown = 0.35
 	actions.minigame_done(kind, mg)
 

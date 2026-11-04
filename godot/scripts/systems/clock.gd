@@ -28,7 +28,12 @@ static func sleep_until_morning(t: Dictionary) -> void:
 	if t.minute >= 360.0: t.day += 1
 	t.total += skipped; t.minute = 420.0
 
-## "5 AM", "8 PM", "Noon", "Midnight" for an hour of the day (0-24).
+## "5 AM", "12 PM" for an hour of the day (0-24).
+static func hour_num(h: float) -> String:
+	var hh := int(h) % 24
+	return "%d %s" % [((hh + 11) % 12) + 1, "AM" if hh < 12 else "PM"]
+
+## "5 AM", "8 PM", "noon", "midnight" for an hour of the day (0-24).
 static func hour_text(h: float) -> String:
 	var hh := int(h) % 24
 	if hh == 0: return "midnight"

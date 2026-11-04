@@ -71,8 +71,8 @@ func _src(n: Dictionary, up: float = 1.0) -> Vector3: return Vector3(n.x, Height
 func act(n: Dictionary) -> void:
 	game.player.yaw = atan2(n.x - game.player.pos.x, n.z - game.player.pos.z); game.player.sync()
 	match n.kind:
-		"chop": pending_node = n; game.start_minigame("chop", Minigames.Chop.new())
-		"mine": pending_node = n; game.start_minigame("mine", Minigames.Mine.new(n.get("rich", false)))
+		"chop": pending_node = n; game.start_minigame("chop", Minigames.Chop.new(), _src(n, 0.0))
+		"mine": pending_node = n; game.start_minigame("mine", Minigames.Mine.new(n.get("rich", false)), _src(n, 0.0))
 		"fish": start_fishing(n)
 		"clay":
 			game.player_char.play("dig"); game.sfx("dig")
@@ -85,6 +85,21 @@ func act(n: Dictionary) -> void:
 		"fruit": game.sfx("pick"); game.give({"fruit": 2, "spark": 1}, _src(n, 2.0)); deplete(n)
 		"chest": open_chest(n)
 		"fragment": catch_fragment(n)
+
+## A swing or strike in the minigame: the tree or rock shakes and chips fly (a miss barely moves it).
+func minigame_hit(kind: String, result: String) -> void:
+	var n := pending_node
+	if n.is_empty(): return
+	var o: Node3D = game.village.node_visuals.get(n.id)
+	if o == null: return
+	var hit := result != "miss"
+	var z0: float = o.get_meta("rest_rz", o.rotation.z)
+	o.set_meta("rest_rz", z0)
+	var tw := o.create_tween()
+	tw.tween_property(o, "rotation:z", z0 + (0.1 if hit else 0.03), 0.06)
+	tw.tween_property(o, "rotation:z", z0 - (0.07 if hit else 0.02), 0.09)
+	tw.tween_property(o, "rotation:z", z0, 0.14)
+	if hit: game.effects.sparkle(_src(n, 0.8), 18 if result == "perfect" else 9, Color("c98a55") if kind == "chop" else Color("d8d0c2"), 0.25)
 
 ## Called by the game when a chop or mine minigame ends (mg is null if cancelled).
 func minigame_done(kind: String, mg) -> void:
@@ -135,7 +150,7 @@ func start_fishing(n: Dictionary) -> void:
 	game.player_char.play("cast", true); game.sfx("cast")
 	var mg := Minigames.Fish.new()
 	fishing = {"mg": mg, "fx": fx, "fz": fz}
-	game.start_minigame("fish", mg)
+	game.start_minigame("fish", mg, Vector3(fx, Heightfield.WATER_Y, fz))
 
 func _fishing_done(mg) -> void:
 	bobber.visible = false; line.visible = false
