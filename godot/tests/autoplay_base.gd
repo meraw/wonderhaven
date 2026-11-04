@@ -77,7 +77,7 @@ func sail(to: String) -> bool:
 	var mv: Control = game.panels.find_child("map_view", true, false)
 	if mv == null: return false
 	var isl: Dictionary = Data.island_def(to)
-	await click(mv.get_global_rect().position + Vector2(isl.x, isl.y) * (mv.size / Vector2(800, 500)))
+	await click(mv.get_global_rect().position + mv.call("to_screen", Vector2(isl.x, isl.y)))
 	await frames(4)
 	var b: Control = game.panels.find_child("sail", true, false)
 	if b == null: return false
