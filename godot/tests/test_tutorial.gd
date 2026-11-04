@@ -27,7 +27,7 @@ func test_steps_advance_in_order_and_finish():
 	t.eq(Tutorial.advance(s, facts), [], "looking around early doesn't skip walking")
 	facts.moved = 5.0
 	t.eq(Tutorial.advance(s, facts), ["walk", "look"], "walking, then the look step already done, both complete")
-	t.eq(Tutorial.current(s).id, "talk", "then talk to Odessa")
+	t.eq(Tutorial.current(s).id, "talk", "then talk to the Sindaco")
 	facts.flags = {"toolGiven": true}; facts.quests = {"tool": {"status": "active"}}
 	facts["objective"] = func(q, i): return i == 0
 	t.eq(Tutorial.advance(s, facts), ["talk", "chop"], "accepting the tool and having the wood")
@@ -43,7 +43,7 @@ func test_story_progress_skips_learning_steps():
 	var s := Tutorial.new_state(true)
 	var facts := {"moved": 5.0, "looked": 1.0, "flags": {"toolGiven": true}, "panels": [], "quests": {"tool": {"status": "done"}}}
 	Tutorial.advance(s, facts)
-	t.eq(Tutorial.current(s).id, "journal", "finishing Odessa's request skips the bag step nobody did")
+	t.eq(Tutorial.current(s).id, "journal", "finishing the welcome request skips the bag step nobody did")
 	facts.quests["bridge"] = {"status": "done"}
 	Tutorial.advance(s, facts)
 	t.ok(not s.on, "finishing the bridge ends the guided day even if the journal was never opened")
@@ -53,7 +53,7 @@ func test_story_progress_skips_learning_steps():
 
 func test_reveals_and_gating():
 	var s := Tutorial.new_state(true)
-	t.ok(not Tutorial.revealed(s, "harmony"), "Harmony bar hidden at first")
+	t.ok(not Tutorial.revealed(s, "harmony"), "approval bar hidden at first")
 	t.ok(not Tutorial.revealed(s, "key:journal"), "journal key hidden at first")
 	t.ok(Tutorial.allows_offer(s, "tool") and not Tutorial.allows_offer(s, "stones"), "only the guided requests are offered")
 	s.step = Tutorial.steps().map(func(x): return x.id).find("return")

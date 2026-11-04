@@ -1,184 +1,13 @@
 {
  "npcs": [
   {
-   "id": "odessa",
-   "name": "Odessa Quill",
-   "title": "Master Artisan",
-   "likes": [
-    "crystal",
-    "flowers",
-    "pie"
-   ],
-   "voice": 0.85,
-   "appearance": {
-    "skin": "#f8cfa8",
-    "eyeShape": "sleepy",
-    "eyeColor": "#8a4fd8",
-    "hair": "bun",
-    "hairColor": "#f2f2f2",
-    "mouth": "calm",
-    "top": "tunic",
-    "topColor": "#b59cff",
-    "bottom": "dress",
-    "bottomColor": "#b59cff",
-    "shoes": "boots",
-    "shoesColor": "#7a4a2a",
-    "hat": "none",
-    "hatColor": "#ffd166",
-    "accessory": "glasses"
-   },
-   "schedule": [
-    [
-     6,
-     10,
-     "odessaHouse:spot",
-     "read"
-    ],
-    [
-     10,
-     14,
-     "squareS",
-     "idle"
-    ],
-    [
-     14,
-     19,
-     "odessaHouse:spot",
-     "read"
-    ],
-    [
-     19,
-     22,
-     "squareW",
-     "idle"
-    ]
-   ],
-   "when": [
-    {
-     "flag": "!toolGiven",
-     "schedule": [
-      [
-       0,
-       24,
-       "westGate",
-       "wave"
-      ]
-     ]
-    },
-    {
-     "flag": "fountainFlowing",
-     "schedule": [
-      [
-       6,
-       10,
-       "odessaHouse:spot",
-       "read"
-      ],
-      [
-       10,
-       15,
-       "squareS",
-       "idle"
-      ],
-      [
-       15,
-       19,
-       "odessaHouse:spot",
-       "read"
-      ],
-      [
-       19,
-       22,
-       "squareN",
-       "idle"
-      ]
-     ]
-    }
-   ],
-   "home": "odessaHouse:spot",
-   "greetings": [
-    {
-     "flag": "boatReady",
-     "lines": [
-      "A ferry at the dock again! I knew those clever hands of yours would get us there."
-     ]
-    },
-    {
-     "flag": "fountainFlowing",
-     "lines": [
-      "Listen to that fountain sing. I had forgotten the square could sound like this."
-     ]
-    },
-    {
-     "flag": "orchardOpen",
-     "lines": [
-      "The whole village is talking about your bridge, {name}. Mostly Fern. Loudly."
-     ]
-    },
-    {
-     "lines": [
-      "Ah, {name}! Mind the loose cobbles — and the loose ends. This village is full of both.",
-      "Good to see you, apprentice. Has the Starforge Tool been behaving?"
-     ]
-    }
-   ],
-   "sleepy": [
-    "Mm? Oh, {name}… I was just resting my eyes. For an hour or six."
-   ],
-   "topics": [
-    {
-     "id": "starforge",
-     "label": "What is the Starforge Tool?",
-     "lines": [
-      "Long ago, Wonderhaven's artisans shaped the islands with tools like that one.",
-      "It turns ordinary wood and stone into whatever your heart can picture — powered by Spark Energy.",
-      "Gather Spark from the world, and the world gives you back a little magic. That is the whole trick, really."
-     ]
-    },
-    {
-     "id": "kingdom",
-     "label": "What happened to Wonderhaven?",
-     "lines": [
-      "The old magic went quiet. Not broken — sleepy, like a cat in the sun.",
-      "Bridges sagged, workshops gathered dust, and the ferries stopped coming.",
-      "Every bit of kindness you build wakes a little more of it. We call that Harmony."
-     ]
-    },
-    {
-     "id": "tips",
-     "label": "Any building tips?",
-     "lines": [
-      "Press B to call up your Starforge grid. Green means yes, red means \"try somewhere else\".",
-      "R turns a piece, T changes its colour, and if you make a mess — Ctrl+Z. Even masters need it."
-     ]
-    },
-    {
-     "id": "isles",
-     "label": "Tell me about the other isles.",
-     "requires": "orchardOpen",
-     "lines": [
-      "Clockwork Cove, full of gears and gadgets. Blooming Wilds, where the flowers are taller than houses.",
-      "Starlight Shores and its harbor markets, and Moonveil Hollow, where the mushrooms glow.",
-      "Once our harbor opens, you will see them for yourself."
-     ]
-    }
-   ],
-   "gifts": [
-    {
-     "hearts": 4,
-     "blueprint": "windowWall",
-     "line": "Here — the window design from my own first cottage. Let the light in, {name}."
-    }
-   ]
-  },
-  {
    "id": "fern",
-   "name": "Fern Marigold",
-   "title": "Village Gardener",
+   "name": "Gigia Ghisolfi",
+   "title": "Hazelnut farmer",
    "likes": [
-    "flowers",
+    "fruit",
     "seeds",
-    "fruit"
+    "pumpkin"
    ],
    "voice": 1.15,
    "appearance": {
@@ -248,43 +77,43 @@
     {
      "flag": "orchardOpen",
      "lines": [
-      "The apple trees say hello! Well. They rustled. I'm choosing to believe it was hello."
+      "The groves are back in touch with the world. Aunt Teresa, the old tree by the gate, has been telling everyone."
      ]
     },
     {
      "lines": [
-      "Shh — I'm telling the tulips a story. They get nervous without one.",
-      "Oh! {name}! The daisies were just asking about you."
+      "Shh. I'm telling the hazelnut trees about the weather. They worry.",
+      "Ah, the Geometra. The trees were asking if you're the kind who measures twice."
      ]
     }
    ],
    "sleepy": [
-    "Zzz… no, carrots, you can't stay up late… oh! Hello."
+    "Zzz… no, Aunt Teresa, you can't drop your nuts early… oh. It's you."
    ],
    "topics": [
     {
      "id": "plants",
-     "label": "Do plants really talk?",
+     "label": "Do you really talk to your trees?",
      "lines": [
-      "Of course! They just talk very, very slowly.",
-      "A sunflower once told me a joke. I'll let you know the punchline next spring."
+      "Of course. They never talk back. That's what makes them good company.",
+      "Every one has a name. Mostly my aunts. The trees don't mind, and my aunts never found out."
      ]
     },
     {
      "id": "orchard",
-     "label": "What's across the river?",
+     "label": "What's across the stream?",
      "lines": [
-      "My orchard! Apple trees, a secret seed shed, and the best picnic spot in the kingdom.",
-      "I haven't been able to visit since the old bridge fell in. The trees must be so lonely."
+      "My groves. Hazelnut trees, my seed shed, and the best view of the Alps in the valley.",
+      "Since the storm took the crossing I can't get the cart over. The trees must think I've left them."
      ]
     },
     {
      "id": "garden",
-     "label": "How does gardening work?",
+     "label": "How do the garden beds work?",
      "requires": "flowersQuest",
      "lines": [
-      "Plant a seed in one of my garden beds, give it water, and wait.",
-      "Water it again whenever the soil looks thirsty. In a little while — blooms!"
+      "Plant a pumpkin seed, water it, then leave it alone. Pumpkins hate being watched.",
+      "Water again when the soil goes pale. In a while you'll have pumpkins the size of the Sindaco's opinion of himself."
      ]
     }
    ],
@@ -294,16 +123,16 @@
      "items": {
       "seeds": 4
      },
-     "line": "For my favourite builder: special seeds. Plant them somewhere they can see the sky!"
+     "line": "Seeds from my best pumpkin. It won a prize in 1987 and has never let me forget it."
     }
    ]
   },
   {
    "id": "bram",
-   "name": "Bram Shavings",
-   "title": "Carpenter",
+   "name": "Elio Fusibile",
+   "title": "Electrician",
    "likes": [
-    "wood",
+    "crystal",
     "pie",
     "bread"
    ],
@@ -369,36 +198,44 @@
     {
      "flag": "workshopDone",
      "lines": [
-      "I made a chair with a built-in teapot today. Don't tell anyone. Actually… do tell people."
+      "I wired a lamp shaped like a cathedral today. Just to see. Don't tell anyone. Actually… tell a few people."
      ]
     },
     {
      "lines": [
-      "Oh — h-hello. Sorry. I was practising saying hello. That went… fine?",
-      "The workshop is all dust and boxes. A carpenter without a workshop is just a person who owns a lot of sawdust."
+      "Oh. H-hello. Sorry, I was practising saying hello to the fuse box.",
+      "My shop is all boxes and cables. An electrician without a shop is just a man with a lot of wire in his pockets."
      ]
     }
    ],
    "sleepy": [
-    "*yawn* I dreamt of a sofa shaped like a swan. It was beautiful."
+    "*yawn* I dreamt of a chandelier made of neon spaghetti. It was beautiful."
    ],
    "topics": [
     {
      "id": "dream",
-     "label": "What do you love to make?",
+     "label": "What would you love to build?",
      "lines": [
-      "Officially? Sensible chairs. Sturdy tables.",
+      "Officially? Sensible sockets. Safe light switches.",
       "Secretly…",
-      "A chandelier shaped like a whale. A bed with a slide. A bookshelf that hugs you.",
-      "Please forget I said all of that."
+      "A chandelier in the shape of the bell tower. A staircase that lights up as you climb it. A sign for the bakery that says CAKE in every colour there is.",
+      "Please forget I said any of that."
      ]
     },
     {
      "id": "workshop",
-     "label": "What happened to the workshop?",
+     "label": "What happened to your shop?",
      "lines": [
-      "It's been shut for years. Everything inside is either broken, dusty, or broken AND dusty.",
-      "If someone could help me set it up again… I'd need a workbench, a chair, a lamp and some shelves."
+      "The roof leaked on the fuse box, the fuse box sulked, and I closed for 'a few days'. That was three years ago.",
+      "If someone helped me set it up again… a workbench, a couple of seats, some lamps, some shelves. And copper wire. Always copper wire."
+     ]
+    },
+    {
+     "id": "surname",
+     "label": "Why does everyone smile at your name?",
+     "lines": [
+      "Fusibile. It means fuse. It's a very old family name, and it was fine until 1990.",
+      "There was a football match. Every television in the village was on. I was testing a new kind of extension cord. We don't talk about it."
      ]
     }
    ],
@@ -406,17 +243,17 @@
     {
      "hearts": 4,
      "blueprint": "sofa",
-     "line": "I drew this sofa for you. It's… extra fluffy. On purpose."
+     "line": "I drew you a lamp. It's shaped like a hazelnut. On purpose."
     }
    ]
   },
   {
    "id": "percival",
-   "name": "King Percival Puffington",
-   "title": "King of Hearthglow",
+   "name": "Sindaco Dalmasso",
+   "title": "Commendator Gustavo Dalmasso, mayor of Monteforchetta",
    "likes": [
-    "crystal",
-    "pie"
+    "pie",
+    "flowers"
    ],
    "voice": 0.75,
    "appearance": {
@@ -458,6 +295,17 @@
    ],
    "when": [
     {
+     "flag": "!toolGiven",
+     "schedule": [
+      [
+       0,
+       24,
+       "westGate",
+       "wave"
+      ]
+     ]
+    },
+    {
      "flag": "harborOpen",
      "schedule": [
       [
@@ -492,42 +340,50 @@
     {
      "flag": "harborOpen",
      "lines": [
-      "The harbor stands open! I have written fourteen proclamations about it. Fifteen, if you count the limerick."
+      "The lower road is open again! I have written the speech. Twice. The second one has pauses for applause."
      ]
     },
     {
      "lines": [
-      "Hark! A citizen approaches! State your business — unless it is alarming, in which case state it calmly.",
-      "Disaster, {name}! Utter disaster! …Someone has left a slightly crooked flowerpot by the castle gate."
+      "Ah, our Geometra! Walk with me. Slowly. People should see us together.",
+      "{name}! Have you seen my campaign poster? Don't answer. Everyone has seen it. It's on the bell tower."
      ]
     }
    ],
    "sleepy": [
-    "I am not sleeping. I am conducting a very long, very quiet emergency meeting."
+    "I am not asleep. I am listening to the will of the people with my eyes closed."
    ],
    "topics": [
     {
      "id": "castle",
-     "label": "Is the castle really yours?",
+     "label": "Why is the town hall in a castle?",
      "lines": [
-      "Every turret and teaspoon of it! King Percival the First, at your service. And the only, so far.",
-      "The magic dozed off, the courtiers wandered away, and now it is just me, a very long table and a great deal of dusting."
+      "Because the castle was free and the old town hall had a leak. Also, a mayor should have battlements.",
+      "The counts who built it left in 1802. I like to think they left it to me."
      ]
     },
     {
      "id": "harbor",
-     "label": "Why is the harbor sealed?",
+     "label": "Why is the lower road closed?",
      "lines": [
-      "Royal Decree Number Forty-Seven! Issued when the magic faded and the boats stopped coming.",
-      "It may only be lifted when the kingdom is in Harmony again. One hundred and twenty Harmony, to be precise. I counted."
+      "Ordinance Number Forty-Seven! I signed it myself, the winter the road froze. Then I lost the paper that explains why.",
+      "I will lift it when the village approves of me enough. Of us. When the approval rating reaches one hundred and twenty. That is the procedure. I invented it."
      ]
     },
     {
      "id": "crisis",
      "label": "Any emergencies today?",
      "lines": [
-      "A pigeon looked at me sideways this morning. I have convened a committee.",
-      "The committee is me. I am taking it very seriously."
+      "A pigeon sat on my poster this morning. Directly on my face. I have written to the prefecture.",
+      "They have not replied. I take that as support."
+     ]
+    },
+    {
+     "id": "election",
+     "label": "When is the election?",
+     "lines": [
+      "Soon enough to matter, and far enough away to fix the fountain first. Timing, {name}, is everything in politics.",
+      "Every bridge you build is a bridge I promised. I want you to know that I am very proud of us."
      ]
     }
    ],
@@ -535,17 +391,18 @@
     {
      "hearts": 4,
      "blueprint": "statue",
-     "line": "A statue design, for heroic citizens. You may model it on yourself. I would."
+     "line": "The plan for a statue, for citizens of distinction. You may model it on yourself. I modelled mine on me."
     }
    ]
   },
   {
    "id": "tilly",
-   "name": "Tilly Sprocket",
-   "title": "Inventor",
+   "name": "Fede Cauda",
+   "title": "Computer whiz",
    "likes": [
     "metal",
-    "crystal"
+    "crystal",
+    "pie"
    ],
    "voice": 1.25,
    "appearance": {
@@ -615,43 +472,42 @@
     {
      "flag": "fountainFlowing",
      "lines": [
-      "Look at it GO! Pumps pumping, pipes piping — honestly my best work, and I barely did any of it!"
+      "The fountain photo is going on the website! As soon as the modem stops screaming. It's very nearly a website."
      ]
     },
     {
      "lines": [
-      "Careful! That pile of bolts is load-bearing. Emotionally.",
-      "Oh good, a person! Hold this. No — the other this. Thank you!"
+      "Hi. Do you know anything about modems? No? Nobody does. That's the problem with this village.",
+      "Careful, that cable is plugged into something. I'm not sure what. Leave it."
      ]
     }
    ],
    "sleepy": [
-    "Zzz… needs more gears… zzz… FEWER gears… zzz…"
+    "Zzz… page cannot be displayed… zzz… try again later…"
    ],
    "topics": [
     {
      "id": "cove",
-     "label": "Where are you from?",
+     "label": "Do you live here?",
      "lines": [
-      "Clockwork Cove! Island of windmills, waterwheels and things that go \"ping\".",
-      "My caravan rolled off the last ferry before the harbor closed. I've been inventing here ever since."
+      "Born here, stuck here. My parents have the farm on the castle road. I have the only computer for twenty kilometres.",
+      "I'm saving up for a faster modem. At this rate I'll have one by the year 2000. Oh. That's soon."
      ]
     },
     {
      "id": "power",
-     "label": "How do machines work here?",
+     "label": "How do the old machines work?",
      "lines": [
-      "Easy! Something makes power — a waterwheel in a stream, or a windmill in the breeze.",
-      "Shafts and gear boxes carry it. A powered pump next to water pushes water through pipes.",
-      "Line up the connectors! A pipe only talks to a pipe it's actually pointing at."
+      "The fountain used to run off the mill channel. A waterwheel turns, shafts and gear boxes carry the power, and a pump pushes the water through pipes.",
+      "It's like a network, only wet. Every connector has to line up, or nothing talks to anything."
      ]
     },
     {
      "id": "broke",
-     "label": "What are you inventing?",
+     "label": "What are you working on?",
      "lines": [
-      "A self-buttering toaster. It is currently buttering everything except toast.",
-      "Also the ceiling. Don't look at the ceiling."
+      "A website for Monteforchetta. A home page, a picture of the castle, and a counter that says how many people have visited.",
+      "So far it says three. Two of them were me."
      ]
     }
    ],
@@ -662,13 +518,13 @@
       "metal": 3,
       "crystal": 1
      },
-     "line": "Spare parts! Some of them were even spare on purpose."
+     "line": "Spare parts from my old computer. Some of them were even spare before I took it apart."
     }
    ]
   },
   {
    "id": "mabel",
-   "name": "Mabel Crumb",
+   "name": "Ornella Tealdi",
    "title": "Baker",
    "likes": [
     "fruit",
@@ -731,34 +587,34 @@
     {
      "flag": "squirrelsGone",
      "lines": [
-      "The ovens are warm and the scones are squirrel-free! Mostly. One scone has a tiny bite out of it. I'm calling it \"rustic\"."
+      "The bakery is boar-free. One bread roll has a tooth mark in it. I'm selling it as 'rustic'."
      ]
     },
     {
      "lines": [
-      "Shoo! Shoo! Oh — not you, dear. The squirrels. They've taken over my bakery!",
-      "Welcome to Crumb & Co.! We are currently closed due to… fluffy circumstances."
+      "Out! Out! Not you. The boars. They come up from the woods every morning and help themselves.",
+      "Tealdi Bakery is open. The bins round the back are not. The boars have learned to read the sign."
      ]
     }
    ],
    "sleepy": [
-    "Mm… the dough needs to rise… and so do I… in eight hours."
+    "Mm… the dough has to rise at four… so do I… unfortunately."
    ],
    "topics": [
     {
      "id": "squirrels",
-     "label": "Squirrels?",
+     "label": "Boars?",
      "lines": [
-      "Three of them! They smell my acorn scones and simply move in.",
-      "They're not mean, just very, very hungry and very, very confident."
+      "Three of them. They smell the chestnut bread and walk straight in like regular customers.",
+      "They don't pay, they don't queue, and the big one looks at me like I owe him money."
      ]
     },
     {
      "id": "baking",
      "label": "What do you bake?",
      "lines": [
-      "Cloudberry buns, honey twists, and my famous Starlight Scones.",
-      "The secret ingredient is a pinch of Spark Energy. Don't tell Percival; he'll want a royal recipe hearing."
+      "Bread before dawn, breadsticks by eight, and on Sundays my hazelnut cake. People used to drive up from the valley for it.",
+      "Before the road washed out. Now they phone and ask me to describe it."
      ]
     }
    ],
@@ -766,16 +622,16 @@
     {
      "hearts": 3,
      "items": {
-      "spark": 12
+      "pie": 1
      },
-     "line": "A warm Starlight Scone! Eat it while it sparkles."
+     "line": "A slice of hazelnut cake, still warm. Don't tell the boars."
     }
    ]
   },
   {
    "id": "captain",
-   "name": "Captain Wendell Gale",
-   "title": "Ferry Captain",
+   "name": "Aldo Barbero",
+   "title": "Bus driver, known as Tornanti",
    "likes": [
     "fish",
     "bread"
@@ -825,34 +681,34 @@
     {
      "flag": "boatReady",
      "lines": [
-      "She's seaworthy and itching to sail! Climb aboard whenever you like, matey."
+      "The new stop is ready, and so am I. Climb aboard whenever you like. Mind the second step, it has opinions."
      ]
     },
     {
      "lines": [
-      "Ahoy! Did I ever tell you about the time I sailed through a storm made entirely of jellybeans?",
-      "The sea, {name}! Vast! Blue! Occasionally pink, near Moonveil, but don't ask."
+      "Did I ever tell you about the bend where I met a wolf, a priest and a cheese lorry? All at once. All going uphill.",
+      "Every bend on this road has a story, {name}. Forty-seven bends. I have forty-eight stories."
      ]
     }
    ],
    "sleepy": [
-    "Zzz… hoist the… pillows… zzz…"
+    "Zzz… next stop… zzz… everybody off… zzz…"
    ],
    "topics": [
     {
      "id": "tales",
-     "label": "Tell me a sea story.",
+     "label": "Tell me a story from the road.",
      "lines": [
-      "Once I wrestled a squid the size of a lighthouse. Or a lighthouse the size of a squid. It was foggy.",
-      "Either way, we're friends now. He sends a card every winter."
+      "One winter I drove the whole valley in fog so thick I steered by the smell of the bakeries.",
+      "I arrived at the right village. Wrong valley, but the right village."
      ]
     },
     {
      "id": "ferry",
-     "label": "Where can the ferry go?",
+     "label": "Where does your bus go?",
      "lines": [
-      "Every island in Wonderhaven, once their docks are fixed up!",
-      "Clockwork Cove is nearest. You'll hear it before you see it — all those gears going clank."
+      "Down the valley, along the river and on to the city, once there's a proper turnaround up here for the new bus.",
+      "The new bus is two metres longer than the old one. The man from the region calls that progress. I call it a lot of reversing."
      ]
     }
    ],

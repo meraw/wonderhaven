@@ -117,7 +117,7 @@ func pay(qid: String, oid: String, agent) -> void:
 	var ui: DialogueUI = game.dialogue
 	var r := engine.pay(qid, oid)
 	if not r.ok:
-		var short: Array = r.missing.map(func(m): return "%d more %s" % [m.need, Data.resources[m.id].name.to_lower()])
+		var short: Array = r.missing.map(func(m): return Money.lire(m.need) + " more" if m.id == "coins" else "%d more %s" % [m.need, Data.resources[m.id].name.to_lower()])
 		await ui.say([{"text": "Ah, not quite enough yet. You'll need %s." % " and ".join(short), "mood": "sad"}])
 		return
 	game.render_resources()
@@ -179,8 +179,8 @@ func accept(qid: String, agent = null) -> void:
 	if agent: agent.character.play("clap")
 	handle(engine.refresh())
 	if qid == "tool":
-		game.player_char.show_staff(true); game.effects.magic(game.player.pos)
-		game.toast("You received the Starforge Tool! Press %s to build." % Controls.key_label("build"), "good", 4.0)
+		game.player_char.show_staff(true)
+		game.toast("You opened your Geometra's kit! Press %s to build." % Controls.key_label("build"), "good", 4.0)
 	game.build.refresh_plan()
 	game.hud.render_tracker()
 	game.autosave("quest", true)
@@ -197,8 +197,8 @@ func complete_quest(qid: String, agent) -> void:
 	await ui.say(Conversation.quest_lines(qid, "complete", game.state.name), {"mood": "happy"})
 	var r := engine.complete(qid)
 	var lines: Array = []
-	if r.get("harmony", 0) > 0: lines.append("+%d 💖 Harmony" % int(r.harmony))
-	for k in r.get("items", {}): lines.append("+%d %s %s" % [int(r.items[k]), Data.resources[k].icon, Data.resources[k].name])
+	if r.get("harmony", 0) > 0: lines.append("+%d 💖 approval" % int(r.harmony))
+	for k in r.get("items", {}): lines.append("+" + Money.amount(k, int(r.items[k])))
 	for b in r.get("blueprints", []): lines.append("📐 " + Data.piece(b).name)
 	for c in r.get("clothes", []): lines.append("👗 " + Data.appearance.labels.get(c, c))
 	game.banner("Quest Complete!", q.title, lines, 4.2)
@@ -240,7 +240,6 @@ func unlock_blueprints(ids: Array, source: String = "", quiet: bool = false) -> 
 	var s: Dictionary = game.state
 	var fresh := ids.filter(func(id): return not s.blueprints.has(id))
 	if fresh.is_empty():
-		if source != "": game.give({"spark": 8})
 		return
 	s.blueprints.append_array(fresh); s.new_blueprints.append_array(fresh)
 	var names := ", ".join(fresh.map(func(id): return Data.piece(id).name))
@@ -269,7 +268,7 @@ func apply_unlock(u: Dictionary) -> void:
 	if u.has("clothes"): unlock_clothes(u.clothes, true)
 	if u.get("allBlueprints", false): unlock_blueprints(Data.pieces.map(func(p): return p.id), "", true)
 	if u.id == "plot": game.build.rebuild_grid()
-	game.get_tree().create_timer(1.8).timeout.connect(func(): game.banner("Harmony Milestone!", "%d 💖 %s" % [int(u.at), u.title], [u.desc], 4.0); game.sfx("unlock"))
+	game.get_tree().create_timer(1.8).timeout.connect(func(): game.banner("Approval milestone!", "%d 💖 %s" % [int(u.at), u.title], [u.desc], 4.0); game.sfx("unlock"))
 	game.state.unlocks_seen.append(u.id)
 
 func first_of_kind(id: String) -> void:
@@ -277,7 +276,7 @@ func first_of_kind(id: String) -> void:
 	if types.has(id): return
 	types.append(id)
 	add_harmony(1)
-	game.toast("First %s! +1 💖 Harmony" % Data.piece(id).name, "", 2.0)
+	game.toast("First %s! +1 💖 approval" % Data.piece(id).name, "", 2.0)
 
 ## The build-mode checklist for a zone: the active request that builds here, its current step's items, and what
 ## is still to do before its building step (materials first) if that hasn't come up yet.

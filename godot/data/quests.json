@@ -2,12 +2,12 @@
  "quests": [
   {
    "id": "tool",
-   "title": "The Starforge Tool",
-   "giver": "odessa",
+   "title": "Welcome, Geometra",
+   "giver": "percival",
    "main": true,
    "type": "character",
    "chapter": 1,
-   "description": "You came to Hearthglow answering Odessa's notice for a builder. She has trusted you with the Starforge Tool: gather some materials and Spark Energy to wake it up.",
+   "description": "The province has sent you to Monteforchetta as its new Geometra. The Sindaco wants a demonstration: chop a little wood, and find his reading glasses while you're at it.",
    "requires": {},
    "onAccept": {
     "flags": [
@@ -32,7 +32,7 @@
      "kind": "gather",
      "item": "fragment",
      "count": 1,
-     "text": "Catch a floating magic fragment",
+     "text": "Find the Sindaco's reading glasses (lost things glint on the ground)",
      "hint": {
       "x": -35.5,
       "z": 6
@@ -41,52 +41,52 @@
     {
      "id": "back",
      "kind": "talk",
-     "npc": "odessa",
+     "npc": "percival",
      "final": true,
-     "text": "Show Odessa what you found"
+     "text": "Give the Sindaco his glasses"
     }
    ],
    "rewards": {
     "harmony": 10,
     "items": {
-     "spark": 5,
      "coins": 10
     }
    },
    "dialogue": {
     "offer": [
-     "Oh! A traveller! We hardly see a soul since the bridge fell. And dusty boots… you must have come about my notice. Builder wanted?",
-     "Then welcome to Hearthglow, {name}! I'm Odessa Quill. I built half the things you can see, once upon a time. These days the village is a little tired, and so are my hands.",
-     "Room and board, as promised: you'll stay at the Lantern Inn, the blue-roofed house south-east of the square. Rest there whenever you like.",
-     "Now, the real reason I sent for a builder. This is the Starforge Tool. It builds anything you can imagine, if you feed it materials and Spark Energy.",
-     "Let's wake it up. See the trees with pink ribbons, on the slope just past this gate? I marked the ones that are ready for cutting. Chop a little wood, then catch one of those floating fragments."
+     "Ah! You must be the Geometra the province promised us! Welcome, welcome. I am Commendator Gustavo Dalmasso, Sindaco of Monteforchetta. The mayor. Of here.",
+     "Aldo left you at the washout? Of course he did. The storm took the crossing over the stream, half the road, and my nerves. You are the answer to my prayers. And to my campaign.",
+     "You'll stay in the town hall's guest room, in the blue house south-east of the piazza. Small, but historic. Like me.",
+     "Now. A tour! The village has wood, stone, people and problems. I will show you all of them, in order of importance. Starting with me.",
+     "First, a demonstration. See the trees with pink ribbons on the slope past this gate? They're ready for cutting. Chop a little wood. And if you see my reading glasses on the ground anywhere, I would be grateful. Discreetly grateful."
     ],
-    "acceptLabel": "Take the Starforge Tool",
+    "acceptLabel": "Open the toolkit",
     "declineLabel": "Not just yet",
     "accept": [
-     "Wonderful! Walk up to a ribboned tree and give it a good chop. The fragments only show themselves to the tool, so they'll appear now. They sparkle purple, you can't miss them."
+     "Splendid! Measure twice, chop once. That is a Geometra saying. I believe I just invented it.",
+     "My glasses glint in the sun, you can't miss them. I have been missing them for a week."
     ],
     "decline": [
-     "Take your time. The village has waited years; it can wait another minute."
+     "Of course. Take a moment. The village has waited three years; it can wait while you tie your shoes."
     ],
     "progress": [
-     "Wood from a ribboned tree, a fragment from the air. Then come back and show me!"
+     "Wood from a ribboned tree, and my glasses from wherever I left them. Then come back to me. I'll be here. Being seen."
     ],
     "complete": [
-     "Look at that, the tool is humming! It likes you.",
-     "Now, your first real job. Fern the gardener has been fretting about her orchard bridge all week. She's in her garden, north of the square.",
-     "Do good work and folk will want you to stay. Who knows, maybe one day you'll have a home of your own here."
+     "My glasses! I can see the village again. It looks exactly as worrying as I remembered.",
+     "Your first real job: Gigia Ghisolfi, the hazelnut farmer. The storm took the crossing to her groves, and the bus road with it. She's in her garden, north of the piazza.",
+     "Do good work and the village will love you. And by extension, me. One day you might even have a house of your own up here."
     ]
    }
   },
   {
    "id": "bridge",
-   "title": "Repair the Orchard Bridge",
+   "title": "The Washed-Out Road",
    "giver": "fern",
    "main": true,
    "type": "construction",
    "chapter": 1,
-   "description": "The old bridge to Fern's orchard collapsed into the river. Gather materials, build a bridge people can actually walk across, then make it safe with railings.",
+   "description": "The storm washed away the crossing over the stream, cutting off Gigia's hazelnut groves and the road Aldo's bus comes up. Gather wood, rebuild a crossing people can actually walk across, then add railings.",
    "requires": {
     "quests": [
      "tool"
@@ -112,21 +112,13 @@
      "text": "Gather 10 more wood (trees with a pink ribbon)"
     },
     {
-     "id": "spark",
-     "kind": "gather",
-     "item": "spark",
-     "count": 8,
-     "stage": 0,
-     "text": "Gather 8 Spark Energy (chop, mine, pick, catch fragments)"
-    },
-    {
      "id": "build",
      "kind": "build",
      "check": "bridge",
      "zone": "bridge",
      "stage": 1,
-     "text": "Build a walkable bridge to the orchard (B at the bridge site)",
-     "goal": "Continuous walkable path from bank to bank",
+     "text": "Rebuild the crossing over the stream (B at the washout)",
+     "goal": "A continuous walkable path from bank to bank",
      "buildHint": "Planks reach 2 tiles from a bank or post.",
      "hint": {
       "x": 0,
@@ -142,7 +134,7 @@
      ],
      "count": 4,
      "stage": 2,
-     "text": "Add 4 railings along the bridge, so nobody tumbles in",
+     "text": "Add 4 railings along the crossing, so nobody ends up in the stream",
      "buildHint": "Railings sit on the edge of a tile; R turns them.",
      "hint": {
       "x": 0,
@@ -154,13 +146,12 @@
      "kind": "talk",
      "npc": "fern",
      "final": true,
-     "text": "Tell Fern the bridge is ready"
+     "text": "Tell Gigia the crossing is open"
     }
    ],
    "rewards": {
     "harmony": 40,
     "items": {
-     "spark": 10,
      "seeds": 2,
      "coins": 30
     },
@@ -174,36 +165,36 @@
    },
    "dialogue": {
     "offer": [
-     "Oh! You're the new builder? Thank goodness! It's an emergency. A gardening emergency!",
-     "My orchard is just across the river, but the bridge fell in ages ago. The apple trees haven't had a visitor in years.",
-     "Could you build a new bridge? Planks can stretch two tiles over the water — after that they need a post underneath. And railings, please. I can't swim."
+     "You're the Geometra? Good. Sit down. No, stand up, there's work.",
+     "The storm took the crossing over the stream. My groves are on the other side, and so is the road Aldo's bus comes up. Nobody gets in, nothing gets out, and my trees think I've abandoned them.",
+     "Can you rebuild it? Planks can stretch two tiles over the water. After that they need a post underneath. And railings. I'm not having the Sindaco fall in. Well. Not on my land."
     ],
-    "acceptLabel": "I'll build you a bridge!",
+    "acceptLabel": "I'll rebuild the crossing",
     "declineLabel": "Maybe later",
     "accept": [
-     "Hooray! I've sketched where it could go — you'll see my plan glowing at the bridge site. But build it however you like!",
-     "Here's some wood to start. Gather the rest and some Spark Energy, then build. Railings last!"
+     "Good. I've chalked out where the old one stood, you'll see it at the washout. But build it however you like. You're the Geometra.",
+     "Here's some wood to start. Gather the rest, then build. Railings last."
     ],
     "decline": [
-     "That's alright. The trees are patient. Mostly."
+     "Fine. The trees are patient. I'm less patient, but I'm older."
     ],
     "progress": [
-     "Gather the wood and Spark first, then build from bank to bank. Planks reach two tiles from the bank or a post. Then four railings!"
+     "Wood first, then build from bank to bank. Planks reach two tiles from the bank or from a post. Then four railings."
     ],
     "complete": [
-     "You did it! A real bridge! I can hear the apple trees cheering. That's the rustling. Definitely cheering.",
-     "Here — my best flower-bed design, and a young tree pattern. Plant beauty everywhere!"
+     "Listen. Hear that? That's the groves. Aunt Teresa is rustling. That means thank you.",
+     "Here, my best flower-bed plan and a young tree. Plant something. The village could use it."
     ]
    }
   },
   {
    "id": "workshop",
-   "title": "Furnish the Workshop",
+   "title": "Elio's Shop",
    "giver": "bram",
    "main": true,
    "type": "construction",
    "chapter": 1,
-   "description": "Bram's workshop is empty and dusty. Gather wood, metal and a crystal, ask Bram what he needs, then furnish it.",
+   "description": "Elio's electrical shop has been shut for three years. Gather wood, metal and copper wire, ask Elio how he pictures it, then fit it out.",
    "requires": {
     "quests": [
      "bridge"
@@ -229,7 +220,7 @@
      "item": "wood",
      "count": 10,
      "stage": 0,
-     "text": "Gather 10 wood for the furniture"
+     "text": "Gather 10 wood for the fittings"
     },
     {
      "id": "metal",
@@ -249,7 +240,7 @@
      "item": "crystal",
      "count": 1,
      "stage": 0,
-     "text": "Find a crystal for a second lamp (glowing blue rocks)",
+     "text": "Find copper wire for a second lamp (dig through the big street bins)",
      "hint": {
       "x": -30,
       "z": -12
@@ -260,7 +251,7 @@
      "kind": "talk",
      "npc": "bram",
      "stage": 1,
-     "text": "Ask Bram how he'd like his workshop",
+     "text": "Ask Elio how he'd like his shop",
      "lines": [
       "Oh! You've got everything. Okay. Deep breath.",
       "A workbench, two places to sit, two lamps — it gets so dark in here — and two shelves or cabinets.",
@@ -310,7 +301,7 @@
       }
      ],
      "stage": 2,
-     "text": "Furnish the workshop (B inside it)",
+     "text": "Fit out the shop (B inside it)",
      "hint": {
       "x": -12,
       "z": 10
@@ -321,7 +312,7 @@
      "kind": "talk",
      "npc": "bram",
      "final": true,
-     "text": "Show Bram his workshop"
+     "text": "Show Elio his shop"
     }
    ],
    "rewards": {
@@ -348,35 +339,36 @@
    },
    "dialogue": {
     "offer": [
-     "Um. Hi. You're the one who built the bridge, right? It's very… bridge-y. In a good way.",
-     "I was wondering… if you're not busy… could you help me set up my workshop again?",
-     "I'd need materials first — wood, a bit of metal, a crystal for the lamps. Then I'll tell you how I picture it."
+     "Um. Hi. You're the one who fixed the crossing, right? It's very… crossable. In a good way.",
+     "I was wondering… if you're not busy… could you help me open my shop again?",
+     "I'd need materials first: wood, a bit of metal, and copper wire for the lamps. Then I'll tell you how I see it. In my head it's very nice."
     ],
-    "acceptLabel": "Let's furnish it together",
+    "acceptLabel": "Let's open your shop",
     "declineLabel": "Not right now",
     "accept": [
-     "Really? Thank you! Here are some designs and a few materials. Arrange it however feels right — I trust you."
+     "Really? Thank you! Here are some plans and a few bits to start.",
+     "Copper wire turns up in the big street bins, if you don't mind going in head first. I always do."
     ],
     "decline": [
-     "Oh — of course. No pressure. I'll just… be here. With the dust."
+     "Oh. Of course. No pressure. I'll just… be here. With the boxes."
     ],
     "progress": [
-     "Materials first, then come and talk to me. Then: workbench, two seats, two lamps, two shelves, something colourful."
+     "Materials first, then come and talk to me. Then: a workbench, two seats, two lamps, two shelves, and something colourful."
     ],
     "complete": [
-     "It's… it's perfect. I can already picture a coat rack shaped like a giraffe.",
-     "Here, take these designs — the fancy ones I never showed anyone. And these overalls, for real builders."
+     "It's… it's perfect. I can already picture a light switch shaped like a giraffe.",
+     "Here, the plans I never showed anyone. And these overalls, for real tradespeople."
     ]
    }
   },
   {
    "id": "fountain",
-   "title": "Restore the Garden Fountain",
+   "title": "A Fountain for the Website",
    "giver": "tilly",
    "main": true,
    "type": "puzzle",
    "chapter": 1,
-   "description": "The plaza fountain is bone dry. Power a pump with a waterwheel in the mill channel, and pipe water to the fountain's inlet.",
+   "description": "The piazza fountain is bone dry, and Fede wants a photo of it working for the village's first website. Power a pump with a waterwheel in the mill channel, and pipe water to the fountain's inlet.",
    "requires": {
     "quests": [
      "workshop"
@@ -404,7 +396,7 @@
      "item": "clay",
      "count": 6,
      "stage": 0,
-     "text": "Dig 6 clay from the river bank (for pipes)"
+     "text": "Dig 6 clay from the stream bank (for pipes)"
     },
     {
      "id": "metal",
@@ -429,7 +421,7 @@
      "zone": "plaza",
      "stage": 1,
      "text": "Get water flowing into the fountain",
-     "buildHint": "Fountain inlet: east side, by the plaza edge.",
+     "buildHint": "Fountain inlet: east side, by the piazza edge.",
      "hint": {
       "x": 6,
       "z": 2
@@ -440,7 +432,7 @@
      "kind": "talk",
      "npc": "tilly",
      "final": true,
-     "text": "Celebrate with Tilly"
+     "text": "Show Fede the fountain"
     }
    ],
    "rewards": {
@@ -463,36 +455,36 @@
    },
    "dialogue": {
     "offer": [
-     "You! Builder! Quick question: do you like water? Splashing? Fountains that actually fountain?",
-     "The plaza fountain used to be powered by the old mill channel next to my caravan. Waterwheel, gears, pump, pipes — gorgeous system. All gone now.",
-     "If you put a waterwheel in the channel, link it to a pump beside the water, and run pipes to the fountain's inlet on its east side… splish!"
+     "Hi. Quick question. Do you know what makes a website look good? Pictures. Do you know what this village has? A dry fountain.",
+     "It used to run off the old mill channel. A waterwheel, gear boxes, a pump, pipes. I found the plans in the library. They were under a cat.",
+     "Put a waterwheel in the channel, power a pump beside the water, and run pipes to the fountain's inlet on its east side. Then I take one photo and we're on the internet."
     ],
-    "acceptLabel": "Let's get it flowing",
-    "declineLabel": "Sounds complicated…",
+    "acceptLabel": "Let's get it running",
+    "declineLabel": "Sounds complicated",
     "accept": [
-     "Marvellous! Here are the machine designs and some metal. The blueprint glows in the plaza if you get stuck.",
-     "Pipes need clay — the river bank is full of it. And pumps need metal, from the quarry."
+     "Great. Here are the plans and some metal from my dad's shed. If you get stuck, the plan glows in the piazza.",
+     "Pipes need clay, and the stream bank is full of it. The pump needs metal from the quarry."
     ],
     "decline": [
-     "It's only a little complicated! Like a sandwich with gears in it. Come back anytime."
+     "It's only a bit complicated. Like a network, but wet. Come back whenever."
     ],
     "progress": [
-     "Power flows from the wheel through gear boxes and shafts. Water flows from a POWERED pump through pipes. Every connector has to line up!"
+     "Power goes from the wheel through gear boxes and shafts. Water goes from a POWERED pump through pipes. Every connector has to line up."
     ],
     "complete": [
-     "IT WORKS! Look at it! Water! Wet, glorious water!",
-     "You've got a real inventor's brain, you know. Here — my spare goggles, and some designs for fancy fountains and spark lamps."
+     "It works! Hold still, I need the picture before the pigeons get in it.",
+     "You'd be good with computers, you know. Here, my spare goggles from the science fair, and some plans for fancy fountains and electric lamps."
     ]
    }
   },
   {
    "id": "decree",
-   "title": "The Royal Decree",
+   "title": "Ordinance No. 47",
    "giver": "percival",
    "main": true,
    "type": "character",
    "chapter": 1,
-   "description": "King Percival's Royal Decree No. 47 keeps the harbor sealed until the village reaches 120 Kingdom Harmony.",
+   "description": "The lower road has been closed by Town Hall Ordinance No. 47 for years. The Sindaco will lift it once his approval rating reaches 120.",
    "requires": {
     "quests": [
      "bridge"
@@ -503,20 +495,19 @@
      "id": "harmony",
      "kind": "harmony",
      "value": 120,
-     "text": "Raise Kingdom Harmony to 120 by helping the village"
+     "text": "Raise the Sindaco's approval rating to 120 by helping the village"
     },
     {
      "id": "tell",
      "kind": "talk",
      "npc": "percival",
      "final": true,
-     "text": "Petition King Percival to open the harbor"
+     "text": "Ask the Sindaco to lift the ordinance"
     }
    ],
    "rewards": {
     "harmony": 0,
     "items": {
-     "spark": 10,
      "coins": 30
     },
     "clothes": [
@@ -528,35 +519,35 @@
    },
    "dialogue": {
     "offer": [
-     "Ahem! Citizen {name}! Your bridge has been noticed at the very highest levels. By me. The king.",
-     "You may have heard: the harbor is sealed by Royal Decree Number Forty-Seven, until the kingdom is in Harmony once more.",
-     "Help the villagers, mend what is broken, and when Hearthglow's Harmony reaches one hundred and twenty, I shall lift the decree!"
+     "Geometra! Your crossing has been noticed at the very highest level. By me. The Sindaco.",
+     "You may have heard that the lower road is closed by Ordinance Number Forty-Seven. I signed it during a hard winter. The reasons are… archived.",
+     "Help the villagers, mend what is broken, and when my approval rating reaches one hundred and twenty, I shall lift it! With a ceremony. Possibly a band."
     ],
-    "acceptLabel": "I'll raise the village's Harmony",
+    "acceptLabel": "I'll win over the village",
     "declineLabel": "Maybe another time",
     "accept": [
-     "Splendid! I shall prepare a ceremonial key. And a ceremonial key-holder. And a speech."
+     "Splendid! I shall prepare scissors. And a ribbon. And a speech about the scissors."
     ],
     "decline": [
-     "Very well. The decree shall remain decreed."
+     "Very well. The ordinance shall remain ordained."
     ],
     "progress": [
-     "Harmony grows with every good deed. Check your Harmony with P — I find it very soothing."
+     "Approval grows with every good deed. Check it with P. I check mine hourly."
     ],
     "complete": [
-     "By the authority vested in me by… me… I hereby lift Royal Decree Number Forty-Seven!",
-     "The harbor is open! Do go and see — and take this sailor's outfit. Ceremonially."
+     "By the authority vested in me by the voters, and by me, I hereby lift Ordinance Number Forty-Seven!",
+     "The lower road is open! Go and see. And take this sailor's outfit. It was in the lost property box. Ceremonially."
     ]
    }
   },
   {
    "id": "home",
-   "title": "A Home of Your Own",
+   "title": "A Roof of Your Own",
    "giver": "percival",
    "main": true,
    "type": "construction",
    "chapter": 1,
-   "description": "King Percival will grant you the empty plot beside the Lantern Inn for 100 coins. Pay for the deed, build a little house there, then make it cosy.",
+   "description": "The Sindaco will sell you the plot where the old farmhouse stood, beside the guest house, for a symbolic 100,000 lire. Pay for the deed, build a little house there, then make it cosy.",
    "requires": {
     "quests": [
      "bridge"
@@ -573,7 +564,7 @@
      },
      "stage": 0,
      "label": "Pay 100 coins for the deed",
-     "text": "Pay King Percival 100 coins for the plot's deed (sell spare goods at the shops)",
+     "text": "Pay the Sindaco 100,000 lire for the plot's deed (sell spare goods at the shops)",
      "lines": [
       "Splendid! Signed, sealed and very slightly sticky. The plot beside the inn is yours.",
       "Here are the house blueprints and a few planks to begin. The kingdom provides! Once paid for."
@@ -629,7 +620,7 @@
       }
      ],
      "stage": 1,
-     "text": "Build your home on the plot beside the inn: 3 walls, a door, a roof and a bed",
+     "text": "Build your home on the plot beside the guest house: 3 walls, a door, a roof and a bed",
      "buildHint": "Walls stand on cell edges; the roof rests on top of them.",
      "hint": {
       "x": 21.5,
@@ -683,13 +674,12 @@
      "kind": "talk",
      "npc": "percival",
      "final": true,
-     "text": "Tell King Percival your home is ready"
+     "text": "Tell the Sindaco your home is ready"
     }
    ],
    "rewards": {
     "harmony": 20,
     "items": {
-     "spark": 10,
      "coins": 20
     },
     "flags": [
@@ -698,35 +688,35 @@
    },
    "dialogue": {
     "offer": [
-     "Citizen {name}! A builder who mends bridges should not be sleeping above a soup kitchen forever.",
-     "The empty plot beside the Lantern Inn could be yours. The deed costs 100 coins: a kingdom has upkeep, you know. Crowns don't polish themselves.",
-     "Sell your spare goods at the village shops, then bring me the coins."
+     "Geometra! A professional like you should not sleep in a guest room under a portrait of my grandfather forever.",
+     "The plot where the old farmhouse stood, beside the guest house, could be yours. For a symbolic price: one hundred thousand lire. The town hall has upkeep, you know. Battlements don't polish themselves.",
+     "Sell your spare goods at the village shops, then bring me the money."
     ],
     "acceptLabel": "A home of my own!",
-    "declineLabel": "The inn suits me for now",
+    "declineLabel": "The guest room suits me",
     "accept": [
-     "Splendid! Come back with 100 coins and the deed is yours."
+     "Splendid! Come back with one hundred thousand lire and the deed is yours. I'll have it stamped. Twice."
     ],
     "decline": [
-     "As you wish. The deed shall wait, rolled up very neatly."
+     "As you wish. The deed shall wait, rolled up very neatly, next to my other important papers."
     ],
     "progress": [
-     "First the deed, then walls, a door, a roof and a bed, then something cosy. The Starforge Tool shows what is still missing."
+     "First the deed, then walls, a door, a roof and a bed, then something cosy. Your Geometra's kit shows what is still missing."
     ],
     "complete": [
-     "A house! With a roof and everything! I hereby declare it your official residence.",
+     "A house! With a roof and everything! I hereby declare it your official residence. I'll mention it in my next speech.",
      "Sleep in your own bed whenever you like, and change your clothes at home. Welcome home, {name}."
     ]
    }
   },
   {
    "id": "dock",
-   "title": "All Aboard!",
+   "title": "The City Bus",
    "giver": "captain",
    "main": true,
    "type": "construction",
    "chapter": 1,
-   "description": "Captain Gale's ferry can't moor at the broken dock. Lay planks from the shore out to the mooring post.",
+   "description": "The region has sent a new city bus, and it's too long to turn round anywhere up here. Lay the platform for a new stop out to the old posts by the lower road, so the line to the city can run.",
    "requires": {
     "quests": [
      "decree"
@@ -734,8 +724,7 @@
    },
    "onAccept": {
     "items": {
-     "wood": 4,
-     "spark": 4
+     "wood": 4
     }
    },
    "objectives": [
@@ -745,15 +734,7 @@
      "item": "wood",
      "count": 12,
      "stage": 0,
-     "text": "Gather 12 wood for the planks"
-    },
-    {
-     "id": "spark",
-     "kind": "gather",
-     "item": "spark",
-     "count": 6,
-     "stage": 0,
-     "text": "Gather 6 Spark Energy"
+     "text": "Gather 12 wood for the platform"
     },
     {
      "id": "build",
@@ -761,9 +742,9 @@
      "check": "dock",
      "zone": "dock",
      "stage": 1,
-     "text": "Rebuild the dock out to the mooring post",
-     "goal": "Planks from the shore to the mooring post",
-     "buildHint": "The old pilings hold planks up.",
+     "text": "Lay the new stop's platform out to the old posts",
+     "goal": "Planks from the bank out to the far post",
+     "buildHint": "The old posts hold planks up.",
      "hint": {
       "x": 5,
       "z": 44
@@ -774,14 +755,13 @@
      "kind": "talk",
      "npc": "captain",
      "final": true,
-     "text": "Tell the Captain the dock is ready"
+     "text": "Tell Aldo the stop is ready"
     }
    ],
    "rewards": {
     "harmony": 30,
     "flags": [
-     "boatReady",
-     "clockworkRevealed"
+     "boatReady"
     ],
     "blueprints": [
      "counter"
@@ -792,34 +772,34 @@
    },
    "dialogue": {
     "offer": [
-     "Ahoy there! You must be the builder everyone's singing about. Literally — Fern made up a song.",
-     "My ferry's been bobbing out in the bay for years. The dock's too broken to tie up to!",
-     "The old pilings still stand. Lay planks from the shore out to the mooring post and we'll be sailing by sundown!"
+     "You must be the Geometra everyone's talking about. Literally. Ornella made up a song. It's not a good song.",
+     "The region has finally sent us a new bus. It's beautiful. It's also two metres too long to turn round anywhere in this village.",
+     "The old posts by the lower road are still standing. Lay a platform out to the last one and we'll have a stop worthy of the city line!"
     ],
-    "acceptLabel": "One dock, coming up!",
-    "declineLabel": "Not yet, Captain",
+    "acceptLabel": "One bus stop, coming up",
+    "declineLabel": "Not yet, Aldo",
     "accept": [
-     "That's the spirit! Here's some timber from my hold."
+     "That's the spirit! Here's some timber. It fell off a lorry. Ask me about the lorry sometime."
     ],
     "decline": [
-     "The sea will wait. It's very good at waiting. It's mostly what it does."
+     "The bus will wait. Buses are very good at waiting. It's mostly what they do."
     ],
     "progress": [
-     "Planks from the sand out to the mooring post, matey. The old pilings will hold them up."
+     "Planks from the bank out to the far post. The old posts will hold them up."
     ],
     "complete": [
-     "Would you look at that! A dock fit for a queen. Or a captain. Or a captain who is also a queen.",
-     "The ferry's ready. Hop aboard and I'll show you the islands — Clockwork Cove first!"
+     "Would you look at that. A stop fit for a city bus. Or a bus that thinks it's a city.",
+     "Climb aboard whenever you like. The line doesn't go anywhere new yet, but the map's ready for when it does."
     ]
    }
   },
   {
    "id": "stones",
-   "title": "Shiny Stones for the Castle",
+   "title": "A Plinth for the Sindaco",
    "giver": "percival",
    "type": "collection",
    "chapter": 1,
-   "description": "King Percival wants stone and a sparkling crystal to \"restore the castle's dignity\".",
+   "description": "The Sindaco wants stone and copper wire for a plinth that lights up a bust of himself.",
    "requires": {
     "quests": [
      "tool"
@@ -842,7 +822,7 @@
      "kind": "gather",
      "item": "crystal",
      "count": 2,
-     "text": "Find 2 crystals (try the glowing blue rock)",
+     "text": "Find 2 lengths of copper wire (try the big street bins)",
      "hint": {
       "x": -35,
       "z": -10
@@ -853,13 +833,12 @@
      "kind": "talk",
      "npc": "percival",
      "final": true,
-     "text": "Bring them to King Percival"
+     "text": "Bring them to the Sindaco"
     }
    ],
    "rewards": {
     "harmony": 15,
     "items": {
-     "spark": 5,
      "coins": 15
     },
     "blueprints": [
@@ -868,32 +847,32 @@
    },
    "dialogue": {
     "offer": [
-     "Citizen! A crisis of the GRAVEST order! The castle's decorative stonework is… slightly chipped.",
-     "Fetch me four stones and one shining crystal from the old quarry, west of the bakery. For the kingdom!"
+     "Geometra! A matter of civic importance. The village has no statue of its mayor.",
+     "A modest bust, on a modest plinth, with modest lights. Bring me stone from the old quarry, west of the bakery, and copper wire for the lights."
     ],
-    "acceptLabel": "For the kingdom!",
-    "declineLabel": "It's only a little chipped…",
+    "acceptLabel": "For civic pride!",
+    "declineLabel": "Is that really necessary?",
     "accept": [
-     "Excellent! Strike the rocks when the ring lines up — I am told that is the technique."
+     "Excellent! Strike the rocks when the ring lines up. I'm told that is the technique. I have never struck a rock. I have struck deals."
     ],
     "decline": [
-     "Only a LITTLE chipped? Next you'll tell me the moat is only a little puddle. …It is. But still!"
+     "Necessary? Visitors need to know whom to thank. Me. They need to know to thank me."
     ],
     "progress": [
-     "Four stones and a crystal, posthaste! Or slowhaste. Any haste."
+     "Stone and copper wire, posthaste! Or slowhaste. Any haste."
     ],
     "complete": [
-     "Magnificent! The castle shall gleam! I have prepared a small medal. It is a button. But it is a SHINY button."
+     "Magnificent! The plinth will glow! I have prepared a small medal for you. It is a button. But it is a SHINY button."
     ]
    }
   },
   {
    "id": "squirrels",
-   "title": "Squirrels in the Scones",
+   "title": "Boars in the Bakery",
    "giver": "mabel",
    "type": "character",
    "chapter": 1,
-   "description": "Three squirrels have moved into Mabel's bakery. Lure them back to the oak tree with acorns, then bring apples for a peace-offering pie.",
+   "description": "Three wild boars have been raiding Ornella's bakery. Lure them back to the woods with chestnuts, then bring hazelnuts for a peace-offering cake.",
    "requires": {
     "quests": [
      "bridge"
@@ -909,7 +888,7 @@
      "kind": "gather",
      "item": "acorn",
      "count": 3,
-     "text": "Shake the old oak by the bakery for acorns",
+     "text": "Shake the old chestnut tree by the bakery for chestnuts",
      "hint": {
       "x": -16.5,
       "z": -1.5
@@ -921,7 +900,7 @@
      "kind": "event",
      "event": "feed",
      "count": 3,
-     "text": "Offer an acorn to each squirrel",
+     "text": "Offer a chestnut to each boar",
      "hint": {
       "x": -11,
       "z": -3
@@ -937,7 +916,7 @@
      },
      "stage": 2,
      "label": "Hand over 4 apples",
-     "text": "Bring Mabel 4 apples from the orchard for a peace-offering pie",
+     "text": "Bring Ornella 4 hazelnuts from the groves for a peace-offering cake",
      "lines": [
       "Apples! Perfect. A peace-offering pie for those rascals… and a few more for the shop window."
      ]
@@ -947,13 +926,12 @@
      "kind": "talk",
      "npc": "mabel",
      "final": true,
-     "text": "Tell Mabel the bakery is clear"
+     "text": "Tell Ornella the bakery is clear"
     }
    ],
    "rewards": {
     "harmony": 20,
     "items": {
-     "spark": 8,
      "coins": 20
     },
     "clothes": [
@@ -965,34 +943,34 @@
    },
    "dialogue": {
     "offer": [
-     "Oh, could you help? The squirrels have made a nest in my flour sacks. Again!",
-     "They love acorns more than scones. If you shook the old oak and offered them some, I bet they'd scamper home."
+     "You. Geometra. Can you count to three? Good. There are three boars in my bakery. Again.",
+     "They like chestnuts more than bread. Shake the old chestnut tree, offer them one each, and they'll follow it back to the woods. Then we'll talk about compensation."
     ],
     "acceptLabel": "I'll lure them out",
-    "declineLabel": "Squirrels are scary",
+    "declineLabel": "Boars are scary",
     "accept": [
-     "You're a dear! Gently, now — they're fluffy but dramatic."
+     "Good. Gently. They're big, but they're dramatic."
     ],
     "decline": [
-     "They ARE a bit scary. Especially the one with the tiny eyebrows."
+     "They ARE scary. Especially the one with the eyebrows. He knows what he did."
     ],
     "progress": [
-     "One acorn each, and they'll follow it right back to the oak."
+     "One chestnut each, and they'll follow it right back to the woods."
     ],
     "complete": [
-     "They're gone! Well — they're waving at me from the oak. Rude, but adorable.",
-     "Here, a proper chef's hat. You've earned it."
+     "They're gone. Well, they're standing at the edge of the woods, staring at me. Rude, but distant.",
+     "Here, a proper baker's hat. You've earned it."
     ],
-    "later": "The squirrels only raid in the morning, the sneaky things. Come back before 11 and catch them at it!"
+    "later": "The boars only raid in the morning. Come back before 11 and catch them at it."
    }
   },
   {
    "id": "flowers",
-   "title": "Petals for the Plaza",
+   "title": "Pumpkins for Gigia",
    "giver": "fern",
    "type": "environmental",
    "chapter": 1,
-   "description": "Fern wants to fill the village with flowers. Grow some in her garden beds.",
+   "description": "Gigia wants pumpkins for the harvest. Grow some in her garden beds.",
    "requires": {
     "quests": [
      "bridge"
@@ -1012,7 +990,7 @@
      "kind": "event",
      "event": "plant",
      "count": 4,
-     "text": "Plant seeds in Fern's garden beds",
+     "text": "Plant pumpkin seeds in Gigia's garden beds",
      "hint": {
       "x": 5.5,
       "z": -10
@@ -1030,21 +1008,20 @@
      "kind": "event",
      "event": "harvest",
      "count": 3,
-     "text": "Pick 3 fully grown blooms"
+     "text": "Pick 3 ripe pumpkins"
     },
     {
      "id": "tell",
      "kind": "talk",
      "npc": "fern",
      "final": true,
-     "text": "Show Fern your flowers"
+     "text": "Show Gigia your pumpkins"
     }
    ],
    "rewards": {
     "harmony": 20,
     "items": {
-     "flowers": 4,
-     "spark": 5,
+     "seeds": 2,
      "coins": 20
     },
     "clothes": [
@@ -1053,32 +1030,32 @@
    },
    "dialogue": {
     "offer": [
-     "I have a wild idea. A WILD idea. What if the whole village was flowers?",
-     "Start small: plant some seeds in my garden beds, water them, and see what blooms!"
+     "Harvest is coming and I've got hazelnuts, hazelnuts and hazelnuts. What this village needs is pumpkins.",
+     "Plant some seeds in my garden beds, water them, and leave them alone. Pumpkins hate being watched."
     ],
-    "acceptLabel": "Let's grow some flowers",
+    "acceptLabel": "Let's grow pumpkins",
     "declineLabel": "Maybe later",
     "accept": [
-     "Here are some seeds. Talk to them while they grow — it helps. Probably."
+     "Here are some seeds. Talk to them if you like. I do. They don't answer, which is fine."
     ],
     "decline": [
-     "The seeds will wait. They're very good at that."
+     "The seeds will wait. Seeds are good at that."
     ],
     "progress": [
-     "Water them whenever the soil looks dry. They grow while you're off adventuring!"
+     "Water them when the soil goes pale. They grow while you're off working."
     ],
     "complete": [
-     "They're gorgeous! You have the greenest thumbs. Here — my spare sun hat."
+     "Look at those. Proper pumpkins. You've got good hands for a Geometra. Here, my spare sun hat."
     ]
    }
   },
   {
    "id": "catch",
-   "title": "A Fishy Tale",
+   "title": "Aldo's Fish Story",
    "giver": "captain",
    "type": "collection",
    "chapter": 1,
-   "description": "Captain Gale bets you can't catch three fish. Prove him wrong.",
+   "description": "Aldo swears he once caught a pike as long as his bus. He bets you can't even catch five fish.",
    "requires": {
     "quests": [
      "decree"
@@ -1094,7 +1071,7 @@
      "kind": "event",
      "event": "fish",
      "count": 5,
-     "text": "Catch 5 fish (fishing spots by the river and harbor)",
+     "text": "Catch 5 fish (fishing spots by the stream and the lower road)",
      "hint": {
       "x": -8,
       "z": -14.6
@@ -1105,13 +1082,12 @@
      "kind": "talk",
      "npc": "captain",
      "final": true,
-     "text": "Show the Captain your catch"
+     "text": "Show Aldo your catch"
     }
    ],
    "rewards": {
     "harmony": 15,
     "items": {
-     "spark": 8,
      "coins": 25
     },
     "clothes": [
@@ -1120,41 +1096,41 @@
    },
    "dialogue": {
     "offer": [
-     "Every sailor worth their salt can catch a fish. I once caught one THIS big! Well — this big. It shrank in the telling.",
-     "Catch me three, and I'll make you an honorary captain."
+     "Anyone can drive a bus. Fishing is the real art. I once caught a pike as long as my bus. Well. As long as a small bus. A minibus.",
+     "Catch me five fish and I'll make you an honorary driver. There's a hat."
     ],
     "acceptLabel": "Challenge accepted",
     "declineLabel": "I'll pass",
     "accept": [
-     "Cast your line, wait for the bite, and keep the tension steady!"
+     "Cast your line, wait for the bite, and keep the tension steady. Like a good clutch."
     ],
     "decline": [
-     "Suit yourself! More fish for the fish."
+     "Suit yourself. More fish for the fish."
     ],
     "progress": [
-     "Steady on the reel — too much tension and SNAP!"
+     "Steady on the reel. Too much tension and SNAP. Like the old bus's fan belt."
     ],
     "complete": [
-     "Three fine fish! By the seven seas, you're a natural. Here's your captain's hat, Captain {name}!"
+     "Five fine fish! You're a natural. Here's the hat, driver {name}. It's a captain's hat. Don't ask why."
     ],
-    "later": "The fish bite best at dawn. Find me early, between 5 and 10 in the morning, and I'll show you a trick or two."
+    "later": "The fish bite best at dawn. Find me early, between 5 and 10 in the morning."
    }
   },
   {
    "id": "treasure",
-   "title": "Lost Starforge Notes",
-   "giver": "odessa",
+   "title": "Beep, Beep",
+   "giver": "tilly",
    "type": "exploration",
    "chapter": 1,
-   "description": "Odessa hid her old notes in treasure chests and buried caches around the island. Find three of them.",
+   "description": "Fede ordered a metal detector from a mail-order catalogue and needs proof it works. Find five buried finds or old chests.",
    "requires": {
     "quests": [
      "bridge"
     ]
    },
    "hours": [
-    18,
-    23
+    14,
+    20
    ],
    "objectives": [
     {
@@ -1163,14 +1139,14 @@
      "event": "treasure",
      "stat": "treasures",
      "count": 5,
-     "text": "Find 5 treasures (chests, or dig where the tool hums)"
+     "text": "Find 5 treasures (chests, or dig where the metal detector beeps)"
     },
     {
      "id": "tell",
      "kind": "talk",
-     "npc": "odessa",
+     "npc": "tilly",
      "final": true,
-     "text": "Return to Odessa"
+     "text": "Show Fede what you found"
     }
    ],
    "rewards": {
@@ -1185,33 +1161,34 @@
    },
    "dialogue": {
     "offer": [
-     "When I was young and dramatic, I hid my notes all over the island. Chests, mostly. Some I buried.",
-     "Your tool hums when buried treasure is near — the louder it hums, the closer you are. Find three for me?"
+     "I ordered a metal detector from a catalogue. It took six weeks to arrive, and my dad says it was a waste of money.",
+     "It beeps faster the closer you get to something buried. Can you find a few things? Old coins, anything. I need evidence for my dad."
     ],
     "acceptLabel": "I love a treasure hunt",
     "declineLabel": "Some other day",
     "accept": [
-     "Look behind the castle, near the quarry, and over in the orchard. And listen for that hum!"
+     "Here, you carry it, it's heavy. Try behind the castle, near the quarry and over in the groves. And listen for the beeping."
     ],
     "decline": [
-     "They've waited forty years. They can wait a bit more."
+     "Fine. It'll just sit in the shed being right about everything."
     ],
     "progress": [
-     "The hum gets warmer as you get closer. Press E to dig when it's practically singing."
+     "It beeps faster the closer you get. Press E to dig when it's practically screaming."
     ],
     "complete": [
-     "My old notes! Oh, look at my terrible handwriting. Thank you, dear. Take this backpack — every explorer needs one."
+     "Proof! Look at all this. My dad owes me an apology and a modem.",
+     "Keep the backpack, every explorer needs one. I'm going to make a page about this."
     ],
-    "later": "Old treasure maps are best read by lantern light. Come and see me this evening, after 6."
+    "later": "I'm at school all morning. Come and find me after two in the afternoon."
    }
   },
   {
    "id": "lamp",
-   "title": "Bright Ideas",
+   "title": "A Bright Idea",
    "giver": "tilly",
    "type": "puzzle",
    "chapter": 1,
-   "description": "Tilly wants to see a Spark Lamp light up from your own power source.",
+   "description": "Fede wants to see an electric lamp light up from a power source you built.",
    "requires": {
     "quests": [
      "fountain"
@@ -1222,14 +1199,14 @@
      "id": "lamp",
      "kind": "build",
      "check": "lamp",
-     "text": "Light a Spark Lamp with a waterwheel or windmill"
+     "text": "Light an electric lamp with a waterwheel or windmill"
     },
     {
      "id": "tell",
      "kind": "talk",
      "npc": "tilly",
      "final": true,
-     "text": "Show Tilly your lamp"
+     "text": "Show Fede your lamp"
     }
    ],
    "rewards": {
@@ -1242,22 +1219,22 @@
    },
    "dialogue": {
     "offer": [
-     "Idea! Spark Lamps glow when they're powered. Power from a windmill, or a waterwheel, through shafts and gear boxes…",
-     "Build me one that lights up, anywhere you like!"
+     "Idea. Electric lamps glow when they're powered. Power from a windmill or a waterwheel, through shafts and gear boxes…",
+     "Build me one that lights up, anywhere you like. Then I can stop writing 'imagine a lamp' on the website."
     ],
-    "acceptLabel": "On it!",
+    "acceptLabel": "On it",
     "declineLabel": "Later",
     "accept": [
-     "Brilliant! Get it? Brilliant? Because lamps? I'll stop."
+     "Brilliant. Get it? Brilliant. Because lamps. I'll stop."
     ],
     "decline": [
-     "The idea will keep. Ideas are very shelf-stable."
+     "The idea will keep. Ideas don't need power. Lamps do."
     ],
     "progress": [
-     "Source, shafts or gears, then lamp. Line up those connectors!"
+     "Source, then shafts or gears, then the lamp. Line up those connectors."
     ],
     "complete": [
-     "Glowing! Beautiful! I'm going to stare at it until I see spots."
+     "It's glowing! I'm going to stare at it until I see spots. Then I'm going to photograph the spots."
     ]
    }
   },
@@ -1314,8 +1291,7 @@
    "rewards": {
     "harmony": 15,
     "items": {
-     "coins": 20,
-     "spark": 5
+     "coins": 20
     },
     "blueprints": [
      "windmill",

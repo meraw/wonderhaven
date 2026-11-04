@@ -284,10 +284,10 @@ func _blueprint_source(id: String) -> String:
 		if q.get("onAccept", {}).get("blueprints", []).has(id): return "Accept “%s” from %s" % [q.title, Data.npc(q.giver).name]
 		if q.get("rewards", {}).get("blueprints", []).has(id): return "Complete “%s” for %s" % [q.title, Data.npc(q.giver).name]
 	for u in Data.harmony_unlocks:
-		if u.get("blueprints", []).has(id): return "Reach %d Kingdom Harmony" % int(u.at)
+		if u.get("blueprints", []).has(id): return "Reach %d approval" % int(u.at)
 	for n in Data.npcs:
 		for g in n.get("gifts", []):
 			if g.get("blueprint", "") == id: return "Become good friends with %s" % n.name
 	for n in Data.layout.nodes:
 		if n.get("blueprint", "") == id: return "Hidden in a treasure chest somewhere on the island"
-	return "Reach 250 Kingdom Harmony"
+	return "Reach 250 approval"

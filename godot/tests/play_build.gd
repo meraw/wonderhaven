@@ -33,7 +33,7 @@ func play() -> void:
 	game.state.flags["hasTool"] = true
 	game.state.tutorial.on = false; game.hud.apply_reveals()   # this test sets up mid-game state directly
 	game.state.quests["bridge"] = {"status": "active", "progress": {}}
-	game.state.inventory.merge({"wood": 30, "spark": 30, "stone": 10}, true)
+	game.state.inventory.merge({"wood": 30, "stone": 10}, true)
 	for b in ["bridgeDeck", "bridgePost", "railing"]: game.state.blueprints.append(b)
 	game.render_resources()
 	game.player.teleport(0.5, -12.5, PI)

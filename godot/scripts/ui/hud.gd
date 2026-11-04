@@ -23,7 +23,7 @@ func setup(g) -> void:
 	var top := UiTheme.panel(); top.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var tr := HBoxContainer.new(); tr.add_theme_constant_override("separation", 10); top.add_child(tr)
 	harmony_box = HBoxContainer.new(); harmony_box.add_theme_constant_override("separation", 10); tr.add_child(harmony_box)
-	harmony_box.add_child(UiTheme.label("💖 Harmony", 15))
+	harmony_box.add_child(UiTheme.label("💖 Approval", 15))
 	harmony_bar = ProgressBar.new(); harmony_bar.custom_minimum_size = Vector2(160, 14); harmony_bar.show_percentage = false; harmony_bar.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	harmony_box.add_child(harmony_bar)
 	harmony_label = UiTheme.label("0", 15); harmony_box.add_child(harmony_label)

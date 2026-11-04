@@ -1,12 +1,7 @@
 {
  "resources": {
-  "spark": {
-   "name": "Spark Energy",
-   "icon": "✨",
-   "color": "#ffcf5c"
-  },
   "coins": {
-   "name": "Coins",
+   "name": "Lire",
    "icon": "💰",
    "color": "#f2b33d"
   },
@@ -36,9 +31,9 @@
    "color": "#ff8fab"
   },
   "crystal": {
-   "name": "Crystal",
-   "icon": "💎",
-   "color": "#8fe9ff"
+   "name": "Copper Wire",
+   "icon": "🔌",
+   "color": "#d9824a"
   },
   "flowers": {
    "name": "Flowers",
@@ -46,9 +41,9 @@
    "color": "#ff7aa8"
   },
   "fragment": {
-   "name": "Magic Fragment",
-   "icon": "🔮",
-   "color": "#c9a8ff"
+   "name": "Lost Things",
+   "icon": "🔑",
+   "color": "#e8c06a"
   },
   "fish": {
    "name": "Fish",
@@ -56,35 +51,39 @@
    "color": "#6cc4ff"
   },
   "fruit": {
-   "name": "Apples",
-   "icon": "🍎",
-   "color": "#ff5a5f"
+   "name": "Hazelnuts",
+   "icon": "🥜",
+   "color": "#b07a45"
   },
   "acorn": {
-   "name": "Acorns",
+   "name": "Chestnuts",
    "icon": "🌰",
-   "color": "#9a6a3a"
+   "color": "#8a5a32"
   },
   "seeds": {
-   "name": "Flower Seeds",
+   "name": "Pumpkin Seeds",
    "icon": "🌱",
    "color": "#7bd389"
   },
   "bread": {
-   "name": "Honey Bread",
+   "name": "Bread",
    "icon": "🍞",
    "color": "#e8b06a",
    "treat": 2
   },
   "pie": {
-   "name": "Apple Pie",
-   "icon": "🥧",
+   "name": "Hazelnut Cake",
+   "icon": "🍰",
    "color": "#d98b5f",
    "treat": 3
+  },
+  "pumpkin": {
+   "name": "Pumpkins",
+   "icon": "🎃",
+   "color": "#f08a2c"
   }
  },
  "order": [
-  "spark",
   "coins",
   "wood",
   "stone",
@@ -97,6 +96,7 @@
   "fish",
   "fruit",
   "acorn",
+  "pumpkin",
   "seeds",
   "bread",
   "pie"

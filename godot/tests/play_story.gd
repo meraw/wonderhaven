@@ -1,5 +1,5 @@
 extends "res://tests/autoplay_base.gd"
-## G3 check: talk to Odessa, accept the tool quest, chop wood in the minigame, catch a fragment, turn in.
+## G3 check: talk to the Sindaco, accept the welcome request, chop wood in the minigame, pick up a lost thing, turn in.
 
 func talk_through(accept: bool = true) -> void:
 	for n in 160:
@@ -22,15 +22,15 @@ func approach(x: float, z: float, face_x: float, face_z: float) -> void:
 	game.player.teleport(x, z, atan2(face_x - x, face_z - z)); await frames(3)
 
 func play() -> void:
-	var od = game.npcs.odessa
+	var od = game.npcs.percival
 	await approach(od.pos.x - 1.4, od.pos.z, od.pos.x, od.pos.z)
-	check("s0", "Odessa shows a quest marker", od.marker_offer.visible, "")
+	check("s0", "The Sindaco shows a request marker", od.marker_offer.visible, "")
 	await tap(KEY_E); await frames(5)
 	check(3, "E starts a conversation", game.mode == "dialogue", game.mode)
 	await frames(30)
 	await shot("dialogue")
 	await talk_through()
-	check("s1", "Accepted the tool quest and got the Starforge Tool", game.state.quests.get("tool", {}).get("status", "") == "active" and game.state.flags.get("hasTool", false), str(game.state.quests))
+	check("s1", "Accepted the welcome request and got the Geometra's kit", game.state.quests.get("tool", {}).get("status", "") == "active" and game.state.flags.get("hasTool", false), str(game.state.quests))
 	# Chop a tree with the minigame
 	var tree: Dictionary = Data.node_def("tree0")
 	for attempt in 4:
@@ -60,12 +60,12 @@ func play() -> void:
 	var f: Dictionary = Data.node_def("frag0")
 	game.player.teleport(f.x - 2, f.z, PI / 2); game.cam.yaw = -PI / 2; game.cam.snap(); await frames(2)
 	await hold(KEY_W, 0.8)
-	check("s2", "Walking through a fragment catches it", int(game.state.inventory.get("fragment", 0)) >= 1, "fragments %s" % game.state.inventory.get("fragment", 0))
+	check("s2", "Walking over a lost thing picks it up", int(game.state.inventory.get("fragment", 0)) >= 1, "fragments %s" % game.state.inventory.get("fragment", 0))
 	await frames(10)
-	od = game.npcs.odessa
-	check("s3", "Odessa now shows a ready marker", game.story.marker_for("odessa") == "ready", game.story.marker_for("odessa"))
+	od = game.npcs.percival
+	check("s3", "The Sindaco now shows a ready marker", game.story.marker_for("percival") == "ready", game.story.marker_for("percival"))
 	await approach(od.pos.x - 1.3, od.pos.z, od.pos.x, od.pos.z)
 	await tap(KEY_E); await frames(5)
 	await talk_through(false)
-	check(9, "Turning in completes the quest and grants Harmony", game.state.quests.tool.status == "done" and game.state.harmony >= 10, "harmony %d" % game.state.harmony)
+	check(9, "Turning in completes the request and raises the approval rating", game.state.quests.tool.status == "done" and game.state.harmony >= 10, "harmony %d" % game.state.harmony)
 	await shot("after-quest")

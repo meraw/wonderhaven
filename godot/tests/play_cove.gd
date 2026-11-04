@@ -36,7 +36,7 @@ func play() -> void:
 	for qid in ["tool", "bridge", "workshop", "fountain", "decree", "dock"]: s.quests[qid] = {"status": "done", "progress": {}, "done": {}}
 	for f in ["hasTool", "toolGiven", "orchardOpen", "workshopDone", "harborOpen", "boatReady", "clockworkRevealed", "fountainRestored"]: s.flags[f] = true
 	s.tutorial = Tutorial.new_state(false, true); s.harmony = 140
-	s.inventory = {"spark": 20, "coins": 30}
+	s.inventory = {"coins": 30}
 	game.player_char.show_staff(true)
 	for k in range(41, 50):
 		var pl := {"uid": int(s.next_uid), "id": "bridgeDeck", "i": 5.0, "k": float(k), "r": 0, "y": BuildGrid.suggest_bottom("bridgeDeck", 5, k, 0, 0.15, s.placements, Data.zone("dock"))}
@@ -47,7 +47,7 @@ func play() -> void:
 	game.player.teleport(5.5, 48.5, 0.0); game.cam.snap(); await frames(10)
 	await walk_direct(5.5, 49.6, 0.5)
 	await face_and_press("boat", 5.5, 51.6); await frames(10)
-	check("c1", "Boarding the ferry opens the map with Clockwork Cove revealed", game.panels.current == "map" and game.panels.find_child("map_view", true, false) != null, game.panels.current)
+	check("c1", "Catching the bus opens the travel map (the Cove itself is hidden for now and reached by a test-only route)", game.panels.current == "map" and game.panels.find_child("map_view", true, false) != null, game.panels.current)
 	await shot("map")
 	var ok := await sail("clockwork")
 	await shot("arrival")
@@ -65,7 +65,7 @@ func play() -> void:
 	# Light the Lighthouse: materials, then a windmill on the cape
 	await talk("juniper")
 	check("c7", "Juniper asks for help with the lighthouse", eng().status("lighthouse") == "active", eng().status("lighthouse"))
-	await gather_until("chop", func(): return int(q("lighthouse").progress.get("wood", 0)) >= 8 and inv("wood") >= 7 and inv("spark") >= 4, [], 20)
+	await gather_until("chop", func(): return int(q("lighthouse").progress.get("wood", 0)) >= 8 and inv("wood") >= 7, [], 20)
 	await gather_until("mine", func(): return int(q("lighthouse").progress.get("metal", 0)) >= 2 and inv("metal") >= 2, ["cove_rock0", "cove_rock1", "cove_rock2", "cove_rock3"], 16)
 	print("   lighthouse materials: ", s.inventory, " step ", eng().stage_index("lighthouse"))
 	check("c8", "Materials gathered: the building step opens", eng().current_stage("lighthouse") == 1, "step %d" % eng().stage_index("lighthouse"))
@@ -107,7 +107,7 @@ func play() -> void:
 	note("clock materials: %s" % str(s.inventory))
 	await talk("barnaby")
 	check("c13", "Handing Barnaby the parts in conversation (a pay step)", eng().current_stage("clocktower") == 2 and s.flags.get("clockParts", false), "step %d" % eng().stage_index("clocktower"))
-	await gather_until("chop", func(): return inv("wood") >= 7 and inv("spark") >= 4, [], 16)
+	await gather_until("chop", func(): return inv("wood") >= 7, [], 16)
 	await walk_to(5.6, -10.2, 1.0)
 	await open_build("clockyard")
 	await select_piece("waterwheel"); print("   waterwheel: ", await place_at(12, -8, -0.3, 0))
@@ -136,7 +136,7 @@ func play() -> void:
 	ok = await sail("hearthglow")
 	await shot("home")
 	s = game.state
-	check("c17", "Sailing home: Hearthglow's dock is still there and the cove's machines wait on the cove", ok and Data.island == "hearthglow" and s.placements.size() == dock_pieces and s.away.get("clockwork", {}).get("placements", []).size() == cove_pieces and game.npcs.has("odessa"),
+	check("c17", "Sailing home: Hearthglow's dock is still there and the cove's machines wait on the cove", ok and Data.island == "hearthglow" and s.placements.size() == dock_pieces and s.away.get("clockwork", {}).get("placements", []).size() == cove_pieces and game.npcs.has("percival"),
 		"island %s, pieces %d (dock %d), cove pieces %d" % [Data.island, s.placements.size(), dock_pieces, s.away.get("clockwork", {}).get("placements", []).size()])
 	var back := SaveSystem.deserialize(SaveSystem.serialize(game.snapshot()))
 	check("c18", "The save keeps both islands", back.island == "hearthglow" and back.away.clockwork.placements.size() == cove_pieces and back.quests.clocktower.status == "done", "")

@@ -1,8 +1,7 @@
 {
- "_comment": "Godot-only content. A villager with an entry here gets a '🛍' choice in conversation that opens their shop. requires: {quests, harmony, flags} as in quests.json, for the whole shop or one stock line. buys: coins paid per item when you sell. stock: lines you can buy with coins: items (a bundle, as often as you like), blueprint or clothes (once). likes (in npcs.json) and treat (in resources.json) decide how much a gift raises friendship; giftLines are the generic thank-you lines ({item} is the gift's name).",
+ "_comment": "Godot-only content. A villager with an entry here gets a '🛍' choice in conversation that opens their shop. requires: {quests, harmony, flags} as in quests.json, for the whole shop or one stock line. buys: money paid per item (coins inside, shown as lire) when you sell. stock: lines you can buy with coins: items (a bundle, as often as you like), blueprint or clothes (once). likes (in npcs.json) and treat (in resources.json) decide how much a gift raises friendship; giftLines are the generic thank-you lines ({item} is the gift's name).",
  "currency": "coins",
  "noGift": [
-  "spark",
   "coins",
   "fragment"
  ],
@@ -20,9 +19,9 @@
  },
  "shops": {
   "bram": {
-   "name": "Bram's Timber & Tools",
+   "name": "Fusibile Electrics",
    "label": "Let's trade",
-   "greet": "Timber, tools and plans. Have a look, mind the sawdust!",
+   "greet": "Wire, lamps, timber and plans. Mind the cables. Some of them are live. Most of them.",
    "requires": {
     "quests": [
      "bridge"
@@ -77,9 +76,9 @@
    ]
   },
   "fern": {
-   "name": "Fern's Garden Stall",
+   "name": "Ghisolfi Farm Stall",
    "label": "Anything for sale?",
-   "greet": "Seeds, saplings and garden plans. Everything here grew up happy!",
+   "greet": "Hazelnuts, seeds and good advice. The advice is free; the trees insist.",
    "requires": {
     "quests": [
      "bridge"
@@ -89,7 +88,8 @@
     "flowers": 3,
     "fruit": 3,
     "seeds": 2,
-    "acorn": 1
+    "acorn": 1,
+    "pumpkin": 4
    },
    "stock": [
     {
@@ -118,9 +118,9 @@
    ]
   },
   "tilly": {
-   "name": "Sprocket Supplies",
-   "label": "Show me your gadgets",
-   "greet": "Bits, bobs and the occasional thingamajig. Don't touch the one that's humming.",
+   "name": "Fede's Spare Parts",
+   "label": "Show me your spare parts",
+   "greet": "Old computer bits, cables, and a CD of shareware. Cash only. My dad says so.",
    "requires": {
     "quests": [
      "workshop"
@@ -161,9 +161,9 @@
    ]
   },
   "mabel": {
-   "name": "Crumb's Bakery",
+   "name": "Tealdi Bakery",
    "label": "What's fresh today?",
-   "greet": "Fresh from the oven! A treat makes a lovely gift, you know.",
+   "greet": "Bread, cake, and absolutely no boars. Usually. A treat makes a lovely gift, you know.",
    "requires": {
     "quests": [
      "tool"
@@ -195,9 +195,9 @@
    ]
   },
   "captain": {
-   "name": "Harbor Goods",
-   "label": "What's in the hold?",
-   "greet": "Goods from across the sea, and I pay well for a good catch.",
+   "name": "Aldo's Back Seat",
+   "label": "What's on the bus?",
+   "greet": "Things passengers left behind. After a year, lost property is mine. That's the law. Probably.",
    "requires": {
     "quests": [
      "decree"

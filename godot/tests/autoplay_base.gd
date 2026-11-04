@@ -67,8 +67,13 @@ func await_island(id: String, max_s: float = 90.0) -> bool:
 			return true
 	return false
 
-## Board the ferry (E by the boat), pick an island on the map and sail; waits for the island to load.
+## Board the ferry (E by the boat), pick an island on the map and sail; waits for the island to load. A place hidden
+## from the map (the old Clockwork Cove) can't be picked, so tests reach it directly: a test-only route, not gameplay.
 func sail(to: String) -> bool:
+	if Data.island_def(to).get("hidden", false):
+		game.panels.close(); await frames(4)
+		game.travel(to)
+		return await await_island(to)
 	var mv: Control = game.panels.find_child("map_view", true, false)
 	if mv == null: return false
 	var isl: Dictionary = Data.island_def(to)

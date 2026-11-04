@@ -1,6 +1,6 @@
 # Monteforchetta: design for the first location
 
-Agreed with the user on 2026-11-04. **Nothing here is built yet.** This doc is the plan the build stages follow.
+Agreed with the user on 2026-11-04. **Stage 1 (names and text) is built**; stages 2 to 4 are not. This doc is the plan the build stages follow.
 It replaces Hearthglow Village. The game keeps its working title, *Wonderhaven*, until the new setting is in place.
 
 ## The concept
@@ -113,7 +113,7 @@ The six main requests become: Welcome, Road, Elio's Shop, Fountain, Roof, City B
 ## Build stages
 Each stage keeps the game playable and the tests passing, and ends with a pull request to review.
 
-1. **Names and text.**
+1. **Names and text.** Done; see `docs/STATUS.md` for what it covers and what waits for stage 2.
    - Villagers, dialogue, requests, tutorial, tip cards, items and shops.
    - Coins become lire and Harmony becomes the approval rating.
    - Spark is removed, fragments become lost things and the treasure hunt becomes the metal detector.

@@ -51,7 +51,7 @@ func test_blueprints_are_bought_once():
 func test_shops_open_with_the_story():
 	var s := GameState.new_game("Tester")
 	t.ok(not Shop.is_open(s, "bram"), "Bram's shop is closed before the bridge")
-	t.ok(not Shop.is_open(s, "odessa"), "not everyone runs a shop")
+	t.ok(not Shop.is_open(s, "percival"), "not everyone runs a shop")
 	s.quests["bridge"] = {"status": "done"}
 	t.ok(Shop.is_open(s, "bram"), "it opens once the bridge is done")
 	t.eq(Shop.buy(GameState.new_game("T"), "bram", 0).get("reason", ""), "closed", "a closed shop sells nothing")
@@ -72,8 +72,8 @@ func test_gifts_raise_friendship_once_a_day():
 	s.inventory["pie"] = 2; s.inventory["flowers"] = 1; s.inventory["fragment"] = 3
 	t.eq(Shop.gift_hearts(bram, "pie"), 4, "a treat he loves: the treat's value plus one")
 	t.eq(Shop.gift_hearts(bram, "flowers"), 1, "anything else: one heart")
-	t.eq(Shop.gift_hearts(bram, "fragment"), 0, "magic fragments aren't gifts")
-	t.eq(Shop.gift_options(s, bram), ["pie", "flowers"], "the best gifts come first; fragments aren't offered")
+	t.eq(Shop.gift_hearts(bram, "fragment"), 0, "lost things aren't gifts")
+	t.eq(Shop.gift_options(s, bram), ["pie", "flowers"], "the best gifts come first; lost things aren't offered")
 	t.ok(Shop.can_gift(s, "bram"), "you can give him something today")
 	var r := Shop.give_gift(s, bram, "pie")
 	t.ok(r.ok and r.loved and int(s.inventory.pie) == 1, "the pie leaves your bag")
@@ -86,7 +86,7 @@ func test_conversation_offers_shop_and_gift():
 	var e := QuestEngine.new(s)
 	var kinds := func(id): return Conversation.build(Data.npc(id), e, s.flags, s.name).options.map(func(o): return o.kind)
 	t.ok(kinds.call("bram").has("shop"), "Bram offers to trade")
-	t.ok(not kinds.call("odessa").has("shop"), "Odessa has no shop")
+	t.ok(not kinds.call("percival").has("shop"), "the Sindaco has no shop")
 	t.ok(not kinds.call("bram").has("gift"), "nothing to give, no gift choice")
 	s.inventory["wood"] = 1
 	t.ok(kinds.call("bram").has("gift"), "with something in your bag you can give a gift")
@@ -95,5 +95,5 @@ func test_conversation_offers_shop_and_gift():
 
 func test_blueprint_hint_names_the_shop():
 	var e := QuestEngine.new(_state())
-	t.ok(e.blueprint_hint("counter").contains("Bram's Timber"), "a shop blueprint also says where to buy it (%s)" % e.blueprint_hint("counter"))
+	t.ok(e.blueprint_hint("counter").contains("Fusibile Electrics"), "a shop blueprint also says where to buy it (%s)" % e.blueprint_hint("counter"))
 	t.ok(not e.blueprint_hint("bridgeDeck").contains("buy"), "others don't (%s)" % e.blueprint_hint("bridgeDeck"))

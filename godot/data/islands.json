@@ -2,12 +2,12 @@
  "islands": [
   {
    "id": "hearthglow",
-   "name": "Hearthglow Village",
+   "name": "Monteforchetta",
    "x": 300,
    "y": 330,
    "r": 70,
-   "color": "#8fd16a",
-   "desc": "A cheerful green countryside with a little castle, cottages and a town square.",
+   "color": "#c9b26a",
+   "desc": "A hilltop village among the vineyards, with a castle for a town hall, a dry fountain and a mayor who would like to be re-elected.",
    "built": true
   },
   {
@@ -18,34 +18,8 @@
    "r": 58,
    "color": "#e8c06a",
    "desc": "Windmills, waterwheels and eccentric engineers. Mechanical puzzles galore.",
-   "reveal": "clockworkRevealed"
-  },
-  {
-   "id": "blooming",
-   "name": "Blooming Wilds",
-   "x": 140,
-   "y": 150,
-   "r": 62,
-   "color": "#5fbf7a",
-   "desc": "Enormous flowers, enchanted trees and animal friends."
-  },
-  {
-   "id": "starlight",
-   "name": "Starlight Shores",
-   "x": 640,
-   "y": 420,
-   "r": 56,
-   "color": "#7fd8f0",
-   "desc": "Docks, colourful market stalls and buried treasure."
-  },
-  {
-   "id": "moonveil",
-   "name": "Moonveil Hollow",
-   "x": 420,
-   "y": 90,
-   "r": 50,
-   "color": "#9a7ad6",
-   "desc": "Glowing mushrooms, floating lanterns and old magical ruins."
+   "reveal": "clockworkRevealed",
+   "hidden": true
   }
  ]
 }

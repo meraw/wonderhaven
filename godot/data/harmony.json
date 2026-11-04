@@ -3,8 +3,8 @@
   {
    "at": 15,
    "id": "cozy",
-   "title": "Cozy Corners",
-   "desc": "New blueprints: Pillar, Stairs and Raised Platform.",
+   "title": "A Pat on the Back",
+   "desc": "The Sindaco remembers your name. New plans: pillar, stairs and raised platform.",
    "blueprints": [
     "pillar",
     "stairs",
@@ -14,8 +14,8 @@
   {
    "at": 50,
    "id": "plot",
-   "title": "A Bigger Garden",
-   "desc": "Your home plot grows, and you can build Foundations and Roofs.",
+   "title": "An Extended Permit",
+   "desc": "Your home plot grows, and you can build foundations and roofs.",
    "blueprints": [
     "foundation",
     "roof"
@@ -24,8 +24,8 @@
   {
    "at": 80,
    "id": "lights",
-   "title": "Sparkling Lights",
-   "desc": "New blueprints: Streetlight and Windmill.",
+   "title": "A Street Lighting Grant",
+   "desc": "New plans: streetlight and windmill.",
    "blueprints": [
     "streetlight",
     "windmill"
@@ -34,20 +34,23 @@
   {
    "at": 120,
    "id": "harbor",
-   "title": "Harbor Charter",
-   "desc": "King Percival can lift the decree sealing the harbor."
+   "title": "Ordinance No. 47, Reconsidered",
+   "desc": "The Sindaco can finally lift Ordinance No. 47 and reopen the lower road."
   },
   {
    "at": 160,
    "id": "trail",
-   "title": "Starlight Steps",
-   "desc": "Your footsteps leave a trail of sparkles."
+   "title": "A Bust of Your Own",
+   "desc": "The plan for a statue of yourself. The Sindaco asks that it be smaller than his.",
+   "blueprints": [
+    "statue"
+   ]
   },
   {
    "at": 200,
    "id": "crown",
-   "title": "Royal Recognition",
-   "desc": "The Royal Crown outfit.",
+   "title": "Honorary Citizen",
+   "desc": "A paper crown from the Sindaco's last birthday party. The proper sash is on order.",
    "clothes": [
     "crown"
    ]
@@ -55,8 +58,8 @@
   {
    "at": 250,
    "id": "virtuoso",
-   "title": "Starforge Virtuoso",
-   "desc": "Every blueprint in Hearthglow is yours.",
+   "title": "Geometra of the Year",
+   "desc": "Every plan in Monteforchetta is yours.",
    "allBlueprints": true
   }
  ]

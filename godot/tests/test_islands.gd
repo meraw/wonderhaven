@@ -112,7 +112,7 @@ func test_requests_belong_to_their_island():
 		calls[0] += 1
 		return true
 	var e2 := QuestEngine.new(s, {"bridge": check})
-	s.quests["bridge"] = {"status": "active", "progress": {"wood": 10, "spark": 8}, "done": {}}
+	s.quests["bridge"] = {"status": "active", "progress": {"wood": 10}, "done": {}}
 	e2.objective("bridge", Data.quest("bridge").objectives[2])
 	t.eq(calls[0], 0, "a Hearthglow building check isn't run while you're on the cove")
 	t.ok(Shop.is_open(s, "hazel"), "Hazel's forge shop is open once you've arrived")

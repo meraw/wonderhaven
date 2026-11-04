@@ -174,10 +174,11 @@ func _build_nodes() -> void:
 			"dig": o = Props.dig_spot()
 			"chest": o = Props.chest()
 			"fragment": o = Props.fragment()
+			"bin": o = Props.garbage_bin()
 			_: o = Node3D.new()
 		var y := maxf(Heightfield.height(n.x, n.z), -0.2) if n.kind == "fish" else Heightfield.height(n.x, n.z)
 		o.position = Vector3(n.x, y, n.z)
-		if n.kind == "fragment": o.position.y += 1.0
+		if n.kind == "fragment": o.position.y += 0.03; o.rotation.y = fmod(n.x * 2.3, TAU)   # lost things lie on the ground
 		if n.kind == "chest": o.rotation.y = atan2(-n.x, -n.z)
 		if n.has("facing"): o.rotation.y = n.facing
 		o.name = n.id; add_child(o); objects[n.id] = o; node_visuals[n.id] = o
@@ -202,12 +203,6 @@ func _build_features() -> void:
 
 func update_world(dt: float, t: float, flags: Dictionary) -> void:
 	if objects.has("fountain"): Props.animate_fountain(objects.fountain, t, flags.get("fountainFlowing", false))
-	for n in Data.layout.nodes:
-		if n.kind == "fragment":
-			var o: Node3D = node_visuals[n.id]
-			if o.visible:
-				o.position.y = Heightfield.height(n.x, n.z) + 1.0 + sin(t * 2.0 + n.x) * 0.15
-				o.rotation.y = t * 1.5
 	if objects.has("harborGate"):
 		var open := 1.0 if flags.get("harborOpen", false) else 0.0
 		for d in objects.harborGate.get_node("doors").get_children():

@@ -44,7 +44,7 @@ var opened_at := Vector3.INF   # where the player stood when build mode opened
 
 func open(zone_id: String = "") -> bool:
 	if not state().flags.get("hasTool", false):
-		game.toast("You need the Starforge Tool first — Odessa might know where it is!", "warn"); return false
+		game.toast("You need your Geometra's kit first. The Sindaco is holding it for you.", "warn"); return false
 	active = true
 	opened_at = game.player.pos
 	var zones := unlocked_zones()
@@ -483,7 +483,7 @@ func _build_ui() -> void:
 	# Top bar
 	var top := UiTheme.panel(Color(UiTheme.CREAM, 0.96), UiTheme.LILAC, 999)
 	var tb := HBoxContainer.new(); tb.add_theme_constant_override("separation", 10); top.add_child(tb)
-	tb.add_child(UiTheme.label("✨ Starforge Build Mode", 16))
+	tb.add_child(UiTheme.label("📐 Build mode", 16))
 	tb.add_child(UiTheme.button("◀", func(): cycle_zone(-1)))
 	tb.add_child(UiTheme.label(current_zone.get("name", "No area"), 16, Color("7a5cc9")))
 	tb.add_child(UiTheme.button("▶", func(): cycle_zone(1)))

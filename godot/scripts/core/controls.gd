@@ -9,7 +9,7 @@ const DEFAULTS := {
 }
 const LABELS := {
 	"move_forward": "Move forward", "move_back": "Move back", "move_left": "Move left", "move_right": "Move right", "sprint": "Run", "jump": "Hop",
-	"interact": "Interact", "build": "Starforge build mode", "inventory": "Bag", "journal": "Quest journal", "map": "World map", "progress": "Kingdom Harmony",
+	"interact": "Interact", "build": "Build mode", "inventory": "Bag", "journal": "Quest journal", "map": "World map", "progress": "Approval rating",
 	"wardrobe": "Wardrobe", "pause": "Pause / back", "rotate": "Rotate piece", "remove": "Remove piece", "half_grid": "Half-grid snapping",
 	"cam_left": "Turn camera left", "cam_right": "Turn camera right", "recolor": "Recolour piece", "move_piece": "Move piece",
 }

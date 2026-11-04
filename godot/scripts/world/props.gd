@@ -31,7 +31,7 @@ static func round_tree(s: float = 1.0, hue: float = 0.5, fruit: bool = false) ->
 	g.scale = Vector3.ONE * s
 	return g
 
-## A pink ribbon tied round the trunk with a bow: Odessa's mark on trees that are ready for cutting.
+## A pink ribbon tied round the trunk with a bow: the forester's mark on trees that are ready for cutting.
 static func add_ribbon(tree: Node3D) -> Node3D:
 	var r := Node3D.new(); r.name = "ribbon"
 	var pink := P.fabric("ff6f9e")
@@ -45,8 +45,10 @@ static func add_ribbon(tree: Node3D) -> Node3D:
 
 static func add_fruit(tree: Node3D) -> Node3D:
 	var f := Node3D.new(); f.name = "fruit"
+	# hazelnut clusters: a few small brown nuts in a pale green husk
 	for p in [[0.95, 1.85, 0.55], [-0.75, 2.0, 0.75], [0.25, 1.55, -1.0], [-0.4, 2.6, -0.7], [1.05, 2.3, -0.4]]:
-		_add(f, P.sphere(0.13, 8, 6), P.mat("ff5a5f"), Vector3(p[0], p[1], p[2]))
+		_add(f, P.sphere(0.11, 8, 6), P.mat("a9c46a"), Vector3(p[0], p[1] + 0.05, p[2]), Vector3.ZERO, Vector3(1.2, 0.7, 1.2))
+		for k in 3: _add(f, P.sphere(0.065, 8, 6), P.mat("a0703c"), Vector3(p[0] + cos(k * 2.1) * 0.07, p[1] - 0.03, p[2] + sin(k * 2.1) * 0.07))
 	tree.add_child(f)
 	return f
 
@@ -60,7 +62,7 @@ static func rock(rich: bool = false) -> Node3D:
 	var g := Node3D.new()
 	_add(g, P.sphere(0.8, 6, 4), P.stone(P.STONE), Vector3(0, 0.4, 0), Vector3(0.2, 0.5, 0.1), Vector3(1.1, 0.75, 0.95))
 	_add(g, P.sphere(0.45, 6, 4), P.stone(P.STONE_DARK), Vector3(0.55, 0.25, 0.35), Vector3(0.4, 0, 0.2))
-	var vein = P.mat("8fe9ff", "3fbfff", 1.2) if rich else P.wood("d9a066")
+	var vein = P.mat("b5653a") if rich else P.wood("d9a066")   # rich rocks show rusty iron
 	for p in [[0.3, 0.75, 0.45], [-0.45, 0.55, 0.5], [0.1, 0.5, -0.7]]:
 		_add(g, P.sphere(0.2 if rich else 0.12, 4, 2), vein, Vector3(p[0], p[1], p[2]), Vector3(0.6, 0.6, 0))
 	return g
@@ -88,9 +90,30 @@ static func chest() -> Node3D:
 	_add(g, P.box(0.14, 0.16, 0.06), P.mat(P.GOLD), Vector3(0, 0.42, 0.33))
 	return g
 
+## Something somebody lost: a bunch of keys on a ring, lying in the grass and catching the light.
 static func fragment() -> Node3D:
 	var g := Node3D.new()
-	_add(g, P.sphere(0.22, 4, 2), P.mat("c9a8ff", "9b6bff", 0.5), Vector3.ZERO, Vector3.ZERO, Vector3(1, 1.5, 1), false)
+	var brass := P.unique_mat("e0b94a"); brass.metallic = 0.6; brass.roughness = 0.35; brass.specular_mode = BaseMaterial3D.SPECULAR_SCHLICK_GGX
+	_add(g, P.torus(0.09, 0.018, 16), brass, Vector3(0, 0.02, 0), Vector3.ZERO, Vector3.ONE, false)
+	for k in 2:
+		var key := Node3D.new(); key.rotation.y = 0.5 + k * 0.9; g.add_child(key)
+		_add(key, P.cyl(0.045, 0.045, 0.02, 10), brass, Vector3(0.14, 0.02, 0), Vector3.ZERO, Vector3.ONE, false)
+		_add(key, P.box(0.16, 0.018, 0.035), P.unique_mat("c9ced6") if k == 0 else brass, Vector3(0.26, 0.02, 0), Vector3.ZERO, Vector3.ONE, false)
+	g.scale = Vector3.ONE * 1.6
+	return g
+
+## A big green street garbage bin on wheels, the kind every Italian village has. Copper wire hides inside.
+static func garbage_bin() -> Node3D:
+	var g := Node3D.new()
+	var green := P.mat("3f7a4a"); var dark := P.mat("2c5434")
+	_add(g, P.rbox(1.3, 1.15, 0.95, 0.08), green, Vector3(0, 0.72, 0))
+	_add(g, P.box(1.32, 0.12, 0.97), dark, Vector3(0, 0.55, 0))
+	_add(g, P.box(0.5, 0.18, 0.02), P.mat("f2f2ea"), Vector3(0, 0.95, 0.485))
+	for x in [-0.5, 0.5]:
+		for z in [-0.35, 0.35]: _add(g, P.cyl(0.11, 0.11, 0.08, 12), P.mat("26282a"), Vector3(x, 0.11, z), Vector3(0, 0, PI / 2))
+	var lid := Node3D.new(); lid.name = "lid"; lid.position = Vector3(0, 1.3, -0.47); g.add_child(lid)
+	_add(lid, P.rbox(1.36, 0.12, 1.0, 0.05), dark, Vector3(0, 0.0, 0.47))
+	_add(g, P.box(0.3, 0.05, 0.12), dark, Vector3(0.35, 0.2, 0.52))
 	return g
 
 static func sign_post() -> Node3D:
@@ -402,7 +425,7 @@ static func _inn_sign(g: Node3D, b: Dictionary) -> void:
 	var front := Node3D.new(); _on_side(front, b, b.door, 2.1, float(b.get("doorOffset", 0)), 0.06); g.add_child(front)
 	_add(front, P.rbox(1.9, 0.42, 0.08, 0.06), P.wood("2f5f9e"), Vector3(0, 0, 0.04))
 	_add(front, P.rbox(1.76, 0.3, 0.09, 0.05), P.mat("fff3d6"), Vector3(0, 0, 0.05))
-	var txt := Label3D.new(); txt.text = "Lantern Inn"; txt.font = UiTheme.title_font(); txt.font_size = 64; txt.pixel_size = 0.0036
+	var txt := Label3D.new(); txt.text = "Guest House"; txt.font = UiTheme.title_font(); txt.font_size = 64; txt.pixel_size = 0.0036
 	txt.modulate = Color("2f5f9e"); txt.outline_size = 0; txt.position = Vector3(0, -0.005, 0.1); txt.shaded = true; txt.double_sided = false
 	front.add_child(txt)
 	for x in [-0.95, 0.95]:
