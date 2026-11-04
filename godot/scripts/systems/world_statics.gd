@@ -55,6 +55,7 @@ static func generate_decor(seed: int = 7) -> Dictionary:
 		if h < Heightfield.WALKABLE_MIN + 0.25: return false
 		if out_of_reach.call(x, z, radius): return false
 		if Ground.paved(x, z): return false
+		if Heightfield.meadow(x, z) < 0.5: return false   # a location's bare ground (stubble, mud): no trees or bushes
 		if dist_to_paths(x, z) < pad + 1.2: return false
 		if _near_building(x, z, pad + 1): return false
 		if _in_zone(x, z, pad + 0.6): return false
@@ -92,6 +93,7 @@ static func generate_decor(seed: int = 7) -> Dictionary:
 		var x: float = rx.call(-48, 48)
 		var z: float = rz.call(-46, 44)
 		if Heightfield.height(x, z) < 0 or dist_to_paths(x, z) < 0.9 or _near_building(x, z, 0.3) or _in_zone(x, z, 0.2) or out_of_reach.call(x, z, 49.0) or Ground.paved(x, z): continue
+		if Heightfield.meadow(x, z) < 0.5: continue
 		flowers.append({"x": x, "z": z, "c": rng.int_range(0, 4), "s": rng.range_f(0.7, 1.2)})
 	n = 0
 	while n < 4000 and grass.size() < int(D.get("grass", 1400)):
@@ -99,6 +101,7 @@ static func generate_decor(seed: int = 7) -> Dictionary:
 		var x: float = rx.call(-49, 49)
 		var z: float = rz.call(-47, 45)
 		if Heightfield.height(x, z) < 0.02 or dist_to_paths(x, z) < 0.8 or _near_building(x, z, 0.1) or out_of_reach.call(x, z, 50.0) or Ground.paved(x, z): continue
+		if Heightfield.meadow(x, z) < 0.5: continue
 		grass.append({"x": x, "z": z, "r": rng.range_f(0, PI), "s": rng.range_f(0.6, 1.3)})
 	return {"trees": trees, "bushes": bushes, "flowers": flowers, "grass": grass}
 
