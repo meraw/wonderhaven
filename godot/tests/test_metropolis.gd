@@ -101,4 +101,4 @@ func test_ids_carry_the_location_prefix():
 		for f in Data.layout.features: t.ok(String(f.id).begins_with(P), "feature %s" % f.id)
 		for k in Data.layout.nav_nodes:
 			if not String(k).contains(":"): t.ok(String(k).begins_with(P), "nav spot %s" % k)
-		t.ok(Data.island_def("metropolis").get("reveal", "") == P + "revealed", "the map entry is locked until the line opens"))
+		t.eq(Data.island_def("metropolis").get("reveal", ""), "rice_village_trainStops", "the map entry opens when the regional train stops at the rice village again"))
