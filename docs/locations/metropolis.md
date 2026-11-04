@@ -5,20 +5,41 @@ stages follow. The rules every location shares are in `docs/WORLD.md`; `docs/MON
 follows.
 
 ## Status
-**Stage 1, ground and map, is built.** Stages 2 to 4 are still to do.
-- **What's there:** the city is 372 m across, with flat paved ground (asphalt streets, stone-slab pavements and
-  squares, setts along the tram loop and in the courtyard, gravel in the park and the building sites). The Darsena
-  and its two canals have stone quays, and the old street bridge over the west canal is solid ground for now. The
-  park has its pond, lawns, trees and gravel paths. Every building on the street plan stands as a plain coloured
-  block of its full height, with a stand-in spire on the Duomo; the city's edge is a ring of tall backdrop blocks.
-  There are nav paths, six benches, two signs, the departure point at the station ("Take the train") and the
-  ground-level build zones, which stay locked until their requests exist.
-- **On the travel map**, Toriano stays off the map until the flag `rice_village_trainStops` is set, then turns up as a
-  surprise (every place does, as the user decided after stage 1). That's the flag the rice village's design proposes
-  for its finale, when the regional train stops there again.
-- **No villagers, requests, trams, gathering or interiors yet.** Those come in stages 2 and 3.
-- **Shared changes made in stage 1:** map size per layout, ground paint, greenery kept to a decor area and off
-  paving, a building's height for the camera, and a departure point with its own id and label. See the table below.
+**Stages 1 and 2 are built: the ground, the map, the buildings and the scenery.** Stages 3 (people and requests) and
+4 (look and ambient life) are still to do.
+- **Ground and map (stage 1):** the city is 372 m across, with paved ground painted by the layout (asphalt streets,
+  stone-slab pavements and squares, setts along the tram loop and in the courtyard, gravel in the park and the
+  building sites). The Darsena and its two canals have stone quays; the park has its pond, lawns and gravel paths.
+  The city's edge is a ring of tall backdrop blocks.
+- **Buildings (stage 2):**
+  - **City blocks:** painted façades from Toriano's building kit (`scripts/locations/metropolis/kit.gd`): shuttered
+    windows, granite ground floors with shopfronts and roller shutters, cornices, iron balconies, awnings and low
+    terracotta roofs, with windows and shops that light up after dark.
+  - **The Duomo:** a white marble front with a rose window, the nave with pinnacles, flying buttresses on the aisles,
+    and the crossing tower with its great spire and the Golden Angel.
+  - **The other landmarks:** the Galleria's glass vaults, dome and arched entrances; the Teatro Civico's porch and
+    name; the Castello Rosso's battlements, towers and clock tower; Toriano Centrale's front, canopy and train shed.
+- **Number 14:**
+  - **The building:** three-storey wings round the courtyard, a balcony ring at the first floor with iron railings,
+    a stone stair up from the courtyard, and a low back wing whose roof is your terrace (the build plot).
+  - **Its rooms:** Augusto's lodge and Ragioniere Sala's office at street level; Elvira's, Simone's and your flat off
+    the balcony; a shared WC at the end of it.
+- **Rooms you can walk into:** the nave (pews, pillars, the altar), Franco's bar, Chiara's workshop, the Cathedral
+  Works office, and the tenement's rooms. Your flat is empty for the Balcony Flat request.
+- **Roof terraces:** the Duomo's aisle roofs are marble terraces 6.5 m up with parapets, and a gap where the
+  scaffolding will arrive. They're reachable once you build the scaffolding in stage 3.
+- **The old bridge:** a stone deck over the west canal, which flows on underneath.
+- **Trams:** three orange trams run the loop on rails under an overhead wire, stop at the five stops and wait for
+  anyone on the track. At any stop, "Take the tram" rides to another stop.
+- **Street furniture:** bare plane trees along the avenues and the canal, sodium street lamps, the big Christmas
+  tree, newsstands, payphones, parked cars, the building sites' hoardings and skips, marble blocks in the works yard,
+  the old crane on the Darsena, barges, Gennaro's battered cart and a flea-market stall.
+- **On the travel map:** Toriano stays off the map until the flag `rice_village_trainStops` is set, then turns up as
+  a surprise (every place does, as the user decided after stage 1). That's the flag the rice village's design
+  proposes for its finale, when the regional train stops there again.
+- **Not yet:** villagers, requests, gathering and the evening paper (stage 3); the look, the snowfall, passers-by,
+  moving traffic and sounds (stage 4).
+- **Shared changes so far:** see the table below.
 
 ## The concept
 Toriano is the big city of the game: Milan with a few Turin touches, in the weeks before Christmas, around the year
@@ -243,8 +264,8 @@ Other locations can reuse all of them.
 | **Ground paint:** a layout's `ground` list of rectangles, circles and lines painted over the grass (asphalt, setts, slabs, gravel), drawn by the terrain shader, with greenery kept off paving and inside a decor `area`. *Done in stage 1, as layout data rather than script code.* | A city isn't a meadow | 1 |
 | **A building's height (`h`) for the camera**, so it doesn't pass through the upper floors of a tall block. *Done in stage 1.* | City blocks are 12 to 22 m tall | 1 |
 | **A departure point with any id**, and an optional `depart_label` ("Take the train"). *Done in stage 1.* | The station isn't a bus stop called `boat` | 1 |
-| **Raised floors** in a layout that you can walk and build on, read by `WalkWorld` and build mode | The cathedral's roof terraces and the tenement's roof terrace | 1 or 2 |
-| **Rides between stops:** a feature kind for a stop where you choose another stop and take a short ride | The trams. Funiculars, public lifts and cable cars elsewhere could reuse it | 2 |
+| **Raised floors:** a layout's `floors` (slabs, solid blocks, stairs that rise) and buildings with a walkable roof (`roof_walk`), read by `WalkWorld` and build mode; build sites with a floor height (`floorY`); rooms on their own storey (`y`), so rooms stack with their own doors; scenery-only buildings (`solid: false`). *Done in stage 2.* | The cathedral's roof terraces, the tenement's balcony, flats and terrace, the old bridge's deck | 2 |
+| **Rides between stops:** features of kind `stop` on a `line`; at a stop you choose another and ride there (`Travel.stops_on`, `game.ride_to`). *Done in stage 2.* | The trams. Funiculars, public lifts and cable cars elsewhere can reuse it | 2 |
 | **A path check for any zone** (`path:<zone>` in place of the hard-coded `bridge` and `dock`), with endpoints that may be at different heights | The footbridge, and the scaffolding climb | 3 |
 | **What fishing catches, per location** | Bicycles, a trolley and a boot from the canal | 3 |
 | **A location's own progress meter** (name, unit, milestones), fed by that location's requests instead of the approval rating | The evening paper's column inches | 3 |
