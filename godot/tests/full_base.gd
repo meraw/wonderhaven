@@ -194,9 +194,13 @@ func inv(id: String) -> int: return int(game.state.inventory.get(id, 0))
 ## Saves into a slot through the pause menu, like a player would.
 func save_to(slot: String) -> bool:
 	await tap(KEY_ESCAPE); await frames(5)
+	var before := float(SaveSystem.meta(slot).get("saved_at", 0.0))
+	# (clicking rebuilds the panel and frees the buttons, so note what was found first)
 	var sb: Control = game.panels.find_child("btn_save_game", true, false)
+	var found_menu := sb != null
 	if sb: await click(sb.get_global_rect().get_center()); await frames(5)
 	var s1: Control = game.panels.find_child("slot_" + slot, true, false)
+	var found_slot := s1 != null
 	if s1: await click(s1.get_global_rect().get_center()); await frames(5)
 	game.panels.close(); await frames(3)
-	return sb != null and s1 != null and SaveSystem.meta(slot).size() > 0
+	return found_menu and found_slot and float(SaveSystem.meta(slot).get("saved_at", 0.0)) > before
