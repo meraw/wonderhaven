@@ -67,7 +67,9 @@ func play() -> void:
 	await go("pond_w", "round the duck pond")
 	await shot("park")
 	check("lawn", "the park is grass", Ground.kind_at(-140, -140) == "grass" and not Ground.paved(-104, -140), "%s, %s" % [Ground.kind_at(-140, -140), Ground.kind_at(-104, -140)])
-	var napped := await sleep_at(P + "bench_park1", 18)
+	var bench: Dictionary = feature(P + "bench_park1")   # across the pond: walk round to it first
+	await walk_to(bench.x - 1.4, bench.z, 0.6)
+	var napped := await sleep_at(bench.id, 18)
 	check("nap", "a nap on a park bench until evening", napped and game.state.time.minute >= 17.9 * 60.0 and game.state.time.minute < 19.5 * 60.0, "%.1f h" % (game.state.time.minute / 60.0))
 	game.state.flags["boatReady"] = true   # the train only runs once you've opened the line elsewhere
 	await go("station", "back across the city to the station")
