@@ -22,6 +22,10 @@ static func build_terrain() -> MeshInstance3D:
 			c = c.lightened((rng.next() - 0.5) * 0.04) if rng.next() > 0.5 else c.darkened((rng.next()) * 0.02)
 			if Data.island == "hearthglow" and x >= 7.7 and x <= 12 and z >= 0.7 and z <= 2.3: c = stone   # the mill channel's stone lining
 			if Data.island == "clockwork" and x >= 9.6 and x <= 15.4 and z >= -8.4 and z <= -6.6: c = stone
+			if Heightfield.has_ground_paint():   # a location's own ground (alpha: how much meadow grows there)
+				var g := Heightfield.ground(x, z)
+				c = Color(g.r, g.g, g.b).lightened((rng.next() - 0.5) * 0.05)
+				c.a = g.a
 			colors[j * (seg + 1) + i] = c
 	for j in seg + 1:
 		for i in seg + 1:
@@ -170,13 +174,15 @@ void fragment() {
 	float slope = 1.0 - clamp(normalize(wnrm + vec3(0.0, 0.00001, 0.0)).y, 0.0, 1.0);
 	col = mix(col, col * vec3(0.9, 0.8, 0.64), smoothstep(0.06, 0.28, slope) * 0.6);
 	col *= mix(vec3(1.0), vec3(1.05, 1.02, 0.86), smoothstep(0.5, 1.6, wpos.y));
-	// Clover sprigs and tiny wildflowers, gathered in loose drifts.
+	// Clover sprigs and tiny wildflowers, gathered in loose drifts, only where meadow grows (vertex alpha: a
+	// location's ground paint, see Heightfield.ground).
+	float meadow = COLOR.a;
 	float drift = smoothstep(0.42, 0.68, fbm(p * 0.09 + 23.0));
 	vec2 cl = scatter(p * 1.9);
-	float clover = step(0.55 - 0.35 * drift, cl.y) * smoothstep(0.17, 0.11, cl.x) * fine;
+	float clover = step(0.55 - 0.35 * drift, cl.y) * smoothstep(0.17, 0.11, cl.x) * fine * meadow;
 	col = mix(col, col * vec3(0.78, 0.92, 0.86), clover * 0.55);
 	vec2 fl = scatter(p * 2.2 + 31.0);
-	float bloom = step(1.0 - 0.2 * drift, fl.y) * smoothstep(0.1, 0.07, fl.x) * fine;
+	float bloom = step(1.0 - 0.2 * drift, fl.y) * smoothstep(0.1, 0.07, fl.x) * fine * meadow;
 	vec3 petal = fl.y > 0.985 ? vec3(0.95, 0.55, 0.7) : (fl.y > 0.955 ? vec3(1.0, 0.8, 0.3) : vec3(0.97, 0.96, 0.9));
 	petal = mix(petal, vec3(1.0, 0.85, 0.35), smoothstep(0.04, 0.02, fl.x));   // a golden eye
 	col = mix(col, petal, bloom * 0.9);
@@ -186,7 +192,7 @@ void fragment() {
 	vec3 sand = sand_col.rgb * (0.94 + 0.08 * noise(p * 5.0));
 	sand = mix(sand, sand * 0.84, smoothstep(water_y + 0.25, water_y + 0.02, wpos.y));
 	sand *= 1.0 - 0.2 * wet;
-	col = mix(col, sand, smoothstep(shore + 0.03, shore - 0.03, wpos.y));
+	col = mix(col, sand, smoothstep(shore + 0.03, shore - 0.03, wpos.y) * meadow);
 	// River and pond beds, with caustics dancing over the shallows when the sun is out.
 	float under = smoothstep(water_y + 0.02, water_y - 0.12, wpos.y);
 	if (under > 0.0) {

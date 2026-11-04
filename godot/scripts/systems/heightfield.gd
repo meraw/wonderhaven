@@ -17,6 +17,7 @@ static var island := "hearthglow"
 static var _pack = null   # untyped, so its static functions can be called
 static var _pack_height := false
 static var _pack_stream := false
+static var _pack_ground := false
 
 ## Switch to an island's ground.
 static func use(id: String) -> void:
@@ -27,6 +28,7 @@ static func use(id: String) -> void:
 	if _pack: names = _pack.get_script_method_list().map(func(m): return m.name)
 	_pack_height = names.has("height")
 	_pack_stream = names.has("is_stream_cell")
+	_pack_ground = names.has("ground")
 
 # Clockwork Cove: a round island with Gearspring Hill to the north-east, a knoll with the lighthouse on the
 # north-west cape, a millrace (stream channel fed by a spring) by the clock tower, and a sheltered bay in the south.
@@ -94,6 +96,13 @@ static func _cove(x: float, z: float) -> float:
 	return h
 
 static func is_water(x: float, z: float) -> bool: return height(x, z) < WALKABLE_MIN
+
+## Ground paint: a location's script may define static ground(x, z) -> Color, the colour of the bare ground there
+## (stubble, gravel, paving...) instead of the meadow green. Its alpha is how much meadow grows there: clover and
+## flowers in the terrain shader, grass tufts, flowers and bushes in the decor (1 = a meadow, 0 = none).
+static func has_ground_paint() -> bool: return _pack_ground
+static func ground(x: float, z: float) -> Color: return _pack.ground(x, z) if _pack_ground else Color(1, 1, 1, 1)
+static func meadow(x: float, z: float) -> float: return _pack.ground(x, z).a if _pack_ground else 1.0
 
 static func is_stream_cell(i: float, k: float) -> bool:
 	if _pack_stream: return _pack.is_stream_cell(i, k)
