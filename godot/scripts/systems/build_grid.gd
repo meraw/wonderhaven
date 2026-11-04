@@ -178,7 +178,7 @@ static func validate_placement(pl: Dictionary, ctx: Dictionary) -> Dictionary:
 		var locked := zone_at(ctx.get("locked_zones", []), cs[0].x, cs[0].y, harmony)
 		return {"ok": false, "reason": ("%s isn't open for building yet" % locked.name) if not locked.is_empty() else "Outside a building area — look for the glowing grid"}
 	var b := bounds(pl)
-	if b.top > MAX_HEIGHT: return {"ok": false, "reason": "Too high for the Starforge Tool to reach"}
+	if b.top > MAX_HEIGHT: return {"ok": false, "reason": "Too high to build safely"}
 	var env := _env_for(zone)
 	if d.get("placeOn", "") == "stream":
 		for c in cs:

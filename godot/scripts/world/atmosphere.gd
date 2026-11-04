@@ -20,6 +20,7 @@ var drift := Vector2.ZERO
 var _grade_t := 0.0
 var _leaf_t := 0.0
 var _round_trees: Array = []
+var look: Dictionary = {}   # this location's mood (see apply_look)
 
 # ---- Pure helpers (tested in tests/test_atmosphere.gd) ----------------------------------------------------
 
@@ -71,6 +72,16 @@ static func grade_curve(lo: Color, hi: Color, steps: int = 9) -> PackedColorArra
 		out.append(Color(clampf(lerpf(lo.r, hi.r, s), 0.0, 1.0), clampf(lerpf(lo.g, hi.g, s), 0.0, 1.0), clampf(lerpf(lo.b, hi.b, s), 0.0, 1.0)))
 	return out
 
+## A location's own mood, from the `look` block of its map entry (islands.json or a pack's location.json):
+## "shade": [r, g, b] added to the shadow tint, "light": [r, g, b] multiplying the highlight tint, "wind": a strength
+## multiplier, "life": {"motes": x, "fireflies": x, "leaves": x} multipliers. Missing keys change nothing.
+static func apply_look(gr: Array, lk: Dictionary) -> Array:
+	var lo: Color = gr[0]; var hi: Color = gr[1]
+	var sh: Array = lk.get("shade", [0, 0, 0]); var li: Array = lk.get("light", [1, 1, 1])
+	lo = Color(clampf(lo.r + float(sh[0]), 0.0, 0.3), clampf(lo.g + float(sh[1]), 0.0, 0.3), clampf(lo.b + float(sh[2]), 0.0, 0.3))
+	hi = Color(clampf(hi.r * float(li[0]), 0.5, 1.0), clampf(hi.g * float(li[1]), 0.5, 1.0), clampf(hi.b * float(li[2]), 0.5, 1.0))
+	return [lo, hi]
+
 ## How much of each kind of ambient life to show (0..1): motes in sunshine, fireflies on dry nights, leaves
 ## mostly in a breeze.
 static func life_at(hour: float, w: Dictionary) -> Dictionary:
@@ -87,6 +98,7 @@ static func life_at(hour: float, w: Dictionary) -> Dictionary:
 func setup(g) -> void:
 	game = g
 	name = "Atmosphere"
+	look = Data.island_def(Data.island).get("look", {})
 	# Light bounced up from sunlit grass: undersides (eaves, canopies, chins) pick up a warm green fill instead of
 	# a flat grey.
 	bounce = DirectionalLight3D.new(); bounce.name = "Bounce"
@@ -120,6 +132,7 @@ func _process(dt: float) -> void:
 	var night := Daylight.nightness(h)
 	var sunlit := (1.0 - night) * float(w.get("sun", 1.0))
 	var wind := wind_at(int(s.time.get("day", 0)), h, w)
+	wind.z *= float(look.get("wind", 1.0))
 	var gust := 0.5 + 0.5 * sin(game.time * 0.13) * sin(game.time * 0.071 + 1.3)
 	var wd := Vector2(wind.x, wind.y)
 	# Clouds drift downwind (the sky and the cloud shadows read this, so they move together).
@@ -144,6 +157,8 @@ func _process(dt: float) -> void:
 	if _grade_t <= 0.0: _grade_t = 0.25; _apply_grade(h, w)
 	# Ambient life follows the player.
 	var life := life_at(h, w)
+	var lm: Dictionary = look.get("life", {})
+	for k in life: life[k] = clampf(life[k] * float(lm.get(k, 1.0)), 0.0, 1.0)
 	var p: Vector3 = game.player.pos
 	motes.amount_ratio = life.motes; motes.emitting = life.motes > 0.02
 	motes.global_position = game.cam.target + Vector3(0, 1.6, 0)
@@ -161,7 +176,7 @@ func _process(dt: float) -> void:
 	if post: (post.material_override as ShaderMaterial).set_shader_parameter("shadow_strength", 0.24 if game.settings.get("weather", true) else 0.12)
 
 func _apply_grade(h: float, w: Dictionary) -> void:
-	var gr := grade_at(h, w)
+	var gr := apply_look(grade_at(h, w), look)
 	var cols := grade_curve(gr[0], gr[1])
 	var offs := PackedFloat32Array()
 	for k in cols.size(): offs.append(float(k) / (cols.size() - 1))

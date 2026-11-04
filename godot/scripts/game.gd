@@ -206,11 +206,11 @@ func render_resources(pop: Array = []) -> void:
 	for c in hud_res.get_children(): hud_res.remove_child(c); c.queue_free()   # remove first so new chips keep their names
 	for id in Data.resource_order:
 		var n: int = int(state.inventory.get(id, 0))
-		var money: bool = id in ["spark", "coins"]   # always shown, in gold
+		var money: bool = id == "coins"   # always shown, in gold
 		if not money and n <= 0: continue
 		var chip := UiTheme.panel(Color("fff7cf") if money else Color.WHITE, UiTheme.GOLD if money else Color("f3dfc0"), 999)
 		chip.name = "res_" + id
-		chip.add_child(UiTheme.label("%s %d" % [Data.resources[id].icon, n], 15))
+		chip.add_child(UiTheme.label(("%s %s" % [Data.resources[id].icon, Money.lire(n)]) if money else ("%s %d" % [Data.resources[id].icon, n]), 15))
 		hud_res.add_child(chip)
 		if pop.has(id):
 			chip.pivot_offset = Vector2(30, 14)
@@ -221,7 +221,7 @@ func give(items: Dictionary, source = null, quiet: bool = false) -> void:
 	render_resources(items.keys())
 	if not quiet:
 		for id in items:
-			if items[id] > 0: toast("+%d %s %s" % [items[id], Data.resources[id].icon, Data.resources[id].name], "good", 1.8)
+			if items[id] > 0: toast("+" + Money.amount(id, int(items[id])), "good", 1.8)
 	if source is Vector3: effects.sparkle(source, 10)
 	emit_event("gain", {"items": items})
 
@@ -302,7 +302,7 @@ func open_wardrobe() -> void:
 	var plot := Data.zone("plot")
 	var at_home: bool = state.flags.get("ownHome", false) and not plot.is_empty() and BuildGrid.zone_contains(plot, floorf(player.pos.x), floorf(player.pos.z), state.harmony)
 	if near_inn or at_home: screens.creator(true)
-	else: toast("Change your outfit at the Lantern Inn's wardrobe%s." % (", or at home" if state.flags.get("ownHome", false) else ""))
+	else: toast("Change your outfit at the guest house wardrobe%s." % (", or at home" if state.flags.get("ownHome", false) else ""))
 
 func sail_to(isl: Dictionary) -> void:
 	panels.close()
@@ -312,7 +312,7 @@ func sail_to(isl: Dictionary) -> void:
 	await _fade(true).finished
 	await get_tree().create_timer(0.6).timeout
 	_fade(false)
-	banner(isl.name, "Coming in the next chapter of Wonderhaven!", ["The Captain sails you round the bay and back.", "Thank you for playing the Hearthglow chapter!"], 6.0)
+	banner(isl.name, "Coming soon!", ["Aldo drives you round the valley and back.", "Thank you for playing the Monteforchetta chapter!"], 6.0)
 	set_flag("sailedOnce")
 	player_char.play("celebrate")
 	set_mode("explore")
@@ -354,7 +354,7 @@ func on_quest_completed(qid: String) -> void:
 		"decree": cam.shake = 0.4; sfx("gate"); toast("The harbor gate creaks open to the south!", "good", 4.0)
 		"dock":
 			effects.sparkle(Vector3(5.5, 1, 51), 50)
-			get_tree().create_timer(4.4).timeout.connect(func(): banner("The ferry has arrived!", "Clockwork Cove now appears on your world map (%s)" % Controls.key_label("map"), [], 5.0))
+			get_tree().create_timer(4.4).timeout.connect(func(): banner("The city bus is running!", "New places will appear on your map (%s) as the line grows" % Controls.key_label("map"), [], 5.0))
 		"lighthouse": effects.sparkle(Vector3(-24, 7.5, -21), 50, Color("fff2a8"), 0.4); toast("The lighthouse turns again! Its beam sweeps the bay at night.", "good", 4.0)
 		"clocktower":
 			effects.sparkle(Vector3(12, 6, -13), 50); sfx("gate")
@@ -756,7 +756,7 @@ func _update_hotkeys() -> void:
 	var entries: Array = [["%s%s%s%s" % [k.call("move_forward"), k.call("move_left"), k.call("move_back"), k.call("move_right")], "Move"],
 		["Drag/%s%s" % [k.call("cam_left"), k.call("cam_right")], "Camera"], [k.call("interact"), "Interact"]]
 	if state.flags.get("hasTool", false) and Tutorial.revealed(tut, "key:build"): entries.append([k.call("build"), "Build"])
-	for pair in [["inventory", "Bag"], ["journal", "Journal"], ["map", "Map"], ["progress", "Harmony"]]:
+	for pair in [["inventory", "Bag"], ["journal", "Journal"], ["map", "Map"], ["progress", "Approval"]]:
 		if Tutorial.revealed(tut, "key:" + pair[0]): entries.append([k.call(pair[0]), pair[1]])
 	entries.append([k.call("pause"), "Menu"])
 	var t: String = " · ".join(entries.map(func(e): return "%s %s" % e))
@@ -817,7 +817,7 @@ func _update_world_time(dt: float) -> void:
 	rain.amount_ratio = clampf(wet, 0.05, 1.0)
 	rain.position = camera.global_position + Vector3(0, 8, 0)
 	var icon: String = "🌙" if night else ({"rain": "🌧️", "drizzle": "🌦️", "cloudy": "☁️", "mist": "🌫️", "fair": "⛅"}.get(weather_now.type, "☀️"))
-	hud.clock_label.text = "%s %s%s" % [icon, Clock.text(s.time), ("  " + "🎵".repeat(actions.hum)) if actions.hum > 0 else ""]
+	hud.clock_label.text = "%s %s%s" % [icon, Clock.text(s.time), ("  📟 " + ["beep", "beep beep", "BEEP BEEP BEEP"][actions.hum - 1]) if actions.hum > 0 else ""]
 
 func _world_reactions(dt: float) -> void:
 	if Data.layout.has("fountain") and state.flags.get("fountainFlowing", false) != mech.fed.get("fountain", false): set_flag("fountainFlowing", mech.fed.get("fountain", false))
@@ -827,7 +827,6 @@ func _world_reactions(dt: float) -> void:
 		for pair in [["bakery", state.flags.get("squirrelsGone", false)], ["odessaHouse", true], ["fernHouse", state.flags.get("orchardOpen", false)], ["playerHouse", state.flags.get("toolGiven", false)]]:
 			var o: Node3D = village.objects.get(pair[0])
 			if pair[1] and o and o.has_meta("chimney"): effects.smoke(o.to_global(o.get_meta("chimney")))
-	if state.harmony >= 160 and player.moving and randf() < dt * 8.0: effects.sparkle(player.pos + Vector3(0, 0.1, 0), 1, Color("fff2a8"), 0.18)
 	# Roofs dissolve over the room you're standing in (and over the workshop while you furnish it).
 	var p := player.pos
 	for bd in Data.layout.buildings:
@@ -877,7 +876,7 @@ func unstick() -> void:
 	if spot.is_empty(): return
 	player.teleport(spot.x, spot.z); cam.snap()
 	effects.sparkle(player.pos + Vector3(0, 1, 0), 16)
-	toast(Data.layout.get("safeText", "Back at the Lantern Inn."))
+	toast(Data.layout.get("safeText", "Back at the guest house."))
 
 func toggle_fullscreen() -> void:
 	settings.fullscreen = not settings.get("fullscreen", false)

@@ -30,7 +30,7 @@ func setup(g) -> void:
 		var duck := {"obj": d, "x0": x0, "ph": n * 1.7, "x": x0, "z": Heightfield.river_center(x0), "peck": 0.0}
 		ducks.append(duck)
 		game.add_interactable({"id": "duck%d" % n, "x": func(): return duck.x, "z": func(): return duck.z, "radius": 3.6, "object": d,
-			"available": func(): return game.state.inventory.get("fruit", 0) > 0, "label": func(): return "Toss an apple to the duck", "act": func(): pet(duck, "duck")})
+			"available": func(): return game.state.inventory.get("fruit", 0) > 0, "label": func(): return "Toss a hazelnut to the duck", "act": func(): pet(duck, "duck")})
 	for n in 3:
 		var c := Node3D.new()
 		var white := P.mat("fff7ea")
@@ -53,7 +53,7 @@ func pet(a: Dictionary, kind: String) -> void:
 	a.peck = 1.2
 	var key := "pet_%s_%d" % [kind, int(s.time.day)]
 	if not s.flags.get(key, false):
-		s.flags[key] = true; game.give({"spark": 2})
+		s.flags[key] = true
 		game.toast("Quack! The duck does a happy little spin." if kind == "duck" else "Bawk! The chicken clucks contentedly.", "good")
 	game.story.event("animal")
 

@@ -12,7 +12,8 @@ func _on(id: String, fn: Callable) -> void:
 func _islands_with_layouts() -> Array: return Data.islands.filter(func(i): return Data.has_island(i.id)).map(func(i): return i.id)
 
 func test_two_islands_are_built():
-	t.eq(_islands_with_layouts(), ["hearthglow", "clockwork"], "Hearthglow and Clockwork Cove have layouts")
+	var ids := _islands_with_layouts()
+	t.ok(ids.has("hearthglow") and ids.has("clockwork"), "Hearthglow and Clockwork Cove have layouts (plus any location packs)")
 	t.eq(Data.island, "hearthglow", "the game starts on Hearthglow")
 
 func test_every_island_is_a_playable_world():
@@ -111,7 +112,7 @@ func test_requests_belong_to_their_island():
 		calls[0] += 1
 		return true
 	var e2 := QuestEngine.new(s, {"bridge": check})
-	s.quests["bridge"] = {"status": "active", "progress": {"wood": 10, "spark": 8}, "done": {}}
+	s.quests["bridge"] = {"status": "active", "progress": {"wood": 10}, "done": {}}
 	e2.objective("bridge", Data.quest("bridge").objectives[2])
 	t.eq(calls[0], 0, "a Hearthglow building check isn't run while you're on the cove")
 	t.ok(Shop.is_open(s, "hazel"), "Hazel's forge shop is open once you've arrived")

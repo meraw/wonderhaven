@@ -18,15 +18,20 @@ func build(decor: Dictionary) -> void:
 	terrain = TerrainBuilder.build_terrain(); add_child(terrain)
 	water = TerrainBuilder.build_water(terrain); add_child(water)
 	var H := func(x: float, z: float) -> float: return Heightfield.height(x, z)
+	# A location pack's script may build its own kinds of building (building(b) returns a Node3D, or null to use the
+	# shared ones) and add scenery of its own (dress(village)). See docs/WORLD.md.
+	var pack = Data.location_script(Data.island)
+	var pack_fns: Array = pack.get_script_method_list().map(func(m): return m.name) if pack else []
 	for b in Data.layout.buildings:
-		var o: Node3D
-		match b.kind:
-			"workshop": o = Props.workshop(b)
-			"castle": o = Props.castle(b)
-			"caravan": o = Props.caravan(b)
-			"lighthouse": o = Props.lighthouse(b)
-			"clocktower": o = Props.clocktower(b)
-			_: o = Props.cottage(b)
+		var o: Node3D = pack.building(b) if pack_fns.has("building") else null
+		if o == null:
+			match b.kind:
+				"workshop": o = Props.workshop(b)
+				"castle": o = Props.castle(b)
+				"caravan": o = Props.caravan(b)
+				"lighthouse": o = Props.lighthouse(b)
+				"clocktower": o = Props.clocktower(b)
+				_: o = Props.cottage(b)
 		o.position = Vector3(b.x, Heightfield.CASTLE_MOUND.y if b.kind == "castle" else maxf(0.0, H.call(b.x, b.z)), b.z)
 		o.name = b.id; add_child(o); objects[b.id] = o
 		if Interiors.enterable(b): _furnish(b, o.position.y + (Props.CASTLE_FLOOR if b.kind == "castle" else 0.0))
@@ -37,6 +42,7 @@ func build(decor: Dictionary) -> void:
 	_build_decor(decor)
 	_build_nodes()
 	_build_features()
+	if pack_fns.has("dress"): pack.dress(self)
 
 ## Hearthglow's scenery: fountain, harbor cliffs and gate, market stall, dock pilings, the broken bridge, lamp
 ## posts, fences, garden beds and the west pier.
@@ -168,10 +174,11 @@ func _build_nodes() -> void:
 			"dig": o = Props.dig_spot()
 			"chest": o = Props.chest()
 			"fragment": o = Props.fragment()
+			"bin": o = Props.garbage_bin()
 			_: o = Node3D.new()
 		var y := maxf(Heightfield.height(n.x, n.z), -0.2) if n.kind == "fish" else Heightfield.height(n.x, n.z)
 		o.position = Vector3(n.x, y, n.z)
-		if n.kind == "fragment": o.position.y += 1.0
+		if n.kind == "fragment": o.position.y += 0.03; o.rotation.y = fmod(n.x * 2.3, TAU)   # lost things lie on the ground
 		if n.kind == "chest": o.rotation.y = atan2(-n.x, -n.z)
 		if n.has("facing"): o.rotation.y = n.facing
 		o.name = n.id; add_child(o); objects[n.id] = o; node_visuals[n.id] = o
@@ -196,12 +203,6 @@ func _build_features() -> void:
 
 func update_world(dt: float, t: float, flags: Dictionary) -> void:
 	if objects.has("fountain"): Props.animate_fountain(objects.fountain, t, flags.get("fountainFlowing", false))
-	for n in Data.layout.nodes:
-		if n.kind == "fragment":
-			var o: Node3D = node_visuals[n.id]
-			if o.visible:
-				o.position.y = Heightfield.height(n.x, n.z) + 1.0 + sin(t * 2.0 + n.x) * 0.15
-				o.rotation.y = t * 1.5
 	if objects.has("harborGate"):
 		var open := 1.0 if flags.get("harborOpen", false) else 0.0
 		for d in objects.harborGate.get_node("doors").get_children():

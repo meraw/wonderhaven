@@ -1,11 +1,16 @@
 class_name WorldActions
 extends RefCounted
-## Everything you can do with the world itself: chop, mine, dig clay, fish, pick, shake, dig treasure,
-## open chests, catch fragments, garden, and win over the bakery squirrels.
+## Everything you can do with the world itself: chop, mine, dig clay, fish, pick, shake, dig where the metal detector
+## beeps, open chests, pick up lost things, dig through the street bins, garden, and see off the bakery's boars.
 const P := preload("res://scripts/world/palette.gd")
-const REGROW := {"chop": 180.0, "mine": 240.0, "clay": 150.0, "flowers": 180.0, "shake": 90.0, "fruit": 240.0, "fragment": 1440.0}
+const REGROW := {"chop": 180.0, "mine": 240.0, "clay": 150.0, "flowers": 180.0, "shake": 90.0, "fruit": 240.0, "fragment": 1440.0, "bin": 300.0}
 const SQUIRREL_SPOTS := [[-8.4, -3.2], [-13.7, -3.3], [-7.2, -6.6]]
-const LABELS := {"chop": "Chop tree", "mine": "Mine rock", "clay": "Dig clay", "fish": "Fish here", "flowers": "Pick flowers", "shake": "Shake the oak", "fruit": "Pick apples", "chest": "Open chest", "fragment": "Catch the fragment"}
+const LABELS := {"chop": "Chop tree", "mine": "Mine rock", "clay": "Dig clay", "fish": "Fish here", "flowers": "Pick flowers", "shake": "Shake the chestnut tree", "fruit": "Pick hazelnuts", "chest": "Open chest", "fragment": "Pick up the lost thing", "bin": "Dig through the bin"}
+## What the lost things turn out to be; the first one is always the Sindaco's reading glasses.
+const LOST := ["the Sindaco's reading glasses", "a bunch of keys", "a dog's ball", "a single glove", "a lottery ticket (not a winner)", "a cassette of love songs", "a phone card with 200 lire left on it"]
+## Copper wire from the bins, and what else comes up with it.
+const BIN_LINES := ["You go in head first. Copper wire! And half a pizza.", "A tangle of copper wire, a broken radio, and a very surprised cat.",
+	"Copper wire, wrapped round a videotape of a 1994 wedding. Lovely ceremony.", "Copper wire, and a strong smell of yesterday's minestrone.", "Copper wire! Elio would be proud. Your mother would not."]
 
 var game
 var hum := 0
@@ -35,7 +40,7 @@ func ready(n: Dictionary) -> bool:
 	if s.get("done", false): return false
 	if n.has("flag") and not state().flags.get(n.flag, false): return false
 	if n.kind == "fruit" and not state().flags.get("orchardOpen", false): return false
-	# Fragments only show themselves to the Starforge Tool, so new players can't scoop up Odessa's one by accident.
+	# Lost things only turn up once the Sindaco has welcomed you, so new players don't pick up his glasses by accident.
 	if n.kind == "fragment" and not state().flags.get("hasTool", false): return false
 	return not (s.get("ready_at", -1.0) > now())
 
@@ -49,7 +54,7 @@ func _register_node(n: Dictionary) -> void:
 	var base := {"id": n.id, "x": n.x, "z": n.z, "object": game.village.node_visuals.get(n.id), "available": func(): return ready(nd)}
 	if n.kind == "dig":
 		base.merge({"radius": 0.9, "object": null, "available": func(): return ready(nd) and state().flags.get("hasTool", false),
-			"label": func(): return "Dig here — the Starforge Tool is singing!", "act": func(): dig(nd)}, true)
+			"label": func(): return "Dig here, the metal detector is going wild!", "act": func(): dig(nd)}, true)
 		game.add_interactable(base); return
 	base.merge({"radius": 2.0 if n.kind == "mine" else (1.3 if n.kind == "fish" else 1.7), "label": func(): return LABELS[nd.kind], "act": func(): act(nd)}, true)
 	game.add_interactable(base)
@@ -64,7 +69,7 @@ func _register_feature(f: Dictionary) -> void:
 			game.add_interactable({"id": f.id, "x": f.x, "z": f.z, "radius": 1.5, "object": game.village.objects.get(f.id), "label": func(): return "Sit or nap on the bench", "act": func(): game.rest("bench", seat)})
 		"wardrobe": game.add_interactable({"id": f.id, "x": f.x, "z": f.z, "object": game.village.objects[f.id], "label": func(): return "Change outfit", "act": func(): game.open_wardrobe()})
 		"board": game.add_interactable({"id": f.id, "x": f.x, "z": f.z, "object": game.village.objects[f.id], "label": func(): return "Read the notice board", "act": func(): game.panels.notice_board()})
-		"boat": game.add_interactable({"id": f.id, "x": f.x, "z": f.z, "radius": 2.6, "object": game.village.objects.boat, "available": func(): return state().flags.get("boatReady", false), "label": func(): return "Board the ferry", "act": func(): game.panels.map(true)})
+		"boat": game.add_interactable({"id": f.id, "x": f.x, "z": f.z, "radius": 2.6, "object": game.village.objects.boat, "available": func(): return state().flags.get("boatReady", false), "label": func(): return "Catch the bus", "act": func(): game.panels.map(true)})
 
 func _src(n: Dictionary, up: float = 1.0) -> Vector3: return Vector3(n.x, Heightfield.height(n.x, n.z) + up, n.z)
 
@@ -76,15 +81,16 @@ func act(n: Dictionary) -> void:
 		"fish": start_fishing(n)
 		"clay":
 			game.player_char.play("dig"); game.sfx("dig")
-			game.give({"clay": 2, "spark": 1}, _src(n)); deplete(n)
-		"flowers": game.player_char.play("dig"); game.sfx("pick"); game.give({"flowers": 2, "spark": 1}, _src(n)); deplete(n)
+			game.give({"clay": 2}, _src(n)); deplete(n)
+		"flowers": game.player_char.play("dig"); game.sfx("pick"); game.give({"flowers": 2}, _src(n)); deplete(n)
 		"shake":
 			game.sfx("rustle"); game.cam.shake = 0.3
 			game.village.node_visuals[n.id].set_meta("shake", 0.6)
-			game.give({"acorn": 3, "spark": 1}, _src(n, 2.0)); deplete(n)
-		"fruit": game.sfx("pick"); game.give({"fruit": 2, "spark": 1}, _src(n, 2.0)); deplete(n)
+			game.give({"acorn": 3}, _src(n, 2.0)); deplete(n)
+		"fruit": game.sfx("pick"); game.give({"fruit": 2}, _src(n, 2.0)); deplete(n)
 		"chest": open_chest(n)
 		"fragment": catch_fragment(n)
+		"bin": dig_bin(n)
 
 ## A swing or strike in the minigame: the tree or rock shakes and chips fly (a miss barely moves it).
 func minigame_hit(kind: String, result: String) -> void:
@@ -112,10 +118,21 @@ func minigame_done(kind: String, mg) -> void:
 	deplete(n); game.sfx("collect")
 
 func catch_fragment(n: Dictionary) -> void:
-	var p := _src(n)
-	game.give({"fragment": 1, "spark": 5}, p)
-	game.effects.sparkle(p, 20, Color("c9a8ff")); game.sfx("sparkle")
+	var p := _src(n, 0.2)
+	var what: String = LOST[0] if int(state().stats.fragments) == 0 else LOST[1 + int(state().stats.fragments) % (LOST.size() - 1)]
+	game.give({"fragment": 1}, null, true)
+	game.toast("You found %s!" % what, "good", 2.5)
+	game.effects.sparkle(p, 8, Color("ffe7a0"), 0.18); game.sfx("pick")
 	state().stats.fragments += 1
+	deplete(n)
+
+## Head first into a street bin: there is always copper wire, and usually something else.
+func dig_bin(n: Dictionary) -> void:
+	var count := int(state().stats.get("bins", 0))
+	game.player_char.play("dig"); game.sfx("dig")
+	game.give({"crystal": 1, "metal": 1} if count % 3 == 2 else {"crystal": 1}, _src(n, 1.0), true)
+	game.toast(BIN_LINES[count % BIN_LINES.size()], "good", 3.0)
+	state().stats["bins"] = count + 1
 	deplete(n)
 
 func open_chest(n: Dictionary) -> void:
@@ -135,7 +152,7 @@ func dig(n: Dictionary) -> void:
 	var p := _src(n, 0.3)
 	game.player_char.play("dig"); game.sfx("dig")
 	var digs: Array = Data.layout.nodes.filter(func(x): return x.kind == "dig")
-	var loot: Dictionary = [{"crystal": 1, "spark": 6, "coins": 8}, {"fabric": 2, "spark": 6, "coins": 5}, {"metal": 2, "spark": 6, "coins": 5}, {"crystal": 1, "fabric": 1, "spark": 6, "coins": 8}, {"metal": 1, "crystal": 1, "spark": 6, "coins": 10}][digs.find(n) % 5]
+	var loot: Dictionary = [{"crystal": 1, "coins": 8}, {"fabric": 2, "coins": 5}, {"metal": 2, "coins": 5}, {"crystal": 1, "fabric": 1, "coins": 8}, {"metal": 1, "crystal": 1, "coins": 10}][digs.find(n) % 5]
 	game.give(loot, p); game.effects.sparkle(p, 22)
 	state().stats.dug += 1; state().stats.treasures += 1
 	deplete(n); game.sfx("chest")
@@ -166,8 +183,8 @@ func _fishing_done(mg) -> void:
 	game.story.event("fish")
 
 ## Which kinds of place give each item (for pointing the compass at the nearest one).
-const SOURCES := {"wood": ["chop"], "stone": ["mine"], "metal": ["mine"], "crystal": ["mine"], "clay": ["clay"], "flowers": ["flowers"],
-	"fish": ["fish"], "acorn": ["shake"], "fruit": ["fruit"], "fragment": ["fragment"], "spark": ["fragment", "chop", "mine"]}
+const SOURCES := {"wood": ["chop"], "stone": ["mine"], "metal": ["mine", "bin"], "crystal": ["bin"], "clay": ["clay"], "flowers": ["flowers"],
+	"fish": ["fish"], "acorn": ["shake"], "fruit": ["fruit"], "fragment": ["fragment"]}
 
 ## The nearest place that gives `item` and is ready right now, or {}.
 func nearest_ready(item: String) -> Dictionary:
@@ -188,6 +205,7 @@ func refresh_node(n: Dictionary) -> void:
 		"chop": o.visible = r; (o.get_meta("stump") as Node3D).visible = not r
 		"mine": o.scale = Vector3.ONE * (1.0 if r else 0.45)
 		"clay", "flowers", "fragment": o.visible = r
+		"bin": (o.get_node("lid") as Node3D).rotation.x = 0.0 if r else -1.1
 		"fruit": (o.get_node("fruit") as Node3D).visible = r
 		"shake": (o.get_node("acorns") as Node3D).visible = r
 		"chest": (o.get_node("lid") as Node3D).rotation.x = -1.9 if node_state(n.id).get("done", false) else 0.0
@@ -209,7 +227,7 @@ func _build_gardens() -> void:
 		plots.append(rec)
 		var pid: String = p.id
 		game.add_interactable({"id": pid, "x": p.x, "z": p.z, "radius": 1.1, "object": g,
-			"label": func(): return {"plant": "Plant a seed", "need_seeds": "Garden bed (you need seeds)", "water": "Water the seedling", "growing": "Growing nicely…", "harvest": "Pick the bloom"}[Gardening.action(state().gardens, pid, state().inventory)],
+			"label": func(): return {"plant": "Plant a seed", "need_seeds": "Garden bed (you need seeds)", "water": "Water the seedling", "growing": "Growing nicely…", "harvest": "Pick the pumpkins"}[Gardening.action(state().gardens, pid, state().inventory)],
 			"act": func(): garden_act(rec)})
 
 func garden_act(rec: Dictionary) -> void:
@@ -221,7 +239,7 @@ func garden_act(rec: Dictionary) -> void:
 		"plant": Gardening.plant(s.gardens, p.id, now()); s.inventory.seeds -= 1; game.render_resources(["seeds"]); game.player_char.play("dig"); game.sfx("dig"); game.story.event("plant"); game.toast("Planted! Now give it some water.")
 		"water": Gardening.water(s.gardens, p.id, now()); game.player_char.play("feed"); game.effects.splash(pos); game.sfx("water"); game.story.event("water"); game.toast("Watered. It will grow while you explore.")
 		"harvest": game.give(Gardening.harvest(s.gardens, p.id), pos); game.sfx("pick"); game.story.event("harvest")
-		"need_seeds": game.toast("You need flower seeds. Fern might have some!", "warn")
+		"need_seeds": game.toast("You need pumpkin seeds. Gigia sells them at her stall.", "warn")
 		_: game.toast("The little plant is soaking up the sun. Come back in a bit!")
 	refresh_gardens()
 
@@ -238,27 +256,33 @@ func refresh_gardens() -> void:
 			var h: float = 0.15 + st.stage * 0.14
 			rec.plant.add_child(P.mi(P.cyl(0.02, 0.025, h, 5), P.mat("4f9e45"), Vector3(x, h / 2.0, 0)))
 			var leaf := P.mi(P.sphere(0.07, 6, 4), P.mat("6cc65a"), Vector3(x + 0.05, h * 0.5, 0)); leaf.scale = Vector3(1.4, 0.4, 0.8); rec.plant.add_child(leaf)
-			if st.stage >= 2:
-				var col: String = ["ff7aa8", "ffd84a", "b98cff"][int(round((x + 0.35) / 0.35))] if st.stage == 3 else "9fdc7a"
-				rec.plant.add_child(P.mi(P.sphere(0.13 if st.stage == 3 else 0.07, 8, 6), P.mat(col), Vector3(x, h + 0.04, 0)))
+			if st.stage >= 2:   # a little green pumpkin, then a ripe orange one sitting on the soil
+				var pk := P.mi(P.sphere(0.16 if st.stage == 3 else 0.08, 12, 8), P.mat("f08a2c" if st.stage == 3 else "9fbf5a"), Vector3(x, 0.12 if st.stage == 3 else 0.07, 0.12))
+				pk.scale = Vector3(1.25, 0.85, 1.25); rec.plant.add_child(pk)
 
 # ---- Squirrels
+## The bakery's wild boars (internally still "squirrels", so saves and request flags keep working).
 func _build_squirrels() -> void:
 	for n in SQUIRREL_SPOTS.size():
 		var s := Node3D.new()
-		var fur := P.mat("b5733f")
-		var b := P.mi(P.sphere(0.18, 10, 8), fur, Vector3(0, 0.18, 0)); b.scale = Vector3(0.9, 1.1, 1); s.add_child(b)
-		s.add_child(P.mi(P.sphere(0.13, 10, 8), fur, Vector3(0, 0.38, 0.1)))
+		var hide := P.mat("5b4636"); var dark := P.mat("3a2c22"); var snout := P.mat("9a7466")
+		var body := P.mi(P.sphere(0.3, 12, 8), hide, Vector3(0, 0.36, 0)); body.scale = Vector3(0.85, 0.8, 1.35); s.add_child(body)
+		var ridge := P.mi(P.sphere(0.12, 8, 6), dark, Vector3(0, 0.58, -0.02)); ridge.scale = Vector3(0.5, 0.7, 2.6); s.add_child(ridge)
+		s.add_child(P.mi(P.sphere(0.2, 10, 8), hide, Vector3(0, 0.38, 0.42)))
+		var nose := P.mi(P.cyl(0.07, 0.09, 0.14, 10), snout, Vector3(0, 0.33, 0.62)); nose.rotation.x = PI / 2; s.add_child(nose)
 		for sx in [-1, 1]:
-			s.add_child(P.mi(P.cone(0.04, 0.09, 5), P.mat("9a5f30"), Vector3(sx * 0.07, 0.5, 0.08)))
-			s.add_child(P.mi(P.sphere(0.022, 6, 4), P.mat("1d1414"), Vector3(sx * 0.055, 0.41, 0.21)))
-		var tail := P.mi(P.sphere(0.17, 10, 8), P.mat("c98447"), Vector3(0, 0.36, -0.2)); tail.scale = Vector3(0.7, 1.5, 0.7); tail.rotation.x = -0.4; s.add_child(tail)
+			s.add_child(P.mi(P.cone(0.05, 0.1, 5), dark, Vector3(sx * 0.1, 0.56, 0.38)))
+			s.add_child(P.mi(P.sphere(0.022, 6, 4), P.mat("1d1414"), Vector3(sx * 0.08, 0.44, 0.58)))
+			var tusk := P.mi(P.cone(0.018, 0.08, 5), P.mat("f3ead8"), Vector3(sx * 0.06, 0.3, 0.66)); tusk.rotation.x = -0.6; s.add_child(tusk)
+			for z in [-0.22, 0.22]: s.add_child(P.mi(P.cyl(0.045, 0.04, 0.22, 6), dark, Vector3(sx * 0.13, 0.11, z)))
+		var tail := P.mi(P.cyl(0.012, 0.02, 0.16, 4), dark, Vector3(0, 0.42, -0.42)); tail.rotation.x = 0.7; s.add_child(tail)
+		s.scale = Vector3.ONE * 0.9
 		game.add_child(s)
 		var sq := {"n": n, "obj": s, "home": Vector2(SQUIRREL_SPOTS[n][0], SQUIRREL_SPOTS[n][1]), "t": randf() * 10.0, "pos": Vector2(SQUIRREL_SPOTS[n][0], SQUIRREL_SPOTS[n][1]), "up": 0.0}
 		squirrels.append(sq)
-		game.add_interactable({"id": "squirrel%d" % n, "x": func(): return sq.pos.x, "z": func(): return sq.pos.y, "radius": 1.3, "object": s,
+		game.add_interactable({"id": "squirrel%d" % n, "x": func(): return sq.pos.x, "z": func(): return sq.pos.y, "radius": 1.5, "object": s,
 			"available": func(): return not squirrel_fed(sq.n),
-			"label": func(): return "Offer an acorn" if state().quests.get("squirrels", {}).get("status", "") == "active" and state().inventory.get("acorn", 0) > 0 else "Say hello to the squirrel",
+			"label": func(): return "Offer a chestnut" if state().quests.get("squirrels", {}).get("status", "") == "active" and state().inventory.get("acorn", 0) > 0 else "Keep your distance from the boar",
 			"act": func(): feed_squirrel(sq)})
 	place_squirrels()
 
@@ -268,20 +292,20 @@ func feed_squirrel(sq: Dictionary) -> void:
 	var s := state()
 	if s.quests.get("squirrels", {}).get("status", "") != "active" or s.inventory.get("acorn", 0) <= 0:
 		game.sfx("squeak")
-		game.toast("The squirrel eyes your acorns hungrily… Mabel might want to hear about this." if s.inventory.get("acorn", 0) > 0 else "The squirrel looks at your empty hands, deeply unimpressed.")
+		game.toast("The boar eyes your chestnuts… Ornella might want to hear about this." if s.inventory.get("acorn", 0) > 0 else "The boar looks at your empty hands, deeply unimpressed.")
 		return
 	s.inventory.acorn -= 1; game.render_resources(["acorn"])
 	s.flags["squirrelFed%d" % sq.n] = true
 	game.player_char.play("feed"); game.sfx("squeak")
 	game.effects.hearts(sq.obj.position + Vector3(0, 0.6, 0))
-	game.toast("Munch munch! The squirrel scampers happily back to the oak.", "good")
+	game.toast("Crunch. The boar trots off towards the woods, very pleased with itself.", "good")
 	place_squirrels()
 	game.story.event("feed")
 
 func place_squirrels() -> void:
 	for sq in squirrels:
 		if squirrel_fed(sq.n):
-			sq.home = Vector2(-16.5 + [-0.6, 0.5, 0.1][sq.n], -1.5 + [0.4, 0.2, -0.6][sq.n]); sq.up = 1.9 + sq.n * 0.25
+			sq.home = Vector2(-18.5 + [-1.2, 0.6, 0.2][sq.n], -1.0 + [0.8, 0.0, -1.2][sq.n]); sq.up = 0.0   # back at the edge of the woods
 		else:
 			sq.home = Vector2(SQUIRREL_SPOTS[sq.n][0], SQUIRREL_SPOTS[sq.n][1]); sq.up = 0.0
 

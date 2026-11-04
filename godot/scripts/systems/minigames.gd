@@ -42,7 +42,7 @@ class Chop:
 	func reward() -> Dictionary:
 		var good := results.filter(func(r): return r != "miss").size()
 		var perf := results.filter(func(r): return r == "perfect").size()
-		return {"wood": 1 + good + perf / 2, "spark": 1 + perf}
+		return {"wood": 1 + good + perf / 2}
 
 class Mine:
 	var rng: Rng
@@ -80,14 +80,14 @@ class Mine:
 	func reward() -> Dictionary:
 		var hits := results.filter(func(x): return x != "miss").size()
 		var perf := results.filter(func(x): return x == "perfect").size()
-		var out := {"stone": 1 + hits, "spark": 1 + perf}
-		if hits >= 2 or (rich and hits >= 1): out["metal"] = 1
-		if rich and hits >= 1: out["crystal"] = 2 if hits >= 3 else 1
-		elif perf >= 2: out["crystal"] = 1
+		var out := {"stone": 1 + hits + (1 if perf >= 2 else 0)}
+		# the rusty-red rocks are iron-rich: they give more metal
+		if rich and hits >= 1: out["metal"] = 2 if hits >= 3 else 1
+		elif hits >= 2: out["metal"] = 1
 		return out
 
-const FISH := [{"id": "minnow", "name": "Sunny Minnow", "weight": 5.0, "pull": 0.5}, {"id": "trout", "name": "Rainbow Trout", "weight": 3.0, "pull": 0.8},
-	{"id": "puffer", "name": "Puffy Pufferfish", "weight": 1.5, "pull": 1.0}, {"id": "starfin", "name": "Wishing Starfin", "weight": 0.6, "pull": 1.25}]
+const FISH := [{"id": "minnow", "name": "Minnow", "weight": 5.0, "pull": 0.5}, {"id": "trout", "name": "Brown Trout", "weight": 3.0, "pull": 0.8},
+	{"id": "puffer", "name": "Perch", "weight": 1.5, "pull": 1.0}, {"id": "starfin", "name": "Pike", "weight": 0.6, "pull": 1.25}]
 
 class Fish:
 	var rng: Rng
@@ -130,4 +130,4 @@ class Fish:
 				if tension >= 0.99: done = true; result = "snap"
 				elif progress >= 1.0: done = true; result = "caught"
 				elif t > 25.0: done = true; result = "escaped"
-	func reward() -> Dictionary: return {"fish": 1, "spark": 2} if result == "caught" else {}
+	func reward() -> Dictionary: return {"fish": 1} if result == "caught" else {}

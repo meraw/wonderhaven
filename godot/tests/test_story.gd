@@ -24,7 +24,7 @@ func test_quest_flow():
 	e.accept("tool")
 	e.on_gain({"wood": 2}); t.ok(not e.is_ready("tool"))
 	e.on_gain({"wood": 1, "fragment": 1}); t.ok(e.is_ready("tool"))
-	t.eq(e.turn_ins_for("odessa").map(func(q): return q.id), ["tool"], "turn in")
+	t.eq(e.turn_ins_for("percival").map(func(q): return q.id), ["tool"], "turn in to the Sindaco")
 	t.eq(int(e.complete("tool").harmony), 10, "reward")
 	e.accept("bridge")
 	t.eq([e.stage_index("bridge"), e.stages("bridge").size()], [1, 3], "the bridge comes in three steps")
@@ -32,10 +32,10 @@ func test_quest_flow():
 	var ev := e.refresh()
 	t.ok(not ev.any(func(x): return x.has("objective") and x.objective.id == "build"), "the building step isn't reported early")
 	built[0] = false
-	e.on_gain({"wood": 6, "spark": 5})
+	e.on_gain({"wood": 6})
 	t.eq(e.current_stage("bridge"), 0, "still gathering")
 	t.eq(e.next_step("bridge").objective.id, "wood", "next: more wood")
-	e.on_gain({"wood": 4, "spark": 3})
+	e.on_gain({"wood": 4})
 	t.eq(e.current_stage("bridge"), 1, "materials done: now build")
 	t.ok(e.shown_objectives("bridge").later == 1, "the railings step stays hidden until then")
 	built[0] = true
@@ -84,7 +84,7 @@ func test_pay_for_the_deed():
 func test_conversation():
 	var s := GameState.new_game()
 	var e := QuestEngine.new(s)
-	var c := Conversation.build(Data.npc("odessa"), e, s.flags, "Pip")
+	var c := Conversation.build(Data.npc("percival"), e, s.flags, "Pip")
 	t.eq(c.main_offer.get("id", ""), "tool", "main offer")
 	s.quests["tool"] = {"status": "done", "progress": {}}; s.quests["bridge"] = {"status": "done", "progress": {}}
 	c = Conversation.build(Data.npc("percival"), e, s.flags, "Pip")
@@ -97,7 +97,8 @@ func test_schedule_and_paths():
 	t.eq(Schedule.activity_at(Data.npc("fern"), 8 * 60, {}).node, "fernGarden")
 	t.eq(Schedule.activity_at(Data.npc("fern"), 13 * 60, {"orchardOpen": true}).node, "orchard")
 	t.eq(Schedule.activity_at(Data.npc("fern"), 23 * 60, {}).activity, "sleep")
-	t.eq(Schedule.activity_at(Data.npc("odessa"), 9 * 60, {}).node, "westGate")
+	t.eq(Schedule.activity_at(Data.npc("percival"), 9 * 60, {}).node, "westGate", "the Sindaco waits at the gate for the new Geometra")
+	t.eq(Schedule.activity_at(Data.npc("percival"), 9 * 60, {"toolGiven": true}).node, "castle:spot", "then goes back to the town hall")
 	t.eq(Schedule.find_path("squareN", "orchard", {}), [], "no path without the bridge")
 	var p := Schedule.find_path("squareN", "orchard", {"orchardOpen": true})
 	t.ok(p.has("bridgeS") and p.has("bridgeN"), str(p))
@@ -155,7 +156,7 @@ func test_gardening():
 	Gardening.grow(gd, Gardening.GROW_MINUTES); t.eq(int(gd.bed0.stage), 1)
 	for s in 2: Gardening.water(gd, "bed0", (s + 2) * 1000.0); Gardening.grow(gd, (s + 2) * 1000.0 + Gardening.GROW_MINUTES)
 	t.eq(Gardening.action(gd, "bed0", {}), "harvest")
-	t.eq(int(Gardening.harvest(gd, "bed0").flowers), 3)
+	t.eq(int(Gardening.harvest(gd, "bed0").pumpkin), 2, "the beds grow pumpkins")
 
 func test_save_round_trip():
 	var st := GameState.new_game("Pip", {"hair": "curly", "hat": "crown"})
@@ -173,14 +174,14 @@ func test_save_round_trip():
 	t.ok(SaveSystem.deserialize("null").is_empty())
 
 func test_story_lead_survives_side_requests():
-	# After Odessa's request, Fern's story request waits; taking a side request must not hide it.
+	# After the Sindaco's welcome, Gigia's story request waits; taking a side request must not hide it.
 	var s := GameState.new_game("Ann")
 	s.tutorial.on = false
 	var e := QuestEngine.new(s)
 	s.quests["tool"] = {"status": "active", "progress": {}, "done": {}}
 	s.tracked = "tool"
 	e.complete("tool")
-	t.eq(s.tracked, "lead:bridge", "finishing Odessa's request heads for Fern's")
+	t.eq(s.tracked, "lead:bridge", "finishing the Sindaco's welcome heads for Gigia's request")
 	t.ok(e.story_leads().map(func(q): return q.id).has("bridge"), "Fern's request is a story lead")
 	e.accept("stones")
 	t.eq(s.tracked, "lead:bridge", "taking Percival's side request keeps following the story")
@@ -219,7 +220,7 @@ func test_live_checks_are_cached_until_something_changes():
 		return false
 	var e := QuestEngine.new(s, {"bridge": check})
 	e.accept("bridge")
-	e.on_gain({"wood": 10, "spark": 8})
+	e.on_gain({"wood": 10})
 	calls[0] = 0
 	for i in 20:
 		e.next_step("bridge"); e.is_ready("bridge"); e.current_stage("bridge"); e.shown_objectives("bridge")

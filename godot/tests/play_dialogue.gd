@@ -16,7 +16,7 @@ func play() -> void:
 	game.state.quests["workshop"] = {"status": "active", "progress": {}}
 	game.state.flags["orchardOpen"] = true; game.state.flags["hasTool"] = true; game.state.flags["toolGiven"] = true
 	game.state.tutorial.on = false; game.hud.apply_reveals()   # this test sets up mid-game state directly
-	for id in ["odessa", "mabel", "percival"]:
+	for id in ["percival", "mabel", "fern"]:
 		await open_choices(id)
 		await frames(10)
 		var vs: Vector2 = game.get_viewport().get_visible_rect().size

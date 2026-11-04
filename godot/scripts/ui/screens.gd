@@ -42,7 +42,7 @@ func title() -> void:
 	bb.add_child(UiTheme.button("⚙️ Settings", func(): game.panels.settings()))
 	for b in bb.get_children(): b.custom_minimum_size.y = 46; b.add_theme_font_size_override("font_size", 19)
 	var fp := UiTheme.panel(Color(UiTheme.CREAM, 0.85), Color(UiTheme.LINE, 0.8), 999)
-	fp.add_child(UiTheme.label("A cozy kingdom-building adventure · Chapter 1: Hearthglow Village", 14, UiTheme.INK2))
+	fp.add_child(UiTheme.label("A cozy building game in the hills of north-west Italy · Chapter 1: Monteforchetta", 14, UiTheme.INK2))
 	var fc := CenterContainer.new(); fc.add_child(fp); v.add_child(fc)
 
 func load_list() -> void:
@@ -67,7 +67,7 @@ func continue_from(slot: String) -> void:
 	game.player_char.visible = true
 	game.load_state(s)
 	game.begin_play()
-	game.banner("Welcome back, %s!" % s.name, "Day %d in Hearthglow" % int(s.time.day))
+	game.banner("Welcome back, %s!" % s.name, "Day %d in %s" % [int(s.time.day), Data.island_def(Data.island).get("name", "")])
 
 func _close() -> void:
 	_clear(); visible = false; mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -141,7 +141,7 @@ func _render_creator() -> void:
 		if sec[1] != null: v.add_child(pills.call(sec[1][0], sec[1][1]))
 		if sec[2] != null: v.add_child(swatches.call(sec[2], sec[3]))
 	if not wardrobe_mode:
-		var gd := CheckBox.new(); gd.name = "guided_toggle"; gd.text = "🧭 Guided first day (recommended)"; gd.button_pressed = guided; gd.tooltip_text = "Odessa shows you around one step at a time."
+		var gd := CheckBox.new(); gd.name = "guided_toggle"; gd.text = "🧭 Guided first day (recommended)"; gd.button_pressed = guided; gd.tooltip_text = "The Sindaco shows you around, one step at a time, at some length."
 		gd.toggled.connect(func(v): guided = v); outer.add_child(gd)
 	var row := HBoxContainer.new(); outer.add_child(row)
 	row.add_child(UiTheme.button("🎲 Surprise me", _randomize))
@@ -225,16 +225,16 @@ func arrival(player_name: String) -> void:
 	card.grow_vertical = Control.GROW_DIRECTION_BOTH
 	add_child(card)
 	var v := VBoxContainer.new(); v.add_theme_constant_override("separation", 12); card.add_child(v)
-	var t := UiTheme.label("Hearthglow, at last", 32, UiTheme.PINK_DARK); t.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(t)
+	var t := UiTheme.label("Monteforchetta, at last", 32, UiTheme.PINK_DARK); t.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(t)
 	var body := func(text: String, size: int = 17, col: Color = UiTheme.INK) -> void:
 		var l := UiTheme.label(text, size, col); l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART; l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; l.custom_minimum_size.x = 600; v.add_child(l)
-	body.call("Three days along the coast road, %s, with a rolled-up notice in your pocket from the market board in Saltmere:" % player_name)
+	body.call("Aldo's bus left you at the washout, %s. The storm took half the road, so you walk the last stretch up the hill with your suitcase and a letter from the province:" % player_name)
 	var note := UiTheme.panel(Color("fffdf6"), Color("d9b48a"), 6)
 	var nv := VBoxContainer.new(); note.add_child(nv)
-	for line in [["BUILDER WANTED", 22, UiTheme.INK], ["Hearthglow Village · a cozy place in need of clever hands", 15, UiTheme.INK2], ["Room and board at the Lantern Inn. Ask for Odessa Quill.", 15, UiTheme.INK2]]:
+	for line in [["LETTER OF APPOINTMENT", 22, UiTheme.INK], ["The Province is pleased to appoint you Geometra of Monteforchetta.", 15, UiTheme.INK2], ["Lodging provided by the town hall. Report to the Sindaco.", 15, UiTheme.INK2]]:
 		var l := UiTheme.label(line[0], line[1], line[2]); l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; nv.add_child(l)
 	var nc := CenterContainer.new(); nc.add_child(note); v.add_child(nc)
-	body.call("The village gate is just ahead. Someone is waving.", 16, UiTheme.INK2)
+	body.call("The village gate is just ahead. Someone in a sash is waving.", 16, UiTheme.INK2)
 	var go := UiTheme.button("Walk into the village ➜", _arrive, true); go.name = "btn_arrive"; go.custom_minimum_size = Vector2(280, 48)
 	var bc := CenterContainer.new(); bc.add_child(go); v.add_child(bc)
 	go.grab_focus.call_deferred()
@@ -244,7 +244,7 @@ func _arrive() -> void:
 	_close()
 	game.set_mode("explore")
 	game.interact_cooldown = 0.4
-	game.banner("Welcome to Hearthglow!", "Odessa is waiting at the gate", [], 3.5)
+	game.banner("Welcome to Monteforchetta!", "The Sindaco is waiting at the gate", [], 3.5)
 
 func _gui_input(ev: InputEvent) -> void:
 	if game.mode != "creator": return

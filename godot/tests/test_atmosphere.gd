@@ -55,3 +55,13 @@ func test_ambient_life_follows_the_hour():
 	t.ok(night.fireflies > 0.8 and night.motes == 0.0, "clear night: fireflies, no motes")
 	t.eq(wet_night.fireflies, 0.0, "no fireflies in the rain")
 	for k in noon: t.ok(noon[k] >= 0.0 and noon[k] <= 1.0 and wet_night[k] >= 0.0 and wet_night[k] <= 1.0, "%s stays within 0..1" % k)
+
+func test_a_location_look_tints_the_grade():
+	var base := Atmosphere.grade_at(14.0, Daylight.WEATHER.clear)
+	var gloomy := Atmosphere.apply_look(base, {"shade": [0.0, 0.01, 0.04], "light": [0.9, 0.93, 1.0]})
+	t.ok((gloomy[0] as Color).b > (base[0] as Color).b and (gloomy[1] as Color).r < (base[1] as Color).r, "a gloomy look: bluer shadows, cooler highlights")
+	t.eq(Atmosphere.apply_look(base, {}), base, "no look changes nothing")
+	var curve := Atmosphere.grade_curve(gloomy[0], gloomy[1])
+	var ok := true
+	for k in range(1, curve.size()): ok = ok and curve[k].r >= curve[k - 1].r and curve[k].g >= curve[k - 1].g and curve[k].b >= curve[k - 1].b
+	t.ok(ok, "a tinted grade still never flips colours")

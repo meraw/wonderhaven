@@ -43,21 +43,20 @@ func play() -> void:
 	for i in 3: await click(Vector2(600, 300), MOUSE_BUTTON_WHEEL_UP)
 	check(2, "Walk around and control the camera", game.player.pos.distance_to(p0) > 2.0 and absf(game.cam.yaw - y0) > 0.3 and game.cam.dist < d0,
 		"moved %.1f, yaw Δ%.2f, zoom %.1f→%.1f" % [game.player.pos.distance_to(p0), game.cam.yaw - y0, d0, game.cam.dist])
-	# 3. Talk to Odessa and accept
-	await talk("odessa")
+	# 3. Talk to the Sindaco and accept
+	await talk("percival")
 	check(3, "Talk to an NPC, read dialogue and accept a quest", q("tool").get("status", "") == "active" and game.state.flags.get("hasTool", false), str(q("tool").get("status", "")))
 	# 4. Gather
-	var spark0 := inv("spark")
 	await walk_to(-35.5, 6.0, 0.6)
 	await gather_until("chop", func(): return int(q("tool").progress.get("wood", 0)) >= 3)
-	check(4, "Collect resources and see the inventory update", inv("wood") >= 3 and inv("fragment") >= 1 and inv("spark") > spark0 and game.hud_res.find_child("res_wood", true, false) != null,
-		"wood %d, fragment %d, spark %d→%d" % [inv("wood"), inv("fragment"), spark0, inv("spark")])
-	await talk("odessa")
+	check(4, "Collect resources and see the inventory update", inv("wood") >= 3 and inv("fragment") >= 1 and game.hud_res.find_child("res_wood", true, false) != null,
+		"wood %d, lost things %d" % [inv("wood"), inv("fragment")])
+	await talk("percival")
 	print("   tool: ", q("tool").get("status", ""), " harmony ", game.state.harmony)
 	# Bridge quest: materials first (step 1 of 3)
 	await talk("fern")
-	await gather_until("chop", func(): return int(q("bridge").progress.get("wood", 0)) >= 10 and int(q("bridge").progress.get("spark", 0)) >= 8 and inv("wood") >= 16 and inv("spark") >= 12, [], 26)
-	print("   materials: wood ", inv("wood"), " spark ", inv("spark"), " step ", game.story.engine.stage_index("bridge"))
+	await gather_until("chop", func(): return int(q("bridge").progress.get("wood", 0)) >= 10 and inv("wood") >= 16, [], 26)
+	print("   materials: wood ", inv("wood"), " step ", game.story.engine.stage_index("bridge"))
 	check("A1", "Staged request: the bridge's building step opens once the materials are gathered", game.story.engine.current_stage("bridge") == 1, "step %d of %d" % [game.story.engine.stage_index("bridge"), game.story.engine.stages("bridge").size()])
 	await walk_to(0.5, -12.5, 1.0)
 	await open_build("bridge")

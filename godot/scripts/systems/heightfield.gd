@@ -11,8 +11,22 @@ const CHANNEL := Rect2(8, 1, 4, 1)   # x 8..12, z 1..2
 const CASTLE_MOUND := Vector3(30, 0.9, -5)
 const CASTLE_R := 9.0
 
-## Which island's ground this is (set by Data.use_island). Each island has its own shape below.
+## Which island's ground this is (set by Data.use_island). Each island has its own shape below, or in its location
+## pack's script (scripts/locations/<id>.gd) as static height(x, z) and, optionally, is_stream_cell(i, k).
 static var island := "hearthglow"
+static var _pack = null   # untyped, so its static functions can be called
+static var _pack_height := false
+static var _pack_stream := false
+
+## Switch to an island's ground.
+static func use(id: String) -> void:
+	island = id
+	var path := "res://scripts/locations/%s.gd" % id
+	_pack = load(path) if ResourceLoader.exists(path) else null
+	var names: Array = []
+	if _pack: names = _pack.get_script_method_list().map(func(m): return m.name)
+	_pack_height = names.has("height")
+	_pack_stream = names.has("is_stream_cell")
 
 # Clockwork Cove: a round island with Gearspring Hill to the north-east, a knoll with the lighthouse on the
 # north-west cape, a millrace (stream channel fed by a spring) by the clock tower, and a sheltered bay in the south.
@@ -34,6 +48,7 @@ static func _island_radius(a: float) -> float:
 	return 54.0 + 3.0 * sin(3.0 * a + 1.0) + 2.0 * cos(5.0 * a)
 
 static func height(x: float, z: float) -> float:
+	if _pack_height: return _pack.height(x, z)
 	if island == "clockwork": return _cove(x, z)
 	var r := sqrt(x * x + z * z)
 	var a := atan2(z, x)
@@ -81,8 +96,10 @@ static func _cove(x: float, z: float) -> float:
 static func is_water(x: float, z: float) -> bool: return height(x, z) < WALKABLE_MIN
 
 static func is_stream_cell(i: float, k: float) -> bool:
+	if _pack_stream: return _pack.is_stream_cell(i, k)
 	var x := i + 0.5
 	var z := k + 0.5
+	if _pack_height: return false   # a pack's ground without streams of its own
 	if island == "clockwork":
 		if x >= COVE_CHANNEL.position.x and x <= COVE_CHANNEL.end.x and z >= COVE_CHANNEL.position.y and z <= COVE_CHANNEL.end.y: return true
 		return Vector2(x - COVE_SPRING.x, z - COVE_SPRING.z).length() < COVE_SPRING_R

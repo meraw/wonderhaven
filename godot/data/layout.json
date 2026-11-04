@@ -1274,6 +1274,27 @@
    "kind": "fragment",
    "x": 11,
    "z": 6.5
+  },
+  {
+   "id": "bin0",
+   "kind": "bin",
+   "x": 7.9,
+   "z": -2.2,
+   "facing": -1.082
+  },
+  {
+   "id": "bin1",
+   "kind": "bin",
+   "x": -8.2,
+   "z": 5.6,
+   "facing": 1.984
+  },
+  {
+   "id": "bin2",
+   "kind": "bin",
+   "x": 2.6,
+   "z": 10.4,
+   "facing": -2.841
   }
  ],
  "features": [
