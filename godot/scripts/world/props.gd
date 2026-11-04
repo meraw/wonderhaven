@@ -262,6 +262,7 @@ static func camera_blockers() -> Array:
 	for b in Data.layout.buildings:
 		var pad := 1.1 if b.kind == "castle" else 0.4
 		var top: float = 6.5 if b.kind == "castle" else (3.0 if b.kind == "caravan" else (9.0 if b.kind in ["lighthouse", "clocktower"] else 2.6 + roof_rise(b.w, b.d) + 0.3))
+		if b.has("h"): top = float(b.h)   # a building that says how tall it is (a city block, a cathedral)
 		out.append(AABB(Vector3(b.x - b.w / 2.0 - pad, -1.0, b.z - b.d / 2.0 - pad), Vector3(b.w + pad * 2.0, top + 1.0, b.d + pad * 2.0)))
 	return out
 
