@@ -96,7 +96,7 @@ const UNDER_POPLARS := Color("aeaa7c")
 ## Ground paint: stubble in the paddies, olive winter grass on the banks and levees, gravel under the village, brick in
 ## the farmstead's yard, ballast on the railway bed, mud in the drained canal. Only the spring pool's grove, kept green
 ## by its mild water, has meadow (alpha).
-static func ground(x: float, z: float) -> Color:
+static func paint(x: float, z: float) -> Color:
 	var dc := absf(x - CANAL_X)
 	var dp := Vector2(x - POOL.x, z - POOL.y).length()
 	var c: Color
@@ -131,13 +131,13 @@ static func building(b: Dictionary) -> Node3D:
 	if not String(b.kind).begins_with("rice_village_"): return null
 	match String(b.kind):
 		"rice_village_track": return _track(b)
-		"rice_village_tower": return _tower(b, float(b.get("h", 16.0)), 4)
-		"rice_village_dryer": return _tower(b, float(b.get("h", 12.0)), 8)
+		"rice_village_tower": return _tower(b, float(b.get("eaves", 16.0)), 4)
+		"rice_village_dryer": return _tower(b, float(b.get("eaves", 12.0)), 8)
 		_: return _block(b)
 
 static func _block(b: Dictionary) -> Node3D:
 	var g := Node3D.new()
-	var h := float(b.get("h", 3.0))
+	var h := float(b.get("eaves", 3.0))
 	var wall_mat: Material = P.stone(b.wall) if String(b.kind) in ["rice_village_church", "rice_village_mill", "rice_village_barn"] else P.plaster(b.wall)
 	g.add_child(P.mi(P.box(b.w, h, b.d), wall_mat, Vector3(0, h / 2.0, 0)))
 	g.add_child(P.mi(P.box(b.w + 0.2, 0.35, b.d + 0.2), P.stone("b9b1a3"), Vector3(0, 0.12, 0)))
@@ -177,7 +177,7 @@ static func _track(b: Dictionary) -> Node3D:
 ## The bus stop's pole and sign (the shared departure point is a boat, which stays hidden here).
 static func dress(village) -> void:
 	for f in Data.layout.features:
-		if f.id != "boat": continue
+		if f.kind != "boat": continue
 		var stop := Node3D.new(); stop.name = "rice_village_busStop"
 		stop.add_child(P.mi(P.cyl(0.05, 0.05, 2.4, 8), P.mat("8b9097"), Vector3(0, 1.2, 0)))
 		var plate := P.mi(P.cyl(0.32, 0.32, 0.05, 20), P.mat("2f6db5"), Vector3(0, 2.3, 0))

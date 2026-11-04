@@ -1,5 +1,5 @@
 {
- "_comment": "Casalrana (rice_village): a hamlet on the rice plain. Same format as layout_clockwork.json. The ground shape is godot/scripts/locations/rice_village.gd. Buildings of kind rice_village_* are built by that script; the two rice_village_track blocks are the railway bed, with the level crossing between them. The feature id 'boat' is the bus stop (the engine looks the departure point up by that id). Zones for requests unlock when stage 3 adds the requests. See docs/locations/rice_village.md.",
+ "_comment": "Casalrana (rice_village): a hamlet on the rice plain. Same format as layout_clockwork.json. The ground shape is godot/scripts/locations/rice_village.gd. Buildings of kind rice_village_* are built by that script (h: their full height, which the camera keeps clear of; eaves: the wall height of their model); the two rice_village_track blocks are the railway bed, with the level crossing between them. The departure point (kind boat) is the bus stop; its boat model stays hidden and the script puts a bus stop sign there. Zones for requests unlock when stage 3 adds the requests. See docs/locations/rice_village.md.",
  "spawn": {
   "x": 0.6,
   "z": 1.0,
@@ -32,10 +32,10 @@
    "z": -38,
    "w": 12,
    "d": 5,
-   "h": 5.6,
+   "h": 8.0,
    "wall": "#d8ae68",
    "roof": "#9a4632",
-   "top": 8.0
+   "eaves": 5.6
   },
   {
    "id": "rice_village_casello",
@@ -45,10 +45,10 @@
    "z": -39.5,
    "w": 5,
    "d": 4,
-   "h": 2.8,
+   "h": 4.84,
    "wall": "#d8ae68",
    "roof": "#9a4632",
-   "top": 4.84
+   "eaves": 2.8
   },
   {
    "id": "rice_village_church",
@@ -58,10 +58,10 @@
    "z": 4,
    "w": 7,
    "d": 12,
-   "h": 6.5,
+   "h": 9.62,
    "wall": "#b8664c",
    "roof": "#a5503a",
-   "top": 9.62
+   "eaves": 6.5
   },
   {
    "id": "rice_village_tower",
@@ -71,10 +71,10 @@
    "z": 8.5,
    "w": 3.5,
    "d": 3.5,
-   "h": 17.0,
+   "h": 19.5,
    "wall": "#b8664c",
    "roof": "#a5503a",
-   "top": 19.5
+   "eaves": 17.0
   },
   {
    "id": "rice_village_presbytery",
@@ -84,10 +84,10 @@
    "z": 13.5,
    "w": 6,
    "d": 4,
-   "h": 3.6,
+   "h": 5.64,
    "wall": "#e6cf9c",
    "roof": "#a5503a",
-   "top": 5.64
+   "eaves": 3.6
   },
   {
    "id": "rice_village_mill",
@@ -97,10 +97,10 @@
    "z": -13,
    "w": 6,
    "d": 7,
-   "h": 4.6,
+   "h": 7.36,
    "wall": "#b8664c",
    "roof": "#a5503a",
-   "top": 7.36
+   "eaves": 4.6
   },
   {
    "id": "rice_village_farmhouse",
@@ -110,10 +110,10 @@
    "z": -18,
    "w": 12,
    "d": 6,
-   "h": 5.6,
+   "h": 8.36,
    "wall": "#e6cf9c",
    "roof": "#a5503a",
-   "top": 8.36
+   "eaves": 5.6
   },
   {
    "id": "rice_village_office",
@@ -123,10 +123,10 @@
    "z": -18.5,
    "w": 6,
    "d": 5,
-   "h": 3.2,
+   "h": 5.6,
    "wall": "#e6cf9c",
    "roof": "#a5503a",
-   "top": 5.6
+   "eaves": 3.2
   },
   {
    "id": "rice_village_workers",
@@ -136,10 +136,10 @@
    "z": -15.5,
    "w": 4,
    "d": 11,
-   "h": 4.8,
+   "h": 6.84,
    "wall": "#d9c49a",
    "roof": "#a5503a",
-   "top": 6.84
+   "eaves": 4.8
   },
   {
    "id": "rice_village_shed",
@@ -149,10 +149,10 @@
    "z": -11,
    "w": 6,
    "d": 10,
-   "h": 4.2,
+   "h": 6.96,
    "wall": "#b8664c",
    "roof": "#a5503a",
-   "top": 6.96
+   "eaves": 4.2
   },
   {
    "id": "rice_village_cowshed",
@@ -162,10 +162,10 @@
    "z": 1,
    "w": 6,
    "d": 10,
-   "h": 4.2,
+   "h": 6.96,
    "wall": "#b8664c",
    "roof": "#a5503a",
-   "top": 6.96
+   "eaves": 4.2
   },
   {
    "id": "rice_village_barn",
@@ -175,10 +175,10 @@
    "z": 4,
    "w": 16,
    "d": 5,
-   "h": 5.6,
+   "h": 8.0,
    "wall": "#b8664c",
    "roof": "#a5503a",
-   "top": 8.0
+   "eaves": 5.6
   },
   {
    "id": "rice_village_dryer",
@@ -188,10 +188,10 @@
    "z": -12.5,
    "w": 2.5,
    "d": 2.5,
-   "h": 13.0,
+   "h": 14.0,
    "wall": "#b9bdc1",
    "roof": "#8c9196",
-   "top": 14.0
+   "eaves": 13.0
   },
   {
    "id": "rice_village_trackWest",
@@ -201,10 +201,10 @@
    "z": -47.0,
    "w": 61.5,
    "d": 4.6,
-   "h": 0.3,
+   "h": 0.95,
    "wall": "#9a948c",
    "roof": "#6f5b4a",
-   "top": 0.95
+   "eaves": 0.3
   },
   {
    "id": "rice_village_trackEast",
@@ -214,10 +214,10 @@
    "z": -47.0,
    "w": 57.5,
    "d": 4.6,
-   "h": 0.3,
+   "h": 0.95,
    "wall": "#9a948c",
    "roof": "#6f5b4a",
-   "top": 0.95
+   "eaves": 0.3
   }
  ],
  "zones": [
@@ -423,12 +423,11 @@
  ],
  "features": [
   {
-   "id": "boat",
+   "id": "rice_village_busStop",
    "kind": "boat",
    "x": -0.8,
    "z": 0.4,
-   "label": "Catch the bus",
-   "flag": "rice_village_busRunning"
+   "depart_label": "Catch the bus"
   },
   {
    "id": "rice_village_sign",

@@ -34,7 +34,7 @@ func test_you_arrive_at_the_bus_stop():
 		t.ok(_stand(w, sp.x, sp.z), "you step off the bus onto open ground")
 		var stop: Array = Data.layout.features.filter(func(f): return f.kind == "boat")
 		t.eq(stop.size(), 1, "one departure point")
-		t.eq(stop[0].id, "boat", "the engine finds the departure point by its id")
+		t.eq(stop[0].get("depart_label", ""), "Catch the bus", "it's the bus stop")
 		t.ok(Vector2(stop[0].x - sp.x, stop[0].z - sp.z).length() < 2.6, "the bus stop is where you arrive")
 		t.eq(Data.layout.get("arrive", {}), Data.layout.spawn, "arriving later puts you at the same stop"))
 
@@ -65,7 +65,7 @@ func test_the_railway_is_closed_except_at_the_crossing():
 		t.ok(a[1] > RV.RAIL_Z and b[1] < RV.RAIL_Z, "the crossing joins both sides of the line")
 		var tracks: Array = Data.layout.buildings.filter(func(bd): return bd.kind == "rice_village_track")
 		t.eq(tracks.size(), 2, "the railway bed is two blocks with the crossing between them")
-		t.ok(tracks.all(func(bd): return float(bd.top) < 1.5), "the camera can look over the railway bed"))
+		t.ok(tracks.all(func(bd): return float(bd.h) < 1.5), "the camera can look over the railway bed"))
 
 func test_water_where_the_design_puts_it():
 	_here(func():
@@ -124,13 +124,13 @@ func test_always_clear():
 
 func test_the_ground_is_painted():
 	_here(func():
-		t.ok(Heightfield.has_ground_paint(), "Casalrana paints its own ground")
+		t.ok(Heightfield.has_paint(), "Casalrana paints its own ground")
 		t.eq(Heightfield.meadow(15.0, 28.0), 0.0, "harvested paddies are bare stubble")
 		t.eq(Heightfield.meadow(2.0, -20.0), 0.0, "and so are the roads")
 		t.ok(Heightfield.meadow(RV.POOL.x + 5.5, RV.POOL.y) > 0.5, "the spring pool's grove stays green")
-		var stubble := Heightfield.ground(15.0, 28.0)
+		var stubble := Heightfield.paint(15.0, 28.0)
 		t.ok(stubble.r > stubble.g and stubble.g > stubble.b, "stubble is pale gold-brown")
-		var yard := Heightfield.ground(28.0, -7.0)
+		var yard := Heightfield.paint(28.0, -7.0)
 		t.ok(yard.r > yard.g + 0.1, "the farmstead's yard is brick")
 		var decor := WorldStatics.generate_decor()
 		t.eq(decor.flowers.size(), 0, "no flowers in late November")
@@ -142,7 +142,7 @@ func test_ids_carry_the_location_prefix():
 		for kind in ["buildings", "zones", "nodes"]:
 			for e in Data.layout[kind]: t.ok(String(e.id).begins_with(ID + "_"), "%s %s starts with %s_" % [kind, e.id, ID])
 		for f in Data.layout.features:
-			t.ok(f.id == "boat" or String(f.id).begins_with(ID + "_"), "feature %s starts with %s_" % [f.id, ID])
+			t.ok(String(f.id).begins_with(ID + "_"), "feature %s starts with %s_" % [f.id, ID])
 		for b in Data.layout.buildings:
 			var model: Node3D = RV.building(b)
 			t.ok(model != null, "%s has a model" % b.id)

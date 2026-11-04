@@ -1,0 +1,17 @@
+{
+ "_comment": "Boccapioppo's entry on the travel map, and its look (docs/locations/river_town.md). Hidden until Monteforchetta's bus line reveals it; the flag is to be agreed with that session.",
+ "name": "Boccapioppo",
+ "desc": "A brick town where a clear Alpine river meets the Po, still mopping up after the flood. Poplars, bicycles and a levee warden who knows the river to the centimetre.",
+ "x": 450,
+ "y": 300,
+ "r": 54,
+ "color": "#b9c98f",
+ "hidden": true,
+ "reveal": "river_town_revealed",
+ "look": {
+  "shade": [0.0, 0.004, 0.012],
+  "light": [1.02, 1.0, 0.97],
+  "wind": 1.15,
+  "life": {"motes": 0.6, "fireflies": 0.0, "leaves": 1.3}
+ }
+}

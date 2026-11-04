@@ -78,10 +78,11 @@ The invented names the user didn't choose (San Grato, Cascina Grande) can change
 ## Getting there and around
 - **Arrival by bus.** Aldo's bus, on the line Monteforchetta's finale opens, stops at the crossroads on its way across
   the plain. Paletta is waiting.
-- **The departure point** is the bus stop: a feature of kind `boat`, labelled as the bus, as `docs/WORLD.md` asks.
+- **The departure point** is the bus stop: a feature of kind `boat` (`rice_village_busStop`, "Catch the bus"), as
+  `docs/WORLD.md` asks. Its boat model stays hidden; a bus stop sign stands there instead.
 - **Out by train.** The finale gets the regional train stopping again. From then on the station platform is a second
-  departure point, the one for Toriano. Casalrana's finale sets the flag Toriano's map entry reveals on. It will be
-  named together with the Toriano session; `rice_village_trainStops` is the proposal.
+  departure point, the one for Toriano. Casalrana's finale sets `rice_village_trainStops`, the flag Toriano's map
+  entry reveals on (agreed: Toriano's entry already waits for it).
 - **Until those links exist,** Casalrana stays hidden on the travel map and tests reach it with `--island=rice_village`.
 - **On foot.** You walk the road and the banks between the paddies. The harvested paddies are walkable stubble. The
   canal, the flooded paddy and the spring pool are water. The railway is fenced off by its embankment, except at the
@@ -245,8 +246,9 @@ the other merges main and reuses it.
 
 | Change | Why | Stage | Also in Toriano's plan |
 | --- | --- | --- | --- |
-| **Weather per location:** which weather types a location can have, in its `look` block (here only clear) | Always clear | 1 | No |
-| **Ground paint from the location script**, with the terrain shader's clover and flowers kept off it | Stubble, gravel roads, a brick yard and mud instead of meadow | 1 | Yes |
+| **Weather per location:** which weather types a location can have, in its `look` block (here only clear) | Always clear | 1 (built) | No |
+| **Ground paint from the location script:** `paint(x, z)` colours the ground point by point and says where meadow grows (clover, flowers, grass tufts, bushes, trees). Toriano built paving laid out as shapes (`ground` in a layout); this is the other half, for fields | Stubble, banks of winter grass, mud and a brick yard instead of meadow | 1 (built) | Toriano built the paving half |
+| **A building's height in the layout** (`h`), which the camera keeps clear of | The low railway bed, the tall bell tower | 1 (Toriano's, reused) | Built by Toriano |
 | **Raised floors** in a layout that you can walk and build on | The flat upstairs and the bell chamber | 2 | Yes |
 | **A path check for any zone** (`path:<zone>`), with endpoints that may be at different heights | The platform, and the climb up the tower | 3 | Yes |
 | **Garden beds from the layout**, each with its crop (today there are four fixed beds that grow pumpkins) | Cabbages and leeks at the farmstead | 3 | No |
@@ -318,7 +320,7 @@ One pull request per stage. Each keeps the game playable and the tests passing.
   - The spring pool in its green grove, the railway bed, and flooded paddies past the edge.
   - Painted stubble, banks, gravel, brick and ballast.
 - **The layout** (`godot/data/locations/rice_village/layout.json`):
-  - The bus stop where you arrive, 43 nav spots, paths, four benches, signs and a notice board.
+  - The bus stop where you arrive (the departure point), 43 nav spots, paths, four benches, signs and a notice board.
   - Basic gathering: poplars, cobble heaps, clay, the spring pool, hellebores.
   - Seven build sites. Your yard opens with `rice_village_homePlot`; the six request sites open with requests that
     stage 3 adds.

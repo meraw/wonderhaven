@@ -122,6 +122,11 @@ func use_island(id: String) -> void:
 	layout = _read(layout_file(id))
 	_add_interior_nav()
 
+## How wide the island's ground is, in metres (a square centred on 0, 0). Villages use the default; a layout can
+## set "size" (a city is bigger). The terrain, its height texture and the sea follow it.
+const DEFAULT_MAP_SIZE := 124.0
+func map_size() -> float: return float(layout.get("size", DEFAULT_MAP_SIZE))
+
 ## Read an island's layout without switching to it (where you arrive, say).
 func read_layout(id: String) -> Dictionary: return _read(layout_file(id))
 
