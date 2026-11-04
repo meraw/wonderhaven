@@ -1326,6 +1326,41 @@
    "x": 4.5,
    "z": 7.5,
    "label": "Read the notice board"
+  },
+  {
+   "id": "benchSquare",
+   "kind": "bench",
+   "x": -4.0,
+   "z": 6.7,
+   "r": 0
+  },
+  {
+   "id": "benchRiver",
+   "kind": "bench",
+   "x": -4.2,
+   "z": -12.0,
+   "r": 0
+  },
+  {
+   "id": "benchHarbor",
+   "kind": "bench",
+   "x": 9.4,
+   "z": 36.6,
+   "r": 0
+  },
+  {
+   "id": "benchOrchard",
+   "kind": "bench",
+   "x": 3.6,
+   "z": -28.0,
+   "r": 0
+  },
+  {
+   "id": "benchInn",
+   "kind": "bench",
+   "x": 9.6,
+   "z": 19.7,
+   "r": 0
   }
  ],
  "nav_nodes": {

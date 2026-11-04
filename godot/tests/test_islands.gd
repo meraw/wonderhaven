@@ -141,3 +141,36 @@ func test_nav_edges_go_round_buildings():
 						var x: float = lerpf(a[0], b[0], t); var z: float = lerpf(a[1], b[1], t)
 						if absf(x - bd.x) < bd.w / 2.0 - 0.05 and absf(z - bd.z) < bd.d / 2.0 - 0.05: hit = true
 					t.ok(not hit, "%s: the path %s-%s goes round %s" % [id, e[0], e[1], bd.id]))
+
+func test_benches_to_rest_on():
+	for id in _islands_with_layouts():
+		_on(id, func():
+			var benches: Array = Data.layout.features.filter(func(f): return f.kind == "bench")
+			t.ok(benches.size() >= 3, "%s: a few benches to nap on (%d)" % [id, benches.size()])
+			var statics := WorldStatics.build_statics(WorldStatics.generate_decor())
+			var w := WalkWorld.new(statics, func(_f): return true)
+			for b in benches:
+				var mine: Array = statics.filter(func(s): return s.tag == b.id)
+				t.eq(mine.size(), 1, "%s: %s is solid" % [id, b.id])
+				var box: Dictionary = mine[0]
+				t.ok(not Heightfield.is_water(b.x, b.z), "%s: %s stands on land" % [id, b.id])
+				for s in statics:
+					if s.tag == b.id or s.tag == "tree": continue
+					var hit := WalkWorld.circle_box(s.x, s.z, s.r, box) if s.type == "circle" else BuildGrid.overlap2(box, s, 0.02)
+					t.ok(not hit, "%s: %s doesn't overlap %s" % [id, b.id, s.tag])
+				var sides := 0
+				for k in 8:
+					var x: float = b.x + cos(k * TAU / 8.0) * 1.5; var z: float = b.z + sin(k * TAU / 8.0) * 1.5
+					if not w.can_stand(x, z, Heightfield.height(x, z), 0.3).is_empty(): sides += 1
+				t.ok(sides >= 4, "%s: you can walk up to %s (%d/8 sides)" % [id, b.id, sides])
+				for zn in Data.layout.zones:
+					t.ok(not BuildGrid.zone_contains(zn, floorf(b.x), floorf(b.z), 999), "%s: %s isn't on a build site" % [id, b.id])
+			for e in Data.layout.nav_edges:
+				var a: Array = Data.layout.nav_nodes[e[0]]; var c: Array = Data.layout.nav_nodes[e[1]]
+				for b in benches:
+					var box: Dictionary = statics.filter(func(s): return s.tag == b.id)[0]
+					var through := false
+					for k in 21:
+						var x: float = lerpf(a[0], c[0], k / 20.0); var z: float = lerpf(a[1], c[1], k / 20.0)
+						if x > box.minX - 0.3 and x < box.maxX + 0.3 and z > box.minZ - 0.3 and z < box.maxZ + 0.3: through = true
+					t.ok(not through, "%s: the path %s-%s goes round %s" % [id, e[0], e[1], b.id]))

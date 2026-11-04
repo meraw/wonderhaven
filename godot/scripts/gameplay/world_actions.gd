@@ -56,7 +56,12 @@ func _register_node(n: Dictionary) -> void:
 
 func _register_feature(f: Dictionary) -> void:
 	match f.kind:
-		"rest": game.add_interactable({"id": f.id, "x": f.x, "z": f.z, "radius": 1.3, "label": func(): return "Rest until morning", "act": func(): game.rest()})
+		"rest": game.add_interactable({"id": f.id, "x": f.x, "z": f.z, "radius": 1.3, "label": func(): return "Sleep", "act": func(): game.rest("bed")})
+		"bench":
+			var r := int(f.get("r", 0))
+			var fp := BuildGrid.footprint(Data.piece("bench"), r)
+			var seat := {"id": "bench", "i": f.x - fp.x / 2.0, "k": f.z - fp.y / 2.0, "r": r, "y": Heightfield.height(f.x, f.z)}
+			game.add_interactable({"id": f.id, "x": f.x, "z": f.z, "radius": 1.5, "object": game.village.objects.get(f.id), "label": func(): return "Sit or nap on the bench", "act": func(): game.rest("bench", seat)})
 		"wardrobe": game.add_interactable({"id": f.id, "x": f.x, "z": f.z, "object": game.village.objects[f.id], "label": func(): return "Change outfit", "act": func(): game.open_wardrobe()})
 		"board": game.add_interactable({"id": f.id, "x": f.x, "z": f.z, "object": game.village.objects[f.id], "label": func(): return "Read the notice board", "act": func(): game.panels.notice_board()})
 		"boat": game.add_interactable({"id": f.id, "x": f.x, "z": f.z, "radius": 2.6, "object": game.village.objects.boat, "available": func(): return state().flags.get("boatReady", false), "label": func(): return "Board the ferry", "act": func(): game.panels.map(true)})

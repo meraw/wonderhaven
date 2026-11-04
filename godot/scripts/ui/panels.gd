@@ -210,7 +210,7 @@ func journal(tab: String = "active") -> void:
 	var qs: Array = []
 	match tab:
 		"active": qs = e.active()
-		"optional": qs = Data.quests.filter(func(q): return not q.get("main", false) and e.can_offer(q.id))
+		"optional": qs = Data.quests.filter(func(q): return not q.get("main", false) and (e.can_offer(q.id) or e.later_for(q.giver).has(q)) and e.here(q.id))
 		"done": qs = e.done()
 	if tab == "active":
 		for lq in e.story_leads():
@@ -228,13 +228,14 @@ func journal(tab: String = "active") -> void:
 		v.add_child(UiTheme.label(("★ Main story · " if q.get("main", false) else "") + "From " + Data.npc(q.giver).name, 12, Color("b34a6a")))
 		v.add_child(UiTheme.label(q.title, 18))
 		v.add_child(_wrap(q.description))
+		if tab == "optional" and q.has("hours"): v.add_child(UiTheme.label("🕒 %s asks about this %s" % [Data.npc(q.giver).name, Clock.hours_text(q.hours)], 13, UiTheme.INK))
 		if tab == "active":
 			var shown := e.shown_objectives(q.id)
 			var n_st := e.stages(q.id).size()
 			if n_st > 1: v.add_child(UiTheme.label("Step %d of %d" % [e.stage_index(q.id), n_st], 13, Color("b34a6a")))
 			for o in shown.objectives:
 				var st := e.objective(q.id, o)
-				var txt: String = ("✔ " if st.done else "○ ") + o.text
+				var txt: String = ("✔ " if st.done else "○ ") + o.text + ("  🕒 " + Clock.hours_text(o.hours) if o.has("hours") and not st.done else "")
 				if not st.done and st.need > 1: txt += " (%d/%d)" % [int(game.state.harmony) if o.kind == "harmony" else st.have, st.need]
 				v.add_child(UiTheme.label(txt, 14, Color("59a86f") if st.done else UiTheme.INK))
 			if shown.later > 0: v.add_child(UiTheme.label("🔒 More to do once this step is done", 13, UiTheme.INK2))
@@ -292,6 +293,23 @@ func map(from_boat: bool = false) -> void:
 			if sc: get_tree().create_timer(0.1).timeout.connect(func(): if is_instance_valid(b) and is_instance_valid(sc): sc.ensure_control_visible(b))
 		game.sfx("select"))
 	body.add_child(canvas); body.add_child(info)
+
+const WAKE_TIMES := [["🌅", "Dawn", 6], ["☀️", "Morning", 9], ["🕛", "Noon", 12], ["🌇", "Evening", 18], ["🌙", "Night", 21]]
+
+## Sleep or nap until a chosen time of day (some requests only happen at certain hours).
+func sleep(where: String, seat = null) -> void:
+	open_panel("sleep", "🪑 A bench" if where == "bench" else "🛏️ Time to rest")
+	var now: float = game.state.time.minute
+	body.add_child(_wrap(("Take a nap here until…" if where == "bench" else "Sleep until…") + "   (it's %s now)" % Clock.text(game.state.time).get_slice("· ", 1), 16, UiTheme.INK))
+	var v := VBoxContainer.new(); v.custom_minimum_size.x = 420; v.size_flags_horizontal = Control.SIZE_SHRINK_CENTER; v.add_theme_constant_override("separation", 8); body.add_child(v)
+	for w in WAKE_TIMES:
+		var mins := fposmod(float(w[2]) * 60.0 - now, 1440.0)
+		if mins < 1.0: mins = 1440.0
+		var hour: float = w[2]
+		var b := UiTheme.button("%s  %s, %s   ·   %dh %02dm" % [w[0], w[1], Clock.hour_text(hour), int(mins / 60.0), int(fmod(mins, 60.0))], func(): game.sleep_until(hour, where))
+		b.name = "wake_%d" % int(hour); b.alignment = HORIZONTAL_ALIGNMENT_LEFT; v.add_child(b)
+	if where == "bench" and seat != null:
+		var st := UiTheme.button("🪑  Just sit a while", func(): close(); game.sit_on(seat), true); st.name = "just_sit"; v.add_child(st)
 
 func pause() -> void:
 	open_panel("pause", "🌟 Paused")

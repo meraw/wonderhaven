@@ -259,18 +259,26 @@ func minigame_done(kind: String, mg) -> void:
 	interact_cooldown = 0.35
 	actions.minigame_done(kind, mg)
 
-func rest() -> void:
+## Beds and benches: pick when to wake up (dawn, morning, noon, evening or night). A bench can also just be sat on.
+func rest(where: String = "bed", seat = null) -> void:
+	if mode != "explore": return
+	panels.sleep(where, seat)
+
+func sleep_until(hour: float, where: String = "bed") -> void:
+	panels.close()
 	set_mode("cutscene")
-	var fade := _fade(true)
-	await fade.finished
-	Clock.sleep_until_morning(state.time)
+	stand_up()
+	await _fade(true).finished
+	Clock.sleep_until(state.time, hour)
 	for a in npcs.values(): a.teleport_home()
 	actions.refresh_all()
 	_fade(false)
 	set_mode("explore")
-	banner("Good morning!", Clock.text(state.time))
+	var greet: String = "Good morning!" if hour >= 5 and hour < 12 else ("Good afternoon!" if hour < 17 else ("Good evening!" if hour < 21 else "Good night!"))
+	banner(greet, ("You wake up on the bench. " if where == "bench" else "") + Clock.text(state.time))
 	sfx("morning")
 	autosave("rest", true)
+	emit_event("slept", {"hour": hour, "where": where})
 
 func _fade(on: bool) -> Tween:
 	var r: ColorRect = ui_root.get_node_or_null("Fade")
@@ -570,11 +578,14 @@ func _refresh_piece_interactables() -> void:
 				rec["label"] = func(): return "Switch lever off" if ppl.get("state", {}).get("on", false) else "Switch lever on"
 				rec["act"] = func(): toggle_lever(ppl.uid)
 			"sit":
-				rec["label"] = func(): return "Sit down"
-				rec["act"] = func(): sit_on(ppl)
+				var napping: bool = ppl.id in ["bench", "sofa"]   # long enough to nap on
+				rec["label"] = func(): return "Sit or nap" if napping else "Sit down"
+				rec["act"] = func():
+					if napping: rest("bench", ppl)
+					else: sit_on(ppl)
 			"sleep":
-				rec["label"] = func(): return "Rest until morning"
-				rec["act"] = func(): rest()
+				rec["label"] = func(): return "Sleep"
+				rec["act"] = func(): rest("bed")
 		if rec.has("act"): add_interactable(rec)
 
 func sit_on(pl: Dictionary) -> void:

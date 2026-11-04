@@ -899,6 +899,10 @@
      "bridge"
     ]
    },
+   "hours": [
+    6,
+    11
+   ],
    "objectives": [
     {
      "id": "acorns",
@@ -978,7 +982,8 @@
     "complete": [
      "They're gone! Well — they're waving at me from the oak. Rude, but adorable.",
      "Here, a proper chef's hat. You've earned it."
-    ]
+    ],
+    "later": "The squirrels only raid in the morning, the sneaky things. Come back before 11 and catch them at it!"
    }
   },
   {
@@ -1079,6 +1084,10 @@
      "decree"
     ]
    },
+   "hours": [
+    5,
+    10
+   ],
    "objectives": [
     {
      "id": "fish",
@@ -1127,7 +1136,8 @@
     ],
     "complete": [
      "Three fine fish! By the seven seas, you're a natural. Here's your captain's hat, Captain {name}!"
-    ]
+    ],
+    "later": "The fish bite best at dawn. Find me early, between 5 and 10 in the morning, and I'll show you a trick or two."
    }
   },
   {
@@ -1142,6 +1152,10 @@
      "bridge"
     ]
    },
+   "hours": [
+    18,
+    23
+   ],
    "objectives": [
     {
      "id": "find",
@@ -1187,7 +1201,8 @@
     ],
     "complete": [
      "My old notes! Oh, look at my terrible handwriting. Thank you, dear. Take this backpack — every explorer needs one."
-    ]
+    ],
+    "later": "Old treasure maps are best read by lantern light. Come and see me this evening, after 6."
    }
   },
   {
@@ -1389,6 +1404,25 @@
      }
     },
     {
+     "id": "night",
+     "kind": "talk",
+     "npc": "juniper",
+     "stage": 2,
+     "hours": [
+      20,
+      24
+     ],
+     "text": "Watch the lighthouse's first night with Juniper (after 8 PM)",
+     "lines": [
+      "There she goes! Look at the beam sweep the bay. I haven't seen that in years.",
+      "The fishing boats will find their way home tonight. Thank you, truly."
+     ],
+     "hint": {
+      "x": -19,
+      "z": -6.4
+     }
+    },
+    {
      "id": "tell",
      "kind": "talk",
      "npc": "juniper",
@@ -1422,7 +1456,7 @@
      "The dark will wait. It's good at waiting."
     ],
     "progress": [
-     "Windmill on the cape, power to the drive on the south side. The light comes on at night!"
+     "Windmill on the cape, power to the drive on the south side. Then come and watch the first beam with me, after 8 in the evening!"
     ],
     "complete": [
      "She's turning! I can feel it in the floorboards. Tonight the whole bay will see her.",
@@ -1566,6 +1600,10 @@
      "cove"
     ]
    },
+   "hours": [
+    7,
+    12
+   ],
    "objectives": [
     {
      "id": "stone",
@@ -1640,7 +1678,8 @@
     ],
     "complete": [
      "Roaring like a dragon with a cold. Perfect! Here, coins and some fresh metal."
-    ]
+    ],
+    "later": "Come by in the morning, when the coals are fresh. That's when the forge talks back."
    }
   }
  ]

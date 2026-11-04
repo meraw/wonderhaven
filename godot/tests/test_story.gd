@@ -228,3 +228,43 @@ func test_live_checks_are_cached_until_something_changes():
 	e.invalidate()
 	e.is_ready("bridge")
 	t.eq(calls[0], before + 1, "checked again after invalidating (a new frame)")
+
+func test_some_requests_keep_hours():
+	t.ok(Clock.in_hours([5, 10], 6 * 60.0) and not Clock.in_hours([5, 10], 11 * 60.0), "5 AM to 10 AM")
+	t.ok(Clock.in_hours([20, 4], 23 * 60.0) and Clock.in_hours([20, 4], 2 * 60.0) and not Clock.in_hours([20, 4], 12 * 60.0), "windows wrap past midnight")
+	var timed: Array = Data.quests.filter(func(q): return q.has("hours"))
+	t.ok(timed.size() >= 3 and timed.size() < Data.quests.size() / 2, "a few requests keep hours, not most (%d)" % timed.size())
+	t.ok(not timed.any(func(q): return q.get("main", false)), "story requests are never hidden by the clock")
+	var s := GameState.new_game()
+	for q in ["tool", "bridge", "decree"]: s.quests[q] = {"status": "done", "progress": {}}
+	var e := QuestEngine.new(s)
+	s.time.minute = 14 * 60.0
+	t.ok(not e.can_offer("catch"), "the Captain doesn't offer his fishing request in the afternoon")
+	t.ok(e.later_for("captain").any(func(q): return q.id == "catch"), "...but you can tell he will, at dawn")
+	var opts: Array = Conversation.build(Data.npc("captain"), e, s.flags, "Pip").options
+	t.ok(opts.any(func(o): return o.kind == "later" and o.id == "catch" and "5 AM" in o.label), "his conversation says when to come back")
+	s.time.minute = 6 * 60.0
+	t.ok(e.can_offer("catch") and e.later_for("captain").is_empty(), "at 6 AM he asks")
+
+func test_steps_with_hours_count_only_then():
+	var s := GameState.new_game()
+	s.island = "clockwork"
+	for q in ["tool", "bridge", "workshop", "decree", "dock", "cove"]: s.quests[q] = {"status": "done", "progress": {}}
+	s.quests["lighthouse"] = {"status": "active", "progress": {"wood": 8, "metal": 2, "light": 1}, "done": {}}
+	var e := QuestEngine.new(s)
+	t.eq(e.current_stage("lighthouse"), 2, "lighthouse lit: now watch it with Juniper")
+	s.time.minute = 15 * 60.0
+	e.on_talk("juniper")
+	t.ok(not e.is_ready("lighthouse"), "in the afternoon it doesn't count")
+	s.time.minute = 21 * 60.0
+	e.on_talk("juniper")
+	t.ok(e.is_ready("lighthouse"), "at 9 PM it does")
+
+func test_sleep_until_a_chosen_hour():
+	var t0 := {"day": 1, "minute": 15 * 60.0, "total": 900.0}
+	var slept := Clock.sleep_until(t0, 21.0)
+	t.ok(t0.day == 1 and t0.minute == 21 * 60.0 and slept == 360.0, "a nap until the evening, same day")
+	slept = Clock.sleep_until(t0, 6.0)
+	t.ok(t0.day == 2 and t0.minute == 360.0 and slept == 540.0 and t0.total == 900.0 + 360.0 + 540.0, "then through the night to 6 AM")
+	slept = Clock.sleep_until(t0, 6.0)
+	t.ok(t0.day == 3 and slept == 1440.0, "asking for the hour it already is sleeps a whole day round")
