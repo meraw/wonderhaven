@@ -1,0 +1,1221 @@
+{
+ "_comment": "Boccapioppo (river_town). Same format as ../../layout_clockwork.json. The ground shape is scripts/locations/river_town.gd; see docs/locations/river_town.md. Zones unlock with requests that come in stage 3.",
+ "spawn": {
+  "x": -45,
+  "z": 22,
+  "yaw": 1.5707963267948966
+ },
+ "square": {
+  "x": 5,
+  "z": 4,
+  "r": 6
+ },
+ "safeSpot": "busStop",
+ "safeText": "Back at the bus stop on the levee.",
+ "decor": {
+  "radius": 56,
+  "trees": 45
+ },
+ "buildings": [
+  {
+   "id": "river_town_ermes_house",
+   "kind": "keeper_house",
+   "name": "Ermes's house",
+   "x": -16,
+   "z": 17.5,
+   "w": 5,
+   "d": 4.5,
+   "wall": "#7a2e2a",
+   "roof": "#b5653a",
+   "door": "S",
+   "navDoor": "ermesDoor"
+  },
+  {
+   "id": "river_town_bar",
+   "kind": "bar",
+   "name": "Rina's bar",
+   "x": 6,
+   "z": -4.5,
+   "w": 7,
+   "d": 4.5,
+   "wall": "#e8c77a",
+   "roof": "#b5653a",
+   "door": "S",
+   "navDoor": "barDoor"
+  },
+  {
+   "id": "river_town_arcade",
+   "kind": "arcade",
+   "name": "The arcade",
+   "x": -5,
+   "z": 4,
+   "w": 4,
+   "d": 9,
+   "wall": "#d9935a",
+   "roof": "#b5653a",
+   "door": "E",
+   "navDoor": "piazzaW"
+  },
+  {
+   "id": "river_town_church",
+   "kind": "church",
+   "name": "The church",
+   "x": -6,
+   "z": -17,
+   "w": 7,
+   "d": 10,
+   "wall": "#a5523a",
+   "roof": "#b5653a",
+   "door": "E",
+   "navDoor": "churchDoor"
+  },
+  {
+   "id": "river_town_workshop",
+   "kind": "bike_shop",
+   "name": "Primo's workshop",
+   "x": 7,
+   "z": -15,
+   "w": 6,
+   "d": 5,
+   "wall": "#e8c77a",
+   "roof": "#b5653a",
+   "door": "N",
+   "navDoor": "workshopDoor"
+  },
+  {
+   "id": "river_town_pierina_house",
+   "kind": "house",
+   "name": "Pierina's house",
+   "x": -13,
+   "z": -4,
+   "w": 5,
+   "d": 5,
+   "wall": "#d9935a",
+   "roof": "#b5653a",
+   "door": "N",
+   "navDoor": "pierinaDoor"
+  },
+  {
+   "id": "river_town_house1",
+   "kind": "house",
+   "name": "A house",
+   "x": -13,
+   "z": 6,
+   "w": 6,
+   "d": 5,
+   "wall": "#e8c77a",
+   "roof": "#b5653a",
+   "door": "S",
+   "navDoor": "house1Door"
+  },
+  {
+   "id": "river_town_house2",
+   "kind": "house",
+   "name": "A house",
+   "x": -24,
+   "z": 5,
+   "w": 6,
+   "d": 6,
+   "wall": "#d9935a",
+   "roof": "#b5653a",
+   "door": "S",
+   "navDoor": "house2Door"
+  },
+  {
+   "id": "river_town_house3",
+   "kind": "house",
+   "name": "A house",
+   "x": -26,
+   "z": -16,
+   "w": 6,
+   "d": 5,
+   "wall": "#e8c77a",
+   "roof": "#b5653a",
+   "door": "N",
+   "navDoor": "house3Door"
+  },
+  {
+   "id": "river_town_house4",
+   "kind": "house",
+   "name": "A house",
+   "x": -14,
+   "z": -16,
+   "w": 5,
+   "d": 6,
+   "wall": "#d9935a",
+   "roof": "#b5653a",
+   "door": "N",
+   "navDoor": "house4Door"
+  },
+  {
+   "id": "river_town_house5",
+   "kind": "house",
+   "name": "A house",
+   "x": -36,
+   "z": 4,
+   "w": 5,
+   "d": 5,
+   "wall": "#e8c77a",
+   "roof": "#b5653a",
+   "door": "S",
+   "navDoor": "house5Door"
+  },
+  {
+   "id": "river_town_house6",
+   "kind": "house",
+   "name": "A house",
+   "x": -37,
+   "z": -16,
+   "w": 6,
+   "d": 5,
+   "wall": "#d9935a",
+   "roof": "#b5653a",
+   "door": "N",
+   "navDoor": "house6Door"
+  },
+  {
+   "id": "river_town_house7",
+   "kind": "house",
+   "name": "A house",
+   "x": 5,
+   "z": -27,
+   "w": 6,
+   "d": 5,
+   "wall": "#e8c77a",
+   "roof": "#b5653a",
+   "door": "W",
+   "navDoor": "house7Door"
+  },
+  {
+   "id": "river_town_house8",
+   "kind": "house",
+   "name": "A house",
+   "x": -20,
+   "z": -27,
+   "w": 5,
+   "d": 5,
+   "wall": "#d9935a",
+   "roof": "#b5653a",
+   "door": "E",
+   "navDoor": "house8Door"
+  },
+  {
+   "id": "river_town_station",
+   "kind": "station",
+   "name": "The station",
+   "x": -26,
+   "z": -42,
+   "w": 10,
+   "d": 5,
+   "wall": "#a5523a",
+   "roof": "#b5653a",
+   "door": "S",
+   "navDoor": "stationDoor"
+  },
+  {
+   "id": "river_town_farm",
+   "kind": "farm",
+   "name": "The farm courtyard",
+   "x": -42,
+   "z": -29,
+   "w": 12,
+   "d": 9,
+   "wall": "#a5523a",
+   "roof": "#b5653a",
+   "door": "E",
+   "navDoor": "farmGate"
+  },
+  {
+   "id": "river_town_houseboat",
+   "kind": "houseboat",
+   "name": "The houseboat",
+   "x": -24,
+   "z": 29,
+   "w": 7.5,
+   "d": 3.2,
+   "wall": "#e9e2d0",
+   "roof": "#3f5a3a",
+   "door": "E",
+   "navDoor": "houseboat"
+  },
+  {
+   "id": "river_town_shack",
+   "kind": "shack",
+   "name": "Gildo and Mattia's shack",
+   "x": -41,
+   "z": 32.5,
+   "w": 4.5,
+   "d": 4,
+   "wall": "#8a6a50",
+   "roof": "#5b4a3a",
+   "door": "E",
+   "navDoor": "shackDoor"
+  },
+  {
+   "id": "river_town_dance_hall",
+   "kind": "dance_hall",
+   "name": "Wanda's dance hall",
+   "x": 16,
+   "z": 31,
+   "w": 9,
+   "d": 7,
+   "wall": "#f4f1ea",
+   "roof": "#8fc0dc",
+   "door": "N",
+   "navDoor": "danceDoor"
+  },
+  {
+   "id": "river_town_sawmill",
+   "kind": "sawmill",
+   "name": "Ines's sawmill",
+   "x": 45,
+   "z": 20,
+   "w": 10,
+   "d": 7,
+   "wall": "#a5523a",
+   "roof": "#6a5a4a",
+   "door": "N",
+   "navDoor": "sawmillDoor"
+  }
+ ],
+ "machines": [],
+ "zones": [
+  {
+   "id": "river_town_bridge",
+   "name": "Pontoon bridge site",
+   "minI": 23,
+   "maxI": 38,
+   "minK": 12,
+   "maxK": 14,
+   "spanY": 0,
+   "unlock": {
+    "quest": "river_town_bridge"
+   },
+   "endpoints": {
+    "a": {
+     "minI": 23,
+     "maxI": 23,
+     "minK": 12,
+     "maxK": 14
+    },
+    "b": {
+     "minI": 38,
+     "maxI": 38,
+     "minK": 12,
+     "maxK": 14
+    }
+   }
+  },
+  {
+   "id": "river_town_works",
+   "name": "The piazza's pump works",
+   "minI": 9,
+   "maxI": 29,
+   "minK": 2,
+   "maxK": 8,
+   "unlock": {
+    "quest": "river_town_piazza"
+   }
+  },
+  {
+   "id": "river_town_hall",
+   "name": "Wanda's dance hall",
+   "minI": 12,
+   "maxI": 19,
+   "minK": 28,
+   "maxK": 33,
+   "interior": true,
+   "unlock": {
+    "quest": "river_town_dancehall"
+   }
+  },
+  {
+   "id": "river_town_breach",
+   "name": "The levee breach",
+   "minI": 1,
+   "maxI": 8,
+   "minK": 19,
+   "maxK": 25,
+   "unlock": {
+    "quest": "river_town_levee"
+   },
+   "endpoints": {
+    "a": {
+     "minI": 1,
+     "maxI": 8,
+     "minK": 25,
+     "maxK": 25
+    },
+    "b": {
+     "minI": 1,
+     "maxI": 8,
+     "minK": 19,
+     "maxK": 19
+    }
+   }
+  },
+  {
+   "id": "river_town_mooring",
+   "name": "The houseboat's mooring",
+   "minI": -29,
+   "maxI": -19,
+   "minK": 27,
+   "maxK": 34,
+   "unlock": {
+    "quest": "river_town_houseboat"
+   }
+  }
+ ],
+ "nodes": [
+  {
+   "id": "river_town_poplar0",
+   "kind": "chop",
+   "x": 46,
+   "z": -34
+  },
+  {
+   "id": "river_town_poplar1",
+   "kind": "chop",
+   "x": 50,
+   "z": -34
+  },
+  {
+   "id": "river_town_poplar2",
+   "kind": "chop",
+   "x": 46,
+   "z": -26
+  },
+  {
+   "id": "river_town_poplar3",
+   "kind": "chop",
+   "x": 50,
+   "z": -26
+  },
+  {
+   "id": "river_town_poplar4",
+   "kind": "chop",
+   "x": 46,
+   "z": -18
+  },
+  {
+   "id": "river_town_poplar5",
+   "kind": "chop",
+   "x": 50,
+   "z": -18
+  },
+  {
+   "id": "river_town_poplar6",
+   "kind": "chop",
+   "x": 48,
+   "z": -4
+  },
+  {
+   "id": "river_town_poplar7",
+   "kind": "chop",
+   "x": 50,
+   "z": 4
+  },
+  {
+   "id": "river_town_boulder0",
+   "kind": "mine",
+   "x": 33.8,
+   "z": -16
+  },
+  {
+   "id": "river_town_boulder1",
+   "kind": "mine",
+   "x": 33.6,
+   "z": -11
+  },
+  {
+   "id": "river_town_boulder2",
+   "kind": "mine",
+   "x": 34.0,
+   "z": -6.5
+  },
+  {
+   "id": "river_town_boulder3",
+   "kind": "mine",
+   "x": 37.5,
+   "z": -21
+  },
+  {
+   "id": "river_town_silt0",
+   "kind": "clay",
+   "x": -30,
+   "z": 31
+  },
+  {
+   "id": "river_town_silt1",
+   "kind": "clay",
+   "x": -12,
+   "z": 30.5
+  },
+  {
+   "id": "river_town_silt2",
+   "kind": "clay",
+   "x": 0,
+   "z": 33
+  },
+  {
+   "id": "river_town_silt3",
+   "kind": "clay",
+   "x": 24,
+   "z": 29
+  },
+  {
+   "id": "river_town_silt4",
+   "kind": "clay",
+   "x": -46,
+   "z": 29
+  },
+  {
+   "id": "river_town_asters0",
+   "kind": "flowers",
+   "x": -38,
+   "z": 25
+  },
+  {
+   "id": "river_town_asters1",
+   "kind": "flowers",
+   "x": -24,
+   "z": 19.2
+  },
+  {
+   "id": "river_town_asters2",
+   "kind": "flowers",
+   "x": 12,
+   "z": 25
+  },
+  {
+   "id": "river_town_asters3",
+   "kind": "flowers",
+   "x": 20.6,
+   "z": -10
+  },
+  {
+   "id": "river_town_fish0",
+   "kind": "fish",
+   "x": -10,
+   "z": 37,
+   "facing": 0
+  },
+  {
+   "id": "river_town_fish1",
+   "kind": "fish",
+   "x": 7,
+   "z": 42.2,
+   "facing": 0
+  },
+  {
+   "id": "river_town_fish2",
+   "kind": "fish",
+   "x": 25.5,
+   "z": -2,
+   "facing": 1.5707963267948966
+  },
+  {
+   "id": "river_town_fish3",
+   "kind": "fish",
+   "x": 37,
+   "z": -28,
+   "facing": -1.5707963267948966
+  },
+  {
+   "id": "river_town_fish4",
+   "kind": "fish",
+   "x": 24.8,
+   "z": 34.5,
+   "facing": 1.5707963267948966
+  },
+  {
+   "id": "river_town_dig0",
+   "kind": "dig",
+   "x": 21.5,
+   "z": -38
+  },
+  {
+   "id": "river_town_dig1",
+   "kind": "dig",
+   "x": 38,
+   "z": -47
+  },
+  {
+   "id": "river_town_dig2",
+   "kind": "dig",
+   "x": -44,
+   "z": 30
+  }
+ ],
+ "features": [
+  {
+   "id": "boat",
+   "kind": "boat",
+   "x": -47,
+   "z": 19.6,
+   "label": "Catch the bus"
+  },
+  {
+   "id": "river_town_sign",
+   "kind": "sign",
+   "x": -42.5,
+   "z": 20.2,
+   "text": "Boccapioppo. Bicycles have right of way."
+  },
+  {
+   "id": "river_town_bench_piazza",
+   "kind": "bench",
+   "x": 9,
+   "z": 9,
+   "r": 2
+  },
+  {
+   "id": "river_town_bench_levee",
+   "kind": "bench",
+   "x": -36,
+   "z": 20.6,
+   "r": 0
+  },
+  {
+   "id": "river_town_bench_river",
+   "kind": "bench",
+   "x": 23.2,
+   "z": -5,
+   "r": 1
+  },
+  {
+   "id": "river_town_bench_east",
+   "kind": "bench",
+   "x": 39.5,
+   "z": 30.5,
+   "r": 3
+  }
+ ],
+ "nav_nodes": {
+  "busStop": [
+   -45,
+   22
+  ],
+  "leveeWest": [
+   -32,
+   22
+  ],
+  "ermesDoor": [
+   -16,
+   20.8
+  ],
+  "leveeMid": [
+   -6,
+   22
+  ],
+  "townGate": [
+   -1,
+   15
+  ],
+  "piazzaW": [
+   -1.2,
+   4
+  ],
+  "piazza": [
+   5,
+   4
+  ],
+  "piazzaE": [
+   8.5,
+   1
+  ],
+  "barDoor": [
+   6,
+   -1.2
+  ],
+  "main1": [
+   -1,
+   -10
+  ],
+  "churchDoor": [
+   -1.4,
+   -17
+  ],
+  "main3": [
+   -1,
+   -27
+  ],
+  "main4": [
+   -1,
+   -34
+  ],
+  "house7Door": [
+   0.9,
+   -27
+  ],
+  "workshopDoor": [
+   7,
+   -11.4
+  ],
+  "laneN1": [
+   -13,
+   -10
+  ],
+  "pierinaDoor": [
+   -13,
+   -7.6
+  ],
+  "house4Door": [
+   -14,
+   -11.9
+  ],
+  "laneN2": [
+   -26,
+   -10
+  ],
+  "house3Door": [
+   -26,
+   -12.4
+  ],
+  "laneN3": [
+   -37,
+   -10
+  ],
+  "house6Door": [
+   -37,
+   -12.4
+  ],
+  "laneS3": [
+   -13,
+   12
+  ],
+  "house1Door": [
+   -13,
+   9.6
+  ],
+  "laneS2": [
+   -24,
+   12
+  ],
+  "house2Door": [
+   -24,
+   9.1
+  ],
+  "laneS1": [
+   -36,
+   12
+  ],
+  "house5Door": [
+   -36,
+   7.6
+  ],
+  "stationLane": [
+   -14,
+   -36
+  ],
+  "stationDoor": [
+   -26,
+   -38.4
+  ],
+  "house8Door": [
+   -16.4,
+   -27
+  ],
+  "farmGate": [
+   -34.9,
+   -29
+  ],
+  "alpineLevee": [
+   18,
+   -1
+  ],
+  "alpineNorth": [
+   18,
+   -20
+  ],
+  "terrace": [
+   17,
+   -40
+  ],
+  "romanWest": [
+   21.5,
+   -44
+  ],
+  "romanEast": [
+   36.5,
+   -44
+  ],
+  "eastNorth": [
+   41,
+   -38
+  ],
+  "eastMid": [
+   43,
+   -12
+  ],
+  "eastSouth": [
+   43,
+   8
+  ],
+  "bridgeEast": [
+   38.5,
+   10
+  ],
+  "sawmillDoor": [
+   45,
+   15.4
+  ],
+  "eastBank": [
+   38.5,
+   24
+  ],
+  "eastWoods": [
+   44,
+   31
+  ],
+  "corner": [
+   18,
+   21
+  ],
+  "bridgeWest": [
+   23.5,
+   10.5
+  ],
+  "floodRamp": [
+   -8,
+   28
+  ],
+  "floodEast": [
+   8,
+   27.5
+  ],
+  "danceDoor": [
+   16,
+   26.3
+  ],
+  "gauge": [
+   -10,
+   35.5
+  ],
+  "houseboat": [
+   -17.6,
+   29
+  ],
+  "boatNorth": [
+   -24,
+   26.2
+  ],
+  "floodWest": [
+   -34,
+   27.5
+  ],
+  "shackDoor": [
+   -37.6,
+   32.5
+  ]
+ },
+ "nav_edges": [
+  [
+   "busStop",
+   "leveeWest"
+  ],
+  [
+   "leveeWest",
+   "ermesDoor"
+  ],
+  [
+   "ermesDoor",
+   "leveeMid"
+  ],
+  [
+   "leveeMid",
+   "townGate"
+  ],
+  [
+   "townGate",
+   "piazzaW"
+  ],
+  [
+   "piazzaW",
+   "piazza"
+  ],
+  [
+   "piazza",
+   "piazzaE"
+  ],
+  [
+   "piazza",
+   "barDoor"
+  ],
+  [
+   "piazzaW",
+   "main1"
+  ],
+  [
+   "main1",
+   "churchDoor"
+  ],
+  [
+   "churchDoor",
+   "main3"
+  ],
+  [
+   "main3",
+   "house7Door"
+  ],
+  [
+   "main1",
+   "workshopDoor"
+  ],
+  [
+   "main1",
+   "laneN1"
+  ],
+  [
+   "laneN1",
+   "pierinaDoor"
+  ],
+  [
+   "laneN1",
+   "house4Door"
+  ],
+  [
+   "laneN1",
+   "laneN2"
+  ],
+  [
+   "laneN2",
+   "house3Door"
+  ],
+  [
+   "laneN2",
+   "laneN3"
+  ],
+  [
+   "laneN3",
+   "house6Door"
+  ],
+  [
+   "townGate",
+   "laneS3"
+  ],
+  [
+   "laneS3",
+   "house1Door"
+  ],
+  [
+   "laneS3",
+   "laneS2"
+  ],
+  [
+   "laneS2",
+   "house2Door"
+  ],
+  [
+   "laneS2",
+   "laneS1"
+  ],
+  [
+   "laneS1",
+   "house5Door"
+  ],
+  [
+   "main3",
+   "stationLane"
+  ],
+  [
+   "stationLane",
+   "stationDoor"
+  ],
+  [
+   "stationLane",
+   "house8Door"
+  ],
+  [
+   "stationLane",
+   "farmGate"
+  ],
+  [
+   "piazzaE",
+   "alpineLevee"
+  ],
+  [
+   "alpineLevee",
+   "alpineNorth"
+  ],
+  [
+   "alpineNorth",
+   "terrace"
+  ],
+  [
+   "main3",
+   "main4"
+  ],
+  [
+   "main4",
+   "terrace"
+  ],
+  [
+   "terrace",
+   "romanWest"
+  ],
+  [
+   "romanWest",
+   "romanEast"
+  ],
+  [
+   "romanEast",
+   "eastNorth"
+  ],
+  [
+   "eastNorth",
+   "eastMid"
+  ],
+  [
+   "eastMid",
+   "eastSouth"
+  ],
+  [
+   "eastSouth",
+   "bridgeEast"
+  ],
+  [
+   "eastSouth",
+   "sawmillDoor"
+  ],
+  [
+   "bridgeEast",
+   "eastBank"
+  ],
+  [
+   "eastBank",
+   "eastWoods"
+  ],
+  [
+   "alpineLevee",
+   "corner"
+  ],
+  [
+   "corner",
+   "bridgeWest"
+  ],
+  [
+   "alpineLevee",
+   "bridgeWest"
+  ],
+  [
+   "leveeMid",
+   "floodRamp"
+  ],
+  [
+   "floodRamp",
+   "floodEast"
+  ],
+  [
+   "floodEast",
+   "danceDoor"
+  ],
+  [
+   "floodRamp",
+   "gauge"
+  ],
+  [
+   "floodRamp",
+   "houseboat"
+  ],
+  [
+   "floodRamp",
+   "boatNorth"
+  ],
+  [
+   "boatNorth",
+   "floodWest"
+  ],
+  [
+   "floodWest",
+   "shackDoor"
+  ]
+ ],
+ "paths": [
+  [
+   [
+    -50,
+    22
+   ],
+   [
+    18,
+    22
+   ],
+   [
+    18,
+    -34
+   ],
+   [
+    17,
+    -40
+   ],
+   [
+    21.5,
+    -44
+   ],
+   [
+    36.5,
+    -44
+   ],
+   [
+    41,
+    -38
+   ],
+   [
+    43,
+    -12
+   ],
+   [
+    43,
+    8
+   ],
+   [
+    38.5,
+    10
+   ]
+  ],
+  [
+   [
+    -6,
+    22
+   ],
+   [
+    -1,
+    15
+   ],
+   [
+    -1,
+    -27
+   ],
+   [
+    -14,
+    -36
+   ],
+   [
+    -26,
+    -39
+   ]
+  ],
+  [
+   [
+    -36,
+    12
+   ],
+   [
+    -1,
+    12
+   ]
+  ],
+  [
+   [
+    -37,
+    -10
+   ],
+   [
+    7,
+    -10
+   ]
+  ],
+  [
+   [
+    8.5,
+    1
+   ],
+   [
+    18,
+    -1
+   ]
+  ],
+  [
+   [
+    -6,
+    22
+   ],
+   [
+    -8,
+    28
+   ],
+   [
+    8,
+    27.5
+   ],
+   [
+    16,
+    26.3
+   ]
+  ],
+  [
+   [
+    -8,
+    28
+   ],
+   [
+    -24,
+    26.2
+   ],
+   [
+    -34,
+    27.5
+   ],
+   [
+    -37.6,
+    32.5
+   ]
+  ],
+  [
+   [
+    -8,
+    28
+   ],
+   [
+    -10,
+    35.5
+   ]
+  ],
+  [
+   [
+    38.5,
+    10
+   ],
+   [
+    38.5,
+    24
+   ],
+   [
+    44,
+    31
+   ]
+  ],
+  [
+   [
+    43,
+    8
+   ],
+   [
+    45,
+    15.4
+   ]
+  ],
+  [
+   [
+    18,
+    21
+   ],
+   [
+    23.5,
+    10.5
+   ]
+  ],
+  [
+   [
+    -14,
+    -36
+   ],
+   [
+    -34.9,
+    -29
+   ]
+  ]
+ ],
+ "props": []
+}
