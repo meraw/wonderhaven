@@ -73,6 +73,8 @@ layouts, and the game loads it the same way as the animals module.
   island's layout file, so Clockwork Cove can have brassy evenings and Moonveil Hollow a misty blue night, with no new
   code.
 - **Settings toggles** for depth blur, cloud shadows and ambient life on slower machines (next to the outline toggle).
+- **Lit materials for small creatures.** Butterflies use an unlit material, so at night they glow like fireflies.
+  Anything that should darken after dusk needs a lit material (or should go to bed at night).
 - **Clouds with sunlit edges** and a soft horizon glow in the sky shader.
 - **Screen-space indirect light (SSIL)** for colour bleeding from walls onto paths (Forward+ only, costs frame time).
 - **Footprints and paths that wear in** where villagers walk, as terrain decals.
@@ -85,6 +87,8 @@ layouts, and the game loads it the same way as the animals module.
   average ground colour measured so the grade doesn't drift.
 - A motion reel recorded with Godot's Movie Maker (`--write-movie`, fixed 30 fps) for wind, water, particles and rain.
 - The compatibility renderer was rendered too, to check every shader compiles there.
+- The branch was trial-merged with the Clockwork Cove work (no conflicts; all 79 tests pass on the merge) and five
+  Cove views were rendered before and after: the same treatment applies there without any island-specific code.
 - `godot/run_tests.sh` includes `test_atmosphere.gd`: every shader global is declared with the right type, the grade
   never flips a colour, and wind and ambient life follow the hour and weather.
 - **Not checked:** frame rate on real graphics cards (the test machine renders in software), and how it feels in play
