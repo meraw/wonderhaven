@@ -287,6 +287,9 @@ func map(from_boat: bool = false) -> void:
 		elif not revealed: info.text += "  Open Hearthglow's harbor and repair the dock to start sailing." if not game.state.flags.get("boatReady", false) else "  The Captain hasn't charted a route here yet."
 		elif from_boat or game.state.flags.get("boatReady", false):
 			var b := UiTheme.button("⛵ Sail to " + isl.name, func(): game.sail_to(isl), true); b.name = "sail"; body.add_child(b)
+			# with a tip card above the map the button can fall below the fold: bring it into view once laid out
+			var sc := body.get_parent() as ScrollContainer
+			if sc: get_tree().create_timer(0.1).timeout.connect(func(): if is_instance_valid(b) and is_instance_valid(sc): sc.ensure_control_visible(b))
 		game.sfx("select"))
 	body.add_child(canvas); body.add_child(info)
 
