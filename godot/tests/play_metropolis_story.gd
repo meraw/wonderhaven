@@ -60,11 +60,11 @@ func play() -> void:
 	# ---- 3. Marble by Water -----------------------------------------------------------------------------------
 	await chat("annoni")
 	check("marble_on", "the Architetto asks you to get the marble moving", status("marble") == "active", status("marble"))
-	await ride("stop_darsena", "stop_castello", true)
+	await tram("stop_castello")
 	await gather_until("chop", func(): return step_done("marble", "wood"), [], 12)
 	check("marble_wood", "pruning the plane trees in the park gives wood", step_done("marble", "wood"), "wood %d" % inv("wood"))
 	await shot("pruning")
-	await ride("stop_castello", "stop_darsena", true)
+	await tram("stop_darsena")
 	await gather_until("bin", func(): return step_done("marble", "metal"), [P + "skip1", P + "skip2", P + "skip3", P + "skip4"], 6)
 	check("marble_metal", "the builders' skips give metal and old bricks", step_done("marble", "metal") and inv("clay") >= 2, "metal %d, clay %d" % [inv("metal"), inv("clay")])
 	await walk_to(-147.0, 98.0, 0.8)
@@ -81,12 +81,12 @@ func play() -> void:
 	# ---- 4. The Footbridge ------------------------------------------------------------------------------------
 	await chat("franco")
 	check("footbridge_on", "Franco asks for a new footbridge", status("footbridge") == "active", status("footbridge"))
-	await ride("stop_darsena", "stop_castello", true)
+	await tram("stop_castello")
 	if Data.layout.nodes.filter(func(n): return n.kind == "chop" and game.actions.ready(n)).size() < 4:
-		await sleep_until("bench_park1", int(hour() + 4.0) % 24)   # let the pruned trees grow back
+		await nap_at_least("bench_park1", 3.0)   # let the pruned trees grow back
 	await gather_until("chop", func(): return step_done("footbridge", "wood"), [], 14)
 	check("footbridge_wood", "more pruning for the deck and posts", step_done("footbridge", "wood"), "wood %d" % inv("wood"))
-	await ride("stop_castello", "stop_darsena", true)
+	await tram("stop_darsena")
 	await walk_to(-115.0, 136.0, 0.8)
 	top_up({"wood": 22}, "posts, planks and railings")
 	await open_zone("footbridge")
@@ -108,14 +108,14 @@ func play() -> void:
 	# ---- 5. Scaffolding for the Spire --------------------------------------------------------------------------
 	await chat("annoni")
 	check("scaffold_on", "the Architetto wants a climb up to the roof", status("scaffold") == "active", status("scaffold"))
-	await ride("stop_darsena", "stop_castello", true)
+	await tram("stop_castello")
 	if Data.layout.nodes.filter(func(n): return n.kind == "chop" and game.actions.ready(n)).size() < 4:
-		await sleep_until("bench_park1", int(hour() + 4.0) % 24)
+		await nap_at_least("bench_park1", 3.0)
 	await gather_until("chop", func(): return step_done("scaffold", "wood"), [], 12)
-	await ride("stop_castello", "stop_duomo", true)
+	await tram("stop_duomo")
 	await gather_until("mine", func(): return step_done("scaffold", "stone"), [], 10)
 	if not step_done("scaffold", "stone"):
-		await sleep_until("bench_sq2", int(hour() + 5.0) % 24)   # the offcuts come back
+		await nap_at_least("bench_sq2", 4.0)   # the offcuts come back
 		await gather_until("mine", func(): return step_done("scaffold", "stone"), [], 10)
 	check("scaffold_materials", "wood from the park and stone cut from the marble offcuts in the yard", step_done("scaffold", "wood") and step_done("scaffold", "stone"), "wood %d, stone %d" % [inv("wood"), inv("stone")])
 	await walk_to(77.5, 10.5, 0.8)
@@ -142,15 +142,15 @@ func play() -> void:
 	check("scaffold_done", "the roof is reachable", done("scaffold"), "%s, %d inches" % [status("scaffold"), inches()])
 	await chat("annoni")
 	check("angel_on", "the Architetto asks you to light the Golden Angel", status("angel") == "active", status("angel"))
-	await ride("stop_duomo", "stop_castello", true)
+	await tram("stop_castello")
 	if Data.layout.nodes.filter(func(n): return n.kind == "chop" and game.actions.ready(n)).size() < 3:
-		await sleep_until("bench_park1", int(hour() + 4.0) % 24)
+		await nap_at_least("bench_park1", 3.0)
 	await gather_until("chop", func(): return step_done("angel", "wood"), [], 12)
-	await ride("stop_castello", "stop_darsena", true)
+	await tram("stop_darsena")
 	await gather_until("bin", func(): return step_done("angel", "fabric"), [P + "flea"], 3)
 	await gather_until("bin", func(): return step_done("angel", "metal"), [P + "skip1", P + "skip2", P + "skip3", P + "skip4"], 6)
 	check("angel_materials", "wood, sailcloth from the flea market and metal from the skips", step_done("angel", "wood") and step_done("angel", "fabric") and step_done("angel", "metal"), "wood %d fabric %d metal %d" % [inv("wood"), inv("fabric"), inv("metal")])
-	await ride("stop_darsena", "stop_duomo", true)
+	await tram("stop_duomo")
 	await walk_to(77.5, 10.5, 0.8)
 	await walk_direct(76.6, 10.5, 0.4); await walk_direct(66.0, 10.5, 0.5); await walk_direct(53.0, 10.5, 0.5)
 	top_up({"wood": 6, "fabric": 2, "metal": 1}, "a windmill and a shaft")
@@ -161,7 +161,7 @@ func play() -> void:
 	await leave_build()
 	check("angel_powered", "a windmill on the roof terrace drives the Golden Angel's floodlight", placed == 2 and step_done("angel", "light") and game.state.flags.get(P + "christmas_eve", false), "%d placed, fed %s" % [placed, game.mech.fed])
 	await walk_direct(68.0, 10.5, 0.5); await walk_direct(77.5, 10.5, 0.5)
-	await sleep_until("bench_sq1", 18)   # wait for dark on a bench in the square
+	if hour() < 18.0: await sleep_until("bench_sq1", 18)   # wait for dark on a bench in the square
 	await frames(60)
 	var crowd := 0
 	for id in game.npcs:

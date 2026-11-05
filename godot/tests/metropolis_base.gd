@@ -189,3 +189,21 @@ func sleep_until(bench: String, hour: int) -> bool:
 	return await sleep_at(P + bench, hour)
 
 func hour() -> float: return float(game.state.time.minute) / 60.0
+
+## A nap on a bench until the next wake-up time on offer (dawn, morning, noon, evening, night) at least `hours` away.
+func nap_at_least(bench: String, hours: float) -> bool:
+	var best := -1; var best_d := 99.0
+	for w in [6, 9, 12, 18, 21]:
+		var d := fposmod(float(w) - hour(), 24.0)
+		if d >= hours and d < best_d: best_d = d; best = w
+	return await sleep_until(bench, best)
+
+## Takes the tram to a stop from whichever stop is nearest, as a player would.
+func tram(to: String) -> bool:
+	var p: Vector3 = game.player.pos
+	var best := ""; var bd := INF
+	for f in Data.layout.features.filter(func(x): return x.kind == "stop"):
+		var d := Vector2(f.x - p.x, f.z - p.z).length()
+		if d < bd: bd = d; best = String(f.id).trim_prefix(P)
+	if best == to: return true
+	return await ride(best, to, true)
