@@ -27,8 +27,11 @@ func walk_direct(x: float, z: float, tol: float = 0.8, max_s: float = 40.0) -> b
 		elif since_best > 240:
 			note("walk stuck at (%.1f, %.1f) heading for (%.1f, %.1f)" % [p.x, p.z, x, z]); break
 		steer(x, z)
-		key(KEY_W, true)
-		await frames(2); used += 2; since_best += 2
+		if dist < 2.5:   # the last stretch at a walk, a frame at a time: at a low frame rate a running step is over a metre
+			key(KEY_SHIFT, false); key(KEY_W, true); await frames(1); key(KEY_W, false); await frames(1)
+		else:
+			key(KEY_SHIFT, true); key(KEY_W, true); await frames(2)
+		used += 2; since_best += 2
 		if p.distance_to(last) > 0.1: last = p; still = 0
 		else:
 			still += 2
