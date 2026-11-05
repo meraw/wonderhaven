@@ -1,0 +1,1732 @@
+{
+ "_comment": "Boccapioppo's people (docs/locations/river_town.md, The cast). Outfits are the closest the shared character shapes allow until stage 4.",
+ "npcs": [
+  {
+   "id": "river_town_ermes",
+   "name": "Ermes \"Centimetro\" Vercesi",
+   "title": "Guardiano, the levee warden",
+   "likes": [
+    "river_town_zabaglione",
+    "fish",
+    "river_town_sbrisolona"
+   ],
+   "voice": 0.75,
+   "appearance": {
+    "skin": "#d9a37a",
+    "eyeShape": "sleepy",
+    "eyeColor": "#3a2a1e",
+    "hair": "short",
+    "hairColor": "#b8b4ac",
+    "mouth": "calm",
+    "top": "jacket",
+    "topColor": "#3a4a3f",
+    "bottom": "pants",
+    "bottomColor": "#3a3a40",
+    "shoes": "boots",
+    "shoesColor": "#2a2a2a",
+    "hat": "captain",
+    "hatColor": "#2f3a34",
+    "accessory": "beard"
+   },
+   "home": "river_town_ermes_house:spot",
+   "schedule": [
+    [
+     6,
+     22,
+     "busStop",
+     "idle"
+    ]
+   ],
+   "when": [
+    {
+     "flag": "river_town_flood_over",
+     "schedule": [
+      [
+       5,
+       8,
+       "gauge",
+       "work"
+      ],
+      [
+       8,
+       12,
+       "river_town_ermes_house:spot",
+       "work"
+      ],
+      [
+       12,
+       13,
+       "leveeMid",
+       "idle"
+      ],
+      [
+       13,
+       17,
+       "river_town_ermes_house:spot",
+       "work"
+      ],
+      [
+       17,
+       18,
+       "gauge",
+       "work"
+      ],
+      [
+       18,
+       20,
+       "leveeWest",
+       "idle"
+      ],
+      [
+       20,
+       23,
+       "hallG",
+       "idle"
+      ]
+     ]
+    },
+    {
+     "flag": "river_town_storm",
+     "schedule": [
+      [
+       0,
+       8,
+       "stormB",
+       "idle"
+      ],
+      [
+       8,
+       19,
+       "river_town_ermes_house:spot",
+       "work"
+      ],
+      [
+       19,
+       24,
+       "stormB",
+       "idle"
+      ]
+     ]
+    },
+    {
+     "flag": "river_town_wall_built",
+     "schedule": [
+      [
+       5,
+       8,
+       "gauge",
+       "work"
+      ],
+      [
+       8,
+       12,
+       "river_town_ermes_house:spot",
+       "work"
+      ],
+      [
+       12,
+       13,
+       "leveeMid",
+       "idle"
+      ],
+      [
+       13,
+       17,
+       "river_town_ermes_house:spot",
+       "work"
+      ],
+      [
+       17,
+       18,
+       "gauge",
+       "work"
+      ],
+      [
+       18,
+       24,
+       "stormB",
+       "idle"
+      ]
+     ]
+    },
+    {
+     "flag": "river_town_hall_ready",
+     "schedule": [
+      [
+       5,
+       8,
+       "gauge",
+       "work"
+      ],
+      [
+       8,
+       12,
+       "river_town_ermes_house:spot",
+       "work"
+      ],
+      [
+       12,
+       13,
+       "leveeMid",
+       "idle"
+      ],
+      [
+       13,
+       17,
+       "river_town_ermes_house:spot",
+       "work"
+      ],
+      [
+       17,
+       18,
+       "gauge",
+       "work"
+      ],
+      [
+       18,
+       20,
+       "leveeWest",
+       "idle"
+      ],
+      [
+       20,
+       23,
+       "hallG",
+       "idle"
+      ]
+     ]
+    },
+    {
+     "flag": "river_town_welcomed",
+     "schedule": [
+      [
+       5,
+       8,
+       "gauge",
+       "work"
+      ],
+      [
+       8,
+       12,
+       "river_town_ermes_house:spot",
+       "work"
+      ],
+      [
+       12,
+       13,
+       "leveeMid",
+       "idle"
+      ],
+      [
+       13,
+       17,
+       "river_town_ermes_house:spot",
+       "work"
+      ],
+      [
+       17,
+       18,
+       "gauge",
+       "work"
+      ],
+      [
+       18,
+       21,
+       "leveeWest",
+       "idle"
+      ]
+     ]
+    }
+   ],
+   "greetings": [
+    {
+     "flag": "river_town_flood_over",
+     "lines": [
+      "One hundred and twelve centimetres this morning. Normal. Boring. Wonderful.",
+      "The river and I have made our peace. For now. I don't trust it."
+     ]
+    },
+    {
+     "flag": "river_town_welcomed",
+     "lines": [
+      "Three hundred and forty centimetres at eight o'clock. Going down. Slowly. Like my patience.",
+      "Morning, Geometra. The river's still sulking. So am I. We understand each other.",
+      "Don't stand on the levee in your nice shoes. Actually, you haven't got nice shoes. Carry on."
+     ]
+    },
+    {
+     "lines": [
+      "You. The Geometra. Good. Here's a shovel."
+     ]
+    }
+   ],
+   "sleepy": [
+    "Zzz… three hundred and… thirty-nine… point five…"
+   ],
+   "topics": [
+    {
+     "id": "gauge",
+     "label": "Why do they call you Centimetro?",
+     "lines": [
+      "Because I know where the river is to the centimetre. Every hour, for forty years. It's in the notebook.",
+      "My wife says I read the gauge in my sleep. I don't. I read it when I wake up at night, which is different."
+     ]
+    },
+    {
+     "id": "flood",
+     "label": "What happened in the flood?",
+     "lines": [
+      "Seven metres forty at the gauge. The highest since my father's time.",
+      "The water came over at the weak spot and went straight into the piazza. Rina served coffee standing on the counter.",
+      "The levee held everywhere but there. Now it's our job to make sure the weak spot isn't weak."
+     ]
+    },
+    {
+     "id": "mayor",
+     "label": "Who runs the town?",
+     "lines": [
+      "Nobody runs it. The river runs it, and I keep an eye on the river.",
+      "There's a council somewhere. It sends letters. Pierina reads them to me so I don't have to."
+     ]
+    }
+   ],
+   "gifts": [
+    {
+     "hearts": 4,
+     "items": {
+      "river_town_sand": 6
+     },
+     "line": "Sand from the sandbank. Good sand. You'll want it when the river tries again."
+    }
+   ]
+  },
+  {
+   "id": "river_town_tullio",
+   "name": "Tullio \"Caronte\" Maffi",
+   "title": "Boatman",
+   "likes": [
+    "fish",
+    "wood",
+    "river_town_fried_fish"
+   ],
+   "voice": 0.65,
+   "appearance": {
+    "skin": "#c98a5e",
+    "eyeShape": "sleepy",
+    "eyeColor": "#2a2a2a",
+    "hair": "short",
+    "hairColor": "#6a6660",
+    "mouth": "calm",
+    "top": "sweater",
+    "topColor": "#2f3f5f",
+    "bottom": "pants",
+    "bottomColor": "#4a4038",
+    "shoes": "boots",
+    "shoesColor": "#3a2a20",
+    "hat": "beanie",
+    "hatColor": "#3a3a4a",
+    "accessory": "beard"
+   },
+   "home": "river_town_house2:spot",
+   "schedule": [
+    [
+     6,
+     20,
+     "bridgeWest",
+     "idle"
+    ]
+   ],
+   "when": [
+    {
+     "flag": "river_town_flood_over",
+     "schedule": [
+      [
+       6,
+       12,
+       "bridgeWest",
+       "idle"
+      ],
+      [
+       12,
+       14,
+       "barDoor",
+       "idle"
+      ],
+      [
+       14,
+       19,
+       "bridgeEast",
+       "idle"
+      ],
+      [
+       20,
+       22,
+       "hallF",
+       "idle"
+      ]
+     ]
+    },
+    {
+     "flag": "river_town_storm",
+     "schedule": [
+      [
+       6,
+       19,
+       "bridgeWest",
+       "idle"
+      ],
+      [
+       19,
+       24,
+       "stormC",
+       "idle"
+      ]
+     ]
+    },
+    {
+     "flag": "river_town_hall_ready",
+     "schedule": [
+      [
+       6,
+       12,
+       "bridgeWest",
+       "idle"
+      ],
+      [
+       12,
+       14,
+       "barDoor",
+       "idle"
+      ],
+      [
+       14,
+       19,
+       "bridgeEast",
+       "idle"
+      ],
+      [
+       20,
+       22,
+       "hallF",
+       "idle"
+      ]
+     ]
+    },
+    {
+     "flag": "river_town_bridge_open",
+     "schedule": [
+      [
+       6,
+       12,
+       "bridgeWest",
+       "idle"
+      ],
+      [
+       12,
+       14,
+       "barDoor",
+       "idle"
+      ],
+      [
+       14,
+       20,
+       "bridgeEast",
+       "idle"
+      ]
+     ]
+    }
+   ],
+   "greetings": [
+    {
+     "flag": "river_town_bridge_open",
+     "lines": [
+      "Boats. Holding hands. Good.",
+      "Forty years I rowed. Now people walk. I watch them. Also good."
+     ]
+    },
+    {
+     "lines": [
+      "River took my boat.",
+      "…",
+      "Morning."
+     ]
+    }
+   ],
+   "sleepy": [
+    "…"
+   ],
+   "topics": [
+    {
+     "id": "caronte",
+     "label": "Why Caronte?",
+     "lines": [
+      "Ferryman of the dead. In the old stories.",
+      "I take people across. They come back. Mostly.",
+      "I like the name. Don't tell them."
+     ]
+    },
+    {
+     "id": "ferry",
+     "label": "What happened to your ferry?",
+     "lines": [
+      "Flood. Rope snapped. She went under by the bank.",
+      "Forty years. She was tired.",
+      "A bridge of boats would do. Boats side by side, planks on top. Like before my grandfather."
+     ]
+    }
+   ],
+   "gifts": [
+    {
+     "hearts": 4,
+     "items": {
+      "wood": 6
+     },
+     "line": "Driftwood. Dry now. Use it."
+    }
+   ]
+  },
+  {
+   "id": "river_town_primo",
+   "name": "Primo \"Raggio\" Rampoldi",
+   "title": "Bike repairman",
+   "likes": [
+    "metal",
+    "river_town_tyre",
+    "river_town_sbrisolona"
+   ],
+   "voice": 0.85,
+   "appearance": {
+    "skin": "#e0b08a",
+    "eyeShape": "round",
+    "eyeColor": "#3a2a1e",
+    "hair": "short",
+    "hairColor": "#e8e4dc",
+    "mouth": "grin",
+    "top": "jacket",
+    "topColor": "#8a8a86",
+    "bottom": "pants",
+    "bottomColor": "#3a3a40",
+    "shoes": "sneakers",
+    "shoesColor": "#2a2a2a",
+    "hat": "beret",
+    "hatColor": "#6a4a30",
+    "accessory": "glasses"
+   },
+   "home": "river_town_workshop:spot",
+   "schedule": [
+    [
+     7,
+     12,
+     "river_town_workshop:spot",
+     "work"
+    ],
+    [
+     12,
+     14,
+     "piazza",
+     "idle"
+    ],
+    [
+     14,
+     19,
+     "river_town_workshop:spot",
+     "work"
+    ],
+    [
+     19,
+     22,
+     "terraceA",
+     "idle"
+    ]
+   ],
+   "when": [
+    {
+     "flag": "river_town_flood_over",
+     "schedule": [
+      [
+       7,
+       12,
+       "river_town_workshop:spot",
+       "work"
+      ],
+      [
+       12,
+       14,
+       "piazza",
+       "idle"
+      ],
+      [
+       14,
+       19,
+       "river_town_workshop:spot",
+       "work"
+      ],
+      [
+       19,
+       20,
+       "terraceA",
+       "idle"
+      ],
+      [
+       20,
+       22,
+       "hallB",
+       "idle"
+      ]
+     ]
+    },
+    {
+     "flag": "river_town_storm",
+     "schedule": [
+      [
+       7,
+       19,
+       "river_town_workshop:spot",
+       "work"
+      ],
+      [
+       19,
+       24,
+       "stormE",
+       "idle"
+      ]
+     ]
+    },
+    {
+     "flag": "river_town_hall_ready",
+     "schedule": [
+      [
+       7,
+       12,
+       "river_town_workshop:spot",
+       "work"
+      ],
+      [
+       12,
+       14,
+       "piazza",
+       "idle"
+      ],
+      [
+       14,
+       19,
+       "river_town_workshop:spot",
+       "work"
+      ],
+      [
+       19,
+       20,
+       "terraceA",
+       "idle"
+      ],
+      [
+       20,
+       22,
+       "hallB",
+       "idle"
+      ]
+     ]
+    }
+   ],
+   "greetings": [
+    {
+     "lines": [
+      "Ah, the Geometra! On foot? On foot. We'll fix that one day.",
+      "1953. The Colle delle Rane. I passed a boy who later won the national championship. He'd had a puncture, but I passed him.",
+      "If it has two wheels I can mend it. If it has four, I don't want to know about it."
+     ]
+    }
+   ],
+   "sleepy": [
+    "Zzz… left at the chapel… then the long descent…"
+   ],
+   "topics": [
+    {
+     "id": "raggio",
+     "label": "Why do they call you Raggio?",
+     "lines": [
+      "A raggio is a spoke. I can true a wheel by ear. Ping, ping, pong. That pong is wrong.",
+      "Also I'm thin. Thin as a spoke. Was. Rina's cakes are my enemy."
+     ]
+    },
+    {
+     "id": "cars",
+     "label": "What have you got against cars?",
+     "lines": [
+      "Nothing. They're fine for carrying wardrobes.",
+      "But a town where people pedal is a town where people say good morning. You can't say good morning through a windscreen."
+     ]
+    }
+   ],
+   "gifts": [
+    {
+     "hearts": 4,
+     "items": {
+      "metal": 3
+     },
+     "line": "Spokes, bent. You'll find a use. I always do."
+    }
+   ]
+  },
+  {
+   "id": "river_town_gildo",
+   "name": "Gildo Bergonzi",
+   "title": "Fisherman",
+   "likes": [
+    "fish",
+    "river_town_fried_fish",
+    "river_town_goose_sandwich"
+   ],
+   "voice": 0.7,
+   "appearance": {
+    "skin": "#d9a37a",
+    "eyeShape": "happy",
+    "eyeColor": "#3a2a1e",
+    "hair": "curly",
+    "hairColor": "#f0ece4",
+    "mouth": "smile",
+    "top": "jacket",
+    "topColor": "#5a6a4a",
+    "bottom": "pants",
+    "bottomColor": "#4a5a4a",
+    "shoes": "boots",
+    "shoesColor": "#3a4a3a",
+    "hat": "sunhat",
+    "hatColor": "#b8a87a",
+    "accessory": "beard"
+   },
+   "home": "river_town_shack:spot",
+   "schedule": [
+    [
+     5,
+     9,
+     "fishing",
+     "idle"
+    ],
+    [
+     9,
+     12,
+     "river_town_shack:spot",
+     "idle"
+    ],
+    [
+     12,
+     14,
+     "terraceC",
+     "idle"
+    ],
+    [
+     14,
+     18,
+     "floodWest",
+     "idle"
+    ],
+    [
+     18,
+     22,
+     "fishing",
+     "idle"
+    ]
+   ],
+   "when": [
+    {
+     "flag": "river_town_flood_over",
+     "schedule": [
+      [
+       5,
+       9,
+       "fishing",
+       "idle"
+      ],
+      [
+       9,
+       12,
+       "river_town_shack:spot",
+       "idle"
+      ],
+      [
+       12,
+       14,
+       "terraceC",
+       "idle"
+      ],
+      [
+       14,
+       18,
+       "floodWest",
+       "idle"
+      ],
+      [
+       18,
+       20,
+       "fishing",
+       "idle"
+      ],
+      [
+       20,
+       22,
+       "hallD",
+       "idle"
+      ]
+     ]
+    },
+    {
+     "flag": "river_town_storm",
+     "schedule": [
+      [
+       5,
+       19,
+       "river_town_shack:spot",
+       "idle"
+      ],
+      [
+       19,
+       24,
+       "stormF",
+       "idle"
+      ]
+     ]
+    },
+    {
+     "flag": "river_town_hall_ready",
+     "schedule": [
+      [
+       5,
+       9,
+       "fishing",
+       "idle"
+      ],
+      [
+       9,
+       12,
+       "river_town_shack:spot",
+       "idle"
+      ],
+      [
+       12,
+       14,
+       "terraceC",
+       "idle"
+      ],
+      [
+       14,
+       18,
+       "floodWest",
+       "idle"
+      ],
+      [
+       18,
+       20,
+       "fishing",
+       "idle"
+      ],
+      [
+       20,
+       22,
+       "hallD",
+       "idle"
+      ]
+     ]
+    }
+   ],
+   "greetings": [
+    {
+     "flag": "river_town_monster_seen",
+     "lines": [
+      "We caught him. We let him go. Now nobody believes us. Perfect. It's how it should be."
+     ]
+    },
+    {
+     "lines": [
+      "Nineteen fifty-one. Right there, at the meeting of the rivers. A head like a bathtub.",
+      "The monster's still down there, you know. Waiting. Getting bigger. Like my stories."
+     ]
+    }
+   ],
+   "sleepy": [
+    "Zzz… a head like a bathtub… two bathtubs…"
+   ],
+   "topics": [
+    {
+     "id": "monster",
+     "label": "Tell me about the monster.",
+     "lines": [
+      "The catfish. Big as a boat, whiskers like a mayor. Every flood, he comes up for a look.",
+      "Three people saw him in the main street this time. Swimming past the bar. Rina says it was a log. Rina wasn't looking."
+     ]
+    },
+    {
+     "id": "mattia",
+     "label": "And your nephew?",
+     "lines": [
+      "Mattia. Fifteen. Doesn't believe in anything he can't see on television.",
+      "But he comes fishing with me every day. Says it's for the fresh air. It's for the monster. He just doesn't know it yet."
+     ]
+    }
+   ],
+   "gifts": [
+    {
+     "hearts": 4,
+     "items": {
+      "fish": 3
+     },
+     "line": "For your supper. Not the monster. Don't worry."
+    }
+   ]
+  },
+  {
+   "id": "river_town_mattia",
+   "name": "Mattia Bergonzi",
+   "title": "Gildo's nephew",
+   "likes": [
+    "river_town_fried_fish",
+    "river_town_sbrisolona",
+    "coins"
+   ],
+   "voice": 1.2,
+   "appearance": {
+    "skin": "#e0b08a",
+    "eyeShape": "wide",
+    "eyeColor": "#2a2a2a",
+    "hair": "spiky",
+    "hairColor": "#2a2420",
+    "mouth": "cat",
+    "top": "tee",
+    "topColor": "#2f5f9e",
+    "bottom": "pants",
+    "bottomColor": "#4a5a7a",
+    "shoes": "sneakers",
+    "shoesColor": "#f4f1ea",
+    "hat": "beanie",
+    "hatColor": "#e0b04a",
+    "accessory": "backpack"
+   },
+   "home": "river_town_shack:spot",
+   "schedule": [
+    [
+     9,
+     13,
+     "main4",
+     "idle"
+    ],
+    [
+     14,
+     18,
+     "fishing",
+     "idle"
+    ],
+    [
+     18,
+     21,
+     "piazza",
+     "idle"
+    ]
+   ],
+   "when": [
+    {
+     "flag": "river_town_flood_over",
+     "schedule": [
+      [
+       9,
+       13,
+       "main4",
+       "idle"
+      ],
+      [
+       14,
+       18,
+       "fishing",
+       "idle"
+      ],
+      [
+       18,
+       20,
+       "piazza",
+       "idle"
+      ],
+      [
+       20,
+       22,
+       "hallE",
+       "idle"
+      ]
+     ]
+    },
+    {
+     "flag": "river_town_storm",
+     "schedule": [
+      [
+       9,
+       19,
+       "piazza",
+       "idle"
+      ],
+      [
+       19,
+       24,
+       "stormG",
+       "idle"
+      ]
+     ]
+    },
+    {
+     "flag": "river_town_hall_ready",
+     "schedule": [
+      [
+       9,
+       13,
+       "main4",
+       "idle"
+      ],
+      [
+       14,
+       18,
+       "fishing",
+       "idle"
+      ],
+      [
+       18,
+       20,
+       "piazza",
+       "idle"
+      ],
+      [
+       20,
+       22,
+       "hallE",
+       "idle"
+      ]
+     ]
+    }
+   ],
+   "greetings": [
+    {
+     "flag": "river_town_monster_seen",
+     "lines": [
+      "I've got the photo. It's real. Nobody believes it. Even I don't believe it, and I took it."
+     ]
+    },
+    {
+     "lines": [
+      "Uncle Gildo says there's a monster. There isn't. I just come for the… air.",
+      "My Walkman's full of river water. Now every song sounds like it's underwater. It's actually quite good."
+     ]
+    }
+   ],
+   "sleepy": [
+    "Zzz… it's not real… it's not… real…"
+   ],
+   "topics": [
+    {
+     "id": "monster",
+     "label": "Do you believe in the monster?",
+     "lines": [
+      "No. Obviously. Catfish don't get that big.",
+      "…How big do catfish get, though? Asking for my uncle."
+     ]
+    }
+   ],
+   "gifts": [
+    {
+     "hearts": 3,
+     "items": {
+      "coins": 4
+     },
+     "line": "Found it in the mud. It's yours. Don't tell my uncle, he'll say the monster dropped it."
+    }
+   ]
+  },
+  {
+   "id": "river_town_wanda",
+   "name": "Wanda Tacconi",
+   "title": "Signora, \"la Regina del Liscio\"",
+   "likes": [
+    "flowers",
+    "river_town_zabaglione",
+    "fabric"
+   ],
+   "voice": 1.1,
+   "appearance": {
+    "skin": "#e8b896",
+    "eyeShape": "sparkle",
+    "eyeColor": "#3a2a1e",
+    "hair": "curly",
+    "hairColor": "#b5452a",
+    "mouth": "grin",
+    "top": "sweater",
+    "topColor": "#c86aa8",
+    "bottom": "skirt",
+    "bottomColor": "#3a2a4a",
+    "shoes": "sandals",
+    "shoesColor": "#c0392b",
+    "hat": "bow",
+    "hatColor": "#f2c53a",
+    "accessory": "none"
+   },
+   "home": "river_town_house1:spot",
+   "schedule": [
+    [
+     9,
+     12,
+     "floodEast",
+     "idle"
+    ],
+    [
+     12,
+     14,
+     "terraceA",
+     "idle"
+    ],
+    [
+     14,
+     18,
+     "danceDoor",
+     "idle"
+    ],
+    [
+     18,
+     22,
+     "leveeMid",
+     "idle"
+    ]
+   ],
+   "when": [
+    {
+     "flag": "river_town_flood_over",
+     "schedule": [
+      [
+       9,
+       12,
+       "river_town_house1:spot",
+       "idle"
+      ],
+      [
+       12,
+       14,
+       "terraceA",
+       "idle"
+      ],
+      [
+       14,
+       24,
+       "river_town_dance_hall:spot",
+       "work"
+      ]
+     ]
+    },
+    {
+     "flag": "river_town_storm",
+     "schedule": [
+      [
+       9,
+       19,
+       "river_town_house1:spot",
+       "idle"
+      ],
+      [
+       19,
+       24,
+       "leveeMid",
+       "idle"
+      ]
+     ]
+    },
+    {
+     "flag": "river_town_hall_ready",
+     "schedule": [
+      [
+       9,
+       12,
+       "river_town_house1:spot",
+       "idle"
+      ],
+      [
+       12,
+       14,
+       "terraceA",
+       "idle"
+      ],
+      [
+       14,
+       24,
+       "river_town_dance_hall:spot",
+       "work"
+      ]
+     ]
+    }
+   ],
+   "greetings": [
+    {
+     "flag": "river_town_hall_open",
+     "lines": [
+      "One, two, three, one, two, three. The parquet sings again, Geometra.",
+      "Every Saturday. Every Saturday until I'm a hundred."
+     ]
+    },
+    {
+     "lines": [
+      "My parquet. My beautiful parquet. Under a metre of river.",
+      "Regional champion, nineteen sixty-eight. Waltz, polka and mazurka. I still have the shoes. I'm wearing them.",
+      "Dance with me later. Not now. Now I'm grieving."
+     ]
+    }
+   ],
+   "sleepy": [
+    "Zzz… one, two, three… one, two, three…"
+   ],
+   "topics": [
+    {
+     "id": "hall",
+     "label": "Tell me about your dance hall.",
+     "lines": [
+      "Built on stilts in nineteen fifty-two, so the river could pass underneath. The river disagreed.",
+      "Every Saturday the whole valley came. Farmers, bakers, the girls from the rice fields, boys on bicycles with their hair combed flat.",
+      "Now it's mud and broken windows and a smell I won't describe."
+     ]
+    },
+    {
+     "id": "champion",
+     "label": "Were you really a champion?",
+     "lines": [
+      "Regional. Nineteen sixty-eight. My partner had two left feet, so I danced for both of us.",
+      "The trophy was on the bar in the hall. The flood took it. Somewhere out there is a little gold couple, dancing in the mud."
+     ]
+    }
+   ],
+   "gifts": [
+    {
+     "hearts": 4,
+     "items": {
+      "fabric": 3
+     },
+     "line": "Velvet from the old curtains. The good bits. Make something that sways."
+    }
+   ]
+  },
+  {
+   "id": "river_town_rina",
+   "name": "Rina Daccò",
+   "title": "\"la Rina\", the bar",
+   "likes": [
+    "river_town_pioppino",
+    "coins",
+    "flowers"
+   ],
+   "voice": 1.05,
+   "appearance": {
+    "skin": "#d9a37a",
+    "eyeShape": "round",
+    "eyeColor": "#2a2a2a",
+    "hair": "bob",
+    "hairColor": "#2a2420",
+    "mouth": "smile",
+    "top": "tunic",
+    "topColor": "#2a2a2a",
+    "bottom": "pants",
+    "bottomColor": "#2a2a30",
+    "shoes": "boots",
+    "shoesColor": "#3a4a3a",
+    "hat": "none",
+    "hatColor": "#2a2a2a",
+    "accessory": "none"
+   },
+   "home": "river_town_bar:spot",
+   "schedule": [
+    [
+     6,
+     23,
+     "river_town_bar:spot",
+     "work"
+    ]
+   ],
+   "when": [
+    {
+     "flag": "river_town_flood_over",
+     "schedule": [
+      [
+       6,
+       20,
+       "river_town_bar:spot",
+       "work"
+      ],
+      [
+       20,
+       23,
+       "hallA",
+       "idle"
+      ]
+     ]
+    },
+    {
+     "flag": "river_town_storm",
+     "schedule": [
+      [
+       6,
+       19,
+       "river_town_bar:spot",
+       "work"
+      ],
+      [
+       19,
+       24,
+       "stormA",
+       "idle"
+      ]
+     ]
+    },
+    {
+     "flag": "river_town_hall_ready",
+     "schedule": [
+      [
+       6,
+       20,
+       "river_town_bar:spot",
+       "work"
+      ],
+      [
+       20,
+       23,
+       "hallA",
+       "idle"
+      ]
+     ]
+    }
+   ],
+   "greetings": [
+    {
+     "flag": "river_town_piazza_drained",
+     "lines": [
+      "Dry feet. Do you know how long it's been? Coffee's on the house. Once.",
+      "The card tables are back. So are the arguments. Everything's normal."
+     ]
+    },
+    {
+     "lines": [
+      "Coffee? Mind the water. Mind it more than that. There.",
+      "Rubber boots and an espresso machine. Nobody trains you for this.",
+      "I know everything that happens in this town. Usually before it happens."
+     ]
+    }
+   ],
+   "sleepy": [
+    "Zzz… two coffees, one with grappa… no grappa before ten…"
+   ],
+   "topics": [
+    {
+     "id": "gossip",
+     "label": "Any news?",
+     "lines": [
+      "Primo has told the 1953 story four times this week. It gets longer every time. He's now passing two champions.",
+      "Gildo says the monster swam past my door during the flood. It was a log. I was looking.",
+      "Ermes reads the gauge even when it's raining sideways. Especially then."
+     ]
+    },
+    {
+     "id": "tickets",
+     "label": "You sell train tickets?",
+     "lines": [
+      "The station has no ticket office since ninety-two. The railway asked the nearest bar. That's me.",
+      "The valley train goes up into the mountains. When it goes. It's been a while."
+     ]
+    }
+   ],
+   "gifts": [
+    {
+     "hearts": 4,
+     "items": {
+      "river_town_sbrisolona": 2
+     },
+     "line": "Sbrisolona. Break it with your hands. If I see a knife, you're banned."
+    }
+   ]
+  },
+  {
+   "id": "river_town_ines",
+   "name": "Ines Gandini",
+   "title": "Sawmill owner",
+   "likes": [
+    "wood",
+    "river_town_log",
+    "river_town_goose_sandwich"
+   ],
+   "voice": 0.95,
+   "appearance": {
+    "skin": "#e0b08a",
+    "eyeShape": "round",
+    "eyeColor": "#3a2a1e",
+    "hair": "ponytail",
+    "hairColor": "#8a7a6a",
+    "mouth": "calm",
+    "top": "jacket",
+    "topColor": "#b5452a",
+    "bottom": "pants",
+    "bottomColor": "#3a4a5a",
+    "shoes": "boots",
+    "shoesColor": "#5a4030",
+    "hat": "none",
+    "hatColor": "#2a2a2a",
+    "accessory": "glasses"
+   },
+   "home": "river_town_house7:spot",
+   "schedule": [
+    [
+     7,
+     12,
+     "sawmillDoor",
+     "work"
+    ],
+    [
+     12,
+     13,
+     "eastBank",
+     "idle"
+    ],
+    [
+     13,
+     18,
+     "sawmillDoor",
+     "work"
+    ],
+    [
+     18,
+     21,
+     "terraceB",
+     "idle"
+    ]
+   ],
+   "when": [
+    {
+     "flag": "river_town_flood_over",
+     "schedule": [
+      [
+       7,
+       12,
+       "sawmillDoor",
+       "work"
+      ],
+      [
+       12,
+       13,
+       "eastBank",
+       "idle"
+      ],
+      [
+       13,
+       18,
+       "sawmillDoor",
+       "work"
+      ],
+      [
+       18,
+       20,
+       "terraceB",
+       "idle"
+      ],
+      [
+       20,
+       22,
+       "hallH",
+       "idle"
+      ]
+     ]
+    },
+    {
+     "flag": "river_town_storm",
+     "schedule": [
+      [
+       7,
+       19,
+       "sawmillDoor",
+       "work"
+      ],
+      [
+       19,
+       24,
+       "stormD",
+       "idle"
+      ]
+     ]
+    },
+    {
+     "flag": "river_town_hall_ready",
+     "schedule": [
+      [
+       7,
+       12,
+       "sawmillDoor",
+       "work"
+      ],
+      [
+       12,
+       13,
+       "eastBank",
+       "idle"
+      ],
+      [
+       13,
+       18,
+       "sawmillDoor",
+       "work"
+      ],
+      [
+       18,
+       20,
+       "terraceB",
+       "idle"
+      ],
+      [
+       20,
+       22,
+       "hallH",
+       "idle"
+      ]
+     ]
+    }
+   ],
+   "greetings": [
+    {
+     "flag": "river_town_logs_back",
+     "lines": [
+      "Six logs home. Dried, stacked, counted twice. Thank you, Geometra.",
+      "Poplar's honest wood. Light, straight, quick to grow. A lot like me, my husband used to say. He meant the quick part."
+     ]
+    },
+    {
+     "lines": [
+      "Mind the saw. Mind the logs. Mind your feet.",
+      "The flood took six of my best logs downriver. Six. I counted the empty spaces."
+     ]
+    }
+   ],
+   "sleepy": [
+    "Zzz… measure twice… cut once… measure again…"
+   ],
+   "topics": [
+    {
+     "id": "sawmill",
+     "label": "How long has the sawmill been here?",
+     "lines": [
+      "My husband built it in seventy-one. I ran the books, then I ran the saw, then I ran everything.",
+      "We plant a poplar for every one we cut. Ten years and they're as tall as the church."
+     ]
+    },
+    {
+     "id": "logs",
+     "label": "Where did your logs go?",
+     "lines": [
+      "Downriver, mostly. Some only as far as the willows. One's under Wanda's dance hall, I'd bet my glasses on it."
+     ]
+    }
+   ],
+   "gifts": [
+    {
+     "hearts": 4,
+     "items": {
+      "wood": 8
+     },
+     "line": "Offcuts. Good for small things. Don't waste them."
+    }
+   ]
+  },
+  {
+   "id": "river_town_pierina",
+   "name": "Pierina Arrigoni",
+   "title": "Postwoman",
+   "likes": [
+    "river_town_zabaglione",
+    "flowers",
+    "river_town_sbrisolona"
+   ],
+   "voice": 1.0,
+   "appearance": {
+    "skin": "#e8b896",
+    "eyeShape": "happy",
+    "eyeColor": "#3a2a1e",
+    "hair": "bun",
+    "hairColor": "#a8a49c",
+    "mouth": "smile",
+    "top": "jacket",
+    "topColor": "#f2c53a",
+    "bottom": "skirt",
+    "bottomColor": "#3a4a6a",
+    "shoes": "sneakers",
+    "shoesColor": "#3a3a40",
+    "hat": "captain",
+    "hatColor": "#f2c53a",
+    "accessory": "backpack"
+   },
+   "home": "river_town_pierina_house:spot",
+   "schedule": [
+    [
+     7,
+     9,
+     "laneN2",
+     "idle"
+    ],
+    [
+     9,
+     11,
+     "piazzaW",
+     "idle"
+    ],
+    [
+     11,
+     13,
+     "stationDoor",
+     "idle"
+    ],
+    [
+     13,
+     18,
+     "river_town_pierina_house:spot",
+     "idle"
+    ],
+    [
+     18,
+     21,
+     "barDoor",
+     "idle"
+    ]
+   ],
+   "when": [
+    {
+     "flag": "river_town_flood_over",
+     "schedule": [
+      [
+       7,
+       9,
+       "laneN2",
+       "idle"
+      ],
+      [
+       9,
+       11,
+       "piazzaW",
+       "idle"
+      ],
+      [
+       11,
+       13,
+       "stationDoor",
+       "idle"
+      ],
+      [
+       13,
+       18,
+       "river_town_pierina_house:spot",
+       "idle"
+      ],
+      [
+       18,
+       20,
+       "barDoor",
+       "idle"
+      ],
+      [
+       20,
+       22,
+       "hallC",
+       "idle"
+      ]
+     ]
+    },
+    {
+     "flag": "river_town_storm",
+     "schedule": [
+      [
+       7,
+       19,
+       "river_town_pierina_house:spot",
+       "idle"
+      ],
+      [
+       19,
+       24,
+       "stormH",
+       "idle"
+      ]
+     ]
+    },
+    {
+     "flag": "river_town_hall_ready",
+     "schedule": [
+      [
+       7,
+       9,
+       "laneN2",
+       "idle"
+      ],
+      [
+       9,
+       11,
+       "piazzaW",
+       "idle"
+      ],
+      [
+       11,
+       13,
+       "stationDoor",
+       "idle"
+      ],
+      [
+       13,
+       18,
+       "river_town_pierina_house:spot",
+       "idle"
+      ],
+      [
+       18,
+       20,
+       "barDoor",
+       "idle"
+      ],
+      [
+       20,
+       22,
+       "hallC",
+       "idle"
+      ]
+     ]
+    }
+   ],
+   "greetings": [
+    {
+     "lines": [
+      "Post! Nothing for you, but post. I stop for a coffee at every door, so it takes all morning. Thirty-one years, never lost a letter.",
+      "The Signora Wanda got a postcard from her sister in Rimini. It says the sea is lovely. I'm only telling you because it was very short."
+     ]
+    }
+   ],
+   "sleepy": [
+    "Zzz… number fourteen… number sixteen… no number fifteen…"
+   ],
+   "topics": [
+    {
+     "id": "round",
+     "label": "How's the post round?",
+     "lines": [
+      "Slow and steady. Every door, every day, every coffee.",
+      "Since the flood half the letters are from the insurance. I read the envelopes so people know what's coming."
+     ]
+    },
+    {
+     "id": "news",
+     "label": "What's the news?",
+     "lines": [
+      "Ermes wrote to the river authority again. Four pages. They'll write back in March.",
+      "Somebody's cuckoo clock was seen up a willow. It still cuckoos. On the hour. Very upsetting for the herons."
+     ]
+    }
+   ],
+   "gifts": [
+    {
+     "hearts": 4,
+     "items": {
+      "flowers": 3
+     },
+     "line": "From my window box. The flood didn't reach the second floor. I checked."
+    }
+   ]
+  }
+ ]
+}

@@ -44,8 +44,12 @@ func ready(n: Dictionary) -> bool:
 	if n.kind == "fragment" and not state().flags.get("hasTool", false): return false
 	return not (s.get("ready_at", -1.0) > now())
 
+## Chests, metal-detector spots and nodes marked "once" (a particular lost thing) are gone for good once taken;
+## the rest grow back.
+static func regrows(n: Dictionary) -> bool: return not (n.kind in ["chest", "dig"] or n.get("once", false))
+
 func deplete(n: Dictionary) -> void:
-	if n.kind in ["chest", "dig"]: state().nodes[n.id] = {"done": true}
+	if not regrows(n): state().nodes[n.id] = {"done": true}
 	else: state().nodes[n.id] = {"ready_at": now() + REGROW.get(n.kind, 300.0)}
 	refresh_node(n)
 

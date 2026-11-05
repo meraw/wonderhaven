@@ -110,3 +110,26 @@ func test_a_location_can_have_its_own_meter():
 	t.eq(LocationMeter.points(s, "anywhere"), 42, "points add up per location")
 	t.eq(LocationMeter.points(SaveSystem.deserialize(SaveSystem.serialize(s)), "anywhere"), 42, "and survive a save")
 	t.ok(LocationMeter.def("hearthglow").is_empty(), "Monteforchetta keeps the approval rating")
+
+func test_a_place_can_change_with_the_story():
+	t.eq(Data.world_flags_of("hearthglow", {"river_town_launched": true}), {}, "a place without WORLD_FLAGS never changes")
+	t.eq(Data.world_flags_of("river_town", {"river_town_launched": true, "hasTool": true}), {"river_town_launched": true}, "only the flags its location script lists reshape it")
+	var before = Data.layout
+	Data.apply_world_flags({"hasTool": true, "river_town_launched": true})
+	t.ok(is_same(Data.layout, before), "flags that don't reshape the place you're on leave its layout alone")
+
+func test_a_particular_lost_thing_is_found_once():
+	t.ok(WorldActions.regrows({"kind": "clay"}) and WorldActions.regrows({"kind": "fragment"}), "clay pits and the shared lost things come back")
+	t.ok(not WorldActions.regrows({"kind": "fragment", "once": true}) and not WorldActions.regrows({"kind": "chest"}), "a node marked once, like a chest, is gone for good")
+
+func test_villagers_walk_across_what_you_bridged():
+	var had := Data.layout.has("crossings")
+	var saved = Data.layout.get("crossings")
+	Data.layout["crossings"] = [{"a": "zzWest", "b": "zzEast", "zone": "zz_bridge"}]
+	var built := {"zz_bridge": [[3, 1], [4, 1], [5, 2]]}
+	t.eq(Schedule.crossing("zzWest", "zzEast", built), [Vector2(3.5, 1.5), Vector2(4.5, 1.5), Vector2(5.5, 2.5)], "from the a side to the b side, cell by cell")
+	t.eq(Schedule.crossing("zzEast", "zzWest", built)[0], Vector2(5.5, 2.5), "and back the other way")
+	t.eq(Schedule.crossing("zzWest", "zzElsewhere", built), [], "not on other paths")
+	t.eq(Schedule.crossing("zzWest", "zzEast", {}), [], "nor before anything is built there")
+	if had: Data.layout["crossings"] = saved
+	else: Data.layout.erase("crossings")

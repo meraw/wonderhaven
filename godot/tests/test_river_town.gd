@@ -94,7 +94,16 @@ func test_build_zones_fit_their_jobs():
 		for i in range(works.minI, works.maxI + 1):
 			for k in range(works.minK, works.maxK + 1): if Heightfield.is_stream_cell(i, k): flowing += 1
 		t.ok(flowing >= 4, "the pump works reach the Alpine river, where a waterwheel turns (%d cells)" % flowing)
-		t.ok(BuildGrid.zone_contains(works, floor(RT.SUMP.x), floor(RT.SUMP.y), 999), "the pump works include the piazza's sump")
+		var pump: Dictionary = Data.layout.machines.filter(func(m): return m.id == "river_town_pump")[0]
+		t.ok(BuildGrid.zone_contains(works, pump.cell[0], pump.cell[1], 999), "the pump works include the pumping house's drive")
+		# a waterwheel in the first flowing cell east of the drive, and shafts across the quay: each step down to the
+		# wheel within what connects (Mechanics: 0.7)
+		var wheel_i: int = pump.cell[0]
+		while not Heightfield.is_stream_cell(wheel_i, pump.cell[1]): wheel_i += 1
+		var dry := true
+		for i in range(pump.cell[0], wheel_i): dry = dry and BuildGrid.ground_at(i, pump.cell[1]) >= Heightfield.WALKABLE_MIN
+		var drop := BuildGrid.ground_at(wheel_i - 1, pump.cell[1]) - BuildGrid.suggest_bottom("waterwheel", wheel_i, pump.cell[1], 1, 0.0, [])
+		t.ok(dry and drop <= 0.7 and BuildGrid.zone_contains(works, wheel_i, pump.cell[1], 999), "the quay runs dry from the drive to the river, and a shaft there meets a waterwheel (%.2f m)" % drop)
 		var breach := Data.zone("river_town_breach")
 		t.ok(breach.minI <= RT.BREACH.x and breach.maxI + 1 >= RT.BREACH.y, "the breach zone spans the whole gap")
 		var moor := Data.zone("river_town_mooring")
@@ -111,6 +120,7 @@ func test_every_nav_edge_is_walkable():
 		var w := WalkWorld.new(WorldStatics.build_statics(WorldStatics.generate_decor()), func(_f): return true)
 		var nodes: Dictionary = Data.layout.nav_nodes
 		for e in Data.layout.nav_edges:
+			if e.size() > 2: continue   # opens with the story (the pontoon bridge): the playthrough walks it once it's built
 			var a: Array = nodes[e[0]]; var b: Array = nodes[e[1]]
 			var steps := maxi(1, int(Vector2(b[0] - a[0], b[1] - a[1]).length() / 0.2))
 			var feet := Heightfield.height(a[0], a[1])

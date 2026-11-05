@@ -1,0 +1,1537 @@
+{
+ "_comment": "Boccapioppo's requests (docs/locations/river_town.md, Requests).",
+ "quests": [
+  {
+   "id": "river_town_welcome",
+   "title": "Straight to Work",
+   "giver": "river_town_ermes",
+   "main": true,
+   "type": "request",
+   "chapter": 1,
+   "description": "The levee warden meets your bus with a shovel. Fill sandbags at the sandbank for the patch in the breach, have a coffee at Rina's, and find the houseboat you'll sleep in.",
+   "requires": {},
+   "objectives": [
+    {
+     "id": "sand",
+     "kind": "gather",
+     "stage": 0,
+     "text": "Dig 5 sand at the sandbank on the Po",
+     "item": "river_town_sand",
+     "count": 5,
+     "hint": {
+      "x": 6,
+      "z": 40
+     }
+    },
+    {
+     "id": "patch",
+     "kind": "pay",
+     "stage": 1,
+     "text": "Bring Ermes the sand for the patch",
+     "npc": "river_town_ermes",
+     "items": {
+      "river_town_sand": 5
+     },
+     "lines": [
+      "Good. That'll hold the breach till Tuesday. Maybe Wednesday."
+     ]
+    },
+    {
+     "id": "coffee",
+     "kind": "talk",
+     "stage": 2,
+     "text": "Have a coffee at Rina's bar on the piazza",
+     "npc": "river_town_rina",
+     "lines": [
+      "So you're the Geometra. Sit. No, stand, the chairs are wet. Coffee.",
+      "Everyone's staring because you're new and dry. It'll pass. The dry part, anyway.",
+      "Your houseboat's down on the floodplain, past the levee. The flood left it on the mud. It's dry inside. Mostly."
+     ]
+    },
+    {
+     "id": "settled",
+     "kind": "talk",
+     "stage": 3,
+     "text": "Tell Ermes you've found your way around",
+     "npc": "river_town_ermes",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "meter": 100,
+    "items": {
+     "coins": 20
+    },
+    "flags": [
+     "river_town_welcomed"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "You. The Geometra. Good. Here's a shovel.",
+     "The river came over at the weak spot a month ago. Seven metres forty at the gauge. We've patched the breach with sandbags, and the patch is sulking.",
+     "Five bags of sand from the sandbank, now. I'll explain on the way. Or I won't. We'll see."
+    ],
+    "acceptLabel": "Take the shovel",
+    "declineLabel": "Let me put my suitcase down first",
+    "accept": [
+     "The sandbank's down past the levee, where the Po makes a beach. Dig. Bring it to me.",
+     "On the way you'll see the piazza. It's still a pond. Don't fall in, it's mostly coffee."
+    ],
+    "decline": [
+     "Suitcase. Fine. The river doesn't wait, but I can. For a minute."
+    ],
+    "progress": [
+     "Sand first. Then me. Then coffee at Rina's. Then you'll know everything I know, minus forty years."
+    ],
+    "complete": [
+     "Three hundred and forty centimetres at eight o'clock, and going down. Now you've got a job, a boat and Rina's opinion of you.",
+     "Welcome to Boccapioppo, Geometra. Mind the river. It's watching."
+    ]
+   },
+   "onAccept": {
+    "flags": [
+     "hasTool"
+    ],
+    "items": {
+     "coins": 5
+    }
+   }
+  },
+  {
+   "id": "river_town_bridge",
+   "title": "The Pontoon Bridge",
+   "giver": "river_town_tullio",
+   "main": true,
+   "type": "request",
+   "chapter": 1,
+   "description": "The flood sank Tullio's ferry, and the town's way across the Alpine river went with it. Gather materials, get the Pontoon plans from Ines at the sawmill across the Roman bridge, then moor a row of pontoons from bank to bank and add railings.",
+   "requires": {
+    "quests": [
+     "river_town_welcome"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "wood",
+     "kind": "gather",
+     "stage": 0,
+     "text": "Gather 16 wood (poplars on the east bank, over the Roman bridge)",
+     "item": "wood",
+     "count": 16,
+     "hint": {
+      "x": 46,
+      "z": -30
+     }
+    },
+    {
+     "id": "clay",
+     "kind": "gather",
+     "stage": 0,
+     "text": "Dig 6 clay from the flood silt, to caulk the boats",
+     "item": "clay",
+     "count": 6,
+     "hint": {
+      "x": -12,
+      "z": 30
+     }
+    },
+    {
+     "id": "metal",
+     "kind": "gather",
+     "stage": 0,
+     "text": "Get 2 metal for the chains (Primo sells it)",
+     "item": "metal",
+     "count": 2,
+     "hint": {
+      "x": 7,
+      "z": -11
+     }
+    },
+    {
+     "id": "plans",
+     "kind": "talk",
+     "stage": 1,
+     "text": "Ask Ines at the sawmill for the Pontoon plans",
+     "npc": "river_town_ines",
+     "lines": [
+      "Pontoons? Tullio wants a bridge of boats. Of course he does. His grandfather had one.",
+      "Here are the plans. Flat-bottomed, tarred, chained bow to stern. Moor them on the water side by side, from one bank to the other.",
+      "Then planks on top if you're fussy. Tullio isn't fussy. Railings, though. Nobody wants to swim home from the bar."
+     ],
+     "onDone": {
+      "blueprints": [
+       "pontoon"
+      ]
+     }
+    },
+    {
+     "id": "build",
+     "kind": "build",
+     "stage": 2,
+     "text": "Moor pontoons from bank to bank at the old ferry crossing",
+     "check": "path:river_town_bridge",
+     "zone": "river_town_bridge",
+     "goal": "A continuous walkable path across the river",
+     "buildHint": "Pontoons float on open water; walk on them, or lay planks on top.",
+     "hint": {
+      "x": 31,
+      "z": 13
+     }
+    },
+    {
+     "id": "rails",
+     "kind": "pieces",
+     "stage": 3,
+     "text": "Add 4 railings along the bridge",
+     "zone": "river_town_bridge",
+     "any": [
+      "railing"
+     ],
+     "count": 4,
+     "buildHint": "Railings sit on the edge of a tile; R turns them.",
+     "hint": {
+      "x": 31,
+      "z": 13
+     }
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "stage": 4,
+     "text": "Tell Tullio his bridge is ready",
+     "npc": "river_town_tullio",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "meter": 100,
+    "items": {
+     "coins": 40
+    },
+    "blueprints": [
+     "bridgePost"
+    ],
+    "flags": [
+     "river_town_bridge_open"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "River took my boat.",
+     "…",
+     "Boats side by side. Planks on top. My grandfather's bridge.",
+     "Build it?"
+    ],
+    "acceptLabel": "I'll build you a bridge of boats",
+    "declineLabel": "Not yet",
+    "accept": [
+     "Good.",
+     "Wood. Clay for the seams. Metal for chains. Ines has the plans. Over the old bridge."
+    ],
+    "decline": [
+     "…Fine."
+    ],
+    "progress": [
+     "Wood, clay, metal. Ines. Pontoons. Railings.",
+     "In that order."
+    ],
+    "complete": [
+     "…",
+     "Forty years I rowed. Now they walk across. Singing.",
+     "Thank you, Geometra. That's eleven words today. Don't get used to it."
+    ]
+   },
+   "onAccept": {
+    "blueprints": [
+     "bridgeDeck",
+     "railing"
+    ],
+    "items": {
+     "wood": 4
+    }
+   }
+  },
+  {
+   "id": "river_town_piazza",
+   "title": "Pump Out the Piazza",
+   "giver": "river_town_rina",
+   "main": true,
+   "type": "request",
+   "chapter": 1,
+   "description": "The piazza is still a pond and Rina serves coffee in rubber boots. The old drainage pumping house on the levee's river side can empty it through its pipe under the levee, if something turns its pump. Gather the parts, then turn its drive with a waterwheel in the Alpine river.",
+   "requires": {
+    "quests": [
+     "river_town_bridge"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "metal",
+     "kind": "gather",
+     "stage": 0,
+     "text": "Get 3 metal for the gears (Primo sells it)",
+     "item": "metal",
+     "count": 3,
+     "hint": {
+      "x": 7,
+      "z": -11
+     }
+    },
+    {
+     "id": "wood",
+     "kind": "gather",
+     "stage": 0,
+     "text": "Gather 8 wood for the waterwheel and shafts",
+     "item": "wood",
+     "count": 8,
+     "hint": {
+      "x": 46,
+      "z": -26
+     }
+    },
+    {
+     "id": "look",
+     "kind": "talk",
+     "stage": 1,
+     "text": "Ask Ermes about the old pumping house",
+     "npc": "river_town_ermes",
+     "lines": [
+      "The pumping house. Nineteen thirty-four. It drained the piazza through a pipe under the levee, into the river.",
+      "The pump's fine. The engine drowned. But the Alpine river runs fast past its quay, and fast water turns wheels.",
+      "Put a waterwheel in the current, carry the turning across the quay to the drive by its east wall. The pump does the rest."
+     ]
+    },
+    {
+     "id": "power",
+     "kind": "build",
+     "stage": 2,
+     "text": "Turn the pumping house's drive with a waterwheel in the Alpine river",
+     "check": "fed:river_town_pump",
+     "zone": "river_town_works",
+     "goal": "Power reaches the drive by the pumping house's east wall",
+     "buildHint": "A waterwheel turns in the flowing river by the quay; shafts carry the turning to the drive. R turns pieces.",
+     "hint": {
+      "x": 25,
+      "z": 5.5
+     }
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "stage": 3,
+     "text": "Tell Rina her piazza is draining",
+     "npc": "river_town_rina",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "meter": 100,
+    "items": {
+     "coins": 50,
+     "river_town_sbrisolona": 2
+    },
+    "flags": [
+     "river_town_piazza_drained"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "See my feet? Rubber boots. Behind a bar. In my own piazza.",
+     "Ermes says the old pumping house by the levee could drain it, if anything turned the pump. Nothing has turned it since the war. The one before the last one.",
+     "Make it turn, Geometra. I'll name a coffee after you. It'll be a very strong one."
+    ],
+    "acceptLabel": "I'll get the pump turning",
+    "declineLabel": "Maybe later",
+    "accept": [
+     "Parts first. Primo has metal. The poplars across the river have wood.",
+     "Then ask Ermes, he knows that pump like his own knees."
+    ],
+    "decline": [
+     "Later. I'll be here. Standing in water."
+    ],
+    "progress": [
+     "Metal and wood, then Ermes, then the waterwheel. Then dry feet."
+    ],
+    "complete": [
+     "Listen. That's the pump. Hear the piazza gurgling? That's the most beautiful sound since the flood.",
+     "Dry cobbles by tonight. The card tables go back out tomorrow. Sbrisolona, on the house. Break it with your hands."
+    ]
+   },
+   "onAccept": {
+    "blueprints": [
+     "waterwheel",
+     "shaft",
+     "gear"
+    ],
+    "items": {
+     "wood": 4,
+     "metal": 1
+    }
+   }
+  },
+  {
+   "id": "river_town_dancehall",
+   "title": "Saturday at the Dance Hall",
+   "giver": "river_town_wanda",
+   "main": true,
+   "type": "request",
+   "chapter": 1,
+   "description": "Wanda's dance hall on stilts is mud and broken glass. Gather materials and fit it out: a dance floor, a stage, lights, a bar, seats and a splash of colour. Pierina spreads the word, and after eight the whole town comes to dance.",
+   "requires": {
+    "quests": [
+     "river_town_piazza"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "wood",
+     "kind": "gather",
+     "stage": 0,
+     "text": "Gather 14 wood",
+     "item": "wood",
+     "count": 14,
+     "hint": {
+      "x": 46,
+      "z": -18
+     }
+    },
+    {
+     "id": "crystal",
+     "kind": "gather",
+     "stage": 0,
+     "text": "Get 2 copper wire for the lamps (Primo sells it)",
+     "item": "crystal",
+     "count": 2,
+     "hint": {
+      "x": 7,
+      "z": -11
+     }
+    },
+    {
+     "id": "hall",
+     "kind": "room",
+     "stage": 1,
+     "text": "Fit out the dance hall (B inside it)",
+     "zone": "river_town_hall",
+     "hint": {
+      "x": 16,
+      "z": 31.5
+     },
+     "needs": [
+      {
+       "any": [
+        "floor"
+       ],
+       "count": 6,
+       "label": "A dance floor (6 floor tiles)"
+      },
+      {
+       "any": [
+        "platform"
+       ],
+       "label": "A stage for the band"
+      },
+      {
+       "any": [
+        "lamp",
+        "poweredLamp",
+        "streetlight"
+       ],
+       "count": 2,
+       "label": "Two lamps"
+      },
+      {
+       "any": [
+        "counter"
+       ],
+       "label": "A bar counter"
+      },
+      {
+       "any": [
+        "chair",
+        "bench",
+        "sofa"
+       ],
+       "count": 3,
+       "label": "Three seats"
+      },
+      {
+       "recolored": true,
+       "label": "A splash of colour (T)"
+      }
+     ],
+     "onDone": {
+      "flags": [
+       "river_town_hall_ready"
+      ]
+     }
+    },
+    {
+     "id": "word",
+     "kind": "talk",
+     "stage": 2,
+     "text": "Ask Pierina to spread the word",
+     "npc": "river_town_pierina",
+     "lines": [
+      "A dance? Saturday? At the Signora Wanda's? I'll tell every door. With a coffee at each one, so give me till noon.",
+      "Everyone will come. Even Ermes, if you tell him the river's coming too."
+     ]
+    },
+    {
+     "id": "dance",
+     "kind": "talk",
+     "stage": 3,
+     "text": "Come to the first dance at Wanda's, after 8 in the evening",
+     "npc": "river_town_wanda",
+     "hours": [
+      20,
+      24
+     ],
+     "lines": [
+      "The band is tuning. The bulbs are lit. Look at them all, Geometra!",
+      "Ermes is tapping his foot and pretending he isn't. He says he's checking the floor is level.",
+      "The band is from Casalrana. They know three songs and play them all twice. Nobody minds.",
+      "One, two, three. One, two, three. Everyone's first waltz since the flood is with me. Come!"
+     ]
+    },
+    {
+     "id": "thanks",
+     "kind": "talk",
+     "stage": 4,
+     "text": "Thank Wanda for the evening",
+     "npc": "river_town_wanda",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "meter": 100,
+    "items": {
+     "coins": 50,
+     "river_town_zabaglione": 1
+    },
+    "blueprints": [
+     "sofa",
+     "painting"
+    ],
+    "flags": [
+     "river_town_hall_open"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "My parquet, Geometra. Under a metre of river, then a metre of mud, then a metre of tears. Mine.",
+     "Every Saturday since nineteen fifty-two, the whole valley danced here. Then the river came to the party uninvited.",
+     "Help me open again. A floor, a stage, lights, a bar, chairs. And colour. A dance hall without colour is a waiting room."
+    ],
+    "acceptLabel": "Let's open the dance hall",
+    "declineLabel": "Not tonight",
+    "accept": [
+     "Oh! Bless you. Here are some plans. And a hug. There.",
+     "Wood, and copper wire for the lights. Primo has wire. Then come in and make it beautiful."
+    ],
+    "decline": [
+     "Not tonight. That's what my partner said in sixty-eight. I won anyway."
+    ],
+    "progress": [
+     "Materials, then the hall. Floor, stage, two lamps, a bar, three seats, colour. Then Pierina. Then music."
+    ],
+    "complete": [
+     "What a night. My feet are thirty years old again. The rest of me is eighty, but the feet are thirty.",
+     "Every evening from now on, Geometra. The bulbs, the band, the whole valley. Thank you."
+    ]
+   },
+   "onAccept": {
+    "blueprints": [
+     "floor",
+     "platform",
+     "counter",
+     "lamp",
+     "chair",
+     "bench"
+    ],
+    "items": {
+     "wood": 4
+    }
+   }
+  },
+  {
+   "id": "river_town_levee",
+   "title": "Close the Breach",
+   "giver": "river_town_ermes",
+   "main": true,
+   "type": "request",
+   "chapter": 1,
+   "description": "The patch in the breach won't hold the next high water. Fill sandbags, gather stone and build a solid wall across the gap, as high as the levee's shoulders. Then wait on the levee through the storm night with the whole town, and see if it holds.",
+   "requires": {
+    "quests": [
+     "river_town_dancehall"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "sand",
+     "kind": "gather",
+     "stage": 0,
+     "text": "Dig 20 sand at the sandbank",
+     "item": "river_town_sand",
+     "count": 20,
+     "hint": {
+      "x": 6,
+      "z": 40
+     }
+    },
+    {
+     "id": "fabric",
+     "kind": "gather",
+     "stage": 0,
+     "text": "Get 10 fabric for the sacks (Rina's coffee sacks)",
+     "item": "fabric",
+     "count": 10,
+     "hint": {
+      "x": 6,
+      "z": -1
+     }
+    },
+    {
+     "id": "stone",
+     "kind": "gather",
+     "stage": 0,
+     "text": "Quarry 12 stone (boulders on the gravel bar)",
+     "item": "stone",
+     "count": 12,
+     "hint": {
+      "x": 34,
+      "z": -11
+     }
+    },
+    {
+     "id": "wall",
+     "kind": "build",
+     "stage": 1,
+     "text": "Build a solid wall across the breach, as high as the levee's shoulders",
+     "check": "sealed:river_town_breach",
+     "zone": "river_town_breach",
+     "goal": "No gap low enough for the river to get through",
+     "buildHint": "Stone blocks and sandbags stack. Fill the gap edge to edge, as high as the levee's shoulders.",
+     "hint": {
+      "x": 5,
+      "z": 22
+     },
+     "onDone": {
+      "flags": [
+       "river_town_wall_built"
+      ]
+     }
+    },
+    {
+     "id": "storm",
+     "kind": "talk",
+     "stage": 2,
+     "text": "Wait on the levee with Ermes for the storm (after 8 in the evening)",
+     "npc": "river_town_ermes",
+     "hours": [
+      20,
+      24
+     ],
+     "lines": [
+      "Feel that wind? The radio says the storm's coming over the mountains tonight. All of it, down both rivers.",
+      "Everyone's coming up on the levee. Nobody sleeps in Boccapioppo on a night like this.",
+      "Stand here. Watch the gauge with me."
+     ],
+     "onDone": {
+      "flags": [
+       "river_town_storm"
+      ],
+      "weather": {
+       "type": "rain",
+       "hours": 10
+      }
+     }
+    },
+    {
+     "id": "peak",
+     "kind": "talk",
+     "stage": 3,
+     "text": "Keep watch with Ermes past midnight, when the river peaks",
+     "npc": "river_town_ermes",
+     "hours": [
+      0,
+      5
+     ],
+     "lines": [
+      "Six metres ninety. Seven. Seven metres five.",
+      "Look at it push. Look at your wall. Not a drop.",
+      "Seven metres ten. Hold. Hold…",
+      "…It's turning. It's going down. It held, Geometra. It held."
+     ]
+    },
+    {
+     "id": "holds",
+     "kind": "talk",
+     "stage": 4,
+     "text": "Tell Ermes the wall held",
+     "npc": "river_town_ermes",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "meter": 100,
+    "items": {
+     "coins": 100
+    },
+    "blueprints": [
+     "statue"
+    ],
+    "flags": [
+     "river_town_flood_over"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "The patch is tired, Geometra. Sandbags on sandbags on hope.",
+     "The next high water will push it over like a sleepy cow. We need a real wall in that gap. Edge to edge, as high as the levee's shoulders.",
+     "Sand, sacks, stone. Then we build it. Then we wait for the river to try."
+    ],
+    "acceptLabel": "We'll close the breach",
+    "declineLabel": "Let me get ready first",
+    "accept": [
+     "Good. Here are the plans for the sandbags. Two sand and a sack each. Stack them, like my father did in fifty-one.",
+     "Rina has coffee sacks. Stone's on the gravel bar. Sand's where it always is."
+    ],
+    "decline": [
+     "Get ready. The river's getting ready too."
+    ],
+    "progress": [
+     "Sand, sacks, stone. Then a wall with no gaps in it. Not one. Water finds them all."
+    ],
+    "complete": [
+     "Seven metres ten at the peak, and not a drop over. My father would have shaken your hand. I'll do it for him.",
+     "Forty years I've watched this river. Tonight was the first night I wasn't afraid of it.",
+     "The flood's over. You can tell Rina to put the boots away for good."
+    ]
+   },
+   "onAccept": {
+    "blueprints": [
+     "sandbags",
+     "stoneBlock",
+     "foundation"
+    ],
+    "items": {
+     "river_town_sand": 4,
+     "fabric": 2
+    }
+   }
+  },
+  {
+   "id": "river_town_houseboat",
+   "title": "A Roof That Floats",
+   "giver": "river_town_ermes",
+   "main": false,
+   "type": "request",
+   "chapter": 1,
+   "description": "The houseboat you sleep in is stranded on the mud. Patch its hull, build a slipway from beside the boat down into the backwater, launch it at dawn with half the town hauling on the ropes, then make the cabin cosy.",
+   "requires": {
+    "quests": [
+     "river_town_welcome"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "wood",
+     "kind": "gather",
+     "stage": 0,
+     "text": "Gather 8 wood for the hull and the slipway",
+     "item": "wood",
+     "count": 8,
+     "hint": {
+      "x": 46,
+      "z": -26
+     }
+    },
+    {
+     "id": "clay",
+     "kind": "gather",
+     "stage": 0,
+     "text": "Dig 4 clay from the flood silt for the seams",
+     "item": "clay",
+     "count": 4,
+     "hint": {
+      "x": -30,
+      "z": 31
+     }
+    },
+    {
+     "id": "caulk",
+     "kind": "talk",
+     "stage": 1,
+     "text": "Ask Tullio to help caulk the hull",
+     "npc": "river_town_tullio",
+     "lines": [
+      "Boat?",
+      "…Good hull. Old wood. Clay in the seams. Tar over.",
+      "Done. She'll float. Build her a way down to the water."
+     ]
+    },
+    {
+     "id": "slipway",
+     "kind": "build",
+     "stage": 2,
+     "text": "Build a slipway from the houseboat down into the backwater",
+     "check": "path:river_town_mooring",
+     "zone": "river_town_mooring",
+     "goal": "A continuous path from beside the boat out over the water",
+     "buildHint": "Planks reach out over the water from the bank; posts hold them further.",
+     "hint": {
+      "x": -24,
+      "z": 32
+     }
+    },
+    {
+     "id": "launch",
+     "kind": "talk",
+     "stage": 3,
+     "text": "At dawn, find Ermes at his river gauge and launch the boat",
+     "npc": "river_town_ermes",
+     "hours": [
+      5,
+      8
+     ],
+     "lines": [
+      "Dawn. Good. Half the town's at your boat already, and Tullio's brought the ropes.",
+      "On three. One. Two. PULL!"
+     ],
+     "onDone": {
+      "flags": [
+       "river_town_launched"
+      ]
+     }
+    },
+    {
+     "id": "cosy",
+     "kind": "room",
+     "stage": 4,
+     "text": "Make the cabin cosy (B inside the houseboat)",
+     "zone": "river_town_cabin",
+     "hint": {
+      "x": -19.0,
+      "z": 32.5
+     },
+     "needs": [
+      {
+       "any": [
+        "table",
+        "desk",
+        "counter"
+       ],
+       "label": "A table"
+      },
+      {
+       "any": [
+        "chair",
+        "sofa",
+        "bench"
+       ],
+       "label": "Somewhere to sit"
+      },
+      {
+       "any": [
+        "lamp",
+        "poweredLamp"
+       ],
+       "label": "A lamp"
+      },
+      {
+       "any": [
+        "rug"
+       ],
+       "label": "A rug"
+      },
+      {
+       "any": [
+        "painting"
+       ],
+       "label": "A painting"
+      }
+     ]
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "stage": 5,
+     "text": "Show Ermes your floating home",
+     "npc": "river_town_ermes",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "meter": 50,
+    "items": {
+     "coins": 30
+    },
+    "flags": [
+     "river_town_home"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "That houseboat. The Speranza. The flood picked her up and put her down on the mud like a cat with a mouse.",
+     "Patch her, build her a slipway, and at dawn we'll pull her back where she belongs. Then she's yours. Properly."
+    ],
+    "acceptLabel": "Let's get her floating",
+    "declineLabel": "She's fine on the mud for now",
+    "accept": [
+     "Wood and clay. Tullio knows hulls. Then a slipway down to the backwater, and find me at the gauge at dawn."
+    ],
+    "decline": [
+     "Fine. She's patient. She waited thirty years for the last owner to fix the roof."
+    ],
+    "progress": [
+     "Wood, clay, Tullio, slipway. Then me at the gauge at dawn. Then the cabin."
+    ],
+    "complete": [
+     "She floats. She's yours. The river's given you one thing back, at least.",
+     "Mind the ropes at night. And don't feed the coypus."
+    ]
+   },
+   "onAccept": {
+    "blueprints": [
+     "bridgePost",
+     "bridgeDeck",
+     "table",
+     "lamp",
+     "rug",
+     "painting"
+    ],
+    "items": {
+     "wood": 4
+    }
+   }
+  },
+  {
+   "id": "river_town_catfish",
+   "title": "The Monster of the Po",
+   "giver": "river_town_gildo",
+   "main": false,
+   "type": "request",
+   "chapter": 1,
+   "description": "Gildo has chased the monster catfish since 1951; Mattia doesn't believe in it. Get a stronger line from Primo, fish at the meeting of the rivers after dark, and see what bites. Then show Mattia.",
+   "requires": {
+    "quests": [
+     "river_town_welcome"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "line",
+     "kind": "talk",
+     "stage": 0,
+     "text": "Ask Primo for a stronger line",
+     "npc": "river_town_primo",
+     "lines": [
+      "A line for the monster? Gildo's monster? Ha. Here. Brake cable from a 1953 racer. It held me down the Colle delle Rane, it'll hold a fish.",
+      "If the fish is a fish. If it's a submarine, bring the cable back."
+     ],
+     "onDone": {
+      "flags": [
+       "river_town_catfish_night"
+      ]
+     }
+    },
+    {
+     "id": "hook",
+     "kind": "event",
+     "stage": 1,
+     "text": "Fish at the meeting of the rivers after dark (8 PM to 4 AM)",
+     "event": "fish:river_town_monster",
+     "count": 1,
+     "hours": [
+      20,
+      4
+     ],
+     "hint": {
+      "x": 24.8,
+      "z": 34.5
+     }
+    },
+    {
+     "id": "photo",
+     "kind": "talk",
+     "stage": 2,
+     "text": "Show Mattia the whisker, quick, even if he's asleep",
+     "npc": "river_town_mattia",
+     "lines": [
+      "What? It's the middle of the… is that a WHISKER? That's not… Uncle! UNCLE!",
+      "It was real? You hooked it? Hold the whisker up. Next to your face. For scale.",
+      "*click*",
+      "Nobody's going to believe this. I don't believe this."
+     ]
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "stage": 3,
+     "text": "Tell Gildo",
+     "npc": "river_town_gildo",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "meter": 50,
+    "items": {
+     "coins": 30
+    },
+    "flags": [
+     "river_town_monster_seen"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "Nineteen fifty-one. A head like a bathtub, Geometra. Right where the rivers meet.",
+     "Mattia says I'm a silly old man. Maybe. But tonight the water's high and the monster's hungry.",
+     "Get a proper line from Primo. Then fish where the rivers meet, after dark. If anyone can catch him, it's someone who doesn't know any better."
+    ],
+    "acceptLabel": "Let's find your monster",
+    "declineLabel": "Monsters aren't real, Gildo",
+    "accept": [
+     "Primo has a line. After dark, at the meeting of the rivers. Hold on tight."
+    ],
+    "decline": [
+     "That's what Mattia says. That's what everyone says. Until the bathtub comes up."
+    ],
+    "progress": [
+     "A line from Primo. Then the meeting of the rivers, after dark."
+    ],
+    "complete": [
+     "He let go and kept his whisker short? Good. Good. What would we talk about at the bar, otherwise?",
+     "Mattia's got his photo. Rina will hang it by the coffee machine. Nobody will believe it, and that's perfect."
+    ]
+   },
+   "hours": [
+    16,
+    23
+   ]
+  },
+  {
+   "id": "river_town_logs",
+   "title": "Ines's Runaway Logs",
+   "giver": "river_town_ines",
+   "main": false,
+   "type": "request",
+   "chapter": 1,
+   "description": "The flood swept six of Ines's poplar logs downriver. Find them stranded in the willows, under the dance hall, against the Roman bridge and on the sandbank, and bring them back to the sawmill.",
+   "requires": {
+    "quests": [
+     "river_town_welcome"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "logs",
+     "kind": "gather",
+     "stage": 0,
+     "text": "Find 6 runaway logs along the banks",
+     "item": "river_town_log",
+     "count": 6,
+     "hint": {
+      "x": 23,
+      "z": 26
+     }
+    },
+    {
+     "id": "give",
+     "kind": "pay",
+     "stage": 1,
+     "text": "Bring the logs back to Ines",
+     "npc": "river_town_ines",
+     "items": {
+      "river_town_log": 6
+     }
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "stage": 2,
+     "text": "Tell Ines they're all home",
+     "npc": "river_town_ines",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "meter": 50,
+    "items": {
+     "coins": 40,
+     "wood": 6
+    },
+    "flags": [
+     "river_town_logs_back"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "Six logs, Geometra. My best poplar, seasoned two years. Gone downriver like teenagers.",
+     "They won't have gone far. The willows catch things. So do the stilts under Wanda's hall, and the old bridge.",
+     "Find them. Bring them home."
+    ],
+    "acceptLabel": "I'll round them up",
+    "declineLabel": "Later",
+    "accept": [
+     "Six. Count them. Then count them again."
+    ],
+    "decline": [
+     "Later. They're not going anywhere. Well. They might."
+    ],
+    "progress": [
+     "Six logs. Willows, stilts, the bridge, the sandbank."
+    ],
+    "complete": [
+     "Six. Six! Stacked and counted. Twice.",
+     "Take some planks. And thank you. My husband would have said something clever. I'll just say thank you."
+    ]
+   },
+   "onAccept": {
+    "flags": [
+     "river_town_logs_asked"
+    ]
+   }
+  },
+  {
+   "id": "river_town_lost_clock",
+   "title": "Pierina's cuckoo clock",
+   "giver": "river_town_pierina",
+   "main": false,
+   "type": "request",
+   "chapter": 1,
+   "description": "The flood carried off a cuckoo clock. Find it and bring it back.",
+   "requires": {
+    "quests": [
+     "river_town_welcome"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "find",
+     "kind": "gather",
+     "stage": 0,
+     "text": "Find a cuckoo clock somewhere the flood left it",
+     "item": "river_town_clock",
+     "count": 1
+    },
+    {
+     "id": "give",
+     "kind": "pay",
+     "stage": 1,
+     "text": "Give it back to Pierina",
+     "npc": "river_town_pierina",
+     "items": {
+      "river_town_clock": 1
+     }
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "stage": 2,
+     "text": "Let Pierina say thank you",
+     "npc": "river_town_pierina",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "meter": 10,
+    "items": {
+     "coins": 10
+    }
+   },
+   "dialogue": {
+    "offer": [
+     "My cuckoo clock. My mother's. It went out of the window on the flood and somebody saw it up a willow, still cuckooing.",
+     "If you see it… you'd know it."
+    ],
+    "acceptLabel": "I'll look out for it",
+    "declineLabel": "Not now",
+    "accept": [
+     "Thank you. Look where the water left things. Up trees. In the mud. Places water likes."
+    ],
+    "decline": [
+     "Of course. It's only a thing. A thing I miss."
+    ],
+    "progress": [
+     "Have you seen it? You'd know it."
+    ],
+    "complete": [
+     "It's still cuckooing! On the hour! Oh, I could kiss you. I won't. But I could."
+    ]
+   },
+   "onAccept": {
+    "flags": [
+     "river_town_lost_clock_asked"
+    ]
+   }
+  },
+  {
+   "id": "river_town_lost_gnome",
+   "title": "Rina's garden gnome",
+   "giver": "river_town_rina",
+   "main": false,
+   "type": "request",
+   "chapter": 1,
+   "description": "The flood carried off a garden gnome. Find it and bring it back.",
+   "requires": {
+    "quests": [
+     "river_town_welcome"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "find",
+     "kind": "gather",
+     "stage": 0,
+     "text": "Find a garden gnome somewhere the flood left it",
+     "item": "river_town_gnome",
+     "count": 1
+    },
+    {
+     "id": "give",
+     "kind": "pay",
+     "stage": 1,
+     "text": "Give it back to Rina",
+     "npc": "river_town_rina",
+     "items": {
+      "river_town_gnome": 1
+     }
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "stage": 2,
+     "text": "Let Rina say thank you",
+     "npc": "river_town_rina",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "meter": 10,
+    "items": {
+     "coins": 10
+    }
+   },
+   "dialogue": {
+    "offer": [
+     "My gnome. Don't laugh. He stood by the bar door for twenty years. The flood took him for a swim.",
+     "If you see it… you'd know it."
+    ],
+    "acceptLabel": "I'll look out for it",
+    "declineLabel": "Not now",
+    "accept": [
+     "Thank you. Look where the water left things. Up trees. In the mud. Places water likes."
+    ],
+    "decline": [
+     "Of course. It's only a thing. A thing I miss."
+    ],
+    "progress": [
+     "Have you seen it? You'd know it."
+    ],
+    "complete": [
+     "Gino! You're back! He's called Gino. Don't tell anyone I name gnomes."
+    ]
+   },
+   "onAccept": {
+    "flags": [
+     "river_town_lost_gnome_asked"
+    ]
+   }
+  },
+  {
+   "id": "river_town_lost_trophy",
+   "title": "Wanda's trophy",
+   "giver": "river_town_wanda",
+   "main": false,
+   "type": "request",
+   "chapter": 1,
+   "description": "The flood carried off a little gold dancing couple. Find it and bring it back.",
+   "requires": {
+    "quests": [
+     "river_town_welcome"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "find",
+     "kind": "gather",
+     "stage": 0,
+     "text": "Find a little gold dancing couple somewhere the flood left it",
+     "item": "river_town_trophy",
+     "count": 1
+    },
+    {
+     "id": "give",
+     "kind": "pay",
+     "stage": 1,
+     "text": "Give it back to Wanda",
+     "npc": "river_town_wanda",
+     "items": {
+      "river_town_trophy": 1
+     }
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "stage": 2,
+     "text": "Let Wanda say thank you",
+     "npc": "river_town_wanda",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "meter": 10,
+    "items": {
+     "coins": 10
+    }
+   },
+   "dialogue": {
+    "offer": [
+     "My trophy. Regional champion, nineteen sixty-eight. Two little gold dancers. The river took them somewhere to dance in the mud.",
+     "If you see it… you'd know it."
+    ],
+    "acceptLabel": "I'll look out for it",
+    "declineLabel": "Not now",
+    "accept": [
+     "Thank you. Look where the water left things. Up trees. In the mud. Places water likes."
+    ],
+    "decline": [
+     "Of course. It's only a thing. A thing I miss."
+    ],
+    "progress": [
+     "Have you seen it? You'd know it."
+    ],
+    "complete": [
+     "My little dancers! Still mid-twirl. Like me. Thank you, Geometra."
+    ]
+   },
+   "onAccept": {
+    "flags": [
+     "river_town_lost_trophy_asked"
+    ]
+   }
+  },
+  {
+   "id": "river_town_lost_photo",
+   "title": "Primo's race photo",
+   "giver": "river_town_primo",
+   "main": false,
+   "type": "request",
+   "chapter": 1,
+   "description": "The flood carried off a framed race photo. Find it and bring it back.",
+   "requires": {
+    "quests": [
+     "river_town_welcome"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "find",
+     "kind": "gather",
+     "stage": 0,
+     "text": "Find a framed race photo somewhere the flood left it",
+     "item": "river_town_photo",
+     "count": 1
+    },
+    {
+     "id": "give",
+     "kind": "pay",
+     "stage": 1,
+     "text": "Give it back to Primo",
+     "npc": "river_town_primo",
+     "items": {
+      "river_town_photo": 1
+     }
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "stage": 2,
+     "text": "Let Primo say thank you",
+     "npc": "river_town_primo",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "meter": 10,
+    "items": {
+     "coins": 10
+    }
+   },
+   "dialogue": {
+    "offer": [
+     "My photo! The Colle delle Rane, 1953, me in front. Proof. The flood took the proof.",
+     "If you see it… you'd know it."
+    ],
+    "acceptLabel": "I'll look out for it",
+    "declineLabel": "Not now",
+    "accept": [
+     "Thank you. Look where the water left things. Up trees. In the mud. Places water likes."
+    ],
+    "decline": [
+     "Of course. It's only a thing. A thing I miss."
+    ],
+    "progress": [
+     "Have you seen it? You'd know it."
+    ],
+    "complete": [
+     "There. Me, in front. And that blur behind me is the future champion. I told you."
+    ]
+   },
+   "onAccept": {
+    "flags": [
+     "river_town_lost_photo_asked"
+    ]
+   }
+  },
+  {
+   "id": "river_town_lost_walkman",
+   "title": "Mattia's Walkman",
+   "giver": "river_town_mattia",
+   "main": false,
+   "type": "request",
+   "chapter": 1,
+   "description": "The flood carried off a cassette Walkman. Find it and bring it back.",
+   "requires": {
+    "quests": [
+     "river_town_welcome"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "find",
+     "kind": "gather",
+     "stage": 0,
+     "text": "Find a cassette Walkman somewhere the flood left it",
+     "item": "river_town_walkman",
+     "count": 1
+    },
+    {
+     "id": "give",
+     "kind": "pay",
+     "stage": 1,
+     "text": "Give it back to Mattia",
+     "npc": "river_town_mattia",
+     "items": {
+      "river_town_walkman": 1
+     }
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "stage": 2,
+     "text": "Let Mattia say thank you",
+     "npc": "river_town_mattia",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "meter": 10,
+    "items": {
+     "coins": 10
+    }
+   },
+   "dialogue": {
+    "offer": [
+     "My Walkman. It was on the shack's step when the water came. Uncle says the monster's listening to my tapes now. He's not funny.",
+     "If you see it… you'd know it."
+    ],
+    "acceptLabel": "I'll look out for it",
+    "declineLabel": "Not now",
+    "accept": [
+     "Thank you. Look where the water left things. Up trees. In the mud. Places water likes."
+    ],
+    "decline": [
+     "Of course. It's only a thing. A thing I miss."
+    ],
+    "progress": [
+     "Have you seen it? You'd know it."
+    ],
+    "complete": [
+     "It works! Everything plays a bit slower now, like it's tired. It's actually better."
+    ]
+   },
+   "onAccept": {
+    "flags": [
+     "river_town_lost_walkman_asked"
+    ]
+   }
+  },
+  {
+   "id": "river_town_lost_oar",
+   "title": "Tullio's oar",
+   "giver": "river_town_tullio",
+   "main": false,
+   "type": "request",
+   "chapter": 1,
+   "description": "The flood carried off a ferryman's oar. Find it and bring it back.",
+   "requires": {
+    "quests": [
+     "river_town_welcome"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "find",
+     "kind": "gather",
+     "stage": 0,
+     "text": "Find a ferryman's oar somewhere the flood left it",
+     "item": "river_town_oar",
+     "count": 1
+    },
+    {
+     "id": "give",
+     "kind": "pay",
+     "stage": 1,
+     "text": "Give it back to Tullio",
+     "npc": "river_town_tullio",
+     "items": {
+      "river_town_oar": 1
+     }
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "stage": 2,
+     "text": "Let Tullio say thank you",
+     "npc": "river_town_tullio",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "meter": 10,
+    "items": {
+     "coins": 10
+    }
+   },
+   "dialogue": {
+    "offer": [
+     "My oar. Forty years. Went with the boat.",
+     "If you see it… you'd know it."
+    ],
+    "acceptLabel": "I'll look out for it",
+    "declineLabel": "Not now",
+    "accept": [
+     "Thank you. Look where the water left things. Up trees. In the mud. Places water likes."
+    ],
+    "decline": [
+     "Of course. It's only a thing. A thing I miss."
+    ],
+    "progress": [
+     "Have you seen it? You'd know it."
+    ],
+    "complete": [
+     "…My oar. Thank you."
+    ]
+   },
+   "onAccept": {
+    "flags": [
+     "river_town_lost_oar_asked"
+    ]
+   }
+  }
+ ]
+}

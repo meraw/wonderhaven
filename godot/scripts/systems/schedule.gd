@@ -15,6 +15,18 @@ static func activity_at(npc: Dictionary, minute: float, flags: Dictionary) -> Di
 		if h >= e[0] and h < e[1]: return {"node": e[2], "activity": e[3]}
 	return {"node": npc.home, "activity": "sleep"}
 
+## Where villagers walk between two nav spots joined across a build zone the player bridged: a layout's
+## "crossings" [{a, b, zone}] name the spot on the zone's endpoint a side and the one on its b side, and the path the
+## zone's last "path:<zone>" check found (state crossings) is walked cell by cell. [] when there's none.
+static func crossing(from: String, to: String, crossings: Dictionary) -> Array:
+	for c in Data.layout.get("crossings", []):
+		var fwd: bool = from == c.a and to == c.b
+		if not fwd and not (from == c.b and to == c.a): continue
+		var pts: Array = crossings.get(c.zone, []).map(func(cell): return Vector2(cell[0] + 0.5, cell[1] + 0.5))
+		if not fwd: pts.reverse()
+		return pts
+	return []
+
 static func _pos(id: String) -> Vector2:
 	var p: Array = Data.layout.nav_nodes[id]
 	return Vector2(p[0], p[1])

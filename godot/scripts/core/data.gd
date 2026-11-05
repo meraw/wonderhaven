@@ -23,6 +23,9 @@ var shops: Dictionary      # Godot-only: what villagers buy and sell, gift lines
 ## location pack's layout for the others); Heightfield follows it. Sailing reloads the scene with the new island.
 var island := "hearthglow"
 var pending_state: Dictionary = {}   # the game state carried across that reload
+var rebuilding := false              # that reload rebuilds the island you're on for the story (Game.rebuild_world)
+## The story flags the current island was built for: only its location script's WORLD_FLAGS (apply_world_flags).
+var world_flags: Dictionary = {}
 var autoplay_started := false         # a scripted playthrough keeps running across island reloads
 
 func _init() -> void:
@@ -120,6 +123,28 @@ func use_island(id: String) -> void:
 	island = id
 	Heightfield.use(id)
 	layout = _read(layout_file(id))
+	world_flags = {}
+	_add_interior_nav()
+
+## A place can change with the story (a piazza drained, a boat launched). Its location script lists WORLD_FLAGS, the
+## story flags that reshape it, and may define adjust(layout, flags) to edit its layout for the ones set; its
+## scenery can read world_flags. The world is built for them, and rebuilt where you stand when one changes.
+static func world_flags_of(id: String, flags: Dictionary) -> Dictionary:
+	var out := {}
+	var pack := location_script(id)
+	if pack == null: return out
+	for f in pack.get_script_constant_map().get("WORLD_FLAGS", []):
+		if flags.get(f, false): out[f] = true
+	return out
+
+## Lay out the island you're on for these story flags (it only changes when they change its WORLD_FLAGS).
+func apply_world_flags(flags: Dictionary) -> void:
+	var wf := world_flags_of(island, flags)
+	if wf == world_flags: return
+	world_flags = wf
+	layout = _read(layout_file(island))
+	var pack = location_script(island)
+	if pack != null and pack.get_script_method_list().any(func(m): return m.name == "adjust"): pack.adjust(layout, wf)
 	_add_interior_nav()
 
 ## How wide the island's ground is, in metres (a square centred on 0, 0). Villages use the default; a layout can

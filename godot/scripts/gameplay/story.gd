@@ -118,6 +118,7 @@ func talk(agent) -> void:
 	await give_gifts(agent)
 	game.exit_dialogue()
 	busy = false
+	if game.rebuild_pending: game.rebuild_world()   # the conversation changed the place (Game.request_rebuild)
 	if shop: game.panels.shop(agent.def.id)
 
 ## A "pay" step: hand over coins or items; the villager reacts with the objective's lines.
