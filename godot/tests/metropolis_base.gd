@@ -163,12 +163,12 @@ func top_up(items: Dictionary, why: String) -> void:
 		note("harness top-up (%s): %s" % [why, have]); game.render_resources()
 
 ## Opens build mode on a zone (cycling through the unlocked sites, as the toolbar's arrows do).
-func open_zone(zone_id: String) -> bool:
+func open_zone(zone_id: String, yaw: float = 0.35) -> bool:
 	await tap(KEY_B); await frames(5)
 	for i in 16:
 		if game.build.current_zone.get("id", "") == P + zone_id: break
 		game.build.cycle_zone(1); await frames(2)
-	game.cam.yaw = 0.35; game.cam.pitch = 1.05; game.cam.dist = 15
+	game.cam.yaw = yaw; game.cam.pitch = 1.05; game.cam.dist = 15
 	await frames(6)
 	return game.build.current_zone.get("id", "") == P + zone_id
 
@@ -179,15 +179,17 @@ func put(id: String, i: float, k: float, r: int = 0, y: float = 0.3) -> bool:
 	for n in 12:   # (at a low frame rate a tap can go unnoticed: press until it's turned the right way)
 		if game.build.rotation == r: break
 		await tap(KEY_R); await frames(2)
-	var fp := BuildGrid.footprint(Data.piece(id), r)   # aim at the middle of the whole piece (a bed is two tiles long)
-	var aim := Vector3(i + fp.x / 2.0, y + 0.02, k + fp.y / 2.0)
-	game.build.focus = Vector3(aim.x, y, aim.z)
+	var fp := BuildGrid.footprint(Data.piece(id), r)
+	# aim at the middle of the whole piece (a bed is two tiles long), or at its first tile (a roof rests on a pillar's
+	# top: between the pillars the cursor would fall through to the ground)
+	var aims: Array = [Vector3(i + fp.x / 2.0, y + 0.02, k + fp.y / 2.0), Vector3(i + 0.5, y + 0.02, k + 0.5)]
+	game.build.focus = Vector3(aims[0].x, y, aims[0].z)
 	var p := Vector2.ZERO
 	var on_it := false
 	for attempt in 12:   # point at the cell, and make sure the build cursor is on it (the view may still be gliding there)
 		if attempt > 0 and attempt % 3 == 0: await turn_view(PI / 2.0)   # something taller is in the way: look from another side
 		await settle()
-		p = game.camera.unproject_position(aim)
+		p = game.camera.unproject_position(aims[attempt % aims.size()])
 		mouse_move(p, Vector2(1, 0)); await frames(4)
 		var c: Dictionary = game.build.check.get("pl", {})   # what a click would place now
 		if not c.is_empty() and c.id == id and is_equal_approx(float(c.i), i) and is_equal_approx(float(c.k), k) and int(c.r) == r and (y <= 0.3 or absf(float(c.y) - y) < 0.25): on_it = true; break   # (above the ground, on the right layer too)

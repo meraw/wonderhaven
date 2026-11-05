@@ -49,7 +49,10 @@ func update(dt: float, move: Vector2, run: bool, jump: bool, cam_yaw: float, ena
 				var np: Vector3 = r.pos
 				pos.x = np.x; pos.z = np.z
 				if grounded and np.y <= pos.y + 0.46 and np.y > pos.y: pos.y = np.y
-		if not moved_any: speed *= 0.5
+		if not moved_any:
+			speed *= 0.5
+			var out := walk.unstick(pos, WalkWorld.PLAYER_RADIUS, body)   # stuck inside the edge of something: ease out of it
+			if not out.is_empty(): pos.x = out.x; pos.z = out.z
 	var ground: float = walk.surface_at(pos.x, pos.z, pos.y).y
 	if grounded and jump: vy = 6.2; grounded = false
 	if not grounded or pos.y > ground + 0.02:

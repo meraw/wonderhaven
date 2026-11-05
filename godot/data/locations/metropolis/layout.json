@@ -229,6 +229,8 @@
     {"id": "metropolis_rail_w", "rect": [-44.6, 105.4, -44.5, 120.0], "top": 4.5, "bottom": 3.5, "walkable": false, "look": "rail"},
     {"id": "metropolis_rail_e", "rect": [-31.5, 105.4, -31.4, 120.0], "top": 4.5, "bottom": 3.5, "walkable": false, "look": "rail"},
     {"id": "metropolis_stair", "rect": [-44.5, 108.5, -42.9, 120.0], "top": 3.5, "rise": [0.3, 3.5], "axis": "z", "bottom": 0.0, "look": "stair"},
+    {"id": "metropolis_stair_side_w", "rect": [-44.5, 108.5, -44.4, 120.0], "top": 4.5, "bottom": 0.0, "walkable": false, "look": "none"},
+    {"id": "metropolis_stair_side_e", "rect": [-43.0, 108.5, -42.9, 120.0], "top": 4.5, "bottom": 0.0, "walkable": false, "look": "none"},
     {"id": "metropolis_rail_court", "rect": [-42.9, 120.0, -31.4, 120.1], "top": 4.5, "bottom": 3.5, "walkable": false, "look": "rail"},
     {"id": "metropolis_rail_terrace_s", "rect": [-56.0, 127.7, -20.0, 128.0], "top": 4.5, "bottom": 3.5, "walkable": false, "look": "parapet"},
     {"id": "metropolis_rail_terrace_w", "rect": [-56.0, 120.0, -55.7, 128.0], "top": 4.5, "bottom": 3.5, "walkable": false, "look": "parapet"},

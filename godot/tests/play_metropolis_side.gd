@@ -92,7 +92,7 @@ func play() -> void:
 	await tram("stop_darsena")
 	await go("home:spot", "home to the flat")
 	top_up({"clay": 6, "metal": 4}, "the three pieces")
-	await open_zone("flat")
+	await open_zone("flat", -PI / 2.0)   # (from over the courtyard: the neighbours' roofs hide it from the street side)
 	var placed := await put_all([["bathtub", -26, 110, 0, 3.5], ["toilet", -25, 111, 0, 3.5], ["washbasin", -25, 110, 0, 3.5]])
 	await shot("bathroom")
 	await leave_build()

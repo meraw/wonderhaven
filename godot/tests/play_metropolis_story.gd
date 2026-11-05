@@ -71,7 +71,7 @@ func step_flat() -> void:
 	await chat("sala")
 	check("flat_rent", "you pay the rent in lire", step_done("flat", "rent") and game.state.flags.get(P + "rented", false), "coins %d" % inv("coins"))
 	await go("home:spot", "up the stair, round the balcony and into your empty flat")
-	await open_zone("flat")
+	await open_zone("flat", -PI / 2.0)   # (from over the courtyard: the neighbours' roofs hide it from the street side)
 	var placed := await put_all([["bed", -25, 108, 0, 3.5], ["table", -27, 108, 0, 3.5], ["chair", -28, 108, 1, 3.5], ["lamp", -27, 111, 0, 3.5]])
 	await shot("flat_furnished")
 	await leave_build()

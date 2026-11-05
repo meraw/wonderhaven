@@ -94,3 +94,16 @@ func test_step_aside_when_a_villager_lands_on_you():
 	t.ok(not spot.is_empty() and not w.blocked(spot.x, spot.z, spot.y, WalkWorld.PLAYER_RADIUS, me), "step_aside finds a free spot (%s)" % str(spot))
 	t.ok(not spot.is_empty() and Vector2(spot.x - 10.0, spot.z - 5.0).length() < 1.0, "close by")
 	t.ok(w.step_aside(Vector3(12, w.surface_at(12, 5).y, 5), WalkWorld.PLAYER_RADIUS, me).is_empty(), "with nobody on you, you stay put")
+
+func test_unstick_after_stepping_off_the_side_of_a_stair():
+	# a stair rising along z with an open side: step off it halfway up and you land beside it, still touching its edge
+	var w := WalkWorld.new([], func(_f): return false)
+	w.floors = [WorldStatics.floor_surface({"rect": [10.0, 0.0, 11.6, 10.0], "rise": [0.3, 3.5], "axis": "z", "bottom": 0.0})]
+	var g: float = w.surface_at(9.85, 5.0).y
+	var at := Vector3(9.85, g, 5.0)
+	t.ok(w.blocked(at.x, at.z, at.y), "beside the stair at its foot's height, you're touching its side")
+	t.ok(not w.step_move(at, -0.05, -0.1).moved, "and every short step that leaves you touching it is refused")
+	var out := w.unstick(at)
+	t.ok(not out.is_empty() and not w.blocked(out.x, out.z, at.y), "unstick finds a spot just clear of it (%s)" % str(out))
+	t.ok(not out.is_empty() and out.x < 9.85 and absf(float(out.y) - g) < 0.01 and Vector2(out.x - at.x, out.z - at.z).length() <= 0.5, "beside you, on the ground, not up on the stair")
+	t.ok(w.unstick(Vector3(8.0, w.surface_at(8.0, 5.0).y, 5.0)).is_empty(), "standing clear, you stay put")
