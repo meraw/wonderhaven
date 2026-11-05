@@ -1,0 +1,32 @@
+{
+ "variants": {
+  "metropolis_camelcoat": {
+   "slot": "top",
+   "base": "longcoat",
+   "color": "#b48a5a",
+   "label": "Camel coat",
+   "unlock": "Reach 25 column inches in Toriano"
+  },
+  "metropolis_redscarf": {
+   "slot": "accessory",
+   "base": "scarf",
+   "color": "#b8323a",
+   "label": "Red wool scarf",
+   "unlock": "Reach 25 column inches in Toriano"
+  },
+  "metropolis_padded": {
+   "slot": "top",
+   "base": "windbreaker",
+   "color": "#2c4a7a",
+   "label": "Padded jacket",
+   "unlock": "Finish Chiara's first collection"
+  },
+  "metropolis_woolhat": {
+   "slot": "hat",
+   "base": "beanie",
+   "color": "#7a2f35",
+   "label": "Wool hat",
+   "unlock": "Sold at Chiara's sartoria"
+  }
+ }
+}

@@ -360,3 +360,25 @@ func test_the_cathedral_strikes_the_hour():
 	t.eq(Life.strikes(3), 0, "and quiet in the night")
 	t.eq(Life.strikes(23), 0, "")
 
+func test_winter_outfits():
+	_on(func():
+		for n in Data.npcs.filter(func(x): return x.get("island", "") == "metropolis"):
+			var a: Dictionary = n.appearance
+			var clean: Dictionary = Chibi.sanitize(a)
+			for slot in ["top", "hat", "accessory", "bottom"]:
+				t.eq(clean[slot], a[slot], "%s's %s (%s) is a real piece of clothing" % [n.id, slot, a[slot]])
+		t.eq(Data.npc("metropolis_annoni").appearance.top, "metropolis_camelcoat", "the Architetto wears her long camel coat")
+		t.eq(Data.npc("metropolis_rocco").appearance.hat, "helmet", "Rocco his white helmet")
+		var given: Array = []
+		for m in LocationMeter.def("metropolis").milestones:
+			given.append_array(m.get("clothes", []))
+		given.append_array(Data.quest("metropolis_chiara").rewards.get("clothes", []))
+		for g in Data.npc("metropolis_rocco").gifts: given.append_array(g.get("clothes", []))
+		for c in ["longcoat", "metropolis_camelcoat", "metropolis_redscarf", "metropolis_padded", "helmet"]:
+			t.ok(given.has(c), "%s is something you can earn in Toriano" % c)
+			t.ok(Data.appearance.get("locked", {}).has(c), "and it's locked until then (%s)" % Data.appearance.get("locked", {}).get(c, "-"))
+		var coat := Chibi.new(Chibi.sanitize({"top": "longcoat", "topColor": "#b48a5a", "hat": "helmet", "hatColor": "#f6f6f2"}))
+		var plain := Chibi.new(Chibi.sanitize({"top": "sweater", "hat": "none"}))
+		t.ok(coat.find_children("*", "MeshInstance3D", true, false).size() > plain.find_children("*", "MeshInstance3D", true, false).size() + 4, "the long coat and the helmet have their own shapes")
+		coat.free(); plain.free())
+

@@ -84,10 +84,12 @@
     "at": 25,
     "id": "metropolis_photo",
     "title": "Your photo in the paper",
-    "desc": "A photo with a caption: you, a plank and a pigeon. The paper pays for the picture. (The winter coat and scarf to go with it come with the city's outfits.)",
-    "items": {
-     "coins": 40
-    }
+    "desc": "A photo with a caption: you, a plank and a pigeon. And a winter outfit to go with it, so you look the part: a long camel coat and a red wool scarf.",
+    "clothes": [
+     "longcoat",
+     "metropolis_camelcoat",
+     "metropolis_redscarf"
+    ]
    },
    {
     "at": 45,

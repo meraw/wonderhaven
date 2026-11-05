@@ -19,14 +19,15 @@
     "hairColor": "#f2f2f2",
     "mouth": "grin",
     "top": "sweater",
-    "topColor": "#a9adb0",
+    "topColor": "#8a8d90",
     "bottom": "pants",
     "bottomColor": "#4a4a6a",
     "shoes": "sandals",
     "shoesColor": "#7a4a2a",
     "hat": "none",
     "hatColor": "#ffffff",
-    "accessory": "scarf"
+    "accessory": "scarf",
+    "accessoryColor": "#c96a8a"
    },
    "schedule": [
     [
@@ -253,8 +254,8 @@
     "hair": "short",
     "hairColor": "#3b2a20",
     "mouth": "calm",
-    "top": "jacket",
-    "topColor": "#7a4a2a",
+    "top": "suit",
+    "topColor": "#6a4a30",
     "bottom": "pants",
     "bottomColor": "#5a3d2b",
     "shoes": "boots",
@@ -416,14 +417,14 @@
     "hair": "bun",
     "hairColor": "#7a4a2a",
     "mouth": "calm",
-    "top": "jacket",
-    "topColor": "#c9a27a",
+    "top": "metropolis_camelcoat",
+    "topColor": "#b48a5a",
     "bottom": "pants",
     "bottomColor": "#4a4a6a",
     "shoes": "boots",
     "shoesColor": "#5a3d2b",
-    "hat": "none",
-    "hatColor": "#ffffff",
+    "hat": "helmet",
+    "hatColor": "#f4f1ea",
     "accessory": "none"
    },
    "schedule": [
@@ -618,7 +619,7 @@
     "bottomColor": "#2f3f6f",
     "shoes": "boots",
     "shoesColor": "#3a2a1e",
-    "hat": "captain",
+    "hat": "drivercap",
     "hatColor": "#2f3f6f",
     "accessory": "beard"
    },
@@ -785,8 +786,8 @@
     "hair": "short",
     "hairColor": "#a9a9a9",
     "mouth": "calm",
-    "top": "tunic",
-    "topColor": "#ffffff",
+    "top": "jacket",
+    "topColor": "#f4f1ea",
     "bottom": "pants",
     "bottomColor": "#2b2b3a",
     "shoes": "boots",
@@ -901,14 +902,14 @@
     "hairColor": "#1d1414",
     "mouth": "grin",
     "top": "sweater",
-    "topColor": "#2b2b3a",
+    "topColor": "#1f1f24",
     "bottom": "skirt",
     "bottomColor": "#4a4a6a",
     "shoes": "boots",
     "shoesColor": "#1d1414",
     "hat": "none",
     "hatColor": "#ffffff",
-    "accessory": "none"
+    "accessory": "pens"
    },
    "schedule": [
     [
@@ -1039,8 +1040,8 @@
     "hair": "curly",
     "hairColor": "#f2f2f2",
     "mouth": "o",
-    "top": "jacket",
-    "topColor": "#6b3f6b",
+    "top": "suit",
+    "topColor": "#5a2a3a",
     "bottom": "pants",
     "bottomColor": "#2b2b3a",
     "shoes": "boots",
@@ -1214,7 +1215,7 @@
     "hair": "short",
     "hairColor": "#7a4a2a",
     "mouth": "calm",
-    "top": "jacket",
+    "top": "workjacket",
     "topColor": "#3f6b4f",
     "bottom": "pants",
     "bottomColor": "#5a4a3a",
@@ -1376,15 +1377,16 @@
     "hair": "curly",
     "hairColor": "#3b2a20",
     "mouth": "grin",
-    "top": "tunic",
-    "topColor": "#c9a27a",
+    "top": "sweater",
+    "topColor": "#7a5a3a",
     "bottom": "pants",
     "bottomColor": "#4a4a6a",
     "shoes": "boots",
     "shoesColor": "#3a2a1e",
     "hat": "beanie",
     "hatColor": "#b03a2e",
-    "accessory": "beard"
+    "accessory": "apron",
+    "accessoryColor": "#e8e2d0"
    },
    "schedule": [
     [
@@ -1492,14 +1494,14 @@
     "hair": "short",
     "hairColor": "#3b2a20",
     "mouth": "grin",
-    "top": "jacket",
-    "topColor": "#2b2b3a",
+    "top": "suit",
+    "topColor": "#1f2a3a",
     "bottom": "pants",
-    "bottomColor": "#2b2b3a",
+    "bottomColor": "#1f2a3a",
     "shoes": "boots",
     "shoesColor": "#1d1414",
-    "hat": "captain",
-    "hatColor": "#ffffff",
+    "hat": "helmet",
+    "hatColor": "#f6f6f2",
     "accessory": "none"
    },
    "schedule": [
@@ -1622,6 +1624,13 @@
      "hearts": 6,
      "blueprint": "signpost",
      "line": "The plans of a proper road sign. Point it wherever you like. Then point it the other way. Toriano won't notice."
+    },
+    {
+     "hearts": 8,
+     "clothes": [
+      "helmet"
+     ],
+     "line": "My old helmet. The white one, from before they gave us the new ones. In the fog, people will stop when they see you. Mostly."
     }
    ]
   },
@@ -1642,15 +1651,16 @@
     "hair": "ponytail",
     "hairColor": "#7a4a2a",
     "mouth": "grin",
-    "top": "jacket",
-    "topColor": "#3f6b4f",
-    "bottom": "pants",
+    "top": "windbreaker",
+    "topColor": "#4a5a3a",
+    "bottom": "jeans",
     "bottomColor": "#2f3f6f",
     "shoes": "sneakers",
     "shoesColor": "#e85d75",
     "hat": "none",
     "hatColor": "#ffffff",
-    "accessory": "scarf"
+    "accessory": "scarf",
+    "accessoryColor": "#e0b03a"
    },
    "schedule": [
     [
@@ -1817,9 +1827,9 @@
     "hair": "spiky",
     "hairColor": "#3b2a20",
     "mouth": "grin",
-    "top": "sweater",
-    "topColor": "#ffd166",
-    "bottom": "pants",
+    "top": "hoodie",
+    "topColor": "#d9a43a",
+    "bottom": "jeans",
     "bottomColor": "#4a4a6a",
     "shoes": "sneakers",
     "shoesColor": "#ffffff",
@@ -1997,10 +2007,10 @@
     "hair": "bun",
     "hairColor": "#f2f2f2",
     "mouth": "smile",
-    "top": "sweater",
-    "topColor": "#b59cff",
+    "top": "workjacket",
+    "topColor": "#b08ac0",
     "bottom": "dress",
-    "bottomColor": "#ff8fab",
+    "bottomColor": "#c98aa8",
     "shoes": "sandals",
     "shoesColor": "#7a4a2a",
     "hat": "none",
