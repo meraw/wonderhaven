@@ -4,20 +4,27 @@ extends "res://tests/play_rice_village2.gd"
 ## The Old Rice Mill, The Living Nativity (the stable, the straw, the evening) and the finale, The Train Stops Here
 ## (the inspector, the platform over its holes, the shelter, 250 signatures and the first stopping train).
 ## Run play_rice_village2.gd first, then:
-## TIMEOUT=3600 ./play.sh res://tests/play_rice_village3.gd /tmp/out --island=rice_village --title --limit=3600
+## TIMEOUT=7100 ./play.sh res://tests/play_rice_village3.gd /tmp/out --island=rice_village --title --limit=7000
+## (add --from=nativity to pick up from its save after the mill)
 
 const TT := preload("res://scripts/locations/rice_village/timetable.gd")
 const WATCH := Vector2(4.2, -41.2)   # where you stand to watch the trains at the crossing
 
 func play() -> void:
 	await fast_3d()
-	await load_slot("2")
-	check(100, "part one's save loads from the title screen", game.mode == "explore" and Data.island == "rice_village" and status("museum") == "done", "mode %s island %s museum %s" % [game.mode, Data.island, status("museum")])
-	if game.mode != "explore": return
-	check(101, "the petition carried over", signatures() >= 140, "signatures %d" % signatures())
-	await train_log()
-	await stairs()
-	await mill()
+	# --from=nativity picks up from the save this makes after the mill (slot 3), for the nativity and the finale
+	if String(game.shot_cfg.get("from", "")) == "nativity":
+		await load_slot("3")
+		check(102, "resumed from the save after the mill", game.mode == "explore" and status("mill") == "done", "mode %s mill %s" % [game.mode, status("mill")])
+	else:
+		await load_slot("2")
+		check(100, "part one's save loads from the title screen", game.mode == "explore" and Data.island == "rice_village" and status("museum") == "done", "mode %s island %s museum %s" % [game.mode, Data.island, status("museum")])
+		if game.mode != "explore": return
+		check(101, "the petition carried over", signatures() >= 140, "signatures %d" % signatures())
+		await train_log()
+		await stairs()
+		await mill()
+		check(139, "saved after the mill (slot 3)", await save_to("slot3"), "signatures %d" % signatures())
 	await nativity()
 	await finale()
 
@@ -43,21 +50,22 @@ func sleep_until(hour: int) -> void:
 func train_log() -> void:
 	await talk_for(P + "matteo", P + "trainlog")
 	check(110, "Matteo asks for five trains for his log", status("trainlog") == "active", status("trainlog"))
-	for kind in ["regional", "intercity", "freight"]:
-		var ok := await watch_for(kind, 600.0)
-		check("111-" + kind, "watch a %s go by at the crossing" % kind, ok, Clock.text(game.state.time))
-	await shot("train-watching")
-	# the night express runs only at night: sleep till nine, then wait at the crossing
-	await sleep_until(21)
-	var ok := await watch_for("night_express", 900.0)
+	# the night express runs only at night: wait for it now if it's dark, or sleep till nine in the evening
+	if not TT.is_night(float(game.state.time.minute)): await sleep_until(21)
+	var ok := await watch_for("night_express", 2400.0)
 	check(112, "the night express, after dark", ok, Clock.text(game.state.time))
 	await shot("night-express")
-	# the yellow inspection train comes once, at dawn: wait up for it if it's before six, or sleep till then
+	# the yellow inspection train comes once, at dawn: wait up for it if it's due before six, or sleep till then
 	var insp := next_train("inspection")
-	if insp - float(game.state.time.minute) > 9 * 60.0 or fposmod(insp, 1440.0) >= 360.0: await sleep_until(6)
-	ok = await watch_for("inspection", 900.0)
+	if fposmod(insp, 1440.0) >= 360.0: await sleep_until(6)
+	ok = await watch_for("inspection", 3600.0)
 	check(113, "the yellow inspection train, at dawn", ok, "%s (it was due at %d)" % [Clock.text(game.state.time), int(fposmod(insp, 1440.0))])
 	await shot("inspection-train")
+	# and the day's trains (at a couple of frames a second the game clock runs slow, so allow a while)
+	for kind in ["regional", "intercity", "freight"]:
+		ok = await watch_for(kind, 2400.0)
+		check("111-" + kind, "watch a %s go by at the crossing" % kind, ok, Clock.text(game.state.time))
+	await shot("train-watching")
 	await talk(P + "matteo")
 	check(114, "Matteo's Train Log is done", status("trainlog") == "done", status("trainlog"))
 
