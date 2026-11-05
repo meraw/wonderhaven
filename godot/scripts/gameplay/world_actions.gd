@@ -6,7 +6,9 @@ const P := preload("res://scripts/world/palette.gd")
 const REGROW := {"chop": 180.0, "mine": 240.0, "clay": 150.0, "flowers": 180.0, "shake": 90.0, "fruit": 240.0, "fragment": 1440.0, "bin": 300.0}
 const SQUIRREL_SPOTS := [[-8.4, -3.2], [-13.7, -3.3], [-7.2, -6.6]]
 const LABELS := {"chop": "Chop tree", "mine": "Mine rock", "clay": "Dig clay", "fish": "Fish here", "flowers": "Pick flowers", "shake": "Shake the chestnut tree", "fruit": "Pick hazelnuts", "chest": "Open chest", "fragment": "Pick up the lost thing", "bin": "Dig through the bin"}
-## What the lost things turn out to be; the first one is always the Sindaco's reading glasses.
+## What the lost things turn out to be; the first one is always the Sindaco's reading glasses. A layout's `lost` list
+## replaces it there. A gathering node may also carry its own `label`, `hours` when it's out (a page blown about at
+## night), `loot` (a bin or a dig spot), `lines` (a bin), and `item` and `name` (a lost thing that's something else).
 const LOST := ["the Sindaco's reading glasses", "a bunch of keys", "a dog's ball", "a single glove", "a lottery ticket (not a winner)", "a cassette of love songs", "a phone card with 200 lire left on it"]
 ## Copper wire from the bins, and what else comes up with it.
 const BIN_LINES := ["You go in head first. Copper wire! And half a pizza.", "A tangle of copper wire, a broken radio, and a very surprised cat.",
@@ -39,6 +41,7 @@ func ready(n: Dictionary) -> bool:
 	var s := node_state(n.id)
 	if s.get("done", false): return false
 	if n.has("flag") and not state().flags.get(n.flag, false): return false
+	if n.has("hours") and not Clock.in_hours(n.hours, float(state().time.minute)): return false
 	if n.kind == "fruit" and not state().flags.get("orchardOpen", false): return false
 	# Lost things only turn up once the Sindaco has welcomed you, so new players don't pick up his glasses by accident.
 	if n.kind == "fragment" and not state().flags.get("hasTool", false): return false
@@ -56,7 +59,7 @@ func _register_node(n: Dictionary) -> void:
 		base.merge({"radius": 0.9, "object": null, "available": func(): return ready(nd) and state().flags.get("hasTool", false),
 			"label": func(): return "Dig here, the metal detector is going wild!", "act": func(): dig(nd)}, true)
 		game.add_interactable(base); return
-	base.merge({"radius": 2.0 if n.kind == "mine" else (1.3 if n.kind == "fish" else 1.7), "label": func(): return LABELS[nd.kind], "act": func(): act(nd)}, true)
+	base.merge({"radius": 2.0 if n.kind == "mine" else (1.3 if n.kind == "fish" else 1.7), "label": func(): return String(nd.get("label", LABELS[nd.kind])), "act": func(): act(nd)}, true)
 	game.add_interactable(base)
 
 func _register_feature(f: Dictionary) -> void:
@@ -73,6 +76,11 @@ func _register_feature(f: Dictionary) -> void:
 		"stop": game.add_interactable({"id": f.id, "x": f.x, "z": f.z, "radius": 2.2, "object": game.village.objects.get(f.id), "label": func(): return String(f.get("ride_label", "Take a ride")), "act": func(): game.panels.stops(f)})
 		# the departure point (any id; "depart_label" names how you leave, a train from a city station, say)
 		"boat": game.add_interactable({"id": f.id, "x": f.x, "z": f.z, "radius": 2.6, "object": game.village.objects.get(f.id), "available": func(): return state().flags.get("boatReady", false), "label": func(): return String(f.get("depart_label", "Catch the bus")), "act": func(): game.panels.map(true)})
+
+static func _ints(d: Dictionary) -> Dictionary:
+	var out := {}
+	for k in d: out[k] = int(d[k])
+	return out
 
 func _src(n: Dictionary, up: float = 1.0) -> Vector3: return Vector3(n.x, Heightfield.height(n.x, n.z) + up, n.z)
 
@@ -122,19 +130,23 @@ func minigame_done(kind: String, mg) -> void:
 
 func catch_fragment(n: Dictionary) -> void:
 	var p := _src(n, 0.2)
-	var what: String = LOST[0] if int(state().stats.fragments) == 0 else LOST[1 + int(state().stats.fragments) % (LOST.size() - 1)]
-	game.give({"fragment": 1}, null, true)
+	var found := int(state().stats.fragments)
+	var here: Array = Data.layout.get("lost", [])
+	var what: String = n.get("name", here[found % here.size()] if not here.is_empty() else (LOST[0] if found == 0 else LOST[1 + found % (LOST.size() - 1)]))
+	var item: String = n.get("item", "fragment")
+	game.give({item: 1}, null, true)
 	game.toast("You found %s!" % what, "good", 2.5)
 	game.effects.sparkle(p, 8, Color("ffe7a0"), 0.18); game.sfx("pick")
-	state().stats.fragments += 1
+	if item == "fragment": state().stats.fragments += 1
 	deplete(n)
 
 ## Head first into a street bin: there is always copper wire, and usually something else.
 func dig_bin(n: Dictionary) -> void:
 	var count := int(state().stats.get("bins", 0))
 	game.player_char.play("dig"); game.sfx("dig")
-	game.give({"crystal": 1, "metal": 1} if count % 3 == 2 else {"crystal": 1}, _src(n, 1.0), true)
-	game.toast(BIN_LINES[count % BIN_LINES.size()], "good", 3.0)
+	var lines: Array = n.get("lines", BIN_LINES)
+	game.give(_ints(n.loot) if n.has("loot") else ({"crystal": 1, "metal": 1} if count % 3 == 2 else {"crystal": 1}), _src(n, 1.0), true)
+	game.toast(lines[count % lines.size()], "good", 3.0)
 	state().stats["bins"] = count + 1
 	deplete(n)
 
@@ -155,8 +167,9 @@ func dig(n: Dictionary) -> void:
 	var p := _src(n, 0.3)
 	game.player_char.play("dig"); game.sfx("dig")
 	var digs: Array = Data.layout.nodes.filter(func(x): return x.kind == "dig")
-	var loot: Dictionary = [{"crystal": 1, "coins": 8}, {"fabric": 2, "coins": 5}, {"metal": 2, "coins": 5}, {"crystal": 1, "fabric": 1, "coins": 8}, {"metal": 1, "crystal": 1, "coins": 10}][digs.find(n) % 5]
+	var loot: Dictionary = _ints(n.loot) if n.has("loot") else [{"crystal": 1, "coins": 8}, {"fabric": 2, "coins": 5}, {"metal": 2, "coins": 5}, {"crystal": 1, "fabric": 1, "coins": 8}, {"metal": 1, "crystal": 1, "coins": 10}][digs.find(n) % 5]
 	game.give(loot, p); game.effects.sparkle(p, 22)
+	if n.has("text"): game.toast(String(n.text), "good", 3.0)
 	state().stats.dug += 1; state().stats.treasures += 1
 	deplete(n); game.sfx("chest")
 	game.story.event("treasure"); game.story.event("dig")
@@ -168,7 +181,7 @@ func start_fishing(n: Dictionary) -> void:
 	var fz: float = n.z + cos(facing) * 3.0
 	bobber.position = Vector3(fx, Heightfield.WATER_Y + 0.05, fz); bobber.visible = true; line.visible = true
 	game.player_char.play("cast", true); game.sfx("cast")
-	var mg := Minigames.Fish.new()
+	var mg := Minigames.Fish.new(null, Data.layout.get("catches", []))
 	fishing = {"mg": mg, "fx": fx, "fz": fz}
 	game.start_minigame("fish", mg, Vector3(fx, Heightfield.WATER_Y, fz))
 
@@ -182,20 +195,28 @@ func _fishing_done(mg) -> void:
 	game.effects.splash(Vector3(f.fx, Heightfield.WATER_Y + 0.1, f.fz))
 	game.player_char.play("celebrate"); game.sfx("fanfare_small")
 	state().stats.fish += 1
-	game.toast("You caught a %s!" % mg.fish.name, "good")
+	game.toast("You caught %s!" % Minigames.a_name(mg.fish.name), "good")
 	game.story.event("fish")
 
 ## Which kinds of place give each item (for pointing the compass at the nearest one).
 const SOURCES := {"wood": ["chop"], "stone": ["mine"], "metal": ["mine", "bin"], "crystal": ["bin"], "clay": ["clay"], "flowers": ["flowers"],
 	"fish": ["fish"], "acorn": ["shake"], "fruit": ["fruit"], "fragment": ["fragment"]}
 
+## Does this node give `item`? Its own `loot` or `item` if it has one, otherwise what its kind gives (SOURCES, and
+## the layout's fishing `catches`). Treasure chests stay a surprise.
+func gives(n: Dictionary, item: String) -> bool:
+	if n.kind == "chest": return false
+	if n.has("loot"): return n.loot.has(item)
+	if n.has("item"): return n.item == item
+	if n.kind == "fish" and Data.layout.has("catches"): return Data.layout.catches.any(func(c): return c.get("item", "fish") == item)
+	return SOURCES.get(item, []).has(n.kind)
+
 ## The nearest place that gives `item` and is ready right now, or {}.
 func nearest_ready(item: String) -> Dictionary:
-	var kinds: Array = SOURCES.get(item, [])
 	var p: Vector3 = game.player.pos
 	var best := {}; var bd := INF
 	for n in Data.layout.nodes:
-		if not n.kind in kinds or not ready(n): continue
+		if not gives(n, item) or not ready(n): continue
 		var d := Vector2(n.x - p.x, n.z - p.z).length()
 		if d < bd: bd = d; best = n
 	return best
@@ -319,7 +340,7 @@ func update(dt: float) -> void:
 		check_t = 1.0
 		for n in Data.layout.nodes:
 			var o: Node3D = game.village.node_visuals.get(n.id)
-			if o and o.get_meta("depleted", false) and ready(n): refresh_node(n)
+			if o and o.get_meta("depleted", false) == ready(n): refresh_node(n)   # back, or gone (out of its hours)
 		if Gardening.grow(s.gardens, now()): refresh_gardens()
 	var p: Vector3 = game.player.pos
 	if game.mode == "explore":

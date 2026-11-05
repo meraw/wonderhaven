@@ -6,6 +6,8 @@ const P := preload("res://scripts/world/palette.gd")
 
 var objects: Dictionary = {}
 var node_visuals: Dictionary = {}
+var pack: Script            # the location's own script, if it has one (Data.location_script)
+var pack_fns: Array = []
 var lamps: Array = []
 var lamp_glow := 0.0
 var lamp_bulbs: Array = []    # indoor lamps (build-piece models) that glow at night
@@ -20,8 +22,8 @@ func build(decor: Dictionary) -> void:
 	var H := func(x: float, z: float) -> float: return Heightfield.height(x, z)
 	# A location pack's script may build its own kinds of building (building(b) returns a Node3D, or null to use the
 	# shared ones) and add scenery of its own (dress(village)). See docs/WORLD.md.
-	var pack = Data.location_script(Data.island)
-	var pack_fns: Array = pack.get_script_method_list().map(func(m): return m.name) if pack else []
+	pack = Data.location_script(Data.island)
+	pack_fns = pack.get_script_method_list().map(func(m): return m.name) if pack else []
 	for b in Data.layout.buildings:
 		var o: Node3D = pack.building(b) if pack_fns.has("building") else null
 		if o == null:
@@ -168,20 +170,23 @@ func _build_decor(decor: Dictionary) -> void:
 
 func _build_nodes() -> void:
 	for n in Data.layout.nodes:
-		var o: Node3D
-		match n.kind:
-			"chop": o = Props.round_tree(1.05, fmod(n.x * 7.3, 1.0) if n.x > 0 else fmod(-n.x * 7.3, 1.0)); Props.add_ribbon(o)
-			"mine": o = Props.rock(n.get("rich", false))
-			"clay": o = Props.clay_mound()
-			"fish": o = Props.fishing_spot()
-			"flowers": o = Props.flower_patch()
-			"shake": o = Props.oak()
-			"fruit": o = Props.round_tree(0.9, 0.7); Props.add_fruit(o).visible = false
-			"dig": o = Props.dig_spot()
-			"chest": o = Props.chest()
-			"fragment": o = Props.fragment()
-			"bin": o = Props.garbage_bin()
-			_: o = Node3D.new()
+		# a location may draw its own gathering spots (node(n) returns a Node3D, or null for the shared one), keeping
+		# the parts the shared code animates: a "lid" child on a bin, the "stump" is added below for a tree
+		var o: Node3D = pack.node(n) if pack_fns.has("node") else null
+		if o == null:
+			match n.kind:
+				"chop": o = Props.round_tree(1.05, fmod(n.x * 7.3, 1.0) if n.x > 0 else fmod(-n.x * 7.3, 1.0)); Props.add_ribbon(o)
+				"mine": o = Props.rock(n.get("rich", false))
+				"clay": o = Props.clay_mound()
+				"fish": o = Props.fishing_spot()
+				"flowers": o = Props.flower_patch()
+				"shake": o = Props.oak()
+				"fruit": o = Props.round_tree(0.9, 0.7); Props.add_fruit(o).visible = false
+				"dig": o = Props.dig_spot()
+				"chest": o = Props.chest()
+				"fragment": o = Props.fragment()
+				"bin": o = Props.garbage_bin()
+				_: o = Node3D.new()
 		var y := maxf(Heightfield.height(n.x, n.z), -0.2) if n.kind == "fish" else Heightfield.height(n.x, n.z)
 		o.position = Vector3(n.x, y, n.z)
 		if n.kind == "fragment": o.position.y += 0.03; o.rotation.y = fmod(n.x * 2.3, TAU)   # lost things lie on the ground

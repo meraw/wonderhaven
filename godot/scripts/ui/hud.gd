@@ -9,6 +9,7 @@ var clock_label: Label
 var tracker: VBoxContainer
 var compass: Label
 var harmony_box: HBoxContainer
+var harmony_title: Label
 var guide_card: PanelContainer
 var guide_text: RichTextLabel
 var guide_count: Label
@@ -23,7 +24,7 @@ func setup(g) -> void:
 	var top := UiTheme.panel(); top.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var tr := HBoxContainer.new(); tr.add_theme_constant_override("separation", 10); top.add_child(tr)
 	harmony_box = HBoxContainer.new(); harmony_box.add_theme_constant_override("separation", 10); tr.add_child(harmony_box)
-	harmony_box.add_child(UiTheme.label("💖 Approval", 15))
+	harmony_title = UiTheme.label("💖 Approval", 15); harmony_box.add_child(harmony_title)
 	harmony_bar = ProgressBar.new(); harmony_bar.custom_minimum_size = Vector2(160, 14); harmony_bar.show_percentage = false; harmony_bar.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	harmony_box.add_child(harmony_bar)
 	harmony_label = UiTheme.label("0", 15); harmony_box.add_child(harmony_label)
@@ -123,9 +124,12 @@ func tick(dt: float) -> void:
 		tip_t -= dt
 		if tip_t <= 0.0: _next_tip()
 
+## The approval rating, or the place's own meter where it has one (Meter).
 func render_harmony() -> void:
-	var h := int(game.state.harmony)
-	var nx := Harmony.next_unlock(h)
+	var m := Meter.def(Data.island)
+	harmony_title.text = "%s %s" % [m.get("icon", "⭐"), m.get("short", m.get("name", ""))] if not m.is_empty() else "💖 Approval"
+	var h := int(Meter.progress(game.state, Data.island))
+	var nx := Meter.next(game.state, Data.island) if not m.is_empty() else Harmony.next_unlock(h)
 	harmony_bar.max_value = nx.at if not nx.is_empty() else maxf(h, 1)
 	harmony_bar.value = h
 	harmony_label.text = ("%d / %d" % [h, int(nx.at)]) if not nx.is_empty() else str(h)

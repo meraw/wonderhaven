@@ -285,6 +285,9 @@ func _blueprint_source(id: String) -> String:
 		if q.get("rewards", {}).get("blueprints", []).has(id): return "Complete “%s” for %s" % [q.title, Data.npc(q.giver).name]
 	for u in Data.harmony_unlocks:
 		if u.get("blueprints", []).has(id): return "Reach %d approval" % int(u.at)
+	for isl in Data.islands:
+		for m in isl.get("meter", {}).get("milestones", []):
+			if m.get("blueprints", []).has(id): return "Reach %d %s in %s" % [int(m.at), isl.meter.get("unit", "points"), isl.meter.get("name", isl.get("name", ""))]
 	for n in Data.npcs:
 		for g in n.get("gifts", []):
 			if g.get("blueprint", "") == id: return "Become good friends with %s" % n.name

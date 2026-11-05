@@ -17,7 +17,7 @@ static func deserialize(text: String) -> Dictionary:
 	var base := GameState.new_game()
 	var s: Dictionary = base.duplicate(true)
 	for k in raw: s[k] = raw[k]
-	for k in ["flags", "quests", "relationships", "nodes", "gardens", "stats", "inventory", "time", "player", "crossings"]:
+	for k in ["flags", "quests", "relationships", "nodes", "gardens", "stats", "inventory", "time", "player", "crossings", "meters"]:
 		var merged: Dictionary = base[k].duplicate(true)
 		if raw.get(k) is Dictionary: merged.merge(raw[k], true)
 		s[k] = merged

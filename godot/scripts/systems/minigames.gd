@@ -86,6 +86,8 @@ class Mine:
 		elif hits >= 2: out["metal"] = 1
 		return out
 
+## What a line catches by default; a layout's `catches` replaces it there (old bicycles from a city canal), in the
+## same shape plus an optional `item` to give (default "fish").
 const FISH := [{"id": "minnow", "name": "Minnow", "weight": 5.0, "pull": 0.5}, {"id": "trout", "name": "Brown Trout", "weight": 3.0, "pull": 0.8},
 	{"id": "puffer", "name": "Perch", "weight": 1.5, "pull": 1.0}, {"id": "starfin", "name": "Pike", "weight": 0.6, "pull": 1.25}]
 
@@ -101,14 +103,15 @@ class Fish:
 	var band := [0.32, 0.74]
 	var fish: Dictionary
 	var pull := 0.0
-	func _init(r: Rng = null) -> void:
+	func _init(r: Rng = null, table: Array = []) -> void:
 		rng = r if r else Rng.new(Time.get_ticks_usec() & 0xffff)
 		wait = 1.4 + rng.next() * 2.6
+		var list: Array = table if not table.is_empty() else Minigames.FISH
 		var total := 0.0
-		for f in Minigames.FISH: total += f.weight
+		for f in list: total += float(f.weight)
 		var x := rng.next() * total
-		fish = Minigames.FISH[0]
-		for f in Minigames.FISH:
+		fish = list[0]
+		for f in list:
 			x -= f.weight
 			if x <= 0.0: fish = f; break
 	func step(dt: float, press: bool, hold: bool = false) -> void:
@@ -130,4 +133,7 @@ class Fish:
 				if tension >= 0.99: done = true; result = "snap"
 				elif progress >= 1.0: done = true; result = "caught"
 				elif t > 25.0: done = true; result = "escaped"
-	func reward() -> Dictionary: return {"fish": 1} if result == "caught" else {}
+	func reward() -> Dictionary: return {String(fish.get("item", "fish")): 1} if result == "caught" else {}
+
+## "a Minnow", "an Old Boot".
+static func a_name(name: String) -> String: return ("an " if name.length() > 0 and "AEIOUaeiou".contains(name[0]) else "a ") + name

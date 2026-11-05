@@ -84,7 +84,7 @@ func _render() -> void:
 		if mg.phase == "bite" and not bite_played: bite_played = true; game.sfx("bite"); game.player_char.play("surprised")
 	if mg.done:
 		if active.kind == "fish":
-			result.text = {"caught": "Caught a %s! 🐟" % mg.fish.name, "snap": "Snap! Too much tension.", "missed": "It got away… press quicker next time!", "early": "Too soon! The fish swam off.", "escaped": "It wriggled free!"}.get(mg.result, "")
+			result.text = {"caught": "Caught %s! 🐟" % Minigames.a_name(mg.fish.name), "snap": "Snap! Too much tension.", "missed": "It got away… press quicker next time!", "early": "Too soon! The fish swam off.", "escaped": "It wriggled free!"}.get(mg.result, "")
 		else:
 			var hits: int = mg.results.filter(func(r): return r != "miss").size()
 			result.text = "%d / 3 hits%s" % [hits, " ✨" if mg.results.has("perfect") else ""]

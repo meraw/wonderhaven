@@ -242,17 +242,18 @@ func journal(tab: String = "active") -> void:
 			var qid: String = q.id
 			v.add_child(UiTheme.button("📍 Tracking" if game.state.tracked == qid else "📍 Track", func(): game.state.tracked = qid; game.hud.render_tracker(); close(); game.toast("Tracking “%s”" % q.title), game.state.tracked == qid))
 		if tab == "optional": v.add_child(UiTheme.label("Talk to %s to start." % Data.npc(q.giver).name, 13, Color("b34a6a")))
-		v.add_child(UiTheme.label(_rewards_text(q.get("rewards", {})), 13, Color("a07a20")))
+		v.add_child(UiTheme.label(_rewards_text(q.get("rewards", {}), Data.quest_island(q.id)), 13, Color("a07a20")))
 
-func _rewards_text(r: Dictionary) -> String:
+func _rewards_text(r: Dictionary, island: String = "hearthglow") -> String:
 	var parts: Array = []
-	if r.get("harmony", 0) > 0: parts.append("💖 %d" % int(r.harmony))
+	if r.get("harmony", 0) > 0: parts.append("%s %d" % [Meter.def(island).get("icon", "💖"), int(r.harmony)])
 	for k in r.get("items", {}): parts.append(Money.amount(k, int(r.items[k])) if k == "coins" else "%s %d" % [Data.resources[k].icon, int(r.items[k])])
 	for b in r.get("blueprints", []): parts.append("📐 " + Data.piece(b).name)
 	for c in r.get("clothes", []): parts.append("👗 " + Data.appearance.labels.get(c, c))
 	return "Rewards: " + ("  ".join(parts) if not parts.is_empty() else "the villagers' gratitude")
 
 func progress() -> void:
+	if Meter.has(Data.island): meter(); return
 	open_panel("progress", "💖 The Sindaco's Approval Rating")
 	var h := int(game.state.harmony)
 	var nx := Harmony.next_unlock(h)
@@ -263,6 +264,24 @@ func progress() -> void:
 		var got: bool = h >= u.at
 		var v := _card(Color("f3fff6") if got else Color.WHITE)
 		v.add_child(UiTheme.label(("🌟 " if got else "🔒 ") + u.title + ("   Unlocked" if got else "   at %d approval" % int(u.at)), 16))
+		v.add_child(_wrap(u.desc, 13))
+
+## A place's own progress meter (Meter): its milestones, and what they give.
+func meter() -> void:
+	var d := Meter.def(Data.island)
+	var icon: String = d.get("icon", "⭐")
+	open_panel("progress", "%s %s" % [icon, d.get("name", "Progress")])
+	var h := Meter.value(game.state, Data.island)
+	var nx := Meter.next(game.state, Data.island)
+	var unit: String = d.get("unit", "points")
+	body.add_child(UiTheme.label("%d %s%s" % [h, unit, ("  ·  Next: %s at %d" % [nx.title, int(nx.at)]) if not nx.is_empty() else "  ·  Every milestone reached!"], 22))
+	var bar := ProgressBar.new(); bar.custom_minimum_size = Vector2(780, 20); bar.show_percentage = false; bar.max_value = nx.at if not nx.is_empty() else 1; bar.value = h if not nx.is_empty() else 1; body.add_child(bar)
+	if d.has("about"): body.add_child(_wrap(d.about))
+	for u in Meter.milestones(Data.island):
+		var got := Meter.got(game.state, Data.island, u)
+		var v := _card(Color("f3fff6") if got else Color.WHITE)
+		var when := "   at %d %s" % [int(u.at), unit] + (" and " + String(u.waits) if u.has("waits") else "")   # waits: what else it needs, in words
+		v.add_child(UiTheme.label(("🌟 " if got else "🔒 ") + u.title + ("   Reached" if got else when), 16))
 		v.add_child(_wrap(u.desc, 13))
 
 func notice_board() -> void:
