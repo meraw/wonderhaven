@@ -1406,8 +1406,8 @@
   {
    "id": "river_town_log1",
    "kind": "fragment",
-   "x": 21.4,
-   "z": 30.0,
+   "x": 23.0,
+   "z": 30.4,
    "gives": {
     "river_town_log": 1
    },
@@ -1871,6 +1871,10 @@
    22.6,
    33.4
   ],
+  "sandbank": [
+   5.0,
+   38.8
+  ],
   "hallA": [
    12.6,
    29.3
@@ -2185,6 +2189,10 @@
   [
    "hallNE",
    "hallSE"
+  ],
+  [
+   "fishing",
+   "sandbank"
   ],
   [
    "river_town_dance_hall:in",

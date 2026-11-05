@@ -196,7 +196,15 @@ func test_people_and_their_days():
 		var after: Dictionary = storm.duplicate(); after["river_town_flood_over"] = true
 		t.eq(at.call("river_town_rina", 10.0, after).node, "river_town_bar:spot", "after the storm, life goes back to normal")
 		for n in Data.layout.nav_nodes:
-			if String(n).begins_with("storm") or String(n).begins_with("hall"): t.ok(not Schedule.find_path("busStop", n, {}).is_empty(), "villagers can walk to %s" % n))
+			if String(n).begins_with("storm") or String(n).begins_with("hall"): t.ok(not Schedule.find_path("busStop", n, {}).is_empty(), "villagers can walk to %s" % n)
+		# no two villagers stand (or sleep) on the same spot at the same hour, at any point of the story
+		for flags in [{}, w, {"river_town_welcomed": true, "river_town_bridge_open": true}, ready, wall, storm, after]:
+			for h in 24:
+				var taken := {}
+				for n in people:
+					var spot: String = at.call(n.id, h + 0.5, flags).node
+					t.ok(not taken.has(spot), "%s and %s don't share %s at %d:30" % [taken.get(spot, ""), n.id, spot, h])
+					taken[spot] = n.id)
 
 func test_requests():
 	_on(func():

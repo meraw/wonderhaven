@@ -316,14 +316,23 @@ func wait_until(h: float, max_s: float = 3600.0) -> void:
 		if now >= h and now < h + 1.0: return
 		await wait(1.0)
 
-## Walk onto a lost thing (they're picked up as you step on them).
+## Walk onto a lost thing (they're picked up as you step on them). One you already stepped on earlier, walking
+## somewhere else, counts as found.
 func pick_up(node: String) -> bool:
 	var n := Data.node_def(node)
+	if game.state.nodes.get(node, {}).get("done", false): note("%s was already picked up" % node); return true
 	var have: int = inv(n.gives.keys()[0])
 	await walk_to(n.x, n.z, 0.5)
 	await walk_direct(n.x, n.z, 0.35, 6.0)
 	await frames(20)
 	return inv(n.gives.keys()[0]) > have
+
+## What the flood gauge should read for the requests done so far: each one's own "meter" reward added up.
+func expected_pts() -> int:
+	var total := 0
+	for q in Data.quests:
+		if String(q.id).begins_with(P) and qs(String(q.id).trim_prefix(P)) == "done": total += int(q.rewards.get("meter", 0))
+	return total
 
 ## Like gather_until, but when nothing of that kind has grown back yet, nap until it has (the game's clock runs slow
 ## when frames are slow, so standing and waiting could take an age).
@@ -418,7 +427,7 @@ func sec_bridge() -> void:
 	await shot("pontoon-bridge-crossed")
 	await talk(P + "tullio")
 	check("s2", "The Pontoon Bridge: materials, the plans from Ines over the Roman bridge, a row of pontoons moored bank to bank, railings, and you walk across",
-		b_ok and plans and path_done and rails_done and crossed and qs("bridge") == "done" and flag("bridge_open") and pts() == 200,
+		b_ok and plans and path_done and rails_done and crossed and qs("bridge") == "done" and flag("bridge_open") and pts() == expected_pts() and pts() >= 200,
 		"plans=%s path=%s rails=%s crossed=%s at %s, %s, gauge %s" % [plans, path_done, rails_done, crossed, game.player.pos, qs("bridge"), reading()])
 
 func sec_piazza() -> void:
@@ -441,7 +450,7 @@ func sec_piazza() -> void:
 	var drained := await await_rebuild()
 	await walk_to(5, 4); await shot("piazza-drained")
 	check("s3", "Pump Out the Piazza: a waterwheel by the quay powers the old pumping house, the world is rebuilt and the piazza is dry",
-		pz_ok and fed and drained and qs("piazza") == "done" and not game.village.objects[P + "pond"].visible and Data.world_flags.has(P + "piazza_drained") and pts() == 300,
+		pz_ok and fed and drained and qs("piazza") == "done" and not game.village.objects[P + "pond"].visible and Data.world_flags.has(P + "piazza_drained") and pts() == expected_pts() and pts() >= 300,
 		"fed=%s rebuilt=%s %s pond=%s gauge %s" % [fed, drained, qs("piazza"), game.village.objects[P + "pond"].visible, reading()])
 
 func sec_crossing() -> void:
@@ -499,7 +508,7 @@ func sec_dancehall() -> void:
 	var glow: float = ((bulbs.get_child(0) as MeshInstance3D).material_override as StandardMaterial3D).emission_energy_multiplier
 	await shot("dance-hall-lit")
 	check("s5", "Saturday at the Dance Hall: floor, stage, lamps, bar, seats and colour; after 8 the town comes to dance, and the hall's bulbs light up",
-		dh_ok and fitted and dancers >= 7 and lit and glow > 1.0 and qs("dancehall") == "done" and pts() == 400,
+		dh_ok and fitted and dancers >= 7 and lit and glow > 1.0 and qs("dancehall") == "done" and pts() == expected_pts() and pts() >= 400,
 		"fitted=%s dancers=%d lit=%s glow=%.1f %s gauge %s" % [fitted, dancers, lit, glow, qs("dancehall"), reading()])
 
 func sec_houseboat() -> void:
@@ -595,7 +604,7 @@ func sec_lost() -> void:
 	check("s9", "Ines's six runaway logs and the six lost things: found once each along the banks and handed back",
 		asked == 7 and found == 12 and returned == 7 and inv(P + "log") == 0, "asked %d, found %d of 12, returned %d" % [asked, found, returned])
 	check("s10", "The flood gauge counts it all: a metre per main request, half a metre per side request, ten centimetres per lost thing",
-		pts() == 400 + 150 + 60 and reading() == "1.30 m" and s.flags.get(P + "mooring_plot", false) and s.blueprints.has("poweredLamp") and s.flags.get(P + "mooring_garden", false),
+		pts() == 400 + 150 + 60 and pts() == expected_pts() and reading() == "1.30 m" and s.flags.get(P + "mooring_plot", false) and s.blueprints.has("poweredLamp") and s.flags.get(P + "mooring_garden", false),
 		"gauge %s (%d cm); plot=%s lamp plans=%s garden=%s" % [reading(), pts(), s.flags.get(P + "mooring_plot", false), s.blueprints.has("poweredLamp"), s.flags.get(P + "mooring_garden", false)])
 
 func sec_levee() -> void:
