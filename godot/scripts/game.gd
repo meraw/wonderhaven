@@ -801,6 +801,7 @@ func _update_world_time(dt: float) -> void:
 	var look := Daylight.sample(h)
 	var nt := Daylight.nightness(h)
 	var forced: String = shot_cfg.get("weather", "")   # screenshots: --weather=rain etc.
+	if forced == "" and settings.weather: forced = Daylight.forced(s)   # a request's own weather (Daylight.force)
 	var w: Dictionary = Daylight.weather(s.time, Daylight.allowed_here()) if settings.weather and forced == "" else Daylight.WEATHER.get(forced if forced != "" else "clear", Daylight.WEATHER.clear).duplicate()
 	if not w.has("type"): w["type"] = forced if forced != "" else "clear"
 	# ease the weather values too, so switching the setting or loading a save doesn't snap the sky

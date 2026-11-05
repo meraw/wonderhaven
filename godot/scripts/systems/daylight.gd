@@ -92,6 +92,18 @@ static func slot_weather(slot: int, allowed: Array = []) -> String:
 	return w if allowed.is_empty() or allowed.has(w) else String(allowed[0])
 
 ## The weather the location you're on allows (its look block's `weather`, e.g. ["clear"]), or [] for any.
+## A request can bring its own weather for a while (a storm on a finale's night): state.forced_weather = {type, until},
+## `until` in the clock's total minutes. The weather type while it lasts, else "".
+static func forced(state: Dictionary) -> String:
+	var fw = state.get("forced_weather", {})
+	if not fw is Dictionary or fw.is_empty(): return ""
+	if float(state.get("time", {}).get("total", 0.0)) >= float(fw.get("until", 0.0)): return ""
+	return String(fw.get("type", "")) if WEATHER.has(String(fw.get("type", ""))) else ""
+
+## Brings `type` weather (a key of WEATHER) for the next `hours`.
+static func force(state: Dictionary, type: String, hours: float) -> void:
+	state["forced_weather"] = {"type": type, "until": float(state.time.total) + hours * 60.0}
+
 static func allowed_here() -> Array: return Data.island_def(Data.island).get("look", {}).get("weather", [])
 
 static func _slot_weather(slot: int) -> String:
