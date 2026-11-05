@@ -19,6 +19,26 @@ func shot(name: String) -> void:
 	await super.shot(name)
 	lighten()
 
+## Walks along the nav graph from the nav spot nearest the player. (Toriano keeps this simpler start to a walk:
+## the shared one picks a spot you can reach in a straight line at your own height, which on number 14's balcony,
+## above the courtyard, picks a courtyard spot and walks you into the railing.)
+func walk_to(x: float, z: float, tol: float = 0.8) -> bool:
+	var f: Dictionary = game.state.flags
+	var p: Vector3 = game.player.pos
+	var path := Schedule.find_path(Schedule.nearest_node(p.x, p.z, f), Schedule.nearest_node(x, z, f), f)
+	var pts: Array = []
+	for i in path.size():
+		var a: Array = Data.layout.nav_nodes[path[i]]
+		pts.append(Vector2(a[0], a[1]))
+		if i + 1 < path.size(): pts.append_array(game.crossing_path(path[i], path[i + 1]))
+	var here := Vector2(game.player.pos.x, game.player.pos.z)
+	var start := 0
+	for i in pts.size():
+		if pts[i].distance_to(here) < pts[start].distance_to(here): start = i
+	for i in range(start, pts.size()):
+		await walk_direct(pts[i].x, pts[i].y, 1.2)
+	return await walk_direct(x, z, tol)
+
 func node(id: String) -> Vector2:
 	var a: Array = Data.layout.nav_nodes[P + id]
 	return Vector2(a[0], a[1])
