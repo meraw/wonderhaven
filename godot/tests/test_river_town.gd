@@ -260,3 +260,29 @@ func test_the_houseboat_floats_once_launched():
 		t.ok(BuildGrid.ground_at(cabin.minI, cabin.minK) > Heightfield.WALKABLE_MIN, "you can build on her cabin floor")
 		Data.apply_world_flags({})
 		t.ok(not _building("river_town_houseboat").get("afloat", false), "a save from before the launch finds her on the mud again"))
+
+## What a player builds for the two crossing requests makes the walkable path their checks ask for.
+func test_the_crossings_you_build_are_walkable():
+	_on(func():
+		var w := WalkWorld.new(WorldStatics.build_statics(WorldStatics.generate_decor()), func(_f): return true)
+		w.floors = WorldStatics.floors()
+		var bridge: Dictionary = Data.zone("river_town_bridge")
+		t.ok(not Validate.path_across(bridge, w).ok, "no way across the Alpine river before anything is built")
+		var row: Array = []
+		for i in [27, 29, 31, 33, 35]:
+			var y := BuildGrid.suggest_bottom("pontoon", i, 13, 1, 0.1, row, bridge)
+			var pl := {"uid": 100 + row.size(), "id": "pontoon", "i": float(i), "k": 13.0, "r": 1, "y": y}
+			t.ok(BuildGrid.validate_placement(pl, {"placements": row, "zones": [bridge], "statics": []}).ok, "a pontoon moors at %d, 13" % i)
+			row.append(pl)
+		w.surfaces = BuildGrid.surfaces_for(row)
+		var r := Validate.path_across(bridge, w)
+		t.ok(r.ok, "a row of five pontoons from the ferry landing to the far bank is a crossing (reached %s cells)" % r.get("reached", "all"))
+		var moor: Dictionary = Data.zone("river_town_mooring")
+		var slip: Array = []
+		for k in [32, 33]:
+			var y := BuildGrid.suggest_bottom("bridgeDeck", -24, k, 0, 0.2, slip, moor)
+			var pl := {"uid": 200 + slip.size(), "id": "bridgeDeck", "i": -24.0, "k": float(k), "r": 0, "y": y}
+			t.ok(BuildGrid.validate_placement(pl, {"placements": slip, "zones": [moor], "statics": []}).ok, "a slipway plank at -24, %d" % k)
+			slip.append(pl)
+		w.surfaces = BuildGrid.surfaces_for(slip)
+		t.ok(Validate.path_across(moor, w).ok, "two planks from beside the houseboat out over the backwater make her slipway"))
