@@ -178,16 +178,7 @@ func down_from_flat() -> void:
 	await walk_slow(25.7, -37.3, 0.5)
 	await walk_slow(25.7, -30.6, 0.6)
 
-## The software renderer in a cloud session draws only a couple of frames a second at full size; drawing the 3D at
-## half size (the interface stays full size) makes a long playthrough several times quicker without changing what's
-## played. Real graphics cards don't need this.
-func fast_3d() -> void:
-	get_viewport().scaling_3d_scale = 0.5
-	await wait(2.0)
-	note("frame rate: %d fps" % Engine.get_frames_per_second())
-
 func play() -> void:
-	await fast_3d()
 	check(1, "the game starts in Casalrana", Data.island == "rice_village", Data.island)
 	await frames(10)
 	# --from=water (with --title) picks up from the save this makes after the flat (slot 1), to rerun the rest

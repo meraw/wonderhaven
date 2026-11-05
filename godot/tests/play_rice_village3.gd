@@ -3,15 +3,14 @@ extends "res://tests/play_rice_village2.gd"
 ## Train Log (by day, at night and at dawn), The Bell Tower Stairs (a climb you build and walk up, and the first peal),
 ## The Old Rice Mill, The Living Nativity (the stable, the straw, the evening) and the finale, The Train Stops Here
 ## (the inspector, the platform over its holes, the shelter, 250 signatures and the first stopping train).
-## Run play_rice_village2.gd first, then:
-## TIMEOUT=7100 ./play.sh res://tests/play_rice_village3.gd /tmp/out --island=rice_village --title --limit=7000
-## (add --from=nativity to pick up from its save after the mill)
+## It loads part one's save, so run play_rice_village2.gd first (with play_all.sh: play_rice_village2,play_rice_village3).
+## Run: TIMEOUT=7100 ./play.sh res://tests/play_rice_village3.gd /tmp/out --island=rice_village --title --limit=7000
+## Add --from=nativity to pick up from its save after the mill.
 
 const TT := preload("res://scripts/locations/rice_village/timetable.gd")
 const WATCH := Vector2(4.2, -41.2)   # where you stand to watch the trains at the crossing
 
 func play() -> void:
-	await fast_3d()
 	# --from=nativity picks up from the save this makes after the mill (slot 3), for the nativity and the finale
 	if String(game.shot_cfg.get("from", "")) == "nativity":
 		await load_slot("3")
