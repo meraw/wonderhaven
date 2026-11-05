@@ -831,7 +831,10 @@
     "meter": 30,
     "items": {
      "coins": 40
-    }
+    },
+    "clothes": [
+     "rice_village_boots"
+    ]
    },
    "dialogue": {
     "offer": [

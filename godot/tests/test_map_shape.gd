@@ -95,6 +95,17 @@ func test_a_departure_point_with_its_own_id():
 		var bus: Array = g.registered.filter(func(d): return d.get("id", "") == "boat")
 		t.eq(bus[0].label.call(), "Catch the bus", "without a label it's still the bus")
 		g.free())
+	# a departure point can wait for a story flag (a station where the trains only stop after a request)
+	_with_layout({"nodes": [], "features": [{"id": "x_platform", "kind": "boat", "x": 3, "z": 4, "depart_label": "Take the train", "flag": "x_trainsStop"}]}, func():
+		Data.island = "zz_elsewhere"
+		var g := FakeGame.new()
+		WorldActions.new(g)
+		Data.island = "hearthglow"
+		var platform: Dictionary = g.registered.filter(func(d): return d.get("id", "") == "x_platform")[0]
+		t.ok(not platform.available.call(), "not before its flag")
+		g.state.flags["x_trainsStop"] = true
+		t.ok(platform.available.call(), "and there once it's set")
+		g.free())
 
 func test_a_stop_offers_a_ride():
 	_with_layout({"nodes": [], "features": [{"id": "stop_a", "kind": "stop", "line": "tram", "name": "Duomo", "x": 3, "z": 4, "ride_label": "Take the tram"}]}, func():
@@ -202,3 +213,13 @@ func test_a_path_across_any_zone_between_heights():
 		pls[0].r = 1   # the first flight turned sideways: you'd have to step onto the side of it
 		w.surfaces = BuildGrid.surfaces_for(pls)
 		t.ok(not Validate.path_across(zone, w).ok, "stepping onto the side of a stair doesn't count"))
+
+func test_wildlife_stands_on_dry_land():
+	Data.use_island("hearthglow")
+	var W: Dictionary = Data.layout.get("wildlife", {})
+	t.ok(int(W.get("boars", 0)) > 0 and not Data.layout.get("decor", {}).get("woods", []).is_empty(), "Monteforchetta's boars have woods to root about in")
+	for kind in ["cats", "crows"]:
+		for s in W.get(kind, []):
+			var x := float(s[0]); var z := float(s[1])
+			t.ok(Heightfield.height(x, z) >= Heightfield.WALKABLE_MIN, "%s at (%s, %s) stand on dry land" % [kind, x, z])
+			t.ok(not WorldStatics._near_building(x, z, 0.0), "%s at (%s, %s) are not inside a building" % [kind, x, z])

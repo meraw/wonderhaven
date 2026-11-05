@@ -236,6 +236,7 @@ func give_gifts(agent) -> void:
 		await game.dialogue.say([{"text": Conversation.fill(gift.line, game.state.name), "mood": "happy", "anim": "clap"}])
 		if gift.has("items"): game.give(_ints(gift.items))
 		if gift.has("blueprint"): unlock_blueprints([gift.blueprint], "%s's gift" % agent.def.name)
+		if gift.has("clothes"): unlock_clothes(gift.clothes)
 		game.banner("A gift!", "from " + agent.def.name)
 
 func add_hearts(npc: String, n: int) -> void:

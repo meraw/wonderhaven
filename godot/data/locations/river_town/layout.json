@@ -1406,8 +1406,8 @@
   {
    "id": "river_town_log1",
    "kind": "fragment",
-   "x": 21.4,
-   "z": 30.0,
+   "x": 23.0,
+   "z": 30.4,
    "gives": {
     "river_town_log": 1
    },
@@ -1863,6 +1863,22 @@
    12.8,
    22.4
   ],
+  "hallNE": [
+   22.4,
+   27.8
+  ],
+  "hallSE": [
+   22.6,
+   33.4
+  ],
+  "sandbank": [
+   5.0,
+   38.8
+  ],
+  "shackCorner": [
+   -39.5,
+   33.6
+  ],
   "hallA": [
    12.6,
    29.3
@@ -2169,6 +2185,22 @@
   [
    "stormD",
    "stormC"
+  ],
+  [
+   "floodEast",
+   "hallNE"
+  ],
+  [
+   "hallNE",
+   "hallSE"
+  ],
+  [
+   "fishing",
+   "sandbank"
+  ],
+  [
+   "river_town_shack:in",
+   "shackCorner"
   ],
   [
    "river_town_dance_hall:in",

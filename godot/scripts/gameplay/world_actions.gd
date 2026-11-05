@@ -84,10 +84,12 @@ func _register_feature(f: Dictionary) -> void:
 		"board": game.add_interactable({"id": f.id, "x": f.x, "z": f.z, "object": game.village.objects[f.id], "label": func(): return "Read the notice board", "act": func(): game.panels.notice_board()})
 		# a stop on a line within this place (a tram, a funicular): ride to another stop on it (Travel.stops_on)
 		"stop": game.add_interactable({"id": f.id, "x": f.x, "z": f.z, "radius": 2.2, "object": game.village.objects.get(f.id), "label": func(): return String(f.get("ride_label", "Take a ride")), "act": func(): game.panels.stops(f)})
-		# the departure point (any id; "depart_label" names how you leave, a train from a city station, say)
+		# the departure point (any id; "depart_label" names how you leave, a train from a city station, say; "flag",
+		# if any, is the story flag it waits for: a station where the trains only stop again after a request)
 		"boat":   # a bus can be boarded anywhere along its side, not just by its middle
 			var reach: float = float(f.get("length", 8.6)) / 2.0 + 0.6 if f.get("model", "boat") == "bus" else 2.6
-			game.add_interactable({"id": f.id, "x": f.x, "z": f.z, "radius": reach, "object": game.village.objects.get(f.id), "available": func(): return state().flags.get("boatReady", false), "label": func(): return String(f.get("depart_label", "Catch the bus")), "act": func(): game.panels.map(true)})
+			var fl := String(f.get("flag", ""))
+			game.add_interactable({"id": f.id, "x": f.x, "z": f.z, "radius": reach, "object": game.village.objects.get(f.id), "available": func(): return state().flags.get("boatReady", false) and (fl == "" or state().flags.get(fl, false)), "label": func(): return String(f.get("depart_label", "Catch the bus")), "act": func(): game.panels.map(true)})
 
 func _src(n: Dictionary, up: float = 1.0) -> Vector3: return Vector3(n.x, Heightfield.height(n.x, n.z) + up, n.z)
 
@@ -315,18 +317,7 @@ func refresh_gardens() -> void:
 ## The bakery's wild boars (internally still "squirrels", so saves and request flags keep working).
 func _build_squirrels() -> void:
 	for n in SQUIRREL_SPOTS.size():
-		var s := Node3D.new()
-		var hide := P.mat("5b4636"); var dark := P.mat("3a2c22"); var snout := P.mat("9a7466")
-		var body := P.mi(P.sphere(0.3, 12, 8), hide, Vector3(0, 0.36, 0)); body.scale = Vector3(0.85, 0.8, 1.35); s.add_child(body)
-		var ridge := P.mi(P.sphere(0.12, 8, 6), dark, Vector3(0, 0.58, -0.02)); ridge.scale = Vector3(0.5, 0.7, 2.6); s.add_child(ridge)
-		s.add_child(P.mi(P.sphere(0.2, 10, 8), hide, Vector3(0, 0.38, 0.42)))
-		var nose := P.mi(P.cyl(0.07, 0.09, 0.14, 10), snout, Vector3(0, 0.33, 0.62)); nose.rotation.x = PI / 2; s.add_child(nose)
-		for sx in [-1, 1]:
-			s.add_child(P.mi(P.cone(0.05, 0.1, 5), dark, Vector3(sx * 0.1, 0.56, 0.38)))
-			s.add_child(P.mi(P.sphere(0.022, 6, 4), P.mat("1d1414"), Vector3(sx * 0.08, 0.44, 0.58)))
-			var tusk := P.mi(P.cone(0.018, 0.08, 5), P.mat("f3ead8"), Vector3(sx * 0.06, 0.3, 0.66)); tusk.rotation.x = -0.6; s.add_child(tusk)
-			for z in [-0.22, 0.22]: s.add_child(P.mi(P.cyl(0.045, 0.04, 0.22, 6), dark, Vector3(sx * 0.13, 0.11, z)))
-		var tail := P.mi(P.cyl(0.012, 0.02, 0.16, 4), dark, Vector3(0, 0.42, -0.42)); tail.rotation.x = 0.7; s.add_child(tail)
+		var s := Props.wild_boar()
 		s.scale = Vector3.ONE * 0.9
 		game.add_child(s)
 		var sq := {"n": n, "obj": s, "home": Vector2(SQUIRREL_SPOTS[n][0], SQUIRREL_SPOTS[n][1]), "t": randf() * 10.0, "pos": Vector2(SQUIRREL_SPOTS[n][0], SQUIRREL_SPOTS[n][1]), "up": 0.0}
