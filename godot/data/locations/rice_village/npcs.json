@@ -686,7 +686,7 @@
     [
      8,
      13,
-     "rice_village_farmhouse:1",
+     "rice_village_station:spot",
      "read"
     ],
     [
@@ -704,7 +704,7 @@
     [
      19,
      21,
-     "rice_village_farmhouse:1",
+     "courtyard",
      "idle"
     ]
    ],

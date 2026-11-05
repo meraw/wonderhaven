@@ -146,7 +146,7 @@ surname), Silvia is his niece and Matteo his grandson. Paletta and Don Remo are 
 Daily routines are drafted in stage 3. In outline: Paletta is on the platform from the first train until dusk, then in
 his cottage; Barba Tista in the fields in the morning and the machine shed in the afternoon; Nonna in her kitchen with
 a turn in the garden at midday; Silvia in the farm office, then at the mill; Don Remo at the church, sometimes away on
-his motorbike in the afternoon; Matteo doing homework at the kitchen table in the morning and at the crossing in the
+his motorbike in the afternoon; Matteo doing homework in the waiting room, by his museum shelf, in the morning and at the crossing in the
 afternoon, home by dark.
 
 ## The petition: Casalrana's progress meter
