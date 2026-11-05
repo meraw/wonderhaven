@@ -1,7 +1,7 @@
 # Casalrana: design for the rice village
 
-Working id `rice_village`. Agreed with the user on 2026-11-04 in a design interview. **Stage 1 (ground and map) is
-built**; stages 2 to 4 are not. This doc is the plan the build stages follow. The rules every location shares are in `docs/WORLD.md`; `docs/MONTEFORCHETTA.md`
+Working id `rice_village`. Agreed with the user on 2026-11-04 in a design interview. **Stages 1 and 2 (ground and
+map; buildings and scenery) are built**; stages 3 and 4 are not. This doc is the plan the build stages follow. The rules every location shares are in `docs/WORLD.md`; `docs/MONTEFORCHETTA.md`
 and `docs/locations/metropolis.md` are the models this doc follows.
 
 ## The concept
@@ -83,7 +83,8 @@ The invented names the user didn't choose (San Grato, Cascina Grande) can change
 - **Out by train.** The finale gets the regional train stopping again. From then on the station platform is a second
   departure point, the one for Toriano. Casalrana's finale sets `rice_village_trainStops`, the flag Toriano's map
   entry reveals on (agreed: Toriano's entry already waits for it).
-- **Until those links exist,** Casalrana stays hidden on the travel map and tests reach it with `--island=rice_village`.
+- **Until those links exist,** Casalrana stays off the travel map (its entry shows once `rice_village_revealed` is set)
+  and tests reach it with `--island=rice_village`.
 - **On foot.** You walk the road and the banks between the paddies. The harvested paddies are walkable stubble. The
   canal, the flooded paddy and the spring pool are water. The railway is fenced off by its embankment, except at the
   level crossing.
@@ -249,7 +250,7 @@ the other merges main and reuses it.
 | **Weather per location:** which weather types a location can have, in its `look` block (here only clear) | Always clear | 1 (built) | No |
 | **Ground paint from the location script:** `paint(x, z)` colours the ground point by point and says where meadow grows (clover, flowers, grass tufts, bushes, trees). Toriano built paving laid out as shapes (`ground` in a layout); this is the other half, for fields | Stubble, banks of winter grass, mud and a brick yard instead of meadow | 1 (built) | Toriano built the paving half |
 | **A building's height in the layout** (`h`), which the camera keeps clear of | The low railway bed, the tall bell tower | 1 (Toriano's, reused) | Built by Toriano |
-| **Raised floors** in a layout that you can walk and build on | The flat upstairs and the bell chamber | 2 | Yes |
+| **Raised floors** in a layout that you can walk and build on | The flat upstairs and the bell chamber | 3 (moved from 2, to reuse Toriano's if it lands first) | Yes |
 | **A path check for any zone** (`path:<zone>`), with endpoints that may be at different heights | The platform, and the climb up the tower | 3 | Yes |
 | **Garden beds from the layout**, each with its crop (today there are four fixed beds that grow pumpkins) | Cabbages and leeks at the farmstead | 3 | No |
 | **What a metal detector spot gives, from the layout** (today the finds come from a fixed list) | Matteo's museum finds | 3 | Similar (Roman finds) |
@@ -282,7 +283,8 @@ One pull request per stage. Each keeps the game playable and the tests passing.
    - Models for the station with its canopy and platform, the crossing and Paletta's cottage, the church and its tower,
      Cascina Grande (farmhouse, barns with brick latticework, the dryer tower, the drying yard, the machine shed, the
      workers' row), the old mill and its waterwheel, the collapsed sluice.
-   - Rooms you can walk into, with furniture and routes; the raised-floors change for the flat and the bell chamber.
+   - Rooms you can walk into, with furniture and routes. (The raised-floors change for the flat and the bell chamber
+     moved to stage 3, where the Flat and the Bell Tower Stairs need it, so it can reuse Toriano's if it lands first.)
    - The trains on their timetable, with the crossing's bells, lights and barriers.
    - Poplar rows, willows and alders, robinia, mulberries, telegraph poles, straw bales, and the edge: paddies and
      poplar rows fading into the white haze, with distant farmsteads and bell towers.
@@ -324,17 +326,38 @@ One pull request per stage. Each keeps the game playable and the tests passing.
   - Basic gathering: poplars, cobble heaps, clay, the spring pool, hellebores.
   - Seven build sites. Your yard opens with `rice_village_homePlot`; the six request sites open with requests that
     stage 3 adds.
-- **Plain boxes for the buildings.** The railway is two blocks with the level crossing between them.
-- **The map entry:** hidden, with an always-clear look.
-- **Verified:**
-  - `test_rice_village.gd` (unit tests).
-  - `play_rice_village.gd`: a walk with real input over the crossing and to every part of the village, checking
-    that the line and the canal keep you out.
-  - Screenshots in both renderers.
+- **The map entry:** off the map until revealed, with an always-clear look.
+
+**Stage 2, buildings and scenery: built** (helpers in `godot/scripts/locations/rice_village/`).
+- **Buildings** (`buildings.gd`, with Casalrana's own brick, herringbone cobble and brick-lattice textures in
+  `textures.gd`):
+  - The station in railway ochre with dark red trim, green shutters, the name boards, a stopped clock and the canopy
+    over the platform.
+  - Paletta's cottage, the presbytery, the bare brick church (pilasters, round window, portal, arched windows) and its
+    bell tower (clock faces, open bell chamber with its bell, eight-sided spire).
+  - The old mill, with its rusty shaft and broken waterwheel.
+  - Cascina Grande: the farmhouse with its wooden balcony, the farm office, the shut-up workers' row with its outside
+    stair, the machine shed, the cowshed with its latticework hayloft, the open barn full of straw, the metal rice
+    dryer, and the herringbone cobble walls with the brick gateway.
+  - Barba Tista's tractor and the old threshing machine.
+- **Rooms you can walk into**, with furniture and a spot for whoever works there: the station's waiting room (where
+  you sleep on the bench for now), Paletta's cottage, the church, the mill, the farmhouse kitchen, the farm office and
+  the machine shed. The flat upstairs and the bell chamber wait for stage 3.
+- **Trains** (`timetable.gd`, `trains.gd`): a deterministic timetable of regionals, intercity expresses, freight
+  trains, the night express and the dawn inspection train, a train every 30 to 44 game minutes. The level crossing's
+  barriers come down four minutes before each one, the red lamps blink, and while it's closed the crossing is blocked
+  (anyone on it steps back off). Windows and headlamps light up at night.
+- **Scenery** (`scenery.gd`): bare poplars (the plantation's gathering spots too), pollarded willows and alders round
+  the spring pool, robinia on the railway bed, old mulberries, round straw bales, the payphone, lamp posts, Paletta's
+  flower beds, the telegraph line and the overhead wires, the collapsed sluice, the bus stop sign.
+- **Past the edge:** a grid of banks across the flooded plain, rows of poplars, the railway on its embankment, and
+  eight distant farmsteads, four with bell towers.
+- **Verified:** see the stage 2 pull request; the walk-through also goes into every room and waits at the crossing
+  for a train.
 - **Not yet:**
-  - The edge still shows the shared water plane as open water. The flooded paddies, poplar rows and white haze come
-    in stage 2.
-  - The sky is the shared blue; the look comes in stage 4.
+  - The flooded plain is still the shared water's bright blue; it gets a paddy-water tint with the look in stage 4.
+  - The haze is the shared one; the white haze comes with the look in stage 4.
+  - The upstairs flat and the bell chamber, which need raised floors (stage 3).
 
 ## Checks for every stage
 `godot/run_tests.sh`, `npm test` and `npm run build`; screenshots of Casalrana in both renderers

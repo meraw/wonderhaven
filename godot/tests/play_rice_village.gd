@@ -1,10 +1,45 @@
 extends "res://tests/full_base.gd"
-## Casalrana (rice_village) with real input. Stage 1 has no requests yet, so this walks the map: from the bus stop
-## over the level crossing and back, along the station, out to the mill, the sluice, the farmstead and the spring
-## pool, and checks that the railway and the canal keep you out. Later stages add the requests.
+## Casalrana (rice_village) with real input. No requests yet (stage 3 adds them), so this walks the map: from the
+## bus stop over the level crossing and back, along the station, out to the mill, the sluice, the farmstead and the
+## spring pool, and checks that the railway and the canal keep you out. Then (stage 2) it walks into every room
+## through its door, and waits at the level crossing for a train: the barriers come down and keep you off the line,
+## the train goes by, and you cross once they're up again.
 ## Run: ./play.sh res://tests/play_rice_village.gd /tmp/out --island=rice_village
 
 const RV := preload("res://scripts/locations/rice_village.gd")
+const TT := preload("res://scripts/locations/rice_village/timetable.gd")
+
+## Walks in through a building's door (as play_interiors does) and says whether you ended up inside.
+func walk_in(bid: String, frames_max: int = 400) -> bool:
+	var b: Dictionary = {}
+	for x in Data.layout.buildings:
+		if x.id == bid: b = x
+	var di := Interiors.door_info(b)
+	var outside: Vector2 = di.c + di.out * 2.2
+	var waypoints: Array = [di.c + di.out * 0.5, di.c - di.out * 1.6]
+	var face := atan2(-di.out.x, -di.out.y)
+	game.player.teleport(outside.x, outside.y, face); game.cam.yaw = face; game.cam.snap(); await frames(5)
+	var room: AABB = Interiors.room(b, game.village.objects[bid].position.y)
+	var n := 0
+	for wp in waypoints:
+		while n < frames_max:
+			var p: Vector3 = game.player.pos
+			var to: Vector2 = wp - Vector2(p.x, p.z)
+			if to.length() < 0.35: break
+			game.cam.yaw = atan2(-to.x, -to.y)
+			key(KEY_W, true); await frames(1); n += 1
+	key(KEY_W, false); await frames(30)
+	var p2: Vector3 = game.player.pos
+	return room.has_point(Vector3(p2.x, room.position.y + 1.0, p2.z))
+
+## Sets the clock to just after a train has gone by, so the level crossing stays open for a good while.
+func quiet_crossing() -> void:
+	var day := int(game.state.time.day)
+	for tr in TT.trains_on(day):
+		var after: float = tr.minute + TT.length_of(tr.kind) / float(TT.KINDS[tr.kind].speed) + TT.CLEAR + 1.0
+		if after > game.state.time.minute and after < 1400.0:
+			game.state.time.minute = after; break
+	await frames(5)
 
 func at(node: String, tol: float = 1.6) -> bool:
 	var p: Array = Data.layout.nav_nodes[node]
@@ -21,9 +56,11 @@ func play() -> void:
 	var sp: Dictionary = Data.layout.spawn
 	check(2, "you arrive at the bus stop", Vector2(game.player.pos.x - sp.x, game.player.pos.z - sp.z).length() < 1.0, str(game.player.pos))
 	await wait(1.0)
+	note("frame rate at the bus stop: %d fps" % Engine.get_frames_per_second())
 	await shot("arrival")
 	check(3, "the sky is clear", game.weather_now.get("type", "") == "clear", str(game.weather_now.get("type", "")))
 
+	await quiet_crossing()
 	check(4, "walk up the road to the level crossing", await go("crossingS"))
 	check(5, "and over the line", await go("crossingN") and game.player.pos.z < RV.RAIL_Z - 2.0, str(game.player.pos))
 	await shot("over-the-crossing")
@@ -47,4 +84,39 @@ func play() -> void:
 	check(14, "down to the spring pool", await go("pool"))
 	await shot("spring-pool")
 	check(15, "back to the bus stop", await go("busStop"))
-	check(16, "still clear skies at the end", game.weather_now.get("type", "") == "clear", str(game.weather_now.get("type", "")))
+	check(16, "still clear skies", game.weather_now.get("type", "") == "clear", str(game.weather_now.get("type", "")))
+
+	# Stage 2: every room you can walk into, through its door
+	var id := 20
+	for bid in ["rice_village_station", "rice_village_casello", "rice_village_church", "rice_village_mill",
+			"rice_village_farmhouse", "rice_village_office", "rice_village_shed"]:
+		var inside := await walk_in(bid)
+		await frames(20)
+		check(id, "walk into %s through its door" % bid, inside and game.roof_fade.get(bid, 1.0) < 0.05, "pos %s roof %.2f" % [game.player.pos, game.roof_fade.get(bid, 1.0)])
+		await shot("inside-" + bid.trim_prefix("rice_village_"))
+		id += 1
+
+	# Stage 2: wait at the crossing for the next train
+	check(30, "back to the level crossing", await go("crossingS"))
+	var day := int(game.state.time.day)
+	var next: Dictionary = {}
+	for tr in TT.trains_on(day):
+		if tr.minute > game.state.time.minute + 8.0: next = tr; break
+	if next.is_empty(): day += 1; next = TT.trains_on(day)[0]
+	game.state.time.day = day; game.state.time.minute = next.minute - TT.LEAD - 3.0
+	await frames(10)
+	check(31, "the crossing is open before the train", not TT.crossing_closed(day, game.state.time.minute), "%s at %.1f" % [next.kind, next.minute])
+	var t0 := Time.get_ticks_msec()
+	while not TT.crossing_closed(day, game.state.time.minute) and Time.get_ticks_msec() - t0 < 30000: await frames(2)
+	check(32, "the bells ring and the barriers come down", TT.crossing_closed(day, game.state.time.minute), "%.1f" % game.state.time.minute)
+	await walk_direct(2.0, RV.RAIL_Z, 0.5, 4.0)
+	check(33, "the barriers keep you off the line", game.player.pos.z > -44.0, str(game.player.pos))
+	while TT.at_crossing(day, game.state.time.minute).is_empty() and Time.get_ticks_msec() - t0 < 60000: await frames(1)
+	check(34, "%s goes by" % TT.NAMES[next.kind], not TT.at_crossing(day, game.state.time.minute).is_empty() and game.village.get_node("rice_village_trains").get_child_count() > 0, "%.1f" % game.state.time.minute)
+	note("frame rate as the train goes by: %d fps" % Engine.get_frames_per_second())
+	await shot("train-" + next.kind)
+	while TT.crossing_closed(day, game.state.time.minute) and Time.get_ticks_msec() - t0 < 90000: await frames(2)
+	await frames(40)
+	check(35, "the barriers go up again and you cross", await go("crossingN") and game.player.pos.z < RV.RAIL_Z - 2.0, str(game.player.pos))
+	await go("crossingS")
+	check(36, "still clear skies at the end", game.weather_now.get("type", "") == "clear", str(game.weather_now.get("type", "")))

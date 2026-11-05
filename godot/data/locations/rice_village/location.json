@@ -1,5 +1,5 @@
 {
- "_comment": "Casalrana's entry on the travel map and its look. Hidden until the bus line reaches it (nothing sets rice_village_revealed yet); tests and screenshots reach it with --island=rice_village. look.weather: always clear (late November, bright white skies).",
+ "_comment": "Casalrana's entry on the travel map and its look. Off the map until rice_village_revealed is set, when the bus line reaches it (nothing sets it yet); tests and screenshots reach it with --island=rice_village. look.weather: always clear (late November, bright white skies).",
  "name": "Casalrana",
  "desc": "A hamlet out on the rice plain after the harvest: frosty stubble, herons in the ditches, and a little station where the trains stopped stopping in 1993.",
  "x": 330,
@@ -7,7 +7,6 @@
  "r": 50,
  "color": "#d9c58c",
  "reveal": "rice_village_revealed",
- "hidden": true,
  "look": {
   "shade": [0.0, 0.01, 0.035],
   "light": [0.98, 0.99, 1.0],
