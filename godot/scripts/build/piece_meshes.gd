@@ -87,6 +87,11 @@ static func make(id: String, color: String = "") -> Node3D:
 		"lamp":
 			_b(g, P.cyl(0.18, 0.2, 0.06), P.wood("5a3d2b"), 0, 0.03, 0); _b(g, P.cyl(0.025, 0.025, 1.0, 6), P.wood("5a3d2b"), 0, 0.53, 0); _b(g, P.cyl(0.12, 0.24, 0.28, 14), t, 0, 1.12, 0)
 			_b(g, P.sphere(0.08), P.unique_mat("fff3b0", "ffcf6b", 0.3), 0, 1.05, 0).name = "bulb"
+		"railLantern":   # a station master's hand lantern: a tin body, a red lens in front, a loop handle on top
+			var tin := P.mat("3e4743")
+			_b(g, P.cyl(0.13, 0.15, 0.05, 12), tin, 0, 0.025, 0); _b(g, P.cyl(0.11, 0.11, 0.36, 12), t, 0, 0.23, 0); _b(g, P.cone(0.13, 0.08, 12), tin, 0, 0.45, 0)
+			_b(g, P.torus(0.07, 0.012, 12), tin, 0, 0.55, 0, Vector3(PI / 2, 0, 0))
+			_b(g, P.cyl(0.07, 0.07, 0.04, 14), P.unique_mat("ff6a4a", "ff4a2a", 0.4), 0, 0.25, 0.11, Vector3(PI / 2, 0, 0)).name = "bulb"
 		"rug": _b(g, P.cyl(0.95, 0.95, 0.04, 28), t, 0, 0.02, 0, Vector3.ZERO, Vector3(1, 1, 0.9)); _b(g, P.cyl(0.6, 0.6, 0.045, 24), P.mat("ffffff"), 0, 0.022, 0, Vector3.ZERO, Vector3(1, 1, 0.9))
 		"counter": _b(g, P.rbox(2, 0.85, 0.8), t, 0, 0.425, 0); _b(g, P.rbox(2.05, 0.1, 0.85), P.wood("c98a55"), 0, 0.9, 0); _b(g, P.sphere(0.13), P.mat("f5c27a"), -0.5, 1.05, 0)
 		"workbench":
@@ -104,6 +109,12 @@ static func make(id: String, color: String = "") -> Node3D:
 			for x in [-0.75, 0.75]: _b(g, P.box(0.08, 0.42, 0.45), P.mat("4a4a5a"), x, 0.21, 0.05)
 		"statue": _b(g, P.rbox(0.7, 0.5, 0.7), t, 0, 0.25, 0); _b(g, P.sphere(0.25), t, 0, 1.6, 0); _b(g, P.cyl(0.18, 0.24, 0.6), t, 0, 1.1, 0); _b(g, P.sphere(0.12, 4, 2), P.mat(P.GOLD), 0.25, 1.75, 0)
 		"signpost": _b(g, P.cyl(0.05, 0.06, 1.4, 6), dark, 0, 0.7, 0); _b(g, P.rbox(0.7, 0.22, 0.06), t, 0.15, 1.15, 0); _b(g, P.rbox(0.6, 0.2, 0.06), t, -0.12, 0.85, 0)
+		"enamelSign":   # white letters on blue enamel, on two iron legs (the lettering is suggested by white bars)
+			var iron := P.mat("3e4743")
+			for x in [-0.38, 0.38]: _b(g, P.cyl(0.025, 0.03, 1.3, 6), iron, x, 0.65, 0)
+			_b(g, P.rbox(0.9, 0.42, 0.04, 0.03), t, 0, 1.02, 0); _b(g, P.box(0.82, 0.34, 0.045), P.mat("f4f1e8"), 0, 1.02, 0)
+			_b(g, P.box(0.76, 0.28, 0.05), t, 0, 1.02, 0)
+			for n in 5: _b(g, P.box(0.09, 0.12, 0.055), P.mat("f4f1e8"), -0.28 + n * 0.14, 1.02, 0)
 		"streetlight": _b(g, P.cyl(0.05, 0.08, 2.3, 8), t, 0, 1.15, 0); _b(g, P.sphere(0.18), P.unique_mat("fff3b0", "ffcf6b", 0.3), 0, 2.4, 0).name = "bulb"; _b(g, P.cone(0.26, 0.18, 8), t, 0, 2.58, 0)
 		"gardenPath":
 			for c in [[-0.2, -0.2, 0.28], [0.25, 0.15, 0.25], [-0.15, 0.3, 0.18], [0.3, -0.3, 0.15]]: _b(g, P.cyl(c[2], c[2], 0.05, 9), t, c[0], 0.025, c[1])

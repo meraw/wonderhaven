@@ -620,7 +620,7 @@ func _refresh_piece_interactables() -> void:
 		var d := Data.piece(pl.id)
 		if not d.has("interact"): continue
 		var b := BuildGrid.bounds(pl)
-		var rec := {"id": "pl:%d" % pl.uid, "piece": true, "x": (b.minX + b.maxX) / 2.0, "z": (b.minZ + b.maxZ) / 2.0, "radius": 1.3, "object": piece_nodes.get(pl.uid)}
+		var rec := {"id": "pl:%d" % pl.uid, "piece": true, "x": (b.minX + b.maxX) / 2.0, "z": (b.minZ + b.maxZ) / 2.0, "y": float(pl.y), "radius": 1.3, "object": piece_nodes.get(pl.uid)}
 		var ppl: Dictionary = pl
 		match d.interact:
 			"door":
@@ -678,6 +678,7 @@ func find_target():
 		var dz := _pos_of(it, "z") - p.z
 		var d := sqrt(dx * dx + dz * dz)
 		if d > it.radius + 0.6: continue
+		if it.has("y") and absf(float(it.y) - p.y) > 1.6: continue   # on another storey (a bed in the flat upstairs)
 		var facing := (dx * fwd.x + dz * fwd.y) / d if d > 0.01 else 1.0
 		if d > 1.0 and facing < 0.1: continue
 		var score: float = d - facing * 0.8 - it.priority
@@ -805,7 +806,8 @@ func _update_hotkeys() -> void:
 	var entries: Array = [["%s%s%s%s" % [k.call("move_forward"), k.call("move_left"), k.call("move_back"), k.call("move_right")], "Move"],
 		["Drag/%s%s" % [k.call("cam_left"), k.call("cam_right")], "Camera"], [k.call("interact"), "Interact"]]
 	if state.flags.get("hasTool", false) and Tutorial.revealed(tut, "key:build"): entries.append([k.call("build"), "Build"])
-	for pair in [["inventory", "Bag"], ["journal", "Journal"], ["map", "Map"], ["progress", "Approval"]]:
+	var progress_name: String = String(LocationMeter.def(Data.island).get("name", "Approval")).trim_prefix("The ")
+	for pair in [["inventory", "Bag"], ["journal", "Journal"], ["map", "Map"], ["progress", progress_name]]:
 		if Tutorial.revealed(tut, "key:" + pair[0]): entries.append([k.call(pair[0]), pair[1]])
 	entries.append([k.call("pause"), "Menu"])
 	var t: String = " · ".join(entries.map(func(e): return "%s %s" % e))
@@ -877,13 +879,14 @@ func _world_reactions(dt: float) -> void:
 		for pair in [["bakery", state.flags.get("squirrelsGone", false)], ["odessaHouse", true], ["fernHouse", state.flags.get("orchardOpen", false)], ["playerHouse", state.flags.get("toolGiven", false)]]:
 			var o: Node3D = village.objects.get(pair[0])
 			if pair[1] and o and o.has_meta("chimney"): effects.smoke(o.to_global(o.get_meta("chimney")))
-	# Roofs dissolve over the room you're standing in (and over the workshop while you furnish it).
+	# Roofs dissolve over the room you're standing in, on its storey (and over a room while you furnish it).
 	var p := player.pos
 	for bd in Data.layout.buildings:
 		var o: Node3D = village.objects.get(bd.id)
 		if o == null or not o.has_meta("fade_parts"): continue
 		var room: AABB = Interiors.room(bd, o.position.y) if Interiors.enterable(bd) else AABB(Vector3(bd.x - bd.w / 2.0 + 0.3, -1.0, bd.z - bd.d / 2.0 + 0.3), Vector3(bd.w - 0.6, 4.0, bd.d - 0.6))
-		var inside: bool = room.has_point(Vector3(p.x, room.position.y + 1.0, p.z)) or (build.active and build.current_zone.get("id", "") == bd.id)
+		var in_room: bool = Interiors.inside(bd, o.position.y, p) if Interiors.enterable(bd) else room.has_point(Vector3(p.x, room.position.y + 1.0, p.z))
+		var inside: bool = in_room or (build.active and build.current_zone.get("id", "") == bd.id)
 		var a0: float = roof_fade.get(bd.id, 1.0)
 		var a1: float = lerpf(a0, 0.0 if inside else 1.0, minf(1.0, dt * 6.0))
 		if a1 > 0.995: a1 = 1.0

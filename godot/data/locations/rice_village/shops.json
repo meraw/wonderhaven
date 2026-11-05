@@ -1,0 +1,151 @@
+{
+ "shops": {
+  "rice_village_battista": {
+   "name": "Barba Tista's machine shed",
+   "label": "Let's trade",
+   "greet": "Wood, straw, rice, and metal off machines that won't miss it. I buy straw, vegetables and fish. Not herons.",
+   "requires": {
+    "quests": [
+     "rice_village_welcome"
+    ]
+   },
+   "buys": {
+    "rice_village_straw": 2,
+    "rice_village_cabbage": 4,
+    "rice_village_leek": 4,
+    "fish": 3
+   },
+   "stock": [
+    {
+     "items": {
+      "wood": 5
+     },
+     "price": 16
+    },
+    {
+     "items": {
+      "rice_village_straw": 4
+     },
+     "price": 10
+    },
+    {
+     "items": {
+      "metal": 2
+     },
+     "price": 20
+    },
+    {
+     "items": {
+      "rice_village_rice": 1
+     },
+     "price": 12
+    }
+   ]
+  },
+  "rice_village_silvia": {
+   "name": "The farm office",
+   "label": "Let's trade",
+   "greet": "Seeds, saplings, plans, fabric, and Nonna's cooking, which I sell and she won't explain.",
+   "requires": {
+    "quests": [
+     "rice_village_welcome"
+    ]
+   },
+   "buys": {},
+   "stock": [
+    {
+     "items": {
+      "rice_village_seeds": 2
+     },
+     "price": 8
+    },
+    {
+     "items": {
+      "fabric": 3
+     },
+     "price": 15
+    },
+    {
+     "items": {
+      "rice_village_panissa": 1
+     },
+     "price": 12
+    },
+    {
+     "items": {
+      "rice_village_biscuits": 2
+     },
+     "price": 8
+    },
+    {
+     "items": {
+      "rice_village_salami": 1
+     },
+     "price": 10
+    },
+    {
+     "items": {
+      "rice_village_rice": 2
+     },
+     "price": 10,
+     "requires": {
+      "flags": [
+       "rice_village_millRunning"
+      ]
+     }
+    },
+    {
+     "blueprint": "tree",
+     "price": 20
+    },
+    {
+     "blueprint": "hedge",
+     "price": 20
+    },
+    {
+     "blueprint": "fence",
+     "price": 15
+    },
+    {
+     "blueprint": "rug",
+     "price": 30
+    },
+    {
+     "blueprint": "cabinet",
+     "price": 30
+    },
+    {
+     "blueprint": "bookshelf",
+     "price": 35
+    }
+   ]
+  },
+  "rice_village_ernesto": {
+   "name": "The station storeroom",
+   "label": "What's in the storeroom?",
+   "greet": "The railway doesn't buy. It barely sells. But what the railway forgets, I remember.",
+   "requires": {
+    "quests": [
+     "rice_village_welcome"
+    ]
+   },
+   "buys": {},
+   "stock": [
+    {
+     "items": {
+      "crystal": 1
+     },
+     "price": 24
+    },
+    {
+     "blueprint": "railLantern",
+     "price": 35
+    },
+    {
+     "blueprint": "enamelSign",
+     "price": 30
+    }
+   ]
+  }
+ }
+}

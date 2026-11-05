@@ -1,0 +1,82 @@
+{
+ "resources": {
+  "rice_village_straw": {
+   "name": "Rice Straw",
+   "icon": "🌾",
+   "color": "#d9c27a"
+  },
+  "rice_village_seeds": {
+   "name": "Winter Seed Packets",
+   "icon": "🌱",
+   "color": "#8fbf6a"
+  },
+  "rice_village_cabbage": {
+   "name": "Cabbages",
+   "icon": "🥬",
+   "color": "#7fa860"
+  },
+  "rice_village_leek": {
+   "name": "Leeks",
+   "icon": "🌿",
+   "color": "#b9d39a"
+  },
+  "rice_village_rice": {
+   "name": "Casalrana Rice",
+   "icon": "🍚",
+   "color": "#f1ead6"
+  },
+  "rice_village_panissa": {
+   "name": "Panissa",
+   "icon": "🥘",
+   "color": "#c98a4a",
+   "treat": 3
+  },
+  "rice_village_biscuits": {
+   "name": "Spiced Biscuits",
+   "icon": "🍪",
+   "color": "#c9883f",
+   "treat": 2
+  },
+  "rice_village_salami": {
+   "name": "Salami in Fat",
+   "icon": "🍖",
+   "color": "#b5564a",
+   "treat": 2
+  },
+  "rice_village_vinbrule": {
+   "name": "Vin Brulé",
+   "icon": "🍷",
+   "color": "#8e2f3a",
+   "treat": 3
+  },
+  "rice_village_coin": {
+   "name": "Old Coin",
+   "icon": "🪙",
+   "color": "#c9a25a"
+  },
+  "rice_village_badge": {
+   "name": "Mondina's Tin Badge",
+   "icon": "📛",
+   "color": "#a9b0b5"
+  },
+  "rice_village_buttons": {
+   "name": "Railway Buttons",
+   "icon": "🔘",
+   "color": "#c9a25a"
+  }
+ },
+ "order": [
+  "rice_village_straw",
+  "rice_village_seeds",
+  "rice_village_cabbage",
+  "rice_village_leek",
+  "rice_village_rice",
+  "rice_village_panissa",
+  "rice_village_biscuits",
+  "rice_village_salami",
+  "rice_village_vinbrule",
+  "rice_village_coin",
+  "rice_village_badge",
+  "rice_village_buttons"
+ ]
+}
