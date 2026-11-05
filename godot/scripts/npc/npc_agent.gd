@@ -15,6 +15,7 @@ var body := {"x": 0.0, "z": 0.0, "r": 0.32}
 var talking := false
 var greeted := false
 var idle_t := 3.0
+var waited := 0.0   # how long it has stood waiting for you to get out of its way
 var present := true
 var marker_offer: Label3D
 var marker_ready: Label3D
@@ -84,7 +85,12 @@ func update(dt: float) -> void:
 		else:
 			var step := minf(d.length(), v * dt)
 			var n := Vector2(pos.x, pos.z) + d.normalized() * step
-			if n.distance_to(Vector2(pp.x, pp.z)) > 0.62: pos.x = n.x; pos.z = n.y; speed = v / 4.4
+			var clear := n.distance_to(Vector2(pp.x, pp.z)) > 0.62
+			# it waits for you to step aside, then squeezes past: on a narrow balcony, or meeting you head-on, you can't
+			if clear or waited > 2.0:
+				pos.x = n.x; pos.z = n.y; speed = v / 4.4
+				if clear: waited = 0.0
+			else: waited += dt
 			yaw = lerp_angle(yaw, atan2(d.x, d.y), 1.0 - exp(-8.0 * dt))
 	else:
 		var pd := Vector2(pp.x - pos.x, pp.z - pos.z).length()
