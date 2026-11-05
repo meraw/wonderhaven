@@ -1,6 +1,7 @@
 {
   "_comment": "Toriano (working id metropolis). Generated from a street plan; see docs/locations/metropolis.md. Buildings with y and an interior are rooms on their own storey; floors are balconies, terraces, stairs and the old bridge's deck.",
   "size": 372.0,
+  "horizon": {"alps": true, "alps_from": 215, "alps_to": 330, "alps_peak": 252, "floor": 0.0},
   "spawn": {"x": 120.0, "z": -132.0, "yaw": 0.0},
   "arrive": {"x": 120.0, "z": -132.0, "yaw": 0.0},
   "square": {"x": 0.0, "z": 0.0, "r": -1.0},

@@ -47,6 +47,7 @@ var dragging := false
 var drag_moved := false
 var _drag_dist := 0.0
 var rain: GPUParticles3D
+var snowfall: GPUParticles3D
 var smoke_t := 0.0
 var last_autosave := -100.0
 var shot_cfg := {}
@@ -117,7 +118,7 @@ func _ready() -> void:
 			var text: String = f.text
 			add_interactable({"id": f.id, "x": f.x, "z": f.z, "object": village.objects[f.id], "label": func(): return "Read sign", "act": func(): toast(text, "", 4.0)})
 	actions = WorldActions.new(self)
-	_make_rain()
+	_make_rain(); _make_snow()
 	_load_optional_modules()
 	apply_settings()
 	_parse_args()
@@ -923,8 +924,8 @@ func _update_world_time(dt: float) -> void:
 	var w: Dictionary = Daylight.weather(s.time, Daylight.allowed_here()) if settings.weather and forced == "" else Daylight.WEATHER.get(forced if forced != "" else "clear", Daylight.WEATHER.clear).duplicate()
 	if not w.has("type"): w["type"] = forced if forced != "" else "clear"
 	# ease the weather values too, so switching the setting or loading a save doesn't snap the sky
-	for k in ["clouds", "rain", "fog", "sun"]:
-		weather_now[k] = lerpf(weather_now.get(k, w[k]), w[k], 1.0 - exp(-dt * 0.8))
+	for k in ["clouds", "rain", "fog", "sun", "snow"]:
+		weather_now[k] = lerpf(weather_now.get(k, w.get(k, 0.0)), w.get(k, 0.0), 1.0 - exp(-dt * 0.8))
 	weather_now["type"] = w.type
 	var clouds: float = weather_now.clouds; var wet: float = weather_now.rain; var fog: float = weather_now.fog
 	var grey := clampf((clouds - 0.4) * 1.1, 0.0, 0.7)
@@ -956,7 +957,10 @@ func _update_world_time(dt: float) -> void:
 	rain.emitting = wet > 0.05
 	rain.amount_ratio = clampf(wet, 0.05, 1.0)
 	rain.position = camera.global_position + Vector3(0, 8, 0)
-	var icon: String = "🌙" if night else ({"rain": "🌧️", "drizzle": "🌦️", "cloudy": "☁️", "mist": "🌫️", "fair": "⛅"}.get(weather_now.type, "☀️"))
+	snowfall.emitting = float(weather_now.snow) > 0.05
+	snowfall.amount_ratio = clampf(float(weather_now.snow), 0.05, 1.0)
+	snowfall.position = camera.global_position + Vector3(0, 7, 0)
+	var icon: String = "🌙" if night else ({"rain": "🌧️", "drizzle": "🌦️", "cloudy": "☁️", "mist": "🌫️", "fair": "⛅", "snow": "🌨️"}.get(weather_now.type, "☀️"))
 	hud.clock_label.text = "%s %s%s" % [icon, Clock.text(s.time), ("  📟 " + ["beep", "beep beep", "BEEP BEEP BEEP"][actions.hum - 1]) if actions.hum > 0 else ""]
 
 func _world_reactions(dt: float) -> void:
@@ -989,6 +993,19 @@ func _world_reactions(dt: float) -> void:
 			if m is ShaderMaterial: m.set_shader_parameter("alpha", a1)
 			else: m.albedo_color.a = a1
 	roof_alpha = roof_fade.get("workshop", 1.0)
+
+## Snowflakes: slow white dots drifting down round the camera, while a request's snow falls (Daylight "snow").
+func _make_snow() -> void:
+	snowfall = GPUParticles3D.new(); snowfall.amount = 1200; snowfall.lifetime = 6.0; snowfall.emitting = false; snowfall.visibility_aabb = AABB(Vector3(-30, -20, -30), Vector3(60, 40, 60))
+	var pm := ParticleProcessMaterial.new(); pm.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_BOX; pm.emission_box_extents = Vector3(22, 1, 22)
+	pm.direction = Vector3(0, -1, 0); pm.initial_velocity_min = 1.0; pm.initial_velocity_max = 1.8; pm.gravity = Vector3(0, -0.4, 0); pm.spread = 25.0
+	pm.turbulence_enabled = true; pm.turbulence_noise_strength = 0.6; pm.turbulence_noise_scale = 4.0
+	snowfall.process_material = pm
+	var q := QuadMesh.new(); q.size = Vector2(0.1, 0.1)
+	var m := Palette.glow_mat(Color("f4f8ff"), 0.5); m.billboard_mode = BaseMaterial3D.BILLBOARD_ENABLED; q.material = m
+	m.distance_fade_mode = BaseMaterial3D.DISTANCE_FADE_PIXEL_ALPHA; m.distance_fade_min_distance = 0.8; m.distance_fade_max_distance = 3.0
+	snowfall.draw_pass_1 = q
+	add_child(snowfall)
 
 func _make_rain() -> void:
 	rain = GPUParticles3D.new(); rain.amount = 1500; rain.lifetime = 1.6; rain.emitting = false; rain.visibility_aabb = AABB(Vector3(-30, -20, -30), Vector3(60, 40, 60))

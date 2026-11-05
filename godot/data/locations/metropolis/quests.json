@@ -681,7 +681,8 @@
       "Here they all are. The whole neighbourhood. Augusto in his good scarf, Franco out of his bar for the first time since 1962, Gennaro handing out chestnuts.",
       "And there's Ambrogio, on his last run. Hear the bell? He's taking Carlotta round the square one more time.",
       "Now. Look up. Wait for it… the bells…",
-      "…There she is. The Golden Angel, shining over Toriano again. After thirty-five years. Six hundred and twelve, if you count the waiting."
+      "…There she is. The Golden Angel, shining over Toriano again. After thirty-five years. Six hundred and twelve, if you count the waiting.",
+      "And what's this, on my sleeve? Snow. In Toriano. On Christmas Eve. The paper will say I arranged it. Let them."
      ],
      "hint": {
       "x": 12,
@@ -694,7 +695,11 @@
      "onDone": {
       "flags": [
        "metropolis_angel_on"
-      ]
+      ],
+      "weather": {
+       "type": "snow",
+       "hours": 12
+      }
      }
     },
     {

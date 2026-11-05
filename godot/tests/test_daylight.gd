@@ -34,6 +34,49 @@ func test_sun_and_moon_paths():
 	t.eq(Daylight.nightness(12.0), 0.0, "no night at noon")
 	t.eq(Daylight.nightness(1.0), 1.0, "full night at 1 am")
 
+func test_a_location_can_have_short_winter_days():
+	t.eq(Daylight.light_hour(18.3), 18.3, "with the usual day, the light follows the clock")
+	Daylight.sunrise = 7.5; Daylight.sunset = 17.0
+	t.ok(absf(Daylight.light_hour(17.0) - 20.0) < 0.001 and absf(Daylight.light_hour(7.5) - 6.0) < 0.001, "sunset and sunrise land where the usual day has them")
+	t.eq(Daylight.nightness(12.0), 0.0, "midday is still day")
+	t.ok(Daylight.sun_dir(17.5).y < 0.0, "the sun has set by half past five")
+	t.ok(Daylight.nightness(18.5) > 0.6, "and it's dark by half past six (%.2f)" % Daylight.nightness(18.5))
+	t.ok(Daylight.nightness(7.0) > 0.5, "winter mornings are dark at seven (%.2f)" % Daylight.nightness(7.0))
+	t.eq(Daylight.part_of_day(18.5), "evening", "but the clock's parts of the day stay as they are")
+	t.eq(Daylight.part_of_day(13.0), "afternoon", "")
+	Daylight.sunrise = Daylight.SUNRISE; Daylight.sunset = Daylight.SUNSET
+	t.eq(Daylight.nightness(18.5), 0.0, "and everywhere else the evening is still light")
+
+func test_a_location_can_have_foggy_mornings():
+	var count := func() -> int:
+		var n := 0
+		for day in range(2, 202):
+			if Daylight.slot_weather(day * 6 + 1) == "mist": n += 1
+		return n
+	var usual: int = count.call()
+	Daylight.mist_odds = 0.7
+	var foggy: int = count.call()
+	Daylight.mist_odds = Daylight.MIST_ODDS
+	t.ok(usual < 80, "most places have a misty early morning now and then (%d of 200)" % usual)
+	t.ok(foggy > 120, "a foggy city has one most days (%d of 200)" % foggy)
+	t.eq(count.call(), usual, "and the usual odds come back")
+
+func test_snow_only_when_a_request_brings_it():
+	var keys: Array = Daylight.WEATHER.clear.keys(); keys.sort()
+	for w in Daylight.WEATHER:
+		var k: Array = Daylight.WEATHER[w].keys(); k.sort()
+		t.eq(k, keys, "%s has the same values as the rest (so weathers blend)" % w)
+	t.eq(float(Daylight.WEATHER.snow.snow), 1.0, "snow is snow")
+	var any := false
+	for slot in range(12, 12 + 600):
+		if Daylight.slot_weather(slot) == "snow": any = true
+	t.ok(not any, "it never snows by itself")
+	var st := {"time": {"day": 3, "minute": 1100.0, "total": 3 * 1440.0 + 1100.0}}
+	Daylight.force(st, "snow", 12.0)
+	t.eq(Daylight.forced(st), "snow", "a request can bring it (the finale's surprise)")
+	st.time.total += 13 * 60.0
+	t.eq(Daylight.forced(st), "", "and it stops when its hours are up")
+
 func test_weather_slots_and_blending():
 	t.eq(Daylight.weather({"day": 1, "minute": 600.0}).type, "clear", "the first day is sunny")
 	t.eq(Clock.weather({"day": 1, "minute": 600.0}), "sunny", "and Clock reports it as sunny")

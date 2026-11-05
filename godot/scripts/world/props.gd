@@ -223,6 +223,7 @@ static func wardrobe() -> Node3D:
 const ROOF_SHADER := """
 shader_type spatial;
 render_mode diffuse_lambert_wrap, specular_disabled;
+global uniform float world_snow;   // a request's snow settles on the tiles (Daylight "snow")
 uniform vec4 color : source_color = vec4(0.8, 0.4, 0.3, 1.0);
 uniform float alpha = 1.0;
 uniform bool plain = false;   // a plain colour, no tiles or shading: the fading copy of a plain part
@@ -281,6 +282,7 @@ void fragment() {
 	} else {
 		c *= 0.8;
 	}
+	if (!plain) c = mix(c, vec3(0.88, 0.91, 0.95), world_snow * smoothstep(0.2, 0.6, ln.y) * 0.8);
 	ALBEDO = c;
 	ROUGHNESS = 1.0;
 	#FADE

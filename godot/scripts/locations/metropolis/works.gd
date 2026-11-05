@@ -6,6 +6,7 @@ extends Node
 
 const P := "metropolis_"
 const Kit := preload("res://scripts/locations/metropolis/kit.gd")
+const Glow := preload("res://scripts/locations/metropolis/glow.gd")
 const AISLE := Rect2(19.6, 7.0, 50.4, 8.0)   # the south aisle, whose roof is the terrace the scaffolding reaches
 
 var village
@@ -52,7 +53,7 @@ func _process(dt: float) -> void:
 	# the Golden Angel, after dark, once lit on Christmas Eve
 	if angel_mat:
 		var lit := _lit()
-		var glow: float = village.lamp_glow if lit else 0.0
+		var glow: float = Glow.level if lit else 0.0   # (after dusk, which comes at five here)
 		angel_mat.emission_energy_multiplier = 0.25 + 3.5 * glow
 		angel_light.light_energy = 2.5 * glow
 		if lit and not lit_before:

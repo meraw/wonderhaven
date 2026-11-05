@@ -9,20 +9,56 @@
  "look": {
   "shade": [
    0.0,
-   0.006,
-   0.02
+   0.008,
+   0.03
   ],
   "light": [
-   0.97,
+   0.96,
    0.98,
    1.0
   ],
-  "wind": 0.6,
+  "wind": 0.35,
   "life": {
-   "motes": 0.4,
+   "motes": 0.3,
    "fireflies": 0.0,
-   "leaves": 0.3
-  }
+   "leaves": 0.12
+  },
+  "weather": [
+   "mist",
+   "fair",
+   "cloudy",
+   "drizzle",
+   "clear"
+  ],
+  "mist": 0.7,
+  "sky": {
+   "color": [
+    0.86,
+    0.89,
+    0.92
+   ],
+   "pale": 0.5
+  },
+  "haze": {
+   "color": [
+    0.78,
+    0.82,
+    0.88
+   ],
+   "amount": 0.75,
+   "near": 55,
+   "far": 240
+  },
+  "water": {
+   "shallow": "#6c7c78",
+   "mid": "#55676a",
+   "deep": "#42565a",
+   "foam": 0.08
+  },
+  "frost": 0.6,
+  "sun_peak": 22,
+  "sunrise": 7.75,
+  "sunset": 17.0
  },
  "meter": {
   "name": "La Sera di Toriano",

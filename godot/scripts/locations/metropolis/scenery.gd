@@ -201,7 +201,7 @@ static func _props(kind: String) -> Array: return Data.layout.get("props", []).f
 
 static func street(v: Node3D) -> void:
 	var glow := Glow.new(); glow.name = "LampGlow"; glow.village = v; v.add_child(glow)
-	_trees(v); _lamps(v, glow); _christmas_tree(v, glow)
+	_trees(v); _lamps(v, glow); _christmas_tree(v, glow); _string_lights(v, glow)
 	var m := Kit.Merge.new()
 	for p in _props("kiosk"): _kiosk(m, p)
 	for p in _props("payphone"): _payphone(m, p)
@@ -296,6 +296,30 @@ static func _christmas_tree(v: Node3D, glow) -> void:
 		var ln := lights.node(lm, "christmas_lights"); ln.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		v.add_child(ln)
 		glow.twinkle.append(lm)
+
+## Christmas lights strung across the Galleria's two arms and number 14's courtyard: strands of small bulbs sagging
+## between the walls, lit with the street lamps after dusk.
+static func _string_lights(v: Node3D, glow) -> void:
+	var m := Kit.Merge.new()
+	var strands: Array = []
+	for z in range(-84, -30, 6):   # across the long arm, between its glass walls
+		if z < -64 or z > -52: strands.append([Vector3(-16, 7.5, z), Vector3(-4, 7.5, z)])
+	for x in range(-38, 20, 6):    # and across the cross arm
+		if x < -16 or x > -4: strands.append([Vector3(x, 7.5, -64), Vector3(x, 7.5, -52)])
+	for z in [108.0, 112.0, 116.0]:   # over the courtyard, from the west balcony to the east
+		strands.append([Vector3(-44.6, 6.4, z), Vector3(-31.4, 6.4, z)])
+	var cols := [Color("ffd27a"), Color("ff7a5a"), Color("ffe9b0"), Color("7ab8ff")]
+	for st in strands:
+		var a: Vector3 = st[0]; var b: Vector3 = st[1]
+		var n := int(a.distance_to(b) / 0.6)
+		for i in n + 1:
+			var f := float(i) / n
+			m.box(a.lerp(b, f) - Vector3(0, 3.6 * f * (1.0 - f), 0), Vector3(0.12, 0.12, 0.12), cols[i % cols.size()])   # 0.9 m of sag
+	var lm := Kit.vc_mat().duplicate() as StandardMaterial3D
+	lm.emission_enabled = true; lm.emission_energy_multiplier = 0.5; lm.emission = Color(1, 0.86, 0.62)
+	var ln := m.node(lm, "string_lights"); ln.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	v.add_child(ln)
+	glow.twinkle.append(lm)
 
 static func _kiosk(m: Kit.Merge, p: Dictionary) -> void:
 	var green := Color("3f5a48")
