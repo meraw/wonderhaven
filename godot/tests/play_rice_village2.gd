@@ -141,7 +141,16 @@ func build(zone: String, pieces: Array) -> Array:
 		var r: int = e[e.size() - 1]
 		var fp := BuildGrid.footprint(Data.piece(e[0]), r)
 		var cx: float = e[1] + fp.x / 2.0; var cz: float = e[2] + fp.y / 2.0
-		var st := await place_at(cx - 0.5, cz - 0.5, surface_at(cx, cz), r)
+		var aim := Vector3(cx, surface_at(cx, cz), cz)
+		if Data.piece(e[0]).get("needsSupport", false):   # a roof: aim at the top of what holds it up, as a player would
+			var bd := INF
+			for pl in game.state.placements:
+				var b := BuildGrid.bounds(pl)
+				if b.maxX <= e[1] or b.minX >= e[1] + fp.x or b.maxZ <= e[2] or b.minZ >= e[2] + fp.y: continue
+				var px := clampf(cx, b.minX + 0.05, b.maxX - 0.05); var pz := clampf(cz, b.minZ + 0.05, b.maxZ - 0.05)
+				var d := Vector2(px - cx, pz - cz).length()
+				if d < bd: bd = d; aim = Vector3(px, b.top, pz)
+		var st := await place_at(aim.x - 0.5, aim.z - 0.5, aim.y, r)
 		out.append("%s@%d,%d %s" % [e[0], e[1], e[2], "ok" if game.state.placements.size() > before else "refused (%s)" % st])
 	await leave_build()
 	return out
