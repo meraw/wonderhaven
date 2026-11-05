@@ -182,31 +182,37 @@ func choose(id: String, want: String) -> bool:
 		await tap(KEY_1 + idx)
 	return false
 
-## Buy a line of someone's shop, n times, through the shop panel.
-func buy(id: String, item: String, n: int) -> bool:
-	if not await choose(id, "shop"): return false
-	for k in 60:
+## Opens someone's shop through their conversation and waits for the panel to be laid out.
+func open_shop(id: String) -> bool:
+	if not await choose(id, "shop"): note("no shop option at %s" % id); return false
+	for k in 80:
 		await frames(4)
 		if game.panels.current == "shop": break
 		if game.mode == "dialogue" and game.dialogue.choices.is_empty(): await tap(KEY_E)
+	await frames(20)
+	if game.panels.current != "shop": note("%s's shop didn't open (panel '%s')" % [id, game.panels.current])
+	return game.panels.current == "shop"
+
+## Buy a line of someone's shop, n times, through the shop panel.
+func buy(id: String, item: String, n: int) -> bool:
+	if not await open_shop(id): return false
 	var line := -1
 	for e in Shop.stock(game.state, P + id):
 		if e.get("kind", "") == "items" and e.items.has(item): line = e.i; break
 	var ok := line >= 0
+	var have := inv(item)
 	for k in n:
 		var b := game.panels.find_child("buy_%d" % line, true, false) as Button
 		if b == null or b.disabled: ok = false; break
-		await click(b.get_global_rect().get_center()); await frames(6)
+		await click(b.get_global_rect().get_center()); await frames(12)
+	ok = ok and inv(item) > have
+	note("bought %s at %s: %s (now %d, coins %d)" % [item, id, ok, inv(item), Shop.coins(game.state)])
 	await tap(KEY_ESCAPE); await frames(8)
 	return ok
 
 ## Sell everything of one kind to someone.
 func sell(id: String, item: String) -> bool:
-	if not await choose(id, "shop"): return false
-	for k in 60:
-		await frames(4)
-		if game.panels.current == "shop": break
-		if game.mode == "dialogue" and game.dialogue.choices.is_empty(): await tap(KEY_E)
+	if not await open_shop(id): return false
 	var tab := game.panels.find_child("tab_sell", true, false) as Button
 	if tab: await click(tab.get_global_rect().get_center()); await frames(8)
 	var b := game.panels.find_child("sell_%s_all" % item, true, false) as Button
