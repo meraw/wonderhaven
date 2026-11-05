@@ -217,7 +217,15 @@ func test_the_flat_comes_with_what_it_needs():
 		for id in ["bed", "table", "chair", "lamp"]:
 			for k in Data.piece(id).cost: need[k] = int(need.get(k, 0)) + int(Data.piece(id).cost[k])
 		var given: Dictionary = q.onAccept.get("items", {})
-		t.ok(need.keys().all(func(k): return int(given.get(k, 0)) >= need[k]), "the Balcony Flat hands you enough to furnish it (%s for %s)" % [given, need]))
+		var materials: Array = need.keys().filter(func(k): return k != "coins")
+		t.ok(materials.all(func(k): return int(given.get(k, 0)) >= need[k]), "the Balcony Flat hands you the materials to furnish it (%s for %s)" % [given, need])
+		# the bed is bought with lire (beds are dear), out of what you arrive with from the villages, after the rent
+		var arrived: Dictionary = Progress.as_if_played(["hearthglow", "river_town", "rice_village"], "metropolis", "Pip")
+		var rent := 0
+		for o in q.objectives:
+			if o.kind == "pay": rent += int(o.items.get("coins", 0))
+		var lire := int(arrived.inventory.get("coins", 0)) - rent
+		t.ok(lire >= int(need.get("coins", 0)), "and you can pay for the bed out of the lire you arrive with, after the rent (%d left for %d)" % [lire, int(need.get("coins", 0))]))
 
 func test_the_evening_paper():
 	_on(func():

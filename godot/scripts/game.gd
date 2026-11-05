@@ -53,6 +53,7 @@ var shot_cfg := {}
 var roof_alpha := 1.0   # the workshop's roof (kept for tests)
 var roof_fade: Dictionary = {}   # building id -> roof opacity
 var guide: Guide
+var nap_gags: NapGags
 var outline: MeshInstance3D
 var outline_override := ""   # look-dev renders force outlines on or off without touching saved settings
 var interact_cooldown := 0.0
@@ -87,6 +88,7 @@ func _ready() -> void:
 	add_child(sun)
 	village = Village.new(); village.name = "Village"; add_child(village); village.build(decor)
 	effects = Effects.new(); add_child(effects)
+	nap_gags = NapGags.new(); nap_gags.name = "NapGags"; add_child(nap_gags); nap_gags.setup(self)
 	player_char = Chibi.new(state.appearance); player_char.name = "Player"; player_char.vis_layer = 2; add_child(player_char); player_char.apply_layer()
 	var sp: Dictionary = Data.layout.spawn
 	player = PlayerController.new(player_char, walk, sp.x, sp.z, sp.yaw)
@@ -191,7 +193,8 @@ func banner(title: String, sub: String = "", rewards: Array = [], seconds: float
 	t.add_theme_color_override("font_outline_color", UiTheme.PINK_DARK); t.add_theme_constant_override("outline_size", 14)
 	banner_box.add_child(t)
 	if sub != "":
-		var sp := UiTheme.panel(UiTheme.CREAM, UiTheme.LINE, 999); sp.add_child(UiTheme.label(sub, 20))
+		var sl := UiTheme.label(sub, 20); sp_wrap(sl)
+		var sp := UiTheme.panel(UiTheme.CREAM, UiTheme.LINE, 999 if sub.length() <= 70 else 24); sp.add_child(sl)
 		var cc := CenterContainer.new(); cc.add_child(sp); banner_box.add_child(cc)
 	if not rewards.is_empty():
 		var row := HBoxContainer.new(); row.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -201,6 +204,11 @@ func banner(title: String, sub: String = "", rewards: Array = [], seconds: float
 	var tw := banner_box.create_tween(); tw.tween_property(banner_box, "scale", Vector2.ONE, 0.45).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	tw.tween_interval(seconds); tw.tween_property(banner_box, "modulate:a", 0.0, 0.4); tw.tween_callback(func(): for c in banner_box.get_children(): c.queue_free())
 	banner_box.modulate.a = 1.0
+
+## A long banner subtitle wraps onto a few centred lines instead of running off the screen.
+static func sp_wrap(l: Label) -> void:
+	if l.text.length() <= 70: return
+	l.autowrap_mode = TextServer.AUTOWRAP_WORD; l.custom_minimum_size.x = 640; l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 
 func emit_event(type: String, data: Dictionary = {}) -> void: game_event.emit(type, data)
 func sfx(name: String) -> void: if audio: audio.sfx(name)
@@ -294,21 +302,30 @@ func rest(where: String = "bed", seat = null) -> void:
 	if mode != "explore": return
 	panels.sleep(where, seat)
 
-func sleep_until(hour: float, where: String = "bed") -> void:
+## On a bench (`seat`: the bench in the layout, or a bench or sofa you built) you wake up on it, and now and then
+## to a joke (NapGags: the paper you slept under blows away, you're soaked, someone was staring).
+func sleep_until(hour: float, where: String = "bed", seat = null) -> void:
 	panels.close()
 	set_mode("cutscene")
 	stand_up()
 	await _fade(true).finished
+	nap_gags.clear()
+	var t0: Dictionary = state.time.duplicate()
 	Clock.sleep_until(state.time, hour)
 	send_villagers_home()
+	var gag := ""
+	var on_bench: bool = where == "bench" and seat is Dictionary
+	if on_bench: gag = nap_gags.wake(seat, t0)
 	actions.refresh_all()
 	_fade(false)
 	set_mode("explore")
 	var greet: String = "Good morning!" if hour >= 5 and hour < 12 else ("Good afternoon!" if hour < 17 else ("Good evening!" if hour < 21 else "Good night!"))
-	banner(greet, ("You wake up on the bench. " if where == "bench" else "") + Clock.text(state.time))
+	var sub: String = ("You wake up on the bench. " if where == "bench" else "") + Clock.text(state.time)
+	if not on_bench: banner(greet, sub)
 	sfx("morning")
 	autosave("rest", true)
-	emit_event("slept", {"hour": hour, "where": where})
+	emit_event("slept", {"hour": hour, "where": where, "gag": gag})
+	if on_bench: nap_gags.play(greet, sub)   # the greeting comes with the joke, if there is one
 
 ## Ride from one stop to another on a line within this place (Travel.stops_on): the screen fades, the clock moves
 ## on by the ride's length, and you step off at the other stop.
@@ -504,7 +521,8 @@ func placement_ctx(placements = null) -> Dictionary:
 	for a in npcs.values():
 		if a.present: bodies.append({"x": a.pos.x, "z": a.pos.z, "r": 0.3, "y": a.pos.y, "name": a.def.name})
 	return {"placements": placements if placements != null else state.placements, "zones": Data.layout.zones.filter(func(z): return zone_unlocked(z)),
-		"locked_zones": Data.layout.zones.filter(func(z): return not zone_unlocked(z)), "harmony": LocationMeter.progress(state, Data.island), "statics": statics, "flags": state.flags, "bodies": bodies}
+		"locked_zones": Data.layout.zones.filter(func(z): return not zone_unlocked(z)), "harmony": LocationMeter.progress(state, Data.island), "statics": statics, "flags": state.flags, "bodies": bodies,
+		"no_build": Data.layout.get("noBuild", {})}
 
 func _find_pl(uid: int) -> Dictionary:
 	for p in state.placements:
@@ -643,13 +661,13 @@ func _refresh_piece_interactables() -> void:
 				rec["act"] = func(): rest("bed")
 		if rec.has("act"): add_interactable(rec)
 
-func sit_on(pl: Dictionary) -> void:
-	var b := BuildGrid.bounds(pl)
+## Sit on a seat (pose "sleep" to wake up slumped on a bench); moving gets you up again, back where you stood.
+func sit_on(pl: Dictionary, pose: String = "sit", quiet: bool = false) -> void:
 	sitting = {"back": player.pos}
-	player.pos = Vector3((b.minX + b.maxX) / 2.0, pl.y + 0.28, (b.minZ + b.maxZ) / 2.0)
+	player.pos = NapGags.seat_spot(pl)
 	player.yaw = -int(pl.r) * PI / 2.0; player.sync()
-	player_char.play("sit", true)
-	toast("Ahh, cozy. Move to stand up.")
+	player_char.play(pose, true)
+	if not quiet: toast("Ahh, cozy. Move to stand up.")
 
 func stand_up() -> void:
 	if sitting.is_empty(): return
@@ -935,6 +953,7 @@ func unstick() -> void:
 	var door: Array = Data.layout.nav_nodes.get(safe, [Data.layout.spawn.x, Data.layout.spawn.z])
 	var spot := walk.free_spot(float(door[0]), float(door[1]), Rect2(), 10.0, WalkWorld.PLAYER_RADIUS, player.body)
 	if spot.is_empty(): return
+	if not sitting.is_empty(): sitting = {}; player_char.stop_hold()   # up off the bench, without stepping back to it
 	player.teleport(spot.x, spot.z); cam.snap()
 	effects.sparkle(player.pos + Vector3(0, 1, 0), 16)
 	toast(Data.layout.get("safeText", "Back at the guest house."))

@@ -42,6 +42,13 @@ Shared rules for everyone building a location, people and Claude sessions alike,
   to be (`lost`); a gathering spot can carry its own `gives`, `label`, `hours` and lines; and a
   request can check for a walkable path across any build zone (`path:<zone>`), up stairs as well as over water.
   See `godot/data/locations/README.md`.
+- **Benches and beds:** napping on benches is part of the game. You wake up on the bench, sometimes to a joke
+  (the paper you slept under blows away, a stranger's wet umbrella, a villager caught staring, the rain), and a bed
+  costs 120,000 lire, so people sleep on benches until they've saved up. Give your location benches (features of
+  kind `bench`), and if you like its own paper and odds (a `naps` block in its layout, see `data/naps.json`). A place
+  can rule pieces out with a reason (`noBuild` in its layout). **Idea for a future city** (not one of the current
+  locations): a flat you can furnish with everything except a bed, every bed in town sold out, so you sleep on its
+  benches.
 - **Look:** shared shaders and the atmosphere module (`docs/GRAPHICS.md`) give every location wind, light,
   weather and ambient life. A location tunes its mood with the `look` block in its map entry: `shade` is added to
   shadows, `light` multiplies highlights, `wind` scales the wind, `life` scales motes, fireflies and leaves, and

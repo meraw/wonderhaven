@@ -427,11 +427,12 @@
    "interact": "sleep",
    "cost": {
     "wood": 3,
-    "fabric": 2
+    "fabric": 2,
+    "coins": 120
    },
    "color": "#ffb3c7",
    "colorable": true,
-   "desc": "Rest until morning (E)."
+   "desc": "Rest until morning (E). The mattress alone costs more than the farmhouse did. Benches are free."
   },
   {
    "id": "cabinet",

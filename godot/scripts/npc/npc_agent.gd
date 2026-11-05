@@ -17,6 +17,7 @@ var greeted := false
 var idle_t := 3.0
 var waited := 0.0   # how long it has stood waiting for you to get out of its way
 var present := true
+var hurry_t := 0.0   # seconds left of hurrying (caught staring at you on a bench: NapGags)
 var marker_offer: Label3D
 var marker_ready: Label3D
 
@@ -52,12 +53,14 @@ func teleport_home() -> void:
 	var p := node_pos(a.node)
 	pos.x = p.x; pos.z = p.y; waypoints = []; goal = a.node; activity = a.activity
 
-func plan_route(to: String) -> void:
+## The way to nav node `to`, from where they stand, or after a first dash to `via` (hurrying off: NapGags).
+func plan_route(to: String, via: Vector2 = Vector2.INF) -> void:
 	var flags: Dictionary = game.state.flags
-	var path := Schedule.find_path(Schedule.nearest_node(pos.x, pos.z, flags), to, flags)
+	var from := Vector2(pos.x, pos.z) if via == Vector2.INF else via
+	var path := Schedule.find_path(Schedule.nearest_node(from.x, from.y, flags), to, flags)
 	goal = to
-	if path.is_empty(): waypoints = [node_pos(to)]; return
-	var pts: Array = []
+	if path.is_empty(): waypoints = [node_pos(to)] if via == Vector2.INF else [via, node_pos(to)]; return
+	var pts: Array = [] if via == Vector2.INF else [via]
 	for n in path.size():
 		pts.append(node_pos(path[n]))
 		if n + 1 < path.size(): pts.append_array(game.crossing_path(path[n], path[n + 1]))
@@ -74,13 +77,14 @@ func update(dt: float) -> void:
 	if a.node != goal: plan_route(a.node)
 	activity = a.activity
 	var speed := 0.0
+	hurry_t = maxf(0.0, hurry_t - dt)
 	var pp: Vector3 = game.player.pos
 	if talking: face(pp, dt, 10.0)
 	elif not waypoints.is_empty():
 		var tgt: Vector2 = waypoints[0]
 		var d := Vector2(tgt.x - pos.x, tgt.y - pos.z)
 		var far := Vector2(pp.x - pos.x, pp.z - pos.z).length() > 40.0
-		var v := 6.0 if far else 2.3
+		var v := 6.0 if far else (4.8 if hurry_t > 0.0 else 2.3)
 		if d.length() < 0.15: waypoints.pop_front()
 		else:
 			var step := minf(d.length(), v * dt)

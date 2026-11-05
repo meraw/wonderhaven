@@ -323,7 +323,7 @@ func sleep(where: String, seat = null) -> void:
 		var mins := fposmod(float(w[2]) * 60.0 - now, 1440.0)
 		if mins < 1.0: mins = 1440.0
 		var hour: float = w[2]
-		var b := UiTheme.button("%s  %s · %s   (in %dh %02dm)" % [w[0], w[1], Clock.hour_num(hour), int(mins / 60.0), int(fmod(mins, 60.0))], func(): game.sleep_until(hour, where))
+		var b := UiTheme.button("%s  %s · %s   (in %dh %02dm)" % [w[0], w[1], Clock.hour_num(hour), int(mins / 60.0), int(fmod(mins, 60.0))], func(): game.sleep_until(hour, where, seat))
 		b.name = "wake_%d" % int(hour); b.alignment = HORIZONTAL_ALIGNMENT_LEFT; v.add_child(b)
 	if where == "bench" and seat != null:
 		var st := UiTheme.button("🪑  Just sit a while", func(): close(); game.sit_on(seat), true); st.name = "just_sit"; v.add_child(st)
