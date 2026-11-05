@@ -180,10 +180,42 @@ func reading() -> String: return LocationMeter.reading(LocationMeter.def("river_
 func flag(f: String) -> bool: return game.state.flags.get(P + f, false)
 func hour() -> float: return float(game.state.time.minute) / 60.0
 
+## talk() from full_base, for conversations that can end with the world being built again (a WORLD_FLAG set): when
+## frames are slow the old scene is gone before the next look at it, so stop looking once it is.
+var _game_id := 0
+func talk(id: String, accept: bool = true) -> bool:
+	_game_id = game.get_instance_id()
+	for attempt in 6:
+		var a = game.npcs[id]
+		await walk_to(a.pos.x, a.pos.z, 1.5)
+		a = game.npcs[id]
+		if await face_and_press("npc:" + id, a.pos.x, a.pos.z): break
+	for n in 20:
+		if game.mode == "dialogue": break
+		await frames(2)
+	if game.mode != "dialogue": print("   no dialogue with ", id); note("no dialogue with %s" % id); return false
+	note("talking to %s" % id)
+	for n in 300:
+		await frames(4)
+		if not is_instance_valid(game) or game.mode != "dialogue": return true
+		var ui: DialogueUI = game.dialogue
+		if not ui.choices.is_empty():
+			var idx := -1
+			if accept:
+				for i in ui.choices.size():
+					if str(ui.choices[i].label).begins_with("✨") or ui.choices[i].kind == "pay": idx = i; break
+			if idx < 0:
+				for i in ui.choices.size():
+					if ui.choices[i].kind == "bye": idx = i
+			print("   ", id, " › ", ui.choices[idx].label)
+			await tap(KEY_1 + idx)
+		else: await tap(KEY_E)
+	return true
+
 ## A step that reshapes the place (one of its WORLD_FLAGS) has the world built again where you stand once the
 ## conversation ends: wait for the new scene and follow it.
 func await_rebuild(max_s: float = 60.0) -> bool:
-	var old_id: int = game.get_instance_id()
+	var old_id: int = game.get_instance_id() if is_instance_valid(game) else _game_id
 	var t0 := Time.get_ticks_msec()
 	while Time.get_ticks_msec() - t0 < max_s * 1000.0:
 		await frames(2)
