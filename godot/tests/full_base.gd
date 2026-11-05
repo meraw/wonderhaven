@@ -77,6 +77,8 @@ func walk_to(x: float, z: float, tol: float = 0.8) -> bool:
 	for i in pts.size():
 		if pts[i].distance_to(here) < pts[start].distance_to(here) and line_clear(here, pts[i]): start = i
 	for i in range(start, pts.size()):
+		var at := Vector2(game.player.pos.x, game.player.pos.z)
+		if i > start and not line_clear(at, pts[i]): await walk_direct(pts[i - 1].x, pts[i - 1].y, 0.35)   # back onto the path first
 		await walk_direct(pts[i].x, pts[i].y, 1.2)
 	return await walk_direct(x, z, tol)
 
