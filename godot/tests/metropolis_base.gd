@@ -84,27 +84,54 @@ func storey_to(up: bool) -> void:
 	else:
 		await walk_to(foot.x, foot.y, 0.8); await walk_direct(top.x, top.y, 0.6)
 
-## Talks to a Toriano villager (accepting what they offer, paying what they ask). A villager on the other storey of
-## number 14 (in a flat off the balcony, or down in the courtyard below it) is reached by the stair.
+## Talks to a Toriano villager (accepting what they offer, paying what they ask), like a player who knows the city:
+## a villager on the other storey of number 14 is reached by the stair, and one on their way somewhere (lunch over,
+## back to the office) is met where they're going rather than chased.
 func chat(npc: String, accept: bool = true) -> bool:
 	var id := P + npc
-	for attempt in 3:
+	for attempt in 5:
 		var a = game.npcs[id]
 		var near_tenement: bool = Vector2(a.pos.x + 38.0, a.pos.z - 112.0).length() < 16.0 or Vector2(game.player.pos.x + 38.0, game.player.pos.z - 112.0).length() < 16.0
-		if not near_tenement or absf(a.pos.y - game.player.pos.y) < 1.5: break
-		if a.pos.y > 1.0 and a.pos.y < 3.0: await wait(3.0); continue   # on the stair: let them get where they're going
-		await storey_to(a.pos.y > 2.0)
-	# a villager on the way somewhere (lunch over, back to the office): wait for them where they're going
-	var v = game.npcs[id]
-	if not v.waypoints.is_empty() and Data.layout.nav_nodes.has(v.goal):
-		var g: Array = Data.layout.nav_nodes[v.goal]
-		if Vector2(v.pos.x - g[0], v.pos.z - g[1]).length() > 12.0:
-			note("%s is walking to %s: meeting them there" % [npc, v.goal])
-			await walk_to(g[0], g[1], 2.0)
-			for n in 60:
-				if game.npcs[id].waypoints.is_empty(): break
-				await wait(1.0)
-	return await talk(id, accept)
+		if near_tenement and absf(a.pos.y - game.player.pos.y) >= 1.5:
+			if a.pos.y > 1.0 and a.pos.y < 3.0: await wait(3.0); continue   # on the stair: let them get where they're going
+			await storey_to(a.pos.y > 2.0); continue
+		if not a.waypoints.is_empty() and Data.layout.nav_nodes.has(a.goal):
+			var g: Array = Data.layout.nav_nodes[a.goal]
+			if Vector2(a.pos.x - g[0], a.pos.z - g[1]).length() > 12.0:
+				note("%s is walking to %s: meeting them there" % [npc, a.goal])
+				await walk_to(g[0], g[1], 2.0)
+				for n in 90:
+					if game.npcs[id].waypoints.is_empty(): break
+					await wait(1.0)
+				continue
+		await walk_to(a.pos.x, a.pos.z, 1.5)
+		a = game.npcs[id]
+		if await face_and_press("npc:" + id, a.pos.x, a.pos.z): return await converse(id, accept)
+	note("could not reach %s to talk" % npc)
+	return false
+
+## The conversation once it's started: through the lines, accepting offers and paying when asked, then goodbye.
+func converse(id: String, accept: bool) -> bool:
+	for n in 20:
+		if game.mode == "dialogue": break
+		await frames(2)
+	if game.mode != "dialogue": note("no dialogue with %s" % id); return false
+	note("talking to %s" % id)
+	for n in 300:
+		await frames(4)
+		if game.mode != "dialogue": return true
+		var ui: DialogueUI = game.dialogue
+		if not ui.choices.is_empty():
+			var idx := -1
+			if accept:
+				for i in ui.choices.size():
+					if str(ui.choices[i].label).begins_with("✨") or ui.choices[i].kind == "pay": idx = i; break
+			if idx < 0:
+				for i in ui.choices.size():
+					if ui.choices[i].kind == "bye": idx = i
+			await tap(KEY_1 + idx)
+		else: await tap(KEY_E)
+	return true
 
 ## The harness tops up materials a player would gather again and again (noted, so the report says so).
 func top_up(items: Dictionary, why: String) -> void:
