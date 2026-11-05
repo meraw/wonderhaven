@@ -901,7 +901,7 @@
     "hatColor": "#e0b04a",
     "accessory": "backpack"
    },
-   "home": "river_town_shack:spot",
+   "home": "shackCorner",
    "schedule": [
     [
      9,

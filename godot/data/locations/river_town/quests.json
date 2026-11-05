@@ -684,7 +684,8 @@
      "statue"
     ],
     "flags": [
-     "river_town_flood_over"
+     "river_town_flood_over",
+     "rice_village_revealed"
     ]
    },
    "dialogue": {
