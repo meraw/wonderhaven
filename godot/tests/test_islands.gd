@@ -220,3 +220,18 @@ func test_no_squeeze_between_scenery_and_walls():
 					var cx := clampf(n.x, b.x - b.w / 2.0, b.x + b.w / 2.0); var cz := clampf(n.z, b.z - b.d / 2.0, b.z + b.d / 2.0)
 					var gap := Vector2(n.x - cx, n.z - cz).length() - float(size[n.kind])
 					t.ok(gap <= 0.0 or gap >= WalkWorld.PLAYER_RADIUS * 2.0 + 0.05, "%s: %s and %s leave room to pass (%.2f m)" % [id, n.id, b.id, gap]))
+
+func test_nav_edges_stay_on_dry_land():
+	# Villagers walk nav edges without colliding, so an edge across water has them walking on it, and a player
+	# following the same line stops at the bank. Edges behind a flag (the bridge, once built) are the exception.
+	for id in _islands_with_layouts():
+		_on(id, func():
+			for e in Data.layout.nav_edges:
+				if e.size() > 2: continue
+				var a: Array = Data.layout.nav_nodes[e[0]]; var b: Array = Data.layout.nav_nodes[e[1]]
+				var wet := false
+				for k in 41:
+					var t := k / 40.0
+					var x: float = lerpf(a[0], b[0], t); var z: float = lerpf(a[1], b[1], t)
+					if Heightfield.height(x, z) < Heightfield.WALKABLE_MIN: wet = true
+				t.ok(not wet, "%s: the path %s-%s stays on dry land" % [id, e[0], e[1]]))
