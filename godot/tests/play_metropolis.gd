@@ -26,11 +26,10 @@ func play() -> void:
 	await go("duomo:spot", "in through the Duomo's great door, up the nave")
 	check("nave", "inside the nave, its roof and spires fading away overhead", inside("duomo"), "at %s" % game.player.pos)
 	await shot("nave")
-	var info := "%d draw calls, %d objects, %.0f fps (software renderer)" % [Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME), Performance.get_monitor(Performance.RENDER_TOTAL_OBJECTS_IN_FRAME), Engine.get_frames_per_second()]
 	await go("sq", "back out into the cathedral square")
 	check("square_paved", "the cathedral square is paved in stone slabs", Ground.kind_at(game.player.pos.x, game.player.pos.z) == "slabs", Ground.kind_at(game.player.pos.x, game.player.pos.z))
-	note("in the square: " + info)
 	await shot("cathedral_square")
+	note("in the square (the frame drawn for that screenshot): %d draw calls, %d objects" % [Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME), Performance.get_monitor(Performance.RENDER_TOTAL_OBJECTS_IN_FRAME)])
 	await go("gal_mid", "into the Galleria, under its glass dome")
 	await shot("galleria")
 	# Home to number 14: the courtyard, the stair, the balcony, your flat, the terrace
