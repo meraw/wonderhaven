@@ -192,6 +192,15 @@ func test_villagers_and_requests_hang_together():
 		for sid in Data.shops.shops:
 			if String(sid).begins_with(P): t.ok(Data.npc(sid).get("island", "") == "metropolis", "shop %s belongs to a Toriano villager" % sid))
 
+func test_the_flat_comes_with_what_it_needs():
+	_on(func():
+		var q := Data.quest(P + "flat")
+		var need := {}
+		for id in ["bed", "table", "chair", "lamp"]:
+			for k in Data.piece(id).cost: need[k] = int(need.get(k, 0)) + int(Data.piece(id).cost[k])
+		var given: Dictionary = q.onAccept.get("items", {})
+		t.ok(need.keys().all(func(k): return int(given.get(k, 0)) >= need[k]), "the Balcony Flat hands you enough to furnish it (%s for %s)" % [given, need]))
+
 func test_the_evening_paper():
 	_on(func():
 		t.ok(not LocationMeter.def("metropolis").is_empty(), "Toriano has its own meter")

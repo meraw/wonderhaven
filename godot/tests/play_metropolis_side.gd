@@ -201,7 +201,7 @@ func play() -> void:
 	if ready_count("chop") < 6: await nap_at_least("bench_park1", 3.0)
 	await gather_until("chop", func(): return step_done("ducks", "prune"), [], 12)
 	check("ducks_pruned", "six plane trees pruned", step_done("ducks", "prune"), str(game.state.quests.get(P + "ducks", {}).get("progress", {})))
-	top_up({"wood": 12, "stone": 4, "clay": 2, "metal": 2, "crystal": 2}, "planks, pillars, roofs, a counter and a lamp")
+	top_up({"wood": 12, "stone": 7, "clay": 2, "crystal": 1}, "planks, three pillars, two roofs, a counter and a lamp")
 	await walk_to(-106.5, -124.0, 0.8)
 	await open_zone("ducks")
 	placed = await put_all([["bridgeDeck", -108, -126, 0, 0.3], ["bridgeDeck", -109, -126, 0, 0.1], ["bridgeDeck", -110, -126, 0, 0.1], ["pillar", -110, -126, 0, 0.25], ["roof", -111, -127, 0, 2.45]])

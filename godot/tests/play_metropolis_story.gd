@@ -88,7 +88,7 @@ func play() -> void:
 	check("footbridge_wood", "more pruning for the deck and posts", step_done("footbridge", "wood"), "wood %d" % inv("wood"))
 	await tram("stop_darsena")
 	await walk_to(-115.0, 136.0, 0.8)
-	top_up({"wood": 22}, "posts, planks and railings")
+	top_up({"wood": 24}, "twelve planks, three posts and six railings")
 	await open_zone("footbridge")
 	var bridge := [["bridgeDeck", -113, 135, 0, 0.3], ["bridgePost", -110, 135, 0, 0.0], ["bridgeDeck", -110, 135, 0, 0.0], ["bridgeDeck", -111, 135, 0, 0.0], ["bridgeDeck", -112, 135, 0, 0.0], ["bridgeDeck", -109, 135, 0, 0.0],
 		["bridgePost", -107, 135, 0, 0.0], ["bridgeDeck", -107, 135, 0, 0.0], ["bridgeDeck", -108, 135, 0, 0.0], ["bridgeDeck", -106, 135, 0, 0.0],
