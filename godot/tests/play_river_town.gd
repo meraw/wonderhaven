@@ -320,6 +320,16 @@ func wait_until(h: float, max_s: float = 3600.0) -> void:
 		if now >= h and now < h + 1.0: return
 		await wait(1.0)
 
+## Into the stranded houseboat through her door on the east side (straight in from outside it, then to the bed), from
+## wherever you are.
+func board_stranded_boat() -> void:
+	var b := building(P + "houseboat")
+	var door_x: float = b.x + b.w / 2.0
+	await walk_to(door_x + 1.4, b.z, 0.6)
+	await walk_direct(door_x + 1.2, b.z, 0.3, 15.0)
+	await walk_direct(door_x - 1.0, b.z, 0.3, 15.0)
+	await walk_direct(b.x - 1.6, b.z + 0.3, 0.4, 15.0)
+
 ## Walk onto a lost thing (they're picked up as you step on them). One you already stepped on earlier, walking
 ## somewhere else, counts as found.
 func pick_up(node: String) -> bool:
@@ -593,7 +603,7 @@ func sec_houseboat() -> void:
 	var slip: bool = stage("houseboat") >= 3
 	await shot("slipway")
 	await leave_build()
-	await walk_to(-19.2, 29.0, 1.0); await walk_direct(-22.4, 29.5, 0.5)
+	await board_stranded_boat()
 	await sleep_at(P + "bed", 6)
 	await talk(P + "ermes")   # at his gauge at dawn: launch
 	var launched := await await_rebuild()
