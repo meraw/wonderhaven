@@ -1061,6 +1061,7 @@
    "minK": -40,
    "maxK": -37,
    "floorY": 3.5,
+   "interior": true,
    "unlock": {
     "flag": "rice_village_roofPatched"
    }

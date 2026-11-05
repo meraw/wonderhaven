@@ -11,11 +11,7 @@ const WATCH := Vector2(4.2, -41.2)   # where you stand to watch the trains at th
 
 func play() -> void:
 	await fast_3d()
-	await frames(20)
-	var title_load: Control = game.screens.find_child("btn_load", true, false)
-	if title_load: await click(title_load.get_global_rect().get_center()); await frames(10)
-	var l2: Control = game.screens.find_child("load_slot2", true, false)
-	if l2: await click(l2.get_global_rect().get_center()); await frames(40)
+	await load_slot("2")
 	check(100, "part one's save loads from the title screen", game.mode == "explore" and Data.island == "rice_village" and status("museum") == "done", "mode %s island %s museum %s" % [game.mode, Data.island, status("museum")])
 	if game.mode != "explore": return
 	check(101, "the petition carried over", signatures() >= 140, "signatures %d" % signatures())
@@ -72,7 +68,7 @@ func stairs() -> void:
 	await gather_for("chop", "stairs", "wood", 8, "wood", 4)
 	if inv("stone") < 2: await gather_to("mine", "stone", 2)
 	await walk_to(-14.0, 12.4, 0.8)
-	var placed := await build(P + "tower", [["stairs", -16, 9, 0.45, 0], ["stoneBlock", -16, 8, 0.45, 0], ["stairs", -16, 8, 1.45, 0]])
+	var placed := await build(P + "tower", [["stairs", -16, 9, 0], ["stoneBlock", -16, 8, 0], ["stairs", -16, 8, 0]])
 	note("tower: %s" % [placed])
 	await frames(20)
 	check(121, "build a climb inside the tower: a flight of stairs, and a second on a stone block", progress("stairs", "climb") == 1, str(placed))
@@ -96,8 +92,8 @@ func mill() -> void:
 	await buy("battista", "metal", 1)
 	check(131, "chop wood and buy metal", progress("mill", "wood") >= 6 and progress("mill", "metal") >= 2, "wood %d metal %d" % [progress("mill", "wood"), progress("mill", "metal")])
 	await walk_to(-36.0, -9.0, 1.0)
-	var row := [["waterwheel", -39, -13, -0.3, 1]]
-	for i in range(-38, -32): row.append(["shaft", i, -13, 0.3, 1])
+	var row := [["waterwheel", -39, -13, 1]]
+	for i in range(-38, -32): row.append(["shaft", i, -13, 1])
 	var placed := await build(P + "mill", row)
 	note("mill: %s" % [placed])
 	await frames(30)
@@ -118,7 +114,7 @@ func nativity() -> void:
 	if inv("clay") < 1: await gather_to("clay", "clay", 1)
 	if inv("crystal") < 2: await buy("ernesto", "crystal", 2 - inv("crystal"))
 	await walk_to(-15.0, -3.7, 0.8)
-	var placed := await build(P + "churchyard", [["pillar", -15, 0, 0.45, 0], ["pillar", -14, 0, 0.45, 0], ["roof", -15, 0, 2.7, 0], ["lamp", -16, 1, 0.45, 0], ["lamp", -13, 1, 0.45, 0]])
+	var placed := await build(P + "churchyard", [["pillar", -15, 0, 0], ["pillar", -14, 0, 0], ["roof", -15, 0, 0], ["lamp", -16, 1, 0], ["lamp", -13, 1, 0]])
 	note("stable: %s" % [placed])
 	check(142, "build the stable: posts, a roof and two lamps", progress("nativity", "stable") == 1, str(placed))
 	await shot("stable")
@@ -142,15 +138,15 @@ func finale() -> void:
 	await walk_to(8.5, -42.4, 1.0)
 	var decks: Array = []
 	for start in [10, 17, 25]:
-		for i in range(start, start + 4): decks.append(["bridgeDeck", i, -43, 0.6, 0])
+		for i in range(start, start + 4): decks.append(["bridgeDeck", i, -43, 0])
 	var placed := await build(P + "platform", decks)
 	note("platform: %s" % [placed])
 	await frames(20)
 	check(152, "plank over the platform's three holes: one platform end to end", progress("train", "platform") == 1, str(placed))
 	await walk_direct(9.0, -42.5, 0.5); await walk_direct(32.0, -42.5, 0.6, 40.0)
 	check(153, "and walk it from the station end to the far end", game.player.pos.x > 31.0, str(game.player.pos))
-	placed = await build(P + "platform", [["pillar", 29, -44, 0.5, 0], ["pillar", 30, -44, 0.5, 0], ["roof", 29, -44, 2.7, 0], ["bench", 29, -42, 0.5, 0],
-		["lamp", 31, -44, 0.5, 0], ["lamp", 31, -42, 0.5, 0], ["enamelSign", 32, -42, 0.5, 0]])
+	placed = await build(P + "platform", [["pillar", 29, -44, 0], ["pillar", 30, -44, 0], ["roof", 29, -44, 0], ["bench", 29, -42, 0],
+		["lamp", 31, -44, 0], ["lamp", 31, -42, 0], ["enamelSign", 32, -42, 0]])
 	note("shelter: %s" % [placed])
 	await frames(20)
 	check(154, "build the shelter: a roof, a bench, two lamps and an enamel sign", progress("train", "shelter") == 1, str(placed))

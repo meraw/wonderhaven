@@ -112,14 +112,36 @@ func buy(npc: String, item: String, times: int = 1) -> bool:
 	await tap(KEY_ESCAPE); await frames(6)
 	return got == times
 
-## Places a list of [piece, i, k, click height, rotation] in a build site, then leaves build mode.
+## Loads a save from the title screen, as a player would.
+func load_slot(slot: String) -> void:
+	await frames(20)
+	var title_load: Control = game.screens.find_child("btn_load", true, false)
+	if title_load: await click(title_load.get_global_rect().get_center()); await frames(10)
+	var l: Control = game.screens.find_child("load_slot" + slot, true, false)
+	if l: await click(l.get_global_rect().get_center()); await frames(40)
+
+## Where the cursor lands over a cell: the top of what's built there, the ground or a raised floor, or the water's
+## surface where the ground is under water (build mode's own cursor rule).
+func surface_at(x: float, z: float) -> float:
+	var y := BuildGrid.ground_at(floorf(x), floorf(z))
+	if Heightfield.height(x, z) < Heightfield.WATER_Y and y < Heightfield.WATER_Y + 0.01: y = 0.1
+	for pl in game.state.placements:
+		var b := BuildGrid.bounds(pl)
+		if x > b.minX and x < b.maxX and z > b.minZ and z < b.maxZ: y = maxf(y, b.top)
+	return y
+
+## Places a list of [piece, i, k, rotation] in a build site, then leaves build mode. Each piece is aimed at the middle
+## of its footprint, on the surface the cursor will land on there.
 func build(zone: String, pieces: Array) -> Array:
 	await open_build(zone)
 	var out: Array = []
 	for e in pieces:
 		if game.build.item_id != e[0]: await select_piece(e[0])
 		var before: int = game.state.placements.size()
-		var st := await place_at(e[1], e[2], e[3], e[4])
+		var r: int = e[e.size() - 1]
+		var fp := BuildGrid.footprint(Data.piece(e[0]), r)
+		var cx: float = e[1] + fp.x / 2.0; var cz: float = e[2] + fp.y / 2.0
+		var st := await place_at(cx - 0.5, cz - 0.5, surface_at(cx, cz), r)
 		out.append("%s@%d,%d %s" % [e[0], e[1], e[2], "ok" if game.state.placements.size() > before else "refused (%s)" % st])
 	await leave_build()
 	return out
@@ -147,15 +169,21 @@ func play() -> void:
 	await fast_3d()
 	check(1, "the game starts in Casalrana", Data.island == "rice_village", Data.island)
 	await frames(10)
-	check(2, "the HUD shows Paletta's petition instead of the approval rating", game.hud.harmony_title.text.ends_with("The Petition") and game.hud.harmony_label.text == "0 / 40", "%s %s" % [game.hud.harmony_title.text, game.hud.harmony_label.text])
-	await welcome()
-	await flat()
+	# --from=water (with --title) picks up from the save this makes after the flat (slot 1), to rerun the rest
+	if String(game.shot_cfg.get("from", "")) == "water":
+		await load_slot("1")
+		check(3, "resumed from the save after the flat", game.mode == "explore" and status("flat") == "done", "mode %s flat %s" % [game.mode, status("flat")])
+	else:
+		check(2, "the HUD shows Paletta's petition instead of the approval rating", game.hud.harmony_title.text.ends_with("The Petition") and game.hud.harmony_label.text == "0 / 40", "%s %s" % [game.hud.harmony_title.text, game.hud.harmony_label.text])
+		await welcome()
+		await flat()
+		await save_to("slot1")
 	await water()
 	await bench()
 	await lost_things()
 	await museum()
 	await shot("end-part-one")
-	var saved := await save_to("2")
+	var saved := await save_to("slot2")
 	check(90, "part one saved to slot 2", saved, "signatures %d, day %d" % [signatures(), int(game.state.time.day)])
 
 # ---- Welcome to Casalrana ---------------------------------------------------------------------------------------
@@ -193,7 +221,7 @@ func flat() -> void:
 	await down_from_flat()
 	await gather_to("chop", "wood", 7)
 	await climb_to_flat()
-	var placed := await build(P + "flat", [["bed", 14, -40, 3.55, 0], ["table", 17, -39, 3.55, 0], ["chair", 17, -38, 3.55, 2], ["lamp", 20, -40, 3.55, 0]])
+	var placed := await build(P + "flat", [["bed", 14, -40, 0], ["table", 17, -39, 0], ["chair", 17, -38, 2], ["lamp", 20, -40, 0]])
 	note("flat: %s" % [placed])
 	await frames(10)
 	await shot("flat-furnished")
@@ -214,9 +242,9 @@ func water() -> void:
 	await buy("battista", "metal", 2)
 	check(31, "gather cobbles and wood, and buy metal at the machine shed", progress("water", "stone") >= 6 and progress("water", "wood") >= 6 and inv("metal") >= 3, "stone %d wood %d metal %d" % [inv("stone"), inv("wood"), inv("metal")])
 	await walk_to(-36.6, -27.0, 1.0)
-	var sl := await build(P + "sluice", [["bridgeDeck", -43, -29, 0.7, 0], ["bridgeDeck", -42, -29, 0.6, 0], ["bridgeDeck", -41, -29, 0.6, 0],
-		["bridgeDeck", -38, -29, 0.7, 0], ["bridgeDeck", -39, -29, 0.6, 0], ["bridgeDeck", -40, -29, 0.6, 0],
-		["pillar", -43, -28, 0.7, 0], ["pillar", -38, -28, 0.7, 0], ["lever", -38, -30, 0.7, 0]])
+	var sl := await build(P + "sluice", [["bridgeDeck", -43, -29, 0], ["bridgeDeck", -42, -29, 0], ["bridgeDeck", -41, -29, 0],
+		["bridgeDeck", -38, -29, 0], ["bridgeDeck", -39, -29, 0], ["bridgeDeck", -40, -29, 0],
+		["pillar", -43, -28, 0], ["pillar", -38, -28, 0], ["lever", -38, -30, 0]])
 	note("sluice: %s" % [sl])
 	await frames(20)
 	check(32, "rebuild the sluice: two pillars, a lever and a walkway across", progress("water", "sluice") == 1 and progress("water", "walk") == 1, str(sl))
@@ -228,7 +256,7 @@ func water() -> void:
 	await gather_to("clay", "clay", 4, 12)
 	await gather_to("chop", "wood", 5)
 	await walk_to(-36.0, 5.6, 1.0)
-	var pd := await build(P + "paddy", [["waterwheel", -39, 10, -0.3, 1], ["pump", -38, 10, 0.3, 2], ["pipe", -37, 10, 0.3, 1], ["pipe", -36, 10, 0.3, 1], ["pipe", -35, 10, 0.2, 1], ["pipe", -34, 10, 0.2, 1]])
+	var pd := await build(P + "paddy", [["waterwheel", -39, 10, 1], ["pump", -38, 10, 2], ["pipe", -37, 10, 1], ["pipe", -36, 10, 1], ["pipe", -35, 10, 1], ["pipe", -34, 10, 1]])
 	note("paddy: %s" % [pd])
 	await frames(30)
 	check(35, "a waterwheel, a pump and pipes carry water to the winter paddy", progress("water", "paddy") == 1 and game.mech.fed.get(P + "paddy", false), str(pd))
@@ -243,7 +271,7 @@ func bench() -> void:
 	check(40, "Nonna asks for a bench by her paddy", status("bench") == "active", status("bench"))
 	await gather_to("chop", "wood", 3)
 	await walk_to(6.5, 32.6, 1.0)
-	var bn := await build(P + "bench", [["bench", 9, 35, 0.3, 0], ["flowerBed", 11, 35, 0.3, 0]])
+	var bn := await build(P + "bench", [["bench", 9, 35, 0], ["flowerBed", 11, 35, 0]])
 	note("bench: %s" % [bn])
 	check(41, "build a bench and a flower bed under the poplars", progress("bench", "build") == 1, str(bn))
 	await to_bench()
