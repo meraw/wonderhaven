@@ -275,9 +275,10 @@ func update_music(game, dt: float) -> void:
 	amb_t -= dt
 	if amb_t < 0.0:
 		amb_t = 0.8 + randf() * 2.5
-		if game.state.flags.get("night", false):
+		var songbirds: bool = Data.island_def(Data.island).get("look", {}).get("songbirds", true)   # (a look's "songbirds": false: a city in December)
+		if songbirds and game.state.flags.get("night", false):
 			for i in 3: play("chirp", 100, 0.06, sfx_bus, i * 0.07)
-		elif randf() < 0.7:
+		elif songbirds and randf() < 0.7:
 			var base := 93 + randi() % 6
 			for i in 2 + randi() % 3: play("chirp", base + (i % 2) * 3, 0.1, sfx_bus, i * 0.09)
 		var p: Vector3 = game.player.pos

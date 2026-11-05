@@ -58,7 +58,8 @@
   "frost": 0.6,
   "sun_peak": 22,
   "sunrise": 7.75,
-  "sunset": 17.0
+  "sunset": 17.0,
+  "songbirds": false
  },
  "meter": {
   "name": "La Sera di Toriano",

@@ -41,12 +41,17 @@ const Landmarks := preload("res://scripts/locations/metropolis/landmarks.gd")
 
 const Gathering := preload("res://scripts/locations/metropolis/gathering.gd")
 const Works := preload("res://scripts/locations/metropolis/works.gd")
+const Life := preload("res://scripts/locations/metropolis/life.gd")
+const Passersby := preload("res://scripts/locations/metropolis/passersby.gd")
 
-## Scenery added after everything else (Village calls this): see scenery.gd; and the parts that answer your requests
-## (the crane, the Golden Angel, the prizes in your flat): see works.gd.
+## Scenery added after everything else (Village calls this): see scenery.gd; the parts that answer your requests
+## (the crane, the Golden Angel, the prizes in your flat): see works.gd; the pigeons, ducks and gulls: life.gd; and
+## the people hurrying past: passersby.gd.
 static func dress(village: Node3D) -> void:
 	Scenery.dress(village)
 	var w := Works.new(); w.name = "MetropolisWorks"; village.add_child(w); w.setup(village)
+	var l := Life.new(); village.add_child(l); l.setup(village)
+	var pb := Passersby.new(); village.add_child(pb); pb.setup(village)
 
 ## Toriano's own gathering spots (plane trees to prune, marble offcuts, skips, score pages): see gathering.gd.
 static func node(n: Dictionary) -> Node3D: return Gathering.node(n)

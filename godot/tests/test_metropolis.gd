@@ -302,3 +302,45 @@ func test_the_crane_and_the_angel_can_be_driven():
 		var mill := _build(P + "terrace", [["windmill", 52, 9, 2, 7.0], ["shaft", 52, 8, 0, 7.0]])
 		t.ok(mill.all(func(p): return absf(p.y - 6.3) < 0.01), "on the roof terrace, 6.3 m up")
 		t.ok(Mechanics.solve(mill, Data.layout.machines).fed.get(P + "angel", false), "a windmill and a shaft drive the Golden Angel's floodlight"))
+
+func test_the_pigeons_in_the_square():
+	var Life = load("res://scripts/locations/metropolis/life.gd")
+	t.ok(Life.FLOCKS * Life.PIGEONS >= 100, "pigeons by the hundred (%d)" % (Life.FLOCKS * Life.PIGEONS))
+	t.ok(Life.PIGEON_SPOTS.size() > Life.FLOCKS, "more spots than flocks, so a flock always has somewhere to go")
+	var a := Vector2(-8, -20)
+	t.ok(Life.startled(a, a + Vector2(3, 0)), "a flock takes off when you walk up to it")
+	t.ok(not Life.startled(a, a + Vector2(12, 0)), "and stays put while you're further off")
+	var to: Vector2 = Life.landing(Life.PIGEON_SPOTS, [Vector2(5, 6)], a + Vector2(-2, 0), a)
+	t.ok(to != a and to != Vector2(5, 6), "it lands somewhere else, not on another flock's spot")
+	for s in Life.PIGEON_SPOTS:
+		if s != a and s != Vector2(5, 6): t.ok((s as Vector2).distance_to(a) <= to.distance_to(a + Vector2(-2, 0)) + 30.0 and to.distance_to(a + Vector2(-2, 0)) >= (s as Vector2).distance_to(a + Vector2(-2, 0)) - 0.001, "it picks the free spot farthest from you (%s)" % to)
+	var off := Vector2(1.0, 0.5)
+	var p0: Vector3 = Life.wheel(a, to, off, 0.3, 0.0)
+	var p1: Vector3 = Life.wheel(a, to, off, 0.3, 1.0)
+	t.ok(Vector2(p0.x, p0.z).distance_to(a + off) < 0.01 and absf(p0.y) < 0.01, "a bird takes off from its own place")
+	t.ok(Vector2(p1.x, p1.z).distance_to(to + off) < 0.01 and absf(p1.y) < 0.01, "and lands in its place at the new spot")
+	t.ok(Life.wheel(a, to, off, 0.3, 0.5).y > 3.0, "wheeling round well up in the air on the way")
+	_on(func():
+		for s in Life.PIGEON_SPOTS:
+			t.ok((s as Vector2).distance_to(Vector2(-24, -8)) > 7.0, "spot %s is clear of the Christmas tree and the crowd round it" % s)
+			for b in Data.layout.buildings:
+				t.ok(absf(s.x - b.x) > b.w / 2.0 + 1.5 or absf(s.y - b.z) > b.d / 2.0 + 1.5, "spot %s is out in the square, not in %s" % [s, b.id]))
+
+func test_passers_by_keep_to_the_streets():
+	var PB = load("res://scripts/locations/metropolis/passersby.gd")
+	for id in ["metropolis_home:spot", "metropolis_bal_e_home", "metropolis_courtyard", "metropolis_site_a_mid", "metropolis_terrace_w"]:
+		t.ok(not PB.street_node(id), "%s isn't a street" % id)
+	t.ok(PB.street_node("metropolis_sq") and PB.street_node("metropolis_bars_quay"), "the square and the quays are")
+	var graph := {"a": ["b"], "b": ["a", "c", "d"], "c": ["b"], "d": ["b"]}
+	var r: Array = PB.route(graph, "a", 5, func(n): return 0)
+	t.eq(r.slice(0, 3), ["a", "b", "c"], "a walk follows the streets, never straight back the way it came")
+	for i in 30:
+		var app: Dictionary = Chibi.sanitize(PB.appearance(i))
+		var raw: Dictionary = PB.appearance(i)
+		t.ok(app.top == raw.top and app.bottom == raw.bottom and app.hat == raw.hat, "passer-by %d wears real clothes (%s, %s)" % [i, raw.top, raw.bottom])
+	_on(func():
+		var streets := 0
+		for id in Data.layout.nav_nodes:
+			if PB.street_node(id): streets += 1
+		t.ok(streets > 40, "plenty of streets to walk (%d spots)" % streets))
+
