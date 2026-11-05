@@ -100,6 +100,8 @@ func test_a_location_can_have_its_own_meter():
 		"milestones": [{"at": 100, "id": "a", "title": "A", "desc": ""}, {"at": 300, "id": "b", "title": "B", "desc": ""}]}
 	t.eq(LocationMeter.reading(m, 0), "7.40 m", "it reads from its starting point")
 	t.eq(LocationMeter.reading(m, 160), "5.80 m", "points move the reading (down, for a gauge)")
+	var stops := m.duplicate(true); stops.display["to"] = 0.0
+	t.eq([LocationMeter.reading(stops, 740), LocationMeter.reading(stops, 900)], ["0.00 m", "0.00 m"], "a display's \"to\" is where the reading stops")
 	t.eq(LocationMeter.next_milestone(m, 100).id, "b", "the next milestone")
 	t.eq(LocationMeter.between(m, 50, 320).map(func(u): return u.id), ["a", "b"], "milestones passed on the way")
 	t.ok(LocationMeter.reward_text(m, 100).contains("100 cm off"), "a reward reads in the meter's own words")

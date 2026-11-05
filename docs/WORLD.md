@@ -61,7 +61,8 @@ Starting points only. Each location's session settles the details with the user 
 1. **One location per session**, on its own branch, with one pull request per stage. Start with a design interview
    with the user, write `docs/locations/<id>.md`, and open a pull request with just that doc.
 2. **Your files:**
-   - `godot/data/locations/<id>/`: `layout.json` (required), plus `location.json` (map entry and `look`),
+   - `godot/data/locations/<id>/`: `layout.json` (required), plus `location.json` (map entry and `look`; `"bikes":
+     false` there if the place is no good for bicycles),
      `npcs.json`, `quests.json`, `shops.json` and `resources.json` as needed. They have the same shapes as the
      shared files and are merged in when the game loads.
    - `godot/scripts/locations/<id>.gd`, and helpers in `godot/scripts/locations/<id>/`. The script can define

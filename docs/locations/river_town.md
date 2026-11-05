@@ -364,7 +364,7 @@ in stage 3c.
 - **Villagers cross your bridge:** the layout's `crossings` let them walk the path you built across the pontoon
   bridge.
 
-**Stage 3b, fixes from playing every request** (this stage). The full playthrough of every request found these, now
+**Stage 3b, fixes from playing every request** (merged). The full playthrough of every request found these, now
 fixed:
 - **The ferry landing:** the last strip of bank before the Alpine river was 0.46 m below the floodplain, just over
   what a walkable path may step down, so a row of pontoons never joined the west bank. The bank now eases down to
@@ -380,6 +380,22 @@ fixed:
   new shared test caught it).
 - **The playthrough** starts as if you had come by Monteforchetta's bus with its main story done
   (`arrive_as_if_played(["hearthglow"])`), and keeps a checkpoint after each request (`--from=` and `--to=`).
+
+**Stage 3c, the bicycle** (this stage):
+- **The bicycle is shared** (`Bicycle`, `BikeModel`, and a ride mode in the player controller). `F` gets on and off,
+  `H` rings the bell, and with the paint job `T` repaints it while you ride. It's a little under twice running speed,
+  steadier in the turns and leaning into them, and it doesn't hop. You get off by yourself to talk, build, gather or
+  sleep, indoors and on stairs. A place's map entry can say `"bikes": false`.
+- **Owning it and its upgrades are story flags** (`hasBike`, `bikeBell`, `bikeBasket`, `bikeLamp`, `bikeRack`,
+  `bikePaint`), so requests and meter milestones give them with what they already have. The flood gauge's
+  milestones give the five upgrades in the order the design lists. The dynamo lamp lights the way only while you ride
+  at night.
+- **A Bike from the Mud** (Primo): 2 metal (his shop, or the rusty boulder on the gravel bar) and an old tyre
+  fished out of the Alpine river by the town (once he's asked, a tyre bites there). Hand them over in the afternoon or
+  evening, collect the bike the next morning, and ride it 25 m along the levee road.
+- **Pierina's Round:** five letters (Ermes, Tullio, Gildo, Ines, Rina) and a tuba-shaped parcel for Wanda.
+- **The gauge** now reaches 0.00 m with every request done, and can't without the finale.
+- **Villagers on bicycles** come with the look and ambient life, in stage 4.
 
 ## Checks for every stage
 `godot/run_tests.sh`, `npm test` and `npm run build`; screenshots of Boccapioppo in both renderers

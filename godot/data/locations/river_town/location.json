@@ -25,7 +25,8 @@
   "display": {
    "from": 7.4,
    "per_point": -0.01,
-   "format": "%.2f m"
+   "format": "%.2f m",
+   "to": 0.0
   },
   "milestones": [
    {
