@@ -10,21 +10,26 @@ func steer(x: float, z: float) -> void:
 	var p: Vector3 = game.player.pos
 	game.cam.yaw = atan2(-(x - p.x), -(z - p.z)); game.cam.cur.yaw = game.cam.yaw
 
+## Budgets count frames (as if at 30 fps), not wall-clock time: on a slow machine (software rendering, several
+## runs at once) a wall-clock limit cut walks short while the game itself was fine.
 func walk_direct(x: float, z: float, tol: float = 0.8, max_s: float = 40.0) -> bool:
-	var t0 := Time.get_ticks_msec()
+	var budget := int(max_s * 30.0)
+	var used := 0
 	var last: Vector3 = game.player.pos
-	var last_move := Time.get_ticks_msec()
+	var still := 0
 	key(KEY_SHIFT, true)
-	while Time.get_ticks_msec() - t0 < max_s * 1000.0:
+	while used < budget:
 		var p: Vector3 = game.player.pos
 		if Vector2(x - p.x, z - p.z).length() < tol: break
 		steer(x, z)
 		key(KEY_W, true)
-		await frames(2)
-		if p.distance_to(last) > 0.1: last = p; last_move = Time.get_ticks_msec()
-		elif Time.get_ticks_msec() - last_move > 1200:
-			key(KEY_W, false); key(KEY_D if randf() < 0.5 else KEY_A, true); await wait(0.25); key(KEY_A, false); key(KEY_D, false)
-			await tap(KEY_SPACE); last_move = Time.get_ticks_msec()
+		await frames(2); used += 2
+		if p.distance_to(last) > 0.1: last = p; still = 0
+		else:
+			still += 2
+			if still > 36:   # no headway for about a second of frames: sidestep and hop, as a player would
+				key(KEY_W, false); key(KEY_D if randf() < 0.5 else KEY_A, true); await frames(8); key(KEY_A, false); key(KEY_D, false)
+				await tap(KEY_SPACE); still = 0; used += 8
 	key(KEY_W, false); key(KEY_SHIFT, false)
 	await frames(2)
 	return Vector2(x - game.player.pos.x, z - game.player.pos.z).length() < tol + 0.4
