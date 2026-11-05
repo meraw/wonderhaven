@@ -632,6 +632,7 @@ func sec_levee() -> void:
 	await talk(P + "ermes")   # the peak, and it holds
 	var over := await await_rebuild()
 	await shot("after-the-storm")
-	check("s12", "The levee holds: past midnight the river peaks below the wall, the flood is over and the rivers go back down",
-		over and qs("levee") == "done" and flag("flood_over") and absf(game.village.water.position.y - Heightfield.WATER_Y) < 0.01 and pts() == 810 - 100,
+	check("s12", "The levee holds: past midnight the river peaks below the wall, the flood is over, the rivers go back down and the bus line goes on to Casalrana",
+		over and qs("levee") == "done" and flag("flood_over") and absf(game.village.water.position.y - Heightfield.WATER_Y) < 0.01 and pts() == 810 - 100
+		and Travel.on_map(Data.island_def("rice_village"), game.state.flags, "river_town"),
 		"%s, water %.2f, gauge %s" % [qs("levee"), game.village.water.position.y, reading()])

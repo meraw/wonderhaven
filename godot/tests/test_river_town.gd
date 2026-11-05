@@ -228,6 +228,8 @@ func test_requests():
 		t.ok(absf(spot.x - RT.alpine_center(spot.z)) < 8.0 and spot.z > RT.po_bank(spot.x) - 6.0, "the monster bites where the rivers meet")
 		t.eq(Minigames.catch_table(Data.layout.fish, monster.node, {}, 22 * 60.0).filter(func(f): return f.id == "river_town_monster").size(), 0, "not before Primo's line")
 		t.eq(Minigames.catch_table(Data.layout.fish, monster.node, {"river_town_catfish_night": true}, 22 * 60.0).filter(func(f): return f.id == "river_town_monster").size(), 1, "then after dark")
+		var finale: Dictionary = Data.quest("river_town_levee").rewards
+		t.ok(finale.flags.has("rice_village_revealed") and Travel.on_map(Data.island_def("rice_village"), {"rice_village_revealed": true}, "river_town"), "the finale sends the bus line on to Casalrana")
 		var lost: Array = Data.layout.nodes.filter(func(n): return n.has("flag"))
 		t.ok(lost.all(func(n): return n.kind == "fragment" and n.get("once", false)), "the logs and lost things are each found once"))
 

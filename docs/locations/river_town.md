@@ -77,9 +77,9 @@ debris goes as requests clear it up, and the rest of the town is dry and lived i
 ## Getting there and around
 - **Arrival by bus.** Aldo's bus line from Monteforchetta ends on top of the levee road. The bus stop is the
   departure point (a feature of kind `boat`, labelled as the bus, as `docs/WORLD.md` asks).
-- **The travel map.** Boccapioppo has its own entry. It is revealed when Monteforchetta's bus line opens (its
-  finale); **the flag needs agreeing with the Monteforchetta session.** Until then tests and screenshots reach it
-  with `--island=river_town`.
+- **The travel map.** Boccapioppo has its own entry, revealed by Monteforchetta's city-bus finale (it sets
+  `river_town_revealed`). Boccapioppo's own finale, Close the Breach, sends the bus line on to Casalrana: it sets
+  `rice_village_revealed`. That is the travel order the user chose.
 - **The valley railway** to the Alpine village starts at Boccapioppo's station: a slow two-carriage train up the
   valley. The station is a second stop on the travel map, locked until the Alpine village exists. **The Alpine
   village's session builds the top station, so this needs agreeing between the two.**
@@ -321,8 +321,8 @@ What exists now, and the choices made while building that the design above didn'
 - **The flooded piazza** is a water surface named `river_town_pond`, which stage 3 hides when the piazza drains.
 - **Paved ground** uses the shared `ground` list in the layout, which keeps greenery off: setts in the piazza, slabs
   under the arcade's covered walk and on the station platform, and gravel in the sawmill yard.
-- **The travel map** shows Boccapioppo once its `reveal` flag (`river_town_revealed`) is set. Nothing sets it yet:
-  Monteforchetta's bus line will, once the flag is agreed with that session.
+- **The travel map** shows Boccapioppo once its `reveal` flag (`river_town_revealed`) is set. Monteforchetta's
+  city-bus finale sets it (in that session's next pull request).
 
 **Stage 3a, shared tools** (merged): the zone path and sealed checks, the Pontoon and Sandbags pieces, what a node
 gives, fishing catches per location, a request's own weather and a location's own progress meter.
@@ -360,6 +360,7 @@ in stage 3c.
   - the catfish photo hangs in Rina's bar.
   - When the houseboat is launched, she moves to her mooring in the backwater, with a jetty and a gangway at her
     door. Her cabin is cleared of the flood's junk for you to furnish (`river_town_cabin`).
+- **The bus line:** Close the Breach reveals Casalrana (`rice_village_revealed`), the next stop on the bus line.
 - **Villagers cross your bridge:** the layout's `crossings` let them walk the path you built across the pontoon
   bridge.
 
