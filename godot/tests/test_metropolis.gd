@@ -192,6 +192,24 @@ func test_villagers_and_requests_hang_together():
 		for sid in Data.shops.shops:
 			if String(sid).begins_with(P): t.ok(Data.npc(sid).get("island", "") == "metropolis", "shop %s belongs to a Toriano villager" % sid))
 
+func test_villagers_keep_out_of_each_others_way():
+	# two people on the same spot at the same hour can't both be reached (you talk to whoever's nearer), at every
+	# point in the story: before Augusto meets you, after, once you've settled in, on Christmas Eve and after it
+	_on(func():
+		var people: Array = Data.npcs.filter(func(n): return n.get("island", "") == "metropolis")
+		var stages := [{}, {P + "met": true}, {P + "met": true, P + "settled": true}, {P + "met": true, P + "settled": true, P + "christmas_eve": true},
+			{P + "met": true, P + "settled": true, P + "christmas_eve": true, P + "angel_lit": true}]
+		var clashes: Array = []
+		for flags in stages:
+			for m in range(0, 24 * 60, 30):
+				var at := {}
+				for n in people:
+					var a := Schedule.activity_at(n, m + 15.0, flags)
+					if a.activity == "sleep": continue
+					if at.has(a.node): clashes.append("%s and %s at %s at %02d:%02d (%s)" % [at[a.node], n.id, a.node, m / 60, m % 60 + 15, flags.keys()])
+					at[a.node] = n.id
+		t.ok(clashes.is_empty(), "nobody shares a spot: %s" % [clashes.slice(0, 4)]))
+
 func test_the_flat_comes_with_what_it_needs():
 	_on(func():
 		var q := Data.quest(P + "flat")

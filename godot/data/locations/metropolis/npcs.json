@@ -926,7 +926,7 @@
     [
      21,
      23,
-     "metropolis_franco:spot",
+     "metropolis_franco:1",
      "talk"
     ]
    ],
@@ -949,7 +949,7 @@
       [
        21,
        23,
-       "metropolis_franco:spot",
+       "metropolis_franco:1",
        "talk"
       ]
      ]
@@ -1674,13 +1674,13 @@
     [
      17,
      19,
-     "metropolis_court_n",
+     "metropolis_court_w",
      "idle"
     ],
     [
      19,
      23,
-     "metropolis_franco:spot",
+     "metropolis_franco:2",
      "talk"
     ]
    ],
@@ -1709,13 +1709,13 @@
       [
        17,
        19,
-       "metropolis_court_n",
+       "metropolis_court_w",
        "idle"
       ],
       [
        19,
        23,
-       "metropolis_franco:spot",
+       "metropolis_franco:2",
        "talk"
       ]
      ]
@@ -2011,7 +2011,7 @@
     [
      7,
      11,
-     "metropolis_courtyard",
+     "metropolis_court_w",
      "garden"
     ],
     [
@@ -2023,7 +2023,7 @@
     [
      14,
      17,
-     "metropolis_courtyard",
+     "metropolis_court_n",
      "talk"
     ],
     [
@@ -2040,7 +2040,7 @@
       [
        7,
        11,
-       "metropolis_courtyard",
+       "metropolis_court_w",
        "garden"
       ],
       [
@@ -2052,7 +2052,7 @@
       [
        14,
        17,
-       "metropolis_courtyard",
+       "metropolis_court_n",
        "talk"
       ],
       [
@@ -2069,7 +2069,7 @@
       [
        7,
        11,
-       "metropolis_courtyard",
+       "metropolis_court_w",
        "garden"
       ],
       [
@@ -2081,7 +2081,7 @@
       [
        14,
        17,
-       "metropolis_courtyard",
+       "metropolis_court_n",
        "talk"
       ],
       [
