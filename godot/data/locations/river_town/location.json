@@ -1,12 +1,11 @@
 {
- "_comment": "Boccapioppo's entry on the travel map, and its look (docs/locations/river_town.md). Hidden until Monteforchetta's bus line reveals it; the flag is to be agreed with that session.",
+ "_comment": "Boccapioppo's entry on the travel map, and its look (docs/locations/river_town.md). Off the travel map until its reveal flag is set by Monteforchetta's bus line (the flag is to be agreed with that session); tests reach it with --island=river_town.",
  "name": "Boccapioppo",
  "desc": "A brick town where a clear Alpine river meets the Po, still mopping up after the flood. Poplars, bicycles and a levee warden who knows the river to the centimetre.",
  "x": 450,
  "y": 300,
  "r": 54,
  "color": "#b9c98f",
- "hidden": true,
  "reveal": "river_town_revealed",
  "look": {
   "shade": [0.0, 0.004, 0.012],

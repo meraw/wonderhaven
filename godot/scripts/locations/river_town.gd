@@ -21,12 +21,14 @@ const LEVEE_X := 18.0      # the Alpine levee runs along this line
 const LEVEE_WEST := -51.0  # where the levee road ends, at the bus stop
 const LEVEE_NORTH := -34.0 # where the Alpine levee fades into the high ground
 const BREACH := Vector2(2.5, 7.5)        # x range of the breach in the Po levee
-const ERMES_SHELF := Rect2(-19.5, 14.0, 7.0, 8.0)   # flat ground at crest height for the warden's house
 const BUS_SHELF := Rect2(-51.0, 19.0, 9.0, 6.0)     # the bus turnaround at the west end of the levee
 const PIAZZA := Vector3(5.0, 0.0, 4.0)   # centre x, -, z
 const PIAZZA_R := 7.0
 const SUMP := Vector2(11.8, 5.0)         # the piazza's old drain sump
 const SUMP_R := 1.0
+const DANCE := Rect2(11.2, 28.2, 9.6, 6.6)          # the dance hall's raised floor (x, z, width, depth)
+const DANCE_VERANDA := Rect2(9.6, 29.6, 1.6, 3.8)   # its veranda, on the west side by the door
+const DANCE_H := 0.9
 const ALPINE_X := 30.0     # the Alpine river's mean centre line
 const ALPINE_HALF := 4.5   # half its width of water
 const ROMAN_Z := -44.0     # the Roman bridge's centre line
@@ -75,7 +77,6 @@ static func _levee_dist(x: float, z: float) -> float:
 	if z <= LEVEE_Z + 6.0 and z >= LEVEE_NORTH - 12.0:
 		var cz := clampf(z, LEVEE_NORTH, LEVEE_Z)
 		d = minf(d, maxf(0.0, Vector2(x - LEVEE_X, z - cz).length() - CREST))
-	d = minf(d, _box_dist(x, z, ERMES_SHELF))
 	d = minf(d, _box_dist(x, z, BUS_SHELF))
 	return d
 
@@ -107,6 +108,12 @@ static func _land(x: float, z: float) -> float:
 		h = lerpf(h, PIAZZA_H, 1.0 - ss(PIAZZA_R - 1.0, PIAZZA_R + 1.5, dp))
 		var dsu := Vector2(x - SUMP.x, z - SUMP.y).length()
 		if dsu < SUMP_R + 0.3: h = minf(h, -0.75 if dsu < SUMP_R else lerpf(-0.75, h, (dsu - SUMP_R) / 0.3))
+		# the dance hall stands on stilts: its floor and veranda are a raised platform (hidden behind a lattice skirt
+		# in the model), with a ramp down to the floodplain on the west
+		var dd := minf(_box_dist(x, z, DANCE), _box_dist(x, z, DANCE_VERANDA))
+		if dd < 0.35: h = maxf(h, lerpf(DANCE_H, h, dd / 0.35))
+		if z > 30.6 and z < 32.4 and x > 7.4 and x <= DANCE_VERANDA.position.x:
+			h = maxf(h, lerpf(h, DANCE_H, (x - 7.4) / (DANCE_VERANDA.position.x - 7.4)))
 		# the valley railway's embankment, from the station north
 		if z < RAIL_SOUTH + 2.0 and absf(x - RAIL_X) < 4.5:
 			var rail := TOWN_H + 0.5 * (1.0 - ss(1.6, 3.6, absf(x - RAIL_X))) * ss(RAIL_SOUTH + 2.0, RAIL_SOUTH - 1.0, z)
@@ -171,49 +178,17 @@ static func is_stream_cell(i: float, k: float) -> bool:
 	return absf(dx) < half - 0.3
 
 # ---- Buildings and scenery ---------------------------------------------------------------------------------------
-# Stage 1 (ground and map) draws plain boxes so the map reads in screenshots; stage 2 replaces them with real models.
+# The models live in river_town/models.gd and the scenery in river_town/scenery.gd.
 const P := preload("res://scripts/world/palette.gd")
+const Models := preload("res://scripts/locations/river_town/models.gd")
+const Scenery := preload("res://scripts/locations/river_town/scenery.gd")
 
-## A plain stand-in model for one of the layout's buildings: walls, a roof slab, and a dark door on its door side.
+## The model for one of the layout's buildings (null for a kind this location doesn't draw itself).
 static func building(b: Dictionary) -> Node3D:
-	var o := Node3D.new()
-	var w: float = b.w; var d: float = b.d
-	var wall := P.plaster(b.get("wall", "#e8c77a"))
-	var roof := P.mat(b.get("roof", "#b5653a"))
-	var h := 4.2
-	var base := 0.0
-	match String(b.kind):
-		"keeper_house", "bike_shop", "shack": h = 3.2
-		"bar": h = 4.0
-		"arcade": h = 5.6
-		"church":
-			h = 6.5
-			o.add_child(P.mi(P.box(2.6, 12.0, 2.6), P.stone(b.wall), Vector3(w / 2.0 - 1.3, 6.0, -d / 2.0 + 1.3)))
-			o.add_child(P.mi(P.box(3.0, 0.5, 3.0), roof, Vector3(w / 2.0 - 1.3, 12.2, -d / 2.0 + 1.3)))
-		"station", "farm", "sawmill": h = 4.4
-		"houseboat":
-			o.add_child(P.mi(P.box(w, 1.0, d), P.wood(b.roof), Vector3(0, 0.5, 0)))
-			o.add_child(P.mi(P.box(w * 0.6, 1.5, d * 0.8), wall, Vector3(-w * 0.1, 1.75, 0)))
-			o.add_child(P.mi(P.box(w * 0.66, 0.15, d * 0.88), roof, Vector3(-w * 0.1, 2.55, 0)))
-			o.rotation.z = 0.06   # stranded on the mud, listing a little
-			return o
-		"dance_hall":
-			base = 1.3   # on stilts above the floodplain
-			for c in [[-1, -1], [1, -1], [-1, 1], [1, 1], [0, -1], [0, 1]]:
-				o.add_child(P.mi(P.cyl(0.14, 0.16, base, 8), P.wood("#8a6a50"), Vector3(c[0] * (w / 2.0 - 0.3), base / 2.0, c[1] * (d / 2.0 - 0.3))))
-			o.add_child(P.mi(P.box(w + 0.6, 0.25, d + 0.6), P.wood("#c49a6c"), Vector3(0, base, 0)))
-			h = 3.4
-	o.add_child(P.mi(P.box(w, h, d), wall, Vector3(0, base + h / 2.0, 0)))
-	o.add_child(P.mi(P.box(w + 0.5, 0.35, d + 0.5), roof, Vector3(0, base + h + 0.17, 0)))
-	var door := P.mat("#3a2a20")
-	var side: String = b.get("door", "S")
-	var dp: Vector3 = {"S": Vector3(0, 0, d / 2.0), "N": Vector3(0, 0, -d / 2.0), "E": Vector3(w / 2.0, 0, 0), "W": Vector3(-w / 2.0, 0, 0)}[side]
-	var dm := P.mi(P.box(1.1 if side in ["S", "N"] else 0.12, 2.0, 0.12 if side in ["S", "N"] else 1.1), door, dp + Vector3(0, base + 1.0, 0))
-	o.add_child(dm)
-	return o
+	return Models.build(b)
 
-## Extra scenery: the far land beyond the map's edge (so the plain doesn't end in sea), and a stand-in for the Roman
-## bridge over its walkway.
+## Extra scenery: the far land beyond the map's edge (so the plain doesn't end in sea), then trees, landmarks, the
+## flood's leftovers and the horizon (Scenery).
 static func dress(village: Node3D) -> void:
 	var mat: Material = village.terrain.material_override
 	var far := 240.0
@@ -225,16 +200,7 @@ static func dress(village: Node3D) -> void:
 	var rx := alpine_center(-e) + ALPINE_HALF
 	_skirt(village, Rect2(rx, -far, e - rx, far - e), EAST_H - 0.03, mat)
 	_skirt(village, Rect2(-far, 92.0, far * 2.0, far - 92.0), 0.45, mat)
-	# the Roman bridge: stone piers and a hump-backed deck over the walkway, with low parapets
-	var stone := P.stone("#c9bfae")
-	var x0 := alpine_center(ROMAN_Z) - 8.0
-	for i in 16:
-		var x := x0 + i + 0.5
-		var top := Heightfield.height(x, ROMAN_Z)
-		var bottom := -0.9
-		village.add_child(P.mi(P.box(1.02, top - bottom, ROMAN_HALF * 2.0 + 0.3), stone, Vector3(x, (top + bottom) / 2.0 - 0.02, ROMAN_Z)))
-		for s in [-1.0, 1.0]:
-			village.add_child(P.mi(P.box(1.02, 0.55, 0.22), stone, Vector3(x, top + 0.25, ROMAN_Z + s * (ROMAN_HALF + 0.08))))
+	Scenery.dress(village, load("res://scripts/locations/river_town.gd"))
 
 ## A flat stretch of far land, painted like the map's grass, at height y.
 static func _skirt(village: Node3D, r: Rect2, y: float, mat: Material) -> void:
