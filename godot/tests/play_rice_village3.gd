@@ -34,23 +34,27 @@ func play() -> void:
 func frost() -> float: return float((game.village.terrain.material_override as ShaderMaterial).get_shader_parameter("frost"))
 func ice() -> float: return float((game.village.water.material_override as ShaderMaterial).get_shader_parameter("ice"))
 
-## Waits for the cranes' next crossing (by the clock) and looks up at them.
+## Waits for the cranes' next crossing (by the clock) out in the fields east of the farmstead, and looks towards
+## them as they come in low over the horizon.
 func cranes() -> void:
 	var W = load("res://scripts/locations/rice_village/wildlife.gd")
+	var flying := func() -> bool: return game.village.get_node("rice_village_wildlife").cranes.visible
+	if flying.call(): await wait_until(func(): return not flying.call(), 120.0)   # one already overhead: wait for the next
 	var d := int(game.state.time.day); var m := int(game.state.time.minute)
 	var at := -1
 	for k in range(m, m + 2880):
 		if W.crane_pass(d + int(k / 1440), float(k % 1440)) >= 0.0: at = k; break
-	if at - m > 240:   # not within four hours: sleep to the morning and wait there
+	if at - m > 240:   # not within four hours: sleep to the morning
 		await sleep_until(9)
-	var seen := await wait_until(func(): return game.village.get_node("rice_village_wildlife").cranes.visible, 400.0)
-	await wait_until(func(): return W.crane_pass(int(game.state.time.day), float(game.state.time.minute)) > 0.25, 60.0)
+	await walk_to(48.0, 36.0, 1.0)   # open paddies to the north-east, where they come from
+	var seen := await wait_until(flying, 400.0)
+	await wait_until(func(): return W.crane_pass(int(game.state.time.day), float(game.state.time.minute)) > 0.03, 30.0)
 	var c: Node3D = game.village.get_node("rice_village_wildlife").cranes
 	var p: Vector3 = game.player.pos
-	game.cam.yaw = atan2(p.x - c.global_position.x, p.z - c.global_position.z); game.cam.pitch = 0.05; game.cam.dist = 7.0
+	game.cam.yaw = atan2(p.x - c.global_position.x, p.z - c.global_position.z); game.cam.pitch = 0.05; game.cam.dist = 6.0
 	await frames(6)
 	await shot("cranes")
-	check(135, "a V of cranes passes high over the plain", seen, "%s, day %d" % [Clock.text(game.state.time), int(game.state.time.day)])
+	check(135, "a V of cranes passes high over the plain", seen, "%s, day %d, at %s" % [Clock.text(game.state.time), int(game.state.time.day), c.global_position])
 
 ## Waits at the crossing until this kind of train has gone by (or max_s real seconds pass).
 func watch_for(kind: String, max_s: float) -> bool:

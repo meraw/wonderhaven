@@ -39,7 +39,7 @@ var ringing := 0.0
 func setup(g, v: Node3D) -> void:
 	game = g; village = v
 	var mat := StandardMaterial3D.new()
-	mat.albedo_color = Color("b9cfda"); mat.roughness = 0.06; mat.metallic = 0.35
+	mat.albedo_color = Color("8a9c98"); mat.roughness = 0.08; mat.metallic = 0.25   # grey-green paddy water, like the look's
 	canal = P.mi(P.box(4.7, 0.02, 108.0), mat, Vector3(CANAL_X, WATER_Y, 0.0), false); canal.name = "canal_water"; add_child(canal)
 	paddy = P.mi(P.box(WINTER.size.x - 0.2, 0.02, WINTER.size.y - 0.2), mat, Vector3(WINTER.get_center().x, WATER_Y, WINTER.get_center().y), false)
 	paddy.name = "paddy_water"; add_child(paddy)
