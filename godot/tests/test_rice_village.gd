@@ -405,3 +405,18 @@ func test_gathering_in_casalrana():
 		t.eq(fish.map(func(f): return f.id), ["tench", "carp", "frog"], "the spring pool has tench, carp and a sleepy frog")
 		var frog := Minigames.Fish.new(Rng.new(1), [fish[2]]); frog.result = "caught"
 		t.eq(frog.reward(), {}, "and the frog goes straight back"))
+
+func test_villagers_keep_out_of_each_others_way():
+	# two people on the same spot at the same hour can't both be reached (you talk to whoever's nearer)
+	var people: Array = Data.npcs.filter(func(n): return n.get("island", "") == ID)
+	var flag_sets := [{}, {"rice_village_welcomed": true}, {"rice_village_welcomed": true, "rice_village_benchBuilt": true, "rice_village_stableBuilt": true}]
+	for flags in flag_sets:
+		for h in range(0, 24):
+			var at := {}
+			for n in people:
+				if n.has("present") and not flags.get(n.present, false): continue
+				var spot: String = Schedule.activity_at(n, h * 60.0 + 30.0, flags).node
+				if at.has(spot) and Schedule.activity_at(n, h * 60.0 + 30.0, flags).activity != "sleep":
+					t.ok(false, "%s and %s both at %s at %d:30" % [at[spot], n.id, spot, h])
+				at[spot] = n.id
+	t.ok(true, "nobody shares a spot")
