@@ -169,7 +169,7 @@ func test_villagers_and_requests_hang_together():
 			for f in q.get("rewards", {}).get("flags", []) + q.get("onAccept", {}).get("flags", []): made[f] = true
 			for o in q.objectives:
 				for f in o.get("onDone", {}).get("flags", []): made[f] = true
-		for m in Meter.milestones("metropolis"):
+		for m in LocationMeter.def("metropolis").get("milestones", []):
 			for f in m.get("flags", []): made[f] = true
 		var machines: Array = Data.layout.machines.map(func(m): return m.id)
 		for q in qs:
@@ -185,24 +185,25 @@ func test_villagers_and_requests_hang_together():
 				if o.kind == "build" and String(o.check).begins_with("path:"): t.ok(Data.zone(String(o.check).substr(5)).has("endpoints"), "%s: the path's site has endpoints" % q.id)
 			for b in q.get("onAccept", {}).get("blueprints", []) + q.get("rewards", {}).get("blueprints", []): t.ok(not Data.piece(b).is_empty(), "%s hands out real plans (%s)" % [q.id, b])
 		var inches := 0
-		for q in qs: inches += int(q.rewards.get("harmony", 0))
+		for q in qs: inches += int(q.rewards.get("meter", 0))
+		t.ok(qs.all(func(q): return int(q.rewards.get("harmony", 0)) == 0), "and none of them raise the Sindaco's approval rating")
 		t.ok(inches > 120, "more column inches on offer (%d) than the front page needs" % inches)
 		for sid in Data.shops.shops:
 			if String(sid).begins_with(P): t.ok(Data.npc(sid).get("island", "") == "metropolis", "shop %s belongs to a Toriano villager" % sid))
 
 func test_the_evening_paper():
 	_on(func():
-		t.ok(Meter.has("metropolis"), "Toriano has its own meter")
-		var ms := Meter.milestones("metropolis")
+		t.ok(not LocationMeter.def("metropolis").is_empty(), "Toriano has its own meter")
+		var ms: Array = LocationMeter.def("metropolis").get("milestones", [])
 		t.eq(ms.map(func(m): return int(m.at)), [10, 25, 45, 70, 90, 120], "six milestones")
 		t.eq(ms.back().get("requires", {}).get("quests", []), [P + "angel"], "the front page waits for the Golden Angel")
 		var roof := Data.zone(P + "roof_terrace")
 		t.eq(int(roof.expanded.harmony), 70, "your weekly column widens the roof terrace")
 		var s := GameState.new_game()
 		s.harmony = 999
-		t.ok(not BuildGrid.zone_contains(roof, -30, 123, Meter.progress(s, "metropolis")), "approval earned elsewhere doesn't grow it")
-		Meter.add(s, "metropolis", 70)
-		t.ok(BuildGrid.zone_contains(roof, -30, 123, Meter.progress(s, "metropolis")), "column inches do"))
+		t.ok(not BuildGrid.zone_contains(roof, -30, 123, LocationMeter.progress(s, "metropolis")), "approval earned elsewhere doesn't grow it")
+		LocationMeter.add(s, "metropolis", 70)
+		t.ok(BuildGrid.zone_contains(roof, -30, 123, LocationMeter.progress(s, "metropolis")), "column inches do"))
 
 func test_gathering_spots_are_where_they_can_be_used():
 	_on(func():
@@ -218,10 +219,10 @@ func test_gathering_spots_are_where_they_can_be_used():
 				t.ok(not Heightfield.is_water(n.x, n.z) and Heightfield.is_water(ahead.x, ahead.y), "%s stands on the quay and casts into the water" % n.id)
 			else: t.ok(not Heightfield.is_water(n.x, n.z), "%s is on dry ground" % n.id)
 			if n.kind == "chop": t.ok(n.x < -88 and n.z < -98, "%s is a plane tree in the park" % n.id)
-		t.eq(nodes.filter(func(n): return n.get("item", "") == P + "score_page" and n.get("hours", []).map(func(h): return int(h)) == [20, 6]).size(), 8, "eight score pages, out only at night")
-		t.ok(nodes.filter(func(n): return n.kind == "dig" and n.get("loot", {}).has(P + "roman")).size() >= 3, "Roman finds at the building sites")
-		t.ok(Data.layout.catches.all(func(c): return Data.resources.has(c.get("item", "fish"))), "everything the canal gives is a real item")
-		t.ok(Data.layout.catches.any(func(c): return c.item == P + "bicycle"), "including old bicycles"))
+		t.eq(nodes.filter(func(n): return n.get("gives", {}).has(P + "score_page") and n.get("hours", []).map(func(h): return int(h)) == [20, 6]).size(), 8, "eight score pages, out only at night")
+		t.ok(nodes.filter(func(n): return n.kind == "dig" and n.get("gives", {}).has(P + "roman")).size() >= 3, "Roman finds at the building sites")
+		t.ok(Data.layout.fish.all(func(c): return Data.resources.has(c.get("item", "fish"))), "everything the canal gives is a real item")
+		t.ok(Data.layout.fish.any(func(c): return c.get("item", "") == P + "bicycle"), "including old bicycles"))
 
 ## The builds the playthrough makes (and a player might), checked with the shared rules: each piece can go where it
 ## goes, and the request's check passes.

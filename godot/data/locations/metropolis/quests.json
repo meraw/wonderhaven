@@ -1,5 +1,5 @@
 {
- "_comment": "Toriano's requests (stage 3): six main and thirteen side. Points (harmony) are column inches in La Sera di Toriano, Toriano's own meter (see location.json).",
+ "_comment": "Toriano's requests (stage 3): six main and thirteen side. Their meter rewards are column inches in La Sera di Toriano, Toriano's own meter (see location.json).",
  "quests": [
   {
    "id": "metropolis_welcome",
@@ -98,7 +98,7 @@
     }
    ],
    "rewards": {
-    "harmony": 5,
+    "meter": 5,
     "items": {
      "coins": 40
     },
@@ -229,7 +229,7 @@
     }
    ],
    "rewards": {
-    "harmony": 8,
+    "meter": 8,
     "items": {
      "coins": 20
     },
@@ -341,7 +341,7 @@
     }
    ],
    "rewards": {
-    "harmony": 15,
+    "meter": 15,
     "items": {
      "coins": 60,
      "stone": 4
@@ -447,7 +447,7 @@
     }
    ],
    "rewards": {
-    "harmony": 15,
+    "meter": 15,
     "items": {
      "coins": 50
     },
@@ -563,7 +563,7 @@
     }
    ],
    "rewards": {
-    "harmony": 15,
+    "meter": 15,
     "items": {
      "coins": 60
     },
@@ -706,7 +706,7 @@
     }
    ],
    "rewards": {
-    "harmony": 25,
+    "meter": 25,
     "items": {
      "coins": 100
     },
@@ -770,7 +770,7 @@
     }
    ],
    "rewards": {
-    "harmony": 6,
+    "meter": 6,
     "items": {
      "coins": 30
     }
@@ -874,7 +874,7 @@
     }
    ],
    "rewards": {
-    "harmony": 8,
+    "meter": 8,
     "items": {
      "coins": 20
     },
@@ -987,7 +987,7 @@
     }
    ],
    "rewards": {
-    "harmony": 8,
+    "meter": 8,
     "items": {
      "coins": 30
     },
@@ -1089,7 +1089,7 @@
     }
    ],
    "rewards": {
-    "harmony": 8,
+    "meter": 8,
     "items": {
      "coins": 35
     },
@@ -1234,7 +1234,7 @@
     }
    ],
    "rewards": {
-    "harmony": 10,
+    "meter": 10,
     "items": {
      "coins": 40,
      "fabric": 4
@@ -1306,7 +1306,7 @@
     }
    ],
    "rewards": {
-    "harmony": 8,
+    "meter": 8,
     "items": {
      "coins": 40
     },
@@ -1407,7 +1407,7 @@
     }
    ],
    "rewards": {
-    "harmony": 8,
+    "meter": 8,
     "items": {
      "coins": 35
     },
@@ -1503,7 +1503,7 @@
     }
    ],
    "rewards": {
-    "harmony": 8,
+    "meter": 8,
     "items": {
      "coins": 30,
      "metropolis_roast_chestnuts": 3
@@ -1593,7 +1593,7 @@
     }
    ],
    "rewards": {
-    "harmony": 8,
+    "meter": 8,
     "items": {
      "coins": 30
     },
@@ -1656,7 +1656,7 @@
     }
    ],
    "rewards": {
-    "harmony": 6,
+    "meter": 6,
     "items": {
      "coins": 30
     },
@@ -1747,7 +1747,7 @@
     }
    ],
    "rewards": {
-    "harmony": 8,
+    "meter": 8,
     "items": {
      "coins": 30
     },
@@ -1842,7 +1842,7 @@
     }
    ],
    "rewards": {
-    "harmony": 8,
+    "meter": 8,
     "items": {
      "coins": 25,
      "flowers": 4
@@ -1905,7 +1905,7 @@
     }
    ],
    "rewards": {
-    "harmony": 6,
+    "meter": 6,
     "items": {
      "coins": 45
     },

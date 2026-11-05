@@ -12,10 +12,13 @@ func _init(g) -> void:
 		"bridge": func(): return path_ok("bridge"), "dock": func(): return path_ok("dock"),
 		"fountain": func(): return game.mech.fed.get("fountain", false), "lamp": func(): return not game.mech.lamps.is_empty(),
 		# "fed:<machine>": water or power delivered to a machine target in the layout (a lighthouse's drive, a clock);
-		# "path:<zone>": a walkable path across a build zone between its endpoints (a footbridge, a climb up a wall)
+		# "path:<zone>": a walkable path across a build zone, from its endpoint a to b (a bridge, a slipway);
+		# "sealed:<zone>": a wall across a zone that keeps water from getting through (Validate.sealed)
 		"*": func(name: String) -> bool:
+			if name.begins_with("fed:"): return game.mech.fed.get(name.substr(4), false)
 			if name.begins_with("path:"): return path_ok(name.substr(5))
-			return name.begins_with("fed:") and game.mech.fed.get(name.substr(4), false)})
+			if name.begins_with("sealed:"): return Validate.sealed(Data.zone(name.substr(7)), game.state.placements).sealed
+			return false})
 	engine.gate = func(qid: String) -> bool: return Tutorial.allows_offer(game.state.get("tutorial", {}), qid)
 	game.game_event.connect(_on_event)
 
@@ -45,13 +48,15 @@ func handle(list: Array) -> void:
 		elif x.has("objective"): game.toast("✔ " + x.objective.text, "good", 3.0); game.sfx("objective")
 	game.hud.render_tracker()
 
-## Effects of finishing one step of a request (onDone in quests.json): flags, items, blueprints.
+## Effects of finishing one step of a request (onDone in quests.json): flags, items, blueprints, and weather
+## ({type, hours}: that weather for a while, a storm on the night the levee is tested, say).
 func _on_done(o: Dictionary) -> void:
 	var eff: Dictionary = o.get("onDone", {})
 	if eff.is_empty(): return
 	for f in eff.get("flags", []): game.set_flag(f)
 	if eff.has("items"): game.give(_ints(eff.items))
 	if eff.has("blueprints"): unlock_blueprints(eff.blueprints)
+	if eff.has("weather"): Daylight.force(game.state, String(eff.weather.type), float(eff.weather.get("hours", 6)))   # a storm for the finale
 	if eff.has("flags"): game.build.rebuild_grid()
 
 func marker_for(npc: String) -> String:
@@ -202,7 +207,8 @@ func complete_quest(qid: String, agent) -> void:
 	var r := engine.complete(qid)
 	var where := Data.quest_island(qid)
 	var lines: Array = []
-	if r.get("harmony", 0) > 0: lines.append(points_text(int(r.harmony), where))
+	if r.get("harmony", 0) > 0: lines.append("+%d 💖 approval" % int(r.harmony))
+	if r.get("meter", 0) > 0: lines.append(LocationMeter.reward_text(LocationMeter.def(where), int(r.meter)))
 	for k in r.get("items", {}): lines.append("+" + Money.amount(k, int(r.items[k])))
 	for b in r.get("blueprints", []): lines.append("📐 " + Data.piece(b).name)
 	for c in r.get("clothes", []): lines.append("👗 " + Data.appearance.labels.get(c, c))
@@ -215,7 +221,8 @@ func complete_quest(qid: String, agent) -> void:
 	if r.has("clothes"): unlock_clothes(r.clothes, true)
 	for f in r.get("flags", []): game.set_flag(f)
 	add_hearts(q.giver, 2)
-	add_points(int(r.get("harmony", 0)), where)
+	if r.get("harmony", 0) > 0: add_harmony(int(r.harmony))
+	if r.get("meter", 0) > 0 or not LocationMeter.waiting(game.state, where).is_empty(): add_meter(where, int(r.get("meter", 0)))
 	game.on_quest_completed(qid)
 	handle(engine.refresh())
 	game.autosave("quest", true)
@@ -268,31 +275,24 @@ func add_harmony(n: int) -> void:
 	for u in Harmony.between(before, s.harmony): apply_unlock(u)
 	handle(engine.refresh())
 
-## "+3 💖 approval", or in a place with its own meter (Meter), "+3 📰 column inches".
-static func points_text(n: int, island: String) -> String:
-	var m := Meter.def(island)
-	return "+%d %s %s" % [n, m.get("icon", "⭐"), m.get("unit", "points")] if not m.is_empty() else "+%d 💖 approval" % n
-
-## Points for something done in a place: its own meter where it has one (Meter), the approval rating elsewhere.
-## Also hands out any meter milestone whose requirements have just been met (a request done, a flag set).
-func add_points(n: int, island: String) -> void:
-	if not Meter.has(island):
-		if n > 0: add_harmony(n)
-		return
-	for m in Meter.add(game.state, island, n): apply_milestone(m, island)
+## Points on a location's own meter (LocationMeter), and the milestones they reach. A milestone that waits for
+## something ("requires": the front page waits for the finale) comes when that's done, if you have the points.
+func add_meter(island: String, n: int) -> void:
+	var m := LocationMeter.def(island)
+	var due: Array = LocationMeter.add(game.state, island, n).filter(func(u): return LocationMeter.requirements_met(game.state, u))
+	for u in LocationMeter.waiting(game.state, island):
+		if not due.has(u): due.append(u)
+	for u in due:
+		if u.has("blueprints"): unlock_blueprints(u.blueprints, "", true)
+		if u.has("clothes"): unlock_clothes(u.clothes, true)
+		if u.has("items"): game.give(_ints(u.items), null, true)
+		for f in u.get("flags", []): game.set_flag(f)
+		var mu: Dictionary = u
+		game.get_tree().create_timer(1.8).timeout.connect(func(): game.banner("%s %s" % [m.get("icon", "📈"), m.get("name", "Milestone")], "%s  %s" % [LocationMeter.reading(m, int(mu.at)), mu.title], [mu.desc], 4.0); game.sfx("unlock"))
+		game.state.unlocks_seen.append(u.get("id", ""))
+	if not due.is_empty(): game.build.rebuild_grid()   # a build site there may grow with the meter
 	game.hud.render_harmony()
-	if n > 0: game.emit_event("meter", {"n": n, "island": island})
 	handle(engine.refresh())
-
-func apply_milestone(m: Dictionary, island: String) -> void:
-	var d := Meter.def(island)
-	if m.has("blueprints"): unlock_blueprints(m.blueprints, "", true)
-	if m.has("clothes"): unlock_clothes(m.clothes, true)
-	if m.has("items"): game.give(_ints(m.items), null, true)
-	for f in m.get("flags", []): game.set_flag(f)
-	game.build.rebuild_grid()   # a build site there may grow with it
-	game.get_tree().create_timer(1.8).timeout.connect(func(): game.banner(String(d.get("name", "Milestone")), "%d %s %s" % [int(m.at), d.get("icon", "⭐"), m.title], [m.desc], 4.0); game.sfx("unlock"))
-	game.state.unlocks_seen.append(m.id)
 
 func apply_unlock(u: Dictionary) -> void:
 	if u.has("blueprints"): unlock_blueprints(u.blueprints, "", true)
@@ -306,8 +306,8 @@ func first_of_kind(id: String) -> void:
 	var types: Array = game.state.stats.types
 	if types.has(id): return
 	types.append(id)
-	add_points(1, Data.island)
-	game.toast("First %s! %s" % [Data.piece(id).name, points_text(1, Data.island)], "", 2.0)
+	add_harmony(1)
+	game.toast("First %s! +1 💖 approval" % Data.piece(id).name, "", 2.0)
 
 ## The build-mode checklist for a zone: the active request that builds here, its current step's items, and what
 ## is still to do before its building step (materials first) if that hasn't come up yet.

@@ -66,7 +66,7 @@ func play() -> void:
 	await frames(20)
 	var start_inches := inches()
 	check("interview", "45 column inches: the interview, and the bathroom plans", game.state.flags.get(P + "interview", false) and game.state.blueprints.has("toilet") and game.state.blueprints.has("bathtub"), "%d inches" % start_inches)
-	check("column", "70 column inches: your column, and the roof terrace at number 14 grows along the back wing", BuildGrid.zone_contains(Data.zone(P + "roof_terrace"), -30, 123, Meter.progress(game.state, "metropolis")) \
+	check("column", "70 column inches: your column, and the roof terrace at number 14 grows along the back wing", BuildGrid.zone_contains(Data.zone(P + "roof_terrace"), -30, 123, LocationMeter.progress(game.state, "metropolis")) \
 		and not BuildGrid.zone_contains(Data.zone(P + "roof_terrace"), -30, 123, 0), "%d inches" % start_inches)
 	game.state.time.minute = 9 * 60.0   # (the save was made at night: sleep in, the harness skips to 9 AM next day)
 	game.state.time.day = int(game.state.time.day) + 1
@@ -119,7 +119,7 @@ func play() -> void:
 	# ---- Augusto's lost property ------------------------------------------------------------------------------
 	await chat("augusto")
 	check("lodge_on", "Augusto wants lost things for his lodge", status("lodge") == "active", status("lodge"))
-	var lost: Array = Data.layout.nodes.filter(func(n): return n.kind == "fragment" and not n.has("item"))
+	var lost: Array = Data.layout.nodes.filter(func(n): return n.kind == "fragment" and not n.has("gives"))
 	for n in lost:
 		if step_done("lodge", "lost"): break
 		if not game.actions.ready(n): continue
@@ -222,7 +222,7 @@ func play() -> void:
 	if hour() < 20.0 and hour() > 6.0: await sleep_until("bench_opera", 20)
 	await chat("gino")
 	check("score_on", "after the opera, Maestro Gino whispers about his lost score", status("score") == "active", "%s at %.1f h" % [status("score"), hour()])
-	var pages: Array = Data.layout.nodes.filter(func(n): return n.get("item", "") == P + "score_page")
+	var pages: Array = Data.layout.nodes.filter(func(n): return n.get("gives", {}).has(P + "score_page"))
 	for n in pages:
 		if step_done("score", "pages"): break
 		if not game.actions.ready(n): continue
@@ -239,7 +239,7 @@ func play() -> void:
 		if status(q.id.trim_prefix(P)) != "done": all_done = false; note("not done: " + q.id)
 	check("all_requests", "all nineteen of Toriano's requests are done", all_done)
 	check("radio", "90 column inches: on the radio, and a portable radio in your flat", game.state.flags.get(P + "radio", false), "%d inches" % inches())
-	check("front_page", "120 column inches and the Angel lit: the front page on Christmas Day", game.state.flags.get(P + "front_page", false) and Meter.got(game.state, "metropolis", {"id": P + "front_page"}), "%d inches" % inches())
+	check("front_page", "120 column inches and the Angel lit: the front page on Christmas Day", game.state.flags.get(P + "front_page", false) and LocationMeter.reached(game.state, {"id": P + "front_page"}), "%d inches" % inches())
 	await ride("stop_opera", "stop_darsena", true)
 	await go("home:spot", "home, to see the radio and the framed front page")
 	await shot("flat_with_prizes")

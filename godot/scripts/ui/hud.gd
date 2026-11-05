@@ -5,11 +5,11 @@ extends Control
 var game
 var harmony_bar: ProgressBar
 var harmony_label: Label
+var harmony_title: Label   # "💖 Approval", or the name of the location's own meter (LocationMeter)
 var clock_label: Label
 var tracker: VBoxContainer
 var compass: Label
 var harmony_box: HBoxContainer
-var harmony_title: Label
 var guide_card: PanelContainer
 var guide_text: RichTextLabel
 var guide_count: Label
@@ -124,12 +124,19 @@ func tick(dt: float) -> void:
 		tip_t -= dt
 		if tip_t <= 0.0: _next_tip()
 
-## The approval rating, or the place's own meter where it has one (Meter).
 func render_harmony() -> void:
-	var m := Meter.def(Data.island)
-	harmony_title.text = "%s %s" % [m.get("icon", "⭐"), m.get("short", m.get("name", ""))] if not m.is_empty() else "💖 Approval"
-	var h := int(Meter.progress(game.state, Data.island))
-	var nx := Meter.next(game.state, Data.island) if not m.is_empty() else Harmony.next_unlock(h)
+	var m := LocationMeter.def(Data.island)
+	if not m.is_empty():   # a location with its own meter shows that instead of the approval rating
+		var pts := LocationMeter.points(game.state, Data.island)
+		var nm := LocationMeter.next_milestone(m, pts)
+		harmony_title.text = "%s %s" % [m.get("icon", "📈"), m.get("name", "Progress")]
+		harmony_bar.max_value = int(nm.at) if not nm.is_empty() else 1
+		harmony_bar.value = pts if not nm.is_empty() else 1
+		harmony_label.text = LocationMeter.reading(m, pts)
+		return
+	harmony_title.text = "💖 Approval"
+	var h := int(game.state.harmony)
+	var nx := Harmony.next_unlock(h)
 	harmony_bar.max_value = nx.at if not nx.is_empty() else maxf(h, 1)
 	harmony_bar.value = h
 	harmony_label.text = ("%d / %d" % [h, int(nx.at)]) if not nx.is_empty() else str(h)

@@ -27,9 +27,12 @@
  "meter": {
   "name": "La Sera di Toriano",
   "short": "Column inches",
-  "unit": "column inches",
   "icon": "📰",
-  "about": "Toriano's evening paper measures you in column inches. Vale Meroni, its junior reporter, writes up every request you finish here, and the first time you build something new. Big jobs make big stories. The Sindaco's approval rating stays back in Monteforchetta.",
+  "about": "Toriano's evening paper measures you in column inches. Vale Meroni, its junior reporter, writes up every request you finish here, and big jobs make big stories. The Sindaco's approval rating stays back in Monteforchetta.",
+  "reward": "+%d column inches",
+  "display": {
+   "format": "%d in."
+  },
   "milestones": [
    {
     "at": 10,

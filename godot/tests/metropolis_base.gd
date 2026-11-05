@@ -5,15 +5,19 @@ extends "res://tests/full_base.gd"
 
 const P := "metropolis_"
 
-## The software renderer in a cloud session is slow in a city this size: draw the 3D scene at half resolution while
-## playing (the interface stays sharp), and at full resolution for screenshots.
-func lighten() -> void: get_viewport().scaling_3d_scale = 0.5
+## The software renderer in a cloud session is slow in a city this size (its shadow pass and pixel fill, not the
+## scripts): draw the 3D scene at half resolution and without the sun's shadows while playing (the interface stays
+## sharp), and at full quality for screenshots.
+func lighten() -> void:
+	get_viewport().scaling_3d_scale = 0.5
+	if game.sun: game.sun.shadow_enabled = false
 
 func shot(name: String) -> void:
 	get_viewport().scaling_3d_scale = 1.0
+	if game.sun: game.sun.shadow_enabled = true
 	await frames(3)
 	await super.shot(name)
-	get_viewport().scaling_3d_scale = 0.5
+	lighten()
 
 func node(id: String) -> Vector2:
 	var a: Array = Data.layout.nav_nodes[P + id]
@@ -66,7 +70,7 @@ func inside(bid: String) -> bool:
 func who(id: String) -> String: return P + id
 func status(qid: String) -> String: return String(game.state.quests.get(P + qid, {}).get("status", ""))
 func done(qid: String) -> bool: return status(qid) == "done"
-func inches() -> int: return Meter.value(game.state, "metropolis")
+func inches() -> int: return LocationMeter.points(game.state, "metropolis")
 func step_done(qid: String, oid: String) -> bool: return game.state.quests.get(P + qid, {}).get("done", {}).has(oid)
 
 ## Talks to a Toriano villager (accepting what they offer, paying what they ask) and reports the request's state.

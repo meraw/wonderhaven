@@ -29,8 +29,8 @@ Shared rules for everyone building a location, people and Claude sessions alike,
   mayor's approval rating, magic fragments become lost things, and the treasure hum becomes a metal detector.
   Design with those in mind, and merge main into your branch to pick them up.
 - **Progress meter:** the approval rating belongs to Monteforchetta's mayor. If your location wants its own meter,
-  ask the user first, then declare it in `location.json` (`meter`, see `Meter`): requests given there and pieces
-  built there for the first time feed it instead, and the HUD and progress panel show it there.
+  ask the user first, then declare it in `location.json` (`meter`, see `LocationMeter`): requests there feed it
+  with their `meter` rewards, and the HUD and progress panel show it there.
 - **Travel:** Monteforchetta's finale opens the bus line to the city and the travel map. Each location has an entry
   on that map, which stays off it until the place is unlocked: every place is a surprise, and the map grows as the
   game goes on (its view widens to take in what's there). Give the entry a `reveal` flag, set by whatever opens the
@@ -38,8 +38,8 @@ Shared rules for everyone building a location, people and Claude sessions alike,
   expects one. It becomes a general stop once Monteforchetta's bus is built. Transport inside a location, like
   trams or funiculars, is that location's own design; riding between its stops is shared (features of kind `stop`,
   see `Travel.stops_on`), and so are raised floors for balconies, terraces and bridges (`floors` in a layout).
-- **Gathering and building checks:** a layout can say what fishing catches there (`catches`) and what the lost
-  things turn out to be (`lost`); a gathering spot can carry its own `label`, `hours`, `loot` and lines; and a
+- **Gathering and building checks:** a layout can say what bites there (`fish`) and what the lost things turn out
+  to be (`lost`); a gathering spot can carry its own `gives`, `label`, `hours` and lines; and a
   request can check for a walkable path across any build zone (`path:<zone>`), up stairs as well as over water.
   See `godot/data/locations/README.md`.
 - **Look:** shared shaders and the atmosphere module (`docs/GRAPHICS.md`) give every location wind, light,

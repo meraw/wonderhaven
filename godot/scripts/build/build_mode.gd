@@ -52,7 +52,7 @@ func open(zone_id: String = "") -> bool:
 	var zone := {}
 	for z in zones:
 		if z.id == zone_id: zone = z
-	if zone.is_empty(): zone = BuildGrid.zone_at(zones, floor(p.x), floor(p.z), Meter.progress(state(), Data.island))
+	if zone.is_empty(): zone = BuildGrid.zone_at(zones, floor(p.x), floor(p.z), LocationMeter.progress(state(), Data.island))
 	if zone.is_empty() and not zones.is_empty():
 		zones.sort_custom(func(a, b): return _zdist(a, p) < _zdist(b, p))
 		zone = zones[0]
@@ -82,7 +82,7 @@ func close() -> void:
 ## outside the highlighted zone, preferring where you stood when you started building.
 func step_out_of(zone: Dictionary) -> void:
 	if zone.is_empty() or zone.get("interior", false): return
-	var b := BuildGrid.zone_bounds(zone, Meter.progress(game.state, Data.island))
+	var b := BuildGrid.zone_bounds(zone, LocationMeter.progress(game.state, Data.island))
 	var rect := Rect2(b.minI, b.minK, b.maxI - b.minI + 1, b.maxK - b.minK + 1)
 	var p: Vector3 = game.player.pos
 	var w: WalkWorld = game.walk
@@ -107,7 +107,7 @@ func _zdist(z: Dictionary, p: Vector3) -> float: return Vector2((z.minI + z.maxI
 func jump_to(zone: Dictionary) -> void:
 	current_zone = zone
 	if zone.is_empty(): focus = game.player.pos; return
-	var b := BuildGrid.zone_bounds(zone, Meter.progress(state(), Data.island))
+	var b := BuildGrid.zone_bounds(zone, LocationMeter.progress(state(), Data.island))
 	focus = Vector3((b.minI + b.maxI + 1) / 2.0, maxf(float(zone.get("floorY", 0.0)), maxf(0.0, zone.get("spanY", 0.0))), (b.minK + b.maxK + 1) / 2.0)
 
 func cycle_zone(dir: int) -> void:
@@ -125,7 +125,7 @@ func rebuild_grid() -> void:
 	for c in grid_root.get_children(): c.queue_free()
 	for zone in Data.layout.zones:
 		var unlocked: bool = game.zone_unlocked(zone)
-		var b := BuildGrid.zone_bounds(zone, Meter.progress(state(), Data.island))
+		var b := BuildGrid.zone_bounds(zone, LocationMeter.progress(state(), Data.island))
 		var lines := SurfaceTool.new(); lines.begin(Mesh.PRIMITIVE_LINES)
 		var fill := SurfaceTool.new(); fill.begin(Mesh.PRIMITIVE_TRIANGLES)
 		for i in range(int(b.minI), int(b.maxI) + 1):
@@ -232,7 +232,7 @@ func candidate() -> Dictionary:
 		var c := _cell_for(d, r, hover.point)
 		return {"id": id, "i": c.x, "k": c.y, "r": r, "y": hover.point.y, "no_wall": true}
 	var cell := _cell_for(d, r, hover.point)
-	var zone := BuildGrid.zone_at(Data.layout.zones, cell.x, cell.y, Meter.progress(state(), Data.island))
+	var zone := BuildGrid.zone_at(Data.layout.zones, cell.x, cell.y, LocationMeter.progress(state(), Data.island))
 	var others := _others()
 	return {"id": id, "i": cell.x, "k": cell.y, "r": r, "y": BuildGrid.suggest_bottom(id, cell.x, cell.y, r, hover.hit_y, others, zone)}
 

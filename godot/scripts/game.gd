@@ -317,7 +317,7 @@ func open_wardrobe() -> void:
 		if f.kind == "wardrobe": w = f
 	var near_inn := not w.is_empty() and Vector2(player.pos.x - w.x, player.pos.z - w.z).length() < 6.0
 	var plot := Data.zone("plot")
-	var at_home: bool = state.flags.get("ownHome", false) and not plot.is_empty() and BuildGrid.zone_contains(plot, floorf(player.pos.x), floorf(player.pos.z), Meter.progress(state, Data.island))
+	var at_home: bool = state.flags.get("ownHome", false) and not plot.is_empty() and BuildGrid.zone_contains(plot, floorf(player.pos.x), floorf(player.pos.z), LocationMeter.progress(state, Data.island))
 	if near_inn or at_home: screens.creator(true)
 	else: toast("Change your outfit at the guest house wardrobe%s." % (", or at home" if state.flags.get("ownHome", false) else ""))
 
@@ -471,7 +471,7 @@ func placement_ctx(placements = null) -> Dictionary:
 	for a in npcs.values():
 		if a.present: bodies.append({"x": a.pos.x, "z": a.pos.z, "r": 0.3, "y": a.pos.y, "name": a.def.name})
 	return {"placements": placements if placements != null else state.placements, "zones": Data.layout.zones.filter(func(z): return zone_unlocked(z)),
-		"locked_zones": Data.layout.zones.filter(func(z): return not zone_unlocked(z)), "harmony": Meter.progress(state, Data.island), "statics": statics, "flags": state.flags, "bodies": bodies}
+		"locked_zones": Data.layout.zones.filter(func(z): return not zone_unlocked(z)), "harmony": LocationMeter.progress(state, Data.island), "statics": statics, "flags": state.flags, "bodies": bodies}
 
 func _find_pl(uid: int) -> Dictionary:
 	for p in state.placements:
@@ -773,7 +773,7 @@ func _update_hotkeys() -> void:
 	var entries: Array = [["%s%s%s%s" % [k.call("move_forward"), k.call("move_left"), k.call("move_back"), k.call("move_right")], "Move"],
 		["Drag/%s%s" % [k.call("cam_left"), k.call("cam_right")], "Camera"], [k.call("interact"), "Interact"]]
 	if state.flags.get("hasTool", false) and Tutorial.revealed(tut, "key:build"): entries.append([k.call("build"), "Build"])
-	for pair in [["inventory", "Bag"], ["journal", "Journal"], ["map", "Map"], ["progress", String(Meter.def(Data.island).get("short", "Approval"))]]:
+	for pair in [["inventory", "Bag"], ["journal", "Journal"], ["map", "Map"], ["progress", String(LocationMeter.def(Data.island).get("short", LocationMeter.def(Data.island).get("name", "Approval")))]]:
 		if Tutorial.revealed(tut, "key:" + pair[0]): entries.append([k.call(pair[0]), pair[1]])
 	entries.append([k.call("pause"), "Menu"])
 	var t: String = " · ".join(entries.map(func(e): return "%s %s" % e))
@@ -801,6 +801,7 @@ func _update_world_time(dt: float) -> void:
 	var look := Daylight.sample(h)
 	var nt := Daylight.nightness(h)
 	var forced: String = shot_cfg.get("weather", "")   # screenshots: --weather=rain etc.
+	if forced == "" and settings.weather: forced = Daylight.forced(s)   # a request's own weather (Daylight.force)
 	var w: Dictionary = Daylight.weather(s.time, Daylight.allowed_here()) if settings.weather and forced == "" else Daylight.WEATHER.get(forced if forced != "" else "clear", Daylight.WEATHER.clear).duplicate()
 	if not w.has("type"): w["type"] = forced if forced != "" else "clear"
 	# ease the weather values too, so switching the setting or loading a save doesn't snap the sky

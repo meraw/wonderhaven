@@ -19,7 +19,7 @@ func play() -> void:
 	game.render_resources(); game.hud.render_harmony()
 	note("harness: start at 10 AM with hasTool and 300,000 lire, as a player arriving from the villages")
 	await frames(20)
-	check("meter_hud", "the HUD shows La Sera di Toriano's column inches instead of approval", game.hud.harmony_title.text.contains("Column inches") and game.hud.harmony_label.text == "0 / 10", "%s %s" % [game.hud.harmony_title.text, game.hud.harmony_label.text])
+	check("meter_hud", "the HUD shows La Sera di Toriano's column inches instead of approval", game.hud.harmony_title.text.contains("La Sera di Toriano") and game.hud.harmony_label.text == "0 in.", "%s %s" % [game.hud.harmony_title.text, game.hud.harmony_label.text])
 
 	# ---- 1. Welcome to Toriano --------------------------------------------------------------------------------
 	check("augusto_waits", "Augusto waits on the platform with a request", at("augusto").distance_to(game.player.pos) < 8.0 and game.story.marker_for(who("augusto")) == "offer", "%s, marker %s" % [at("augusto"), game.story.marker_for(who("augusto"))])
@@ -38,7 +38,7 @@ func play() -> void:
 	check("welcome_neighbours", "you meet Signora Elvira on the balcony, Simone next door and Ragioniere Sala", step_done("welcome", "elvira") and step_done("welcome", "simone") and step_done("welcome", "sala"),
 		str(game.state.quests.get(P + "welcome", {}).get("done", {}).keys()))
 	await chat("augusto")
-	check("welcome_done", "Augusto gives you your keys: 5 column inches", done("welcome") and inches() == 5 and game.state.flags.get(P + "settled", false), "%s, %d inches" % [status("welcome"), inches()])
+	check("welcome_done", "Augusto gives you your keys: 5 column inches, and no approval for the Sindaco", done("welcome") and inches() == 5 and int(game.state.harmony) == 0 and game.state.flags.get(P + "settled", false), "%s, %d inches" % [status("welcome"), inches()])
 
 	# ---- 2. The Balcony Flat ----------------------------------------------------------------------------------
 	await chat("sala")
@@ -55,7 +55,7 @@ func play() -> void:
 	var wardrobe: Array = game.interactables.filter(func(it): return it.id == P + "wardrobe")
 	check("flat_done", "the flat is home: the wardrobe is yours and the roof terrace is your plot", done("flat") and game.state.flags.get(P + "home", false) and wardrobe.size() == 1 and wardrobe[0].available.call() \
 		and game.zone_unlocked(Data.zone(P + "roof_terrace")), "%s, %d inches" % [status("flat"), inches()])
-	check("notice", "10 column inches: a notice on page 18 and the streetlight plans", Meter.got(game.state, "metropolis", {"id": P + "notice"}) and game.state.blueprints.has("streetlight"), "%d inches" % inches())
+	check("notice", "10 column inches: a notice on page 18 and the streetlight plans", LocationMeter.reached(game.state, {"id": P + "notice"}) and game.state.blueprints.has("streetlight"), "%d inches" % inches())
 
 	# ---- 3. Marble by Water -----------------------------------------------------------------------------------
 	await chat("annoni")
@@ -173,7 +173,7 @@ func play() -> void:
 	await angel_shot()
 	await chat("annoni")
 	check("angel_done", "Buon Natale: the finale is done", done("angel") and game.state.flags.get(P + "angel_lit", false), "%s, %d inches" % [status("angel"), inches()])
-	note("column inches after the main story: %d (milestones: %s)" % [inches(), game.state.get("meters", {}).get("metropolis", {}).get("got", [])])
+	note("column inches after the main story: %d (milestones: %s)" % [inches(), game.state.unlocks_seen.filter(func(u): return String(u).begins_with(P))])
 	check("saved", "the game saves to slot 3 for the side requests", await save_to("slot3"))
 
 ## A look up at the Golden Angel from the far side of the square, with the HUD out of the way.
