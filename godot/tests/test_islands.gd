@@ -177,3 +177,33 @@ func test_benches_to_rest_on():
 						var x: float = lerpf(a[0], c[0], k / 20.0); var z: float = lerpf(a[1], c[1], k / 20.0)
 						if x > box.minX - 0.3 and x < box.maxX + 0.3 and z > box.minZ - 0.3 and z < box.maxZ + 0.3: through = true
 					t.ok(not through, "%s: the path %s-%s goes round %s" % [id, e[0], e[1], b.id]))
+
+func test_every_island_supplies_what_its_requests_gather():
+	# Each place's requests ask you to gather things: something on that island has to give them (a node, the
+	# island's rich rock, or a villager's shop there). Stage 1 turned the rich rocks to metal and left the cove's
+	# clock with no crystal anywhere; this would have said so.
+	for id in _islands_with_layouts():
+		_on(id, func():
+			var have := {}
+			for n in Data.layout.nodes:
+				for item in WorldActions.SOURCES:
+					if WorldActions.SOURCES[item].has(n.kind): have[item] = true
+				if n.kind == "mine" and n.get("rich", false): have[String(Data.layout.get("richRock", "metal"))] = true
+			var shops: Dictionary = Data.shops.get("shops", {})
+			for npc in Data.npcs:
+				if String(npc.get("island", "hearthglow")) != id or not shops.has(npc.id): continue
+				for line in shops[npc.id].get("stock", []):
+					for item in line.get("items", {}): have[item] = true
+			for q in Data.quests:
+				if Data.quest_island(q.id) != id: continue
+				for o in q.objectives:
+					if o.kind == "gather": t.ok(have.has(o.item), "%s: %s asks for %s, and the island gives it" % [id, q.id, o.item]))
+
+func test_rich_rocks_give_what_the_place_is_rich_in():
+	var hit := func(m) -> void:
+		for k in 3: m.results.append("good")
+	var iron := Minigames.Mine.new(true, Rng.new(1)); hit.call(iron)
+	t.ok(int(iron.reward().get("metal", 0)) == 2 and not iron.reward().has("crystal"), "Monteforchetta's iron-red rocks: metal")
+	var glow := Minigames.Mine.new(true, Rng.new(1), "crystal"); hit.call(glow)
+	t.ok(int(glow.reward().get("crystal", 0)) == 2, "the cove's glowing rocks: crystal (%s)" % str(glow.reward()))
+	t.eq(Data.read_layout("clockwork").get("richRock", ""), "crystal", "the cove's layout says its rocks hold crystal")

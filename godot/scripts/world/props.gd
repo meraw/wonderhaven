@@ -58,11 +58,11 @@ static func bush(s: float = 1.0, color: String = "69bf5f") -> Node3D:
 	g.scale = Vector3.ONE * s
 	return g
 
-static func rock(rich: bool = false) -> Node3D:
+static func rock(rich: bool = false, bonus: String = "metal") -> Node3D:
 	var g := Node3D.new()
 	_add(g, P.sphere(0.8, 6, 4), P.stone(P.STONE), Vector3(0, 0.4, 0), Vector3(0.2, 0.5, 0.1), Vector3(1.1, 0.75, 0.95))
 	_add(g, P.sphere(0.45, 6, 4), P.stone(P.STONE_DARK), Vector3(0.55, 0.25, 0.35), Vector3(0.4, 0, 0.2))
-	var vein = P.mat("b5653a") if rich else P.wood("d9a066")   # rich rocks show rusty iron
+	var vein = (P.mat("b5653a") if bonus == "metal" else P.mat("8fe9ff", "3fbfff", 1.2)) if rich else P.wood("d9a066")   # rusty iron, or glowing crystal
 	for p in [[0.3, 0.75, 0.45], [-0.45, 0.55, 0.5], [0.1, 0.5, -0.7]]:
 		_add(g, P.sphere(0.2 if rich else 0.12, 4, 2), vein, Vector3(p[0], p[1], p[2]), Vector3(0.6, 0.6, 0))
 	return g

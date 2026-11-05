@@ -77,7 +77,7 @@ func act(n: Dictionary) -> void:
 	game.player.yaw = atan2(n.x - game.player.pos.x, n.z - game.player.pos.z); game.player.sync()
 	match n.kind:
 		"chop": pending_node = n; game.start_minigame("chop", Minigames.Chop.new(), _src(n, 0.0))
-		"mine": pending_node = n; game.start_minigame("mine", Minigames.Mine.new(n.get("rich", false)), _src(n, 0.0))
+		"mine": pending_node = n; game.start_minigame("mine", Minigames.Mine.new(n.get("rich", false), null, String(Data.layout.get("richRock", "metal"))), _src(n, 0.0))
 		"fish": start_fishing(n)
 		"clay":
 			game.player_char.play("dig"); game.sfx("dig")

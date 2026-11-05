@@ -196,7 +196,7 @@ func _build_nodes() -> void:
 		var o: Node3D
 		match n.kind:
 			"chop": o = Props.round_tree(1.05, fmod(n.x * 7.3, 1.0) if n.x > 0 else fmod(-n.x * 7.3, 1.0)); Props.add_ribbon(o)
-			"mine": o = Props.rock(n.get("rich", false))
+			"mine": o = Props.rock(n.get("rich", false), String(Data.layout.get("richRock", "metal")))
 			"clay": o = Props.clay_mound()
 			"fish": o = Props.fishing_spot()
 			"flowers": o = Props.flower_patch()
