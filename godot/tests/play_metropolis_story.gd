@@ -5,13 +5,33 @@ extends "res://tests/metropolis_base.gd"
 ## roof terrace; and light the Golden Angel with a windmill on the roof, then meet everyone in the square on
 ## Christmas Eve. Gathering is real (pruning, quarrying, skips, the flea market); materials for building beyond what
 ## a request asks you to gather are topped up by the harness, and says so. Ends by saving to slot 3, where
-## play_metropolis_side.gd picks up.
-## Run: TIMEOUT=4200 ./play.sh res://tests/play_metropolis_story.gd /tmp/out --island=metropolis --limit=4000
+## play_metropolis_side.gd picks up. Each request saves a checkpoint when it's done; --from=<request> starts there
+## from the checkpoint before it (welcome, flat, marble, footbridge, scaffold, angel), to re-run the later ones.
+## Run: TIMEOUT=10800 ./play.sh res://tests/play_metropolis_story.gd /tmp/out --island=metropolis --limit=10700
 
 func at(npc: String) -> Vector3: return game.npcs[P + npc].pos
 
+const STEPS := ["welcome", "flat", "marble", "footbridge", "scaffold", "angel"]
+
+func checkpoint_slot(step: String) -> String: return "metropolis_after_" + step
+
 func play() -> void:
 	lighten()
+	var from: String = String(game.shot_cfg.get("from", "welcome"))
+	var first := STEPS.find(from)
+	if first > 0:
+		check("resume", "picks up from the checkpoint after %s" % STEPS[first - 1], game.load_from(checkpoint_slot(STEPS[first - 1])), checkpoint_slot(STEPS[first - 1]))
+		await frames(20)
+		note("resumed at %s, %.1f h, %d inches" % [from, hour(), inches()])
+	else:
+		await start_in_town()
+	for i in range(maxi(first, 0), STEPS.size()):
+		await call("step_" + STEPS[i])
+		game.save_to(checkpoint_slot(STEPS[i]))
+	note("column inches after the main story: %d (milestones: %s)" % [inches(), game.state.unlocks_seen.filter(func(u): return String(u).begins_with(P))])
+	check("saved", "the game saves to slot 3 for the side requests", await save_to("slot3"))
+
+func start_in_town() -> void:
 	game.state.tutorial = Tutorial.new_state(false, true)
 	game.state.flags["hasTool"] = true   # by the time the train reaches the city you've long been the Geometra
 	game.state.inventory["coins"] = 300   # savings from the villages
@@ -21,7 +41,8 @@ func play() -> void:
 	await frames(20)
 	check("meter_hud", "the HUD shows La Sera di Toriano's column inches instead of approval", game.hud.harmony_title.text.contains("La Sera di Toriano") and game.hud.harmony_label.text == "0 in.", "%s %s" % [game.hud.harmony_title.text, game.hud.harmony_label.text])
 
-	# ---- 1. Welcome to Toriano --------------------------------------------------------------------------------
+## Welcome to Toriano
+func step_welcome() -> void:
 	check("augusto_waits", "Augusto waits on the platform with a request", at("augusto").distance_to(game.player.pos) < 8.0 and game.story.marker_for(who("augusto")) == "offer", "%s, marker %s" % [at("augusto"), game.story.marker_for(who("augusto"))])
 	await shot("augusto_station")
 	await chat("augusto")
@@ -40,7 +61,8 @@ func play() -> void:
 	await chat("augusto")
 	check("welcome_done", "Augusto gives you your keys: 5 column inches, and no approval for the Sindaco", done("welcome") and inches() == 5 and int(game.state.harmony) == 0 and game.state.flags.get(P + "settled", false), "%s, %d inches" % [status("welcome"), inches()])
 
-	# ---- 2. The Balcony Flat ----------------------------------------------------------------------------------
+## The Balcony Flat
+func step_flat() -> void:
 	await chat("sala")
 	check("flat_on", "Ragioniere Sala offers the flat", status("flat") == "active", status("flat"))
 	await chat("sala")
@@ -57,7 +79,8 @@ func play() -> void:
 		and game.zone_unlocked(Data.zone(P + "roof_terrace")), "%s, %d inches" % [status("flat"), inches()])
 	check("notice", "10 column inches: a notice on page 18 and the streetlight plans", LocationMeter.reached(game.state, {"id": P + "notice"}) and game.state.blueprints.has("streetlight"), "%d inches" % inches())
 
-	# ---- 3. Marble by Water -----------------------------------------------------------------------------------
+## Marble by Water
+func step_marble() -> void:
 	await chat("annoni")
 	check("marble_on", "the Architetto asks you to get the marble moving", status("marble") == "active", status("marble"))
 	await tram("stop_castello")
@@ -70,7 +93,7 @@ func play() -> void:
 	await walk_to(-147.0, 98.0, 0.8)
 	top_up({"wood": 6, "metal": 1}, "a waterwheel and a shaft")
 	await open_zone("crane")
-	placed = await put_all([["waterwheel", -145, 100, 0, 0.1], ["shaft", -145, 99, 0, 0.3]])
+	var placed := await put_all([["waterwheel", -145, 100, 0, 0.1], ["shaft", -145, 99, 0, 0.3]])
 	await frames(30)
 	await shot("crane_driven")
 	await leave_build()
@@ -78,7 +101,8 @@ func play() -> void:
 	await chat("annoni"); await chat("annoni")
 	check("marble_done", "the first barge unloads, and the request is done", done("marble"), "%s, %d inches" % [status("marble"), inches()])
 
-	# ---- 4. The Footbridge ------------------------------------------------------------------------------------
+## The Footbridge
+func step_footbridge() -> void:
 	await chat("franco")
 	check("footbridge_on", "Franco asks for a new footbridge", status("footbridge") == "active", status("footbridge"))
 	await tram("stop_castello")
@@ -93,7 +117,7 @@ func play() -> void:
 	var bridge := [["bridgeDeck", -113, 135, 0, 0.3], ["bridgePost", -110, 135, 0, 0.0], ["bridgeDeck", -110, 135, 0, 0.0], ["bridgeDeck", -111, 135, 0, 0.0], ["bridgeDeck", -112, 135, 0, 0.0], ["bridgeDeck", -109, 135, 0, 0.0],
 		["bridgePost", -107, 135, 0, 0.0], ["bridgeDeck", -107, 135, 0, 0.0], ["bridgeDeck", -108, 135, 0, 0.0], ["bridgeDeck", -106, 135, 0, 0.0],
 		["bridgePost", -104, 135, 0, 0.0], ["bridgeDeck", -104, 135, 0, 0.0], ["bridgeDeck", -105, 135, 0, 0.0], ["bridgeDeck", -103, 135, 0, 0.0], ["bridgeDeck", -102, 135, 0, 0.3]]
-	placed = await put_all(bridge)
+	var placed := await put_all(bridge)
 	check("footbridge_built", "posts in the canal bed and planks across, quay to quay", step_done("footbridge", "bridge"), "%d of %d placed" % [placed, bridge.size()])
 	placed = await put_all([["railing", -111, 135, 0, 0.15], ["railing", -111, 135, 2, 0.15], ["railing", -108, 135, 0, 0.15], ["railing", -108, 135, 2, 0.15], ["railing", -105, 135, 0, 0.15], ["railing", -105, 135, 2, 0.15]])
 	await shot("footbridge")
@@ -105,7 +129,8 @@ func play() -> void:
 	await chat("franco")
 	check("footbridge_done", "Franco's regulars can cross", done("footbridge"), "%s, %d inches" % [status("footbridge"), inches()])
 
-	# ---- 5. Scaffolding for the Spire --------------------------------------------------------------------------
+## Scaffolding for the Spire
+func step_scaffold() -> void:
 	await chat("annoni")
 	check("scaffold_on", "the Architetto wants a climb up to the roof", status("scaffold") == "active", status("scaffold"))
 	await tram("stop_castello")
@@ -119,27 +144,27 @@ func play() -> void:
 		await gather_until("mine", func(): return step_done("scaffold", "stone"), [], 10)
 	check("scaffold_materials", "wood from the park and stone cut from the marble offcuts in the yard", step_done("scaffold", "wood") and step_done("scaffold", "stone"), "wood %d, stone %d" % [inv("wood"), inv("stone")])
 	await walk_to(77.5, 10.5, 0.8)
-	top_up({"stone": 30, "wood": 12}, "fifteen blocks and six stairs")
+	top_up({"stone": 60, "wood": 24}, "thirty blocks and twelve stairs for a stair two tiles wide")
 	await open_zone("scaffold")
 	var climb: Array = []
-	for n in 6:   # a stair a metre higher every tile, each on a stack of blocks one taller than the last
+	for n in 6:   # a stair a metre higher every tile, each on a stack of blocks one taller than the last, two abreast
 		var i := 75 - n
-		for b in n: climb.append(["stoneBlock", i, 10, 0, 0.3 + b])
-		climb.append(["stairs", i, 10, 3, 0.3 + n])
-	placed = await put_all(climb)
+		for k in [10, 11]:
+			for b in n: climb.append(["stoneBlock", i, k, 0, 0.3 + b])
+			climb.append(["stairs", i, k, 3, 0.3 + n])
+	var placed := await put_all(climb)
 	await shot("scaffold")
 	await leave_build()
 	check("scaffold_built", "a walkable climb from the works yard up to the roof terrace", step_done("scaffold", "climb"), "%d of %d placed" % [placed, climb.size()])
-	await walk_direct(76.6, 10.5, 0.4)
-	await walk_direct(67.5, 10.5, 0.5)
+	await climb_scaffold(67.5)
 	check("scaffold_climbed", "you walk up your scaffolding onto the cathedral's roof terrace, 6.3 m up", game.player.pos.y > 6.1 and step_done("scaffold", "roof"), "at %s" % game.player.pos)
 	await shot("on_the_roof")
-
-	# ---- 6. The Golden Angel ----------------------------------------------------------------------------------
-	# come down the way you went up, finish the scaffolding request and take on the last one
-	await walk_direct(71.0, 10.5, 0.5); await walk_direct(77.5, 10.5, 0.5)
+	await descend_scaffold()
 	await chat("annoni")
 	check("scaffold_done", "the roof is reachable", done("scaffold"), "%s, %d inches" % [status("scaffold"), inches()])
+
+## The Golden Angel
+func step_angel() -> void:
 	await chat("annoni")
 	check("angel_on", "the Architetto asks you to light the Golden Angel", status("angel") == "active", status("angel"))
 	await tram("stop_castello")
@@ -151,16 +176,17 @@ func play() -> void:
 	await gather_until("bin", func(): return step_done("angel", "metal"), [P + "skip1", P + "skip2", P + "skip3", P + "skip4"], 6)
 	check("angel_materials", "wood, sailcloth from the flea market and metal from the skips", step_done("angel", "wood") and step_done("angel", "fabric") and step_done("angel", "metal"), "wood %d fabric %d metal %d" % [inv("wood"), inv("fabric"), inv("metal")])
 	await tram("stop_duomo")
-	await walk_to(77.5, 10.5, 0.8)
-	await walk_direct(76.6, 10.5, 0.4); await walk_direct(66.0, 10.5, 0.5); await walk_direct(53.0, 10.5, 0.5)
+	await climb_scaffold(66.0)
+	await walk_direct(53.0, 11.0, 0.5)
 	top_up({"wood": 6, "fabric": 2, "metal": 1}, "a windmill and a shaft")
 	await open_zone("terrace")
-	placed = await put_all([["windmill", 52, 9, 2, 6.3], ["shaft", 52, 8, 0, 6.3]])
+	var placed := await put_all([["windmill", 52, 9, 2, 6.3], ["shaft", 52, 8, 0, 6.3]])
 	await frames(30)
 	await shot("windmill_on_the_roof")
 	await leave_build()
 	check("angel_powered", "a windmill on the roof terrace drives the Golden Angel's floodlight", placed == 2 and step_done("angel", "light") and game.state.flags.get(P + "christmas_eve", false), "%d placed, fed %s" % [placed, game.mech.fed])
-	await walk_direct(68.0, 10.5, 0.5); await walk_direct(77.5, 10.5, 0.5)
+	await walk_direct(67.0, 11.0, 0.5)
+	await descend_scaffold()
 	if hour() < 18.0: await sleep_until("bench_sq1", 18)   # wait for dark on a bench in the square
 	await frames(60)
 	var crowd := 0
@@ -173,8 +199,19 @@ func play() -> void:
 	await angel_shot()
 	await chat("annoni")
 	check("angel_done", "Buon Natale: the finale is done", done("angel") and game.state.flags.get(P + "angel_lit", false), "%s, %d inches" % [status("angel"), inches()])
-	note("column inches after the main story: %d (milestones: %s)" % [inches(), game.state.unlocks_seen.filter(func(u): return String(u).begins_with(P))])
-	check("saved", "the game saves to slot 3 for the side requests", await save_to("slot3"))
+
+## Up the scaffolding (two tiles wide, so a hurrying player stays on it): from the works yard straight up it and on
+## along the roof terrace to x.
+func climb_scaffold(x: float) -> void:
+	await walk_to(79.0, 11.0, 0.6)
+	await walk_direct(78.5, 11.0, 0.4, 15.0)
+	await walk_direct(x, 11.0, 0.4)
+	if game.player.pos.y < 6.0: note("climb: ended at %s" % game.player.pos)
+
+## And back down it into the works yard.
+func descend_scaffold() -> void:
+	await walk_direct(68.5, 11.0, 0.4, 20.0)
+	await walk_direct(78.5, 11.0, 0.4)
 
 ## A look up at the Golden Angel from the far side of the square, with the HUD out of the way.
 func angel_shot() -> void:

@@ -537,7 +537,7 @@
      "stage": 1,
      "text": "Build a walkable climb from the works yard up to the roof terrace",
      "goal": "A way up from the yard onto the terrace through the parapet's gap",
-     "buildHint": "Stairs rise one metre over one tile. Stand each stair on a stack of stone blocks one higher than the last (or on platforms). The terrace is exactly six stairs up; the gap in the parapet is at the west end of the site.",
+     "buildHint": "Stairs rise one metre over one tile. Stand each stair on a stack of stone blocks one higher than the last (or on platforms). The terrace is exactly six stairs up; the gap in the parapet is at the west end of the site. A stair two tiles wide is easier to keep your feet on.",
      "hint": {
       "x": 73,
       "z": 10
