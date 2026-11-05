@@ -304,7 +304,8 @@ func requests() -> void:
 		var s: Dictionary = game.state
 		note("requests: day %d %s" % [int(s.time.day), Clock.text(s.time)])
 		if hour() < 7.0 or hour() > 18.0: await nap_until(9)
-	for k in range(maxi(k0, 0), SECTIONS.size()):
+	var k1 := SECTIONS.find(String(game.shot_cfg.get("to", "levee")))   # --to=<section>: stop after it
+	for k in range(maxi(k0, 0), (k1 if k1 >= 0 else SECTIONS.size() - 1) + 1):
 		note("section %s: day %d %s" % [SECTIONS[k], int(game.state.time.day), Clock.text(game.state.time)])
 		await call("sec_" + SECTIONS[k])
 		SaveSystem.write("rt_" + SECTIONS[k], game.snapshot())
@@ -348,8 +349,11 @@ func sec_bridge() -> void:
 		for i in [28, 30, 32, 34]: print("   railing: ", await place_at(i, 13, 0.1, 0))
 	var rails_done: bool = game.story.engine.is_ready(P + "bridge")
 	await leave_build()
-	await walk_direct(24.5, 13.5, 0.6); await walk_direct(38.6, 13.5, 0.6, 30.0)
+	# line up with the middle of the pontoons' deck (a metre wide) at the ferry landing, then walk straight over
+	await walk_direct(24.6, 13.6, 0.5); await walk_direct(25.6, 13.6, 0.25, 15.0)
+	await walk_direct(38.6, 13.6, 0.6, 90.0)
 	var crossed: bool = game.player.pos.x > 37.5 and game.player.pos.y > -0.3
+	note("crossed to %s" % game.player.pos)
 	await shot("pontoon-bridge-crossed")
 	await talk(P + "tullio")
 	check("s2", "The Pontoon Bridge: materials, the plans from Ines over the Roman bridge, a row of pontoons moored bank to bank, railings, and you walk across",
