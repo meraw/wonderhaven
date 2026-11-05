@@ -160,9 +160,14 @@ func put(id: String, i: float, k: float, r: int = 0, y: float = 0.3) -> bool:
 		if game.build.rotation == r: break
 		await tap(KEY_R)
 	game.build.focus = Vector3(i + 0.5, y, k + 0.5)
-	await settle()
-	var p: Vector2 = game.camera.unproject_position(Vector3(i + 0.5, y + 0.02, k + 0.5))
-	mouse_move(p); await frames(4)
+	var p := Vector2.ZERO
+	for attempt in 6:   # point at the cell, and make sure the build cursor is on it (the view may still be gliding there)
+		await settle()
+		p = game.camera.unproject_position(Vector3(i + 0.5, y + 0.02, k + 0.5))
+		mouse_move(p, Vector2(1, 0)); await frames(4)
+		var c: Dictionary = game.build.candidate()
+		if not c.is_empty() and is_equal_approx(float(c.i), i) and is_equal_approx(float(c.k), k): break
+		await frames(10)
 	var status_text: String = game.build.status_label.text if game.build.status_label else ""
 	var before: int = game.state.placements.size()
 	await click(p); await frames(3)
