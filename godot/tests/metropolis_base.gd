@@ -159,11 +159,13 @@ func put(id: String, i: float, k: float, r: int = 0, y: float = 0.3) -> bool:
 	for n in 12:   # (at a low frame rate a tap can go unnoticed: press until it's turned the right way)
 		if game.build.rotation == r: break
 		await tap(KEY_R); await frames(2)
-	game.build.focus = Vector3(i + 0.5, y, k + 0.5)
+	var fp := BuildGrid.footprint(Data.piece(id), r)   # aim at the middle of the whole piece (a bed is two tiles long)
+	var aim := Vector3(i + fp.x / 2.0, y + 0.02, k + fp.y / 2.0)
+	game.build.focus = Vector3(aim.x, y, aim.z)
 	var p := Vector2.ZERO
 	for attempt in 6:   # point at the cell, and make sure the build cursor is on it (the view may still be gliding there)
 		await settle()
-		p = game.camera.unproject_position(Vector3(i + 0.5, y + 0.02, k + 0.5))
+		p = game.camera.unproject_position(aim)
 		mouse_move(p, Vector2(1, 0)); await frames(4)
 		var c: Dictionary = game.build.candidate()
 		if not c.is_empty() and is_equal_approx(float(c.i), i) and is_equal_approx(float(c.k), k) and int(c.r) == r: break
