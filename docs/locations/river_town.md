@@ -296,7 +296,7 @@ What exists now, and the choices made while building that the design above didn'
   south keep you on it. Beyond the edge lies flat far land.
 - The levee is 2.8 m high, with the breach as a walkable gap.
 
-**Stage 2, the buildings and scenery** (this stage):
+**Stage 2, the buildings and scenery** (merged):
 - **Models** are in `godot/scripts/locations/river_town/models.gd`: houses with balconies and green shutters, Rina's bar with
   its awning and payphone, the arcade's covered walk, the brick church with its bell tower and clock, Primo's
   workshop, Ermes's keeper's house, the station, the farm courtyard, the houseboat, the shack, the dance hall and the
@@ -323,6 +323,45 @@ What exists now, and the choices made while building that the design above didn'
   under the arcade's covered walk and on the station platform, and gravel in the sawmill yard.
 - **The travel map** shows Boccapioppo once its `reveal` flag (`river_town_revealed`) is set. Nothing sets it yet:
   Monteforchetta's bus line will, once the flag is agreed with that session.
+
+**Stage 3a, shared tools** (merged): the zone path and sealed checks, the Pontoon and Sandbags pieces, what a node
+gives, fishing catches per location, a request's own weather and a location's own progress meter.
+
+**Stage 3b, people, dialogue and requests** (this stage). The bicycle, "A Bike from the Mud" and "Pierina's Round" come
+in stage 3c.
+- **The people** are in `npcs.json`. Each has days that follow the story: ordinary days, then the evenings at the
+  dance hall once it's fitted out, the storm night on the levee by the breach, and back to normal after it. Ermes
+  waits at the bus stop until he has welcomed you, and reads his gauge at dawn every morning.
+- **Homes:** Wanda, Tullio and Ines sleep in three of the town houses, which you can now walk into. Ines lives in
+  town and walks to the sawmill over the Roman bridge, or over your pontoon bridge once it's built.
+- **The requests** are in `quests.json`: the five main ones, "A Roof That Floats", "The Monster of the Po", "Ines's
+  Runaway Logs" and six lost things.
+  - **Pump Out the Piazza** changed in the build. A pump by the sump can't be powered from the river, because
+    shafts don't connect over the 2.8 m levee. Instead, the old drainage pumping house of 1934 stands on the
+    levee's river side, beside a stone quay. A waterwheel in the Alpine river by the quay and shafts across the quay
+    turn its drive (`fed:river_town_pump`), and its pipe under the levee drains the piazza.
+  - **The Pontoon plans** are a gift from Ines in the bridge request, so you don't buy them.
+  - **The dance:** after 8 PM the villagers stand round the dance floor. Real dancing animations come in stage 4.
+  - **The storm night** is three steps: Ermes waits on the levee once the wall stands, the storm comes after 8 PM,
+    and the river peaks past midnight.
+  - **The monster** bites at the meeting of the rivers after dark once Primo has given you his line. It leaves a
+    whisker on your line, and you show it to Mattia, waking him if you have to.
+  - **The lost things:** Mattia's Walkman replaced Ermes's logbook, so that all nine villagers give you something.
+- **The flood gauge** is the shared location meter (`location.json`): a metre per main request, half a metre per
+  side request, ten centimetres per lost thing. Its milestones give the mooring plot (`river_town_plot`), the
+  streetlight and electric lamp plans, and the mooring garden with a jetty (`river_town_garden`). The bike upgrades
+  join them in stage 3c. Until then the gauge stops at 0.30 m.
+- **The story changes the place.** `river_town.gd` lists `WORLD_FLAGS`. When one is set, the world is built again
+  where you stand once the conversation ends:
+  - the piazza's pond goes once it's drained;
+  - the dance hall is scrubbed, mended and lit after its first dance;
+  - on the storm night the rivers rise to the brim;
+  - after the storm the junk and the old sandbag patch are cleared;
+  - the catfish photo hangs in Rina's bar.
+  - When the houseboat is launched, she moves to her mooring in the backwater, with a jetty and a gangway at her
+    door. Her cabin is cleared of the flood's junk for you to furnish (`river_town_cabin`).
+- **Villagers cross your bridge:** the layout's `crossings` let them walk the path you built across the pontoon
+  bridge.
 
 ## Checks for every stage
 `godot/run_tests.sh`, `npm test` and `npm run build`; screenshots of Boccapioppo in both renderers

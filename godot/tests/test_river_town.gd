@@ -66,7 +66,7 @@ func _reachable(cut: Callable = func(_x, _z): return false) -> Dictionary:
 
 func test_you_cant_walk_off_the_map():
 	_on(func():
-		var seen := _reachable()
+		var seen: Dictionary = _reachable()
 		var far := 0.0
 		for c in seen: far = maxf(far, maxf(absf(c.x * 0.5), absf(c.y * 0.5)))
 		t.ok(far < 55.0, "canals and the Po keep you on the map (furthest point %.1f m from the centre)" % far)
@@ -157,3 +157,106 @@ func test_rooms_you_can_walk_into():
 		var boat: Dictionary = Data.layout.buildings.filter(func(x): return x.id == "river_town_houseboat")[0]
 		for f in Data.layout.features.filter(func(f): return f.kind in ["rest", "wardrobe"]):
 			t.ok(Interiors.room(boat).has_point(Vector3(f.x, 0.5, f.z)), "the %s is inside the houseboat" % f.kind))
+
+# ---- Stage 3: the people, their requests, and the story's marks on the place ------------------------------------
+
+static func _building(id: String) -> Dictionary:
+	for b in Data.layout.buildings:
+		if b.id == id: return b
+	return {}
+
+func test_people_and_their_days():
+	_on(func():
+		var people: Array = Data.npcs.filter(func(n): return n.get("island", "") == "river_town")
+		t.eq(people.size(), 9, "nine villagers live in Boccapioppo")
+		for n in people:
+			t.ok(Data.layout.nav_nodes.has(n.home), "%s has a home here (%s)" % [n.id, n.home])
+			var days: Array = [n.schedule]
+			for w in n.get("when", []): days.append(w.schedule)
+			var sp: Dictionary = Data.layout.spawn
+			for d in days:
+				for e in d:
+					t.ok(Data.layout.nav_nodes.has(e[2]), "%s's day takes them to a real spot (%s)" % [n.id, e[2]])
+					var at_spot: Array = Data.layout.nav_nodes.get(e[2], [0, 0])
+					t.ok(Vector2(at_spot[0] - sp.x, at_spot[1] - sp.z).length() > 1.5, "%s never stands where the bus leaves you (%s)" % [n.id, e[2]])
+		# whoever a step at a set hour needs is up and about, where the story says
+		var at := func(npc: String, hour: float, flags: Dictionary) -> Dictionary: return Schedule.activity_at(Data.npc(npc), hour * 60.0, flags)
+		var w := {"river_town_welcomed": true}
+		t.eq(at.call("river_town_ermes", 6.0, w).node, "gauge", "Ermes reads his gauge at dawn (the houseboat's launch)")
+		var ready := {"river_town_welcomed": true, "river_town_bridge_open": true, "river_town_hall_ready": true}
+		t.eq(at.call("river_town_wanda", 21.0, ready).node, "river_town_dance_hall:spot", "Wanda is in her hall in the evening once it's fitted out")
+		var dancers := people.filter(func(n): return String(at.call(n.id, 21.0, ready).node).begins_with("hall")).size()
+		t.ok(dancers >= 6, "the town comes to the dance in the evening (%d villagers)" % dancers)
+		var wall: Dictionary = ready.duplicate(); wall["river_town_wall_built"] = true
+		t.eq(at.call("river_town_ermes", 21.0, wall).node, "stormB", "Ermes waits on the levee by the breach once the wall stands")
+		var storm: Dictionary = wall.duplicate(); storm["river_town_storm"] = true
+		t.ok(at.call("river_town_ermes", 1.0, storm).node == "stormB" and at.call("river_town_ermes", 1.0, storm).activity != "sleep", "...and keeps watch there past midnight on the storm night")
+		var watching := people.filter(func(n): return String(at.call(n.id, 21.0, storm).node).begins_with("storm") or at.call(n.id, 21.0, storm).node == "leveeMid").size()
+		t.eq(watching, 9, "on the storm night the whole town waits on the levee")
+		var after: Dictionary = storm.duplicate(); after["river_town_flood_over"] = true
+		t.eq(at.call("river_town_rina", 10.0, after).node, "river_town_bar:spot", "after the storm, life goes back to normal")
+		for n in Data.layout.nav_nodes:
+			if String(n).begins_with("storm") or String(n).begins_with("hall"): t.ok(not Schedule.find_path("busStop", n, {}).is_empty(), "villagers can walk to %s" % n))
+
+func test_requests():
+	_on(func():
+		var mine: Array = Data.quests.filter(func(q): return String(q.id).begins_with("river_town_"))
+		t.eq(mine.size(), 14, "five main requests, three side requests and six lost things")
+		t.eq(mine.filter(func(q): return q.get("main", false)).size(), 5, "five of them tell the main story")
+		var m: Dictionary = LocationMeter.def("river_town")
+		t.eq(LocationMeter.reading(m, 0), "7.40 m", "the flood gauge starts at the flood's peak")
+		t.eq(LocationMeter.reading(m, int(m.milestones[-1].at)), "0.00 m", "its last milestone is zero: the flood is over")
+		for q in mine:
+			var want := 100 if q.get("main", false) else (10 if String(q.id).contains("lost_") else 50)
+			t.eq(int(q.rewards.get("meter", 0)), want, "%s takes %d cm off the gauge" % [q.id, want])
+		var total := 0
+		for q in mine: total += int(q.rewards.meter)
+		t.ok(total < int(m.milestones[-1].at), "the bicycle's requests are still to come: the gauge can't reach zero yet (%d cm)" % total)
+		# what the steps need is in the world: things to find, the monster's spot, fish to catch
+		var seen: Dictionary = _reachable()
+		for n in Data.layout.nodes:
+			if n.has("gives") or n.has("flag"):
+				t.ok(seen.has(Vector2i(roundi(n.x / 0.5), roundi(n.z / 0.5))), "%s can be reached on foot" % n.id)
+		for q in mine:
+			for o in q.objectives:
+				if o.kind == "gather" and String(o.item).begins_with("river_town_"):
+					t.ok(Data.layout.nodes.any(func(n): return n.get("gives", {}).has(o.item)), "%s: something in Boccapioppo gives %s" % [q.id, o.item])
+				if o.kind == "event" and String(o.event).begins_with("fish:"):
+					t.ok(Data.layout.fish.any(func(f): return "fish:" + String(f.id) == o.event), "%s: %s bites somewhere" % [q.id, o.event])
+		var monster: Dictionary = Data.layout.fish.filter(func(f): return f.id == "river_town_monster")[0]
+		var spot: Dictionary = Data.node_def(monster.node)
+		t.ok(absf(spot.x - RT.alpine_center(spot.z)) < 8.0 and spot.z > RT.po_bank(spot.x) - 6.0, "the monster bites where the rivers meet")
+		t.eq(Minigames.catch_table(Data.layout.fish, monster.node, {}, 22 * 60.0).filter(func(f): return f.id == "river_town_monster").size(), 0, "not before Primo's line")
+		t.eq(Minigames.catch_table(Data.layout.fish, monster.node, {"river_town_catfish_night": true}, 22 * 60.0).filter(func(f): return f.id == "river_town_monster").size(), 1, "then after dark")
+		var lost: Array = Data.layout.nodes.filter(func(n): return n.has("flag"))
+		t.ok(lost.all(func(n): return n.kind == "fragment" and n.get("once", false)), "the logs and lost things are each found once"))
+
+func test_the_houseboat_floats_once_launched():
+	_on(func():
+		var mud: Dictionary = _building("river_town_houseboat")
+		t.ok(not mud.get("afloat", false) and not Heightfield.is_water(mud.x, mud.z), "she starts stranded on the mud")
+		t.ok(Interiors.items(mud).size() > 2, "with the flood's junk in her cabin")
+		Data.apply_world_flags({"river_town_launched": true})
+		var boat: Dictionary = _building("river_town_houseboat")
+		t.ok(boat.get("afloat", false) and Heightfield.is_water(boat.x, boat.z), "once launched she floats in the backwater")
+		t.eq(Interiors.items(boat).map(func(it): return it.id), ["bed", "cabinet"], "her cabin is cleared for you to furnish")
+		var w := WalkWorld.new(WorldStatics.build_statics(WorldStatics.generate_decor()), func(_f): return true)
+		w.floors = WorldStatics.floors()
+		var foot: Array = Data.layout.nav_nodes.jettyFoot; var door: Array = Data.layout.nav_nodes.houseboat
+		var feet: float = Heightfield.height(foot[0], foot[1])
+		var ok := true
+		for k in range(1, 41):
+			var s: Dictionary = w.can_stand(lerpf(foot[0], door[0], k / 40.0), lerpf(foot[1], door[1], k / 40.0), feet, 0.3)
+			if s.is_empty(): ok = false; break
+			feet = s.y
+		t.ok(ok, "a gangway and a jetty lead from the bank to her door")
+		var deck: Dictionary = w.can_stand(boat.x, boat.z, RT.DECK_Y, 0.3)
+		t.ok(not deck.is_empty() and absf(deck.y - RT.DECK_Y) < 0.05, "you stand on her cabin floor, not in the water")
+		var cabin: Dictionary = Data.zone("river_town_cabin")
+		var room: AABB = Interiors.room(boat)
+		t.ok(room.has_point(Vector3(cabin.minI + 0.5, 0.5, cabin.minK + 0.5)) and room.has_point(Vector3(cabin.maxI + 0.5, 0.5, cabin.maxK + 0.5)), "the cabin you furnish is inside her")
+		for f in Data.layout.features.filter(func(f): return f.kind in ["rest", "wardrobe"]):
+			t.ok(room.has_point(Vector3(f.x, 0.5, f.z)), "her %s went with her" % f.kind)
+		t.ok(BuildGrid.ground_at(cabin.minI, cabin.minK) > Heightfield.WALKABLE_MIN, "you can build on her cabin floor")
+		Data.apply_world_flags({})
+		t.ok(not _building("river_town_houseboat").get("afloat", false), "a save from before the launch finds her on the mud again"))
