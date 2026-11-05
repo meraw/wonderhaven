@@ -10,6 +10,7 @@ const TT := preload("res://scripts/locations/rice_village/timetable.gd")
 const WATCH := Vector2(4.2, -41.2)   # where you stand to watch the trains at the crossing
 
 func play() -> void:
+	await fast_3d()
 	await frames(20)
 	var title_load: Control = game.screens.find_child("btn_load", true, false)
 	if title_load: await click(title_load.get_global_rect().get_center()); await frames(10)
