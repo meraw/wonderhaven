@@ -143,6 +143,13 @@ func walk_around() -> void:
 # ---- Part two: every request ---------------------------------------------------------------------------------------
 const P := "river_town_"
 
+## A run can use a smaller window than the game's 1280x720 canvas (software rendering is slow): mouse events are
+## given in window pixels, so canvas positions (buttons, unprojected cells) are mapped first. At full size this
+## changes nothing.
+func _to_window(p: Vector2) -> Vector2: return get_viewport().get_final_transform() * p
+func mouse_move(p: Vector2, rel: Vector2 = Vector2.ZERO) -> void: super.mouse_move(_to_window(p), rel)
+func mouse_button(p: Vector2, button: int, pressed: bool) -> void: super.mouse_button(_to_window(p), button, pressed)
+
 func qs(id: String) -> String: return String(game.state.quests.get(P + id, {}).get("status", ""))
 func stage(id: String) -> int: return game.story.engine.current_stage(P + id)
 func pts() -> int: return LocationMeter.points(game.state, "river_town")
