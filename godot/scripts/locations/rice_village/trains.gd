@@ -5,6 +5,7 @@ extends Node3D
 const P := preload("res://scripts/world/palette.gd")
 const TT := preload("res://scripts/locations/rice_village/timetable.gd")
 const Buildings := preload("res://scripts/locations/rice_village/buildings.gd")
+const Sounds := preload("res://scripts/locations/rice_village/sounds.gd")
 
 const RAIL_Y := 0.62                         # top of the railway bed
 const GAP := Rect2(-0.6, -49.8, 5.2, 5.6)    # the road over the line, between the two blocks of the railway bed
@@ -21,6 +22,9 @@ var arm_down := 0.0
 var was_closed := false
 var t := 0.0
 var _mats: Dictionary = {}
+var honked: Dictionary = {}      # trains that have sounded their horn, "day:n"
+var bell_t := 0.0
+var rumble_t := 0.0
 
 func setup(g, village: Node3D) -> void:
 	game = g
@@ -40,7 +44,8 @@ func _process(dt: float) -> void:
 	if tm.is_empty() or game.get("traveling"): return
 	t += dt
 	var day := int(tm.day); var minute := float(tm.minute)
-	var closed := TT.crossing_closed(day, minute)
+	var stopping: bool = game.state.flags.get(TT.STOP_FLAG, false)
+	var closed := TT.crossing_closed(day, minute, stopping)
 	if closed and not was_closed: _clear_crossing()
 	was_closed = closed
 	for bd in bodies: bd.r = 0.95 if closed else 0.0
@@ -51,7 +56,33 @@ func _process(dt: float) -> void:
 		var on := closed and ((i % 2 == 0) == blink)
 		(lamps[i] as StandardMaterial3D).emission_energy_multiplier = 2.6 if on else 0.0
 	for li in lamp_lights: (li as OmniLight3D).visible = closed and game.state.flags.get("night", false)
-	_run_trains(day, minute)
+	_run_trains(day, minute, stopping)
+	_sounds(dt, day, minute, closed, stopping)
+
+## The crossing's bells while the barriers come down, each train's horn as it nears the crossing, and its rumble
+## as it passes you.
+func _sounds(dt: float, day: int, minute: float, closed: bool, stopping: bool) -> void:
+	var p: Vector3 = game.player.pos
+	var to_crossing := Vector2(p.x - TT.CROSS_X, p.z - (TT.EAST_Z + TT.WEST_Z) / 2.0).length()
+	bell_t -= dt
+	if closed and arm_down < 0.999 and bell_t <= 0.0:
+		bell_t = 0.5
+		Sounds.crossing_bell(game, Sounds.by_distance(to_crossing, 10.0, 60.0))
+	rumble_t -= dt
+	var nearest := 1000.0
+	for tr in TT.on_line(day, minute, stopping):
+		var key := "%d:%d" % [tr.day, tr.n]
+		var ahead: float = (TT.CROSS_X - float(tr.front)) * float(tr.dir)   # metres still to go to the crossing
+		if ahead > 0.0 and ahead < 160.0 and not honked.has(key):
+			honked[key] = true
+			Sounds.horn(game, Sounds.by_distance(Vector2(p.x - float(tr.front), p.z - float(tr.z)).length(), 30.0, 200.0))
+		if tr.stopped: continue   # waiting at the platform: quiet
+		var x0 := minf(tr.front, tr.front - tr.dir * tr.length); var x1 := maxf(tr.front, tr.front - tr.dir * tr.length)
+		nearest = minf(nearest, Vector2(p.x - clampf(p.x, x0, x1), p.z - float(tr.z)).length())
+	if nearest < 70.0 and rumble_t <= 0.0:
+		rumble_t = 0.28
+		Sounds.rumble(game, Sounds.by_distance(nearest, 6.0, 70.0), nearest < 30.0)
+	if honked.size() > 40: honked.clear()
 
 ## Someone on the crossing as the bells start steps back to the nearer side.
 func _clear_crossing() -> void:
@@ -61,10 +92,10 @@ func _clear_crossing() -> void:
 	game.player.teleport(clampf(p.x, 1.0, 3.0), GAP.end.y + 0.6 if south else GAP.position.y - 0.6)
 	if game.has_method("toast"): game.toast("Ding, ding, ding: you step back from the crossing.", "", 2.5)
 
-func _run_trains(day: int, minute: float) -> void:
+func _run_trains(day: int, minute: float, stopping: bool = false) -> void:
 	var seen := {}
 	var night: bool = game.state.flags.get("night", false)
-	for tr in TT.on_line(day, minute):
+	for tr in TT.on_line(day, minute, stopping):
 		var key := "%d:%d" % [tr.day, tr.n]
 		seen[key] = true
 		if not trains.has(key):

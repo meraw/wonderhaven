@@ -50,9 +50,13 @@ func test_you_arrive_at_the_bus_stop():
 		var w := _world()
 		var sp: Dictionary = Data.layout.spawn
 		t.ok(_stand(w, sp.x, sp.z), "you step off the bus onto open ground")
-		var stop: Array = Data.layout.features.filter(func(f): return f.kind == "boat")
-		t.eq(stop.size(), 1, "one departure point")
+		var stop: Array = Data.layout.features.filter(func(f): return f.kind == "boat" and not f.has("flag"))
+		t.eq(stop.size(), 1, "one departure point from the start")
 		t.eq(stop[0].get("depart_label", ""), "Catch the bus", "it's the bus stop")
+		var platform: Array = Data.layout.features.filter(func(f): return f.kind == "boat" and f.has("flag"))
+		t.eq(platform.size(), 1, "and one more once the trains stop again")
+		t.eq(platform[0].flag, TT.STOP_FLAG, "the platform, after the finale")
+		t.ok(Rect2(5, -44, 28, 2).has_point(Vector2(platform[0].x, platform[0].z)), "on the platform")
 		t.ok(Vector2(stop[0].x - sp.x, stop[0].z - sp.z).length() < 2.6, "the bus stop is where you arrive")
 		t.eq(Data.layout.get("arrive", {}), Data.layout.spawn, "arriving later puts you at the same stop"))
 
@@ -420,3 +424,105 @@ func test_villagers_keep_out_of_each_others_way():
 					t.ok(false, "%s and %s both at %s at %d:30" % [at[spot], n.id, spot, h])
 				at[spot] = n.id
 	t.ok(true, "nobody shares a spot")
+
+const Wild := preload("res://scripts/locations/rice_village/wildlife.gd")
+
+## Distance from (x, z) to the nearest path line in the layout.
+func _path_d(x: float, z: float) -> float:
+	var best := 1000.0
+	for p in Data.layout.paths:
+		for k in range(p.size() - 1):
+			var a := Vector2(p[k][0], p[k][1]); var b := Vector2(p[k + 1][0], p[k + 1][1])
+			best = minf(best, Geometry2D.get_closest_point_to_segment(Vector2(x, z), a, b).distance_to(Vector2(x, z)))
+	return best
+
+func _in_building(x: float, z: float, pad: float) -> String:
+	for b in Data.layout.buildings:
+		if Rect2(b.x - b.w / 2.0 - pad, b.z - b.d / 2.0 - pad, b.w + pad * 2.0, b.d + pad * 2.0).has_point(Vector2(x, z)): return b.id
+	return ""
+
+func test_the_animals_keep_to_their_places():
+	_here(func():
+		# herons and egrets wade: every spot is water (a ditch puddle, the spring pool, the flooded plain past the
+		# edge), and the winter paddy's spots only count once it's flooded
+		for s in Wild.WADE:
+			t.ok(Heightfield.height(s.x, s.y) < Heightfield.WATER_Y, "a heron's spot at (%.1f, %.1f) is in water" % [s.x, s.y])
+		for s in Wild.PADDY:
+			t.ok(RV.WINTER.has_point(s), "the paddy's heron spots are in the winter paddy")
+		t.eq(Wild.wade_spots({}).size(), Wild.WADE.size(), "the dry winter paddy has no herons")
+		t.eq(Wild.wade_spots({Wild.PADDY_FLAG: true}).size(), Wild.WADE.size() + Wild.PADDY.size(), "the flooded one does")
+		# lapwings feed on open stubble: dry, bare (not the spring grove's grass), off the paths and clear of buildings
+		for s in Wild.FIELDS:
+			t.ok(Heightfield.height(s.x, s.y) > Heightfield.WATER_Y + 0.2, "lapwings at (%.0f, %.0f) stand on dry ground" % [s.x, s.y])
+			t.ok(Heightfield.meadow(s.x, s.y) < 0.5, "on bare stubble, not the grove's grass (%.0f, %.0f)" % [s.x, s.y])
+			t.ok(_path_d(s.x, s.y) > 4.5, "away from the paths (%.0f, %.0f: %.1f m)" % [s.x, s.y, _path_d(s.x, s.y)])
+			t.eq(_in_building(s.x, s.y, 4.0), "", "clear of buildings (%.0f, %.0f)" % [s.x, s.y])
+		# the paddock and the hens are out of everyone's way: no path, nav spot or gathering spot inside
+		var pad := Wild.PADDOCK.grow(0.6)
+		for k in Data.layout.nav_nodes:
+			var n: Array = Data.layout.nav_nodes[k]
+			t.ok(not pad.has_point(Vector2(n[0], n[1])), "nav spot %s is outside the paddock" % k)
+			t.ok(Vector2(n[0], n[1]).distance_to(Wild.HENS) > 2.5 or k == "courtyard", "the hens aren't on %s" % k)
+		for n in Data.layout.nodes:
+			t.ok(not pad.has_point(Vector2(n.x, n.z)), "%s is outside the paddock" % n.id)
+		var pb: Array = Data.layout.buildings.filter(func(b): return b.id == "rice_village_paddock")
+		t.ok(pb.size() == 1 and Rect2(pb[0].x - pb[0].w / 2.0, pb[0].z - pb[0].d / 2.0, pb[0].w, pb[0].d).is_equal_approx(Wild.PADDOCK), "the paddock's fence is solid: a box in the layout round the herd")
+		t.ok(_path_d(Wild.PADDOCK.get_center().x, Wild.PADDOCK.get_center().y) > 6.0, "and no path runs through it")
+		var w := _world()
+		t.ok(not _stand(w, Wild.PADDOCK.get_center().x, Wild.PADDOCK.get_center().y), "you can't walk in among the cows")
+		t.ok(_stand(w, 46.3, -4.4), "but you can stand at the fence by the donkey")
+		t.ok(_stand(w, 44.6, 1.0), "and squeeze between the cowshed and the fence")
+	)
+
+func test_startled_birds_fly_away_from_you():
+	var spots := [Vector2(0, 0), Vector2(10, 0), Vector2(-20, 0), Vector2(0, 30)]
+	t.ok(Wild.startled(Vector2(0, 0), Vector2(3, 0), Wild.SHY.heron), "a heron takes off when you're 3 m away")
+	t.ok(not Wild.startled(Vector2(0, 0), Vector2(9, 0), Wild.SHY.heron), "and stays put at 9 m")
+	t.eq(Wild.next_spot(spots, [], Vector2(5, 0), Vector2(0, 0)), Vector2(0, 30), "it flies to the spot farthest from you")
+	t.eq(Wild.next_spot(spots, [Vector2(0, 30)], Vector2(5, 0), Vector2(0, 0)), Vector2(-20, 0), "unless another bird is there")
+	t.eq(Wild.next_spot([Vector2(0, 0)], [], Vector2(5, 0), Vector2(0, 0)), Vector2(0, 0), "with nowhere else to go it stays")
+	# cranes pass high over the plain twice on most days, by the clock, for a little under an hour of game time
+	var days_with := {}
+	for day in range(1, 10):
+		var passes := 0; var was := false
+		for m in range(0, 1440):
+			var k := Wild.crane_pass(day, float(m))
+			if k >= 0.0 and not was: passes += 1
+			was = k >= 0.0
+			if k >= 0.0: t.ok(m >= 9 * 60 and m < 17 * 60, "cranes only by day (day %d, %d min)" % [day, m])
+		t.ok(passes == 1 or passes == 2, "one or two crane crossings on day %d (%d)" % [day, passes])
+		days_with[passes] = true
+	t.ok(days_with.has(1) and days_with.has(2), "some days have two crossings and some one")
+
+func test_after_the_finale_the_regional_stops_at_the_platform():
+	# the westbound regionals stop (on the platform's track); the others still run through
+	var day := 5
+	var stopping: Array = TT.trains_on(day).filter(func(tr): return TT.stops_here(tr, true))
+	t.ok(stopping.size() > 0, "regionals call at Casalrana on day %d (%d)" % [day, stopping.size()])
+	t.ok(stopping.all(func(tr): return tr.kind == "regional" and tr.dir < 0), "only westbound regionals")
+	t.ok(TT.trains_on(day).all(func(tr): return not TT.stops_here(tr, false)), "and none before the finale")
+	var tr: Dictionary = stopping[0]
+	var stood := 0.0; var moved_back := false; var last := -1000.0
+	for k in range(-200, 400):
+		var dt := k * 0.1
+		var s := TT.travel(tr, dt, true)
+		if s < last - 1e-4: moved_back = true
+		last = s
+		if absf((TT.CROSS_X + tr.dir * s) - TT.STOP_X) < 0.01: stood += 0.1
+		t.ok(absf(TT.time_at(tr, s, true) - dt) < 0.05 or absf(s - TT.travel(tr, TT.time_at(tr, s, true), true)) < 0.05, "time_at undoes travel (%.1f min)" % dt)
+	t.ok(not moved_back, "it never runs backwards")
+	t.ok(absf(stood - TT.DWELL) < 0.35, "it stands at the platform for %.0f minutes (%.1f)" % [TT.DWELL, stood])
+	# the barriers: never a train on the crossing while it's open, and the stopped train never on it
+	for d in [day]:
+		for m in range(0, 1440 * 4):
+			var minute := m / 4.0
+			var on := TT.at_crossing(d, minute, true)
+			if not on.is_empty(): t.ok(TT.crossing_closed(d, minute, true), "no train on the open crossing (%.2f)" % minute)
+			for x in TT.on_line(d, minute, true):
+				if x.stopped:
+					t.ok(minf(x.front, x.front - x.dir * x.length) > TT.CROSS_X + 3.0, "the waiting train stands clear of the crossing")
+	var leaves := float(tr.minute) + TT.time_at(tr, (TT.STOP_X - TT.CROSS_X) * tr.dir, true)   # where it stands, it's the moment it pulls away
+	for before in [1.0, TT.DWELL - 1.0]:
+		var waits := TT.on_line(day, leaves - before, true).filter(func(x): return x.n == tr.n and x.day == day)
+		t.ok(waits.size() == 1 and waits[0].stopped, "%.0f minutes before it pulls away it's waiting at the platform" % before)
+	t.ok(TT.crossing_closed(day, leaves - 1.0, true), "with the barriers already down")

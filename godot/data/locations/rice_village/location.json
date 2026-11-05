@@ -1,5 +1,5 @@
 {
- "_comment": "Casalrana's entry on the travel map and its look. Off the map until rice_village_revealed is set, when the bus line reaches it (nothing sets it yet); tests and screenshots reach it with --island=rice_village. look.weather: always clear (late November, bright white skies).",
+ "_comment": "Casalrana's entry on the travel map and its look. Off the map until rice_village_revealed is set, when the bus line reaches it (nothing sets it yet); tests and screenshots reach it with --island=rice_village. look: always clear (late November, bright white skies), a pale sky and white haze, grey-green paddy water, hoarfrost at dawn and thin ice on the puddles, and a low winter sun.",
  "name": "Casalrana",
  "desc": "A hamlet out on the rice plain after the harvest: frosty stubble, herons in the ditches, and a little station where the trains stopped stopping in 1993.",
  "x": 330,
@@ -26,7 +26,456 @@
   },
   "weather": [
    "clear"
-  ]
+  ],
+  "sky": {
+   "color": [
+    0.9,
+    0.93,
+    0.96
+   ],
+   "pale": 0.55
+  },
+  "haze": {
+   "color": [
+    0.93,
+    0.94,
+    0.95
+   ],
+   "amount": 0.7,
+   "near": 40,
+   "far": 175
+  },
+  "water": {
+   "shallow": "#71827f",
+   "mid": "#5d716f",
+   "deep": "#4a6060",
+   "foam": 0.12
+  },
+  "frost": 1.0,
+  "sun_peak": 30
+ },
+ "music": {
+  "_comment": "Casalrana's own tunes for each part of the day (AudioDirector.song_for): sparse and quiet, no drums, a short phrase and then a long pause, so the trains and the birds carry over the plain.",
+  "songs": {
+   "rice_village_dawn": {
+    "bpm": 66,
+    "root": 64,
+    "lead": "flute",
+    "arp": "glock",
+    "arp_every": 8,
+    "drums": "",
+    "pad": 0.07,
+    "bass": 0.5,
+    "pad_every": 2,
+    "length": 128,
+    "chords": [
+     [
+      0,
+      4,
+      7,
+      11
+     ],
+     [
+      5,
+      9,
+      12,
+      16
+     ],
+     [
+      9,
+      12,
+      16
+     ],
+     [
+      7,
+      11,
+      14
+     ]
+    ],
+    "melody": [
+     [
+      0,
+      7
+     ],
+     [
+      6,
+      11
+     ],
+     [
+      8,
+      12
+     ],
+     [
+      16,
+      14
+     ],
+     [
+      22,
+      12
+     ],
+     [
+      24,
+      11
+     ],
+     [
+      32,
+      7
+     ],
+     [
+      40,
+      9
+     ],
+     [
+      44,
+      11
+     ],
+     [
+      48,
+      4
+     ]
+    ]
+   },
+   "rice_village_morning": {
+    "bpm": 80,
+    "root": 67,
+    "lead": "glock",
+    "arp": "pluck",
+    "arp_every": 4,
+    "drums": "",
+    "pad": 0.06,
+    "bass": 0.6,
+    "length": 128,
+    "chords": [
+     [
+      0,
+      4,
+      7
+     ],
+     [
+      9,
+      12,
+      16
+     ],
+     [
+      2,
+      5,
+      9
+     ],
+     [
+      7,
+      11,
+      14
+     ]
+    ],
+    "melody": [
+     [
+      0,
+      12
+     ],
+     [
+      4,
+      16
+     ],
+     [
+      8,
+      19
+     ],
+     [
+      12,
+      16
+     ],
+     [
+      16,
+      14
+     ],
+     [
+      24,
+      12
+     ],
+     [
+      32,
+      9
+     ],
+     [
+      36,
+      12
+     ],
+     [
+      40,
+      14
+     ],
+     [
+      48,
+      7
+     ]
+    ]
+   },
+   "rice_village_afternoon": {
+    "bpm": 88,
+    "root": 65,
+    "lead": "marimba",
+    "arp": "glock",
+    "arp_every": 8,
+    "drums": "",
+    "pad": 0.06,
+    "bass": 0.7,
+    "length": 128,
+    "chords": [
+     [
+      0,
+      4,
+      7
+     ],
+     [
+      5,
+      9,
+      12
+     ],
+     [
+      7,
+      11,
+      14
+     ],
+     [
+      0,
+      4,
+      7
+     ],
+     [
+      9,
+      12,
+      16
+     ],
+     [
+      5,
+      9,
+      12
+     ],
+     [
+      2,
+      5,
+      9
+     ],
+     [
+      7,
+      11,
+      14
+     ]
+    ],
+    "melody": [
+     [
+      0,
+      7
+     ],
+     [
+      2,
+      9
+     ],
+     [
+      4,
+      12
+     ],
+     [
+      8,
+      11
+     ],
+     [
+      12,
+      9
+     ],
+     [
+      16,
+      7
+     ],
+     [
+      24,
+      4
+     ],
+     [
+      32,
+      5
+     ],
+     [
+      34,
+      9
+     ],
+     [
+      36,
+      12
+     ],
+     [
+      40,
+      14
+     ],
+     [
+      44,
+      12
+     ],
+     [
+      48,
+      11
+     ],
+     [
+      52,
+      7
+     ]
+    ]
+   },
+   "rice_village_evening": {
+    "bpm": 70,
+    "root": 62,
+    "lead": "rhodes",
+    "arp": "pluck",
+    "arp_every": 4,
+    "drums": "",
+    "pad": 0.09,
+    "bass": 0.8,
+    "length": 128,
+    "chords": [
+     [
+      0,
+      4,
+      7,
+      11
+     ],
+     [
+      9,
+      12,
+      16,
+      19
+     ],
+     [
+      5,
+      9,
+      12,
+      16
+     ],
+     [
+      7,
+      11,
+      14,
+      17
+     ]
+    ],
+    "melody": [
+     [
+      0,
+      16
+     ],
+     [
+      4,
+      14
+     ],
+     [
+      8,
+      12
+     ],
+     [
+      16,
+      11
+     ],
+     [
+      20,
+      12
+     ],
+     [
+      24,
+      9
+     ],
+     [
+      32,
+      7
+     ],
+     [
+      40,
+      12
+     ],
+     [
+      44,
+      11
+     ],
+     [
+      48,
+      7
+     ],
+     [
+      56,
+      4
+     ]
+    ]
+   },
+   "rice_village_night": {
+    "bpm": 58,
+    "root": 60,
+    "lead": "glock",
+    "arp": "",
+    "arp_every": 4,
+    "drums": "",
+    "pad": 0.1,
+    "bass": 0.4,
+    "pad_every": 2,
+    "length": 128,
+    "chords": [
+     [
+      0,
+      4,
+      7,
+      11
+     ],
+     [
+      5,
+      9,
+      12,
+      16
+     ],
+     [
+      9,
+      12,
+      16,
+      19
+     ],
+     [
+      7,
+      11,
+      14,
+      17
+     ]
+    ],
+    "melody": [
+     [
+      0,
+      19
+     ],
+     [
+      8,
+      16
+     ],
+     [
+      12,
+      14
+     ],
+     [
+      24,
+      12
+     ],
+     [
+      40,
+      16
+     ],
+     [
+      48,
+      11
+     ]
+    ]
+   }
+  },
+  "parts": {
+   "dawn": "rice_village_dawn",
+   "morning": "rice_village_morning",
+   "afternoon": "rice_village_afternoon",
+   "evening": "rice_village_evening",
+   "night": "rice_village_night"
+  }
  },
  "meter": {
   "name": "The Petition",

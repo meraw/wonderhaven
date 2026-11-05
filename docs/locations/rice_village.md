@@ -260,8 +260,11 @@ the other merges main and reuses it.
 | **A location's own progress meter** (name, unit, milestones), fed by that location's requests | The petition | 3 (built) | Yes |
 | **Two new building pieces:** a railway lantern and an enamel railway sign | Paletta's shop | 3 (built) | No |
 | **Rooms on raised floors in play:** a room's roof fades on its own storey, a room can be tall, build mode aims at raised floors, and placed furniture is used from its own storey | The flat upstairs, the bell tower | 3 (built) | Yes (rooms upstairs) |
-| **A location's own music** (its own tune for each part of the day) | Sparse, quiet themes | 4 | Yes (its own themes) |
-| **Clothing variants:** an unlockable item that reuses an existing shape with its own colours | The station master's cap, Nonna's hat and scarf, the green boots | 4 | Similar (new clothing shapes) |
+| **A location's own music** (its own tune for each part of the day) | Sparse, quiet themes | 4 (built) | Yes (its own themes) |
+| **Clothing variants:** an unlockable item that reuses an existing shape with its own colours | The station master's cap, Nonna's hat and scarf, the green boots | 4 (built) | Similar (new clothing shapes) |
+| **The look's sky, haze, water, frost and sun height** | A white sky and haze, paddy water, hoarfrost and ice, the low winter sun | 4 (built) | No |
+| **Four instruments** (a church bell, a horn, a rasp, a sliding whistle) | The bells, the trains' horns, the birds | 4 (built) | No |
+| **Friendship gifts that give clothes**, and **a departure point that waits for a flag** | Nonna's knitting; the platform after the finale | 4 (built) | No |
 
 Everything else lives in Casalrana's own files (`docs/WORLD.md`): `godot/data/locations/rice_village/`,
 `godot/scripts/locations/rice_village.gd` and helpers in `godot/scripts/locations/rice_village/`,
@@ -392,6 +395,38 @@ One pull request per stage. Each keeps the game playable and the tests passing.
   that climb; rooms that fade on their own storey, and tall rooms; what a gathering spot gives and what you found;
   each location's fish; garden beds from the layout; the railway lantern and enamel sign; build mode aiming at
   raised floors; placed furniture used only from its own storey; visitors who give no request of their own.
+
+**Stage 4, look and ambient life: built.**
+- **The look** (`location.json`'s `look`): a pale, white-bright winter sky and a white haze over the far plain;
+  grey-green paddy water that mirrors the sky without the sea's surf; hoarfrost whitening the stubble and the banks
+  through the night and at dawn, melting between 8:00 and 10:30 and back after dusk; thin ice on the puddles in the
+  small hours; a low winter sun (30° at noon) and long shadows all day.
+- **Animals** (`wildlife.gd`): grey herons and white egrets standing in the ditches, the spring pool and the flooded
+  plain (and the winter paddy once it's flooded), taking off with a croak when you come within a few metres and
+  landing somewhere else; two flocks of lapwings on the stubble that wheel up when you walk at them and settle on
+  another field; a V of cranes over the plain at about 10:30 and 14:10 on most days; at Cascina Grande, three white
+  Piedmontese cows, the ox and the donkey in a paddock behind the cowshed, five hens by the barn, and two cats (one on
+  the wall, one by the farmhouse door). You can stroke the cats and scratch the donkey's ears.
+- **Music and sounds** (`location.json`'s `music`, `sounds.gd`): five sparse, quiet tunes of Casalrana's own, a short
+  phrase and then a long pause; the crossing's bells as the barriers come down, each train's two-tone horn as it nears
+  the crossing and its rumble as it passes; the herons' croak, the lapwings' "pee-wit" and the cranes' trumpeting; the
+  church bells only for the first peal from the mended tower, the living nativity and the finale.
+- **Clothes** (`appearance.json`): the station master's cap (red with a black band) in Paletta's storeroom, Nonna's
+  wool hat and scarf as her second friendship gift, the green rubber boots for Water for the Winter. Your flat's old
+  wardrobe is where you change once the flat is yours.
+- **The cast's outfits:** Paletta in the red cap, Barba Tista and Silvia in green boots, Nonna in her hat and scarf,
+  Don Remo in his black cassock, Matteo in his yellow beanie and scarf, Ingegner Pautasso in grey with his glasses.
+- **The trains stop again:** after the finale, the westbound regionals (the trains to Toriano) brake to a halt at the
+  platform, wait six minutes and pull away; the barriers come down while the train still waits, just short of the
+  crossing. The platform is then a second departure point ("Take the regional train").
+- **Changes from the plan:**
+  - Only the westbound regionals stop: the platform is on that track, and they're the ones to Toriano.
+  - The ox and the donkey stay in the paddock; the living nativity's stable is one you build, so nothing walks into it.
+  - The puddles mirrored the sky through a ring of white shore foam (since stage 1); the water's `foam` in the look
+    calms it.
+- **Shared changes** (each with a test; see the stage 4 pull request): a location's own music, four instruments, the
+  look's sky, haze, water, frost and sun height, clothing variants, friendship gifts that give clothes, and a departure
+  point that waits for a flag.
 
 ## Checks for every stage
 `godot/run_tests.sh`, `npm test` and `npm run build`; screenshots of Casalrana in both renderers

@@ -54,31 +54,77 @@ static func trains_on(day: int) -> Array:
 	out[best].kind = "inspection"
 	return out
 
-## Where the trains are at a moment: [{kind, dir, front (x of the train's front), length, z, n, day}].
-static func on_line(day: int, minute: float) -> Array:
+# ---- Stopping again (stage 4) ------------------------------------------------------------------------------------
+## Once the finale has the trains stopping again (STOP_FLAG), the westbound regionals, which run on the platform's
+## track, brake to a halt with their front at the platform's west end, wait, and pull away towards Toriano. They
+## stand just short of the level crossing, so its barriers come down while the train still waits (as everyone in
+## Casalrana will tell you, Italian barriers come down early).
+const STOP_FLAG := "rice_village_trainStops"
+const STOP_X := 6.5            # where a stopping train's front halts
+const DWELL := 6.0             # minutes at the platform
+const BRAKE := 3.0             # metres per minute per minute, braking and pulling away
+
+static func stops_here(tr: Dictionary, stopping: bool) -> bool: return stopping and tr.kind == "regional" and int(tr.dir) < 0
+
+## How far a train's front has come `dt` minutes after its timetable minute, along its direction (0 is the crossing).
+static func travel(tr: Dictionary, dt: float, stopping: bool = false) -> float:
+	var v: float = KINDS[tr.kind].speed
+	if not stops_here(tr, stopping): return v * dt
+	var p := _profile(tr)
+	if dt <= p.tb: return v * dt
+	if dt <= p.tb + p.tv:
+		var u: float = dt - p.tb
+		return p.s - p.db + v * u - BRAKE * u * u / 2.0
+	if dt <= p.tg: return p.s
+	if dt <= p.tg + p.tv:
+		var u: float = dt - p.tg
+		return p.s + BRAKE * u * u / 2.0
+	return p.s + p.db + v * (dt - p.tg - p.tv)
+
+## When (minutes after its timetable minute) a train's front has come `s` metres: the inverse of travel.
+static func time_at(tr: Dictionary, s: float, stopping: bool = false) -> float:
+	var v: float = KINDS[tr.kind].speed
+	if not stops_here(tr, stopping): return s / v
+	var p := _profile(tr)
+	if s <= p.s - p.db: return s / v
+	if s < p.s: return p.tb + (v - sqrt(maxf(0.0, v * v - 2.0 * BRAKE * (s - (p.s - p.db))))) / BRAKE
+	if s <= p.s + p.db: return p.tg + sqrt(2.0 * (s - p.s) / BRAKE)
+	return p.tg + p.tv + (s - p.s - p.db) / v
+
+## A stopping train's timings: s where it halts, db the braking distance, tb when it starts braking, tv how long
+## braking (or pulling away) takes, tg when it pulls away.
+static func _profile(tr: Dictionary) -> Dictionary:
+	var v: float = KINDS[tr.kind].speed
+	var s := (STOP_X - CROSS_X) * float(tr.dir)
+	var db := v * v / (2.0 * BRAKE)
+	var tb := (s - db) / v
+	var tv := v / BRAKE
+	return {"s": s, "db": db, "tb": tb, "tv": tv, "tg": tb + tv + DWELL}
+
+## Where the trains are at a moment: [{kind, dir, front (x of the train's front), length, z, n, day, stopped}].
+static func on_line(day: int, minute: float, stopping: bool = false) -> Array:
 	var out: Array = []
 	for d in [day - 1, day, day + 1]:
 		var t := minute + float(day - d) * 1440.0
 		for tr in trains_on(d):
-			var k: Dictionary = KINDS[tr.kind]
-			var front: float = CROSS_X + float(tr.dir) * float(k.speed) * (t - float(tr.minute))
+			var front: float = CROSS_X + float(tr.dir) * travel(tr, t - float(tr.minute), stopping)
 			var tail: float = front - float(tr.dir) * length_of(tr.kind)
 			if minf(front, tail) < SPAN and maxf(front, tail) > -SPAN:
 				out.append({"kind": tr.kind, "dir": tr.dir, "front": front, "length": length_of(tr.kind),
-					"z": EAST_Z if tr.dir > 0 else WEST_Z, "n": tr.n, "day": d})
+					"z": EAST_Z if tr.dir > 0 else WEST_Z, "n": tr.n, "day": d, "stopped": stops_here(tr, stopping) and absf(front - STOP_X) < 0.01})
 	return out
 
 ## Is the level crossing closed? From LEAD before a train's front reaches it until CLEAR after its tail has passed.
-static func crossing_closed(day: int, minute: float) -> bool:
+static func crossing_closed(day: int, minute: float, stopping: bool = false) -> bool:
 	for d in [day - 1, day, day + 1]:
 		var t := minute + float(day - d) * 1440.0
 		for tr in trains_on(d):
 			var dt: float = t - float(tr.minute)
-			if dt >= -LEAD and dt <= length_of(tr.kind) / float(KINDS[tr.kind].speed) + CLEAR: return true
+			if dt >= time_at(tr, 0.0, stopping) - LEAD and dt <= time_at(tr, length_of(tr.kind), stopping) + CLEAR: return true
 	return false
 
 ## The train going over the crossing right now, or {} (for Matteo's log in stage 3).
-static func at_crossing(day: int, minute: float) -> Dictionary:
-	for tr in on_line(day, minute):
+static func at_crossing(day: int, minute: float, stopping: bool = false) -> Dictionary:
+	for tr in on_line(day, minute, stopping):
 		if minf(tr.front, tr.front - tr.dir * tr.length) <= CROSS_X + 3.0 and maxf(tr.front, tr.front - tr.dir * tr.length) >= CROSS_X - 3.0: return tr
 	return {}
