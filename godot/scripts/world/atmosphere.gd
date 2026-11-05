@@ -17,6 +17,7 @@ var motes: GPUParticles3D
 var fireflies: GPUParticles3D
 var leaves: GPUParticles3D
 var drift := Vector2.ZERO
+var _fog_drift := Vector2.ZERO
 var _grade_t := 0.0
 var _leaf_t := 0.0
 var _round_trees: Array = []
@@ -74,13 +75,72 @@ static func grade_curve(lo: Color, hi: Color, steps: int = 9) -> PackedColorArra
 
 ## A location's own mood, from the `look` block of its map entry (islands.json or a pack's location.json):
 ## "shade": [r, g, b] added to the shadow tint, "light": [r, g, b] multiplying the highlight tint, "wind": a strength
-## multiplier, "life": {"motes": x, "fireflies": x, "leaves": x} multipliers. Missing keys change nothing.
+## multiplier, "life": {"motes": x, "fireflies": x, "leaves": x} multipliers, "leafColors": the falling leaves' colours.
+## Also "sky" and "haze" (sky_look, haze), "water" colours, "frost" (frost_at, ice_at) and "sun_peak"
+## (Daylight.sun_peak). Missing keys change nothing.
 static func apply_look(gr: Array, lk: Dictionary) -> Array:
 	var lo: Color = gr[0]; var hi: Color = gr[1]
 	var sh: Array = lk.get("shade", [0, 0, 0]); var li: Array = lk.get("light", [1, 1, 1])
 	lo = Color(clampf(lo.r + float(sh[0]), 0.0, 0.3), clampf(lo.g + float(sh[1]), 0.0, 0.3), clampf(lo.b + float(sh[2]), 0.0, 0.3))
 	hi = Color(clampf(hi.r * float(li[0]), 0.5, 1.0), clampf(hi.g * float(li[1]), 0.5, 1.0), clampf(hi.b * float(li[2]), 0.5, 1.0))
 	return [lo, hi]
+
+## How thick the valley mist is (0..1) at an hour, from a layout's `valley_fog` block: its "morning" level from dawn
+## to 8, burning off to its "day" level by 11, gathering again to its "evening" level after 19 and its "night" level
+## after 21. A misty day keeps it thick whatever the hour.
+static func valley_fog_at(hour: float, spec: Dictionary, w: Dictionary) -> float:
+	var h := fposmod(hour, 24.0)
+	var mo := float(spec.get("morning", 0.9)); var dy := float(spec.get("day", 0.1))
+	var ev := float(spec.get("evening", 0.3)); var nt := float(spec.get("night", 0.45))
+	var a: float
+	if h < 4.0: a = nt
+	elif h < 5.5: a = lerpf(nt, mo, smoothstep(4.0, 5.5, h))
+	elif h < 8.0: a = mo
+	elif h < 11.0: a = lerpf(mo, dy, smoothstep(8.0, 11.0, h))
+	elif h < 16.0: a = dy
+	elif h < 19.0: a = lerpf(dy, ev, smoothstep(16.0, 19.0, h))
+	elif h < 21.0: a = lerpf(ev, nt, smoothstep(19.0, 21.0, h))
+	else: a = nt
+	return clampf(lerpf(a, 0.95, float(w.get("fog", 0.0)) * 0.85) + 0.15 * float(w.get("rain", 0.0)), 0.0, 1.0)
+
+## A location's sky and far haze, from its look. "sky": {"color": [r, g, b], "pale": 0..1} leans the daytime sky
+## toward that colour (a white winter sky: the horizon all the way, the zenith a little over half). "haze":
+## {"color": [r, g, b], "amount": 0..1, "near": m, "far": m} leans the far haze toward its colour by day and can bring
+## it closer (never further than the weather already has it). Neither changes the night.
+static func sky_look(lk: Dictionary, top: Color, bottom: Color, night: float) -> Array:
+	var sk: Dictionary = lk.get("sky", {})
+	if sk.is_empty(): return [top, bottom]
+	var c := _rgb(sk.get("color", [0.9, 0.93, 0.96]))
+	var f := clampf(float(sk.get("pale", 0.0)), 0.0, 1.0) * (1.0 - night)
+	return [top.lerp(c, f * 0.6), bottom.lerp(c, f)]
+
+static func haze(lk: Dictionary, base: Color, begin: float, end: float, night: float) -> Dictionary:
+	var hz: Dictionary = lk.get("haze", {})
+	if hz.is_empty(): return {"color": base, "begin": begin, "end": end}
+	var day := 1.0 - night
+	var f := clampf(float(hz.get("amount", 0.5)), 0.0, 1.0) * day
+	return {"color": base.lerp(_rgb(hz.get("color", [0.93, 0.94, 0.95])), f),
+		"begin": minf(begin, lerpf(begin, float(hz.get("near", begin)), day)), "end": minf(end, lerpf(end, float(hz.get("far", end)), day))}
+
+## Hoarfrost on the ground at an hour (0..1), for a location whose look has "frost" (it scales this): white
+## through the night and early morning, melting from 8:00 to 10:30, back as the evening turns cold (full by 22:00).
+static func frost_at(hour: float) -> float:
+	var h := fposmod(hour, 24.0)
+	if h < 8.0: return 1.0
+	if h < 10.5: return 1.0 - smoothstep(8.0, 10.5, h)
+	if h < 18.0: return 0.0
+	return smoothstep(18.0, 22.0, h)
+
+## Thin ice on shallow water (0..1) with the frost: only in the small hours, forming after midnight and gone by 9:00.
+static func ice_at(hour: float) -> float:
+	var h := fposmod(hour, 24.0)
+	if h < 7.5: return smoothstep(0.5, 3.0, h)
+	if h < 9.0: return 1.0 - smoothstep(7.5, 9.0, h)
+	return 0.0
+
+static func _rgb(a) -> Color:
+	if a is String: return Color(a)
+	return Color(float(a[0]), float(a[1]), float(a[2]))
 
 ## How much of each kind of ambient life to show (0..1): motes in sunshine, fireflies on dry nights, leaves
 ## mostly in a breeze.
@@ -99,6 +159,15 @@ func setup(g) -> void:
 	game = g
 	name = "Atmosphere"
 	look = Data.island_def(Data.island).get("look", {})
+	Daylight.sun_peak = float(look.get("sun_peak", Daylight.SUN_PEAK))
+	# The water's colours ("water": {"shallow", "mid", "deep"}, and "foam" 0..1 for the shore foam): a still paddy's
+	# grey-green instead of the sea's blue and its surf.
+	var wl: Dictionary = look.get("water", {})
+	if game.village and game.village.water:
+		var wm := game.village.water.material_override as ShaderMaterial
+		for k in ["shallow", "mid", "deep"]:
+			if wl.has(k): wm.set_shader_parameter(k, _rgb(wl[k]))
+		if wl.has("foam"): wm.set_shader_parameter("foam_amount", float(wl.foam))
 	# Light bounced up from sunlit grass: undersides (eaves, canopies, chins) pick up a warm green fill instead of
 	# a flat grey.
 	bounce = DirectionalLight3D.new(); bounce.name = "Bounce"
@@ -173,7 +242,20 @@ func _process(dt: float) -> void:
 		leaves.amount_ratio = life.leaves
 		if not tree.is_empty():
 			leaves.global_position = Vector3(tree.x, Heightfield.height(tree.x, tree.z) + 2.0 * float(tree.s), tree.z)
+	if look.has("frost") and game.village:
+		var fr := float(look.frost)
+		(game.village.terrain.material_override as ShaderMaterial).set_shader_parameter("frost", frost_at(h) * fr)
+		(game.village.water.material_override as ShaderMaterial).set_shader_parameter("ice", ice_at(h) * fr)
 	if post: (post.material_override as ShaderMaterial).set_shader_parameter("shadow_strength", 0.24 if game.settings.get("weather", true) else 0.12)
+	# Valley mist: thick at dawn, gone by late morning; lit like the haze on the horizon, grey at night.
+	var vf: MeshInstance3D = game.village.valley_fog if game.village else null
+	if vf:
+		_fog_drift += wd * 0.0025 * (0.5 + wind.z) * dt
+		var fm := vf.material_override as ShaderMaterial
+		fm.set_shader_parameter("amount", valley_fog_at(h, Data.layout.valley_fog, w))
+		fm.set_shader_parameter("drift", _fog_drift)
+		var fc := horizon.lerp(Color(0.97, 0.96, 0.94), 0.7).lerp(sun_col, 0.15 * sunlit)
+		fm.set_shader_parameter("fog_color", fc.darkened(0.55 * night))
 
 func _apply_grade(h: float, w: Dictionary) -> void:
 	var gr := apply_look(grade_at(h, w), look)
@@ -297,8 +379,9 @@ func _leaf_process() -> ParticleProcessMaterial:
 	pm.angle_min = 0.0; pm.angle_max = 360.0; pm.angular_velocity_min = -120.0; pm.angular_velocity_max = 120.0
 	pm.scale_min = 0.8; pm.scale_max = 1.2
 	var g := Gradient.new()
-	g.offsets = PackedFloat32Array([0.0, 0.5, 1.0])
-	g.colors = PackedColorArray([Color("6fbf4a"), Color("a8c94a"), Color("e0a040")])
+	var lc: Array = look.get("leafColors", ["6fbf4a", "a8c94a", "e0a040"])   # a look's own falling leaves (autumn golds)
+	g.offsets = PackedFloat32Array(range(lc.size()).map(func(k): return float(k) / maxf(1.0, lc.size() - 1)))
+	g.colors = PackedColorArray(lc.map(func(c): return Color(c)))
 	var gt := GradientTexture1D.new(); gt.gradient = g
 	pm.color_initial_ramp = gt
 	var sc := Curve.new(); sc.add_point(Vector2(0, 0)); sc.add_point(Vector2(0.08, 1)); sc.add_point(Vector2(0.85, 1)); sc.add_point(Vector2(1, 0))

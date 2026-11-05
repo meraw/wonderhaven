@@ -13,6 +13,7 @@ const Tex := preload("res://scripts/locations/rice_village/textures.gd")
 const Buildings := preload("res://scripts/locations/rice_village/buildings.gd")
 const Trains := preload("res://scripts/locations/rice_village/trains.gd")
 const Life := preload("res://scripts/locations/rice_village/village_life.gd")
+const Wildlife := preload("res://scripts/locations/rice_village/wildlife.gd")
 
 const RAIL_Y := 0.62
 const RAIL_Z := -47.0
@@ -54,6 +55,9 @@ static func dress(village: Node3D) -> void:
 	var life := Life.new(); life.name = "rice_village_life"
 	village.add_child(life)
 	life.setup(game, village)
+	var wild := Wildlife.new(); wild.name = "rice_village_wildlife"
+	village.add_child(wild)
+	wild.setup(game, village)
 
 ## Loose straw on the stubble (gathering spots of kind "flowers" that give straw): a tuft and a little sheaf instead
 ## of the shared flower patch.
@@ -84,7 +88,7 @@ static func _xf(pos: Vector3, scl: Vector3, rot: Vector3 = Vector3.ZERO) -> Tran
 ## The bus stop's pole and round blue sign (the shared departure point is a boat, which stays hidden here).
 static func _bus_stop(village: Node3D) -> void:
 	for f in Data.layout.features:
-		if f.kind != "boat": continue
+		if f.id != "rice_village_busStop": continue   # (the platform, the other departure point, needs no sign)
 		var stop := Node3D.new(); stop.name = "rice_village_busStopSign"
 		_add(stop, P.cyl(0.05, 0.05, 2.4, 8), P.mat("8b9097"), Vector3(0, 1.2, 0))
 		_add(stop, P.cyl(0.32, 0.32, 0.05, 20), P.mat("2f6db5"), Vector3(0, 2.3, 0), Vector3(PI / 2, 0, 0))

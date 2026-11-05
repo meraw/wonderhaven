@@ -47,10 +47,15 @@ static func nightness(hour: float) -> float:
 	if h > 4.5 and h < 7.0: return 1.0 - smoothstep(4.5, 7.0, h)
 	return 1.0
 
+## How high the sun climbs at 13:00, in degrees. A location's look can lower it ("sun_peak": a low winter sun and
+## long shadows); Atmosphere sets it for the place you're on.
+const SUN_PEAK := 62.0
+static var sun_peak := SUN_PEAK
+
 ## Direction towards the sun (it rises in the east at 6:00, is highest at 13:00, sets in the west at 20:00).
 static func sun_dir(hour: float) -> Vector3:
 	var t := (fposmod(hour, 24.0) - 6.0) / 14.0            # 0 at sunrise, 1 at sunset
-	var elev := sin(clampf(t, -0.2, 1.2) * PI) * deg_to_rad(62.0)
+	var elev := sin(clampf(t, -0.2, 1.2) * PI) * deg_to_rad(sun_peak)
 	var az := lerpf(deg_to_rad(100.0), deg_to_rad(260.0), t)  # east (x+) round the south (z+) to the west
 	return Vector3(sin(az) * cos(elev), sin(elev), -cos(az) * cos(elev)).normalized()
 
@@ -65,9 +70,11 @@ static func moon_dir(hour: float) -> Vector3:
 static func light_dir(hour: float) -> Vector3:
 	var n := nightness(hour)
 	var s := sun_dir(hour); var m := moon_dir(hour)
-	var d := s.lerp(m, n)
-	if d.y < 0.12: d.y = 0.12
-	return d.normalized()
+	var d := s.lerp(m, n).normalized()
+	if d.y < 0.121:   # never from below about 7° (keeping its compass direction)
+		var flat := Vector2(d.x, d.z).normalized() * sqrt(1.0 - 0.121 * 0.121)
+		d = Vector3(flat.x, 0.121, flat.y)
+	return d
 
 # ---- Weather -----------------------------------------------------------------------------------------------
 ## Each 4-hour slot gets a weather type; the last hour of a slot blends into the next, so changes are gradual.

@@ -1,6 +1,6 @@
 # Monteforchetta: design for the first location
 
-Agreed with the user on 2026-11-04. **Stage 1 (names and text) is built**; stages 2 to 4 are not. This doc is the plan the build stages follow.
+Agreed with the user on 2026-11-04. **Stages 1 to 3 are built**; stage 4 is not. This doc is the plan the build stages follow.
 It replaces Hearthglow Village. The game keeps its working title, *Wonderhaven*, until the new setting is in place.
 
 ## The concept
@@ -130,10 +130,12 @@ Each stage keeps the game playable and the tests passing, and ends with a pull r
    - Not as first written: there is no separate side valley you can walk into (the slopes fall to a valley floor
      you only see); the stream is as wide as the old river, because the crossing's build rules and tests depend
      on it; the farmhouse is a plot framed by ruined walls, not a ruin model.
-3. **Look and plants.**
+3. **Look and plants.** Done; see `docs/STATUS.md` for what it covers.
    - Plaster and stone palettes, curved terracotta roof tiles, the church and bell tower.
    - Vines in rows with autumn colours, hazelnut, oak, chestnut, persimmon, pumpkins, mushrooms, boars.
    - The autumn grade, valley fog and the hills-and-Alps horizon.
+   - Not as first written: no walnut tree yet; chickens keep their old yard by Gigia's house rather than a farm
+     courtyard; the houses are still one storey, so there are no balconies (window boxes carry the geraniums).
 4. **Outfits and music.** Late-1990s outfits for the cast, then the pop-style music for each part of the day.
 5. **Later.** The comedy layer, the truffle dog, more locations and transport, the euro switch somewhere else,
    and a new game title.

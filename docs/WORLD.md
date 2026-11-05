@@ -46,7 +46,13 @@ Shared rules for everyone building a location, people and Claude sessions alike,
   benches.
 - **Look:** shared shaders and the atmosphere module (`docs/GRAPHICS.md`) give every location wind, light,
   weather and ambient life. A location tunes its mood with the `look` block in its map entry: `shade` is added to
-  shadows, `light` multiplies highlights, `wind` scales the wind, and `life` scales motes, fireflies and leaves.
+  shadows, `light` multiplies highlights, `wind` scales the wind, `life` scales motes, fireflies and leaves, and
+  `leafColors` colours the falling leaves. Its layout can set the rest (Monteforchetta's `layout.json` uses all of
+  them): `grassColors` (the meadow's three colours), `decor.leaves`, `decor.woodLeaves` and `decor.bushColors`,
+  `decor.flowers` (how many), `decor.woodFlowers` (`{n, colors}` under the woods), `roofStyle` (`"coppi"` for curved
+  terracotta tiles), `houseStyle` (`posts`, `quoins`, `cornice`, `shutters`), `fruitTree` (`"hazel"`), `wildlife`
+  (`boars` in the woods, `cats` and `crows` at spots), `valley_fog` (mist below a hilltop, by the hour), `horizon`
+  (`hills`, `alps`, `alps_peak`, `villages`), `roses` on a vineyard, and props such as `persimmon` and `pumpkins`.
 
 ## Locations
 Starting points only. Each location's session settles the details with the user in its own design doc.

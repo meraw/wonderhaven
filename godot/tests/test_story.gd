@@ -351,3 +351,43 @@ func test_requests_ask_for_enough_to_build_what_they_ask_for():
 			elif o.kind == "pieces": add.call(o.any, int(o.get("count", 1)))
 		for k in gather:
 			t.ok(int(gather[k]) >= int(need.get(k, 0)), "%s: gathering %d %s covers the %d its building takes" % [q.id, gather[k], k, need.get(k, 0)])
+
+func test_a_location_can_have_clothes_of_its_own():
+	# A pack's appearance.json adds variants: a shape that exists, in its own colours. Each joins its slot's list
+	# (so the wardrobe shows it), locked until something gives it; a variant of a shape that doesn't exist is left out.
+	var A := {"HATS": ["none", "captain", "beanie"], "SHOES": ["boots"], "ACCESSORIES": ["none", "scarf"], "TOPS": [], "BOTTOMS": [], "labels": {}, "locked": {}}
+	Data.merge_variants(A, {"x_cap": {"slot": "hat", "base": "captain", "color": "#c23a32", "trim": "#111111", "label": "Red cap", "unlock": "Buy it"},
+		"x_scarf": {"slot": "accessory", "base": "scarf", "color": "#d9a336", "label": "Yellow scarf"},
+		"x_wings": {"slot": "hat", "base": "wings", "color": "#ffffff"}})
+	t.ok(A.HATS.has("x_cap") and A.ACCESSORIES.has("x_scarf"), "variants join their slot's list")
+	t.ok(not A.HATS.has("x_wings") and not A.variants.has("x_wings"), "a variant of a shape that doesn't exist is left out")
+	t.eq(A.labels.x_cap, "Red cap", "with its label")
+	t.eq(A.locked.get("x_cap", ""), "Buy it", "and locked, with its hint")
+	t.ok(not A.locked.has("x_scarf"), "unless it gives no hint")
+	# Casalrana's: drawn as their base shapes in their own colours
+	var V: Dictionary = Data.appearance.variants
+	for id in ["rice_village_stationCap", "rice_village_woolHat", "rice_village_scarf", "rice_village_boots"]:
+		t.ok(V.has(id) and Data.appearance.locked.has(id), "%s is a locked variant" % id)
+	var a := Chibi.sanitize({"hat": "rice_village_stationCap", "hatColor": "#ffd166", "accessory": "rice_village_scarf", "shoes": "rice_village_boots", "shoesColor": "#ffffff"})
+	t.eq(a.hat, "rice_village_stationCap", "a variant is a valid choice")
+	var r := Chibi.resolve(a)
+	t.eq(r.hat, "captain", "the cap is drawn as the captain's cap")
+	t.eq(r.hatColor, "#c23a32", "in its own red, whatever hat colour you'd picked")
+	t.eq(r.hatTrim, "#1d1f27", "with its black band")
+	t.eq(r.accessory, "scarf", "the scarf is the scarf")
+	t.eq(r.accessoryColor, "#d9a336", "in Nonna's yellow")
+	t.eq(r.shoes, "boots", "the boots are boots")
+	t.eq(r.shoesColor, "#3d7a3a", "green ones")
+	t.eq(Chibi.resolve(Chibi.sanitize({"hat": "beanie", "hatColor": "#ffd166"})).hatColor, "#ffd166", "ordinary pieces keep your colours")
+	var c := Chibi.new(a)
+	t.ok(c.appearance.hat == "rice_village_stationCap", "a character keeps the variant's id (the wardrobe shows it chosen)")
+	c.free()
+	# each one can be had: the cap in Paletta's storeroom, the hat and scarf from Nonna, the boots for the water
+	var state := GameState.new_game()
+	t.ok(not GameState.clothing_unlocked(state, "rice_village_stationCap"), "the cap starts locked")
+	state.clothes_owned.append("rice_village_stationCap")
+	t.ok(GameState.clothing_unlocked(state, "rice_village_stationCap"), "and is yours once owned")
+	t.ok(Data.shops.shops.rice_village_ernesto.stock.any(func(s): return s.get("clothes", "") == "rice_village_stationCap"), "Paletta sells the cap")
+	var nonna: Dictionary = Data.npc_by_id.rice_village_pierina
+	t.ok(nonna.gifts.any(func(g): return g.get("clothes", []).has("rice_village_woolHat") and g.clothes.has("rice_village_scarf")), "Nonna knits the hat and scarf")
+	t.ok(Data.quest("rice_village_water").rewards.get("clothes", []).has("rice_village_boots"), "the boots are Water for the Winter's reward")

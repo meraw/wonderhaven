@@ -57,6 +57,9 @@ These hold for any cozy, stylised 3D game with a painted look, not only this one
 | Cloud shadows matching the sky's clouds, soft vignette | `atmosphere.gd` (screen pass) | Forward+ |
 | Slight blur on the far distance | `atmosphere.gd` (camera attributes) | Forward+ |
 | Dust motes, fireflies, falling leaves | `atmosphere.gd` (GPU particles) | all |
+| Valley fog: a sheet of mist below a hilltop, thick at dawn and gone by late morning, thinning along a ragged edge where the ground comes up through it | `terrain.gd` (valley fog shader), `atmosphere.gd` (amount by the hour) | all; soft edges against the far hills need Forward+ |
+| Far hills: vertex-coloured fields, woods and autumn vineyards, with rows striped along the contours that fade out before they could shimmer; hilltop villages; the Alps | `terrain.gd` (backdrop, hills shader) | all |
+| Curved terracotta roof tiles (coppi): ribs of rounded caps and hollow pans, with the light tilted across each channel | `props.gd` (roof shader, `style`) | all |
 
 The atmosphere module only reads the clock, the weather and the player's position. It does not touch rules, saves or
 layouts, and the game loads it the same way as the animals module.
@@ -69,9 +72,10 @@ layouts, and the game loads it the same way as the animals module.
   olive and night lamps lost their warmth. The current grade stays within a few percent of neutral.
 
 ## Next steps worth trying
-- **A look per island, as data.** Grade keyframes, wind strength, bounce colour and particle colours could live in each
-  island's layout file, so Clockwork Cove can have brassy evenings and Moonveil Hollow a misty blue night, with no new
-  code.
+- **More of the look as data.** A place's `look` block already sets the grade's shade and light, the wind, the amount
+  of ambient life and the falling leaves' colours, and its layout sets grass, bush and leaf colours, roof tiles and
+  house style, valley fog and the horizon (`docs/WORLD.md`). Grade keyframes and the bounce light's colour could
+  follow, so Clockwork Cove can have brassy evenings and a misty blue night with no new code.
 - **Settings toggles** for depth blur, cloud shadows and ambient life on slower machines (next to the outline toggle).
 - **Lit materials for small creatures.** Butterflies use an unlit material, so at night they glow like fireflies.
   Anything that should darken after dusk needs a lit material (or should go to bed at night).
