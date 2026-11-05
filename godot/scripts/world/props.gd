@@ -142,6 +142,7 @@ shader_type spatial;
 render_mode diffuse_lambert_wrap, specular_disabled;
 uniform vec4 color : source_color = vec4(0.8, 0.4, 0.3, 1.0);
 uniform float alpha = 1.0;
+uniform bool plain = false;   // a plain colour, no tiles or shading: the fading copy of a plain part
 uniform float row_h = 0.17;
 uniform float tile_w = 0.42;
 varying vec3 lp;
@@ -150,7 +151,8 @@ float h1(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
 void vertex() { lp = VERTEX; ln = NORMAL; }
 void fragment() {
 	vec3 c = color.rgb;
-	if (ln.y > 0.2) {
+	if (plain) {
+	} else if (ln.y > 0.2) {
 		// Fish-scale tiles: each course's rounded lower edge overlaps the course below it.
 		float row = lp.y / row_h;
 		float ri = floor(row); float rf = fract(row);
@@ -240,8 +242,9 @@ static func fade_parts(nodes: Array) -> Array:
 				var c = (solid as ShaderMaterial).get_shader_parameter("color")
 				faded = roof_material(c if c != null else Color.WHITE, true)
 			elif solid is StandardMaterial3D:
-				faded = (solid as StandardMaterial3D).duplicate()
-				faded.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_HASH; faded.alpha_hash_scale = 1.0
+				# the roof's dither, not alpha hash: the compatibility renderer draws alpha-hashed surfaces solid
+				faded = roof_material((solid as StandardMaterial3D).albedo_color, true)
+				(faded as ShaderMaterial).set_shader_parameter("plain", true)
 			else: continue
 			parts.append([m, solid, faded])
 	return parts
@@ -262,11 +265,8 @@ static func camera_blockers() -> Array:
 	for b in Data.layout.buildings:
 		var pad := 1.1 if b.kind == "castle" else 0.4
 		if b.kind == "church":   # the nave at its own height, and the bell tower as a tall narrow box at its back corner
-			var tw := 2.4; var nave_w: float = b.w - tw
-			var back: float = 1.0 if b.door == "N" else -1.0
-			out.append(AABB(Vector3(b.x - b.w / 2.0 - pad, -1.0, b.z - b.d / 2.0 - pad), Vector3(nave_w + pad * 2.0, 4.6 + roof_rise(nave_w, b.d) + 1.3, b.d + pad * 2.0)))
-			var tz: float = b.z + back * (b.d / 2.0 - tw / 2.0)
-			out.append(AABB(Vector3(b.x + b.w / 2.0 - tw - pad, -1.0, tz - tw / 2.0 - pad), Vector3(tw + pad * 2.0, 13.5, tw + pad * 2.0)))
+			for r in WorldStatics.footprint(b):
+				out.append(AABB(Vector3(r.minX - pad, -1.0, r.minZ - pad), Vector3(r.maxX - r.minX + pad * 2.0, float(r.top) + 2.0, r.maxZ - r.minZ + pad * 2.0)))
 			continue
 		var top: float = 6.5 if b.kind == "castle" else (3.0 if b.kind == "caravan" else (9.0 if b.kind in ["lighthouse", "clocktower"] else 2.6 + roof_rise(b.w, b.d) + 0.3))
 		if b.has("h"): top = float(b.get("y", 0.0)) + float(b.h)   # a building that says how tall it is (a city block, a cathedral)

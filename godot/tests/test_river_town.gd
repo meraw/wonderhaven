@@ -196,7 +196,15 @@ func test_people_and_their_days():
 		var after: Dictionary = storm.duplicate(); after["river_town_flood_over"] = true
 		t.eq(at.call("river_town_rina", 10.0, after).node, "river_town_bar:spot", "after the storm, life goes back to normal")
 		for n in Data.layout.nav_nodes:
-			if String(n).begins_with("storm") or String(n).begins_with("hall"): t.ok(not Schedule.find_path("busStop", n, {}).is_empty(), "villagers can walk to %s" % n))
+			if String(n).begins_with("storm") or String(n).begins_with("hall"): t.ok(not Schedule.find_path("busStop", n, {}).is_empty(), "villagers can walk to %s" % n)
+		# no two villagers stand (or sleep) on the same spot at the same hour, at any point of the story
+		for flags in [{}, w, {"river_town_welcomed": true, "river_town_bridge_open": true}, ready, wall, storm, after]:
+			for h in 24:
+				var taken := {}
+				for n in people:
+					var spot: String = at.call(n.id, h + 0.5, flags).node
+					t.ok(not taken.has(spot), "%s and %s don't share %s at %d:30" % [taken.get(spot, ""), n.id, spot, h])
+					taken[spot] = n.id)
 
 func test_requests():
 	_on(func():
@@ -228,6 +236,8 @@ func test_requests():
 		t.ok(absf(spot.x - RT.alpine_center(spot.z)) < 8.0 and spot.z > RT.po_bank(spot.x) - 6.0, "the monster bites where the rivers meet")
 		t.eq(Minigames.catch_table(Data.layout.fish, monster.node, {}, 22 * 60.0).filter(func(f): return f.id == "river_town_monster").size(), 0, "not before Primo's line")
 		t.eq(Minigames.catch_table(Data.layout.fish, monster.node, {"river_town_catfish_night": true}, 22 * 60.0).filter(func(f): return f.id == "river_town_monster").size(), 1, "then after dark")
+		var finale: Dictionary = Data.quest("river_town_levee").rewards
+		t.ok(finale.flags.has("rice_village_revealed") and Travel.on_map(Data.island_def("rice_village"), {"rice_village_revealed": true}, "river_town"), "the finale sends the bus line on to Casalrana")
 		var lost: Array = Data.layout.nodes.filter(func(n): return n.has("flag"))
 		t.ok(lost.all(func(n): return n.kind == "fragment" and n.get("once", false)), "the logs and lost things are each found once"))
 
@@ -260,3 +270,29 @@ func test_the_houseboat_floats_once_launched():
 		t.ok(BuildGrid.ground_at(cabin.minI, cabin.minK) > Heightfield.WALKABLE_MIN, "you can build on her cabin floor")
 		Data.apply_world_flags({})
 		t.ok(not _building("river_town_houseboat").get("afloat", false), "a save from before the launch finds her on the mud again"))
+
+## What a player builds for the two crossing requests makes the walkable path their checks ask for.
+func test_the_crossings_you_build_are_walkable():
+	_on(func():
+		var w := WalkWorld.new(WorldStatics.build_statics(WorldStatics.generate_decor()), func(_f): return true)
+		w.floors = WorldStatics.floors()
+		var bridge: Dictionary = Data.zone("river_town_bridge")
+		t.ok(not Validate.path_across(bridge, w).ok, "no way across the Alpine river before anything is built")
+		var row: Array = []
+		for i in [27, 29, 31, 33, 35]:
+			var y := BuildGrid.suggest_bottom("pontoon", i, 13, 1, 0.1, row, bridge)
+			var pl := {"uid": 100 + row.size(), "id": "pontoon", "i": float(i), "k": 13.0, "r": 1, "y": y}
+			t.ok(BuildGrid.validate_placement(pl, {"placements": row, "zones": [bridge], "statics": []}).ok, "a pontoon moors at %d, 13" % i)
+			row.append(pl)
+		w.surfaces = BuildGrid.surfaces_for(row)
+		var r := Validate.path_across(bridge, w)
+		t.ok(r.ok, "a row of five pontoons from the ferry landing to the far bank is a crossing (reached %s cells)" % r.get("reached", "all"))
+		var moor: Dictionary = Data.zone("river_town_mooring")
+		var slip: Array = []
+		for k in [32, 33]:
+			var y := BuildGrid.suggest_bottom("bridgeDeck", -24, k, 0, 0.2, slip, moor)
+			var pl := {"uid": 200 + slip.size(), "id": "bridgeDeck", "i": -24.0, "k": float(k), "r": 0, "y": y}
+			t.ok(BuildGrid.validate_placement(pl, {"placements": slip, "zones": [moor], "statics": []}).ok, "a slipway plank at -24, %d" % k)
+			slip.append(pl)
+		w.surfaces = BuildGrid.surfaces_for(slip)
+		t.ok(Validate.path_across(moor, w).ok, "two planks from beside the houseboat out over the backwater make her slipway"))

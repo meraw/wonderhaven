@@ -6,8 +6,9 @@ extends "res://tests/full_base.gd"
 ## and Mattia's shack and the stranded houseboat (sleep there until morning), up the ramp into the empty dance hall,
 ## through the breach, and to the canal that keeps you on the map.
 ## Part two, every request (checks s1-s18): see requests() below.
-## Run: TIMEOUT=7200 ./play.sh res://tests/play_river_town.gd /tmp/out --island=river_town --limit=7000
-##      (--part=requests plays part two only)
+## It starts as if you had come by Monteforchetta's bus with its main story done (arrive_as_if_played).
+## Run: TIMEOUT=30000 ./play.sh res://tests/play_river_town.gd /tmp/out --island=river_town --limit=29000
+##      (--part=requests plays part two only; --from=<section> and --to=<section> start and stop at a request)
 
 const RiverTown := preload("res://scripts/locations/river_town.gd")
 
@@ -34,11 +35,14 @@ func enter(id: String, name: String) -> bool:
 	return inside(id) and float(game.roof_fade.get(id, 1.0)) < 0.2
 
 func play() -> void:
+	# reached by Monteforchetta's bus line: arrive as a player who has played its main story would
+	if not game.shot_cfg.has("from"): await arrive_as_if_played(["hearthglow"])
 	var s: Dictionary = game.state
 	s.tutorial = Tutorial.new_state(false, true)   # no guided day here yet: just walk
 	s.time.minute = 10 * 60.0
 	game.hud.apply_reveals(); await frames(10)
 	if game.shot_cfg.get("part", "") == "shots": await shots(); return
+	if game.shot_cfg.get("part", "") == "crossing": await cross_check(); return
 	if game.shot_cfg.get("part", "") != "requests": await walk_around()
 	await requests()
 
@@ -53,6 +57,25 @@ func view(x: float, z: float, yaw: float, pitch: float, dist: float, h: float, n
 	game.cam.update(0.016, game.player.pos); game.cam.snap()
 	await wait(2.5)
 	await shot(name)
+
+## Walks over the pontoon bridge from the bridge checkpoint, logging where you are (a check while developing).
+func cross_check() -> void:
+	game.load_state(SaveSystem.read("rt_bridge"))
+	await await_rebuild(20.0)
+	await walk_to(23.5, 10.5, 1.0)
+	await walk_direct(24.5, 13.5, 0.6)
+	note("start %s" % game.player.pos)
+	game.cam.yaw = -PI / 2.0; game.cam.pitch = 0.8; game.cam.dist = 12.0
+	var t0 := Time.get_ticks_msec()
+	key(KEY_W, true)
+	while Time.get_ticks_msec() - t0 < 40000:
+		steer(38.6, 13.5)
+		await wait(1.0)
+		note("at %s" % game.player.pos)
+		if game.player.pos.x > 38.0: break
+	key(KEY_W, false)
+	await shot("cross-check")
+	check("x", "Walked across the pontoon bridge", game.player.pos.x > 37.5 and game.player.pos.y > -0.3, str(game.player.pos))
 
 func story_at(flags: Array) -> void:
 	for f in flags: game.state.flags[P + f] = true
@@ -74,10 +97,10 @@ func shots() -> void:
 	await story_at(["wall_built", "storm"])
 	Daylight.force(game.state, "rain", 8.0)
 	game.shot_cfg.erase("weather")
-	await view(-3.0, 23.5, -0.4, 0.38, 16.0, 22.0, "storm-night")
+	await view(-3.0, 22.3, PI, 0.32, 13.0, 22.0, "storm-night")
 	await story_at(["flood_over"])
 	game.shot_cfg["weather"] = "clear"
-	await view(5.0, 16.5, 3.0, 0.5, 14.0, 10.0, "after-the-storm")
+	await view(-3.0, 22.3, PI, 0.32, 13.0, 10.0, "after-the-storm")
 
 func walk_around() -> void:
 	var s: Dictionary = game.state
@@ -143,6 +166,13 @@ func walk_around() -> void:
 # ---- Part two: every request ---------------------------------------------------------------------------------------
 const P := "river_town_"
 
+## A run can use a smaller window than the game's 1280x720 canvas (software rendering is slow): mouse events are
+## given in window pixels, so canvas positions (buttons, unprojected cells) are mapped first. At full size this
+## changes nothing.
+func _to_window(p: Vector2) -> Vector2: return get_viewport().get_final_transform() * p
+func mouse_move(p: Vector2, rel: Vector2 = Vector2.ZERO) -> void: super.mouse_move(_to_window(p), rel)
+func mouse_button(p: Vector2, button: int, pressed: bool) -> void: super.mouse_button(_to_window(p), button, pressed)
+
 func qs(id: String) -> String: return String(game.state.quests.get(P + id, {}).get("status", ""))
 func stage(id: String) -> int: return game.story.engine.current_stage(P + id)
 func pts() -> int: return LocationMeter.points(game.state, "river_town")
@@ -150,10 +180,42 @@ func reading() -> String: return LocationMeter.reading(LocationMeter.def("river_
 func flag(f: String) -> bool: return game.state.flags.get(P + f, false)
 func hour() -> float: return float(game.state.time.minute) / 60.0
 
+## talk() from full_base, for conversations that can end with the world being built again (a WORLD_FLAG set): when
+## frames are slow the old scene is gone before the next look at it, so stop looking once it is.
+var _game_id := 0
+func talk(id: String, accept: bool = true) -> bool:
+	_game_id = game.get_instance_id()
+	for attempt in 6:
+		var a = game.npcs[id]
+		await walk_to(a.pos.x, a.pos.z, 1.5)
+		a = game.npcs[id]
+		if await face_and_press("npc:" + id, a.pos.x, a.pos.z): break
+	for n in 20:
+		if game.mode == "dialogue": break
+		await frames(2)
+	if game.mode != "dialogue": print("   no dialogue with ", id); note("no dialogue with %s" % id); return false
+	note("talking to %s" % id)
+	for n in 300:
+		await frames(4)
+		if not is_instance_valid(game) or game.mode != "dialogue": return true
+		var ui: DialogueUI = game.dialogue
+		if not ui.choices.is_empty():
+			var idx := -1
+			if accept:
+				for i in ui.choices.size():
+					if str(ui.choices[i].label).begins_with("✨") or ui.choices[i].kind == "pay": idx = i; break
+			if idx < 0:
+				for i in ui.choices.size():
+					if ui.choices[i].kind == "bye": idx = i
+			print("   ", id, " › ", ui.choices[idx].label)
+			await tap(KEY_1 + idx)
+		else: await tap(KEY_E)
+	return true
+
 ## A step that reshapes the place (one of its WORLD_FLAGS) has the world built again where you stand once the
 ## conversation ends: wait for the new scene and follow it.
 func await_rebuild(max_s: float = 60.0) -> bool:
-	var old_id: int = game.get_instance_id()
+	var old_id: int = game.get_instance_id() if is_instance_valid(game) else _game_id
 	var t0 := Time.get_ticks_msec()
 	while Time.get_ticks_msec() - t0 < max_s * 1000.0:
 		await frames(2)
@@ -182,31 +244,46 @@ func choose(id: String, want: String) -> bool:
 		await tap(KEY_1 + idx)
 	return false
 
-## Buy a line of someone's shop, n times, through the shop panel.
-func buy(id: String, item: String, n: int) -> bool:
-	if not await choose(id, "shop"): return false
-	for k in 60:
+## Places a piece with its corner cell at (i, k), clicking the middle of its whole footprint (for a piece two cells
+## wide, the middle of its first cell is exactly where the grid rounds to the next cell).
+func place_piece(id: String, i: int, k: int, y: float, r: int = 0) -> String:
+	var fp := BuildGrid.footprint(Data.piece(id), r)
+	var status := await place_at(i + fp.x / 2.0 - 0.5, k + fp.y / 2.0 - 0.5, y, r)
+	var ok: bool = game.state.placements.any(func(p): return p.id == id and int(p.i) == i and int(p.k) == k)
+	note("placed %s at %d, %d: %s (%s)" % [id, i, k, ok, status])
+	return status
+
+## Opens someone's shop through their conversation and waits for the panel to be laid out.
+func open_shop(id: String) -> bool:
+	if not await choose(id, "shop"): note("no shop option at %s" % id); return false
+	for k in 80:
 		await frames(4)
 		if game.panels.current == "shop": break
 		if game.mode == "dialogue" and game.dialogue.choices.is_empty(): await tap(KEY_E)
+	await frames(20)
+	if game.panels.current != "shop": note("%s's shop didn't open (panel '%s')" % [id, game.panels.current])
+	return game.panels.current == "shop"
+
+## Buy a line of someone's shop, n times, through the shop panel.
+func buy(id: String, item: String, n: int) -> bool:
+	if not await open_shop(id): return false
 	var line := -1
 	for e in Shop.stock(game.state, P + id):
 		if e.get("kind", "") == "items" and e.items.has(item): line = e.i; break
 	var ok := line >= 0
+	var have := inv(item)
 	for k in n:
 		var b := game.panels.find_child("buy_%d" % line, true, false) as Button
 		if b == null or b.disabled: ok = false; break
-		await click(b.get_global_rect().get_center()); await frames(6)
+		await click(b.get_global_rect().get_center()); await frames(12)
+	ok = ok and inv(item) > have
+	note("bought %s at %s: %s (now %d, coins %d)" % [item, id, ok, inv(item), Shop.coins(game.state)])
 	await tap(KEY_ESCAPE); await frames(8)
 	return ok
 
 ## Sell everything of one kind to someone.
 func sell(id: String, item: String) -> bool:
-	if not await choose(id, "shop"): return false
-	for k in 60:
-		await frames(4)
-		if game.panels.current == "shop": break
-		if game.mode == "dialogue" and game.dialogue.choices.is_empty(): await tap(KEY_E)
+	if not await open_shop(id): return false
 	var tab := game.panels.find_child("tab_sell", true, false) as Button
 	if tab: await click(tab.get_global_rect().get_center()); await frames(8)
 	var b := game.panels.find_child("sell_%s_all" % item, true, false) as Button
@@ -232,31 +309,57 @@ func next_wake(gap: float) -> int:
 	return 6
 
 ## Wait, standing where you are, until the clock passes an hour (a minute of game time a second).
-func wait_until(h: float, max_s: float = 400.0) -> void:
+func wait_until(h: float, max_s: float = 3600.0) -> void:
 	var t0 := Time.get_ticks_msec()
 	while Time.get_ticks_msec() - t0 < max_s * 1000.0:
 		var now := hour()
 		if now >= h and now < h + 1.0: return
 		await wait(1.0)
 
-## Walk onto a lost thing (they're picked up as you step on them).
+## Walk onto a lost thing (they're picked up as you step on them). One you already stepped on earlier, walking
+## somewhere else, counts as found.
 func pick_up(node: String) -> bool:
 	var n := Data.node_def(node)
+	if game.state.nodes.get(node, {}).get("done", false): note("%s was already picked up" % node); return true
 	var have: int = inv(n.gives.keys()[0])
 	await walk_to(n.x, n.z, 0.5)
 	await walk_direct(n.x, n.z, 0.35, 6.0)
 	await frames(20)
 	return inv(n.gives.keys()[0]) > have
 
+## What the flood gauge should read for the requests done so far: each one's own "meter" reward added up.
+func expected_pts() -> int:
+	var total := 0
+	for q in Data.quests:
+		if String(q.id).begins_with(P) and qs(String(q.id).trim_prefix(P)) == "done": total += int(q.rewards.get("meter", 0))
+	return total
+
+## Like gather_until, but when nothing of that kind has grown back yet, nap until it has (the game's clock runs slow
+## when frames are slow, so standing and waiting could take an age).
+func gather_more(kind: String, test: Callable, only: Array = [], rounds: int = 30) -> bool:
+	var unreachable := {}   # a node we couldn't get to is skipped from then on
+	for r in rounds:
+		if test.call(): return true
+		var p: Vector3 = game.player.pos
+		var ready: Array = Data.layout.nodes.filter(func(n): return n.kind == kind and (only.is_empty() or only.has(n.id)) and game.actions.ready(n) and not unreachable.has(n.id))
+		if ready.is_empty():
+			var waiting: bool = Data.layout.nodes.any(func(n): return n.kind == kind and (only.is_empty() or only.has(n.id)) and not unreachable.has(n.id))
+			if not waiting: note("no %s left that can be reached" % kind); break
+			note("nothing to %s has grown back: nap" % kind); await nap_until(next_wake(4.0)); continue
+		ready.sort_custom(func(a, b): return Vector2(a.x - p.x, a.z - p.z).length() < Vector2(b.x - p.x, b.z - p.z).length())
+		note("gather %s (%d) wood=%d metal=%d stone=%d crystal=%d" % [ready[0].id, r, inv("wood"), inv("metal"), inv("stone"), inv("crystal")])
+		if not await gather_node(ready[0].id): unreachable[ready[0].id] = true; note("could not reach %s" % ready[0].id)
+	return test.call()
+
 ## Gather an item from the nodes that give it (Boccapioppo's sand, mushrooms) until you have enough.
 func gather_item(item: String, need: int, rounds: int = 20) -> bool:
 	var ids: Array = Data.layout.nodes.filter(func(n): return n.get("gives", {}).has(item)).map(func(n): return n.id)
 	var kind: String = Data.node_def(ids[0]).kind
-	return await gather_until(kind, func(): return inv(item) >= need, ids, rounds)
+	return await gather_more(kind, func(): return inv(item) >= need, ids, rounds)
 
 ## Part two, every request, in sections. After each one the state is kept as a checkpoint (rt_<section>), so a run can
 ## start from a later section with --from=<section> (a test-only shortcut while developing; a full run plays them all).
-const SECTIONS := ["welcome", "bridge", "piazza", "dancehall", "houseboat", "catfish", "lost", "levee"]
+const SECTIONS := ["welcome", "bridge", "piazza", "crossing", "dancehall", "houseboat", "catfish", "lost", "levee"]
 
 func requests() -> void:
 	var from := String(game.shot_cfg.get("from", "welcome"))
@@ -271,7 +374,8 @@ func requests() -> void:
 		var s: Dictionary = game.state
 		note("requests: day %d %s" % [int(s.time.day), Clock.text(s.time)])
 		if hour() < 7.0 or hour() > 18.0: await nap_until(9)
-	for k in range(maxi(k0, 0), SECTIONS.size()):
+	var k1 := SECTIONS.find(String(game.shot_cfg.get("to", "levee")))   # --to=<section>: stop after it
+	for k in range(maxi(k0, 0), (k1 if k1 >= 0 else SECTIONS.size() - 1) + 1):
 		note("section %s: day %d %s" % [SECTIONS[k], int(game.state.time.day), Clock.text(game.state.time)])
 		await call("sec_" + SECTIONS[k])
 		SaveSystem.write("rt_" + SECTIONS[k], game.snapshot())
@@ -296,14 +400,14 @@ func sec_bridge() -> void:
 	var b_ok: bool = qs("bridge") == "active"
 	await buy("primo", "metal", 1)
 	var silt: Array = Data.layout.nodes.filter(func(n): return n.kind == "clay" and not n.has("gives")).map(func(n): return n.id)
-	await gather_until("clay", func(): return int(q(P + "bridge").progress.get("clay", 0)) >= 6, silt)
-	await gather_until("chop", func(): return int(q(P + "bridge").progress.get("wood", 0)) >= 16 and inv("wood") >= 19)
+	await gather_more("clay", func(): return int(q(P + "bridge").progress.get("clay", 0)) >= 6, silt)
+	await gather_more("chop", func(): return int(q(P + "bridge").progress.get("wood", 0)) >= 16 and inv("wood") >= 19)
 	await talk(P + "ines")   # the Pontoon plans, over the Roman bridge
 	var plans: bool = s.blueprints.has("pontoon")
 	await walk_to(23.5, 10.5, 1.0); await walk_direct(24.5, 11.0, 0.6)
 	await open_build(P + "bridge")
 	await select_piece("pontoon")
-	for i in [27, 29, 31, 33, 35]: print("   pontoon: ", await place_at(i, 13, 0.1, 1))
+	for i in [27, 29, 31, 33, 35]: await place_piece("pontoon", i, 13, 0.1, 1)
 	var path_done: bool = stage("bridge") >= 3
 	await shot("pontoons")
 	await select_piece("railing")
@@ -315,12 +419,15 @@ func sec_bridge() -> void:
 		for i in [28, 30, 32, 34]: print("   railing: ", await place_at(i, 13, 0.1, 0))
 	var rails_done: bool = game.story.engine.is_ready(P + "bridge")
 	await leave_build()
-	await walk_direct(24.5, 13.5, 0.6); await walk_direct(38.6, 13.5, 0.6, 30.0)
+	# line up with the middle of the pontoons' deck (a metre wide) at the ferry landing, then walk straight over
+	await walk_direct(24.6, 13.6, 0.5); await walk_direct(25.6, 13.6, 0.25, 15.0)
+	await walk_direct(38.6, 13.6, 0.6, 90.0)
 	var crossed: bool = game.player.pos.x > 37.5 and game.player.pos.y > -0.3
+	note("crossed to %s" % game.player.pos)
 	await shot("pontoon-bridge-crossed")
 	await talk(P + "tullio")
 	check("s2", "The Pontoon Bridge: materials, the plans from Ines over the Roman bridge, a row of pontoons moored bank to bank, railings, and you walk across",
-		b_ok and plans and path_done and rails_done and crossed and qs("bridge") == "done" and flag("bridge_open") and pts() == 200,
+		b_ok and plans and path_done and rails_done and crossed and qs("bridge") == "done" and flag("bridge_open") and pts() == expected_pts() and pts() >= 200,
 		"plans=%s path=%s rails=%s crossed=%s at %s, %s, gauge %s" % [plans, path_done, rails_done, crossed, game.player.pos, qs("bridge"), reading()])
 
 func sec_piazza() -> void:
@@ -329,7 +436,7 @@ func sec_piazza() -> void:
 	await talk(P + "rina")
 	var pz_ok: bool = qs("piazza") == "active"
 	await buy("primo", "metal", 1)
-	await gather_until("chop", func(): return int(q(P + "piazza").progress.get("wood", 0)) >= 8 and inv("wood") >= 8)
+	await gather_more("chop", func(): return int(q(P + "piazza").progress.get("wood", 0)) >= 8 and inv("wood") >= 8)
 	await talk(P + "ermes")   # about the old pumping house
 	await walk_to(24.6, 7.6, 0.8)
 	await open_build(P + "works")
@@ -343,17 +450,21 @@ func sec_piazza() -> void:
 	var drained := await await_rebuild()
 	await walk_to(5, 4); await shot("piazza-drained")
 	check("s3", "Pump Out the Piazza: a waterwheel by the quay powers the old pumping house, the world is rebuilt and the piazza is dry",
-		pz_ok and fed and drained and qs("piazza") == "done" and not game.village.objects[P + "pond"].visible and Data.world_flags.has(P + "piazza_drained") and pts() == 300,
+		pz_ok and fed and drained and qs("piazza") == "done" and not game.village.objects[P + "pond"].visible and Data.world_flags.has(P + "piazza_drained") and pts() == expected_pts() and pts() >= 300,
 		"fed=%s rebuilt=%s %s pond=%s gauge %s" % [fed, drained, qs("piazza"), game.village.objects[P + "pond"].visible, reading()])
-	# villagers use the bridge you built: Tullio crosses it after lunch
+
+func sec_crossing() -> void:
+	# villagers use the bridge you built: Tullio crosses it after lunch, on his way from the bar to the far bank
 	if hour() < 12.0 or hour() > 14.0: await nap_until(12)
-	if hour() < 14.0: await wait_until(14.0, 200.0)
+	await wait_until(14.0)
 	var crossing_seen := false
-	for k in 240:
+	var t0 := Time.get_ticks_msec()
+	while not crossing_seen and hour() < 18.0 and Time.get_ticks_msec() - t0 < 2400000:
 		var tp: Vector3 = game.npcs[P + "tullio"].pos
-		if tp.x > 26.0 and tp.x < 37.0 and absf(tp.z - 13.5) < 1.6 and tp.y > -0.3: crossing_seen = true; break
+		crossing_seen = tp.x > 26.5 and tp.x < 37.0 and absf(tp.z - 13.5) < 1.6 and tp.y > -0.3
 		await wait(0.5)
-	check("s4", "Villagers walk across the bridge you built: Tullio crosses it on his pontoons", crossing_seen, "Tullio at %s" % game.npcs[P + "tullio"].pos)
+	await shot("tullio-crossing")
+	check("s4", "Villagers walk across the bridge you built: Tullio crosses it on his pontoons", crossing_seen, "Tullio at %s, %s" % [game.npcs[P + "tullio"].pos, Clock.text(game.state.time)])
 
 func sec_dancehall() -> void:
 	var s: Dictionary = game.state
@@ -361,14 +472,14 @@ func sec_dancehall() -> void:
 	await talk(P + "wanda")
 	var dh_ok: bool = qs("dancehall") == "active"
 	await buy("primo", "crystal", 2)
-	await gather_until("mine", func(): return inv("stone") >= 1)
-	await gather_until("chop", func(): return int(q(P + "dancehall").progress.get("wood", 0)) >= 15 and inv("wood") >= 17)
+	await gather_more("mine", func(): return inv("stone") >= 1)
+	await gather_more("chop", func(): return int(q(P + "dancehall").progress.get("wood", 0)) >= 15 and inv("wood") >= 17)
 	await walk_to(12.4, 31.5, 0.6); await walk_direct(12.8, 31.5, 0.4)
 	await open_build(P + "hall")
 	await select_piece("floor")
 	for i in range(14, 20): print("   floor: ", await place_at(i, 31, 0.9))
-	await select_piece("platform"); print("   stage: ", await place_at(18, 29, 0.9, 0))
-	await select_piece("counter"); print("   counter: ", await place_at(14, 29, 0.9, 0))
+	await select_piece("platform"); await place_piece("platform", 18, 29, 0.9, 0)
+	await select_piece("counter"); await place_piece("counter", 14, 29, 0.9, 0)
 	await select_piece("lamp"); print("   lamp: ", await place_at(12, 29, 0.9)); print("   lamp: ", await place_at(12, 33, 0.9))
 	await select_piece("chair")
 	for i in [15, 16, 17]: print("   chair: ", await place_at(i, 33, 0.9, 0))
@@ -397,7 +508,7 @@ func sec_dancehall() -> void:
 	var glow: float = ((bulbs.get_child(0) as MeshInstance3D).material_override as StandardMaterial3D).emission_energy_multiplier
 	await shot("dance-hall-lit")
 	check("s5", "Saturday at the Dance Hall: floor, stage, lamps, bar, seats and colour; after 8 the town comes to dance, and the hall's bulbs light up",
-		dh_ok and fitted and dancers >= 7 and lit and glow > 1.0 and qs("dancehall") == "done" and pts() == 400,
+		dh_ok and fitted and dancers >= 7 and lit and glow > 1.0 and qs("dancehall") == "done" and pts() == expected_pts() and pts() >= 400,
 		"fitted=%s dancers=%d lit=%s glow=%.1f %s gauge %s" % [fitted, dancers, lit, glow, qs("dancehall"), reading()])
 
 func sec_houseboat() -> void:
@@ -406,8 +517,8 @@ func sec_houseboat() -> void:
 	# ---- 5. A Roof That Floats (Ermes): patch, slipway, launch at dawn, a cosy cabin
 	if qs("houseboat") == "": await talk(P + "ermes")
 	var hb_ok: bool = qs("houseboat") == "active"
-	await gather_until("clay", func(): return int(q(P + "houseboat").progress.get("clay", 0)) >= 4, silt)
-	await gather_until("chop", func(): return int(q(P + "houseboat").progress.get("wood", 0)) >= 8 and inv("wood") >= 6)
+	await gather_more("clay", func(): return int(q(P + "houseboat").progress.get("clay", 0)) >= 4, silt)
+	await gather_more("chop", func(): return int(q(P + "houseboat").progress.get("wood", 0)) >= 8 and inv("wood") >= 6)
 	await talk(P + "tullio")   # caulking
 	await walk_to(-19.2, 29.0, 1.0); await walk_direct(-20.4, 31.8, 0.4)
 	await open_build(P + "mooring")
@@ -432,12 +543,12 @@ func sec_houseboat() -> void:
 	await shot("houseboat-afloat")
 	await buy("rina", "fabric", 1)
 	await buy("primo", "crystal", 1)
-	await gather_until("flowers", func(): return inv("flowers") >= 1, Data.layout.nodes.filter(func(n): return n.kind == "flowers" and not n.has("gives")).map(func(n): return n.id))
-	await gather_until("chop", func(): return inv("wood") >= 4)
+	await gather_more("flowers", func(): return inv("flowers") >= 1, Data.layout.nodes.filter(func(n): return n.kind == "flowers" and not n.has("gives")).map(func(n): return n.id))
+	await gather_more("chop", func(): return inv("wood") >= 4)
 	await walk_to(door[0], door[1], 0.5); await walk_direct(boat.x + 3.2, boat.z, 0.3)
 	await open_build(P + "cabin")
 	# along the cabin's north side, leaving the way from the door to the bed free
-	await select_piece("rug"); print("   rug: ", await place_at(-24, 35, 0.2, 0))
+	await select_piece("rug"); await place_piece("rug", -24, 35, 0.2, 0)
 	await select_piece("table"); print("   table: ", await place_at(-24, 35, 0.25))
 	await select_piece("chair"); print("   chair: ", await place_at(-23, 35, 0.25, 3))
 	await select_piece("lamp"); print("   lamp: ", await place_at(-25, 35, 0.2))
@@ -482,7 +593,7 @@ func sec_lost() -> void:
 	# ---- 7. Ines's Runaway Logs and the six lost things: ask everyone, one tour to find them, then hand them back
 	await talk(P + "ines")
 	for who in ["pierina", "rina", "wanda", "primo", "mattia", "tullio"]: await talk(P + who)
-	var asked: int = ["logs", "lost_clock", "lost_gnome", "lost_trophy", "lost_photo", "lost_walkman", "lost_oar"].filter(func(id): return qs(id) == "active").size()
+	var asked: int = ["logs", "lost_clock", "lost_gnome", "lost_trophy", "lost_photo", "lost_walkman", "lost_oar"].filter(func(id): return qs(id) in ["active", "done"]).size()   # some may be back home already
 	var found := 0
 	for id in ["lost_photo", "log2", "log4", "log3", "lost_gnome", "lost_trophy", "log1", "lost_oar", "log5", "log0", "lost_walkman", "lost_clock"]:
 		if await pick_up(P + id): found += 1
@@ -493,7 +604,7 @@ func sec_lost() -> void:
 	check("s9", "Ines's six runaway logs and the six lost things: found once each along the banks and handed back",
 		asked == 7 and found == 12 and returned == 7 and inv(P + "log") == 0, "asked %d, found %d of 12, returned %d" % [asked, found, returned])
 	check("s10", "The flood gauge counts it all: a metre per main request, half a metre per side request, ten centimetres per lost thing",
-		pts() == 400 + 150 + 60 and reading() == "1.30 m" and s.flags.get(P + "mooring_plot", false) and s.blueprints.has("poweredLamp") and s.flags.get(P + "mooring_garden", false),
+		pts() == 400 + 150 + 60 and pts() == expected_pts() and reading() == "1.30 m" and s.flags.get(P + "mooring_plot", false) and s.blueprints.has("poweredLamp") and s.flags.get(P + "mooring_garden", false),
 		"gauge %s (%d cm); plot=%s lamp plans=%s garden=%s" % [reading(), pts(), s.flags.get(P + "mooring_plot", false), s.blueprints.has("poweredLamp"), s.flags.get(P + "mooring_garden", false)])
 
 func sec_levee() -> void:
@@ -502,11 +613,9 @@ func sec_levee() -> void:
 	await talk(P + "ermes")
 	var lv_ok: bool = qs("levee") == "active" and s.blueprints.has("sandbags")
 	await buy("rina", "fabric", 3)
-	await gather_until("mine", func(): return int(q(P + "levee").progress.get("stone", 0)) >= 12 and inv("stone") >= 12, [], 30)
-	for k in 4:
-		if int(q(P + "levee").progress.get("sand", 0)) >= 20: break
-		await gather_item(P + "sand", inv(P + "sand") + 12, 6)
-		if int(q(P + "levee").progress.get("sand", 0)) < 20: await nap_until(next_wake(3.0))
+	await gather_more("mine", func(): return int(q(P + "levee").progress.get("stone", 0)) >= 12 and inv("stone") >= 12, [], 30)
+	var sand_ids: Array = Data.layout.nodes.filter(func(n): return n.get("gives", {}).has(P + "sand")).map(func(n): return n.id)
+	await gather_more("clay", func(): return int(q(P + "levee").progress.get("sand", 0)) >= 20, sand_ids, 20)
 	print("   finale materials: ", s.inventory)
 	await walk_to(5.0, 17.4, 0.6)
 	await open_build(P + "breach")
@@ -535,10 +644,11 @@ func sec_levee() -> void:
 	check("s11", "Close the Breach: a wall of stone blocks and sandbags seals the gap, then the storm night: rain, the rivers up to their brims, the whole town on the levee",
 		lv_ok and sealed and storm and risen and raining and crest >= 8 and flag("storm"), "sealed=%s storm=%s risen=%s raining=%s on the crest %d" % [sealed, storm, risen, raining, crest])
 	var t_wait := Time.get_ticks_msec()
-	while hour() >= 1.0 and Time.get_ticks_msec() - t_wait < 400000: await wait(1.0)   # keep watch until midnight
+	while hour() >= 1.0 and Time.get_ticks_msec() - t_wait < 5400000: await wait(1.0)   # keep watch until midnight
 	await talk(P + "ermes")   # the peak, and it holds
 	var over := await await_rebuild()
 	await shot("after-the-storm")
-	check("s12", "The levee holds: past midnight the river peaks below the wall, the flood is over and the rivers go back down",
-		over and qs("levee") == "done" and flag("flood_over") and absf(game.village.water.position.y - Heightfield.WATER_Y) < 0.01 and pts() == 810 - 100,
+	check("s12", "The levee holds: past midnight the river peaks below the wall, the flood is over, the rivers go back down and the bus line goes on to Casalrana",
+		over and qs("levee") == "done" and flag("flood_over") and absf(game.village.water.position.y - Heightfield.WATER_Y) < 0.01 and pts() == 810 - 100
+		and Travel.on_map(Data.island_def("rice_village"), game.state.flags, "river_town"),
 		"%s, water %.2f, gauge %s" % [qs("levee"), game.village.water.position.y, reading()])

@@ -743,7 +743,8 @@
    "rewards": {
     "harmony": 30,
     "flags": [
-     "boatReady"
+     "boatReady",
+     "river_town_revealed"
     ],
     "blueprints": [
      "counter"
@@ -770,7 +771,7 @@
     ],
     "complete": [
      "Would you look at that. A turning circle fit for a city bus. Or a bus that thinks it's a city.",
-     "Climb aboard whenever you like. The line doesn't go anywhere new yet, but the map's ready for when it does."
+     "Climb aboard whenever you like. First stop on the new line: Boccapioppo, down where the river meets the Po. Mind the mosquitoes."
     ]
    }
   },
