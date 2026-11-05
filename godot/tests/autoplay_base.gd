@@ -16,6 +16,13 @@ func key(code: int, pressed: bool) -> void:
 func tap(code: int) -> void:
 	key(code, true); await frames(2); key(code, false); await frames(2)
 
+## A later place's playthrough starts where a real player would arrive (run it with --island=<id>): the earlier places'
+## main stories played, with the approval, lire, plans and clothes they gave (Progress.as_if_played). Then play only
+## this place. e.g. await arrive_as_if_played(["hearthglow"]) for a place Monteforchetta's bus line reaches.
+func arrive_as_if_played(places: Array) -> void:
+	game.load_state(Progress.as_if_played(places, Data.island, String(game.state.get("name", "Pip"))))
+	await frames(20)
+
 func hold(code: int, seconds: float) -> void:
 	key(code, true); await wait(seconds); key(code, false); await frames(1)
 

@@ -16,5 +16,5 @@ Other Claude sessions are building other locations at the same time, and another
 
 4. Work only in your location's own files, as docs/WORLD.md lists them, and prefix every id with `[id]_`. If you truly need to change a shared file, make the smallest general change, add a test, and say so at the top of the pull request. Merge main into your branch often. Never rebase or force-push.
 
-5. Check your work before each push: godot/run_tests.sh, screenshots of your location in both renderers (--island=[id]), and a scripted playthrough of its requests. In each pull request, say what you verified in play and what you only unit-tested.
+5. Check your work before each push: godot/run_tests.sh, screenshots of your location in both renderers (--island=[id]), and a scripted playthrough of its requests. Run only your location's playthrough. Start it as if the player had reached your location, with realistic stats (`arrive_as_if_played([earlier places])` in tests/autoplay_base.gd), and play only your location. In each pull request, say what you verified in play and what you only unit-tested.
 ```
