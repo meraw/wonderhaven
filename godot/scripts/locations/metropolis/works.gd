@@ -61,7 +61,9 @@ func _process(dt: float) -> void:
 		lit_before = lit
 	# standing on the cathedral's roof terrace (the scaffolding request's last step)
 	var p: Vector3 = game.player.pos
-	if p.y > 5.9 and AISLE.has_point(Vector2(p.x, p.z)) and not _flag("on_roof"): game.set_flag(P + "on_roof")
+	if p.y > 5.9 and AISLE.has_point(Vector2(p.x, p.z)) and not _flag("on_roof"):
+		game.set_flag(P + "on_roof")
+		game.story.event("on_roof")   # (setting a flag alone doesn't look at the requests again: the step ticks now)
 	radio.visible = _flag("radio")
 	front_page.visible = _flag("front_page")
 

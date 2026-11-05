@@ -195,11 +195,14 @@ func step_angel() -> void:
 	await walk_direct(67.0, 11.0, 0.5)
 	await descend_scaffold()
 	if hour() < 18.0: await sleep_until("bench_sq1", 18)   # wait for dark on a bench in the square
-	await frames(60)
 	var crowd := 0
-	for id in game.npcs:
-		var a = game.npcs[id]
-		if a.def.get("island", "") == "metropolis" and Vector2(a.pos.x + 10.0, a.pos.z - 4.0).length() < 40.0: crowd += 1
+	for n in 90:   # (wait in the square while they walk over from all over the city)
+		await frames(10)
+		crowd = 0
+		for id in game.npcs:
+			var a = game.npcs[id]
+			if a.def.get("island", "") == "metropolis" and Vector2(a.pos.x + 10.0, a.pos.z - 4.0).length() < 40.0: crowd += 1
+		if crowd >= 13: break
 	check("eve_crowd", "Christmas Eve: the neighbourhood gathers in the cathedral square", crowd >= 8, "%d villagers in the square" % crowd)
 	await chat("annoni")
 	check("angel_lit_eve", "after dark the Golden Angel lights up over the square", step_done("angel", "eve") and game.state.flags.get(P + "angel_on", false), str(game.state.quests.get(P + "angel", {}).get("done", {}).keys()))
