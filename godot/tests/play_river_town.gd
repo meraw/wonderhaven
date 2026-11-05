@@ -6,8 +6,9 @@ extends "res://tests/full_base.gd"
 ## and Mattia's shack and the stranded houseboat (sleep there until morning), up the ramp into the empty dance hall,
 ## through the breach, and to the canal that keeps you on the map.
 ## Part two, every request (checks s1-s18): see requests() below.
-## Run: TIMEOUT=7200 ./play.sh res://tests/play_river_town.gd /tmp/out --island=river_town --limit=7000
-##      (--part=requests plays part two only)
+## It starts as if you had come by Monteforchetta's bus with its main story done (arrive_as_if_played).
+## Run: TIMEOUT=30000 ./play.sh res://tests/play_river_town.gd /tmp/out --island=river_town --limit=29000
+##      (--part=requests plays part two only; --from=<section> and --to=<section> start and stop at a request)
 
 const RiverTown := preload("res://scripts/locations/river_town.gd")
 
@@ -34,6 +35,8 @@ func enter(id: String, name: String) -> bool:
 	return inside(id) and float(game.roof_fade.get(id, 1.0)) < 0.2
 
 func play() -> void:
+	# reached by Monteforchetta's bus line: arrive as a player who has played its main story would
+	if not game.shot_cfg.has("from"): await arrive_as_if_played(["hearthglow"])
 	var s: Dictionary = game.state
 	s.tutorial = Tutorial.new_state(false, true)   # no guided day here yet: just walk
 	s.time.minute = 10 * 60.0
