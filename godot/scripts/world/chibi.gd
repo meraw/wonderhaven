@@ -3,7 +3,7 @@ extends Node3D
 ## Chibi character: big head, short limbs, a painted face (FaceShader) that blinks and emotes, bouncy procedural animation.
 const P := preload("res://scripts/world/palette.gd")
 const HEAD_R := 0.4
-const ACTION_LENGTH := {"wave": 1.6, "clap": 1.4, "celebrate": 1.9, "surprised": 0.9, "chop": 0.55, "mine": 0.6, "dig": 0.7, "build": 0.9, "nod": 0.8, "shrug": 1.0, "feed": 1.0}
+const ACTION_LENGTH := {"wave": 1.6, "clap": 1.4, "celebrate": 1.9, "surprised": 0.9, "chop": 0.55, "mine": 0.6, "dig": 0.7, "build": 0.9, "nod": 0.8, "shrug": 1.0, "feed": 1.0, "shake": 1.1}
 
 var appearance: Dictionary
 var body: Node3D
@@ -452,6 +452,9 @@ func animate(dt: float, speed: float = 0.0, airborne: bool = false) -> void:
 				arm_l.rotation.x = sin(action_t * 12.0) * 0.2; arm_r.rotation.x = arm_l.rotation.x; body.rotation.y = action_t * 3.4
 			"surprised": body.position.y += s * 0.25; arm_l.rotation.z = -1.5 * s; arm_r.rotation.z = 1.5 * s
 			"nod": head.rotation.x = sin(p * PI * 4.0) * 0.25
+			"shake":   # shaking the water off, like a wet dog
+				body.rotation.y = sin(action_t * 38.0) * 0.35 * s; head.rotation.z = sin(action_t * 30.0) * 0.25 * s
+				arm_l.rotation.z = -0.6 * s; arm_r.rotation.z = 0.6 * s
 			"shrug": arm_l.rotation.z = -0.9 * s; arm_r.rotation.z = 0.9 * s; head.rotation.z = 0.2 * s
 			"chop", "mine": arm_r.rotation.x = -2.8 + p * 3.2; arm_l.rotation.x = -2.4 + p * 2.8; body.rotation.x = 0.25 * s
 			"dig": body.rotation.x = 0.45 * s; arm_r.rotation.x = -0.6 - s; arm_l.rotation.x = -0.6 - s

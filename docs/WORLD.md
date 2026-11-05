@@ -37,9 +37,22 @@ Shared rules for everyone building a location, people and Claude sessions alike,
   expects one. It becomes a general stop once Monteforchetta's bus is built. Transport inside a location, like
   trams or funiculars, is that location's own design; riding between its stops is shared (features of kind `stop`,
   see `Travel.stops_on`), and so are raised floors for balconies, terraces and bridges (`floors` in a layout).
+- **Benches and beds:** napping on benches is part of the game. You wake up on the bench, sometimes to a joke
+  (the paper you slept under blows away, a stranger's wet umbrella, a villager caught staring, the rain), and a bed
+  costs 120,000 lire, so people sleep on benches until they've saved up. Give your location benches (features of
+  kind `bench`), and if you like its own paper and odds (a `naps` block in its layout, see `data/naps.json`). A place
+  can rule pieces out with a reason (`noBuild` in its layout). **Idea for a future city** (not one of the current
+  locations): a flat you can furnish with everything except a bed, every bed in town sold out, so you sleep on its
+  benches.
 - **Look:** shared shaders and the atmosphere module (`docs/GRAPHICS.md`) give every location wind, light,
   weather and ambient life. A location tunes its mood with the `look` block in its map entry: `shade` is added to
-  shadows, `light` multiplies highlights, `wind` scales the wind, and `life` scales motes, fireflies and leaves.
+  shadows, `light` multiplies highlights, `wind` scales the wind, `life` scales motes, fireflies and leaves, and
+  `leafColors` colours the falling leaves. Its layout can set the rest (Monteforchetta's `layout.json` uses all of
+  them): `grassColors` (the meadow's three colours), `decor.leaves`, `decor.woodLeaves` and `decor.bushColors`,
+  `decor.flowers` (how many), `decor.woodFlowers` (`{n, colors}` under the woods), `roofStyle` (`"coppi"` for curved
+  terracotta tiles), `houseStyle` (`posts`, `quoins`, `cornice`, `shutters`), `fruitTree` (`"hazel"`), `wildlife`
+  (`boars` in the woods, `cats` and `crows` at spots), `valley_fog` (mist below a hilltop, by the hour), `horizon`
+  (`hills`, `alps`, `alps_peak`, `villages`), `roses` on a vineyard, and props such as `persimmon` and `pumpkins`.
 
 ## Locations
 Starting points only. Each location's session settles the details with the user in its own design doc.

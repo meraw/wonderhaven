@@ -246,8 +246,12 @@ func evaluate(c: Dictionary) -> Dictionary:
 	var cost: Dictionary = Data.piece(c.id).cost
 	if moving.is_empty() and not Inventory.can_afford(state().inventory, cost):
 		var parts: Array = []
-		for m in Inventory.missing(state().inventory, cost): parts.append("%d more %s %s" % [m.need, Data.resources[m.id].icon, String(Data.resources[m.id].name).to_lower()])
-		return {"pl": pl, "ok": false, "reason": "Not enough materials — need " + ", ".join(parts)}
+		var short_of_money := false
+		for m in Inventory.missing(state().inventory, cost):
+			if m.id == "coins": short_of_money = true; parts.append("%s more" % Money.lire(int(m.need)))
+			else: parts.append("%d more %s %s" % [m.need, Data.resources[m.id].icon, String(Data.resources[m.id].name).to_lower()])
+		var what := "lire" if short_of_money and parts.size() == 1 else "materials"
+		return {"pl": pl, "ok": false, "reason": "Not enough %s — need %s" % [what, ", ".join(parts)]}
 	return {"pl": pl, "ok": true, "zone": v.zone}
 
 func _clear_ghost() -> void:
@@ -474,10 +478,16 @@ func _render_status() -> void:
 	sp.add_theme_stylebox_override("panel", UiTheme.box(Color("fff3f3") if bad else Color.WHITE, Color("ffb3b3") if bad else Color("cfe8d4"), 999, 3, 6, false))
 	status_label.add_theme_color_override("font_color", Color("b34a4a") if bad else Color("2f8a52"))
 
-static func _cost_text(cost: Dictionary) -> String:
+## "🪵3 🧵2 💰120,000" (money in lire); `money_sep` goes before the money (a new line in the catalog's small cells).
+static func _cost_text(cost: Dictionary, money_sep: String = " ") -> String:
 	var parts: Array = []
-	for k in cost: parts.append("%s%d" % [Data.resources[k].icon, int(cost[k])])
-	return " ".join(parts)
+	var money := ""
+	for k in cost:
+		if k == "coins": money = "%s%s" % [Data.resources[k].icon, Money.group(int(cost[k]) * Money.LIRE_PER_COIN)]
+		else: parts.append("%s%d" % [Data.resources[k].icon, int(cost[k])])
+	var out := " ".join(parts)
+	if money != "": out = money if out == "" else out + money_sep + money
+	return out
 
 func _build_ui() -> void:
 	if ui: ui.queue_free()
@@ -562,9 +572,10 @@ func _build_ui() -> void:
 		var unlocked: bool = state().blueprints.has(p.id)
 		var poor := unlocked and not Inventory.can_afford(state().inventory, p.cost)
 		var pid: String = p.id
+		var ruled: String = String(Data.layout.get("noBuild", {}).get(pid, ""))   # not here, whatever you have
 		var btn := Button.new(); btn.name = "piece_" + pid
 		btn.custom_minimum_size = Vector2(80, 80)
-		btn.tooltip_text = ("%s: %s" % [p.name, p.desc]) if unlocked else "Locked: " + game.blueprint_hint(pid)
+		btn.tooltip_text = ruled if ruled != "" else (("%s: %s" % [p.name, p.desc]) if unlocked else "Locked: " + game.blueprint_hint(pid))
 		var on := item_id == pid
 		var sb := UiTheme.box(Color("f6f0ff") if on else Color.WHITE, Color("a07cff") if on else Color("eadcff"), 16, 3, 4, false)
 		btn.add_theme_stylebox_override("normal", sb); btn.add_theme_stylebox_override("hover", UiTheme.box(Color("fbf8ff"), Color("c9a8ff"), 16, 3, 4, false))
@@ -572,11 +583,11 @@ func _build_ui() -> void:
 		vb.add_theme_constant_override("separation", 0)
 		var icon := UiTheme.label(p.icon if unlocked else "🔒", 24); icon.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		var nm := UiTheme.label(p.name, 11); nm.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; nm.autowrap_mode = TextServer.AUTOWRAP_WORD; nm.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		var ct := UiTheme.label(_cost_text(p.cost) if unlocked else "locked", 10, Color("d55555") if poor else UiTheme.INK2); ct.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; ct.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var ct := UiTheme.label("not here" if ruled != "" else (_cost_text(p.cost, "\n") if unlocked else "locked"), 10, Color("d55555") if poor or ruled != "" else UiTheme.INK2); ct.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; ct.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		if state().new_blueprints.has(pid): var nw := UiTheme.label("✦ new", 10, UiTheme.PINK_DARK); nw.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; nw.mouse_filter = Control.MOUSE_FILTER_IGNORE; vb.add_child(nw)
 		vb.add_child(icon); vb.add_child(nm); vb.add_child(ct)
 		btn.add_child(vb)
-		if not unlocked: btn.modulate = Color(1, 1, 1, 0.55)
+		if not unlocked or ruled != "": btn.modulate = Color(1, 1, 1, 0.55)
 		btn.pressed.connect(func(): select_item(pid))
 		items.add_child(btn)
 	ui.add_child(cat)

@@ -35,8 +35,8 @@
    "z": 10,
    "w": 9,
    "d": 7,
-   "wall": "#efd29a",
-   "roof": "#c0603a",
+   "wall": "#deb46f",
+   "roof": "#c46a3e",
    "door": "E",
    "doorAt": 10,
    "doorWidth": 2
@@ -49,8 +49,8 @@
    "z": -6.5,
    "w": 6,
    "d": 5,
-   "wall": "#f0d2c2",
-   "roof": "#b85a3c",
+   "wall": "#e6b8a2",
+   "roof": "#c26a3e",
    "door": "S",
    "awning": "#c8323c",
    "navDoor": "bakeryDoor",
@@ -143,8 +143,8 @@
    "z": -9,
    "w": 5,
    "d": 5,
-   "wall": "#efe2c0",
-   "roof": "#b8613f",
+   "wall": "#efdfbd",
+   "roof": "#c97445",
    "door": "S",
    "navDoor": "fernDoor",
    "interior": {
@@ -223,8 +223,8 @@
    "z": 17,
    "w": 8,
    "d": 5,
-   "wall": "#ead2a0",
-   "roof": "#c4623a",
+   "wall": "#e4cba0",
+   "roof": "#be6640",
    "door": "N"
   },
   {
@@ -235,8 +235,8 @@
    "z": 13,
    "w": 6,
    "d": 6,
-   "wall": "#f2e2bc",
-   "roof": "#c46a3e",
+   "wall": "#d9bc8f",
+   "roof": "#b9603c",
    "door": "S",
    "navDoor": "cottageDoor",
    "interior": {
@@ -337,8 +337,8 @@
    "z": 6,
    "w": 5,
    "d": 4,
-   "wall": "#e9d3a6",
-   "roof": "#b55a36",
+   "wall": "#d6b083",
+   "roof": "#c06a40",
    "door": "W"
   },
   {
@@ -349,8 +349,8 @@
    "z": -10,
    "w": 5,
    "d": 4,
-   "wall": "#e8d6b4",
-   "roof": "#b8613f",
+   "wall": "#e8c77f",
+   "roof": "#c47040",
    "door": "E",
    "navDoor": "gatehouse",
    "interior": {
@@ -396,8 +396,8 @@
    "z": 38,
    "w": 4,
    "d": 4,
-   "wall": "#efe0c4",
-   "roof": "#b8613f",
+   "wall": "#ecd9b6",
+   "roof": "#c97445",
    "door": "W",
    "navDoor": "harborHut",
    "interior": {
@@ -461,8 +461,8 @@
    "z": -5,
    "w": 11,
    "d": 9,
-   "wall": "#e6c9a0",
-   "roof": "#a8553a",
+   "wall": "#c9946c",
+   "roof": "#b0603e",
    "door": "W",
    "navDoor": "castleSteps",
    "interior": {
@@ -1736,12 +1736,85 @@
   ]
  ],
  "water_radius": 47,
+ "grassColors": [
+  "9fb862",
+  "86a556",
+  "bcbb6e"
+ ],
+ "roofStyle": "coppi",
+ "houseStyle": {
+  "posts": false,
+  "quoins": "d9cdb4",
+  "cornice": "efe4cc",
+  "shutters": "5e7b52"
+ },
+ "fruitTree": "hazel",
+ "wildlife": {
+  "boars": 3,
+  "cats": [
+   [
+    -9.6,
+    -3.5,
+    0.4
+   ],
+   [
+    1.3,
+    3.4,
+    2.6,
+    0.55
+   ],
+   [
+    -17.0,
+    -8.4,
+    1.2
+   ],
+   [
+    -6.4,
+    13.6,
+    3.3
+   ]
+  ],
+  "crows": [
+   [
+    -12,
+    36
+   ],
+   [
+    22,
+    28
+   ],
+   [
+    -34,
+    22
+   ],
+   [
+    38,
+    16
+   ],
+   [
+    -20,
+    -40
+   ],
+   [
+    8,
+    -45
+   ]
+  ]
+ },
  "ducks": 0,
  "horizon": {
   "hills": true,
   "alps": true,
   "alps_from": 150,
-  "alps_to": 305
+  "alps_to": 305,
+  "villages": 6
+ },
+ "valley_fog": {
+  "y": -8,
+  "morning": 0.92,
+  "day": 0.12,
+  "evening": 0.3,
+  "night": 0.5
  },
  "vineyards": [
   {
@@ -1749,14 +1822,16 @@
    "to": 165,
    "rows": 11,
    "e0": -2.5,
-   "spacing": 2.8
+   "spacing": 2.8,
+   "roses": true
   },
   {
    "from": 315,
    "to": 350,
    "rows": 9,
    "e0": -2.5,
-   "spacing": 2.8
+   "spacing": 2.8,
+   "roses": true
   }
  ],
  "decor": {
@@ -1792,7 +1867,23 @@
     "n": 22,
     "pine": 0.1
    }
-  ]
+  ],
+  "bushColors": [
+   "86a050",
+   "a99a44",
+   "b9773a",
+   "7c9448"
+  ],
+  "flowers": 220,
+  "woodFlowers": {
+   "n": 45,
+   "colors": [
+    "d64f8c",
+    "e27aa8",
+    "c43f7a",
+    "f0d6e2"
+   ]
+  }
  },
  "safeSpot": "castleSteps",
  "safeText": "Back at the castle steps.",
@@ -1841,6 +1932,41 @@
    "seed": 8,
    "w": 3.5,
    "d": 0.6
+  },
+  {
+   "kind": "persimmon",
+   "x": 27.5,
+   "z": 10.5,
+   "rad": 0.3,
+   "seed": 11
+  },
+  {
+   "kind": "persimmon",
+   "x": 17.5,
+   "z": 35.0,
+   "rad": 0.3,
+   "seed": 5
+  },
+  {
+   "kind": "pumpkins",
+   "x": 20.3,
+   "z": 8.3,
+   "n": 5,
+   "seed": 3
+  },
+  {
+   "kind": "pumpkins",
+   "x": -0.4,
+   "z": 40.2,
+   "n": 3,
+   "seed": 8
+  },
+  {
+   "kind": "pumpkins",
+   "x": -1.0,
+   "z": 13.9,
+   "n": 3,
+   "seed": 2
   }
  ],
  "size": 250

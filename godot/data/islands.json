@@ -8,7 +8,31 @@
    "r": 70,
    "color": "#c9b26a",
    "desc": "A hilltop village among the vineyards, with a castle for a town hall, a dry fountain and a mayor who would like to be re-elected.",
-   "built": true
+   "built": true,
+   "look": {
+    "shade": [
+     0.008,
+     0.004,
+     0.0
+    ],
+    "light": [
+     1.02,
+     1.0,
+     0.96
+    ],
+    "wind": 1.1,
+    "life": {
+     "motes": 0.8,
+     "fireflies": 0.15,
+     "leaves": 1.7
+    },
+    "leafColors": [
+     "d9a63c",
+     "c9803a",
+     "b5552e",
+     "e3bd52"
+    ]
+   }
   },
   {
    "id": "clockwork",

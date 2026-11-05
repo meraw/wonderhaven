@@ -180,6 +180,9 @@ static func _shrink(b: Dictionary, e: float) -> Dictionary:
 static func validate_placement(pl: Dictionary, ctx: Dictionary) -> Dictionary:
 	var d := def(pl.id)
 	if d.is_empty(): return {"ok": false, "reason": "Unknown piece"}
+	# pieces this place rules out, each with its reason (a layout's "noBuild": a city where every bed is sold out)
+	var ruled: Dictionary = ctx.get("no_build", {})
+	if ruled.has(pl.id): return {"ok": false, "reason": String(ruled[pl.id])}
 	var cs := cells(pl)
 	var harmony: float = ctx.get("harmony", 0)
 	var zone := zone_at(ctx.get("zones", []), cs[0].x, cs[0].y, harmony)

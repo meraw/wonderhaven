@@ -1,6 +1,6 @@
 # Monteforchetta: design for the first location
 
-Agreed with the user on 2026-11-04. **Stage 1 (names and text) is built**; stages 2 to 4 are not. This doc is the plan the build stages follow.
+Agreed with the user on 2026-11-04. **Stages 1 to 3 are built**; stage 4 is not. This doc is the plan the build stages follow.
 It replaces Hearthglow Village. The game keeps its working title, *Wonderhaven*, until the new setting is in place.
 
 ## The concept
@@ -99,7 +99,7 @@ Today Hearthglow has 13 requests, 7 of them main story. They map like this:
 | Repair the Orchard Bridge | **The Washed-Out Road** | Aldo | Gather materials, rebuild the missing stretch of road so the bus can come up, then add railings. Same rule as the bridge: any continuous, supported path counts. |
 | Furnish the Workshop | **Elio's Shop** | Elio | Gather wood, metal and copper wire, hear his plan, then fit out his shop: seats, lamps, shelves, a workbench, a splash of colour. |
 | Restore the Garden Fountain | **A Fountain for the Website** | Fede | A waterwheel in the valley stream drives a pump that sends water up through pipes to the piazza fountain. Fede photographs it for the village's first website. |
-| A Home of Your Own | **A Roof of Your Own** | Mayor | Pay the mayor in lire for the deed to the ruined farmhouse, rebuild walls, door, roof and bed, then make it cosy. |
+| A Home of Your Own | **A Roof of Your Own** | Mayor | Pay the mayor in lire for the deed to the ruined farmhouse, rebuild walls, door, roof and bed, then make it cosy. The bed costs 120,000 lire, more than the deed: you save up, and nap on benches meanwhile. |
 | The Royal Decree and All Aboard! | **The City Bus**, the finale | Aldo | The new city bus is too long for the old turnaround, so you rebuild the stop and turning circle. This opens the bus line and the travel map, with Boccapioppo as its first stop (Casalrana is revealed when you finish Boccapioppo). There is no approval-rating gate. |
 | Shiny Stones for the Castle | **A Plinth for the Sindaco** | Mayor | He wants local sandstone and copper wire for a plinth that lights up a bust of himself. |
 | Squirrels in the Scones | **Boars in the Bakery** | Ornella | Lure the boars back to the woods with chestnuts, then deal with the aftermath. |
@@ -130,10 +130,12 @@ Each stage keeps the game playable and the tests passing, and ends with a pull r
    - Not as first written: there is no separate side valley you can walk into (the slopes fall to a valley floor
      you only see); the stream is as wide as the old river, because the crossing's build rules and tests depend
      on it; the farmhouse is a plot framed by ruined walls, not a ruin model.
-3. **Look and plants.**
+3. **Look and plants.** Done; see `docs/STATUS.md` for what it covers.
    - Plaster and stone palettes, curved terracotta roof tiles, the church and bell tower.
    - Vines in rows with autumn colours, hazelnut, oak, chestnut, persimmon, pumpkins, mushrooms, boars.
    - The autumn grade, valley fog and the hills-and-Alps horizon.
+   - Not as first written: no walnut tree yet; chickens keep their old yard by Gigia's house rather than a farm
+     courtyard; the houses are still one storey, so there are no balconies (window boxes carry the geraniums).
 4. **Outfits and music.** Late-1990s outfits for the cast, then the pop-style music for each part of the day.
 5. **Later.** The comedy layer, the truffle dog, more locations and transport, the euro switch somewhere else,
    and a new game title.
