@@ -32,14 +32,14 @@ func play() -> void:
 	note("column inches after the main story: %d (milestones: %s)" % [inches(), game.state.unlocks_seen.filter(func(u): return String(u).begins_with(P))])
 	check("saved", "the game saves to slot 3 for the side requests", await save_to("slot3"))
 
-## Arrives as a player would: Monteforchetta's and Casalrana's main stories played (Progress.as_if_played), off the
-## morning train at Toriano Centrale.
+## Arrives as a player would: Monteforchetta's, Boccapioppo's and Casalrana's main stories played (the travel order:
+## Casalrana's train reveals Toriano; Progress.as_if_played), off the morning train at Toriano Centrale.
 func start_in_town() -> void:
-	await arrive_as_if_played(["hearthglow", "rice_village"])
+	await arrive_as_if_played(["hearthglow", "river_town", "rice_village"])
 	lighten()
 	game.state.time.minute = 10 * 60.0
 	game.render_resources(); game.hud.render_harmony()
-	note("arrived as if Monteforchetta and Casalrana were played: %s, %d approval, %d plans; off the 10 AM train" % [Money.lire(inv("coins")), int(game.state.harmony), game.state.blueprints.size()])
+	note("arrived as if Monteforchetta, Boccapioppo and Casalrana were played: %s, %d approval, %d plans; off the 10 AM train" % [Money.lire(inv("coins")), int(game.state.harmony), game.state.blueprints.size()])
 	await frames(20)
 	check("meter_hud", "the HUD shows La Sera di Toriano's column inches instead of approval", game.hud.harmony_title.text.contains("La Sera di Toriano") and game.hud.harmony_label.text == "0 in.", "%s %s" % [game.hud.harmony_title.text, game.hud.harmony_label.text])
 
