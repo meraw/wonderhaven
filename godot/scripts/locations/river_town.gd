@@ -46,6 +46,7 @@ const RAIL_X := -17.0      # the valley railway's embankment runs north from the
 const RAIL_SOUTH := -38.0
 const PUMPHOUSE := Vector2(21.5, 5.0)   # the old drainage pumping house, dug into the levee's river side
 const QUAY := Rect2(22.5, 1.5, 4.5, 7.0)   # its stone quay: level ground to a sheer edge on the Alpine river
+const LANDING := Rect2(23.0, 11.0, 4.0, 5.0)   # the old ferry landing: the bank eases down to the water there
 
 static func ss(a: float, b: float, v: float) -> float:
 	var t := clampf((v - a) / (b - a), 0.0, 1.0)
@@ -143,6 +144,9 @@ static func height(x: float, z: float) -> float:
 		var rh := bed if da < half else lerpf(-0.5, h, ss(half, half + 1.5, da))
 		h = minf(h, rh)
 	if _quay(x, z): h = maxf(h, FLOOD_H)
+	# the ferry landing: a gentle slope from the floodplain to the water's edge, where the pontoon bridge starts
+	if x >= LANDING.position.x and x < LANDING.end.x and z >= LANDING.position.y and z < LANDING.end.y:
+		h = maxf(h, lerpf(FLOOD_H, -0.22, (x - LANDING.position.x) / LANDING.size.x))
 	if dx > 0.0 and _east_bar(z) > 0.05 and da < ALPINE_HALF + 0.2 and da >= half - 0.6:
 		h = maxf(h, -0.16 + 0.04 * sin(z * 1.3))   # pale gravel, just above the water
 	# the Roman bridge: a narrow hump-backed walkway over the river (its stone model sits on top)
