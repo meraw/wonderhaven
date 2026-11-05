@@ -102,7 +102,7 @@ func test_travel_keeps_each_islands_buildings():
 
 func test_requests_belong_to_their_island():
 	var s := GameState.new_game()
-	for q in ["tool", "bridge", "workshop", "decree", "dock"]: s.quests[q] = {"status": "done", "progress": {}}
+	for q in ["tool", "bridge", "workshop", "fountain", "dock"]: s.quests[q] = {"status": "done", "progress": {}}
 	s.flags["arrived_clockwork"] = true
 	var e := QuestEngine.new(s)
 	t.eq(Data.quest_island("lighthouse"), "clockwork", "the lighthouse request is on the cove")
@@ -130,7 +130,8 @@ func test_rooms_only_count_from_inside():
 
 func test_nav_edges_go_round_buildings():
 	# Walkers (villagers, and the playthrough harness) follow nav edges in straight lines: an edge that cuts through a
-	# building would walk them into its walls, or in through a doorway and stuck against the back wall.
+	# building would walk them into its walls, or in through a doorway and stuck against the back wall. Walkers have
+	# a body, so the line has to clear the walls by a little more than a walker's radius.
 	for id in _islands_with_layouts():
 		_on(id, func():
 			for e in Data.layout.nav_edges:
@@ -142,7 +143,8 @@ func test_nav_edges_go_round_buildings():
 					for k in 41:
 						var t := k / 40.0
 						var x: float = lerpf(a[0], b[0], t); var z: float = lerpf(a[1], b[1], t)
-						if absf(x - bd.x) < bd.w / 2.0 - 0.05 and absf(z - bd.z) < bd.d / 2.0 - 0.05: hit = true
+						var m := WalkWorld.PLAYER_RADIUS + 0.03
+						if absf(x - bd.x) < bd.w / 2.0 + m and absf(z - bd.z) < bd.d / 2.0 + m: hit = true
 					t.ok(not hit, "%s: the path %s-%s goes round %s" % [id, e[0], e[1], bd.id]))
 
 func test_benches_to_rest_on():
@@ -177,3 +179,69 @@ func test_benches_to_rest_on():
 						var x: float = lerpf(a[0], c[0], k / 20.0); var z: float = lerpf(a[1], c[1], k / 20.0)
 						if x > box.minX - 0.3 and x < box.maxX + 0.3 and z > box.minZ - 0.3 and z < box.maxZ + 0.3: through = true
 					t.ok(not through, "%s: the path %s-%s goes round %s" % [id, e[0], e[1], b.id]))
+
+func test_every_island_supplies_what_its_requests_gather():
+	# Each place's requests ask you to gather things: something on that island has to give them (a node, the
+	# island's rich rock, or a villager's shop there). Stage 1 turned the rich rocks to metal and left the cove's
+	# clock with no crystal anywhere; this would have said so.
+	for id in _islands_with_layouts():
+		_on(id, func():
+			var have := {}
+			for n in Data.layout.nodes:
+				if n.has("gives"):   # a node can give its own items instead of its kind's (a location's sand, say)
+					for item in n.gives: have[item] = true
+					continue
+				for item in WorldActions.SOURCES:
+					if WorldActions.SOURCES[item].has(n.kind): have[item] = true
+				if n.kind == "mine" and n.get("rich", false): have[String(Data.layout.get("richRock", "metal"))] = true
+			var shops: Dictionary = Data.shops.get("shops", {})
+			for npc in Data.npcs:
+				if String(npc.get("island", "hearthglow")) != id or not shops.has(npc.id): continue
+				for line in shops[npc.id].get("stock", []):
+					for item in line.get("items", {}): have[item] = true
+			for q in Data.quests:
+				if Data.quest_island(q.id) != id: continue
+				for o in q.objectives:
+					if o.kind == "gather": t.ok(have.has(o.item), "%s: %s asks for %s, and the island gives it" % [id, q.id, o.item]))
+
+func test_rich_rocks_give_what_the_place_is_rich_in():
+	var hit := func(m) -> void:
+		for k in 3: m.results.append("good")
+	var iron := Minigames.Mine.new(true, Rng.new(1)); hit.call(iron)
+	t.ok(int(iron.reward().get("metal", 0)) == 2 and not iron.reward().has("crystal"), "Monteforchetta's iron-red rocks: metal")
+	var glow := Minigames.Mine.new(true, Rng.new(1), "crystal"); hit.call(glow)
+	t.ok(int(glow.reward().get("crystal", 0)) == 2, "the cove's glowing rocks: crystal (%s)" % str(glow.reward()))
+	t.eq(Data.read_layout("clockwork").get("richRock", ""), "crystal", "the cove's layout says its rocks hold crystal")
+
+func test_no_squeeze_between_scenery_and_walls():
+	# A tree, rock or bin near a building either touches it or leaves room to walk past: a gap narrower than a
+	# walker wedges you in (the bin by Elio's shop once stood 0.25 m from its corner).
+	var size := {"chop": 0.45, "fruit": 0.45, "shake": 0.45, "mine": 0.75, "bin": 0.65}
+	for id in _islands_with_layouts():
+		_on(id, func():
+			for n in Data.layout.nodes:
+				if not size.has(n.kind): continue
+				for b in Data.layout.buildings:
+					var cx := clampf(n.x, b.x - b.w / 2.0, b.x + b.w / 2.0); var cz := clampf(n.z, b.z - b.d / 2.0, b.z + b.d / 2.0)
+					var gap := Vector2(n.x - cx, n.z - cz).length() - float(size[n.kind])
+					t.ok(gap <= 0.0 or gap >= WalkWorld.PLAYER_RADIUS * 2.0 + 0.05, "%s: %s and %s leave room to pass (%.2f m)" % [id, n.id, b.id, gap]))
+
+func test_nav_edges_stay_on_dry_land():
+	# Villagers walk nav edges without colliding, so an edge across water has them walking on it, and a player
+	# following the same line stops at the bank. Edges behind a flag (the bridge, once built) are the exception.
+	for id in _islands_with_layouts():
+		_on(id, func():
+			var on_floor := func(x: float, z: float) -> bool:   # a layout's walkable floors (a city's old bridge deck)
+				for f in Data.layout.get("floors", []):
+					var r: Array = f.rect
+					if f.get("walkable", true) and x >= minf(r[0], r[2]) and x <= maxf(r[0], r[2]) and z >= minf(r[1], r[3]) and z <= maxf(r[1], r[3]): return true
+				return false
+			for e in Data.layout.nav_edges:
+				if e.size() > 2: continue
+				var a: Array = Data.layout.nav_nodes[e[0]]; var b: Array = Data.layout.nav_nodes[e[1]]
+				var wet := false
+				for k in 41:
+					var t := k / 40.0
+					var x: float = lerpf(a[0], b[0], t); var z: float = lerpf(a[1], b[1], t)
+					if Heightfield.height(x, z) < Heightfield.WALKABLE_MIN and not on_floor.call(x, z): wet = true
+				t.ok(not wet, "%s: the path %s-%s stays on dry land" % [id, e[0], e[1]]))

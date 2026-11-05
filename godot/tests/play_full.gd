@@ -1,7 +1,7 @@
 extends "res://tests/full_base.gd"
-## Full playthrough, part one: a new game through the guided first requests, the staged bridge and Bram's
-## workshop, with real key and mouse input. Checks acceptance tests 1-7, 9 and 10, then saves to slot 3 for
-## play_full2.gd (the fountain, the harbor, sailing, saving and loading).
+## Full playthrough, part one: a new game through the guided first requests, the staged crossing and Elio's
+## shop, with real key and mouse input. Checks acceptance tests 1-7, 9 and 10, then saves to slot 3 for
+## play_full2.gd (the fountain, the bus turnaround, travel, saving and loading).
 ## Run: TIMEOUT=6000 ./play.sh res://tests/play_full.gd /tmp/out   (play.sh passes --title for both parts)
 
 # ---- the playthrough ----------------------------------------------------------------------------
@@ -53,8 +53,8 @@ func play() -> void:
 		"wood %d, lost things %d" % [inv("wood"), inv("fragment")])
 	await talk("percival")
 	print("   tool: ", q("tool").get("status", ""), " harmony ", game.state.harmony)
-	# Bridge quest: materials first (step 1 of 3)
-	await talk("fern")
+	# Bridge quest (Aldo, stuck at the bus stop): materials first (step 1 of 3)
+	await talk("captain")
 	await gather_until("chop", func(): return int(q("bridge").progress.get("wood", 0)) >= 10 and inv("wood") >= 16, [], 26)
 	print("   materials: wood ", inv("wood"), " step ", game.story.engine.stage_index("bridge"))
 	check("A1", "Staged request: the bridge's building step opens once the materials are gathered", game.story.engine.current_stage("bridge") == 1, "step %d of %d" % [game.story.engine.stage_index("bridge"), game.story.engine.stages("bridge").size()])
@@ -97,20 +97,21 @@ func play() -> void:
 	await shot("bridge-built")
 	await leave_build()
 	# 7. Cross the bridge
-	await walk_direct(0.5, -14.2, 0.6); await walk_direct(0.5, -24.0, 0.7)
+	await walk_direct(0.5, -13.6, 0.4); await walk_direct(0.5, -24.0, 0.7)   # line up, then cross
 	await shot("crossed-bridge")
 	# On the far bank (z < -23; the river is -21..-15) and on dry ground, however far past the target the walk stopped.
 	check(7, "A completed bridge can actually be crossed", game.player.pos.z < -23.0 and game.player.pos.y > -0.3, "z=%.1f y=%.2f" % [game.player.pos.z, game.player.pos.y])
 	await walk_direct(0.5, -13.5, 0.7)
 	var bp0: int = game.state.blueprints.size()
 	var h0: int = game.state.harmony
-	await talk("fern")
+	await talk("captain")
 	check(9, "Completing a quest changes the world and grants rewards", q("bridge").get("status", "") == "done" and game.state.flags.get("orchardOpen", false) and game.state.harmony > h0, "harmony %d→%d, orchardOpen=%s" % [h0, game.state.harmony, game.state.flags.get("orchardOpen", false)])
 	check(10, "New blueprints become available as you progress", game.state.blueprints.size() > bp0 and game.state.blueprints.has("flowerBed"), "%d→%d blueprints" % [bp0, game.state.blueprints.size()])
 	# Workshop: materials, then Bram's plan, then furnishing
 	await talk("bram")
-	await gather_until("chop", func(): return int(q("workshop").progress.get("wood", 0)) >= 10 and inv("wood") >= 12, [], 18)
-	await gather_until("mine", func(): return int(q("workshop").progress.get("metal", 0)) >= 2 and int(q("workshop").progress.get("crystal", 0)) >= 1, ["rock5", "rock0", "rock1", "rock2", "rock3", "rock4"], 14)
+	await gather_until("chop", func(): return int(q("workshop").progress.get("wood", 0)) >= 12 and inv("wood") >= 12, [], 18)
+	await gather_until("mine", func(): return int(q("workshop").progress.get("metal", 0)) >= 2, ["rock5", "rock0", "rock1", "rock2", "rock3", "rock4"], 14)
+	await gather_until("bin", func(): return int(q("workshop").progress.get("crystal", 0)) >= 2 and inv("crystal") >= 2, [], 6)   # copper wire, head first
 	print("   workshop materials: ", game.state.inventory, " step ", game.story.engine.stage_index("workshop"))
 	await talk("bram")
 	check("A3", "Talking to Bram is its own step: he explains the plan", game.story.engine.current_stage("workshop") == 2, "step %d" % game.story.engine.stage_index("workshop"))

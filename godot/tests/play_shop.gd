@@ -90,7 +90,7 @@ func play() -> void:
 	await frames(10)
 	check("deed-marker", "The Sindaco shows he's waiting for the deed money", game.story.marker_for("percival") == "ready", game.story.marker_for("percival"))
 	await choices_up("percival")
-	for n in 3:   # he opens with his own offer (the decree): not now
+	for n in 3:   # if he opens with another offer of his own: not now
 		if not game.dialogue.choices.any(func(o): return o.kind == "no"): break
 		await pick("no")
 		for k in 60:

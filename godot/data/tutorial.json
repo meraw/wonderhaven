@@ -66,14 +66,14 @@
    ]
   },
   {
-   "id": "fern",
-   "text": "Gigia's groves are cut off by the washed-out crossing. Find her by her garden and press {interact}.",
+   "id": "road",
+   "text": "The storm washed out the main road, and Aldo's bus is stuck at the lay-by by the village gate. Find him by his bus and press {interact}.",
    "done": "accepted:bridge",
-   "target": "npc:fern"
+   "target": "npc:captain"
   },
   {
    "id": "gather",
-   "text": "Gigia needs 10 more wood for the crossing. Chop ribboned trees; the request card in the corner counts for you.",
+   "text": "Aldo needs 10 more wood for the crossing. Chop ribboned trees; the request card in the corner counts for you.",
    "done": "stage:bridge:1"
   },
   {
@@ -93,15 +93,15 @@
   },
   {
    "id": "rails",
-   "text": "Gigia asked for railings: place 4 along the sides of the crossing. A railing sits on a tile's edge; {rotate} turns it.",
+   "text": "Aldo asked for railings: place 4 along the sides of the crossing. A railing sits on a tile's edge; {rotate} turns it.",
    "done": "ready:bridge",
    "target": "zone:bridge"
   },
   {
    "id": "finish",
-   "text": "Tell Gigia the crossing is open!",
+   "text": "Tell Aldo the crossing is open!",
    "done": "quest:bridge",
-   "target": "npc:fern",
+   "target": "npc:captain",
    "reveal": [
     "key:map"
    ]

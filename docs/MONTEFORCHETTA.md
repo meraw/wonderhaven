@@ -33,7 +33,7 @@ A Langhe-style hilltop village with a side valley, in autumn at harvest time.
 | Slopes | Vineyard rows striped across the hillsides, with a rose bush at the end of each row. |
 | Hazelnut groves | Gigia's groves, low and leafy. |
 | Side valley | Oak and chestnut woods with boars, mushrooms and chestnuts, a stream fed by a spring, and the ruined farmhouse that becomes the player's home. It sits where the vines meet the woods. The user left the spot open. |
-| The road | Winds down from the village. A storm has washed part of it away. Aldo's bus turns round at the washout. |
+| The road | Winds down from the village. A storm has washed out its crossing over the stream, so Aldo's bus came up the old mule track and is stuck at the lay-by by the village gate. The new city bus turns round on the belvedere at the south end. |
 | Horizon | Rolling hills and other hilltop villages fading into haze, and a snowy Alpine range on clear days. No sea. |
 
 **Look:**
@@ -64,7 +64,7 @@ late-1990s outfits. Internal ids such as `fern` and `bram` can stay for now to l
 | Mabel | **Ornella Tealdi** | Brisk baker who treats the wild boars as a personal insult. |
 | Captain Wendell | **Aldo "Tornanti" Barbero** | Bus driver who knows every hairpin bend in the valley and has a tall tale about each one. |
 | Odessa | Removed | Her mentor and tutorial lines go to the mayor. |
-| The player | **The new Geometra** | A freshly qualified surveyor-builder sent by the province to fix the village. Arrives on Aldo's bus, gets dropped at the washout and walks the last stretch up with a suitcase. |
+| The player | **The new Geometra** | A freshly qualified surveyor-builder sent by the province to fix the village. Arrives on Aldo's bus by the old mule track and steps off at the lay-by by the village gate with a suitcase. |
 
 Outfit ideas:
 - **The mayor:** a suit with a tricolour sash.
@@ -120,12 +120,16 @@ Each stage keeps the game playable and the tests passing, and ends with a pull r
    - The ferry becomes the bus, and Clockwork Cove is hidden.
    - The map stays Hearthglow's for this stage, so wording that mentions the river and orchard may read oddly
      until stage 2.
-2. **Map and buildings.**
-   - A new ground shape: hilltop, side valley, road with the washout. Today the ground shape is code in
-     `Heightfield`, and moving it into data would make later locations cheaper.
+2. **Map and buildings.** Done; see `docs/STATUS.md` for what it covers.
+   - A new ground shape: hilltop, slopes down to the valley, the road's washed-out crossing. The ground shape is
+     still code (`Heightfield._monteforchetta`); moving it into data would make later locations cheaper.
    - The layout: castle town hall, church and bell tower, newsstand, bakery, Elio's shop, houses, the ruined
-     farmhouse, the stream and spring, groves, vineyard rows and woods.
+     farmhouse plot, the stream and spring, groves, vineyard rows, woods, the belvedere and the hills-and-Alps
+     horizon.
    - Rooms you can walk into, paths, schedules and build zones.
+   - Not as first written: there is no separate side valley you can walk into (the slopes fall to a valley floor
+     you only see); the stream is as wide as the old river, because the crossing's build rules and tests depend
+     on it; the farmhouse is a plot framed by ruined walls, not a ruin model.
 3. **Look and plants.**
    - Plaster and stone palettes, curved terracotta roof tiles, the church and bell tower.
    - Vines in rows with autumn colours, hazelnut, oak, chestnut, persimmon, pumpkins, mushrooms, boars.
