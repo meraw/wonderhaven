@@ -219,7 +219,7 @@ func play() -> void:
 
 	# ---- Gino's score, at night -------------------------------------------------------------------------------
 	await tram("stop_opera")
-	if hour() < 20.0 and hour() > 6.0: await sleep_until("bench_opera", 21)   # after the opera
+	if hour() < 20.0: await sleep_until("bench_opera", 21)   # after the opera (he asks between 8 PM and midnight)
 	await chat("gino")
 	check("score_on", "after the opera, Maestro Gino whispers about his lost score", status("score") == "active", "%s at %.1f h" % [status("score"), hour()])
 	var pages: Array = Data.layout.nodes.filter(func(n): return n.get("gives", {}).has(P + "score_page"))
