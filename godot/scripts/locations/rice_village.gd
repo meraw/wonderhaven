@@ -28,6 +28,10 @@ const CANAL_X := -40.0
 const WINTER := Rect2(-33.6, 7.6, 12.2, 10.8)   # the winter paddy, flooded in Water for the Winter
 const POOL := Vector3(-24.0, 32.0, 4.5)          # the spring pool: x, z, radius
 const PLANTATION := Rect2(6, 38, 34, 14)
+const NOTCHES := [10.5, -12.5]   # where the canal's east bank is cut low: the winter paddy's inlet and the mill race (z)
+const LEVEE_LOW := 0.22
+const HOLES := [Vector2(11.0, 13.0), Vector2(18.0, 20.0), Vector2(26.0, 28.0)]   # where the old platform has crumbled (x from, to)
+const HOLE_Z := Vector2(-44.4, -40.7)
 const PUDDLES := [Vector4(-4.9, -20.8, 2.5, 1.8), Vector4(-8.5, 26.7, 1.4, 1.5), Vector4(33.2, 37.9, 1.6, 1.4), Vector4(-49.1, -22.9, 1.6, 1.8),
 	Vector4(-6.9, 38.7, 2.5, 1.2), Vector4(-47.9, 29.0, 1.6, 1.1), Vector4(31.0, 25.8, 2.0, 1.6), Vector4(43.3, 13.9, 2.7, 0.9),
 	Vector4(44.5, -33.0, 2.5, 1.9), Vector4(-49.6, 12.4, 2.0, 1.2), Vector4(-48.2, -33.1, 1.5, 2.1), Vector4(-26.2, 42.0, 1.3, 1.6),
@@ -67,12 +71,17 @@ static func height(x: float, z: float) -> float:
 	var e := _in_puddle(x, z)
 	if e < 1.0: h = minf(h, lerpf(PUDDLE, h, _ss(0.55, 1.0, e)))
 	var dc := absf(x - CANAL_X)
-	h = maxf(h, lerpf(LEVEE, h, _ss(3.6, 5.2, dc)))
+	var levee := LEVEE
+	if x > CANAL_X:   # low cuts in the east bank, so a waterwheel in the canal can drive a pump or a shaft beside it
+		for nz in NOTCHES: levee = lerpf(LEVEE_LOW, levee, _ss(1.2, 2.2, absf(z - nz)))
+	h = maxf(h, lerpf(levee, h, _ss(3.6, 5.2, dc)))
 	if dc < 2.4:
 		var bed := BED
 		if dc < 0.8 + 0.5 * sin(z * 0.53) and fposmod(z * 0.071 + 0.3, 1.0) < 0.3: bed = -0.55   # puddles left in the drained canal
 		h = minf(h, lerpf(bed, h, _ss(1.9, 2.4, dc)))
 	h = minf(h, lerpf(BED, h, _ss(0.0, 0.6, _box_d(x, z, WINTER.grow(-0.6)))))
+	for hx in HOLES:   # the crumbled stretches of the old platform, until The Train Stops Here decks them over
+		h = minf(h, lerpf(BED, h, _ss(0.0, 0.3, _box_d(x, z, Rect2(hx.x + 0.3, HOLE_Z.x + 0.3, hx.y - hx.x - 0.6, HOLE_Z.y - HOLE_Z.x - 0.6)))))
 	var dp := Vector2(x - POOL.x, z - POOL.y).length()
 	h = minf(h, lerpf(POOL_DEPTH, h, _ss(POOL.z - 1.5, POOL.z, dp)))
 	return lerpf(h, EDGE, _ss(55.0, 57.0, maxf(absf(x), absf(z))))
@@ -92,6 +101,7 @@ const MUD := Color("a08b6c")
 const DRY_PADDY := Color("a08d66")
 const GROVE := Color("88ad66")
 const UNDER_POPLARS := Color("aeaa7c")
+const RUBBLE := Color("8a7f72")
 
 ## Ground paint: stubble in the paddies, olive winter grass on the banks and levees, gravel under the village, brick in
 ## the farmstead's yard, ballast on the railway bed, mud in the drained canal. Only the spring pool's grove, kept green
@@ -104,6 +114,7 @@ static func paint(x: float, z: float) -> Color:
 	elif _box_d(x, z, WINTER.grow(-0.3)) <= 0.0: c = DRY_PADDY
 	elif dp < POOL.z + 0.4: c = MUD
 	elif dp < POOL.z + 6.0: return Color(GROVE.r, GROVE.g, GROVE.b, 0.8)
+	elif _in_hole(x, z): c = RUBBLE
 	elif absf(z - RAIL_Z) < 2.6: c = BALLAST
 	elif _box_d(x, z, COURTYARD) <= 0.0: c = BRICK
 	elif _on_pad(x, z): c = GRAVEL
@@ -114,6 +125,12 @@ static func paint(x: float, z: float) -> Color:
 		c = STUBBLE_A.lerp(STUBBLE_B, fposmod(sin(cell.x * 12.9898 + cell.y * 78.233) * 43758.5453, 1.0))
 		if _in_puddle(x, z) < 1.15: c = c.lerp(MUD, 0.2)   # damp ground round a puddle
 	return Color(c.r, c.g, c.b, 0.0)
+
+static func _in_hole(x: float, z: float) -> bool:
+	if z < HOLE_Z.x - 0.1 or z > HOLE_Z.y + 0.1: return false
+	for hx in HOLES:
+		if x > hx.x - 0.1 and x < hx.y + 0.1: return true
+	return false
 
 static func _on_pad(x: float, z: float) -> bool:
 	for p in PADS:

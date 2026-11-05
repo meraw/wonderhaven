@@ -209,7 +209,7 @@ static func build_statics(decor: Dictionary) -> Array:
 				if st.get("type", "") == "circle": st["tag"] = b.id; out.append(st)
 				else: out.append(_box(st.minX, st.maxX, st.minZ, st.maxZ, b.id))
 		elif not b.get("roof_walk", false):   # a walkable roof is a raised floor instead (floors())
-			out.append(_box(minX, maxX, minZ, maxZ, b.id))
+			for r in footprint(b): out.append(_box(r.minX, r.maxX, r.minZ, r.maxZ, b.id))
 	if Data.layout.has("fountain"):
 		var F: Dictionary = Data.layout.fountain
 		out.append({"type": "circle", "x": F.x, "z": F.z, "r": F.r + 0.2, "tag": "fountain"})
@@ -244,6 +244,18 @@ static func build_statics(decor: Dictionary) -> Array:
 			out.append(_box(st.minX, st.maxX, st.minZ, st.maxZ, f.id))
 	for t in decor.trees: out.append({"type": "circle", "x": t.x, "z": t.z, "r": 0.42 * t.s, "tag": "tree"})
 	return out
+
+## Where a building stands on the ground, as boxes {minX, maxX, minZ, maxZ, top}: one for most, two for a church (the
+## nave, and the bell tower at its back corner, with open ground beside the facade). Colliders, camera blockers and
+## the camera playthrough all use it, so they agree on where the walls are.
+static func footprint(b: Dictionary) -> Array:
+	var x0: float = b.x - b.w / 2.0; var z0: float = b.z - b.d / 2.0
+	if b.kind == "church":
+		var tw := 2.4; var nave_w: float = b.w - tw
+		var tz: float = b.z + (1.0 if b.get("door", "S") == "N" else -1.0) * (b.d / 2.0 - tw / 2.0)
+		return [{"minX": x0, "maxX": x0 + nave_w, "minZ": z0, "maxZ": z0 + b.d, "top": 4.6 + Props.roof_rise(nave_w, b.d)},
+			{"minX": x0 + nave_w, "maxX": x0 + b.w, "minZ": tz - tw / 2.0, "maxZ": tz + tw / 2.0, "top": 12.4}]
+	return [{"minX": x0, "maxX": x0 + b.w, "minZ": z0, "maxZ": z0 + b.d, "top": 2.4 + Props.roof_rise(b.w, b.d)}]
 
 static func _box(a: float, b: float, c: float, d: float, tag: String) -> Dictionary:
 	return {"type": "box", "minX": a, "maxX": b, "minZ": c, "maxZ": d, "tag": tag}

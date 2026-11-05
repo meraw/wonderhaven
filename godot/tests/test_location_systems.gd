@@ -235,7 +235,7 @@ func test_a_climb_up_to_a_roof_terrace():
 	var g0 := Heightfield.height(26.5, 19.5)
 	var tower := {"id": "terrace", "kind": "city_block", "x": 20, "z": 20, "w": 8, "d": 8, "h": g0 + 3.0, "y": 0.0, "roof_walk": true}
 	var zone := {"id": "climb", "minI": 24, "maxI": 27, "minK": 19, "maxK": 20,
-		"endpoints": {"a": {"minI": 27, "maxI": 27, "minK": 19, "maxK": 20}, "b": {"minI": 22, "maxI": 23, "minK": 19, "maxK": 20, "minY": g0 + 3.0}}}
+		"endpoints": {"a": {"minI": 27, "maxI": 27, "minK": 19, "maxK": 20}, "b": {"minI": 22, "maxI": 23, "minK": 19, "maxK": 20, "y": g0 + 3.0}}}
 	_with_layout({"buildings": [tower], "zones": [zone], "floors": [], "nodes": [], "features": []}, func():
 		var walk := WalkWorld.new(WorldStatics.build_statics({"trees": [], "bushes": [], "flowers": [], "grass": []})); walk.floors = WorldStatics.floors()
 		t.ok(not Validate.path_across(zone, walk).ok, "no way up before you build one")
@@ -255,7 +255,7 @@ func test_a_climb_up_to_a_roof_terrace():
 		walk.surfaces = BuildGrid.surfaces_for(list)
 		t.ok(not Validate.path_across(zone, walk).ok, "a stair that stops short doesn't count")
 		var low: Dictionary = zone.duplicate(true)
-		low.endpoints.b = {"minI": 25, "maxI": 25, "minK": 19, "maxK": 20, "minY": g0 + 3.0}
+		low.endpoints.b = {"minI": 25, "maxI": 25, "minK": 19, "maxK": 20, "y": g0 + 3.0}
 		t.ok(not Validate.path_across(low, walk).ok, "an end that must be up high isn't reached down low"))
 
 func test_bathroom_pieces():

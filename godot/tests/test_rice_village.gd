@@ -109,13 +109,15 @@ func test_water_where_the_design_puts_it():
 func test_build_sites_are_on_dry_ground():
 	_here(func():
 		var statics := WorldStatics.build_statics(WorldStatics.generate_decor())
-		for id in ["rice_village_plot", "rice_village_platform", "rice_village_churchyard", "rice_village_bench"]:
+		for id in ["rice_village_plot", "rice_village_platform", "rice_village_churchyard", "rice_village_bench", "rice_village_goodsYard", "rice_village_tower"]:
 			var zn := Data.zone(id)
 			t.ok(not zn.is_empty(), "%s exists" % id)
 			var wet := 0; var blocked := 0
 			for i in range(int(zn.minI), int(zn.maxI) + 1):
 				for k in range(int(zn.minK), int(zn.maxK) + 1):
-					if Heightfield.is_water(i + 0.5, k + 0.5): wet += 1
+					# the platform has crumbled in three places: those holes are what The Train Stops Here bridges
+					var hole: bool = id == "rice_village_platform" and RV.HOLES.any(func(h): return i + 0.5 > h.x and i + 0.5 < h.y)
+					if Heightfield.is_water(i + 0.5, k + 0.5) != hole: wet += 1
 					var cell := {"minX": i + 0.05, "maxX": i + 0.95, "minZ": k + 0.05, "maxZ": k + 0.95}
 					for s in statics:
 						var hit := WalkWorld.circle_box(s.x, s.z, s.r, cell) if s.type == "circle" else BuildGrid.overlap2(cell, s)
@@ -172,7 +174,9 @@ func test_the_village_builds():
 	_here(func():
 		var v := Village.new()
 		v.build(WorldStatics.generate_decor())
-		for b in Data.layout.buildings: t.ok(v.objects.has(b.id) and v.objects[b.id].get_child_count() > 0, "%s is built" % b.id)
+		for b in Data.layout.buildings:
+			if b.kind == "rice_village_upstairs": continue   # your flat: the station builds it
+			t.ok(v.objects.has(b.id) and v.objects[b.id].get_child_count() > 0, "%s is built" % b.id)
 		for b in Data.layout.buildings:
 			if Interiors.enterable(b): t.ok(v.objects[b.id].has_meta("fade_parts"), "%s's roof and upper floor fade while you're inside" % b.id)
 		var poplar: Node3D = v.node_visuals.get("rice_village_poplar0")
@@ -186,10 +190,12 @@ func test_the_village_builds():
 func test_rooms_you_can_walk_into():
 	_here(func():
 		var rooms: Array = Data.layout.buildings.filter(func(b): return Interiors.enterable(b))
-		t.eq(rooms.map(func(b): return b.id), ["rice_village_station", "rice_village_casello", "rice_village_church", "rice_village_mill",
-			"rice_village_farmhouse", "rice_village_office", "rice_village_shed"], "the station, the cottage, the church, the mill and the farmstead's kitchen, office and shed")
+		t.eq(rooms.map(func(b): return b.id), ["rice_village_station", "rice_village_flat", "rice_village_casello", "rice_village_church", "rice_village_tower",
+			"rice_village_mill", "rice_village_farmhouse", "rice_village_office", "rice_village_shed"],
+			"the station and your flat above it, the cottage, the church and its tower, the mill and the farmstead's kitchen, office and shed")
 		var w := _world()
 		for b in rooms:
+			if b.interior.get("route", []).is_empty(): continue   # your flat and the tower: nobody works there
 			t.ok(Data.layout.nav_nodes.has(b.id + ":spot"), "%s has a spot inside to work at" % b.id)
 			var spot: Array = Data.layout.nav_nodes[b.id + ":spot"]
 			t.ok(_stand(w, spot[0], spot[1]), "%s's spot is free of furniture" % b.id)
@@ -254,3 +260,163 @@ func test_the_barriers_keep_you_off_the_line():
 		tr._process(0.016)
 		if not TT.crossing_closed(3, g.state.time.minute): t.ok(_stand(g.walk, 2.0, -44.3), "once it has passed, the crossing opens again")
 		parent.free())
+
+# ---- Stage 3: people, dialogue and requests --------------------------------------------------------------------
+## The walk world the game uses: statics, the layout's raised floors and what you've built.
+func _full_world(pls: Array = []) -> WalkWorld:
+	var w := _world(); w.floors = WorldStatics.floors(); w.surfaces = BuildGrid.surfaces_for(pls)
+	return w
+
+## Places pieces one by one the way build mode checks them (site open, support, nothing in the way); returns the
+## reasons any were refused.
+func _place_all(pls: Array, open_zones: Array) -> Array:
+	var zones: Array = Data.layout.zones.filter(func(z): return open_zones.has(z.id))
+	var statics := WorldStatics.build_statics(WorldStatics.generate_decor())
+	var placed: Array = []; var refused: Array = []
+	for p in pls:
+		var ctx := {"placements": placed, "zones": zones, "statics": statics, "harmony": 0, "flags": {}}
+		var v := BuildGrid.validate_placement(p, ctx)
+		if v.ok: placed.append(p)
+		else: refused.append("%s at %d,%d: %s" % [p.id, int(p.i), int(p.k), v.reason])
+	return refused
+
+func _pl(uid: int, id: String, i: float, k: float, r: int, y: float) -> Dictionary: return {"uid": uid, "id": id, "i": i, "k": k, "r": r, "y": y}
+
+func test_casalranas_people_and_requests():
+	var mine: Array = Data.quests.filter(func(q): return Data.quest_island(q.id) == ID)
+	t.eq(mine.size(), 11, "eleven requests")
+	t.eq(mine.filter(func(q): return q.get("main", false)).map(func(q): return q.id),
+		["rice_village_welcome", "rice_village_flat", "rice_village_stairs", "rice_village_nativity", "rice_village_train"], "five main requests, in order")
+	var people: Array = Data.npcs.filter(func(n): return n.get("island", "") == ID)
+	t.eq(people.size(), 7, "six villagers and the inspector")
+	var nav := Data.island_nav(ID)
+	for n in people:
+		for e in n.schedule: t.ok(nav.has(e[2]), "%s's routine goes to real spots (%s)" % [n.id, e[2]])
+		for w in n.get("when", []):
+			for e in w.schedule: t.ok(nav.has(e[2]), "%s's other routine goes to real spots (%s)" % [n.id, e[2]])
+	t.ok(Data.npc("rice_village_carlo").get("present", "") == "rice_village_inspector", "the inspector only turns up for the finale")
+	_here(func():
+		for q in mine:
+			for o in q.objectives:
+				if o.has("zone"): t.ok(not Data.zone(o.zone).is_empty(), "%s builds in a real site (%s)" % [q.id, o.zone])
+				if o.has("hint"): t.ok(not Heightfield.is_water(o.hint.x, o.hint.z), "%s's compass hint is on land" % o.id)
+				if String(o.get("check", "")).begins_with("fed:"): t.ok(Data.layout.machines.any(func(m): return "fed:" + m.id == o.check), "%s's machine is in the layout" % o.check))
+	# the petition: the main story and three side requests reach it; there's more on offer than it needs
+	var m := LocationMeter.def(ID)
+	t.eq([m.get("name", ""), LocationMeter.reward_text(m, 20)], ["The Petition", "✍️ +20 signatures"], "Casalrana's meter is Paletta's petition")
+	var total := 0; var main := 0
+	for q in mine:
+		total += int(q.get("rewards", {}).get("meter", 0))
+		if q.get("main", false): main += int(q.get("rewards", {}).get("meter", 0))
+	t.ok(total >= 300 and main < 250 and main + 85 >= 250, "320 signatures on offer, the main story needs a few side requests (%d, main %d)" % [total, main])
+	t.eq(m.milestones.map(func(x): return int(x.at)), [40, 90, 140, 200, 250], "milestones")
+	var fin: Array = Data.quest("rice_village_train").objectives.filter(func(o): return o.kind == "meter")
+	t.ok(fin.size() == 1 and int(fin[0].value) == 250, "the finale waits for 250 signatures")
+	t.ok("rice_village_trainStops" in Data.quest("rice_village_train").rewards.flags, "and opens the line to Toriano")
+
+func test_the_flat_upstairs():
+	_here(func():
+		var w := _full_world()
+		# up the outside stair from the forecourt, onto the landing and in at the flat's door
+		var pos := Vector3(25.7, Heightfield.height(25.7, -30.8), -30.8)
+		for n in 70: pos = w.step_move(pos, 0.0, -0.15).pos
+		t.ok(absf(pos.y - 3.5) < 0.05 and pos.z < -36.4, "the outside stair takes you up to the landing, and its railing keeps you on it (at %s)" % pos)
+		pos.z = -37.4
+		for n in 40: pos = w.step_move(pos, -0.15, 0.0).pos
+		t.ok(absf(pos.y - 3.5) < 0.05 and pos.x < 23.5, "and in through the flat's door (at %s)" % pos)
+		var flat: Dictionary = Data.layout.buildings.filter(func(b): return b.id == "rice_village_flat")[0]
+		var station: Dictionary = Data.layout.buildings[0]
+		t.ok(Interiors.inside(flat, 3.5, pos) and not Interiors.inside(station, 0.42, pos), "upstairs you're in the flat, not the waiting room")
+		var down := Vector3(16.0, 0.42, -37.5)
+		t.ok(Interiors.inside(station, 0.42, down) and not Interiors.inside(flat, 3.5, down), "downstairs, the waiting room")
+	
+		# furnishing it: the pieces stand on the flat's floor
+		var pls := [_pl(1, "bed", 14, -40, 0, BuildGrid.suggest_bottom("bed", 14, -40, 0, 3.6, [])), _pl(2, "table", 17, -39, 0, BuildGrid.suggest_bottom("table", 17, -39, 0, 3.6, [])),
+			_pl(3, "chair", 17, -38, 2, BuildGrid.suggest_bottom("chair", 17, -38, 2, 3.6, [])), _pl(4, "lamp", 20, -40, 0, BuildGrid.suggest_bottom("lamp", 20, -40, 0, 3.6, []))]
+		t.ok(pls.all(func(p): return absf(p.y - 3.5) < 0.01), "pieces rest on the flat's floor")
+		t.eq(_place_all(pls, ["rice_village_flat"]), [], "a bed, a table, a chair and a lamp fit in the flat")
+		var needs: Array = Data.quest("rice_village_flat").objectives.filter(func(o): return o.id == "furnish")[0].needs
+		t.ok(Validate.room_checklist(Data.zone("rice_village_flat"), pls, needs).all(func(r): return r.ok), "and they furnish it"))
+
+func test_the_climb_up_the_bell_tower():
+	_here(func():
+		var zone := Data.zone("rice_village_tower")
+		t.ok(not Validate.path_across(zone, _full_world()).ok, "the rotted stairs: no way up to the ringing floor")
+		var g := 0.42
+		var pls := [_pl(1, "stairs", -16, 9, 0, g), _pl(2, "stoneBlock", -16, 8, 0, g), _pl(3, "stairs", -16, 8, 0, g + 1.0)]
+		t.eq(_place_all(pls, ["rice_village_tower"]), [], "two flights, the second on a stone block, fit inside the tower")
+		var r := Validate.path_across(zone, _full_world(pls))
+		t.ok(r.ok, "and climb to the ringing floor (reached %s)" % r.get("reached", ""))
+		var w := _full_world(pls)
+		var pos := Vector3(-15.5, g, 10.6)
+		for n in 40: pos = w.step_move(pos, 0.0, -0.12).pos
+		t.ok(absf(pos.y - (g + 2.0)) < 0.05 and pos.z < 8.0, "you can walk up it to the bell ropes (at %s)" % pos)
+		var tower: Dictionary = Data.layout.buildings.filter(func(b): return b.id == "rice_village_tower")[0]
+		t.ok(Interiors.inside(tower, g, pos), "up there you're still in the tower, so its walls stay faded"))
+
+func test_the_platform_and_the_sluice():
+	_here(func():
+		var plat := Data.zone("rice_village_platform")
+		t.ok(not Validate.path_across(plat, _full_world()).ok, "the crumbled platform can't be walked end to end")
+		var pls: Array = []
+		for h in RV.HOLES:
+			for i in range(int(h.x) - 1, int(h.y) + 1):
+				var y := BuildGrid.suggest_bottom("bridgeDeck", i, -43, 0, 0.6, pls, plat)
+				pls.append(_pl(pls.size() + 1, "bridgeDeck", i, -43, 0, y))
+		t.eq(_place_all(pls, ["rice_village_platform"]), [], "planks over the three holes, from the edges")
+		t.ok(Validate.path_across(plat, _full_world(pls)).ok, "make one continuous platform")
+		var sl := Data.zone("rice_village_sluice")
+		t.ok(not Validate.path_across(sl, _full_world()).ok, "the drained canal can't be crossed at the sluice")
+		var deck: Array = []
+		for i in [-43, -42, -41, -38, -39, -40]:   # out from both banks
+			deck.append(_pl(deck.size() + 1, "bridgeDeck", i, -29, 0, BuildGrid.suggest_bottom("bridgeDeck", i, -29, 0, 0.8, deck, sl)))
+		deck.append(_pl(20, "pillar", -43, -28, 0, Heightfield.height(-42.5, -27.5))); deck.append(_pl(21, "pillar", -38, -28, 0, Heightfield.height(-37.5, -27.5)))
+		deck.append(_pl(22, "lever", -38, -30, 0, Heightfield.height(-37.5, -29.5)))
+		t.eq(_place_all(deck, ["rice_village_sluice"]), [], "a walkway, two pillars and a lever at the sluice")
+		t.ok(Validate.path_across(sl, _full_world(deck)).ok, "and you can walk across"))
+
+func test_the_waterwheel_machines():
+	_here(func():
+		var m: Array = Data.layout.machines
+		var paddy := [_pl(1, "waterwheel", -39, 10, 1, Heightfield.WATER_Y + 0.05), _pl(2, "pump", -38, 10, 2, Heightfield.height(-37.5, 10.5))]
+		for i in range(-37, -33): paddy.append(_pl(paddy.size() + 1, "pipe", i, 10, 1, Heightfield.height(i + 0.5, 10.5)))
+		t.eq(_place_all(paddy, ["rice_village_paddy"]), [], "a waterwheel, a pump and pipes fit by the winter paddy")
+		t.ok(Mechanics.solve(paddy, m).fed.get("rice_village_paddy", false), "and water reaches the paddy's inlet")
+		var mill := [_pl(1, "waterwheel", -39, -13, 1, Heightfield.WATER_Y + 0.05)]
+		for i in range(-38, -32): mill.append(_pl(mill.size() + 1, "shaft", i, -13, 1, Heightfield.height(i + 0.5, -12.5)))
+		t.eq(_place_all(mill, ["rice_village_mill"]), [], "a waterwheel and shafts fit by the old mill")
+		t.ok(Mechanics.solve(mill, m).fed.get("rice_village_mill", false), "and turn the mill's drive"))
+
+func test_gathering_in_casalrana():
+	_here(func():
+		var straw: Array = Data.layout.nodes.filter(func(n): return n.get("gives", {}).has("rice_village_straw"))
+		t.ok(straw.size() >= 6, "loose straw on the stubble (%d)" % straw.size())
+		var lost: Array = Data.layout.nodes.filter(func(n): return n.kind == "fragment")
+		t.ok(lost.size() == 5 and lost.all(func(n): return n.get("flag", "") == "rice_village_lostThings" and n.has("name")), "five things dropped from the trains, once Paletta asks")
+		t.ok(lost.any(func(n): return n.z < RV.RAIL_Z) and lost.any(func(n): return n.z > RV.RAIL_Z), "on both sides of the line")
+		var finds: Array = Data.layout.nodes.filter(func(n): return n.kind == "dig")
+		var items := {}
+		for n in finds:
+			for k in n.gives: items[k] = true
+		t.ok(items.has("rice_village_coin") and items.has("rice_village_badge") and items.has("rice_village_buttons"), "the metal detector finds the museum's three things")
+		t.eq(Gardening.beds().size(), 4, "four garden beds at the farmstead")
+		t.ok(Gardening.beds().all(func(b): return b.seed == "rice_village_seeds"), "they grow from Silvia's seed packets")
+		var fish := Minigames.catch_table(Data.layout.get("fish", []), "rice_village_pool0", {}, 600.0)
+		t.eq(fish.map(func(f): return f.id), ["tench", "carp", "frog"], "the spring pool has tench, carp and a sleepy frog")
+		var frog := Minigames.Fish.new(Rng.new(1), [fish[2]]); frog.result = "caught"
+		t.eq(frog.reward(), {}, "and the frog goes straight back"))
+
+func test_villagers_keep_out_of_each_others_way():
+	# two people on the same spot at the same hour can't both be reached (you talk to whoever's nearer)
+	var people: Array = Data.npcs.filter(func(n): return n.get("island", "") == ID)
+	var flag_sets := [{}, {"rice_village_welcomed": true}, {"rice_village_welcomed": true, "rice_village_benchBuilt": true, "rice_village_stableBuilt": true}]
+	for flags in flag_sets:
+		for h in range(0, 24):
+			var at := {}
+			for n in people:
+				if n.has("present") and not flags.get(n.present, false): continue
+				var spot: String = Schedule.activity_at(n, h * 60.0 + 30.0, flags).node
+				if at.has(spot) and Schedule.activity_at(n, h * 60.0 + 30.0, flags).activity != "sleep":
+					t.ok(false, "%s and %s both at %s at %d:30" % [at[spot], n.id, spot, h])
+				at[spot] = n.id
+	t.ok(true, "nobody shares a spot")

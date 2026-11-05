@@ -283,18 +283,20 @@ Other locations can reuse all of them.
 | **A departure point with any id**, and an optional `depart_label` ("Take the train"). *Done in stage 1.* | The station isn't a bus stop called `boat` | 1 |
 | **Raised floors:** a layout's `floors` (slabs, solid blocks, stairs that rise) and buildings with a walkable roof (`roof_walk`), read by `WalkWorld` and build mode; build sites with a floor height (`floorY`); rooms on their own storey (`y`), so rooms stack with their own doors; scenery-only buildings (`solid: false`). *Done in stage 2.* | The cathedral's roof terraces, the tenement's balcony, flats and terrace, the old bridge's deck | 2 |
 | **Rides between stops:** features of kind `stop` on a `line`; at a stop you choose another and ride there (`Travel.stops_on`, `game.ride_to`). *Done in stage 2.* | The trams. Funiculars, public lifts and cable cars elsewhere can reuse it | 2 |
-| **A path check for any zone** (`path:<zone>`), with endpoints that may be at different heights. *Done in stage 3 (the build check also came with Boccapioppo's stage 3): the check now steps between tiles the way the walker does, so stairs count, and endpoints may sit just outside the site and need a height (`minY`).* | The footbridge, and the scaffolding climb | 3 |
+| **A path check for any zone** (`path:<zone>`), with endpoints that may be at different heights. *Done in stage 3: the build check came with Boccapioppo's stage 3, and Casalrana's made it climb stairs and gave endpoints a height (`y`); Toriano added endpoints that lie just outside the site (a quay, a roof terrace).* | The footbridge, and the scaffolding climb | 3 |
 | **What fishing catches, per location**, and what a node gives: *done by Boccapioppo's stage 3 (`fish`, `gives`).* Toriano added what the lost things are (`lost`), gathering spots with their own label, hours and lines, and a location's own models for them (`node(n)`). | Bicycles, a trolley and a boot from the canal; skips, score pages at night, Roman finds | 3 |
 | **A location's own progress meter**: *done by Boccapioppo's stage 3 (`LocationMeter`).* Toriano added milestones that wait for a request (`requires`), milestone items, and build sites that grow with the meter. | The evening paper's column inches | 3 |
 | **Three new building pieces:** toilet, washbasin, bathtub (agreed with the user in the interview). *Done in stage 3.* | A Bathroom of Your Own; usable anywhere | 3 |
-| **Build mode on raised floors:** the cursor lands on balconies, terraces and upstairs floors, and the site's grid is drawn there. *Done in stage 3.* | Furnishing your flat; the windmill on the cathedral's roof | 3 |
+| **Build mode on raised floors:** the cursor lands on balconies, terraces and upstairs floors, and the site's grid is drawn there; the build view can move over the whole of a big map (`BuildMode.view_limit()`), and a cell is checked again when the cursor comes back to it from the build bar. *Done in stage 3.* | Furnishing your flat; the windmill on the cathedral's roof | 3 |
 | **Daylight shifted per location** (light only; the clock's parts of the day stay) | Dusk at five in December | 4 |
 | **A scripted snowfall** (falling snow and a light white dusting) that a request can start | The finale | 4 |
 | **New clothing shapes** if an outfit needs one the characters don't have (a long coat, a white helmet) | The cast's winter outfits | 4 |
 
 Everything else lives in Toriano's own files (`docs/WORLD.md`): `godot/data/locations/metropolis/`,
 `godot/scripts/locations/metropolis.gd` and helpers in `godot/scripts/locations/metropolis/`,
-`godot/tests/test_metropolis.gd` and `godot/tests/play_metropolis.gd`. Trams, traffic and passers-by are location code;
+`godot/tests/test_metropolis.gd`, and the playthroughs `godot/tests/play_metropolis.gd` (the walk round the city),
+`play_metropolis_story.gd` (the main story) and `play_metropolis_side.gd` (the side requests, from the main story's save),
+with their helpers in `metropolis_base.gd`. Trams, traffic and passers-by are location code;
 moving cars and trams block the player through `WalkWorld`'s moving bodies.
 
 ## Build stages
@@ -320,7 +322,7 @@ One pull request per stage. Each keeps the game playable and the tests passing.
    - The thirteen villagers with schedules, greetings, topics and gifts.
    - The nineteen requests, the six shops, the city items and the column-inch meter.
    - The shared path check, fishing catches, meter and bathroom pieces.
-   - `play_metropolis.gd`: a scripted playthrough of every request with real input.
+   - `play_metropolis_story.gd` and `play_metropolis_side.gd`: a scripted playthrough of every request with real input.
 4. **Look and ambient life.**
    - Tuning the look block, the fog, sodium and Christmas lights at night, dusk at five, the finale's snowfall.
    - Pigeons, ducks, gulls and cats; hurrying passers-by; moving traffic (this may get its own pull request).

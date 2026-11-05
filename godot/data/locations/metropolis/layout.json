@@ -302,7 +302,7 @@
   "zones": [
     {"id": "metropolis_crane", "name": "The crane at the Darsena", "minI": -150, "maxI": -124, "minK": 84, "maxK": 112, "unlock": {"quest": "metropolis_marble"}},
     {"id": "metropolis_footbridge", "name": "Footbridge over the Naviglio", "minI": -115, "maxI": -100, "minK": 133, "maxK": 138, "spanY": 0, "unlock": {"quest": "metropolis_footbridge"}, "endpoints": {"a": {"minI": -115, "maxI": -115, "minK": 133, "maxK": 138}, "b": {"minI": -100, "maxI": -100, "minK": 133, "maxK": 138}}},
-    {"id": "metropolis_scaffold", "name": "Scaffolding up the Duomo", "minI": 70, "maxI": 76, "minK": 8, "maxK": 13, "unlock": {"quest": "metropolis_scaffold"}, "endpoints": {"a": {"minI": 75, "maxI": 76, "minK": 8, "maxK": 13}, "b": {"minI": 67, "maxI": 69, "minK": 9, "maxK": 12, "minY": 6.3}}},
+    {"id": "metropolis_scaffold", "name": "Scaffolding up the Duomo", "minI": 70, "maxI": 76, "minK": 8, "maxK": 13, "unlock": {"quest": "metropolis_scaffold"}, "endpoints": {"a": {"minI": 75, "maxI": 76, "minK": 8, "maxK": 13}, "b": {"minI": 67, "maxI": 69, "minK": 9, "maxK": 12, "y": 6.3}}},
     {"id": "metropolis_terrace", "name": "The Duomo's south terrace", "minI": 40, "maxI": 66, "minK": 8, "maxK": 13, "floorY": 6.3, "unlock": {"quest": "metropolis_angel"}},
     {"id": "metropolis_shelter", "name": "The cathedral tram stop", "minI": -6, "maxI": 3, "minK": 26, "maxK": 29, "unlock": {"quest": "metropolis_shelter"}},
     {"id": "metropolis_fog_light", "name": "Rocco's corner of the square", "minI": -30, "maxI": -24, "minK": 6, "maxK": 12, "unlock": {"quest": "metropolis_fog_light"}},

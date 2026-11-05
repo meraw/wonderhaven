@@ -1,5 +1,5 @@
 {
- "_comment": "Casalrana (rice_village): a hamlet on the rice plain. Same format as layout_clockwork.json. The ground shape is godot/scripts/locations/rice_village.gd; buildings of kind rice_village_* and props of kind rice_village_* are built by the helpers in godot/scripts/locations/rice_village/ (h: a building's full height, which the camera keeps clear of; eaves: its wall height). The two rice_village_track blocks are the railway bed, with the level crossing between them; the trains and the crossing's barriers are timetable.gd and trains.gd. The departure point (kind boat) is the bus stop; its boat model stays hidden and a bus stop sign stands there. Zones for requests unlock when stage 3 adds the requests. See docs/locations/rice_village.md.",
+ "_comment": "Casalrana (rice_village): a hamlet on the rice plain. Same format as layout_clockwork.json. The ground shape is godot/scripts/locations/rice_village.gd; buildings of kind rice_village_* and props of kind rice_village_* are built by the helpers in godot/scripts/locations/rice_village/ (h: a building's full height, which the camera keeps clear of; eaves: its wall height). The two rice_village_track blocks are the railway bed, with the level crossing between them; the trains and the crossing's barriers are timetable.gd and trains.gd. The departure point (kind boat) is the bus stop; its boat model stays hidden and a bus stop sign stands there. The station and your flat above it are rooms on their own storeys (y), with the flat's floor, the outside stair and the bell tower's ringing floor in floors. Build sites open with Casalrana's requests. See docs/locations/rice_village.md.",
  "spawn": {
   "x": 0.6,
   "z": 1.0,
@@ -39,6 +39,7 @@
    "door": "S",
    "doorOffset": -3.0,
    "navDoor": "stationDoor",
+   "y": 0.42,
    "interior": {
     "shell": "house",
     "items": [
@@ -107,6 +108,35 @@
       0.3
      ]
     ]
+   }
+  },
+  {
+   "id": "rice_village_flat",
+   "kind": "rice_village_upstairs",
+   "name": "Your flat above the station",
+   "x": 19,
+   "z": -38,
+   "w": 12,
+   "d": 5,
+   "h": 4.5,
+   "eaves": 2.1,
+   "wall": "#d8ae68",
+   "roof": "#9a4632",
+   "y": 3.5,
+   "door": "E",
+   "doorOffset": 0.6,
+   "interior": {
+    "shell": "house",
+    "items": [
+     [
+      "cabinet",
+      -5.35,
+      -1.55,
+      1,
+      "#6f5038"
+     ]
+    ],
+    "route": []
    }
   },
   {
@@ -307,14 +337,27 @@
    "id": "rice_village_tower",
    "kind": "rice_village_tower",
    "name": "The bell tower",
-   "x": -11.75,
-   "z": 8.5,
-   "w": 3.5,
-   "d": 3.5,
+   "x": -14,
+   "z": 9,
+   "w": 4.44,
+   "d": 4.44,
    "h": 23.0,
    "eaves": 17.0,
    "wall": "#b8664c",
-   "roof": "#8f4a36"
+   "roof": "#8f4a36",
+   "door": "S",
+   "navDoor": "towerDoor",
+   "interior": {
+    "shell": "house",
+    "items": [],
+    "height": 3.4,
+    "route": [
+     [
+      0.0,
+      1.0
+     ]
+    ]
+   }
   },
   {
    "id": "rice_village_presbytery",
@@ -923,6 +966,21 @@
    "maxK": -42,
    "unlock": {
     "quest": "rice_village_train"
+   },
+   "spanY": 0.3,
+   "endpoints": {
+    "a": {
+     "minI": 5,
+     "maxI": 7,
+     "minK": -44,
+     "maxK": -42
+    },
+    "b": {
+     "minI": 31,
+     "maxI": 33,
+     "minK": -44,
+     "maxK": -42
+    }
    }
   },
   {
@@ -945,6 +1003,21 @@
    "maxK": -27,
    "unlock": {
     "quest": "rice_village_water"
+   },
+   "spanY": 0.5,
+   "endpoints": {
+    "a": {
+     "minI": -45,
+     "maxI": -44,
+     "minK": -30,
+     "maxK": -27
+    },
+    "b": {
+     "minI": -37,
+     "maxI": -36,
+     "minK": -30,
+     "maxK": -27
+    }
    }
   },
   {
@@ -978,6 +1051,57 @@
    "maxK": 36,
    "unlock": {
     "quest": "rice_village_bench"
+   }
+  },
+  {
+   "id": "rice_village_flat",
+   "name": "Your flat above the station",
+   "minI": 14,
+   "maxI": 23,
+   "minK": -40,
+   "maxK": -37,
+   "floorY": 3.5,
+   "interior": true,
+   "unlock": {
+    "flag": "rice_village_roofPatched"
+   }
+  },
+  {
+   "id": "rice_village_tower",
+   "name": "Inside the bell tower",
+   "minI": -16,
+   "maxI": -13,
+   "minK": 7,
+   "maxK": 10,
+   "unlock": {
+    "quest": "rice_village_stairs"
+   },
+   "endpoints": {
+    "a": {
+     "minI": -16,
+     "maxI": -13,
+     "minK": 10,
+     "maxK": 10,
+     "y": 0.42
+    },
+    "b": {
+     "minI": -16,
+     "maxI": -13,
+     "minK": 7,
+     "maxK": 7,
+     "y": 2.42
+    }
+   }
+  },
+  {
+   "id": "rice_village_goodsYard",
+   "name": "The old goods yard",
+   "minI": 38,
+   "maxI": 45,
+   "minK": -41,
+   "maxK": -35,
+   "unlock": {
+    "flag": "rice_village_goodsYard"
    }
   }
  ],
@@ -1069,14 +1193,14 @@
   {
    "id": "rice_village_clay1",
    "kind": "clay",
-   "x": 31,
-   "z": 21.1
+   "x": 12.5,
+   "z": 32.8
   },
   {
    "id": "rice_village_clay2",
    "kind": "clay",
-   "x": 46,
-   "z": -14.9
+   "x": -24.0,
+   "z": -28.2
   },
   {
    "id": "rice_village_pool0",
@@ -1101,6 +1225,161 @@
    "kind": "flowers",
    "x": -10.5,
    "z": 3.6
+  },
+  {
+   "id": "rice_village_straw0",
+   "kind": "flowers",
+   "x": 10.0,
+   "z": 14.6,
+   "gives": {
+    "rice_village_straw": 2
+   },
+   "label": "Gather loose straw"
+  },
+  {
+   "id": "rice_village_straw1",
+   "kind": "flowers",
+   "x": 30.0,
+   "z": 31.0,
+   "gives": {
+    "rice_village_straw": 2
+   },
+   "label": "Gather loose straw"
+  },
+  {
+   "id": "rice_village_straw2",
+   "kind": "flowers",
+   "x": -6.0,
+   "z": 26.6,
+   "gives": {
+    "rice_village_straw": 2
+   },
+   "label": "Gather loose straw"
+  },
+  {
+   "id": "rice_village_straw3",
+   "kind": "flowers",
+   "x": 38.0,
+   "z": 30.2,
+   "gives": {
+    "rice_village_straw": 2
+   },
+   "label": "Gather loose straw"
+  },
+  {
+   "id": "rice_village_straw4",
+   "kind": "flowers",
+   "x": 30.5,
+   "z": -27.2,
+   "gives": {
+    "rice_village_straw": 2
+   },
+   "label": "Gather loose straw"
+  },
+  {
+   "id": "rice_village_straw5",
+   "kind": "flowers",
+   "x": -18.6,
+   "z": -20.6,
+   "gives": {
+    "rice_village_straw": 2
+   },
+   "label": "Gather loose straw"
+  },
+  {
+   "id": "rice_village_straw6",
+   "kind": "flowers",
+   "x": 45.2,
+   "z": 15.5,
+   "gives": {
+    "rice_village_straw": 2
+   },
+   "label": "Gather loose straw"
+  },
+  {
+   "id": "rice_village_straw7",
+   "kind": "flowers",
+   "x": -7.7,
+   "z": -20.2,
+   "gives": {
+    "rice_village_straw": 2
+   },
+   "label": "Gather loose straw"
+  },
+  {
+   "id": "rice_village_lost0",
+   "kind": "fragment",
+   "x": -26.5,
+   "z": -44.0,
+   "flag": "rice_village_lostThings",
+   "name": "a felt hat, a bit flattened"
+  },
+  {
+   "id": "rice_village_lost1",
+   "kind": "fragment",
+   "x": -6.0,
+   "z": -43.9,
+   "flag": "rice_village_lostThings",
+   "name": "yesterday's newspaper, forecasting fog"
+  },
+  {
+   "id": "rice_village_lost2",
+   "kind": "fragment",
+   "x": 37.0,
+   "z": -43.6,
+   "flag": "rice_village_lostThings",
+   "name": "a single leather glove, left hand"
+  },
+  {
+   "id": "rice_village_lost3",
+   "kind": "fragment",
+   "x": -12.0,
+   "z": -51.0,
+   "flag": "rice_village_lostThings",
+   "name": "a cassette: Songs for the Journey, Volume Two"
+  },
+  {
+   "id": "rice_village_lost4",
+   "kind": "fragment",
+   "x": 14.5,
+   "z": -51.0,
+   "flag": "rice_village_lostThings",
+   "name": "an umbrella, in a week without a drop of rain"
+  },
+  {
+   "id": "rice_village_find0",
+   "kind": "dig",
+   "x": 21.0,
+   "z": 29.0,
+   "flag": "rice_village_museum",
+   "gives": {
+    "rice_village_coin": 1,
+    "coins": 3
+   },
+   "name": "an old coin: ten centesimi, 1919"
+  },
+  {
+   "id": "rice_village_find1",
+   "kind": "dig",
+   "x": -10.0,
+   "z": 24.4,
+   "flag": "rice_village_museum",
+   "gives": {
+    "rice_village_badge": 1
+   },
+   "name": "a mondina's tin badge, with a number stamped on it"
+  },
+  {
+   "id": "rice_village_find2",
+   "kind": "dig",
+   "x": 41.0,
+   "z": -27.0,
+   "flag": "rice_village_museum",
+   "gives": {
+    "rice_village_buttons": 1,
+    "coins": 2
+   },
+   "name": "brass railway buttons, with the old railway's initials"
   }
  ],
  "features": [
@@ -1213,8 +1492,8 @@
    11.2
   ],
   "towerDoor": [
-   -11.75,
-   11.2
+   -14.0,
+   12.0
   ],
   "presbyteryDoor": [
    -2.6,
@@ -1289,8 +1568,84 @@
    -34.6
   ],
   "stationYard": [
-   27,
-   -33.2
+   28.6,
+   -31.2
+  ],
+  "forecourtE": [
+   23.4,
+   -31.2
+  ],
+  "platformMid": [
+   8.5,
+   -42.4
+  ],
+  "crossingWatch": [
+   4.6,
+   -41.4
+  ],
+  "busStopWait": [
+   2.8,
+   0.2
+  ],
+  "stable": [
+   -15.0,
+   -3.7
+  ],
+  "leveeN": [
+   -36.4,
+   -20.0
+  ],
+  "leveeMid": [
+   -36.0,
+   -1.0
+  ],
+  "leveeS": [
+   -36.4,
+   16.0
+  ],
+  "leveeS2": [
+   -36.4,
+   27.0
+  ],
+  "leveeS3": [
+   -36.4,
+   39.0
+  ],
+  "road27W": [
+   -14.0,
+   -27.0
+  ],
+  "lineNW": [
+   -10.0,
+   -51.0
+  ],
+  "lineNE": [
+   13.0,
+   -51.0
+  ],
+  "plantationE": [
+   36.5,
+   44.0
+  ],
+  "fieldE": [
+   40.0,
+   30.0
+  ],
+  "yardE": [
+   40.0,
+   -32.0
+  ],
+  "churchWall": [
+   -11.3,
+   1.5
+  ],
+  "lineS": [
+   -6.0,
+   -43.4
+  ],
+  "lineSW": [
+   -21.0,
+   -44.1
   ],
   "cascinaGate": [
    12.5,
@@ -1443,10 +1798,6 @@
    "road27"
   ],
   [
-   "road27",
-   "bank27"
-  ],
-  [
    "bank27",
    "sluice"
   ],
@@ -1484,7 +1835,91 @@
   ],
   [
    "stationDoor",
+   "forecourtE"
+  ],
+  [
+   "forecourtE",
    "stationYard"
+  ],
+  [
+   "levee",
+   "leveeN"
+  ],
+  [
+   "levee",
+   "leveeMid"
+  ],
+  [
+   "leveeMid",
+   "leveeS"
+  ],
+  [
+   "leveeS",
+   "leveeS2"
+  ],
+  [
+   "leveeS2",
+   "leveeS3"
+  ],
+  [
+   "road27",
+   "road27W"
+  ],
+  [
+   "road27W",
+   "bank27"
+  ],
+  [
+   "crossingN",
+   "lineNW"
+  ],
+  [
+   "crossingN",
+   "lineNE"
+  ],
+  [
+   "plantation",
+   "plantationE"
+  ],
+  [
+   "plantationE",
+   "fieldE"
+  ],
+  [
+   "stationYard",
+   "yardE"
+  ],
+  [
+   "churchCorner",
+   "churchWall"
+  ],
+  [
+   "crossingS",
+   "lineS"
+  ],
+  [
+   "lineS",
+   "lineSW"
+  ],
+  [
+   "platformW",
+   "platformMid"
+  ],
+  [
+   "crossingS",
+   "crossingWatch"
+  ],
+  [
+   "busStop",
+   "busStopWait"
+  ],
+  [
+   "churchyard",
+   "stable"
+  ],
+  [
+   "churchCorner",
+   "stable"
   ],
   [
    "squareE",
@@ -1580,7 +2015,7 @@
     -32.5
    ],
    [
-    27,
+    24.4,
     -32.5
    ]
   ],
@@ -1632,8 +2067,8 @@
     11.2
    ],
    [
-    -13.6,
-    11.2
+    -14,
+    12.2
    ]
   ],
   [
@@ -2101,8 +2536,8 @@
   },
   {
    "kind": "rice_village_mulberry",
-   "x": 24.9,
-   "z": -31,
+   "x": 33.6,
+   "z": -30.6,
    "rad": 0.4
   },
   {
@@ -2252,8 +2687,8 @@
   },
   {
    "kind": "lamp_post",
-   "x": 26.2,
-   "z": -31.4
+   "x": 27.4,
+   "z": -29.6
   },
   {
    "kind": "lamp_post",
@@ -2295,6 +2730,199 @@
    "x": 22.8,
    "z": -34.95,
    "rad": 0.45
+  }
+ ],
+ "floors": [
+  {
+   "id": "rice_village_flatFloor",
+   "rect": [
+    13.0,
+    -40.5,
+    25.0,
+    -35.5
+   ],
+   "top": 3.5
+  },
+  {
+   "id": "rice_village_flatLanding",
+   "rect": [
+    25.0,
+    -38.6,
+    26.4,
+    -36.4
+   ],
+   "top": 3.5
+  },
+  {
+   "id": "rice_village_flatStair",
+   "rect": [
+    25.0,
+    -36.4,
+    26.4,
+    -31.6
+   ],
+   "rise": [
+    3.5,
+    0.42
+   ],
+   "axis": "z"
+  },
+  {
+   "id": "rice_village_ringingFloor",
+   "rect": [
+    -16.0,
+    7.0,
+    -12.0,
+    8.0
+   ],
+   "top": 2.42
+  },
+  {
+   "id": "rice_village_flatStairRail",
+   "rect": [
+    26.4,
+    -36.4,
+    26.5,
+    -31.6
+   ],
+   "top": 4.6,
+   "bottom": 0.12,
+   "walkable": false
+  },
+  {
+   "id": "rice_village_flatStairRailW",
+   "rect": [
+    24.9,
+    -35.5,
+    25.0,
+    -31.6
+   ],
+   "top": 4.6,
+   "bottom": 0.12,
+   "walkable": false
+  },
+  {
+   "id": "rice_village_flatLandingRail",
+   "rect": [
+    25.0,
+    -38.7,
+    26.5,
+    -38.6
+   ],
+   "top": 4.6,
+   "bottom": 3.25,
+   "walkable": false
+  },
+  {
+   "id": "rice_village_flatLandingRailE",
+   "rect": [
+    26.4,
+    -38.7,
+    26.5,
+    -36.4
+   ],
+   "top": 4.6,
+   "bottom": 3.25,
+   "walkable": false
+  }
+ ],
+ "machines": [
+  {
+   "id": "rice_village_paddy",
+   "cell": [
+    -34,
+    10
+   ],
+   "side": "E",
+   "type": "water",
+   "label": "The winter paddy's inlet"
+  },
+  {
+   "id": "rice_village_mill",
+   "cell": [
+    -33,
+    -13
+   ],
+   "side": "E",
+   "type": "power",
+   "label": "The old mill's drive (west wall)"
+  }
+ ],
+ "gardens": [
+  {
+   "id": "rice_village_bed0",
+   "x": 15.0,
+   "z": -0.4,
+   "seed": "rice_village_seeds",
+   "look": "cabbage",
+   "crop": {
+    "rice_village_cabbage": 2,
+    "rice_village_seeds": 1
+   },
+   "crop_name": "cabbages",
+   "need": "You need winter seed packets. Silvia sells them at the farm office."
+  },
+  {
+   "id": "rice_village_bed1",
+   "x": 16.9,
+   "z": -0.4,
+   "seed": "rice_village_seeds",
+   "look": "leek",
+   "crop": {
+    "rice_village_leek": 2,
+    "rice_village_seeds": 1
+   },
+   "crop_name": "leeks",
+   "need": "You need winter seed packets. Silvia sells them at the farm office."
+  },
+  {
+   "id": "rice_village_bed2",
+   "x": 15.0,
+   "z": 1.4,
+   "seed": "rice_village_seeds",
+   "look": "cabbage",
+   "crop": {
+    "rice_village_cabbage": 2,
+    "rice_village_seeds": 1
+   },
+   "crop_name": "cabbages",
+   "need": "You need winter seed packets. Silvia sells them at the farm office."
+  },
+  {
+   "id": "rice_village_bed3",
+   "x": 16.9,
+   "z": 1.4,
+   "seed": "rice_village_seeds",
+   "look": "leek",
+   "crop": {
+    "rice_village_leek": 2,
+    "rice_village_seeds": 1
+   },
+   "crop_name": "leeks",
+   "need": "You need winter seed packets. Silvia sells them at the farm office."
+  }
+ ],
+ "fish": [
+  {
+   "id": "tench",
+   "name": "Tench",
+   "weight": 4.0,
+   "pull": 0.6
+  },
+  {
+   "id": "carp",
+   "name": "Carp",
+   "weight": 2.0,
+   "pull": 0.95,
+   "caught": "A fat carp! Barba Tista will want to buy that."
+  },
+  {
+   "id": "frog",
+   "name": "Sleepy Frog",
+   "weight": 0.8,
+   "pull": 0.25,
+   "item": "",
+   "caught": "A very sleepy frog! You put it straight back in the mud. Goodnight, frog."
   }
  ]
 }

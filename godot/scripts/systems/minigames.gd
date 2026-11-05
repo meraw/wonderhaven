@@ -96,8 +96,8 @@ const FISH := [{"id": "minnow", "name": "Minnow", "weight": 5.0, "pull": 0.5}, {
 
 ## What can bite at a fishing spot. A layout may list its own catches ("fish": [{id, name, weight, pull, item?,
 ## node?, flag?, hours?}]): `item` is what you get (the shared "fish" when left out, or a boot, a tyre...), and a
-## catch with `node` only bites at that spot, with `flag` only once that flag is set, with `hours` only then. Without a
-## list of its own, a location has the shared FISH.
+## catch with `node` only bites at that spot, with `flag` only once that flag is set, with `hours` only then. An empty
+## `item` is one you put straight back (a sleepy frog). Without a list of its own, a location has the shared FISH.
 static func catch_table(list: Array, node_id: String, flags: Dictionary, minute: float) -> Array:
 	if list.is_empty(): return FISH
 	var out := list.filter(func(f): return (not f.has("node") or f.node == node_id) and (not f.has("flag") or flags.get(f.flag, false)) \
@@ -146,7 +146,7 @@ class Fish:
 				if tension >= 0.99: done = true; result = "snap"
 				elif progress >= 1.0: done = true; result = "caught"
 				elif t > 25.0: done = true; result = "escaped"
-	func reward() -> Dictionary: return {String(fish.get("item", "fish")): 1} if result == "caught" else {}
+	func reward() -> Dictionary: return {String(fish.get("item", "fish")): 1} if result == "caught" and String(fish.get("item", "fish")) != "" else {}
 
 ## "a Minnow", "an Old Boot".
 static func a_name(name: String) -> String: return ("an " if name.length() > 0 and "AEIOUaeiou".contains(name[0]) else "a ") + name

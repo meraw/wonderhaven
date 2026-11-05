@@ -8,6 +8,7 @@ extends RefCounted
 ##   room   {zone, needs}          a room checklist in a build zone: needs = [{any: [piece ids], count?, label} | {recolored: true, label}]
 ##   pieces {zone, any, count}     how many of these pieces stand in a build zone
 ##   harmony {value}, flag {flag}
+##   meter  {value}                the meter of the request's location reaches value (see LocationMeter)
 ##   pay    {npc, items}           hand items or coins to a villager (a choice in their conversation)
 ##   talk   {npc, lines?}          talk to someone; `final` ones hand the request in
 ## Time of day: a request with `hours: [from, to]` is only offered between those hours; a step with `hours` only
@@ -144,6 +145,9 @@ func _objective(qid: String, o: Dictionary) -> Dictionary:
 			if c == null and checks.has("*"): return {"done": checks["*"].call(o.check), "have": 0, "need": 1}
 			return {"done": c != null and c.call(), "have": 0, "need": 1}
 		"flag": return {"done": p.get(o.id, 0) == 1 or state.flags.get(o.flag, false), "have": 0, "need": 1}
+		"meter":
+			var mv := LocationMeter.points(state, Data.quest_island(qid))
+			return {"done": p.get(o.id, 0) == 1 or mv >= int(o.value), "have": mini(mv, int(o.value)), "need": int(o.value)}
 		"talk", "pay": return {"done": p.get(o.id, 0) == 1, "have": 0, "need": 1}
 		"room":
 			if p.get(o.id, 0) == 1: return {"done": true, "have": o.needs.size(), "need": o.needs.size()}
@@ -181,7 +185,7 @@ func refresh() -> Array:
 			for o in q.objectives:
 				if o.get("final", false) or stage_of(o) > cur: continue
 				var st := objective(q.id, o)
-				if st.done and o.kind in ["harmony", "build", "flag", "room", "pieces"]: r.progress[o.id] = 1
+				if st.done and o.kind in ["harmony", "meter", "build", "flag", "room", "pieces"]: r.progress[o.id] = 1
 				if st.done and not r.done.has(o.id): r.done[o.id] = true; newly.append({"quest": q, "objective": o}); any = true
 			if not any or current_stage(q.id) == cur: break
 		if is_ready(q.id) and not r.get("ready", false): r["ready"] = true; newly.append({"quest": q, "ready": true})

@@ -22,8 +22,8 @@ See `docs/WORLD.md` for the rules and the file shapes. A pack is picked up when 
   - on a gathering node: `gives` (`WorldActions.gives`: what it gives, for bins and dig spots too), `name` (a
     particular lost thing, or a page of a score), `label` (what the prompt says), `hours: [from, to]` (only out
     then), `lines` (a bin's) and `text` (a dig spot's).
-  - zone `endpoints` may lie just outside the build site, and `b` can need you to stand at least `minY` high; a
-    request checks the path with the build check `path:<zone>`.
+  - zone `endpoints` may lie just outside the build site (`Validate.path_across`), and an endpoint can say how high
+    it is (`y`: up on a roof terrace); a request checks the path with the build check `path:<zone>`.
   See `metropolis/` for a city that uses them.
 - `location.json`: its entry on the travel map (`name`, `desc`, `x`, `y`, `r`, `color`, `reveal`) and its `look`. The
   place stays off the map until its `reveal` flag is set (`Travel.on_map`). An optional `meter` gives the place its

@@ -12,6 +12,7 @@ const P := preload("res://scripts/world/palette.gd")
 const Tex := preload("res://scripts/locations/rice_village/textures.gd")
 const Buildings := preload("res://scripts/locations/rice_village/buildings.gd")
 const Trains := preload("res://scripts/locations/rice_village/trains.gd")
+const Life := preload("res://scripts/locations/rice_village/village_life.gd")
 
 const RAIL_Y := 0.62
 const RAIL_Z := -47.0
@@ -46,6 +47,30 @@ static func dress(village: Node3D) -> void:
 	var tr := Trains.new(); tr.name = "rice_village_trains"
 	village.add_child(tr)
 	tr.setup(game, village)
+	_straw(village)
+	# your flat upstairs: its roof and chimneys fade while you're in it (the station built them)
+	var st: Node3D = village.objects.get("rice_village_station"); var fl: Node3D = village.objects.get("rice_village_flat")
+	if st and fl and st.has_meta("upstairs_fade"): fl.set_meta("fade_parts", st.get_meta("upstairs_fade"))
+	var life := Life.new(); life.name = "rice_village_life"
+	village.add_child(life)
+	life.setup(game, village)
+
+## Loose straw on the stubble (gathering spots of kind "flowers" that give straw): a tuft and a little sheaf instead
+## of the shared flower patch.
+static func _straw(village: Node3D) -> void:
+	var gold := P.mat("d9c27a"); var pale := P.mat("e6d49a")
+	for n in Data.layout.nodes:
+		if n.kind != "flowers" or not n.get("gives", {}).has("rice_village_straw"): continue
+		var o: Node3D = village.node_visuals.get(n.id)
+		if o == null: continue
+		for c in o.get_children(): (c as Node3D).visible = false
+		var seed := int(absf(float(n.x) * 7.0 + float(n.z) * 3.0))
+		for k in 7:
+			var a := k * 0.9 + seed * 0.3
+			var r := 0.15 + (k % 3) * 0.12
+			_add(o, P.cyl(0.015, 0.05, 0.32, 4), pale if k % 2 else gold, Vector3(cos(a) * r, 0.12, sin(a) * r), Vector3(cos(a) * 0.9, 0, sin(a) * 0.9))
+		var sheaf := _add(o, P.cyl(0.12, 0.16, 0.42, 8), gold, Vector3(0.1, 0.16, -0.05), Vector3(0, 0, 1.45))
+		_add(sheaf, P.cyl(0.13, 0.13, 0.05, 8), P.mat("b8964a"), Vector3.ZERO)
 
 static func _add(parent: Node3D, mesh: Mesh, mat: Material, pos: Vector3, rot: Vector3 = Vector3.ZERO, scl: Vector3 = Vector3.ONE, shadow: bool = true) -> MeshInstance3D:
 	var m := P.mi(mesh, mat, pos, shadow)
