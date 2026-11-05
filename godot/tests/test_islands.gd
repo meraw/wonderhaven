@@ -207,3 +207,16 @@ func test_rich_rocks_give_what_the_place_is_rich_in():
 	var glow := Minigames.Mine.new(true, Rng.new(1), "crystal"); hit.call(glow)
 	t.ok(int(glow.reward().get("crystal", 0)) == 2, "the cove's glowing rocks: crystal (%s)" % str(glow.reward()))
 	t.eq(Data.read_layout("clockwork").get("richRock", ""), "crystal", "the cove's layout says its rocks hold crystal")
+
+func test_no_squeeze_between_scenery_and_walls():
+	# A tree, rock or bin near a building either touches it or leaves room to walk past: a gap narrower than a
+	# walker wedges you in (the bin by Elio's shop once stood 0.25 m from its corner).
+	var size := {"chop": 0.45, "fruit": 0.45, "shake": 0.45, "mine": 0.75, "bin": 0.65}
+	for id in _islands_with_layouts():
+		_on(id, func():
+			for n in Data.layout.nodes:
+				if not size.has(n.kind): continue
+				for b in Data.layout.buildings:
+					var cx := clampf(n.x, b.x - b.w / 2.0, b.x + b.w / 2.0); var cz := clampf(n.z, b.z - b.d / 2.0, b.z + b.d / 2.0)
+					var gap := Vector2(n.x - cx, n.z - cz).length() - float(size[n.kind])
+					t.ok(gap <= 0.0 or gap >= WalkWorld.PLAYER_RADIUS * 2.0 + 0.05, "%s: %s and %s leave room to pass (%.2f m)" % [id, n.id, b.id, gap]))
