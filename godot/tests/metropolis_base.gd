@@ -73,9 +73,28 @@ func done(qid: String) -> bool: return status(qid) == "done"
 func inches() -> int: return LocationMeter.points(game.state, "metropolis")
 func step_done(qid: String, oid: String) -> bool: return game.state.quests.get(P + qid, {}).get("done", {}).has(oid)
 
-## Talks to a Toriano villager (accepting what they offer, paying what they ask) and reports the request's state.
+## Number 14 has two storeys round its courtyard, joined by the stone stair: the courtyard and the street below, the
+## balcony ring, the flats and the roof terrace above. Changes storey there when you need to be on the other one.
+func storey_to(up: bool) -> void:
+	var is_up: bool = game.player.pos.y > 2.0
+	if is_up == up: return
+	var top := node("terrace_w"); var foot := node("stair_foot")
+	if is_up:
+		await walk_to(top.x, top.y, 0.8); await walk_direct(foot.x, foot.y, 0.6)
+	else:
+		await walk_to(foot.x, foot.y, 0.8); await walk_direct(top.x, top.y, 0.6)
+
+## Talks to a Toriano villager (accepting what they offer, paying what they ask). A villager on the other storey of
+## number 14 (in a flat off the balcony, or down in the courtyard below it) is reached by the stair.
 func chat(npc: String, accept: bool = true) -> bool:
-	return await talk(P + npc, accept)
+	var id := P + npc
+	for attempt in 3:
+		var a = game.npcs[id]
+		var near_tenement: bool = Vector2(a.pos.x + 38.0, a.pos.z - 112.0).length() < 16.0 or Vector2(game.player.pos.x + 38.0, game.player.pos.z - 112.0).length() < 16.0
+		if not near_tenement or absf(a.pos.y - game.player.pos.y) < 1.5: break
+		if a.pos.y > 1.0 and a.pos.y < 3.0: await wait(3.0); continue   # on the stair: let them get where they're going
+		await storey_to(a.pos.y > 2.0)
+	return await talk(id, accept)
 
 ## The harness tops up materials a player would gather again and again (noted, so the report says so).
 func top_up(items: Dictionary, why: String) -> void:
