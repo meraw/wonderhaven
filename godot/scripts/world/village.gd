@@ -13,6 +13,7 @@ var window_mats: Array = []   # house window glass, lit warm at night
 var occluders: Array = []     # [centre, radius] of canopies and bushes, for camera framing
 var terrain: MeshInstance3D
 var water: MeshInstance3D
+var valley_fog: MeshInstance3D   # mist in the valley below a hilltop (layout `valley_fog`); Atmosphere thickens it at dawn
 
 func build(decor: Dictionary) -> void:
 	terrain = TerrainBuilder.build_terrain(); add_child(terrain)
@@ -42,6 +43,8 @@ func build(decor: Dictionary) -> void:
 	if Data.island == "hearthglow": _dress_hearthglow(H)
 	_build_props()
 	if Data.layout.has("horizon"): add_child(TerrainBuilder.build_backdrop(Data.layout.horizon))
+	if Data.layout.has("valley_fog"):
+		valley_fog = TerrainBuilder.build_valley_fog(Data.layout.valley_fog, terrain); add_child(valley_fog)
 	_build_vineyards()
 	_build_decor(decor)
 	_build_nodes()
@@ -68,6 +71,7 @@ func _dress_hearthglow(H: Callable) -> void:
 ## the hillsides are striped with vines the way Langhe hills are. They stand outside the walkable land.
 func _build_vineyards() -> void:
 	var items: Array = []
+	var roses: Array = []
 	for v in Data.layout.get("vineyards", []):
 		var a0 := deg_to_rad(float(v["from"])); var a1 := deg_to_rad(float(v["to"]))
 		for k in int(v.get("rows", 8)):
@@ -78,6 +82,10 @@ func _build_vineyards() -> void:
 				var x := cos(a) * r; var z := sin(a) * r
 				items.append({"x": x, "z": z, "a": a, "k": k})
 				a += 2.8 / r
+			if v.get("roses", false):   # a rose bush at each end of the row, the way Langhe growers plant them
+				for end in [a0 - 1.6 / (Heightfield._island_radius(a0) - e), a]:
+					var rr := Heightfield._island_radius(end) - e
+					roses.append({"x": cos(end) * rr, "z": sin(end) * rr, "k": k})
 	if items.is_empty(): return
 	var autumn := [Color("d8b84a"), Color("c9863a"), Color("b5552e"), Color("a9b84a"), Color("d6a23c")]
 	var cz := FastNoiseLite.new(); cz.seed = 9; cz.frequency = 0.05
@@ -91,10 +99,20 @@ func _build_vineyards() -> void:
 		var off := Vector3(-sin(it.a), 0, cos(it.a)) * 1.4
 		var p := Vector3(it.x, 0, it.z) + off
 		return [Transform3D(Basis.IDENTITY, Vector3(p.x, Heightfield.height(p.x, p.z) + 0.55, p.z)), Color("8a6a50")], false)
+	if roses.is_empty(): return
+	_multimesh(Foliage.bush(), Foliage.plant_material(0.03, 0.1), roses, func(it):
+		return [Transform3D(Basis.IDENTITY.scaled(Vector3(1.1, 1.3, 1.1)), Vector3(it.x, Heightfield.height(it.x, it.z) - 0.05, it.z)), Color("5b7f45")], false)
+	var blooms: Array = []
+	var rose_cols := [Color("d2304a"), Color("e8587a"), Color("f2a3b3"), Color("c2283e")]
+	for it in roses:
+		for j in 6:
+			var ja: float = j * 1.05 + float(it.k)
+			blooms.append({"p": Vector3(it.x + cos(ja) * 0.32, Heightfield.height(it.x, it.z) + 0.45 + 0.12 * sin(j * 2.0), it.z + sin(ja) * 0.32), "c": rose_cols[(j + int(it.k)) % rose_cols.size()]})
+	_multimesh(Foliage.flower_head(), Foliage.plant_material(0.02, -1.0, false, true), blooms, func(b): return [Transform3D(Basis.IDENTITY.scaled(Vector3.ONE * 1.6), b.p), b.c], false)
 
 ## Scenery from the layout: props [{kind, x, z, r?, ...}] with kind lamp_post, fence (n), crate, barrel, gear,
 ## piece (any build piece model, id), pier (w, d), market_stall, rock, bus (length, color, sign), bus_stop, ruin_wall
-## (length, seed). Solid props block walking: a circle of `rad`, or a box of `w` x `d` when given.
+## (length, seed), persimmon (seed), pumpkins (n, seed). Solid props block walking: a circle of `rad`, or a box of `w` x `d` when given.
 func _build_props() -> void:
 	for pr in Data.layout.get("props", []):
 		var o: Node3D
@@ -108,6 +126,8 @@ func _build_props() -> void:
 			"bus": o = Props.bus(float(pr.get("length", 6.4)), String(pr.get("color", "3a6fb5")), String(pr.get("sign", "MONTEFORCHETTA")))
 			"bus_stop": o = Props.bus_stop_sign()
 			"ruin_wall": o = Props.ruin_wall(float(pr.get("length", 3.0)), int(pr.get("seed", 1)))
+			"persimmon": o = Props.persimmon(int(pr.get("seed", 11)))
+			"pumpkins": o = Props.pumpkins(int(pr.get("n", 4)), int(pr.get("seed", 3)))
 			_: o = Props.interior_prop(pr.kind)
 		var y: float = float(pr.y) if pr.has("y") else Heightfield.height(pr.x, pr.z)
 		o.position = Vector3(pr.x, y, pr.z); o.rotation.y = float(pr.get("r", 0.0))
@@ -172,11 +192,26 @@ func _build_decor(decor: Dictionary) -> void:
 		_multimesh(Foliage.canopy(variant), canopy_mat, group, func(t): return [xf.call(Vector3(t.x, H.call(t.x, t.z) + 2.0 * t.s, t.z), Vector3(1.0, 0.95, 1.0) * t.s, t.hue * 6.0), leaf_of.call(t)])
 	var pine_cols := [Color("4aa872"), Color("3f9a6a"), Color("55b07a")]
 	_multimesh(Foliage.pine(), Foliage.plant_material(0.012, 0.5), pine, func(t): return [xf.call(Vector3(t.x, H.call(t.x, t.z), t.z), Vector3.ONE * t.s, t.hue * 6.0), pine_cols[int(t.hue * 3.0) % 3]])
-	var bush_cols := [Color("72c464"), Color("62b060"), Color("86d470")]
-	_multimesh(Foliage.bush(), Foliage.plant_material(0.03, 0.1), decor.bushes, func(b): return [xf.call(Vector3(b.x, H.call(b.x, b.z), b.z), Vector3(1.15, 0.9, 1.0) * b.s, b.hue * 6.0), bush_cols[int(b.hue * 3) % 3]])
+	var bush_cols: Array = D.get("bushColors", ["72c464", "62b060", "86d470"]).map(func(c): return Color(c))
+	_multimesh(Foliage.bush(), Foliage.plant_material(0.03, 0.1), decor.bushes, func(b): return [xf.call(Vector3(b.x, H.call(b.x, b.z), b.z), Vector3(1.15, 0.9, 1.0) * b.s, b.hue * 6.0), bush_cols[int(b.hue * bush_cols.size()) % bush_cols.size()]])
 	# Flowers: five-petal heads on thin stems; heads and stems sway together.
 	_multimesh(Foliage.flower_head(), Foliage.plant_material(0.02, -1.0, false, true), decor.flowers, func(f): return [xf.call(Vector3(f.x, H.call(f.x, f.z) + 0.27 * f.s, f.z), Vector3.ONE * f.s * 1.7, f.x * 3.0, 0.15), P.FLOWERS[int(f.c)]], false)
 	_multimesh(P.cyl(0.012, 0.016, 0.27, 4), Foliage.plant_material(0.02 / 0.27, -0.135), decor.flowers, func(f): return [xf.call(Vector3(f.x, H.call(f.x, f.z) + 0.135 * f.s, f.z), Vector3.ONE * f.s), Color("5aa64c")], false)
+	# Woodland flowers (decor "woodFlowers": {n, colors}) scattered under the woods' trees: cyclamen in Monteforchetta.
+	var wf: Dictionary = D.get("woodFlowers", {})
+	if not wf.is_empty():
+		var wrng := Rng.new(23)
+		var wcols: Array = wf.get("colors", ["d64f8c"]).map(func(c): return Color(c))
+		var blooms: Array = []
+		for w in D.get("woods", []):
+			for i in int(wf.get("n", 40)):
+				var a := wrng.range_f(0.0, TAU); var r := sqrt(wrng.next()) * float(w.r)
+				var x := float(w.x) + cos(a) * r; var z := float(w.z) + sin(a) * r
+				if Heightfield.height(x, z) < Heightfield.WALKABLE_MIN + 0.25 or WorldStatics.dist_to_paths(x, z) < 1.0: continue
+				if WorldStatics._in_zone(x, z, 0.3) or WorldStatics._near_building(x, z, 0.3): continue   # not where you build
+				blooms.append({"x": x, "z": z, "s": wrng.range_f(0.6, 0.95), "c": wcols[i % wcols.size()]})
+		_multimesh(Foliage.flower_head(), Foliage.plant_material(0.02, -1.0, false, true), blooms, func(f): return [xf.call(Vector3(f.x, H.call(f.x, f.z) + 0.16 * f.s, f.z), Vector3.ONE * f.s * 1.3, f.x * 3.0, 0.5), f.c], false)
+		_multimesh(Foliage.bush(), Foliage.plant_material(0.03, 0.1), blooms, func(f): return [xf.call(Vector3(f.x, H.call(f.x, f.z) - 0.02, f.z), Vector3(0.45, 0.22, 0.45) * f.s, f.z), Color("4d6e3e")], false)
 	# Grass tufts (lit like the ground so they blend into it), plus extra visual-only tufts near the village.
 	var grass: Array = decor.grass.duplicate()
 	var rng := Rng.new(11)
@@ -193,7 +228,13 @@ func _build_decor(decor: Dictionary) -> void:
 		if Vector2(x - sq.x, z - sq.z).length() < sq.r + 0.4: continue
 		if WorldStatics._near_building(x, z, 0.15) or WorldStatics._in_zone(x, z, 0.3): continue
 		grass.append({"x": x, "z": z, "r": rng.range_f(0, TAU), "s": rng.range_f(0.7, 1.35)})
-	var grass_cols := [Color("92d86a"), Color("86d062"), Color("a2de76"), Color("8cd466")]
+	# tufts a little greener and brighter than the meadow they grow in (the layout's "grassColors"), so an autumn
+	# meadow still has living grass in it
+	var gp: Array = Data.layout.get("grassColors", [])
+	var grass_cols: Array = [Color("92d86a"), Color("86d062"), Color("a2de76"), Color("8cd466")]
+	if not gp.is_empty():
+		var mix_cols: Array = [Color(gp[0]), Color(gp[1]), Color(gp[2]), Color(gp[0]).lerp(Color(gp[2]), 0.5)]
+		for k in grass_cols.size(): grass_cols[k] = (grass_cols[k] as Color).lerp(mix_cols[k], 0.55).lightened(0.04)
 	_multimesh(Foliage.grass_tuft(), Foliage.plant_material(0.16, 0.0, true), grass, func(g): return [xf.call(Vector3(g.x, H.call(g.x, g.z) - 0.01, g.z), Vector3.ONE * g.s, g.r), grass_cols[int(absf(g.x * 13.0 + g.z * 7.0)) % 4]], false)
 
 func _build_nodes() -> void:
@@ -206,7 +247,9 @@ func _build_nodes() -> void:
 			"fish": o = Props.fishing_spot()
 			"flowers": o = Props.flower_patch()
 			"shake": o = Props.oak()
-			"fruit": o = Props.round_tree(0.9, 0.7); Props.add_fruit(o).visible = false
+			"fruit":   # a layout's "fruitTree": "hazel" grows the groves as hazels instead of round trees
+				o = Props.hazel(0.9, fmod(absf(n.x * 3.1 + n.z * 1.7), 1.0)) if Data.layout.get("fruitTree", "") == "hazel" else Props.round_tree(0.9, 0.7)
+				Props.add_fruit(o).visible = false
 			"dig": o = Props.dig_spot()
 			"chest": o = Props.chest()
 			"fragment": o = Props.fragment()

@@ -8,7 +8,9 @@ static func build_terrain() -> MeshInstance3D:
 	var seg := int(round(150.0 * size / Data.DEFAULT_MAP_SIZE))
 	var st := SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
-	var grass := Color("8fd16a"); var grass2 := Color("76c25a"); var grass3 := Color("a6dc74")
+	# a layout's "grassColors": [main, darker, lighter] sets the meadow's colours (autumn olive and straw, say)
+	var gp: Array = Data.layout.get("grassColors", ["8fd16a", "76c25a", "a6dc74"])
+	var grass := Color(gp[0]); var grass2 := Color(gp[1]); var grass3 := Color(gp[2])
 	var stone := Color("bdb5a8")
 	var rng := Rng.new(3)
 	var heights := PackedFloat32Array(); heights.resize((seg + 1) * (seg + 1))
@@ -525,24 +527,116 @@ static func build_water(terrain: MeshInstance3D) -> MeshInstance3D:
 	m.name = "Water"
 	return m
 
+## Mist lying in the valley below a hilltop (a layout's `valley_fog`: {"y": top of the mist, ...}): a sheet at `y`
+## that thins where the ground comes up through it, so slopes and hills rise out of a sea of fog. Atmosphere sets
+## its `amount` by the hour (thick at dawn, burnt off by late morning) and its colour from the sky.
+const VALLEY_FOG_SHADER := """
+shader_type spatial;
+render_mode unshaded, cull_disabled, depth_draw_never, shadows_disabled;
+uniform vec4 fog_color : source_color = vec4(0.93, 0.93, 0.92, 1.0);
+uniform float amount = 0.0;
+uniform sampler2D heights : filter_linear, repeat_disable;
+uniform vec4 hrect = vec4(-62.0, -62.0, 124.0, 124.0);
+uniform float floor_y = -28.0;
+uniform float top_y = -9.0;
+uniform vec2 drift = vec2(0.0);
+uniform float reach = 480.0;
+#ifdef SOFT
+uniform sampler2D depth_tex : hint_depth_texture, filter_nearest;
+#endif
+varying vec3 wpos;
+""" + NOISE_LIB + """
+void vertex() { wpos = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz; }
+void fragment() {
+	vec2 uv = (wpos.xz - hrect.xy) / hrect.zw;
+	float ground = (uv.x < 0.0 || uv.y < 0.0 || uv.x > 1.0 || uv.y > 1.0) ? floor_y : texture(heights, uv).r;
+#ifdef SOFT
+	// Whatever is seen through the mist (the far hills, a house): how far below the top of the mist it stands.
+	float d = texture(depth_tex, SCREEN_UV).r;
+	vec4 vp = INV_PROJECTION_MATRIX * vec4(SCREEN_UV * 2.0 - 1.0, d, 1.0);
+	vec3 seen = (INV_VIEW_MATRIX * vec4(vp.xyz / vp.w, 1.0)).xyz;
+	if (d > 0.000001) ground = max(ground, seen.y);   // (not the empty sky past the hills)
+#endif
+	// Rolling banks with finer wisps drifting across them; the mist is deeper where the banks pile up, so the
+	// slopes come up through it along a ragged line instead of a waterline.
+	float n = fbm(wpos.xz * 0.014 + drift) * 0.6 + fbm(wpos.xz * 0.05 - drift * 1.7) * 0.4;
+	float depth = top_y - ground - 7.0 * (1.0 - n);
+	float edge = smoothstep(0.0, 7.0, depth);
+	edge *= smoothstep(reach, reach * 0.8, length(wpos.xz));
+	float body = smoothstep(0.25, 0.85, n * 0.75 + amount * 0.4);
+	// lit tops, cooler hollows
+	ALBEDO = fog_color.rgb * mix(vec3(0.8, 0.84, 0.9), vec3(1.04), smoothstep(0.3, 0.75, n));
+	ALPHA = clamp(amount * edge * body, 0.0, 0.93);
+}
+"""
+
+static func build_valley_fog(spec: Dictionary, terrain: MeshInstance3D) -> MeshInstance3D:
+	var p := PlaneMesh.new(); p.size = Vector2(1000.0, 1000.0)
+	var m := MeshInstance3D.new(); m.mesh = p
+	var sh := Shader.new()
+	# depth-softened edges where the renderer can read depth (Forward+); the heights still thin it on the slopes
+	sh.code = VALLEY_FOG_SHADER.replace("shader_type spatial;", "shader_type spatial;\n#define SOFT") if Outline.supported() else VALLEY_FOG_SHADER
+	var sm := ShaderMaterial.new(); sm.shader = sh
+	sm.set_shader_parameter("heights", terrain.get_meta("height_tex"))
+	sm.set_shader_parameter("hrect", terrain.get_meta("height_rect"))
+	sm.set_shader_parameter("floor_y", float(spec.get("floor", Heightfield.VALLEY_Y)))
+	sm.set_shader_parameter("top_y", float(spec.get("y", -9.0)))
+	sm.render_priority = -1   # under the water, leaves and particles
+	m.material_override = sm
+	m.position.y = float(spec.get("y", -9.0))
+	m.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	m.name = "ValleyFog"
+	return m
+
+## The far hills' look: vertex colours (sRGB) with vineyard rows along the contours where the alpha says vines grow.
+## The rows fade to their average colour where they would be finer than a pixel, so they never shimmer.
+const HILLS_SHADER := """
+shader_type spatial;
+render_mode diffuse_lambert_wrap, specular_disabled, cull_disabled;
+varying vec3 wpos;
+""" + NOISE_LIB + """
+void vertex() { wpos = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz; }
+void fragment() {
+	vec3 c0 = COLOR.rgb;
+	vec3 col = mix(c0 / 12.92, pow((c0 + 0.055) / 1.055, vec3(2.4)), step(0.04045, c0));
+	float vine = COLOR.a;
+	float s = wpos.y / 1.6 + noise(wpos.xz * 0.035) * 1.8;   // rows follow the contours, wavering a little
+	float fw = fwidth(s);
+	float gap = smoothstep(0.18, 0.32, abs(fract(s) - 0.5));
+	float fine = 1.0 - smoothstep(0.25, 0.6, fw);
+	vec3 grass = vec3(0.2, 0.26, 0.09);   // the grass between the rows
+	col = mix(col, mix(col, grass, mix(0.3, gap * 0.75, fine)), vine);
+	ALBEDO = col;
+	ROUGHNESS = 1.0;
+}
+"""
+
 ## The view beyond the playable land, from a layout's `horizon` block: {"hills": true} rings the valley with rolling
-## hills patched in field and vineyard colours, {"alps": true} adds a snowy mountain range from the west round to
-## the north (as seen from the Langhe on a clear day). Both sit far out, so the haze softens them.
+## hills patched in field and autumn vineyard colours (rows striped along the contours), {"alps": true} adds a snowy
+## mountain range from the west round to the north (as seen from the Langhe on a clear day), and {"villages": n}
+## puts n small hilltop villages, each with its bell tower, on the crests. All sit far out, so the haze softens them.
 static func build_backdrop(spec: Dictionary) -> Node3D:
 	var root := Node3D.new(); root.name = "Backdrop"
 	var mat := StandardMaterial3D.new()
 	mat.vertex_color_use_as_albedo = true; mat.vertex_color_is_srgb = true
 	mat.diffuse_mode = BaseMaterial3D.DIFFUSE_LAMBERT_WRAP; mat.specular_mode = BaseMaterial3D.SPECULAR_DISABLED
 	mat.roughness = 1.0; mat.cull_mode = BaseMaterial3D.CULL_DISABLED
+	var hills_mat := ShaderMaterial.new(); hills_mat.shader = Shader.new(); hills_mat.shader.code = HILLS_SHADER
 	var floor_y := float(spec.get("floor", Heightfield.VALLEY_Y))
 	var nz := FastNoiseLite.new(); nz.seed = 31; nz.frequency = 0.012; nz.fractal_octaves = 4
 	var cz := FastNoiseLite.new(); cz.seed = 77; cz.frequency = 0.012
+	var hill_y := func(x: float, z: float) -> float:
+		var r := Vector2(x, z).length()
+		var rise := Heightfield.ss(118.0, 200.0, r) * 30.0 + Heightfield.ss(190.0, 300.0, r) * 12.0
+		return floor_y - 0.3 + rise * (0.55 + 0.45 * (nz.get_noise_2d(x, z) * 0.5 + 0.5)) + 6.0 * nz.get_noise_2d(x * 2.3, z * 2.3) * Heightfield.ss(118.0, 170.0, r)
 	if spec.get("hills", false):
 		var st := SurfaceTool.new(); st.begin(Mesh.PRIMITIVE_TRIANGLES)
 		var radii := [112.0, 118.0, 126.0, 136.0, 148.0, 162.0, 178.0, 196.0, 216.0, 238.0, 262.0, 290.0, 320.0]
 		var segs := 160
-		# soft patches of meadow, stubble and vineyard gold, darker woods on the tops, bluer with distance
-		var meadow := Color("93a565"); var stubble := Color("b7a86e"); var vines := Color("b98a4e"); var woods := Color("5f7046")
+		# soft patches of meadow and stubble, vineyards in autumn gold, yellow and rust on the sunny sides, darker
+		# woods on the tops, bluer with distance
+		var meadow := Color("93a565"); var stubble := Color("b7a86e"); var woods := Color("5f7046")
+		var gold := Color("c79a45"); var yellow := Color("cdb04e"); var rust := Color("b2643a")
 		var grid: Array = []
 		for ri in radii.size():
 			var row: Array = []
@@ -550,12 +644,16 @@ static func build_backdrop(spec: Dictionary) -> Node3D:
 				var a := TAU * ai / segs
 				var r: float = radii[ri]
 				var x := cos(a) * r; var z := sin(a) * r
-				var rise := Heightfield.ss(118.0, 200.0, r) * 30.0 + Heightfield.ss(190.0, 300.0, r) * 12.0
-				var y := floor_y - 0.3 + rise * (0.55 + 0.45 * (nz.get_noise_2d(x, z) * 0.5 + 0.5)) + 6.0 * nz.get_noise_2d(x * 2.3, z * 2.3) * Heightfield.ss(118.0, 170.0, r)
+				var y: float = hill_y.call(x, z)
 				var f := cz.get_noise_2d(x, z) * 0.5 + 0.5
-				var c := meadow.lerp(stubble, Heightfield.ss(0.35, 0.6, f)).lerp(vines, Heightfield.ss(0.62, 0.8, f) * 0.8)
-				c = c.lerp(woods, Heightfield.ss(0.5, 0.85, (y - floor_y) / 42.0) * 0.7)
+				var top := Heightfield.ss(0.5, 0.85, (y - floor_y) / 42.0)
+				var vine := Heightfield.ss(0.48, 0.64, f) * (1.0 - top * 0.8)
+				var g := cz.get_noise_2d(x * 2.7 + 300.0, z * 2.7) * 0.5 + 0.5
+				var vc := gold.lerp(yellow, Heightfield.ss(0.55, 0.75, g)).lerp(rust, Heightfield.ss(0.4, 0.2, g))
+				var c := meadow.lerp(stubble, Heightfield.ss(0.3, 0.5, f)).lerp(vc, vine * 0.85)
+				c = c.lerp(woods, top * 0.7)
 				c = c.lerp(Color("97a8bb"), Heightfield.ss(140.0, 320.0, r) * 0.55)
+				c.a = vine
 				row.append([Vector3(x, y, z), c])
 			grid.append(row)
 		for ri in radii.size() - 1:
@@ -564,7 +662,8 @@ static func build_backdrop(spec: Dictionary) -> Node3D:
 				for v in [q[0], q[2], q[1], q[1], q[2], q[3]]:
 					st.set_color(v[1]); st.add_vertex(v[0])
 		st.generate_normals()
-		root.add_child(Palette.mi(st.commit(), mat, Vector3.ZERO, false))
+		root.add_child(Palette.mi(st.commit(), hills_mat, Vector3.ZERO, false))
+		if int(spec.get("villages", 0)) > 0: root.add_child(Palette.mi(_hill_villages(int(spec.villages), hill_y), hills_mat, Vector3.ZERO, false))
 	if spec.get("alps", false):
 		# a range from alps_from round to alps_to (degrees; default west-south-west to north-north-east), far out across the plain
 		var st := SurfaceTool.new(); st.begin(Mesh.PRIMITIVE_TRIANGLES)
@@ -579,15 +678,17 @@ static func build_backdrop(spec: Dictionary) -> Node3D:
 			var t := float(i) / n
 			var a := lerpf(a0, a1, t)
 			var ends := Heightfield.ss(0.0, 0.1, t) * Heightfield.ss(1.0, 0.88, t)   # the range rises from the haze and sinks back
-			var crest := (55.0 + 80.0 * (rn.get_noise_1d(a * 9.0) * 0.5 + 0.5)) * ends
-			var shoulder := (30.0 + 40.0 * (rn.get_noise_1d(a * 14.0 + 7.0) * 0.5 + 0.5)) * ends
+			# a long white line low on the horizon, with one taller pyramid standing out (`alps_peak`, degrees)
+			var peak := exp(-pow((rad_to_deg(a) - float(spec.get("alps_peak", 215.0))) / 4.0, 2.0)) * 45.0
+			var crest := (42.0 + 48.0 * (rn.get_noise_1d(a * 6.0) * 0.5 + 0.5) + peak) * ends
+			var shoulder := (24.0 + 22.0 * (rn.get_noise_1d(a * 9.0 + 7.0) * 0.5 + 0.5) + peak * 0.4) * ends
 			rows.append([a, [0.0, crest * 0.7, crest, shoulder, 0.0]])   # heights above the floor, far foot to near foot
 		for i in n:
 			var A: Array = rows[i]; var B: Array = rows[i + 1]
 			var p := func(row: Array, k: int) -> Array:
 				var a: float = row[0]
 				var y: float = floor_y + float(row[1][k]) if k > 0 and k < 4 else floor_y - 4.0
-				var snow := Heightfield.ss(floor_y + 60.0, floor_y + 85.0, y)
+				var snow := Heightfield.ss(floor_y + 34.0, floor_y + 52.0, y)
 				var c := Color("7f8fa6").lerp(Color("eef3f8"), snow)
 				return [Vector3(cos(a) * radii[k], y, sin(a) * radii[k]), c]
 			for band in 4:
@@ -597,6 +698,94 @@ static func build_backdrop(spec: Dictionary) -> Node3D:
 		st.generate_normals()
 		root.add_child(Palette.mi(st.commit(), mat, Vector3.ZERO, false))
 	return root
+
+## n small villages on the hill crests round the horizon: a cluster of plastered houses under terracotta roofs
+## round a bell tower, each on the highest ground near its spot. One mesh, vertex-coloured (no vines: alpha 0).
+static func _hill_villages(n: int, hill_y: Callable) -> ArrayMesh:
+	var st := SurfaceTool.new(); st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var rng := RandomNumberGenerator.new(); rng.seed = 4242
+	var walls := [Color("e6d6b0"), Color("d9b26c"), Color("d8a58e"), Color("cdbb98"), Color("e9dfc8")]
+	var roofs := [Color("b25a3a"), Color("a5523a"), Color("bd6a45")]
+	for k in n:
+		# the highest point near this bearing, out among the hills
+		var a0 := TAU * (k + 0.5) / n + rng.randf_range(-0.25, 0.25)
+		var best := Vector3(0, -1000, 0)
+		for ri in 21:
+			for ai in 9:
+				var r := 175.0 + ri * 5.0; var a := a0 + (ai - 4) * 0.02
+				var p := Vector3(cos(a) * r, 0, sin(a) * r)
+				p.y = hill_y.call(p.x, p.z)
+				if p.y > best.y: best = p
+		var out := Vector2(best.x, best.z).normalized()
+		var side := Vector2(-out.y, out.x)
+		# the same distance haze as the hills under them, so they sit on the ridge instead of floating pale above it
+		var haze := Heightfield.ss(140.0, 320.0, Vector2(best.x, best.z).length()) * 0.55
+		var tint := func(c: Color) -> Color: return c.darkened(0.12).lerp(Color("97a8bb"), haze)
+		for h in rng.randi_range(8, 13):
+			var off := side * rng.randf_range(-11.0, 11.0) + out * rng.randf_range(-6.0, 6.0)
+			var x := best.x + off.x; var z := best.z + off.y
+			var size := Vector3(rng.randf_range(3.0, 4.6), rng.randf_range(2.6, 4.2), rng.randf_range(3.6, 5.4))
+			var base := Vector3(x, float(hill_y.call(x, z)) - 1.0, z)
+			var yaw := atan2(out.x, out.y) + rng.randf_range(-0.4, 0.4) + (PI / 2.0 if rng.randf() < 0.5 else 0.0)
+			_add_box(st, base, size, yaw, tint.call(walls[rng.randi() % walls.size()]))
+			_add_gable(st, base + Vector3(0, size.y, 0), size.x + 0.6, size.z + 0.6, size.x * 0.32, yaw, tint.call(roofs[rng.randi() % roofs.size()]))
+		# the bell tower, a little off the top
+		var t := Vector3(best.x + side.x * rng.randf_range(-3.0, 3.0), 0, best.z + side.y * rng.randf_range(-3.0, 3.0))
+		t.y = float(hill_y.call(t.x, t.z)) - 0.8
+		var th := rng.randf_range(8.5, 11.0)
+		_add_box(st, t, Vector3(2.2, th, 2.2), atan2(out.x, out.y), tint.call(Color("c99a6e") if rng.randf() < 0.5 else Color("ddd0b4")))
+		_add_pyramid(st, t + Vector3(0, th, 0), 2.5, 2.2, atan2(out.x, out.y), tint.call(roofs[0]))
+	return st.commit()
+
+## One flat face (a triangle or a quad), lit from the side away from `inside`, wound clockwise from outside as
+## Godot expects of a front face.
+static func _add_face(st: SurfaceTool, pts: Array, inside: Vector3, col: Color) -> void:
+	var c := Vector3.ZERO
+	for p in pts: c += p
+	c /= pts.size()
+	var out := c - inside
+	var p0: Vector3 = pts[0]; var p1: Vector3 = pts[1]; var p2: Vector3 = pts[2]
+	if (p1 - p0).cross(p2 - p0).dot(out) > 0.0:   # counter-clockwise from outside: turn it round
+		pts = pts.duplicate(); pts.reverse()
+		p0 = pts[0]; p1 = pts[1]; p2 = pts[2]
+	var nrm := (p2 - p0).cross(p1 - p0).normalized()   # clockwise from outside, so this points out
+	var tris := [0, 1, 2] if pts.size() == 3 else [0, 1, 2, 0, 2, 3]
+	for i in tris:
+		st.set_normal(nrm); st.set_color(col); st.add_vertex(pts[i])
+
+## A box standing on `base` (centre of its foot), turned by `yaw`; no floor. Colours are sRGB with alpha 0.
+static func _add_box(st: SurfaceTool, base: Vector3, size: Vector3, yaw: float, col: Color) -> void:
+	col.a = 0.0
+	var bs := Basis(Vector3.UP, yaw)
+	var hx := size.x / 2.0; var hz := size.z / 2.0
+	var mid := base + Vector3(0, size.y / 2.0, 0)
+	var c := [base + bs * Vector3(-hx, 0, -hz), base + bs * Vector3(hx, 0, -hz), base + bs * Vector3(hx, 0, hz), base + bs * Vector3(-hx, 0, hz)]
+	var t: Array = c.map(func(v): return v + Vector3(0, size.y, 0))
+	for i in 4:
+		var j := (i + 1) % 4
+		_add_face(st, [c[i], c[j], t[j], t[i]], mid, col.darkened(0.05 * (i % 2)))
+	_add_face(st, t, mid, col.darkened(0.1))
+
+## A gabled roof over a w x d footprint centred on `top`, ridge `h` above it, along the footprint's d axis.
+static func _add_gable(st: SurfaceTool, top: Vector3, w: float, d: float, h: float, yaw: float, col: Color) -> void:
+	col.a = 0.0
+	var bs := Basis(Vector3.UP, yaw)
+	var hw := w / 2.0; var hd := d / 2.0
+	var mid := top + Vector3(0, h * 0.3, 0)
+	var e := [top + bs * Vector3(-hw, 0, -hd), top + bs * Vector3(hw, 0, -hd), top + bs * Vector3(hw, 0, hd), top + bs * Vector3(-hw, 0, hd)]
+	var r0 := top + bs * Vector3(0, h, -hd); var r1 := top + bs * Vector3(0, h, hd)
+	_add_face(st, [e[3], e[0], r0, r1], mid, col)
+	_add_face(st, [e[1], e[2], r1, r0], mid, col.darkened(0.08))
+	_add_face(st, [e[0], e[1], r0], mid, col.darkened(0.15))
+	_add_face(st, [e[2], e[3], r1], mid, col.darkened(0.15))
+
+static func _add_pyramid(st: SurfaceTool, top: Vector3, w: float, h: float, yaw: float, col: Color) -> void:
+	col.a = 0.0
+	var bs := Basis(Vector3.UP, yaw)
+	var hw := w / 2.0
+	var c := [top + bs * Vector3(-hw, 0, -hw), top + bs * Vector3(hw, 0, -hw), top + bs * Vector3(hw, 0, hw), top + bs * Vector3(-hw, 0, hw)]
+	var apex := top + Vector3(0, h, 0)
+	for i in 4: _add_face(st, [c[i], c[(i + 1) % 4], apex], top + Vector3(0, h * 0.25, 0), col.darkened(0.06 * i))
 
 static func build_environment() -> WorldEnvironment:
 	var env := Environment.new()
