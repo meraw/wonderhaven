@@ -25,6 +25,7 @@ static func build(b: Dictionary) -> Node3D:
 		"shack": return shack(b)
 		"dance_hall": return dance_hall(b)
 		"sawmill": return sawmill_office(b)
+		"pumphouse": return pumphouse(b)
 	return null
 
 # ---- shared pieces -----------------------------------------------------------------------------------------------
@@ -164,6 +165,14 @@ static func bar(b: Dictionary) -> Node3D:
 	_add(ph, P.rbox(0.5, 0.7, 0.3, 0.05), P.mat("e0782f"), Vector3.ZERO)
 	_add(ph, P.box(0.3, 0.2, 0.04), P.mat("2a2a2a"), Vector3(0, 0.12, 0.16))
 	_add(ph, P.capsule(0.05, 0.3), P.mat("2a2a2a"), Vector3(-0.18, -0.05, 0.18), Vector3(0, 0, 0.2))
+	# Mattia's photo of the monster catfish, framed by the coffee machine once it's been caught (and let go)
+	if Data.world_flags.get("river_town_monster_seen", false) and Interiors.enterable(b):
+		var ph2 := Node3D.new(); ph2.position = Vector3(0.4, 1.6, -b.d / 2.0 + Interiors.WALL_T + 0.03); g.add_child(ph2)
+		_add(ph2, P.box(0.95, 0.7, 0.04), P.wood("6a4a30"), Vector3.ZERO)
+		_add(ph2, P.box(0.82, 0.57, 0.02), P.mat("d9d4c4"), Vector3(0, 0, 0.025), Vector3.ZERO, Vector3.ONE, false)
+		_add(ph2, P.sphere(0.5, 12, 8), P.mat("4a4a42"), Vector3(0.02, -0.05, 0.03), Vector3.ZERO, Vector3(0.62, 0.16, 0.02), false)
+		_add(ph2, P.sphere(0.12, 8, 6), P.mat("6a6a60"), Vector3(-0.15, 0.08, 0.035), Vector3.ZERO, Vector3(0.6, 1.0, 0.1), false)
+		for wsx in [-1, 1]: _add(ph2, P.box(0.22, 0.012, 0.01), P.mat("4a4a42"), Vector3(-0.36, -0.04 + wsx * 0.04, 0.04), Vector3(0, 0, wsx * 0.3), Vector3.ONE, false)
 	return _finish(g, glasses, [up, roof], b)
 
 ## The arcade: a two-storey orange house whose upper floor reaches out over a covered walk on the piazza side.
@@ -345,7 +354,7 @@ static func houseboat(b: Dictionary) -> Node3D:
 	var hull := P.mat(b.roof)
 	_add(g, P.rbox(b.w + 1.2, 0.9, b.d + 0.7, 0.25), hull, Vector3(-0.2, -0.2, 0))
 	_add(g, P.box(b.w + 1.22, 0.08, b.d + 0.72), P.mat("f4f1ea"), Vector3(-0.2, 0.12, 0))
-	_add(g, P.box(b.w + 1.24, 0.22, b.d + 0.74), P.mat("6b5a42"), Vector3(-0.2, -0.45, 0))   # mud to the waterline
+	if not b.get("afloat", false): _add(g, P.box(b.w + 1.24, 0.22, b.d + 0.74), P.mat("6b5a42"), Vector3(-0.2, -0.45, 0))   # mud to the waterline
 	var bow := MeshInstance3D.new(); bow.mesh = P.sphere(1.0, 12, 8); bow.material_override = hull
 	bow.position = Vector3(-b.w / 2.0 - 0.75, -0.2, 0); bow.scale = Vector3(0.9, 0.45, (b.d + 0.7) / 2.0); g.add_child(bow)
 	for s in [-1, 1]: _add(g, P.box(b.w + 0.9, 0.06, 0.06), trim, Vector3(-0.2, Interiors.WALL_H - 0.05, s * (b.d / 2.0 + 0.02)))
@@ -368,8 +377,8 @@ static func houseboat(b: Dictionary) -> Node3D:
 	var lbl := Label3D.new(); lbl.text = "SPERANZA"; lbl.font = UiTheme.title_font(); lbl.font_size = 48; lbl.pixel_size = 0.004
 	lbl.modulate = Color("f4f1ea"); lbl.outline_size = 0; lbl.shaded = true
 	lbl.position = Vector3(-b.w / 2.0 + 0.4, -0.05, b.d / 2.0 + 0.37); g.add_child(lbl)
-	# a gangplank down from the stern
-	_add(g, P.box(0.7, 0.06, 1.4), P.wood("9a7a5a"), Vector3(b.w / 2.0 + 0.9, 0.08, 0), Vector3(0, PI / 2, -0.18))
+	# a gangplank down from the stern to the mud (afloat, she has a jetty instead: scenery)
+	if not b.get("afloat", false): _add(g, P.box(0.7, 0.06, 1.4), P.wood("9a7a5a"), Vector3(b.w / 2.0 + 0.9, 0.08, 0), Vector3(0, PI / 2, -0.18))
 	return _finish(g, glasses, [roof], b)
 
 ## Gildo and Mattia's fishing shack: tarred planks, a corrugated tin roof, nets drying on poles.
@@ -404,8 +413,10 @@ static func dance_hall(b: Dictionary) -> Node3D:
 	# parquet in a herringbone of two tones, with flood mud on it
 	for i in 7:
 		_add(g, P.box(b.w - 0.6, 0.012, 0.36), P.wood("b98a5a"), Vector3(0, 0.055, -2.4 + i * 0.8), Vector3.ZERO, Vector3.ONE, false)
-	for p in [[-1.5, 0.6, 1.4], [1.8, -1.0, 1.0], [2.6, 1.6, 0.7]]:
-		_add(g, P.cyl(p[2], p[2], 0.015, 12), P.mat("7a6a50"), Vector3(p[0], 0.065, p[1]), Vector3.ZERO, Vector3(1, 1, 0.7), false)
+	var open: bool = Data.world_flags.get("river_town_hall_open", false)   # after its first dance: scrubbed, mended, lit
+	if not open:
+		for p in [[-1.5, 0.6, 1.4], [1.8, -1.0, 1.0], [2.6, 1.6, 0.7]]:
+			_add(g, P.cyl(p[2], p[2], 0.015, 12), P.mat("7a6a50"), Vector3(p[0], 0.065, p[1]), Vector3.ZERO, Vector3(1, 1, 0.7), false)
 	# the platform: lattice skirt and stilts round the floor and the veranda, from the floodplain up
 	var lattice := P.wood("f4f1ea")
 	var base: float = RT.FLOOD_H - RT.DANCE_H - 0.1
@@ -436,7 +447,7 @@ static func dance_hall(b: Dictionary) -> Node3D:
 		for off in ([-2.8, 0.0, 2.8] if long > 6.0 else [-1.4, 1.4]):
 			var w := Props._window("8fc0dc"); Props._on_side(w, b, s, 1.35, off); w.scale = Vector3(1.0, 1.35, 1.0); g.add_child(w)
 			k += 1
-			if k == 2 or k == 6:   # broken by the flood: dark empty panes, a shutter hanging
+			if (k == 2 or k == 6) and not open:   # broken by the flood: dark empty panes, a shutter hanging
 				var gl: MeshInstance3D = w.get_node("glass"); gl.material_override = P.mat("2a2a2e")
 				var sh := w.get_child(w.get_child_count() - 1)
 				if sh is MeshInstance3D: sh.rotation.z = 0.6
@@ -455,13 +466,50 @@ static func dance_hall(b: Dictionary) -> Node3D:
 	var ramp_len: float = veranda.position.x - 7.4
 	var drop: float = RT.DANCE_H - RT.FLOOD_H
 	_add(g, P.box(sqrt(ramp_len * ramp_len + drop * drop), 0.08, 1.7), P.wood("b98a5a"), Vector3(v.position.x - ramp_len / 2.0, -drop / 2.0 + 0.02, 0.0), Vector3(0, 0, atan2(drop, ramp_len)))
-	# the bulbs for the dance: strung along the veranda's eaves, dark until the hall reopens
+	# the bulbs for the dance: strung along the veranda's eaves, dark until the hall reopens, then lit every evening
 	var bulbs := Node3D.new(); bulbs.name = "dance_bulbs"; g.add_child(bulbs)
+	var bulb_mat := P.unique_mat("fff1b8", "ffcf6b", 2.2 if open else 0.0)
 	for i in 10:
 		var bz := v.position.y - 1.0 + i * (v.size.y + 2.0) / 9.0
-		_add(bulbs, P.sphere(0.07, 6, 4), P.unique_mat("fff1b8", "ffcf6b", 0.0), Vector3(v.position.x + 0.15, 2.2 - 0.1 * sin(i * 0.9), bz), Vector3.ZERO, Vector3.ONE, false)
+		_add(bulbs, P.sphere(0.07, 6, 4), bulb_mat, Vector3(v.position.x + 0.15, 2.2 - 0.1 * sin(i * 0.9), bz), Vector3.ZERO, Vector3.ONE, false)
+	if open:
+		var li := OmniLight3D.new(); li.light_color = Color("ffcf6b"); li.light_energy = 1.1; li.omni_range = 6.0
+		li.position = Vector3(v.position.x - 0.6, 2.0, v.get_center().y); bulbs.add_child(li)
 	_sign(g, b, "W", Interiors.WALL_H + 0.5, "WANDA'S DANCE HALL", "#8fc0dc", "#f4f1ea", 3.2)
 	return _finish(g, glasses, [roof], b)
+
+## The drainage pumping house of 1934, dug into the levee's river side: red brick under a hipped tin roof, an arched
+## window, the big outfall pipe from under the levee into the river, and its drive on the quay side, a flywheel that
+## turns once something powers it (machine target "river_town_pump", a cell east of its wall).
+static func pumphouse(b: Dictionary) -> Node3D:
+	var g := Node3D.new()
+	var brick := P.plaster(b.wall)
+	var h := 2.6
+	_add(g, P.rbox(b.w, h, b.d, 0.04), brick, Vector3(0, h / 2.0, 0))
+	for zs in [-1, 1]: _add(g, P.box(b.w + 0.12, 0.2, 0.12), P.stone(STONE), Vector3(0, h - 0.1, zs * (b.d / 2.0 + 0.02)))
+	_add(g, P.box(b.w + 0.12, 0.3, b.d + 0.12), P.stone(STONE), Vector3(0, 0.15, 0))
+	_add(g, P.box(b.w + 0.04, 0.07, b.d + 0.04), P.mat(TIDE), Vector3(0, 1.1, 0), Vector3.ZERO, Vector3.ONE, false)
+	var roof := Props._gable_roof(g, b.w + 0.3, b.d + 0.3, h, brick, P.mat("8a8f8f"), Color("6f7474"))
+	roof.scale.y = 0.6
+	# the arched window and the door on the quay side, a sign above
+	for off in [-0.9, 0.9]:
+		var w := Props._window("2f3a34"); Props._on_side(w, b, "E", 1.5, off); g.add_child(w)
+	_sign(g, b, "E", h - 0.45, "PUMPING HOUSE 1934", "#6f7474", "#f4f1ea", 2.4)
+	# the outfall pipe: out of the levee beside the house, across the quay and over its edge into the river
+	var pipe := P.mat("4f5a5a")
+	var pz: float = -b.d / 2.0 - 0.75
+	_add(g, P.cyl(0.32, 0.32, 5.8, 14), pipe, Vector3(2.4, 0.1, pz), Vector3(0, 0, PI / 2))
+	_add(g, P.cyl(0.4, 0.4, 0.14, 14), pipe, Vector3(5.3, 0.1, pz), Vector3(0, 0, PI / 2))
+	# the drive: a bearing on the east wall at shaft height, where a shaft on the quay meets it, and the flywheel beside
+	var drive_z := 0.5
+	_add(g, P.box(0.3, 0.45, 0.45), P.mat("3a3a40"), Vector3(b.w / 2.0 + 0.12, 0.42, drive_z))
+	var fly := Node3D.new(); fly.set_script(load("res://scripts/locations/river_town/spinner.gd"))
+	fly.set("target", "river_town_pump"); fly.set("axis", Vector3.UP)
+	fly.position = Vector3(b.w / 2.0 + 0.12, 0.95, -0.6); fly.rotation = Vector3(0, 0, PI / 2); g.add_child(fly)
+	_add(fly, P.torus(0.42, 0.06, 20), P.mat("3a3a40"), Vector3.ZERO, Vector3.ZERO)
+	for k in 4: _add(fly, P.box(0.05, 0.05, 0.82), P.mat("3a3a40"), Vector3.ZERO, Vector3(0, k * PI / 4.0, 0))
+	_add(fly, P.cyl(0.08, 0.08, 0.2, 8), P.mat("c0392b"), Vector3.ZERO)
+	return g
 
 # ---- the east bank -----------------------------------------------------------------------------------------------
 

@@ -115,7 +115,7 @@ func mill() -> void:
 func nativity() -> void:
 	await talk_for(P + "remo", P + "nativity")
 	check(140, "Don Remo needs a new stable for the living nativity", status("nativity") == "active", status("nativity"))
-	var straw: Array = Data.layout.nodes.filter(func(n): return n.get("items", {}).has(P + "straw")).map(func(n): return n.id)
+	var straw: Array = Data.layout.nodes.filter(func(n): return n.get("gives", {}).has(P + "straw")).map(func(n): return n.id)
 	await gather_until("flowers", func(): return progress("nativity", "straw") >= 6 and inv(P + "straw") >= 6, straw, 16)
 	check(141, "gather loose straw on the stubble", progress("nativity", "straw") >= 6 and inv(P + "straw") >= 6, "straw %d" % inv(P + "straw"))
 	await gather_for("chop", "nativity", "wood", 6, "wood", 5)
@@ -160,7 +160,7 @@ func finale() -> void:
 	await frames(20)
 	check(154, "build the shelter: a roof, a bench, two lamps and an enamel sign", progress("train", "shelter") == 1, str(placed))
 	await shot("platform-shelter")
-	check(155, "the petition is full: 250 signatures", signatures() >= 250 and progress("train", "petition") == 1 and game.state.unlocks_seen.has("rice_village:full"), "signatures %d" % signatures())
+	check(155, "the petition is full: 250 signatures", signatures() >= 250 and progress("train", "petition") == 1 and game.state.unlocks_seen.has("rice_village_full"), "signatures %d" % signatures())
 	await talk(P + "carlo")
 	check(156, "the inspector signs the order on his thermos", progress("train", "inspect") == 1, "")
 	if float(game.state.time.minute) >= 11 * 60 or float(game.state.time.minute) < 6 * 60: await sleep_until(6)

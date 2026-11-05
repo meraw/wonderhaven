@@ -1,34 +1,41 @@
-class_name Meter
-## A location's own progress meter, in place of the Sindaco's approval rating, which stays Monteforchetta's:
-## Casalrana's petition signatures, say. It is defined by `meter` in the location's location.json:
-##   {name, icon, unit, about, milestones: [{at, id, title, desc, items?, flags?, blueprints?, clothes?}]}
-## Requests given there add to it with `meter: n` in their rewards; a request step can wait for it with an
-## objective {kind: "meter", value}. Values are whole points counted up from 0 and kept per location in
-## state.meters. The HUD and the progress panel show the meter of the place you're on, when it has one.
+class_name LocationMeter
+## A location's own progress meter, shown instead of Monteforchetta's approval rating while you're there: a river
+## gauge, an evening paper's column inches, a petition's signatures. Its map entry (islands.json or a pack's
+## location.json) describes it:
+##   "meter": {"name", "icon", "about"?, "reward"?, "display"?, "milestones": [{at, id, title, desc, blueprints?,
+##             clothes?, flags?}]}
+## Requests from that location add points with "meter" in their rewards. Points count up from 0 and milestones come
+## at those points. "display" ({from, per_point, format}) turns points into what the meter reads: a flood gauge
+## going down from 7.40 m, say. "reward" is how a reward reads ("%d cm off the gauge"). Pure: no nodes.
 
 static func def(island: String) -> Dictionary: return Data.island_def(island).get("meter", {})
-static func has_meter(island: String) -> bool: return not def(island).is_empty()
 
-static func value(state: Dictionary, island: String) -> int: return int(state.get("meters", {}).get(island, 0))
+## Points on an island's meter so far.
+static func points(state: Dictionary, island: String) -> int:
+	var m = state.get("meters", {})
+	return int(m.get(island, 0)) if m is Dictionary else 0
 
-## The next milestone above v, or {} when every one is reached.
-static func next_milestone(island: String, v: int) -> Dictionary:
-	for m in def(island).get("milestones", []):
-		if int(m.at) > v: return m
+## What the meter reads at these points.
+static func reading(m: Dictionary, pts: int) -> String:
+	if not m.has("display"): return str(pts)
+	var d: Dictionary = m.display
+	return String(d.get("format", "%d")) % (float(d.get("from", 0.0)) + pts * float(d.get("per_point", 1.0)))
+
+static func next_milestone(m: Dictionary, pts: int) -> Dictionary:
+	for u in m.get("milestones", []):
+		if int(u.at) > pts: return u
 	return {}
 
-## Milestones passed going from `before` to `after`.
-static func between(island: String, before: int, after: int) -> Array:
-	return def(island).get("milestones", []).filter(func(m): return int(m.at) > before and int(m.at) <= after)
+static func between(m: Dictionary, before: int, after: int) -> Array:
+	return m.get("milestones", []).filter(func(u): return int(u.at) > before and int(u.at) <= after)
 
-## Adds n points to a location's meter; returns the milestones it passed, for the caller to reward.
+## How a reward of n points reads.
+static func reward_text(m: Dictionary, n: int) -> String:
+	return "%s %s" % [String(m.get("icon", "📈")), String(m.get("reward", "+%d " + String(m.get("name", "progress")))) % n]
+
+## Adds points to an island's meter; returns the milestones passed on the way.
 static func add(state: Dictionary, island: String, n: int) -> Array:
-	if not state.has("meters"): state["meters"] = {}
-	var before := value(state, island)
+	if not state.get("meters") is Dictionary: state["meters"] = {}
+	var before := points(state, island)
 	state.meters[island] = before + n
-	return between(island, before, before + n)
-
-## "250 signatures"
-static func amount(island: String, n: int) -> String:
-	var unit: String = def(island).get("unit", "")
-	return "%d %s" % [n, unit] if unit != "" else str(n)
+	return between(def(island), before, before + n)

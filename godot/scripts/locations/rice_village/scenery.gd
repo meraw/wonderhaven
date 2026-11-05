@@ -60,7 +60,7 @@ static func dress(village: Node3D) -> void:
 static func _straw(village: Node3D) -> void:
 	var gold := P.mat("d9c27a"); var pale := P.mat("e6d49a")
 	for n in Data.layout.nodes:
-		if n.kind != "flowers" or not n.get("items", {}).has("rice_village_straw"): continue
+		if n.kind != "flowers" or not n.get("gives", {}).has("rice_village_straw"): continue
 		var o: Node3D = village.node_visuals.get(n.id)
 		if o == null: continue
 		for c in o.get_children(): (c as Node3D).visible = false

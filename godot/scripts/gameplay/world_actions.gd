@@ -2,9 +2,9 @@ class_name WorldActions
 extends RefCounted
 ## Everything you can do with the world itself: chop, mine, dig clay, fish, pick, shake, dig where the metal detector
 ## beeps, open chests, pick up lost things, dig through the street bins, garden, and see off the bakery's boars.
-## A layout node may say what it gives instead of its kind's usual haul ("items", for clay, flowers, shaking, fruit and
-## metal-detector spots), what its prompt says ("label") and what you found ("found", for lost things and dig spots):
-## loose rice straw is a "flowers" node that gives straw. A location's own fish are its "catches" (location.json).
+## A layout node may say what it gives ("gives", see gives()), what it's called when you find it ("name": a lost thing,
+## or what the metal detector turns up) and what its prompt says ("label"): loose rice straw is a "flowers" node that
+## gives straw, labelled "Gather loose straw".
 const P := preload("res://scripts/world/palette.gd")
 const REGROW := {"chop": 180.0, "mine": 240.0, "clay": 150.0, "flowers": 180.0, "shake": 90.0, "fruit": 240.0, "fragment": 1440.0, "bin": 300.0}
 const SQUIRREL_SPOTS := [[-8.4, -3.2], [-13.7, -3.3], [-7.2, -6.6]]
@@ -48,8 +48,12 @@ func ready(n: Dictionary) -> bool:
 	if n.kind == "fragment" and not state().flags.get("hasTool", false): return false
 	return not (s.get("ready_at", -1.0) > now())
 
+## Chests, metal-detector spots and nodes marked "once" (a particular lost thing) are gone for good once taken;
+## the rest grow back.
+static func regrows(n: Dictionary) -> bool: return not (n.kind in ["chest", "dig"] or n.get("once", false))
+
 func deplete(n: Dictionary) -> void:
-	if n.kind in ["chest", "dig"]: state().nodes[n.id] = {"done": true}
+	if not regrows(n): state().nodes[n.id] = {"done": true}
 	else: state().nodes[n.id] = {"ready_at": now() + REGROW.get(n.kind, 300.0)}
 	refresh_node(n)
 
@@ -88,23 +92,16 @@ func act(n: Dictionary) -> void:
 		"fish": start_fishing(n)
 		"clay":
 			game.player_char.play("dig"); game.sfx("dig")
-			game.give(_haul(n, {"clay": 2}), _src(n)); deplete(n)
-		"flowers": game.player_char.play("dig"); game.sfx("pick"); game.give(_haul(n, {"flowers": 2}), _src(n)); deplete(n)
+			game.give(gives(n, {"clay": 2}), _src(n)); deplete(n)
+		"flowers": game.player_char.play("dig"); game.sfx("pick"); game.give(gives(n, {"flowers": 2}), _src(n)); deplete(n)
 		"shake":
 			game.sfx("rustle"); game.cam.shake = 0.3
 			game.village.node_visuals[n.id].set_meta("shake", 0.6)
-			game.give(_haul(n, {"acorn": 3}), _src(n, 2.0)); deplete(n)
-		"fruit": game.sfx("pick"); game.give(_haul(n, {"fruit": 2}), _src(n, 2.0)); deplete(n)
+			game.give(gives(n, {"acorn": 3}), _src(n, 2.0)); deplete(n)
+		"fruit": game.sfx("pick"); game.give(gives(n, {"fruit": 2}), _src(n, 2.0)); deplete(n)
 		"chest": open_chest(n)
 		"fragment": catch_fragment(n)
 		"bin": dig_bin(n)
-
-## What a node gives: its own "items" from the layout, or its kind's usual haul.
-static func _haul(n: Dictionary, usual: Dictionary) -> Dictionary:
-	if not n.has("items"): return usual
-	var out := {}
-	for k in n.items: out[k] = int(n.items[k])
-	return out
 
 ## A swing or strike in the minigame: the tree or rock shakes and chips fly (a miss barely moves it).
 func minigame_hit(kind: String, result: String) -> void:
@@ -131,10 +128,20 @@ func minigame_done(kind: String, mg) -> void:
 	else: state().stats.mined += 1
 	deplete(n); game.sfx("collect")
 
+## What a node gives: its own "gives" ({item: count}) when the layout says, else the default for its kind. A
+## location can dig sand where others dig clay, pick mushrooms where others pick flowers, or say what the metal
+## detector turns up at a spot.
+static func gives(n: Dictionary, fallback: Dictionary) -> Dictionary:
+	if not n.has("gives"): return fallback
+	var out := {}
+	for k in n.gives: out[k] = int(n.gives[k])
+	return out
+
 func catch_fragment(n: Dictionary) -> void:
 	var p := _src(n, 0.2)
-	var what: String = n.get("found", LOST[0] if int(state().stats.fragments) == 0 else LOST[1 + int(state().stats.fragments) % (LOST.size() - 1)])
-	game.give({"fragment": 1}, null, true)
+	var what: String = LOST[0] if int(state().stats.fragments) == 0 else LOST[1 + int(state().stats.fragments) % (LOST.size() - 1)]
+	if n.has("name"): what = String(n.name)   # a particular lost thing, named in the layout
+	game.give(gives(n, {"fragment": 1}), null, true)
 	game.toast("You found %s!" % what, "good", 2.5)
 	game.effects.sparkle(p, 8, Color("ffe7a0"), 0.18); game.sfx("pick")
 	state().stats.fragments += 1
@@ -166,9 +173,9 @@ func dig(n: Dictionary) -> void:
 	var p := _src(n, 0.3)
 	game.player_char.play("dig"); game.sfx("dig")
 	var digs: Array = Data.layout.nodes.filter(func(x): return x.kind == "dig")
-	var loot: Dictionary = _haul(n, [{"crystal": 1, "coins": 8}, {"fabric": 2, "coins": 5}, {"metal": 2, "coins": 5}, {"crystal": 1, "fabric": 1, "coins": 8}, {"metal": 1, "crystal": 1, "coins": 10}][digs.find(n) % 5])
+	var loot: Dictionary = gives(n, [{"crystal": 1, "coins": 8}, {"fabric": 2, "coins": 5}, {"metal": 2, "coins": 5}, {"crystal": 1, "fabric": 1, "coins": 8}, {"metal": 1, "crystal": 1, "coins": 10}][digs.find(n) % 5])
 	game.give(loot, p); game.effects.sparkle(p, 22)
-	if n.has("found"): game.toast("You dig up %s!" % n.found, "good", 3.0)
+	if n.has("name"): game.toast("You dig up %s!" % n.name, "good", 3.0)   # a particular find, named in the layout
 	state().stats.dug += 1; state().stats.treasures += 1
 	deplete(n); game.sfx("chest")
 	game.story.event("treasure"); game.story.event("dig")
@@ -180,7 +187,7 @@ func start_fishing(n: Dictionary) -> void:
 	var fz: float = n.z + cos(facing) * 3.0
 	bobber.position = Vector3(fx, Heightfield.WATER_Y + 0.05, fz); bobber.visible = true; line.visible = true
 	game.player_char.play("cast", true); game.sfx("cast")
-	var mg := Minigames.Fish.new(null, Minigames.catches(Data.island))
+	var mg := Minigames.Fish.new(null, Minigames.catch_table(Data.layout.get("fish", []), n.id, state().flags, float(state().time.minute)))
 	fishing = {"mg": mg, "fx": fx, "fz": fz}
 	game.start_minigame("fish", mg, Vector3(fx, Heightfield.WATER_Y, fz))
 
@@ -196,6 +203,7 @@ func _fishing_done(mg) -> void:
 	state().stats.fish += 1
 	game.toast(String(mg.fish.get("caught", "You caught a %s!" % mg.fish.name)), "good")
 	game.story.event("fish")
+	game.story.event("fish:" + String(mg.fish.id))   # a request can wait for one particular catch
 
 ## Which kinds of place give each item (for pointing the compass at the nearest one).
 const SOURCES := {"wood": ["chop"], "stone": ["mine"], "metal": ["mine", "bin"], "crystal": ["bin"], "clay": ["clay"], "flowers": ["flowers"],
@@ -207,7 +215,7 @@ func nearest_ready(item: String) -> Dictionary:
 	var p: Vector3 = game.player.pos
 	var best := {}; var bd := INF
 	for n in Data.layout.nodes:
-		if not n.kind in kinds or not ready(n): continue
+		if not ready(n) or not (n.kind in kinds and not n.has("gives") or n.get("gives", {}).has(item)): continue
 		var d := Vector2(n.x - p.x, n.z - p.z).length()
 		if d < bd: bd = d; best = n
 	return best

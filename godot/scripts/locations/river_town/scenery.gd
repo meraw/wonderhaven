@@ -20,10 +20,16 @@ static func dress(village: Node3D, rt) -> void:
 	_track(village, rt)
 	_gauge(village)
 	_flood(village, rt)
+	_quay(village, rt)
+	_jetty(village)
+	_storm(village)
 	_bikes(village)
 	_reeds(village, rt)
 	_stubble(village)
 	_horizon(village, rt)
+
+## The story so far, as far as the scenery cares (Data.world_flags, the location's WORLD_FLAGS).
+static func _flag(f: String) -> bool: return Data.world_flags.get(f, false)
 
 static func H(x: float, z: float) -> float: return Heightfield.height(x, z)
 
@@ -250,6 +256,8 @@ static func _flood(village: Node3D, rt) -> void:
 	pond.material_override = wm; pond.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	pond.position = Vector3(rt.PIAZZA.x, rt.PIAZZA_H + 0.09, rt.PIAZZA.z)
 	village.add_child(pond); village.objects["river_town_pond"] = pond
+	pond.visible = not _flag("river_town_piazza_drained")   # the pumping house emptied it
+	var cleared := _flag("river_town_flood_over")            # after the storm night the town tidies up for good
 	# mud: grey-brown flats on the floodplain and the gravel where the river overflowed
 	var rng := RandomNumberGenerator.new(); rng.seed = 7
 	var mud: Array = []; var mcols: Array = []
@@ -277,12 +285,14 @@ static func _flood(village: Node3D, rt) -> void:
 		Props._add(car, P.box(1.36, 0.42, 1.7), P.mat("3a4a52"), Vector3(0, 0.88, -0.2))
 		for w in [[-0.8, -1.0], [0.8, -1.0], [-0.8, 1.0], [0.8, 1.0]]:
 			Props._add(car, P.cyl(0.3, 0.3, 0.2, 12), P.mat("2a2a2a"), Vector3(w[0], 0.0, w[1]), Vector3(0, 0, PI / 2))
-	var fridge := P.mi(P.rbox(0.7, 1.5, 0.65, 0.08), P.mat("efece4"), Vector3(-28.3, H(-28.3, 31.0) + 0.6, 31.0)); fridge.rotation = Vector3(0.2, 0.5, 0.35); village.add_child(fridge)
-	var tub := P.mi(P.rbox(1.5, 0.5, 0.75, 0.22), P.mat("f4f1ea"), Vector3(9.5, H(9.5, 40.4) + 0.15, 40.4)); tub.rotation = Vector3(0.1, 0.4, 0.15); village.add_child(tub)
-	# the sandbag patch in the breach: low heaps on either side, the gap still open between them
+	if not cleared:
+		var fridge := P.mi(P.rbox(0.7, 1.5, 0.65, 0.08), P.mat("efece4"), Vector3(-28.3, H(-28.3, 31.0) + 0.6, 31.0)); fridge.rotation = Vector3(0.2, 0.5, 0.35); village.add_child(fridge)
+		var tub := P.mi(P.rbox(1.5, 0.5, 0.75, 0.22), P.mat("f4f1ea"), Vector3(9.5, H(9.5, 40.4) + 0.15, 40.4)); tub.rotation = Vector3(0.1, 0.4, 0.15); village.add_child(tub)
+	# the sandbag patch in the breach: low heaps on either side, the gap still open between them (gone once the wall
+	# you build there has held through the storm)
 	var sack := P.fabric("c9b48a")
 	var bx: Vector2 = rt.BREACH
-	for side in [[bx.x - 0.4, bx.x + 1.4], [bx.y - 1.4, bx.y + 0.4]]:
+	for side in ([] if cleared else [[bx.x - 0.4, bx.x + 1.4], [bx.y - 1.4, bx.y + 0.4]]):
 		for row in 3:
 			for k in 3:
 				var sx: float = side[0] + (k + 0.5) * (side[1] - side[0]) / 3.0
@@ -299,6 +309,42 @@ static func _flood(village: Node3D, rt) -> void:
 	Props._add(stop, P.cyl(0.32, 0.32, 0.05, 20), P.mat("2f5f9e"), Vector3(0, 2.3, 0), Vector3(PI / 2, 0, 0))
 	var bl := Label3D.new(); bl.text = "BUS"; bl.font = UiTheme.title_font(); bl.font_size = 44; bl.pixel_size = 0.004; bl.modulate = Color.WHITE; bl.outline_size = 0
 	bl.position = Vector3(0, 2.3, 0.04); stop.add_child(bl)
+
+## The pumping house's quay: a stone edge where the level quay drops to the fast Alpine river, with a kerb.
+static func _quay(village: Node3D, rt) -> void:
+	var q: Rect2 = rt.QUAY
+	var stone := P.stone("bdb5a8")
+	village.add_child(P.mi(P.box(0.5, 1.2, q.size.y), stone, Vector3(q.end.x - 0.2, rt.FLOOD_H - 0.55, q.get_center().y)))
+	village.add_child(P.mi(P.box(0.56, 0.1, q.size.y + 0.06), P.stone("d8cdb8"), Vector3(q.end.x - 0.2, rt.FLOOD_H + 0.06, q.get_center().y)))
+	for zs in [q.position.y, q.end.y]:
+		village.add_child(P.mi(P.box(q.size.x * 0.5, 1.2, 0.4), stone, Vector3(q.end.x - q.size.x * 0.25, rt.FLOOD_H - 0.55, zs)))
+
+## The Speranza's jetty and gangway once she floats (the layout's floors river_town_jetty and river_town_gangway).
+static func _jetty(village: Node3D) -> void:
+	for f in Data.layout.get("floors", []):
+		if not (String(f.get("id", "")) in ["river_town_jetty", "river_town_gangway"]): continue
+		var r: Array = f.rect
+		var x0: float = minf(r[0], r[2]); var x1: float = maxf(r[0], r[2]); var z0: float = minf(r[1], r[3]); var z1: float = maxf(r[1], r[3])
+		var top := float(f.top)
+		var along_z := (z1 - z0) > (x1 - x0)
+		var n := int(((z1 - z0) if along_z else (x1 - x0)) / 0.32)
+		for k in n:
+			var t := (k + 0.5) / n
+			var c := Vector3(lerpf(x0, x1, 0.5) if along_z else lerpf(x0, x1, t), top - 0.04, lerpf(z0, z1, t) if along_z else lerpf(z0, z1, 0.5))
+			var plank := P.mi(P.box((x1 - x0) if along_z else 0.28, 0.07, 0.28 if along_z else (z1 - z0)), P.wood("a0805c" if k % 3 else "8f7050"), c)
+			plank.rotation.y = 0.02 * sin(k * 2.1); village.add_child(plank)
+		for c in [Vector2(x0, z0), Vector2(x1, z0), Vector2(x0, z1), Vector2(x1, z1)]:
+			village.add_child(P.mi(P.cyl(0.09, 0.1, 1.4, 6), P.wood("6b5440"), Vector3(c.x, top - 0.6, c.y)))
+
+## The storm night: the Po and the Alpine river swollen to the brim of their banks, until it's over.
+static func _storm(village: Node3D) -> void:
+	if not _flag("river_town_storm") or _flag("river_town_flood_over"): return
+	var rise := 0.32
+	var water: MeshInstance3D = village.get("water")
+	if water == null: return
+	water.position.y += rise
+	var sm := water.material_override as ShaderMaterial
+	if sm: sm.set_shader_parameter("water_y", Heightfield.WATER_Y + rise)
 
 # ---- everyday details ----------------------------------------------------------------------------------------------
 

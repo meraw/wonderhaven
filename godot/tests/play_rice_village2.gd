@@ -12,7 +12,7 @@ const P := "rice_village_"
 
 func status(qid: String) -> String: return String(q(P + qid).get("status", ""))
 func progress(qid: String, oid: String) -> int: return int(q(P + qid).progress.get(oid, 0))
-func signatures() -> int: return Meter.value(game.state, "rice_village")
+func signatures() -> int: return LocationMeter.points(game.state, "rice_village")
 
 ## Talks to a villager like full_base's talk, but only takes on the request `want` when one is offered in the list
 ## (a main request they bring up themselves is always accepted, and payments are always made).
@@ -194,7 +194,7 @@ func play() -> void:
 		await load_slot("1")
 		check(3, "resumed from the save after the flat", game.mode == "explore" and status("flat") == "done", "mode %s flat %s" % [game.mode, status("flat")])
 	else:
-		check(2, "the HUD shows Paletta's petition instead of the approval rating", game.hud.harmony_title.text.ends_with("The Petition") and game.hud.harmony_label.text == "0 / 40", "%s %s" % [game.hud.harmony_title.text, game.hud.harmony_label.text])
+		check(2, "the HUD shows Paletta's petition instead of the approval rating", game.hud.harmony_title.text.ends_with("The Petition") and game.hud.harmony_label.text == "0", "%s %s" % [game.hud.harmony_title.text, game.hud.harmony_label.text])
 		await welcome()
 		await flat()
 		await save_to("slot1")
@@ -251,7 +251,7 @@ func flat() -> void:
 	await down_from_flat()
 	await talk(P + "ernesto")
 	check(26, "The Flat above the Station is done: 30 more signatures, the yard is yours", status("flat") == "done" and signatures() >= 50 and game.state.flags.get("rice_village_homePlot", false), "signatures %d" % signatures())
-	check(27, "40 signatures: the first page, and 30,000 lire for expenses", game.state.unlocks_seen.has("rice_village:page"), str(game.state.unlocks_seen))
+	check(27, "40 signatures: the first page, and 30,000 lire for expenses", game.state.unlocks_seen.has("rice_village_page"), str(game.state.unlocks_seen))
 
 # ---- Water for the Winter ---------------------------------------------------------------------------------------
 func water() -> void:

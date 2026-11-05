@@ -12,10 +12,13 @@ func _init(g) -> void:
 		"bridge": func(): return path_ok("bridge"), "dock": func(): return path_ok("dock"),
 		"fountain": func(): return game.mech.fed.get("fountain", false), "lamp": func(): return not game.mech.lamps.is_empty(),
 		# "fed:<machine>": water or power delivered to a machine target in the layout (a lighthouse's drive, a clock);
-		# "path:<zone>": a walkable path across that build zone, between its endpoints (see Validate.path_across)
+		# "path:<zone>": a walkable path across a build zone, from its endpoint a to b (a bridge, a slipway);
+		# "sealed:<zone>": a wall across a zone that keeps water from getting through (Validate.sealed)
 		"*": func(name: String) -> bool:
+			if name.begins_with("fed:"): return game.mech.fed.get(name.substr(4), false)
 			if name.begins_with("path:"): return path_ok(name.substr(5))
-			return name.begins_with("fed:") and game.mech.fed.get(name.substr(4), false)})
+			if name.begins_with("sealed:"): return Validate.sealed(Data.zone(name.substr(7)), game.state.placements).sealed
+			return false})
 	engine.gate = func(qid: String) -> bool: return Tutorial.allows_offer(game.state.get("tutorial", {}), qid)
 	game.game_event.connect(_on_event)
 
@@ -44,13 +47,15 @@ func handle(list: Array) -> void:
 		elif x.has("objective"): game.toast("✔ " + x.objective.text, "good", 3.0); game.sfx("objective")
 	game.hud.render_tracker()
 
-## Effects of finishing one step of a request (onDone in quests.json): flags, items, blueprints.
+## Effects of finishing one step of a request (onDone in quests.json): flags, items, blueprints, and weather
+## ({type, hours}: that weather for a while, a storm on the night the levee is tested, say).
 func _on_done(o: Dictionary) -> void:
 	var eff: Dictionary = o.get("onDone", {})
 	if eff.is_empty(): return
 	for f in eff.get("flags", []): game.set_flag(f)
 	if eff.has("items"): game.give(_ints(eff.items))
 	if eff.has("blueprints"): unlock_blueprints(eff.blueprints)
+	if eff.has("weather"): Daylight.force(game.state, String(eff.weather.type), float(eff.weather.get("hours", 6)))   # a storm for the finale
 	if eff.has("flags"): game.build.rebuild_grid()
 
 func marker_for(npc: String) -> String:
@@ -113,6 +118,7 @@ func talk(agent) -> void:
 	await give_gifts(agent)
 	game.exit_dialogue()
 	busy = false
+	if game.rebuild_pending: game.rebuild_world()   # the conversation changed the place (Game.request_rebuild)
 	if shop: game.panels.shop(agent.def.id)
 
 ## A "pay" step: hand over coins or items; the villager reacts with the objective's lines.
@@ -202,7 +208,7 @@ func complete_quest(qid: String, agent) -> void:
 	var lines: Array = []
 	if r.get("harmony", 0) > 0: lines.append("+%d 💖 approval" % int(r.harmony))
 	var isl := Data.quest_island(qid)
-	if r.get("meter", 0) > 0 and Meter.has_meter(isl): lines.append("+%s %s" % [Meter.amount(isl, int(r.meter)), Meter.def(isl).get("icon", "")])
+	if r.get("meter", 0) > 0: lines.append(LocationMeter.reward_text(LocationMeter.def(isl), int(r.meter)))
 	for k in r.get("items", {}): lines.append("+" + Money.amount(k, int(r.items[k])))
 	for b in r.get("blueprints", []): lines.append("📐 " + Data.piece(b).name)
 	for c in r.get("clothes", []): lines.append("👗 " + Data.appearance.labels.get(c, c))
@@ -269,23 +275,19 @@ func add_harmony(n: int) -> void:
 	for u in Harmony.between(before, s.harmony): apply_unlock(u)
 	handle(engine.refresh())
 
-## Adds to a location's own progress meter (see Meter) and hands out the milestones it passes.
+## Points on a location's own meter (LocationMeter), and the milestones they reach.
 func add_meter(island: String, n: int) -> void:
-	if not Meter.has_meter(island): return
-	var passed := Meter.add(game.state, island, n)
-	game.hud.render_harmony()
-	var m := Meter.def(island)
-	for u in passed:
-		if u.has("items"): game.give(_ints(u.items), null, true)
-		for f in u.get("flags", []): game.set_flag(f)
-		if u.has("flags"): game.build.rebuild_grid()
+	var m := LocationMeter.def(island)
+	for u in LocationMeter.add(game.state, island, n):
+		if u.has("items"): game.give(_ints(u.items), null, true)   # expenses, a load of materials
 		if u.has("blueprints"): unlock_blueprints(u.blueprints, "", true)
 		if u.has("clothes"): unlock_clothes(u.clothes, true)
-		game.state.unlocks_seen.append("%s:%s" % [island, u.id])
-		var title := "%s %s" % [Meter.amount(island, int(u.at)), m.get("icon", "")]
-		var desc: String = u.get("desc", "")
-		var head: String = u.title
-		game.get_tree().create_timer(1.8).timeout.connect(func(): game.banner("%s milestone!" % m.get("name", "Progress"), "%s · %s" % [title, head], [desc], 4.0); game.sfx("unlock"))
+		for f in u.get("flags", []): game.set_flag(f)
+		if u.has("flags"): game.build.rebuild_grid()
+		var mu: Dictionary = u
+		game.get_tree().create_timer(1.8).timeout.connect(func(): game.banner("%s %s" % [m.get("icon", "📈"), m.get("name", "Milestone")], "%s  %s" % [LocationMeter.reading(m, int(mu.at)), mu.title], [mu.desc], 4.0); game.sfx("unlock"))
+		game.state.unlocks_seen.append(u.get("id", ""))
+	game.hud.render_harmony()
 	handle(engine.refresh())
 
 func apply_unlock(u: Dictionary) -> void:

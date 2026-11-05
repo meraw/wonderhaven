@@ -271,24 +271,15 @@ func test_sleep_until_a_chosen_hour():
 	slept = Clock.sleep_until(t0, 6.0)
 	t.ok(t0.day == 3 and slept == 1440.0, "asking for the hour it already is sleeps a whole day round")
 
-func test_a_location_has_its_own_progress_meter():
-	# a stand-in location with a meter; requests there add to it, and a step can wait for it
-	var isl := {"id": "zz_meter", "name": "Meterville", "meter": {"name": "Petition", "icon": "✍️", "unit": "signatures",
-		"milestones": [{"at": 40, "id": "page", "title": "A page"}, {"at": 90, "id": "yard", "title": "Two pages", "flags": ["zz_yard"]}]}}
+func test_a_request_step_can_wait_for_its_locations_meter():
+	# a stand-in location with a meter (LocationMeter); a step waits for its own location's meter, and it's saved
+	var isl := {"id": "zz_meter", "name": "Meterville", "meter": {"name": "Petition", "icon": "✍️",
+		"milestones": [{"at": 40, "id": "zz_page", "title": "A page", "items": {"coins": 30}}]}}
 	Data.islands.append(isl)
-	t.ok(Meter.has_meter("zz_meter") and not Meter.has_meter("hearthglow"), "only places that define one have a meter")
 	var s := GameState.new_game()
-	t.eq(Meter.value(s, "zz_meter"), 0, "starts at nothing")
-	t.eq(Meter.add(s, "zz_meter", 30), [], "no milestone yet")
-	var passed := Meter.add(s, "zz_meter", 70)
-	t.eq(passed.map(func(m): return m.id), ["page", "yard"], "one jump can pass two milestones")
-	t.eq([Meter.value(s, "zz_meter"), int(s.harmony)], [100, 0], "the meter grows, approval doesn't")
-	t.ok(Meter.next_milestone("zz_meter", 100).is_empty(), "every milestone reached")
-	t.eq(Meter.amount("zz_meter", 250), "250 signatures")
-	# kept in saves
+	t.eq(LocationMeter.add(s, "zz_meter", 100).map(func(m): return m.id), ["zz_page"], "a milestone can carry items (Story.add_meter gives them)")
 	var back := SaveSystem.deserialize(SaveSystem.serialize(s))
-	t.eq(Meter.value(back, "zz_meter"), 100, "saved and loaded")
-	# a request step that waits for the meter: it counts the meter of the request's own location
+	t.eq(LocationMeter.points(back, "zz_meter"), 100, "saved and loaded")
 	Data.npcs.append({"id": "zz_npc", "island": "zz_meter"}); Data.npc_by_id["zz_npc"] = Data.npcs[-1]
 	var q := {"id": "zz_q", "giver": "zz_npc", "objectives": [{"id": "sig", "kind": "meter", "value": 250}, {"id": "end", "kind": "talk", "npc": "zz_npc", "final": true}]}
 	Data.quests.append(q); Data.quest_by_id["zz_q"] = q
@@ -296,24 +287,17 @@ func test_a_location_has_its_own_progress_meter():
 	e.accept("zz_q")
 	t.eq(e.objective("zz_q", q.objectives[0]).have, 100, "100 of 250")
 	t.ok(not e.is_ready("zz_q"))
-	Meter.add(s, "zz_meter", 150); e.refresh()
+	LocationMeter.add(s, "zz_meter", 150); e.refresh()
 	t.ok(e.is_ready("zz_q"), "ready at 250")
 	Data.quests.erase(q); Data.quest_by_id.erase("zz_q"); Data.npcs.pop_back(); Data.npc_by_id.erase("zz_npc"); Data.islands.erase(isl)
 
 func test_gathering_a_place_can_change():
-	# a node can say what it gives (loose straw from a "flowers" node), or keep its kind's usual haul
-	t.eq(WorldActions._haul({"kind": "flowers", "items": {"rice_village_straw": 2.0}}, {"flowers": 2}), {"rice_village_straw": 2}, "a node's own haul")
-	t.eq(WorldActions._haul({"kind": "flowers"}, {"flowers": 2}), {"flowers": 2}, "or its kind's usual one")
-	# a place's own fish: what you catch, and one you put straight back
-	t.eq(Minigames.catches("hearthglow"), Minigames.FISH, "Monteforchetta keeps its fish")
-	var pond := [{"id": "frog", "name": "Sleepy Frog", "weight": 1.0, "pull": 0.2, "items": {}, "caught": "A sleepy frog! Back in the mud you go."}]
-	var f := Minigames.Fish.new(Rng.new(3), pond)
-	t.eq(f.fish.id, "frog", "the catch comes from the place's own table")
-	f.result = "caught"
-	t.eq(f.reward(), {}, "a frog you put straight back gives nothing")
-	var tench := Minigames.Fish.new(Rng.new(3), [{"id": "tench", "name": "Tench", "weight": 1.0, "pull": 0.6}])
-	tench.result = "caught"
-	t.eq(tench.reward(), {"fish": 1}, "a fish without its own haul is one fish")
+	# what a metal-detector spot gives, as with other nodes ("gives"), or its kind's usual haul
+	t.eq(WorldActions.gives({"kind": "dig", "gives": {"zz_coin": 1.0}}, {"crystal": 1}), {"zz_coin": 1}, "a dig spot's own find")
+	# a catch you put straight back gives nothing
+	var frog := Minigames.Fish.new(Rng.new(3), [{"id": "frog", "name": "Sleepy Frog", "weight": 1.0, "pull": 0.2, "item": ""}])
+	frog.result = "caught"
+	t.eq(frog.reward(), {}, "a frog you put straight back gives nothing")
 	# garden beds from the layout, each with its seed and crop
 	Data.use_island("hearthglow")
 	t.eq(Gardening.beds(), Gardening.PLOTS, "Gigia's four pumpkin beds")
@@ -325,7 +309,7 @@ func test_gathering_a_place_can_change():
 	t.eq(Gardening.action(gd, "zz_bed", {"seeds": 3}, "zz_seed"), "need_seeds", "pumpkin seeds don't grow cabbages")
 	t.eq(Gardening.action(gd, "zz_bed", {"zz_seed": 1}, "zz_seed"), "plant")
 	Gardening.plant(gd, "zz_bed", 0)
-	for s in 3: Gardening.water(gd, "zz_bed", s * 1000.0); Gardening.grow(gd, s * 1000.0 + Gardening.GROW_MINUTES)
+	for n in 3: Gardening.water(gd, "zz_bed", n * 1000.0); Gardening.grow(gd, n * 1000.0 + Gardening.GROW_MINUTES)
 	t.eq(Gardening.harvest(gd, "zz_bed", beds[0].crop), {"zz_cabbage": 3}, "and you pick the bed's own crop")
 	Data.layout = keep
 

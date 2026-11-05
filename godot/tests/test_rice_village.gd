@@ -302,8 +302,8 @@ func test_casalranas_people_and_requests():
 				if o.has("hint"): t.ok(not Heightfield.is_water(o.hint.x, o.hint.z), "%s's compass hint is on land" % o.id)
 				if String(o.get("check", "")).begins_with("fed:"): t.ok(Data.layout.machines.any(func(m): return "fed:" + m.id == o.check), "%s's machine is in the layout" % o.check))
 	# the petition: the main story and three side requests reach it; there's more on offer than it needs
-	var m := Meter.def(ID)
-	t.eq([m.get("name", ""), m.get("unit", "")], ["The Petition", "signatures"], "Casalrana's meter is Paletta's petition")
+	var m := LocationMeter.def(ID)
+	t.eq([m.get("name", ""), LocationMeter.reward_text(m, 20)], ["The Petition", "✍️ +20 signatures"], "Casalrana's meter is Paletta's petition")
 	var total := 0; var main := 0
 	for q in mine:
 		total += int(q.get("rewards", {}).get("meter", 0))
@@ -389,18 +389,19 @@ func test_the_waterwheel_machines():
 
 func test_gathering_in_casalrana():
 	_here(func():
-		var straw: Array = Data.layout.nodes.filter(func(n): return n.get("items", {}).has("rice_village_straw"))
+		var straw: Array = Data.layout.nodes.filter(func(n): return n.get("gives", {}).has("rice_village_straw"))
 		t.ok(straw.size() >= 6, "loose straw on the stubble (%d)" % straw.size())
 		var lost: Array = Data.layout.nodes.filter(func(n): return n.kind == "fragment")
-		t.ok(lost.size() == 5 and lost.all(func(n): return n.get("flag", "") == "rice_village_lostThings" and n.has("found")), "five things dropped from the trains, once Paletta asks")
+		t.ok(lost.size() == 5 and lost.all(func(n): return n.get("flag", "") == "rice_village_lostThings" and n.has("name")), "five things dropped from the trains, once Paletta asks")
 		t.ok(lost.any(func(n): return n.z < RV.RAIL_Z) and lost.any(func(n): return n.z > RV.RAIL_Z), "on both sides of the line")
 		var finds: Array = Data.layout.nodes.filter(func(n): return n.kind == "dig")
 		var items := {}
 		for n in finds:
-			for k in n.items: items[k] = true
+			for k in n.gives: items[k] = true
 		t.ok(items.has("rice_village_coin") and items.has("rice_village_badge") and items.has("rice_village_buttons"), "the metal detector finds the museum's three things")
 		t.eq(Gardening.beds().size(), 4, "four garden beds at the farmstead")
 		t.ok(Gardening.beds().all(func(b): return b.seed == "rice_village_seeds"), "they grow from Silvia's seed packets")
-		var fish := Minigames.catches(ID)
+		var fish := Minigames.catch_table(Data.layout.get("fish", []), "rice_village_pool0", {}, 600.0)
 		t.eq(fish.map(func(f): return f.id), ["tench", "carp", "frog"], "the spring pool has tench, carp and a sleepy frog")
-		t.eq(fish[2].items, {}, "and the frog goes straight back"))
+		var frog := Minigames.Fish.new(Rng.new(1), [fish[2]]); frog.result = "caught"
+		t.eq(frog.reward(), {}, "and the frog goes straight back"))

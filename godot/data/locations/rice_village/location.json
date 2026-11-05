@@ -31,12 +31,12 @@
  "meter": {
   "name": "The Petition",
   "icon": "✍️",
-  "unit": "signatures",
+  "reward": "+%d signatures",
   "about": "Paletta's petition to the railway for a stop at Casalrana. The railway wants 250 signatures; Casalrana has 41 inhabitants. Every request you finish spreads the word across the plain, and the signatures come from the next villages, the bus passengers and Matteo's whole school.",
   "milestones": [
    {
     "at": 40,
-    "id": "page",
+    "id": "rice_village_page",
     "title": "The first full page",
     "desc": "Paletta hands you 30,000 lire 'for expenses'.",
     "items": {
@@ -45,7 +45,7 @@
    },
    {
     "at": 90,
-    "id": "yard",
+    "id": "rice_village_yard",
     "title": "Two pages, one in pencil",
     "desc": "The old goods yard beside the station becomes part of your build plot.",
     "flags": [
@@ -54,7 +54,7 @@
    },
    {
     "at": 140,
-    "id": "province",
+    "id": "rice_village_province",
     "title": "The province takes note",
     "desc": "A load of materials arrives: 10 wood, 8 stone, 4 metal and 2 copper wire.",
     "items": {
@@ -66,7 +66,7 @@
    },
    {
     "at": 200,
-    "id": "stamp",
+    "id": "rice_village_stamp",
     "title": "A rubber stamp from the next village",
     "desc": "The next village's council stamps it, and sends 100,000 lire.",
     "items": {
@@ -75,36 +75,10 @@
    },
    {
     "at": 250,
-    "id": "full",
+    "id": "rice_village_full",
     "title": "The petition is full",
     "desc": "Ingegner Pautasso's third condition is met."
    }
   ]
- },
- "catches": [
-  {
-   "id": "tench",
-   "name": "Tench",
-   "weight": 4.0,
-   "pull": 0.6
-  },
-  {
-   "id": "carp",
-   "name": "Carp",
-   "weight": 2.0,
-   "pull": 0.95,
-   "items": {
-    "fish": 2
-   },
-   "caught": "A fat carp! It counts as two."
-  },
-  {
-   "id": "frog",
-   "name": "Sleepy Frog",
-   "weight": 0.8,
-   "pull": 0.25,
-   "items": {},
-   "caught": "A very sleepy frog! You put it straight back in the mud. Goodnight, frog."
-  }
- ]
+ }
 }
