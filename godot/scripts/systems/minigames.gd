@@ -89,6 +89,12 @@ class Mine:
 const FISH := [{"id": "minnow", "name": "Minnow", "weight": 5.0, "pull": 0.5}, {"id": "trout", "name": "Brown Trout", "weight": 3.0, "pull": 0.8},
 	{"id": "puffer", "name": "Perch", "weight": 1.5, "pull": 1.0}, {"id": "starfin", "name": "Pike", "weight": 0.6, "pull": 1.25}]
 
+## What fishing catches here: a location's own "catches" (location.json), in the same shape as FISH, each with an
+## optional "items" it gives instead of one fish ({} for one you put straight back) and a "caught" line.
+static func catches(island: String) -> Array:
+	var own: Array = Data.island_def(island).get("catches", [])
+	return own if not own.is_empty() else FISH
+
 class Fish:
 	var rng: Rng
 	var phase := "wait"
@@ -101,14 +107,15 @@ class Fish:
 	var band := [0.32, 0.74]
 	var fish: Dictionary
 	var pull := 0.0
-	func _init(r: Rng = null) -> void:
+	func _init(r: Rng = null, table: Array = []) -> void:
 		rng = r if r else Rng.new(Time.get_ticks_usec() & 0xffff)
 		wait = 1.4 + rng.next() * 2.6
+		if table.is_empty(): table = Minigames.FISH
 		var total := 0.0
-		for f in Minigames.FISH: total += f.weight
+		for f in table: total += f.weight
 		var x := rng.next() * total
-		fish = Minigames.FISH[0]
-		for f in Minigames.FISH:
+		fish = table[0]
+		for f in table:
 			x -= f.weight
 			if x <= 0.0: fish = f; break
 	func step(dt: float, press: bool, hold: bool = false) -> void:
@@ -130,4 +137,9 @@ class Fish:
 				if tension >= 0.99: done = true; result = "snap"
 				elif progress >= 1.0: done = true; result = "caught"
 				elif t > 25.0: done = true; result = "escaped"
-	func reward() -> Dictionary: return {"fish": 1} if result == "caught" else {}
+	func reward() -> Dictionary:
+		if result != "caught": return {}
+		if not fish.has("items"): return {"fish": 1}
+		var out := {}
+		for k in fish.items: out[k] = int(fish.items[k])
+		return out

@@ -1,0 +1,813 @@
+{
+ "npcs": [
+  {
+   "id": "rice_village_ernesto",
+   "name": "Ernesto \"Paletta\" Tarditi",
+   "title": "Capostazione (retired)",
+   "voice": 0.85,
+   "likes": [
+    "rice_village_vinbrule",
+    "rice_village_biscuits",
+    "flowers"
+   ],
+   "appearance": {
+    "skin": "#e9b083",
+    "eyeShape": "round",
+    "eyeColor": "#3a2a1e",
+    "hair": "short",
+    "hairColor": "#f2f2f2",
+    "mouth": "calm",
+    "top": "jacket",
+    "topColor": "#2f5fa8",
+    "bottom": "pants",
+    "bottomColor": "#4a4a6a",
+    "shoes": "boots",
+    "shoesColor": "#4a4a6a",
+    "hat": "captain",
+    "hatColor": "#2f5fa8",
+    "accessory": "beard"
+   },
+   "schedule": [
+    [
+     6,
+     12,
+     "platformMid",
+     "idle"
+    ],
+    [
+     12,
+     14,
+     "rice_village_casello:spot",
+     "work"
+    ],
+    [
+     14,
+     17,
+     "platformMid",
+     "idle"
+    ],
+    [
+     17,
+     21,
+     "rice_village_casello:spot",
+     "read"
+    ]
+   ],
+   "when": [
+    {
+     "flag": "!rice_village_welcomed",
+     "schedule": [
+      [
+       6,
+       22,
+       "busStopWait",
+       "idle"
+      ]
+     ]
+    }
+   ],
+   "home": "rice_village_casello:spot",
+   "greetings": [
+    {
+     "flag": "rice_village_trainStops",
+     "lines": [
+      "The 7:12 stopped again this morning. I raised the paddle and it stopped. Every morning I expect it not to.",
+      "Two passengers today! One of them was lost, but a passenger is a passenger."
+     ]
+    },
+    {
+     "flag": "rice_village_welcomed",
+     "lines": [
+      "The 10:40 intercity, 1987. A man threw his hat out of the window and shouted 'Casalrana!' as if it were a curse. I still have the hat.",
+      "Geometra! Mind the line. The trains don't stop here, but they do pass, and they pass with feeling.",
+      "I polish the paddle every morning. A station master without a polished paddle is just a man waving at trains."
+     ]
+    },
+    {
+     "lines": [
+      "Welcome, welcome! Ernesto Tarditi, Capostazione. Retired. Everyone calls me Paletta, after this.",
+      "You must be the Geometra! The province actually sent someone. I'll write and thank them. In triplicate."
+     ]
+    }
+   ],
+   "sleepy": [
+    "*yawn* The night express, 23:51. I can hear it in my sleep. I sleep through everything except trains."
+   ],
+   "topics": [
+    {
+     "id": "paddle",
+     "label": "Why the paddle?",
+     "lines": [
+      "The paletta! Red on one side, green on the other. You hold it up and the train goes. That was my whole job for thirty-one years.",
+      "The station went unmanned in 1993. They took the timetable off the wall and left me the paddle. An oversight, I think. I didn't remind them."
+     ]
+    },
+    {
+     "id": "petition",
+     "label": "Tell me about the petition.",
+     "lines": [
+      "The railway says a stop needs two hundred and fifty signatures. Casalrana has forty-one inhabitants, counting the priest, who is shared with four other villages.",
+      "So we need the plain. The next villages, the bus, Matteo's whole school. Every good thing you do here, people talk about it, and then they sign. That's how the plain works."
+     ]
+    },
+    {
+     "id": "trains",
+     "label": "Which trains pass?",
+     "lines": [
+      "Regionals, red and white, every hour or so. Intercity expresses, white and green, very proud of themselves. Freight trains as long as a sermon.",
+      "At night the express to the south. And at dawn, once, the yellow inspection train, checking the line. That's the one I salute properly."
+     ]
+    }
+   ],
+   "gifts": [
+    {
+     "hearts": 4,
+     "items": {
+      "crystal": 2
+     },
+     "line": "From the railway's storeroom. The railway has forgotten it owns this wire. I haven't forgotten. Take it."
+    }
+   ]
+  },
+  {
+   "id": "rice_village_battista",
+   "name": "Battista \"Barba Tista\" Mosso",
+   "title": "Fattore",
+   "voice": 0.8,
+   "likes": [
+    "rice_village_salami",
+    "rice_village_vinbrule",
+    "fish"
+   ],
+   "appearance": {
+    "skin": "#c98a5e",
+    "eyeShape": "round",
+    "eyeColor": "#3a2a1e",
+    "hair": "short",
+    "hairColor": "#7a4a2a",
+    "mouth": "calm",
+    "top": "jacket",
+    "topColor": "#3fb5a3",
+    "bottom": "pants",
+    "bottomColor": "#4a4a6a",
+    "shoes": "boots",
+    "shoesColor": "#4a4a6a",
+    "hat": "beret",
+    "hatColor": "#4a4a6a",
+    "accessory": "beard"
+   },
+   "schedule": [
+    [
+     6,
+     12,
+     "bank27",
+     "work"
+    ],
+    [
+     12,
+     14,
+     "rice_village_farmhouse:1",
+     "idle"
+    ],
+    [
+     14,
+     19,
+     "rice_village_shed:spot",
+     "work"
+    ],
+    [
+     19,
+     22,
+     "rice_village_farmhouse:in",
+     "idle"
+    ]
+   ],
+   "home": "rice_village_farmhouse:in",
+   "greetings": [
+    {
+     "flag": "rice_village_paddyFlooded",
+     "lines": [
+      "Herons. Eleven of them this morning, standing in my paddy like they're waiting for a bus. Brussels pays me for every one. I count them twice."
+     ]
+    },
+    {
+     "lines": [
+      "Clear skies again. Too clear. When the sky looks this innocent, it's planning something.",
+      "The tractor started first time today. I don't trust it.",
+      "Barba Tista. Uncle Tista. Everyone's uncle, nobody's nephew. What do you need?"
+     ]
+    }
+   ],
+   "sleepy": [
+    "*mumble* ...four herons... five herons... Brussels, I'm counting..."
+   ],
+   "topics": [
+    {
+     "id": "herons",
+     "label": "Is it true you grow herons?",
+     "lines": [
+      "Brussels pays me to flood a paddy in winter so the birds have somewhere to stand. Herons, egrets, the lot. Money for water.",
+      "I didn't believe it either. I still don't. But the cheque came. The cheque is the most convincing bird of all."
+     ]
+    },
+    {
+     "id": "owner",
+     "label": "Who owns the farmstead?",
+     "lines": [
+      "A count. Or a count's nephew. Somebody in Turin with a lawyer. Nobody's seen him since 1974.",
+      "I send the accounts every Christmas. Nobody answers. Fifty years of farming for an envelope."
+     ]
+    },
+    {
+     "id": "sky",
+     "label": "What's wrong with clear weather?",
+     "lines": [
+      "Nothing. That's what's wrong with it. A December without fog? My father would have called the priest.",
+      "Mark my words. One morning you'll wake up and the plain will have gone. White, to the end of your nose. Then we'll talk."
+     ]
+    }
+   ],
+   "gifts": [
+    {
+     "hearts": 4,
+     "items": {
+      "metal": 3
+     },
+     "line": "Bits of the old thresher. It doesn't need them. It hasn't needed anything since 1979."
+    }
+   ]
+  },
+  {
+   "id": "rice_village_pierina",
+   "name": "Nonna Pierina Avondo",
+   "title": "Nonna",
+   "voice": 1.15,
+   "likes": [
+    "flowers",
+    "rice_village_cabbage",
+    "rice_village_leek"
+   ],
+   "appearance": {
+    "skin": "#f8cfa8",
+    "eyeShape": "happy",
+    "eyeColor": "#3a2a1e",
+    "hair": "bun",
+    "hairColor": "#f2f2f2",
+    "mouth": "smile",
+    "top": "sweater",
+    "topColor": "#4a4a6a",
+    "bottom": "skirt",
+    "bottomColor": "#4a4a6a",
+    "shoes": "boots",
+    "shoesColor": "#4a4a6a",
+    "hat": "none",
+    "hatColor": "#4a4a6a",
+    "accessory": "scarf"
+   },
+   "schedule": [
+    [
+     6,
+     11,
+     "rice_village_farmhouse:spot",
+     "work"
+    ],
+    [
+     11,
+     13,
+     "gardenGate",
+     "garden"
+    ],
+    [
+     13,
+     22,
+     "rice_village_farmhouse:spot",
+     "work"
+    ]
+   ],
+   "when": [
+    {
+     "flag": "rice_village_benchBuilt",
+     "schedule": [
+      [
+       6,
+       11,
+       "rice_village_farmhouse:spot",
+       "work"
+      ],
+      [
+       11,
+       13,
+       "gardenGate",
+       "garden"
+      ],
+      [
+       13,
+       16,
+       "rice_village_farmhouse:spot",
+       "work"
+      ],
+      [
+       16,
+       19,
+       "nonnaPaddy",
+       "idle"
+      ],
+      [
+       19,
+       22,
+       "rice_village_farmhouse:spot",
+       "work"
+      ]
+     ]
+    }
+   ],
+   "home": "rice_village_farmhouse:spot",
+   "greetings": [
+    {
+     "flag": "rice_village_benchSung",
+     "lines": [
+      "I sat on my bench yesterday until the stars came out. My knees complained. My heart didn't."
+     ]
+    },
+    {
+     "lines": [
+      "Come in, come in, you're letting the cold in. Sit. Eat something. You're too thin for December.",
+      "Eighty-one years old and I still make the panissa for the whole village. The secret? Don't tell anyone the secret.",
+      "In 1951 I weeded these paddies with forty other girls, singing all day. My back remembers every one of those songs."
+     ]
+    }
+   ],
+   "sleepy": [
+    "*snore* ...more salt... no, less salt..."
+   ],
+   "topics": [
+    {
+     "id": "mondina",
+     "label": "What was it like, weeding the paddies?",
+     "lines": [
+      "Water to your knees, the sun on your neck, and the boss on the bank in a straw hat. Forty days, from May into June.",
+      "We sang so we wouldn't cry, and then we sang because we liked it. I met my Gino on the bank there. He was terrible at weeding. Lovely singer."
+     ]
+    },
+    {
+     "id": "frogs",
+     "label": "Where are all the frogs?",
+     "lines": [
+      "Asleep in the mud, every one of them, until the spring. Like old men after lunch.",
+      "When I was a girl we ate them fried. Now I'd feel I was eating a neighbour. Let them sleep."
+     ]
+    },
+    {
+     "id": "recipes",
+     "label": "What's in the panissa?",
+     "lines": [
+      "Rice, beans, a little salami from the pot, onion, red wine, and patience.",
+      "The rest is a secret. Silvia has been trying to get it out of me for twenty years. She thinks I put it in a binder. I put it in my head."
+     ]
+    }
+   ],
+   "gifts": [
+    {
+     "hearts": 4,
+     "items": {
+      "rice_village_panissa": 2,
+      "rice_village_biscuits": 2
+     },
+     "line": "Take these home. No, don't argue. I'm knitting you something too, in a colour I'll choose."
+    }
+   ]
+  },
+  {
+   "id": "rice_village_silvia",
+   "name": "Silvia Bonino",
+   "title": "Perita agraria",
+   "voice": 1.1,
+   "likes": [
+    "rice_village_rice",
+    "rice_village_biscuits",
+    "fabric"
+   ],
+   "appearance": {
+    "skin": "#f8cfa8",
+    "eyeShape": "round",
+    "eyeColor": "#3a2a1e",
+    "hair": "ponytail",
+    "hairColor": "#7a4a2a",
+    "mouth": "smile",
+    "top": "jacket",
+    "topColor": "#7bd389",
+    "bottom": "pants",
+    "bottomColor": "#2f5fa8",
+    "shoes": "boots",
+    "shoesColor": "#7bd389",
+    "hat": "none",
+    "hatColor": "#4a4a6a",
+    "accessory": "none"
+   },
+   "schedule": [
+    [
+     7,
+     13,
+     "rice_village_office:spot",
+     "work"
+    ],
+    [
+     13,
+     18,
+     "rice_village_mill:spot",
+     "work"
+    ],
+    [
+     18,
+     22,
+     "rice_village_farmhouse:1",
+     "idle"
+    ]
+   ],
+   "home": "rice_village_office:spot",
+   "greetings": [
+    {
+     "flag": "rice_village_millRunning",
+     "lines": [
+      "Casalrana rice, husked at our own mill, in our own cloth bags. I printed the labels myself. They're slightly crooked. That's called 'artisanal'."
+     ]
+    },
+    {
+     "flag": "rice_village_bells",
+     "lines": [
+      "I went up the bell tower and my phone rang! Three messages from my college. They want their binder back."
+     ]
+    },
+    {
+     "lines": [
+      "Two years of agricultural college and Nonna still tells me how to plant cabbages. She's right, that's the annoying part.",
+      "I have a plan for this farmstead. I have a binder for the plan. I have a plan for the binder.",
+      "My mobile phone has no signal anywhere in Casalrana. I carry it for emotional reasons."
+     ]
+    }
+   ],
+   "sleepy": [
+    "*yawn* I was doing the accounts in my sleep. They balanced. It was a nightmare."
+   ],
+   "topics": [
+    {
+     "id": "mill",
+     "label": "Why restart the old mill?",
+     "lines": [
+      "We grow rice and sell it to a cooperative that sells it to a factory that puts it in a box with a picture of a happy farmer.",
+      "I want to husk our own, put it in a cloth bag that says Casalrana, and sell it to people who'll come here to buy it. Then the farmer in the picture can be Uncle Tista. Unhappy, but real."
+     ]
+    },
+    {
+     "id": "phone",
+     "label": "Does your phone work anywhere?",
+     "lines": [
+      "Not in the office, not in the yard, not on the road. I've walked every bank with it held over my head like a torch.",
+      "Uncle Tista says the plain is too flat for the signal to land. I don't think that's how it works. I don't know how it works."
+     ]
+    },
+    {
+     "id": "college",
+     "label": "What did you study?",
+     "lines": [
+      "Agriculture, in Vercelli. Soils, water, machinery, accounting. Everything Nonna knows, but with exams.",
+      "My final thesis was on the winter paddy for the birds. Uncle Tista read it. He said 'so it's true then' and went to count herons."
+     ]
+    }
+   ],
+   "gifts": [
+    {
+     "hearts": 4,
+     "items": {
+      "rice_village_rice": 2,
+      "fabric": 2
+     },
+     "line": "Two bags of our rice and some cloth bags. The first ones I sewed are lumpy. Those are for friends."
+    }
+   ]
+  },
+  {
+   "id": "rice_village_remo",
+   "name": "Don Remo Avetta",
+   "title": "Parish priest",
+   "voice": 0.9,
+   "likes": [
+    "rice_village_vinbrule",
+    "flowers",
+    "rice_village_salami"
+   ],
+   "appearance": {
+    "skin": "#e9b083",
+    "eyeShape": "round",
+    "eyeColor": "#3a2a1e",
+    "hair": "short",
+    "hairColor": "#7a4a2a",
+    "mouth": "smile",
+    "top": "tunic",
+    "topColor": "#4a4a6a",
+    "bottom": "pants",
+    "bottomColor": "#4a4a6a",
+    "shoes": "boots",
+    "shoesColor": "#4a4a6a",
+    "hat": "none",
+    "hatColor": "#4a4a6a",
+    "accessory": "glasses"
+   },
+   "schedule": [
+    [
+     7,
+     12,
+     "rice_village_church:spot",
+     "read"
+    ],
+    [
+     12,
+     14,
+     "presbyteryDoor",
+     "idle"
+    ],
+    [
+     14,
+     17,
+     "churchyard",
+     "idle"
+    ],
+    [
+     17,
+     20,
+     "rice_village_church:spot",
+     "read"
+    ]
+   ],
+   "when": [
+    {
+     "flag": "rice_village_nativityDone",
+     "schedule": [
+      [
+       7,
+       12,
+       "rice_village_church:spot",
+       "read"
+      ],
+      [
+       12,
+       14,
+       "presbyteryDoor",
+       "idle"
+      ],
+      [
+       14,
+       17,
+       "churchyard",
+       "idle"
+      ],
+      [
+       17,
+       20,
+       "rice_village_church:spot",
+       "read"
+      ]
+     ]
+    },
+    {
+     "flag": "rice_village_stableBuilt",
+     "schedule": [
+      [
+       7,
+       12,
+       "rice_village_church:spot",
+       "read"
+      ],
+      [
+       12,
+       14,
+       "presbyteryDoor",
+       "idle"
+      ],
+      [
+       14,
+       23,
+       "stable",
+       "idle"
+      ]
+     ]
+    }
+   ],
+   "home": "presbyteryDoor",
+   "greetings": [
+    {
+     "flag": "rice_village_nativityDone",
+     "lines": [
+      "The ox ate the manger's straw during the Gloria. Theologically interesting. Very lovely all the same."
+     ]
+    },
+    {
+     "flag": "rice_village_bells",
+     "lines": [
+      "Did you hear the bells this morning? I rang them myself. My arms will never forgive me, and my soul is delighted."
+     ]
+    },
+    {
+     "lines": [
+      "Ah, the Geometra! I cover five parishes on a motorbike older than you. Pray for my brakes.",
+      "The church of San Grato. Bare brick, no frescoes, very good acoustics. Even my sermons sound clever in here.",
+      "Bocce on Thursdays, Mass on Sundays. Don't tell the bishop which one I'm better at."
+     ]
+    }
+   ],
+   "sleepy": [
+    "*yawn* ...and the Lord said... no, that was the bishop..."
+   ],
+   "topics": [
+    {
+     "id": "bells",
+     "label": "Why ring the bells by hand?",
+     "lines": [
+      "The electric motor broke in 1998 and the diocese sent a form. I filled in the form. The form is still somewhere in Vercelli, ringing nothing.",
+      "Bells rung by hand sound different. You can hear the person pulling. For Christmas, I'd like Casalrana to hear its people."
+     ]
+    },
+    {
+     "id": "parishes",
+     "label": "Five parishes?",
+     "lines": [
+      "Casalrana and four others, all across the plain. Sunday is a race: Mass at eight here, nine-thirty at the next, eleven at the third.",
+      "The congregations average twelve. Twelve good people. The Lord started with twelve, so I'm in good company."
+     ]
+    },
+    {
+     "id": "bocce",
+     "label": "Is it true you play bocce?",
+     "lines": [
+      "Who told you? Nonna Pierina. Of course.",
+      "I was provincial champion in 1983, before the seminary. I still play on Thursdays, in a cap, at a club where nobody knows I'm a priest. They think I'm a very calm accountant."
+     ]
+    }
+   ],
+   "gifts": [
+    {
+     "hearts": 4,
+     "items": {
+      "flowers": 3,
+      "coins": 20
+     },
+     "line": "Hellebores from the churchyard wall, and something from the collection box. The parish council approved it. I am the parish council."
+    }
+   ]
+  },
+  {
+   "id": "rice_village_matteo",
+   "name": "Matteo Mosso",
+   "title": "Train spotter",
+   "voice": 1.35,
+   "likes": [
+    "rice_village_biscuits",
+    "rice_village_buttons",
+    "fragment"
+   ],
+   "appearance": {
+    "skin": "#f8cfa8",
+    "eyeShape": "wide",
+    "eyeColor": "#3a2a1e",
+    "hair": "spiky",
+    "hairColor": "#7a4a2a",
+    "mouth": "grin",
+    "top": "jacket",
+    "topColor": "#e85d75",
+    "bottom": "pants",
+    "bottomColor": "#2f5fa8",
+    "shoes": "sneakers",
+    "shoesColor": "#ffffff",
+    "hat": "beanie",
+    "hatColor": "#ffd166",
+    "accessory": "none"
+   },
+   "schedule": [
+    [
+     8,
+     13,
+     "rice_village_farmhouse:1",
+     "read"
+    ],
+    [
+     13,
+     17,
+     "crossingWatch",
+     "idle"
+    ],
+    [
+     17,
+     19,
+     "rice_village_station:spot",
+     "read"
+    ],
+    [
+     19,
+     21,
+     "rice_village_farmhouse:1",
+     "idle"
+    ]
+   ],
+   "home": "rice_village_farmhouse:1",
+   "greetings": [
+    {
+     "flag": "rice_village_trainStops",
+     "lines": [
+      "I'm going to school by train now! Well, I could. Mum still drives me. But I COULD."
+     ]
+    },
+    {
+     "lines": [
+      "The 14:20 intercity was four minutes late! I wrote it down. Somebody has to.",
+      "I'm Paletta's staff. He says I'm the best staff he ever had. I'm the only staff he ever had, but still.",
+      "Grandpa says if I count trains instead of doing homework I'll end up a station master. That's the PLAN."
+     ]
+    }
+   ],
+   "sleepy": [
+    "*yawn* E.402... E.444... D.445... *snore*"
+   ],
+   "topics": [
+    {
+     "id": "log",
+     "label": "What's in your notebook?",
+     "lines": [
+      "Every train since I came to stay with Grandpa. Number, time, colour, and if anyone waved.",
+      "Seventeen people waved. Two of them were the same lady. I think she likes Casalrana."
+     ]
+    },
+    {
+     "id": "parents",
+     "label": "Why are you staying with your grandpa?",
+     "lines": [
+      "Mum and Dad work in the city till Christmas. They phone every Sunday from the payphone at the station, because Silvia's phone is useless.",
+      "Grandpa lets me drive the tractor in the yard. Don't tell Mum. Actually, tell her, she'll be impressed."
+     ]
+    },
+    {
+     "id": "museum",
+     "label": "What's your museum?",
+     "lines": [
+      "A shelf in the waiting room. Paletta said I could have it. It's got a railway ticket from 1962, a horseshoe and a rock that looks like Italy.",
+      "It needs more exhibits. Real old things. Things with stories."
+     ]
+    }
+   ],
+   "gifts": [
+    {
+     "hearts": 4,
+     "items": {
+      "fragment": 1,
+      "rice_village_biscuits": 2
+     },
+     "line": "This is for you. It's a thing somebody dropped from the 16:05. It's mine, so now it's yours. That's how gifts work."
+    }
+   ]
+  },
+  {
+   "id": "rice_village_carlo",
+   "name": "Ingegner Carlo Pautasso",
+   "title": "Railway inspector",
+   "voice": 0.9,
+   "visitor": true,
+   "present": "rice_village_inspector",
+   "likes": [],
+   "appearance": {
+    "skin": "#f8cfa8",
+    "eyeShape": "round",
+    "eyeColor": "#3a2a1e",
+    "hair": "short",
+    "hairColor": "#d9a35a",
+    "mouth": "calm",
+    "top": "jacket",
+    "topColor": "#2f5fa8",
+    "bottom": "pants",
+    "bottomColor": "#4a4a6a",
+    "shoes": "boots",
+    "shoesColor": "#4a4a6a",
+    "hat": "none",
+    "hatColor": "#4a4a6a",
+    "accessory": "glasses"
+   },
+   "schedule": [
+    [
+     7,
+     19,
+     "stationYard",
+     "idle"
+    ]
+   ],
+   "home": "stationYard",
+   "greetings": [
+    {
+     "lines": [
+      "Pautasso, railway inspection. I have a clipboard and a thermos, and I'm not afraid to use either.",
+      "Conditions are conditions, Geometra. I don't make the rules. I just write them down very neatly."
+     ]
+    }
+   ],
+   "topics": [],
+   "gifts": []
+  }
+ ]
+}

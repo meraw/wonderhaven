@@ -1,0 +1,1350 @@
+{
+ "quests": [
+  {
+   "id": "rice_village_welcome",
+   "title": "Welcome to Casalrana",
+   "giver": "rice_village_ernesto",
+   "main": true,
+   "type": "story",
+   "chapter": 3,
+   "description": "Paletta meets your bus and shows you round: the level crossing, the family at the farmstead, Don Remo, a little wood and stone to gather, and the keys to the flat above the station.",
+   "onAccept": {
+    "flags": [
+     "hasTool"
+    ],
+    "items": {
+     "wood": 2
+    }
+   },
+   "objectives": [
+    {
+     "id": "crossing",
+     "kind": "event",
+     "event": "rice_village_atCrossing",
+     "count": 1,
+     "stage": 0,
+     "text": "Walk up the road to the level crossing",
+     "hint": {
+      "x": 2,
+      "z": -41.5
+     }
+    },
+    {
+     "id": "tista",
+     "kind": "talk",
+     "npc": "rice_village_battista",
+     "text": "Meet Barba Tista at the farmstead (fields in the morning, the machine shed in the afternoon)",
+     "lines": [
+      "So you're the Geometra. Paletta's been talking about you for a month. He's talked about you to the cows.",
+      "Barba Tista. I run the farmstead. If you need wood, straw or metal, come to the machine shed. If you need advice, ask the sky. It never lies. Except when it's clear."
+     ],
+     "stage": 1
+    },
+    {
+     "id": "nonna",
+     "kind": "talk",
+     "npc": "rice_village_pierina",
+     "text": "Say hello to Nonna Pierina in the farmhouse kitchen",
+     "lines": [
+      "Paletta's Geometra! Sit, sit. Have you eaten? You haven't. I can tell from your face.",
+      "I knew your sort of face in 1951. Hard workers, all of them. Come back when you're hungry. You'll always be hungry here."
+     ],
+     "stage": 1
+    },
+    {
+     "id": "remo",
+     "kind": "talk",
+     "npc": "rice_village_remo",
+     "text": "Meet Don Remo at the church",
+     "lines": [
+      "Welcome to Casalrana! Forty-one souls, one church, a bell tower with no stairs and a priest with five parishes.",
+      "Come and see me when you've settled in. I have a job for a Geometra with strong legs."
+     ],
+     "stage": 1
+    },
+    {
+     "id": "wood",
+     "kind": "gather",
+     "item": "wood",
+     "count": 3,
+     "stage": 2,
+     "text": "Chop 3 wood from the poplars in the plantation (south of the village)"
+    },
+    {
+     "id": "stone",
+     "kind": "gather",
+     "item": "stone",
+     "count": 3,
+     "stage": 2,
+     "text": "Quarry 3 stone from the cobbles heaped along the drained canal (west)"
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "rice_village_ernesto",
+     "text": "Tell Paletta you've settled in",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "meter": 20,
+    "items": {
+     "coins": 20
+    },
+    "flags": [
+     "rice_village_welcomed"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "Geometra! Welcome to Casalrana! I'm Paletta. Capostazione. Retired. Station master of a station where nothing stops.",
+     "In 1993 the regional stopped stopping. The 7:12 just... carried on. I raised the paddle and it waved back.",
+     "I wrote to the province for a Geometra, and here you are! Let me show you round. Mind the crossing: the trains don't stop, but they do pass."
+    ],
+    "acceptLabel": "Show me round!",
+    "declineLabel": "In a minute",
+    "accept": [
+     "Splendid! Up the road to the crossing first. When the bells ring and the barriers drop, you wait. Always. The 10:40 doesn't wait for anybody.",
+     "Then meet the family at the farmstead, and Don Remo. Gather a little wood and stone too. Then come and find me on the platform."
+    ],
+    "decline": [
+     "Of course. The station's been waiting since 1993. It can wait a minute more."
+    ],
+    "progress": [
+     "The crossing, the family at the farmstead, Don Remo, a little wood and stone. Then the platform. I'll be there. I'm always there."
+    ],
+    "complete": [
+     "You've met everyone and you're still smiling. That's a good sign. Most people stop smiling at Barba Tista.",
+     "Here are the keys to the flat above the station. It's free because the roof leaks. Until it's fit to sleep in, the waiting-room bench is yours. Very comfortable. I've tested it.",
+     "And Geometra: I've started a petition to the railway for the stop. Everything you do here, people will hear about. And then they'll sign."
+    ]
+   }
+  },
+  {
+   "id": "rice_village_flat",
+   "title": "The Flat above the Station",
+   "giver": "rice_village_ernesto",
+   "main": true,
+   "type": "construction",
+   "chapter": 3,
+   "description": "The flat above the station is yours, once the roof stops leaking. Gather clay for tiles and wood for battens, patch the roof, then furnish the basics: a bed, a table, a chair and a lamp.",
+   "requires": {
+    "quests": [
+     "rice_village_welcome"
+    ]
+   },
+   "onAccept": {
+    "blueprints": [
+     "bed",
+     "table",
+     "chair",
+     "lamp"
+    ],
+    "items": {
+     "fabric": 2,
+     "crystal": 1
+    }
+   },
+   "objectives": [
+    {
+     "id": "clay",
+     "kind": "gather",
+     "item": "clay",
+     "count": 4,
+     "stage": 0,
+     "text": "Dig 4 clay from the ditch banks, for roof tiles"
+    },
+    {
+     "id": "wood",
+     "kind": "gather",
+     "item": "wood",
+     "count": 4,
+     "stage": 0,
+     "text": "Chop 4 wood for battens"
+    },
+    {
+     "id": "roof",
+     "kind": "event",
+     "event": "rice_village_roofPatched",
+     "count": 1,
+     "stage": 1,
+     "text": "Patch the leaking roof (up the outside stair at the station's east end)",
+     "hint": {
+      "x": 25.7,
+      "z": -36.4
+     },
+     "onDone": {
+      "flags": [
+       "rice_village_roofPatched"
+      ]
+     }
+    },
+    {
+     "id": "furnish",
+     "kind": "room",
+     "zone": "rice_village_flat",
+     "stage": 2,
+     "text": "Furnish the flat: a bed, a table, a chair and a lamp",
+     "buildHint": "Your flat is upstairs: build from inside it.",
+     "hint": {
+      "x": 22,
+      "z": -38
+     },
+     "needs": [
+      {
+       "any": [
+        "bed"
+       ],
+       "label": "A bed"
+      },
+      {
+       "any": [
+        "table",
+        "desk",
+        "counter"
+       ],
+       "label": "A table"
+      },
+      {
+       "any": [
+        "chair",
+        "sofa",
+        "bench"
+       ],
+       "label": "A chair"
+      },
+      {
+       "any": [
+        "lamp",
+        "streetlight",
+        "railLantern",
+        "poweredLamp"
+       ],
+       "label": "A lamp"
+      }
+     ]
+    },
+    {
+     "id": "show",
+     "kind": "talk",
+     "npc": "rice_village_ernesto",
+     "text": "Show Paletta your flat",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "meter": 30,
+    "items": {
+     "coins": 30
+    },
+    "flags": [
+     "rice_village_homePlot",
+     "rice_village_flatHome"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "The flat upstairs was mine for thirty-one years. Then the station went unmanned and the roof went... well, it went the way of the timetable.",
+     "Patch the roof and it's yours. Clay for tiles from the ditch banks, wood for battens. Then a bed, a table, a chair and a lamp. A station master needs little. A Geometra needs a lamp."
+    ],
+    "acceptLabel": "I'll fix it up",
+    "declineLabel": "The bench is fine for now",
+    "accept": [
+     "Wonderful! The outside stair is at the east end. Mind the third step. Actually, mind all of them.",
+     "Here's some fabric for a mattress, and a spool of wire for the lamp."
+    ],
+    "decline": [
+     "The bench it is. It's very historic. A bishop once sat on it for two hours waiting for the 9:15. The 9:15 didn't stop either."
+    ],
+    "progress": [
+     "Clay and wood, then patch the roof. Then a bed, a table, a chair and a lamp, upstairs."
+    ],
+    "complete": [
+     "A bed! A lamp! It looks like a home again. My wife would have put a doily on the table. I'll bring you a doily.",
+     "Sleep in your own bed whenever you like. And the yard beside the station is yours to build on. Build something the railway will be jealous of."
+    ]
+   }
+  },
+  {
+   "id": "rice_village_stairs",
+   "title": "The Bell Tower Stairs",
+   "giver": "rice_village_remo",
+   "main": true,
+   "type": "construction",
+   "chapter": 3,
+   "description": "The wooden stairs inside the bell tower have rotted, and Don Remo wants the bells rung by hand for Christmas. Gather poplar wood and build a climb you can walk up, from the tower floor to the ringing floor. Then ring the first peal.",
+   "requires": {
+    "quests": [
+     "rice_village_flat"
+    ]
+   },
+   "onAccept": {
+    "blueprints": [
+     "stairs",
+     "stoneBlock",
+     "platform",
+     "floor"
+    ],
+    "items": {
+     "wood": 4
+    }
+   },
+   "objectives": [
+    {
+     "id": "wood",
+     "kind": "gather",
+     "item": "wood",
+     "count": 8,
+     "stage": 0,
+     "text": "Chop 8 poplar wood in the plantation"
+    },
+    {
+     "id": "climb",
+     "kind": "build",
+     "check": "path:rice_village_tower",
+     "zone": "rice_village_tower",
+     "stage": 1,
+     "text": "Build a climb inside the bell tower, from its floor up to the ringing floor",
+     "goal": "A climb you can walk up, from the tower floor to the ringing floor",
+     "buildHint": "Stairs rise one step per tile. Stand them on blocks to go higher.",
+     "hint": {
+      "x": -14,
+      "z": 9
+     }
+    },
+    {
+     "id": "peal",
+     "kind": "event",
+     "event": "rice_village_peal",
+     "count": 1,
+     "stage": 2,
+     "text": "Ring the first peal: pull the bell ropes on the ringing floor",
+     "hint": {
+      "x": -14,
+      "z": 7.6
+     },
+     "onDone": {
+      "flags": [
+       "rice_village_bells"
+      ]
+     }
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "rice_village_remo",
+     "text": "Tell Don Remo the bells are ringing again",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "meter": 60,
+    "items": {
+     "coins": 40
+    }
+   },
+   "dialogue": {
+    "offer": [
+     "Geometra, a confession. Not mine. The bell tower's. Its wooden stairs have rotted through. Woodworm. Very devout woodworm, I'm sure, but thorough.",
+     "The stone stair up to the bells is sound. It's the wooden flight from the floor to the ringing floor that's gone. I want the bells rung by hand for Christmas.",
+     "Can you build a way up? Any way, as long as a priest of a certain age can climb it."
+    ],
+    "acceptLabel": "I'll build you a way up",
+    "declineLabel": "Not just yet",
+    "accept": [
+     "Bless you! Poplar wood from the plantation will do. Barba Tista's trees, but the Lord's poplars.",
+     "The tower door is open. It's always open. Nobody steals from a tower with no stairs."
+    ],
+    "decline": [
+     "Of course. The bells have waited since 1998. They're very patient bells."
+    ],
+    "progress": [
+     "Poplar wood, then a climb from the tower floor up to the ringing floor. Then we ring. You'll hear it in Vercelli."
+    ],
+    "complete": [
+     "Did you hear it? The whole plain heard it! Barba Tista came out of the shed with his cap off.",
+     "And Silvia climbed up after you and her telephone rang. Up there. The only place in Casalrana. She's been up there an hour, talking to Vercelli.",
+     "The people of five parishes will hear about this, Geometra. They'll sign anything."
+    ]
+   }
+  },
+  {
+   "id": "rice_village_nativity",
+   "title": "The Living Nativity",
+   "giver": "rice_village_remo",
+   "main": true,
+   "type": "construction",
+   "chapter": 3,
+   "description": "Every 8 December the village stages a living nativity, but the stable blew down. Gather rice straw and wood, build a new stable in the churchyard with posts or walls, a roof and two lamps, and bring Don Remo the straw for the manger.",
+   "requires": {
+    "quests": [
+     "rice_village_stairs"
+    ]
+   },
+   "onAccept": {
+    "blueprints": [
+     "pillar",
+     "woodWall",
+     "roof",
+     "lamp",
+     "fence"
+    ],
+    "items": {
+     "wood": 4
+    }
+   },
+   "objectives": [
+    {
+     "id": "straw",
+     "kind": "gather",
+     "item": "rice_village_straw",
+     "count": 6,
+     "stage": 0,
+     "text": "Gather 6 rice straw from the stubble (loose straw lies along the banks)"
+    },
+    {
+     "id": "wood",
+     "kind": "gather",
+     "item": "wood",
+     "count": 6,
+     "stage": 0,
+     "text": "Chop 6 wood"
+    },
+    {
+     "id": "stable",
+     "kind": "room",
+     "zone": "rice_village_churchyard",
+     "stage": 1,
+     "text": "Build the stable in the churchyard: posts or walls, a roof and two lamps",
+     "buildHint": "A roof needs something under it: posts, pillars or walls.",
+     "hint": {
+      "x": -15,
+      "z": 0.5
+     },
+     "onDone": {
+      "flags": [
+       "rice_village_stableBuilt"
+      ]
+     },
+     "needs": [
+      {
+       "any": [
+        "pillar",
+        "woodWall",
+        "windowWall",
+        "fence",
+        "bridgePost",
+        "doorWall"
+       ],
+       "count": 2,
+       "label": "Posts or walls (2)"
+      },
+      {
+       "any": [
+        "roof"
+       ],
+       "label": "A roof"
+      },
+      {
+       "any": [
+        "lamp",
+        "streetlight",
+        "railLantern",
+        "poweredLamp"
+       ],
+       "count": 2,
+       "label": "Two lamps"
+      }
+     ]
+    },
+    {
+     "id": "straw2",
+     "kind": "pay",
+     "npc": "rice_village_remo",
+     "items": {
+      "rice_village_straw": 6
+     },
+     "stage": 2,
+     "label": "Hand over 6 straw for the manger",
+     "text": "Bring Don Remo 6 rice straw for the manger",
+     "lines": [
+      "Straw for the manger! It smells of the paddies. The Holy Family would have liked Casalrana, I think. Flat, but friendly."
+     ]
+    },
+    {
+     "id": "evening",
+     "kind": "talk",
+     "npc": "rice_village_remo",
+     "text": "Come to the churchyard in the evening for the living nativity (5 PM to 10 PM)",
+     "lines": [
+      "It's time! Candles along the wall, the whole village in their coats. The farmstead's ox and donkey, unimpressed, which is very authentic.",
+      "Silvia is Mary, Matteo is a shepherd who keeps checking his watch for the 18:52, and Barba Tista is Joseph, mostly because he owns the donkey.",
+      "Listen: Nonna Pierina is singing. An old carol from the plain, the one the mondine sang at Christmas. Nobody breathes.",
+      "And now the bells. And vin brulé for everyone. Merry Christmas, Geometra, a little early."
+     ],
+     "stage": 3,
+     "hours": [
+      1020,
+      1320
+     ]
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "rice_village_remo",
+     "text": "Thank Don Remo for the nativity",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "meter": 60,
+    "items": {
+     "coins": 30,
+     "rice_village_vinbrule": 2
+    },
+    "flags": [
+     "rice_village_nativityDone"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "Every 8 December, Casalrana stages a living nativity in the churchyard. Real people, real animals, real cold.",
+     "But the stable blew down in the autumn storms. The donkey was in it. The donkey is fine. The stable is firewood.",
+     "Could you build a new one? Posts, a roof, two lamps. And straw for the manger, rice straw, of course. We're not barbarians."
+    ],
+    "acceptLabel": "I'll build the stable",
+    "declineLabel": "Maybe later",
+    "accept": [
+     "Wonderful. Straw lies along the banks of the harvested paddies. Barba Tista sells it too, if you'd rather pay than bend.",
+     "The churchyard is beside the church, to the west. Build it however you like, as long as the donkey fits."
+    ],
+    "decline": [
+     "The 8th will come either way. Like most things in the Gospel, it's not optional."
+    ],
+    "progress": [
+     "Straw and wood, then posts, a roof and two lamps in the churchyard. Then bring me the straw for the manger, and come in the evening."
+    ],
+    "complete": [
+     "People came from three villages. Three! On a weeknight! The petition clipboard went round twice.",
+     "Take some vin brulé for the road. Nonna made it. It's very strong. That's also very authentic."
+    ]
+   }
+  },
+  {
+   "id": "rice_village_train",
+   "title": "The Train Stops Here",
+   "giver": "rice_village_ernesto",
+   "main": true,
+   "type": "construction",
+   "chapter": 3,
+   "description": "The railway's inspector, Ingegner Pautasso, has come with three conditions for the stop: a rebuilt platform, a lit shelter on it, and 250 signatures on the petition. Then the first regional train in years stops at Casalrana.",
+   "requires": {
+    "quests": [
+     "rice_village_nativity"
+    ]
+   },
+   "onAccept": {
+    "flags": [
+     "rice_village_inspector"
+    ],
+    "blueprints": [
+     "bridgeDeck",
+     "bridgePost",
+     "bench",
+     "roof",
+     "pillar",
+     "enamelSign",
+     "railLantern"
+    ],
+    "items": {
+     "wood": 4
+    }
+   },
+   "objectives": [
+    {
+     "id": "meet",
+     "kind": "talk",
+     "npc": "rice_village_carlo",
+     "text": "Meet Ingegner Pautasso on the platform",
+     "lines": [
+      "Ingegner Pautasso, railway inspection. Your station master has written to us forty-one times. One letter for each inhabitant, I assume.",
+      "Three conditions for a stop. One: the platform. It's crumbled into holes. I want one continuous platform you can walk, from the station door to the far end.",
+      "Two: a shelter on the platform. A roof, a bench, two lamps and a sign. Passengers expect to be told where they are.",
+      "Three: two hundred and fifty signatures. The rule says so. I didn't write the rule. I just enforce it with a pencil."
+     ],
+     "stage": 0
+    },
+    {
+     "id": "platform",
+     "kind": "build",
+     "check": "path:rice_village_platform",
+     "zone": "rice_village_platform",
+     "stage": 1,
+     "text": "Rebuild the platform: one walkable platform from the station door to the far end",
+     "goal": "A continuous walkable platform from end to end",
+     "buildHint": "Planks reach 2 tiles over a hole from the edge or from a post.",
+     "hint": {
+      "x": 16,
+      "z": -42.5
+     }
+    },
+    {
+     "id": "shelter",
+     "kind": "room",
+     "zone": "rice_village_platform",
+     "stage": 2,
+     "text": "Build a shelter on the platform: a roof, a bench, two lamps and a sign",
+     "buildHint": "A roof needs posts or walls under it.",
+     "hint": {
+      "x": 16,
+      "z": -42.5
+     },
+     "needs": [
+      {
+       "any": [
+        "roof"
+       ],
+       "label": "A roof"
+      },
+      {
+       "any": [
+        "bench",
+        "chair",
+        "sofa"
+       ],
+       "label": "A bench"
+      },
+      {
+       "any": [
+        "lamp",
+        "streetlight",
+        "railLantern",
+        "poweredLamp"
+       ],
+       "count": 2,
+       "label": "Two lamps"
+      },
+      {
+       "any": [
+        "enamelSign",
+        "signpost"
+       ],
+       "label": "A sign"
+      }
+     ]
+    },
+    {
+     "id": "petition",
+     "kind": "meter",
+     "value": 250,
+     "stage": 3,
+     "text": "Collect 250 signatures on the petition (help people round the plain)"
+    },
+    {
+     "id": "inspect",
+     "kind": "talk",
+     "npc": "rice_village_carlo",
+     "text": "Show Ingegner Pautasso the platform, the shelter and the petition",
+     "lines": [
+      "Platform: continuous. I walked it twice, once with my eyes closed. Shelter: lit, roofed, signed. Petition: two hundred and fifty. One of them is a dog, but the rule doesn't say anything about dogs.",
+      "Conditions met. From tomorrow morning the regional stops at Casalrana. I'll sign the order here, on my thermos."
+     ],
+     "stage": 4
+    },
+    {
+     "id": "morning",
+     "kind": "talk",
+     "npc": "rice_village_ernesto",
+     "text": "Be on the platform in the morning for the first stopping train (6 AM to 11 AM)",
+     "lines": [
+      "Here it comes. The 7:12. Listen to the bells at the crossing. The whole village is on the platform, Geometra. Even Barba Tista. In a tie.",
+      "I raise the paddle. Green. And it's slowing down... it's slowing down... it's stopping. It's stopped. At Casalrana. In front of me.",
+      "The doors open. A lady with a basket gets off and says 'Is this Casalrana?' And forty-one people say YES.",
+      "The bells! Don Remo's ringing the bells. And Nonna's brought vin brulé. At seven in the morning. Of course she has."
+     ],
+     "stage": 5,
+     "hours": [
+      360,
+      660
+     ]
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "rice_village_ernesto",
+     "text": "Celebrate with Paletta",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "items": {
+     "coins": 100,
+     "rice_village_vinbrule": 2
+    },
+    "flags": [
+     "rice_village_trainStops"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "Geometra! A letter from the railway! They're sending an inspector. An inspector! For Casalrana! I've ironed my cap.",
+     "If he likes what he sees, the regional stops again. If he doesn't, I'll go on raising my paddle at trains that don't care.",
+     "Will you meet him with me? He's coming by car, which is very disappointing for a railway inspector."
+    ],
+    "acceptLabel": "Let's get that train to stop!",
+    "declineLabel": "Give me a little time",
+    "accept": [
+     "Wonderful! He'll be on the platform. Look for the man with a clipboard and a thermos, standing as if the platform owes him money."
+    ],
+    "decline": [
+     "Of course. I've waited since 1993. What's another day? (Please hurry.)"
+    ],
+    "progress": [
+     "The platform, the shelter, the signatures. Then the inspector, and then... the 7:12."
+    ],
+    "complete": [
+     "Thirty-one years with the paddle and today it finally meant something again.",
+     "The line to Toriano is open, Geometra. From our platform. Go and see the city, and come back by train. It stops here now."
+    ]
+   }
+  },
+  {
+   "id": "rice_village_water",
+   "title": "Water for the Winter",
+   "giver": "rice_village_battista",
+   "type": "construction",
+   "chapter": 3,
+   "description": "The canal is drained for its winter repairs and its old sluice gate has collapsed. Rebuild the sluice so the canal fills, then flood the winter paddy for the birds with a waterwheel, a pump and pipes.",
+   "requires": {
+    "quests": [
+     "rice_village_welcome"
+    ]
+   },
+   "onAccept": {
+    "blueprints": [
+     "pillar",
+     "lever",
+     "bridgeDeck",
+     "bridgePost",
+     "waterwheel",
+     "pump",
+     "pipe",
+     "pipeCorner",
+     "pipeTee"
+    ],
+    "items": {
+     "wood": 4
+    }
+   },
+   "objectives": [
+    {
+     "id": "stone",
+     "kind": "gather",
+     "item": "stone",
+     "count": 6,
+     "stage": 0,
+     "text": "Quarry 6 stone from the cobbles along the canal"
+    },
+    {
+     "id": "wood",
+     "kind": "gather",
+     "item": "wood",
+     "count": 6,
+     "stage": 0,
+     "text": "Chop 6 wood"
+    },
+    {
+     "id": "sluice",
+     "kind": "room",
+     "zone": "rice_village_sluice",
+     "stage": 1,
+     "text": "Rebuild the sluice: two stone pillars and a gate lever",
+     "buildHint": "The sluice stands across the canal, by the old ruins.",
+     "hint": {
+      "x": -36.5,
+      "z": -28.5
+     },
+     "needs": [
+      {
+       "any": [
+        "pillar",
+        "stoneBlock"
+       ],
+       "count": 2,
+       "label": "Two stone pillars"
+      },
+      {
+       "any": [
+        "lever"
+       ],
+       "label": "A gate lever"
+      }
+     ]
+    },
+    {
+     "id": "walk",
+     "kind": "build",
+     "check": "path:rice_village_sluice",
+     "zone": "rice_village_sluice",
+     "stage": 1,
+     "text": "Build a walkway across the canal at the sluice",
+     "goal": "A walkway across the canal, bank to bank",
+     "buildHint": "Planks reach 2 tiles from a bank or from a post.",
+     "hint": {
+      "x": -36.5,
+      "z": -28.5
+     },
+     "onDone": {
+      "flags": [
+       "rice_village_canalFull"
+      ]
+     }
+    },
+    {
+     "id": "paddy",
+     "kind": "build",
+     "check": "fed:rice_village_paddy",
+     "zone": "rice_village_paddy",
+     "stage": 2,
+     "text": "Flood the winter paddy: a waterwheel in the canal drives a pump, and pipes carry water to the paddy's inlet",
+     "goal": "Water reaches the paddy's inlet",
+     "buildHint": "A waterwheel turns in the canal; a pump beside the water needs its power; pipes run from the pump.",
+     "hint": {
+      "x": -36,
+      "z": 10.5
+     },
+     "onDone": {
+      "flags": [
+       "rice_village_paddyFlooded"
+      ]
+     }
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "rice_village_battista",
+     "text": "Tell Barba Tista the paddy is flooded",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "meter": 30,
+    "items": {
+     "coins": 40
+    }
+   },
+   "dialogue": {
+    "offer": [
+     "The canal's drained for repairs. The consortium drains it every November and fixes nothing. This year they forgot the sluice, so the sluice fixed itself. Into a heap.",
+     "Brussels pays me to flood the winter paddy for the birds. No water, no birds, no cheque. Rebuild the sluice so the canal fills, then get the water into the paddy.",
+     "Two stone pillars, a gate lever, a walkway across. Then a waterwheel and a pump. You're the Geometra. I'm just the Fattore."
+    ],
+    "acceptLabel": "I'll get the water flowing",
+    "declineLabel": "Not right now",
+    "accept": [
+     "Good. Cobbles along the canal banks, wood from the poplars. Take these planks. Don't tell the count."
+    ],
+    "decline": [
+     "Suit yourself. The herons will wait. They're good at standing still."
+    ],
+    "progress": [
+     "Stone and wood. Then the sluice: two pillars, a lever and a walkway. Then a waterwheel, a pump and pipes to the paddy's inlet."
+    ],
+    "complete": [
+     "Look at that. A mirror, end to end. And there: the first heron. Standing on one leg like it owns the place.",
+     "I'll write to Brussels. 'Dear Brussels, the birds have arrived. Please send the money.' Silvia says I should be more formal. Brussels doesn't read my letters anyway."
+    ]
+   }
+  },
+  {
+   "id": "rice_village_mill",
+   "title": "The Old Rice Mill",
+   "giver": "rice_village_silvia",
+   "type": "construction",
+   "chapter": 3,
+   "description": "With the canal full again, Silvia wants to restart the old mill. Gather wood and buy metal, then put a waterwheel in the mill race and drive the mill's machinery with shafts and gears.",
+   "requires": {
+    "flags": [
+     "rice_village_canalFull"
+    ]
+   },
+   "onAccept": {
+    "blueprints": [
+     "waterwheel",
+     "shaft",
+     "gear"
+    ],
+    "items": {
+     "wood": 2
+    }
+   },
+   "objectives": [
+    {
+     "id": "wood",
+     "kind": "gather",
+     "item": "wood",
+     "count": 6,
+     "stage": 0,
+     "text": "Chop 6 wood"
+    },
+    {
+     "id": "metal",
+     "kind": "gather",
+     "item": "metal",
+     "count": 2,
+     "stage": 0,
+     "text": "Get 2 metal (Barba Tista sells it at the machine shed)"
+    },
+    {
+     "id": "drive",
+     "kind": "build",
+     "check": "fed:rice_village_mill",
+     "zone": "rice_village_mill",
+     "stage": 1,
+     "text": "Drive the old mill: a waterwheel in the canal and shafts to the mill's west wall",
+     "goal": "Power reaches the mill's drive shaft",
+     "buildHint": "A waterwheel turns in the canal. Shafts carry power in a line; gears turn corners.",
+     "hint": {
+      "x": -36,
+      "z": -12.5
+     }
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "rice_village_silvia",
+     "text": "Tell Silvia the mill is turning",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "meter": 30,
+    "items": {
+     "rice_village_rice": 3,
+     "coins": 20
+    },
+    "flags": [
+     "rice_village_millRunning"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "The canal's full! Do you know what that means? The mill race has water. The old mill can turn again.",
+     "Stopped since 1961. The machinery's still inside, under fifty years of dust and one very old owl.",
+     "Put a waterwheel in the canal and run shafts to the drive on the west wall. Then we husk our own rice. In our own bags. With my crooked labels."
+    ],
+    "acceptLabel": "Let's start the mill",
+    "declineLabel": "Later, maybe",
+    "accept": [
+     "Yes! I've written a plan. Page one: wood. Page two: metal from Uncle Tista. Page three: you do the clever part."
+    ],
+    "decline": [
+     "That's fine. I'll add it to the binder. Under 'soon'."
+    ],
+    "progress": [
+     "Wood and metal, then a waterwheel in the canal and shafts to the mill's west wall."
+    ],
+    "complete": [
+     "It's turning! Listen to it. It sounds like a very old man clearing his throat.",
+     "The first rice husked in Casalrana since 1961. Here, three bags. I'll sell them in the office from now on. Nonna says the bags are lumpy. Nonna sewed half of them."
+    ]
+   }
+  },
+  {
+   "id": "rice_village_bench",
+   "title": "Nonna's Bench",
+   "giver": "rice_village_pierina",
+   "type": "construction",
+   "chapter": 3,
+   "description": "Nonna Pierina would like a bench under the poplars at the edge of the paddy where she weeded in 1951, with a flower bed beside it. Then sit with her there at dusk.",
+   "requires": {
+    "quests": [
+     "rice_village_welcome"
+    ]
+   },
+   "onAccept": {
+    "blueprints": [
+     "bench",
+     "flowerBed"
+    ],
+    "items": {
+     "wood": 2,
+     "flowers": 2
+    }
+   },
+   "objectives": [
+    {
+     "id": "build",
+     "kind": "room",
+     "zone": "rice_village_bench",
+     "stage": 0,
+     "text": "Build a bench and a flower bed at the edge of Nonna's paddy, by the poplars",
+     "hint": {
+      "x": 10,
+      "z": 35
+     },
+     "needs": [
+      {
+       "any": [
+        "bench"
+       ],
+       "label": "A bench"
+      },
+      {
+       "any": [
+        "flowerBed"
+       ],
+       "label": "A flower bed"
+      }
+     ],
+     "onDone": {
+      "flags": [
+       "rice_village_benchBuilt"
+      ]
+     }
+    },
+    {
+     "id": "dusk",
+     "kind": "talk",
+     "npc": "rice_village_pierina",
+     "text": "Sit with Nonna on her bench at dusk (4 PM to 7 PM)",
+     "lines": [
+      "Sit, sit. Look at it. Doesn't look like much now, does it? Stubble and puddles.",
+      "In June it was water to the horizon, with forty girls in straw hats bent over the rice. And we sang. Shall I sing you one? I'll sing you one.",
+      "♪ Acqua ai ginocchi e sole sul collo, canta, mondina, che il giorno è lungo... ♪ Water to your knees and sun on your neck, sing, mondina, the day is long... We sang the next verse loudest when the boss was listening. I won't sing that one to a Geometra.",
+      "There. Now you know a mondina's song. Don't sing it at the farm office. Silvia will want to put it in a binder."
+     ],
+     "stage": 1,
+     "hours": [
+      960,
+      1140
+     ]
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "rice_village_pierina",
+     "text": "Thank Nonna for the song",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "meter": 20,
+    "items": {
+     "rice_village_biscuits": 3,
+     "rice_village_panissa": 1
+    },
+    "flags": [
+     "rice_village_benchSung"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "You see the paddy at the edge of the poplars, at the bottom of the road? That's where I weeded, in 1951. Forty days, forty girls.",
+     "I'd like a bench there. Somewhere an old woman can sit and look at it and remember. With some flowers beside it, so it doesn't look like a bus stop."
+    ],
+    "acceptLabel": "I'll build your bench",
+    "declineLabel": "Not today, Nonna",
+    "accept": [
+     "Bless you. A bench and a flower bed. Take these, the flowers are from my kitchen window. Don't tell the hellebores."
+    ],
+    "decline": [
+     "I'm eighty-one. I've learned to wait. I've also learned to remind people."
+    ],
+    "progress": [
+     "A bench and a flower bed, under the poplars by my paddy. Then come and sit with me at dusk."
+    ],
+    "complete": [
+     "Thank you, dear. A bench for remembering. Here, biscuits for the road, and some panissa, still warm. Well, warm-ish."
+    ]
+   }
+  },
+  {
+   "id": "rice_village_trainlog",
+   "title": "Matteo's Train Log",
+   "giver": "rice_village_matteo",
+   "type": "side",
+   "chapter": 3,
+   "description": "Stand by the level crossing and note down five different trains for Matteo's log: a regional, an intercity, a freight train, the night express and the yellow inspection train.",
+   "requires": {
+    "quests": [
+     "rice_village_welcome"
+    ]
+   },
+   "onAccept": {},
+   "objectives": [
+    {
+     "id": "regional",
+     "kind": "event",
+     "event": "rice_village_saw_regional",
+     "count": 1,
+     "stage": 0,
+     "text": "Watch a regional (red and white) go by at the level crossing",
+     "hint": {
+      "x": 2,
+      "z": -41.5
+     }
+    },
+    {
+     "id": "intercity",
+     "kind": "event",
+     "event": "rice_village_saw_intercity",
+     "count": 1,
+     "stage": 0,
+     "text": "Watch an intercity express (white and green) go by at the level crossing",
+     "hint": {
+      "x": 2,
+      "z": -41.5
+     }
+    },
+    {
+     "id": "freight",
+     "kind": "event",
+     "event": "rice_village_saw_freight",
+     "count": 1,
+     "stage": 0,
+     "text": "Watch a freight train go by at the level crossing",
+     "hint": {
+      "x": 2,
+      "z": -41.5
+     }
+    },
+    {
+     "id": "night_express",
+     "kind": "event",
+     "event": "rice_village_saw_night_express",
+     "count": 1,
+     "stage": 0,
+     "text": "Watch the night express (only at night) go by at the level crossing",
+     "hint": {
+      "x": 2,
+      "z": -41.5
+     }
+    },
+    {
+     "id": "inspection",
+     "kind": "event",
+     "event": "rice_village_saw_inspection",
+     "count": 1,
+     "stage": 0,
+     "text": "Watch the yellow inspection train (only at dawn) go by at the level crossing",
+     "hint": {
+      "x": 2,
+      "z": -41.5
+     }
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "rice_village_matteo",
+     "text": "Give Matteo your notes",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "meter": 25,
+    "items": {
+     "coins": 20
+    }
+   },
+   "dialogue": {
+    "offer": [
+     "Can you help with my log? I've got loads of regionals, but I have to be home by dark, so I've never seen the night express. And the inspection train comes at dawn, when I'm asleep.",
+     "Stand by the crossing and write down five different ones: a regional, an intercity, a freight, the night express and the yellow inspection train. The yellow one is the BEST one."
+    ],
+    "acceptLabel": "I'll watch the trains",
+    "declineLabel": "Not now, Matteo",
+    "accept": [
+     "Yes! Here's a page from my notebook. Number, time, colour, and if anyone waved. Don't stand on the line. Paletta will shout."
+    ],
+    "decline": [
+     "Okay. I'll ask Paletta. He's seen them all already. Every single one. For thirty-one years."
+    ],
+    "progress": [
+     "A regional, an intercity, a freight, the night express and the inspection train. All five, at the crossing!"
+    ],
+    "complete": [
+     "The night express! And the INSPECTION TRAIN! You actually saw it! Was it really yellow? Really really?",
+     "This is the best page in my whole log. I'm going to show my whole class. They'll sign the petition just to see it."
+    ]
+   }
+  },
+  {
+   "id": "rice_village_lostthings",
+   "title": "Things from the Trains",
+   "giver": "rice_village_ernesto",
+   "type": "side",
+   "chapter": 3,
+   "description": "Passengers drop things from the windows of trains that don't stop. Find five along the line and bring them to Paletta's lost-property cupboard.",
+   "requires": {
+    "quests": [
+     "rice_village_welcome"
+    ]
+   },
+   "onAccept": {
+    "flags": [
+     "rice_village_lostThings"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "find",
+     "kind": "gather",
+     "item": "fragment",
+     "count": 5,
+     "stage": 0,
+     "text": "Find 5 things dropped from the trains, along both sides of the line",
+     "hint": {
+      "x": -14,
+      "z": -44.5
+     }
+    },
+    {
+     "id": "cupboard",
+     "kind": "pay",
+     "npc": "rice_village_ernesto",
+     "items": {
+      "fragment": 5
+     },
+     "stage": 1,
+     "label": "Hand over the 5 lost things",
+     "text": "Bring the 5 lost things to Paletta's lost-property cupboard",
+     "lines": [
+      "A felt hat! The 10:40, I'd bet my paddle. That gentleman has lost three hats here since 1987.",
+      "Yesterday's newspaper. It says it'll be foggy. It won't be. A single leather glove, left hand. Someone on the 16:05 is clapping with one hand.",
+      "A cassette! 'Songs for the Journey, Volume Two'. Volume One is already in the cupboard. And an umbrella. In a week without rain. Somebody's an optimist.",
+      "Into the cupboard they go. Labelled, dated, waiting. Lost property is a promise, Geometra. Somebody might come back."
+     ]
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "rice_village_ernesto",
+     "text": "Tell Paletta that's the lot",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "meter": 25,
+    "items": {
+     "coins": 25
+    }
+   },
+   "dialogue": {
+    "offer": [
+     "The trains don't stop, but the passengers still lose things. Out of the windows they go. Hats, newspapers, gloves. Once, a parrot. The parrot was fine.",
+     "Will you walk the line and find what's been dropped? Both sides, but never ON it. Bring them to me for the lost-property cupboard."
+    ],
+    "acceptLabel": "I'll find them",
+    "declineLabel": "Maybe later",
+    "accept": [
+     "Good! Keep your eyes on the ground and your feet off the rails. Things roll down the embankment and into the stubble."
+    ],
+    "decline": [
+     "They'll keep. Lost things are patient. That's how they get lost."
+    ],
+    "progress": [
+     "Five lost things, along both sides of the line. Then bring them to my cupboard."
+    ],
+    "complete": [
+     "The cupboard's fuller than it's been since 1993. A station is somewhere people come back to, Geometra. Even for a glove."
+    ]
+   }
+  },
+  {
+   "id": "rice_village_museum",
+   "title": "Matteo's Museum",
+   "giver": "rice_village_matteo",
+   "type": "side",
+   "chapter": 3,
+   "description": "Use your metal detector in the stubble to find three things for Matteo's museum in the waiting room: an old coin, a mondina's tin badge and some railway buttons.",
+   "requires": {
+    "quests": [
+     "rice_village_welcome"
+    ]
+   },
+   "onAccept": {
+    "flags": [
+     "rice_village_museum"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "coin",
+     "kind": "gather",
+     "item": "rice_village_coin",
+     "count": 1,
+     "stage": 0,
+     "text": "Dig up an old coin in the stubble (your metal detector beeps near buried things)"
+    },
+    {
+     "id": "badge",
+     "kind": "gather",
+     "item": "rice_village_badge",
+     "count": 1,
+     "stage": 0,
+     "text": "Dig up a mondina's tin badge"
+    },
+    {
+     "id": "buttons",
+     "kind": "gather",
+     "item": "rice_village_buttons",
+     "count": 1,
+     "stage": 0,
+     "text": "Dig up some railway buttons"
+    },
+    {
+     "id": "give",
+     "kind": "pay",
+     "npc": "rice_village_matteo",
+     "items": {
+      "rice_village_coin": 1,
+      "rice_village_badge": 1,
+      "rice_village_buttons": 1
+     },
+     "stage": 1,
+     "label": "Give Matteo the three finds",
+     "text": "Give Matteo the three finds for his museum",
+     "lines": [
+      "An old coin! Ten centesimi, 1919. That's older than NONNA. Label: 'Coin. Very old. Found by the Geometra.'",
+      "A mondina's badge! Nonna's going to cry. She always cries, but this'll be a good cry. Label: 'Badge. Ask Nonna.'",
+      "Railway buttons, with the old railway's initials! Paletta's going to want these. He can't have them. Label: 'Buttons. NOT Paletta's.'"
+     ]
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "rice_village_matteo",
+     "text": "Look at the museum with Matteo",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "meter": 20,
+    "items": {
+     "coins": 15
+    }
+   },
+   "dialogue": {
+    "offer": [
+     "My museum needs real old things. With stories! You've got a metal detector, haven't you? Everyone says the Geometra has a metal detector.",
+     "There must be loads of stuff in the stubble. Grandpa says the mondine lost everything out there. Combs, coins, badges, their tempers."
+    ],
+    "acceptLabel": "I'll go detecting",
+    "declineLabel": "Not now",
+    "accept": [
+     "Brilliant! Walk the stubble and listen for the beeps. Dig where it goes mad. I'd come but Grandpa says homework first. Homework is the enemy of museums."
+    ],
+    "decline": [
+     "Okay. The things will still be there. They've been there for fifty years."
+    ],
+    "progress": [
+     "An old coin, a mondina's badge and some railway buttons. Listen for the beeps in the stubble!"
+    ],
+    "complete": [
+     "Look at it! It's a real museum now. Paletta says it's the first museum Casalrana has ever had. Two people have visited. One of them was Paletta, twice."
+    ]
+   }
+  }
+ ]
+}

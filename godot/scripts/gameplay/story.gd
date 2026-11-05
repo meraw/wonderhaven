@@ -11,8 +11,11 @@ func _init(g) -> void:
 	engine = QuestEngine.new(game.state, {
 		"bridge": func(): return path_ok("bridge"), "dock": func(): return path_ok("dock"),
 		"fountain": func(): return game.mech.fed.get("fountain", false), "lamp": func(): return not game.mech.lamps.is_empty(),
-		# "fed:<machine>": water or power delivered to a machine target in the layout (a lighthouse's drive, a clock)
-		"*": func(name: String) -> bool: return name.begins_with("fed:") and game.mech.fed.get(name.substr(4), false)})
+		# "fed:<machine>": water or power delivered to a machine target in the layout (a lighthouse's drive, a clock);
+		# "path:<zone>": a walkable path across that build zone, between its endpoints (see Validate.path_across)
+		"*": func(name: String) -> bool:
+			if name.begins_with("path:"): return path_ok(name.substr(5))
+			return name.begins_with("fed:") and game.mech.fed.get(name.substr(4), false)})
 	engine.gate = func(qid: String) -> bool: return Tutorial.allows_offer(game.state.get("tutorial", {}), qid)
 	game.game_event.connect(_on_event)
 
@@ -198,6 +201,8 @@ func complete_quest(qid: String, agent) -> void:
 	var r := engine.complete(qid)
 	var lines: Array = []
 	if r.get("harmony", 0) > 0: lines.append("+%d 💖 approval" % int(r.harmony))
+	var isl := Data.quest_island(qid)
+	if r.get("meter", 0) > 0 and Meter.has_meter(isl): lines.append("+%s %s" % [Meter.amount(isl, int(r.meter)), Meter.def(isl).get("icon", "")])
 	for k in r.get("items", {}): lines.append("+" + Money.amount(k, int(r.items[k])))
 	for b in r.get("blueprints", []): lines.append("📐 " + Data.piece(b).name)
 	for c in r.get("clothes", []): lines.append("👗 " + Data.appearance.labels.get(c, c))
@@ -211,6 +216,7 @@ func complete_quest(qid: String, agent) -> void:
 	for f in r.get("flags", []): game.set_flag(f)
 	add_hearts(q.giver, 2)
 	if r.get("harmony", 0) > 0: add_harmony(int(r.harmony))
+	if r.get("meter", 0) > 0: add_meter(isl, int(r.meter))
 	game.on_quest_completed(qid)
 	handle(engine.refresh())
 	game.autosave("quest", true)
@@ -261,6 +267,25 @@ func add_harmony(n: int) -> void:
 	game.hud.render_harmony()
 	if n > 0: game.emit_event("harmony", {"n": n})
 	for u in Harmony.between(before, s.harmony): apply_unlock(u)
+	handle(engine.refresh())
+
+## Adds to a location's own progress meter (see Meter) and hands out the milestones it passes.
+func add_meter(island: String, n: int) -> void:
+	if not Meter.has_meter(island): return
+	var passed := Meter.add(game.state, island, n)
+	game.hud.render_harmony()
+	var m := Meter.def(island)
+	for u in passed:
+		if u.has("items"): game.give(_ints(u.items), null, true)
+		for f in u.get("flags", []): game.set_flag(f)
+		if u.has("flags"): game.build.rebuild_grid()
+		if u.has("blueprints"): unlock_blueprints(u.blueprints, "", true)
+		if u.has("clothes"): unlock_clothes(u.clothes, true)
+		game.state.unlocks_seen.append("%s:%s" % [island, u.id])
+		var title := "%s %s" % [Meter.amount(island, int(u.at)), m.get("icon", "")]
+		var desc: String = u.get("desc", "")
+		var head: String = u.title
+		game.get_tree().create_timer(1.8).timeout.connect(func(): game.banner("%s milestone!" % m.get("name", "Progress"), "%s · %s" % [title, head], [desc], 4.0); game.sfx("unlock"))
 	handle(engine.refresh())
 
 func apply_unlock(u: Dictionary) -> void:

@@ -2,6 +2,9 @@ class_name WorldActions
 extends RefCounted
 ## Everything you can do with the world itself: chop, mine, dig clay, fish, pick, shake, dig where the metal detector
 ## beeps, open chests, pick up lost things, dig through the street bins, garden, and see off the bakery's boars.
+## A layout node may say what it gives instead of its kind's usual haul ("items", for clay, flowers, shaking, fruit and
+## metal-detector spots), what its prompt says ("label") and what you found ("found", for lost things and dig spots):
+## loose rice straw is a "flowers" node that gives straw. A location's own fish are its "catches" (location.json).
 const P := preload("res://scripts/world/palette.gd")
 const REGROW := {"chop": 180.0, "mine": 240.0, "clay": 150.0, "flowers": 180.0, "shake": 90.0, "fruit": 240.0, "fragment": 1440.0, "bin": 300.0}
 const SQUIRREL_SPOTS := [[-8.4, -3.2], [-13.7, -3.3], [-7.2, -6.6]]
@@ -26,7 +29,8 @@ func _init(g) -> void:
 	game = g
 	for n in Data.layout.nodes: _register_node(n)
 	for f in Data.layout.features: _register_feature(f)
-	if Data.island == "hearthglow": _build_gardens(); _build_squirrels()   # Fern's beds and the bakery squirrels
+	if not Gardening.beds().is_empty(): _build_gardens()   # Gigia's pumpkin beds, or the place's own (layout "gardens")
+	if Data.island == "hearthglow": _build_squirrels()   # the bakery squirrels
 	game.game_event.connect(func(type: String, data: Dictionary): if type == "flag" and data.get("flag", "") == "hasTool": refresh_all())
 	bobber = P.mi(P.sphere(0.09, 10, 8), P.mat("ff5a5f")); bobber.visible = false; game.add_child(bobber)
 	line = MeshInstance3D.new(); line.material_override = P.glow_mat(Color.WHITE); line.visible = false; game.add_child(line)
@@ -56,7 +60,7 @@ func _register_node(n: Dictionary) -> void:
 		base.merge({"radius": 0.9, "object": null, "available": func(): return ready(nd) and state().flags.get("hasTool", false),
 			"label": func(): return "Dig here, the metal detector is going wild!", "act": func(): dig(nd)}, true)
 		game.add_interactable(base); return
-	base.merge({"radius": 2.0 if n.kind == "mine" else (1.3 if n.kind == "fish" else 1.7), "label": func(): return LABELS[nd.kind], "act": func(): act(nd)}, true)
+	base.merge({"radius": 2.0 if n.kind == "mine" else (1.3 if n.kind == "fish" else 1.7), "label": func(): return String(nd.get("label", LABELS[nd.kind])), "act": func(): act(nd)}, true)
 	game.add_interactable(base)
 
 func _register_feature(f: Dictionary) -> void:
@@ -84,16 +88,23 @@ func act(n: Dictionary) -> void:
 		"fish": start_fishing(n)
 		"clay":
 			game.player_char.play("dig"); game.sfx("dig")
-			game.give({"clay": 2}, _src(n)); deplete(n)
-		"flowers": game.player_char.play("dig"); game.sfx("pick"); game.give({"flowers": 2}, _src(n)); deplete(n)
+			game.give(_haul(n, {"clay": 2}), _src(n)); deplete(n)
+		"flowers": game.player_char.play("dig"); game.sfx("pick"); game.give(_haul(n, {"flowers": 2}), _src(n)); deplete(n)
 		"shake":
 			game.sfx("rustle"); game.cam.shake = 0.3
 			game.village.node_visuals[n.id].set_meta("shake", 0.6)
-			game.give({"acorn": 3}, _src(n, 2.0)); deplete(n)
-		"fruit": game.sfx("pick"); game.give({"fruit": 2}, _src(n, 2.0)); deplete(n)
+			game.give(_haul(n, {"acorn": 3}), _src(n, 2.0)); deplete(n)
+		"fruit": game.sfx("pick"); game.give(_haul(n, {"fruit": 2}), _src(n, 2.0)); deplete(n)
 		"chest": open_chest(n)
 		"fragment": catch_fragment(n)
 		"bin": dig_bin(n)
+
+## What a node gives: its own "items" from the layout, or its kind's usual haul.
+static func _haul(n: Dictionary, usual: Dictionary) -> Dictionary:
+	if not n.has("items"): return usual
+	var out := {}
+	for k in n.items: out[k] = int(n.items[k])
+	return out
 
 ## A swing or strike in the minigame: the tree or rock shakes and chips fly (a miss barely moves it).
 func minigame_hit(kind: String, result: String) -> void:
@@ -122,7 +133,7 @@ func minigame_done(kind: String, mg) -> void:
 
 func catch_fragment(n: Dictionary) -> void:
 	var p := _src(n, 0.2)
-	var what: String = LOST[0] if int(state().stats.fragments) == 0 else LOST[1 + int(state().stats.fragments) % (LOST.size() - 1)]
+	var what: String = n.get("found", LOST[0] if int(state().stats.fragments) == 0 else LOST[1 + int(state().stats.fragments) % (LOST.size() - 1)])
 	game.give({"fragment": 1}, null, true)
 	game.toast("You found %s!" % what, "good", 2.5)
 	game.effects.sparkle(p, 8, Color("ffe7a0"), 0.18); game.sfx("pick")
@@ -155,8 +166,9 @@ func dig(n: Dictionary) -> void:
 	var p := _src(n, 0.3)
 	game.player_char.play("dig"); game.sfx("dig")
 	var digs: Array = Data.layout.nodes.filter(func(x): return x.kind == "dig")
-	var loot: Dictionary = [{"crystal": 1, "coins": 8}, {"fabric": 2, "coins": 5}, {"metal": 2, "coins": 5}, {"crystal": 1, "fabric": 1, "coins": 8}, {"metal": 1, "crystal": 1, "coins": 10}][digs.find(n) % 5]
+	var loot: Dictionary = _haul(n, [{"crystal": 1, "coins": 8}, {"fabric": 2, "coins": 5}, {"metal": 2, "coins": 5}, {"crystal": 1, "fabric": 1, "coins": 8}, {"metal": 1, "crystal": 1, "coins": 10}][digs.find(n) % 5])
 	game.give(loot, p); game.effects.sparkle(p, 22)
+	if n.has("found"): game.toast("You dig up %s!" % n.found, "good", 3.0)
 	state().stats.dug += 1; state().stats.treasures += 1
 	deplete(n); game.sfx("chest")
 	game.story.event("treasure"); game.story.event("dig")
@@ -168,7 +180,7 @@ func start_fishing(n: Dictionary) -> void:
 	var fz: float = n.z + cos(facing) * 3.0
 	bobber.position = Vector3(fx, Heightfield.WATER_Y + 0.05, fz); bobber.visible = true; line.visible = true
 	game.player_char.play("cast", true); game.sfx("cast")
-	var mg := Minigames.Fish.new()
+	var mg := Minigames.Fish.new(null, Minigames.catches(Data.island))
 	fishing = {"mg": mg, "fx": fx, "fz": fz}
 	game.start_minigame("fish", mg, Vector3(fx, Heightfield.WATER_Y, fz))
 
@@ -182,7 +194,7 @@ func _fishing_done(mg) -> void:
 	game.effects.splash(Vector3(f.fx, Heightfield.WATER_Y + 0.1, f.fz))
 	game.player_char.play("celebrate"); game.sfx("fanfare_small")
 	state().stats.fish += 1
-	game.toast("You caught a %s!" % mg.fish.name, "good")
+	game.toast(String(mg.fish.get("caught", "You caught a %s!" % mg.fish.name)), "good")
 	game.story.event("fish")
 
 ## Which kinds of place give each item (for pointing the compass at the nearest one).
@@ -222,27 +234,30 @@ func refresh_all() -> void:
 
 # ---- Gardens
 func _build_gardens() -> void:
-	for p in Gardening.PLOTS:
-		var g := Node3D.new(); g.position = Vector3(p.x, 0.17, p.z); game.add_child(g)
+	for p in Gardening.beds():
+		var g := Node3D.new(); g.position = Vector3(p.x, 0.17 if Data.island == "hearthglow" else Heightfield.height(p.x, p.z) + 0.03, p.z); game.add_child(g)
 		var soil := P.mi(P.box(1.4, 0.03, 0.9), P.mat("7a4a2a"), Vector3(0, 0.01, 0)); g.add_child(soil)
 		var pl := Node3D.new(); g.add_child(pl)
 		var rec := {"def": p, "group": g, "soil": soil, "plant": pl, "stage": -99, "watered": false}
 		plots.append(rec)
 		var pid: String = p.id
+		var seed: String = p.get("seed", "seeds")
+		var crop_name: String = p.get("crop_name", "pumpkins")
 		game.add_interactable({"id": pid, "x": p.x, "z": p.z, "radius": 1.1, "object": g,
-			"label": func(): return {"plant": "Plant a seed", "need_seeds": "Garden bed (you need seeds)", "water": "Water the seedling", "growing": "Growing nicely…", "harvest": "Pick the pumpkins"}[Gardening.action(state().gardens, pid, state().inventory)],
+			"label": func(): return {"plant": "Plant a seed", "need_seeds": "Garden bed (you need seeds)", "water": "Water the seedling", "growing": "Growing nicely…", "harvest": "Pick the " + crop_name}[Gardening.action(state().gardens, pid, state().inventory, seed)],
 			"act": func(): garden_act(rec)})
 
 func garden_act(rec: Dictionary) -> void:
 	var p: Dictionary = rec.def
 	var s := state()
-	var a := Gardening.action(s.gardens, p.id, s.inventory)
-	var pos := Vector3(p.x, 0.5, p.z)
+	var seed: String = p.get("seed", "seeds")
+	var a := Gardening.action(s.gardens, p.id, s.inventory, seed)
+	var pos := Vector3(p.x, rec.group.position.y + 0.33, p.z)
 	match a:
-		"plant": Gardening.plant(s.gardens, p.id, now()); s.inventory.seeds -= 1; game.render_resources(["seeds"]); game.player_char.play("dig"); game.sfx("dig"); game.story.event("plant"); game.toast("Planted! Now give it some water.")
+		"plant": Gardening.plant(s.gardens, p.id, now()); s.inventory[seed] -= 1; game.render_resources([seed]); game.player_char.play("dig"); game.sfx("dig"); game.story.event("plant"); game.toast("Planted! Now give it some water.")
 		"water": Gardening.water(s.gardens, p.id, now()); game.player_char.play("feed"); game.effects.splash(pos); game.sfx("water"); game.story.event("water"); game.toast("Watered. It will grow while you explore.")
-		"harvest": game.give(Gardening.harvest(s.gardens, p.id), pos); game.sfx("pick"); game.story.event("harvest")
-		"need_seeds": game.toast("You need pumpkin seeds. Gigia sells them at her stall.", "warn")
+		"harvest": game.give(Gardening.harvest(s.gardens, p.id, p.get("crop", Gardening.CROP)), pos); game.sfx("pick"); game.story.event("harvest")
+		"need_seeds": game.toast(String(p.get("need", "You need pumpkin seeds. Gigia sells them at her stall.")), "warn")
 		_: game.toast("The little plant is soaking up the sun. Come back in a bit!")
 	refresh_gardens()
 
@@ -256,6 +271,17 @@ func refresh_gardens() -> void:
 		if st.stage < 0: continue
 		for x in [-0.35, 0.0, 0.35]:
 			if st.stage == 0: rec.plant.add_child(P.mi(P.sphere(0.06, 6, 4), P.mat("8b5a3c"), Vector3(x, 0.04, 0))); continue
+			var look: String = rec.def.get("look", "pumpkin")
+			if look != "pumpkin":   # winter greens: a cabbage's round head, or a leek's white stalk and green fan
+				var sz: float = 0.06 + st.stage * 0.05
+				if look == "cabbage":
+					var hd := P.mi(P.sphere(sz, 10, 8), P.mat("7fa860" if st.stage < 3 else "9cc07a"), Vector3(x, sz * 0.8, 0)); hd.scale = Vector3(1.2, 0.9, 1.2); rec.plant.add_child(hd)
+				else:
+					var lh: float = 0.1 + st.stage * 0.09
+					rec.plant.add_child(P.mi(P.cyl(0.02 + st.stage * 0.006, 0.025 + st.stage * 0.006, lh, 6), P.mat("ece6cf"), Vector3(x, lh / 2.0, 0)))
+					for a2 in [-0.5, 0.5]:
+						var lf := P.mi(P.box(0.03, lh * 1.1, 0.015), P.mat("4f7d45"), Vector3(x + a2 * 0.05, lh * 1.25, 0)); lf.rotation.z = a2 * 0.8; rec.plant.add_child(lf)
+				continue
 			var h: float = 0.15 + st.stage * 0.14
 			rec.plant.add_child(P.mi(P.cyl(0.02, 0.025, h, 5), P.mat("4f9e45"), Vector3(x, h / 2.0, 0)))
 			var leaf := P.mi(P.sphere(0.07, 6, 4), P.mat("6cc65a"), Vector3(x + 0.05, h * 0.5, 0)); leaf.scale = Vector3(1.4, 0.4, 0.8); rec.plant.add_child(leaf)

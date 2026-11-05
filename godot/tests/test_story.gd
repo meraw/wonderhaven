@@ -14,7 +14,8 @@ func test_npcs():
 	for n in Data.npcs:
 		var nav: Dictionary = Data.layout.nav_nodes if Data.npc_island(n.id) == Data.island else Data.island_nav(Data.npc_island(n.id))
 		t.ok(nav.has(n.home), "%s's home is a nav spot on their island" % n.id)
-		t.ok(Data.quests.any(func(q): return q.giver == n.id), "%s gives a quest" % n.id)
+		# a visitor ("visitor": true, like a railway inspector who comes for one request) needn't have a request of their own
+		if not n.get("visitor", false): t.ok(Data.quests.any(func(q): return q.giver == n.id), "%s gives a quest" % n.id)
 
 func test_quest_flow():
 	var s := GameState.new_game()
@@ -269,3 +270,72 @@ func test_sleep_until_a_chosen_hour():
 	t.ok(t0.day == 2 and t0.minute == 360.0 and slept == 540.0 and t0.total == 900.0 + 360.0 + 540.0, "then through the night to 6 AM")
 	slept = Clock.sleep_until(t0, 6.0)
 	t.ok(t0.day == 3 and slept == 1440.0, "asking for the hour it already is sleeps a whole day round")
+
+func test_a_location_has_its_own_progress_meter():
+	# a stand-in location with a meter; requests there add to it, and a step can wait for it
+	var isl := {"id": "zz_meter", "name": "Meterville", "meter": {"name": "Petition", "icon": "✍️", "unit": "signatures",
+		"milestones": [{"at": 40, "id": "page", "title": "A page"}, {"at": 90, "id": "yard", "title": "Two pages", "flags": ["zz_yard"]}]}}
+	Data.islands.append(isl)
+	t.ok(Meter.has_meter("zz_meter") and not Meter.has_meter("hearthglow"), "only places that define one have a meter")
+	var s := GameState.new_game()
+	t.eq(Meter.value(s, "zz_meter"), 0, "starts at nothing")
+	t.eq(Meter.add(s, "zz_meter", 30), [], "no milestone yet")
+	var passed := Meter.add(s, "zz_meter", 70)
+	t.eq(passed.map(func(m): return m.id), ["page", "yard"], "one jump can pass two milestones")
+	t.eq([Meter.value(s, "zz_meter"), int(s.harmony)], [100, 0], "the meter grows, approval doesn't")
+	t.ok(Meter.next_milestone("zz_meter", 100).is_empty(), "every milestone reached")
+	t.eq(Meter.amount("zz_meter", 250), "250 signatures")
+	# kept in saves
+	var back := SaveSystem.deserialize(SaveSystem.serialize(s))
+	t.eq(Meter.value(back, "zz_meter"), 100, "saved and loaded")
+	# a request step that waits for the meter: it counts the meter of the request's own location
+	Data.npcs.append({"id": "zz_npc", "island": "zz_meter"}); Data.npc_by_id["zz_npc"] = Data.npcs[-1]
+	var q := {"id": "zz_q", "giver": "zz_npc", "objectives": [{"id": "sig", "kind": "meter", "value": 250}, {"id": "end", "kind": "talk", "npc": "zz_npc", "final": true}]}
+	Data.quests.append(q); Data.quest_by_id["zz_q"] = q
+	var e := QuestEngine.new(s)
+	e.accept("zz_q")
+	t.eq(e.objective("zz_q", q.objectives[0]).have, 100, "100 of 250")
+	t.ok(not e.is_ready("zz_q"))
+	Meter.add(s, "zz_meter", 150); e.refresh()
+	t.ok(e.is_ready("zz_q"), "ready at 250")
+	Data.quests.erase(q); Data.quest_by_id.erase("zz_q"); Data.npcs.pop_back(); Data.npc_by_id.erase("zz_npc"); Data.islands.erase(isl)
+
+func test_gathering_a_place_can_change():
+	# a node can say what it gives (loose straw from a "flowers" node), or keep its kind's usual haul
+	t.eq(WorldActions._haul({"kind": "flowers", "items": {"rice_village_straw": 2.0}}, {"flowers": 2}), {"rice_village_straw": 2}, "a node's own haul")
+	t.eq(WorldActions._haul({"kind": "flowers"}, {"flowers": 2}), {"flowers": 2}, "or its kind's usual one")
+	# a place's own fish: what you catch, and one you put straight back
+	t.eq(Minigames.catches("hearthglow"), Minigames.FISH, "Monteforchetta keeps its fish")
+	var pond := [{"id": "frog", "name": "Sleepy Frog", "weight": 1.0, "pull": 0.2, "items": {}, "caught": "A sleepy frog! Back in the mud you go."}]
+	var f := Minigames.Fish.new(Rng.new(3), pond)
+	t.eq(f.fish.id, "frog", "the catch comes from the place's own table")
+	f.result = "caught"
+	t.eq(f.reward(), {}, "a frog you put straight back gives nothing")
+	var tench := Minigames.Fish.new(Rng.new(3), [{"id": "tench", "name": "Tench", "weight": 1.0, "pull": 0.6}])
+	tench.result = "caught"
+	t.eq(tench.reward(), {"fish": 1}, "a fish without its own haul is one fish")
+	# garden beds from the layout, each with its seed and crop
+	Data.use_island("hearthglow")
+	t.eq(Gardening.beds(), Gardening.PLOTS, "Gigia's four pumpkin beds")
+	var beds := [{"id": "zz_bed", "x": 1, "z": 1, "seed": "zz_seed", "crop": {"zz_cabbage": 3}, "look": "cabbage"}]
+	var lay: Dictionary = Data.layout.duplicate(); lay["gardens"] = beds
+	var keep: Dictionary = Data.layout; Data.layout = lay
+	t.eq(Gardening.beds(), beds, "or the place's own")
+	var gd := {}
+	t.eq(Gardening.action(gd, "zz_bed", {"seeds": 3}, "zz_seed"), "need_seeds", "pumpkin seeds don't grow cabbages")
+	t.eq(Gardening.action(gd, "zz_bed", {"zz_seed": 1}, "zz_seed"), "plant")
+	Gardening.plant(gd, "zz_bed", 0)
+	for s in 3: Gardening.water(gd, "zz_bed", s * 1000.0); Gardening.grow(gd, s * 1000.0 + Gardening.GROW_MINUTES)
+	t.eq(Gardening.harvest(gd, "zz_bed", beds[0].crop), {"zz_cabbage": 3}, "and you pick the bed's own crop")
+	Data.layout = keep
+
+func test_the_railway_pieces():
+	for id in ["railLantern", "enamelSign"]:
+		var d := Data.piece(id)
+		t.ok(not d.is_empty() and d.cost.size() > 0, "%s is a piece with a cost" % id)
+		var m := PieceMeshes.make(id)
+		t.ok(m.get_child_count() > 2, "%s has a model" % id)
+		m.free()
+	var lantern := PieceMeshes.make("railLantern")
+	t.ok(Data.piece("railLantern").get("light", false) and not lantern.find_children("bulb", "MeshInstance3D", true, false).is_empty(), "the lantern glows at night")
+	lantern.free()
