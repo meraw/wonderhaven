@@ -88,6 +88,13 @@ func stuck(pos: Vector3, r: float = PLAYER_RADIUS, ignore = null) -> bool:
 		if not can_stand(pos.x + cos(a) * 0.35, pos.z + sin(a) * 0.35, pos.y, r, ignore).is_empty(): return false
 	return true
 
+## Where a body at pos should step to when something has been put on top of it (a villager sent home while you
+## slept, or by loading a save): every step that keeps it inside the other body is refused, so it couldn't walk out.
+## The nearest spot it can move from, or {} when nothing overlaps it.
+func step_aside(pos: Vector3, r: float = PLAYER_RADIUS, ignore = null) -> Dictionary:
+	if not blocked(pos.x, pos.z, pos.y, r, ignore): return {}
+	return free_spot(pos.x, pos.z, Rect2(), 6.0, r, ignore)
+
 ## The nearest spot to (x, z) where a body can stand, can move around, and that lies outside `avoid`
 ## (a Rect2 in x/z, e.g. a build zone). Searches outward in rings; returns {} if nothing within max_r.
 func free_spot(x: float, z: float, avoid: Rect2 = Rect2(), max_r: float = 14.0, r: float = PLAYER_RADIUS, ignore = null) -> Dictionary:

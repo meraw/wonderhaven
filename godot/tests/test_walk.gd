@@ -80,3 +80,17 @@ func test_free_spot_steps_off_a_build_site():
 	var spot := w.free_spot(10, 5, zone)
 	t.ok(not spot.is_empty() and not zone.grow(0.4).has_point(Vector2(spot.x, spot.z)), "the free spot is outside the build zone (%s)" % str(spot))
 	t.ok(not w.stuck(Vector3(spot.x, spot.y, spot.z)), "and you can move from there")
+
+func test_step_aside_when_a_villager_lands_on_you():
+	# A villager sent home while you slept (or by loading a save) can be put right where you stand. Every step that
+	# keeps you inside their body is refused, so you couldn't walk out; step_aside finds the nearest spot to move from.
+	var w := WalkWorld.new([], func(_f): return false)
+	var me := {"x": 10.0, "z": 5.0, "r": WalkWorld.PLAYER_RADIUS}
+	var her := {"x": 10.45, "z": 5.0, "r": 0.32}
+	w.dynamic = [me, her]
+	var at := Vector3(10, w.surface_at(10, 5).y, 5)
+	t.ok(not w.step_move(at, -0.1, 0.0, WalkWorld.PLAYER_RADIUS, me).moved, "inside her, even a step away from her is refused")
+	var spot := w.step_aside(at, WalkWorld.PLAYER_RADIUS, me)
+	t.ok(not spot.is_empty() and not w.blocked(spot.x, spot.z, spot.y, WalkWorld.PLAYER_RADIUS, me), "step_aside finds a free spot (%s)" % str(spot))
+	t.ok(not spot.is_empty() and Vector2(spot.x - 10.0, spot.z - 5.0).length() < 1.0, "close by")
+	t.ok(w.step_aside(Vector3(12, w.surface_at(12, 5).y, 5), WalkWorld.PLAYER_RADIUS, me).is_empty(), "with nobody on you, you stay put")
