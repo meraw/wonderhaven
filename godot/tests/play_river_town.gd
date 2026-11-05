@@ -39,6 +39,7 @@ func play() -> void:
 	s.time.minute = 10 * 60.0
 	game.hud.apply_reveals(); await frames(10)
 	if game.shot_cfg.get("part", "") == "shots": await shots(); return
+	if game.shot_cfg.get("part", "") == "crossing": await cross_check(); return
 	if game.shot_cfg.get("part", "") != "requests": await walk_around()
 	await requests()
 
@@ -53,6 +54,25 @@ func view(x: float, z: float, yaw: float, pitch: float, dist: float, h: float, n
 	game.cam.update(0.016, game.player.pos); game.cam.snap()
 	await wait(2.5)
 	await shot(name)
+
+## Walks over the pontoon bridge from the bridge checkpoint, logging where you are (a check while developing).
+func cross_check() -> void:
+	game.load_state(SaveSystem.read("rt_bridge"))
+	await await_rebuild(20.0)
+	await walk_to(23.5, 10.5, 1.0)
+	await walk_direct(24.5, 13.5, 0.6)
+	note("start %s" % game.player.pos)
+	game.cam.yaw = -PI / 2.0; game.cam.pitch = 0.8; game.cam.dist = 12.0
+	var t0 := Time.get_ticks_msec()
+	key(KEY_W, true)
+	while Time.get_ticks_msec() - t0 < 40000:
+		steer(38.6, 13.5)
+		await wait(1.0)
+		note("at %s" % game.player.pos)
+		if game.player.pos.x > 38.0: break
+	key(KEY_W, false)
+	await shot("cross-check")
+	check("x", "Walked across the pontoon bridge", game.player.pos.x > 37.5 and game.player.pos.y > -0.3, str(game.player.pos))
 
 func story_at(flags: Array) -> void:
 	for f in flags: game.state.flags[P + f] = true
