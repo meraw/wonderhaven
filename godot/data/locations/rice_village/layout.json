@@ -1192,14 +1192,14 @@
   {
    "id": "rice_village_clay1",
    "kind": "clay",
-   "x": 31,
-   "z": 21.1
+   "x": 12.5,
+   "z": 32.8
   },
   {
    "id": "rice_village_clay2",
    "kind": "clay",
-   "x": 46,
-   "z": -14.9
+   "x": -24.0,
+   "z": -28.2
   },
   {
    "id": "rice_village_pool0",
@@ -1238,8 +1238,8 @@
   {
    "id": "rice_village_straw1",
    "kind": "flowers",
-   "x": 24.0,
-   "z": 27.2,
+   "x": 30.0,
+   "z": 31.0,
    "items": {
     "rice_village_straw": 2
    },
@@ -1308,8 +1308,8 @@
   {
    "id": "rice_village_lost0",
    "kind": "fragment",
-   "x": -24.0,
-   "z": -43.9,
+   "x": -26.5,
+   "z": -44.0,
    "flag": "rice_village_lostThings",
    "found": "a felt hat, a bit flattened"
   },
@@ -1371,8 +1371,8 @@
   {
    "id": "rice_village_find2",
    "kind": "dig",
-   "x": 45.0,
-   "z": -30.3,
+   "x": 41.0,
+   "z": -27.0,
    "flag": "rice_village_museum",
    "items": {
     "rice_village_buttons": 1,
@@ -1590,6 +1590,62 @@
    -15.0,
    -3.7
   ],
+  "leveeN": [
+   -36.4,
+   -20.0
+  ],
+  "leveeMid": [
+   -36.0,
+   -1.0
+  ],
+  "leveeS": [
+   -36.4,
+   16.0
+  ],
+  "leveeS2": [
+   -36.4,
+   27.0
+  ],
+  "leveeS3": [
+   -36.4,
+   39.0
+  ],
+  "road27W": [
+   -14.0,
+   -27.0
+  ],
+  "lineNW": [
+   -10.0,
+   -51.0
+  ],
+  "lineNE": [
+   13.0,
+   -51.0
+  ],
+  "plantationE": [
+   36.5,
+   44.0
+  ],
+  "fieldE": [
+   40.0,
+   30.0
+  ],
+  "yardE": [
+   40.0,
+   -32.0
+  ],
+  "churchWall": [
+   -11.3,
+   1.5
+  ],
+  "lineS": [
+   -6.0,
+   -43.4
+  ],
+  "lineSW": [
+   -21.0,
+   -44.1
+  ],
   "cascinaGate": [
    12.5,
    -6
@@ -1741,10 +1797,6 @@
    "road27"
   ],
   [
-   "road27",
-   "bank27"
-  ],
-  [
    "bank27",
    "sluice"
   ],
@@ -1787,6 +1839,66 @@
   [
    "forecourtE",
    "stationYard"
+  ],
+  [
+   "levee",
+   "leveeN"
+  ],
+  [
+   "levee",
+   "leveeMid"
+  ],
+  [
+   "leveeMid",
+   "leveeS"
+  ],
+  [
+   "leveeS",
+   "leveeS2"
+  ],
+  [
+   "leveeS2",
+   "leveeS3"
+  ],
+  [
+   "road27",
+   "road27W"
+  ],
+  [
+   "road27W",
+   "bank27"
+  ],
+  [
+   "crossingN",
+   "lineNW"
+  ],
+  [
+   "crossingN",
+   "lineNE"
+  ],
+  [
+   "plantation",
+   "plantationE"
+  ],
+  [
+   "plantationE",
+   "fieldE"
+  ],
+  [
+   "stationYard",
+   "yardE"
+  ],
+  [
+   "churchCorner",
+   "churchWall"
+  ],
+  [
+   "crossingS",
+   "lineS"
+  ],
+  [
+   "lineS",
+   "lineSW"
   ],
   [
    "platformW",
