@@ -12,6 +12,7 @@ extends "res://tests/metropolis_base.gd"
 func at(npc: String) -> Vector3: return game.npcs[P + npc].pos
 
 const STEPS := ["welcome", "flat", "marble", "footbridge", "scaffold", "angel"]
+var approval_at_start := 0   # the Sindaco's approval you arrive with; Toriano's requests don't add to it
 
 func checkpoint_slot(step: String) -> String: return "metropolis_after_" + step
 
@@ -44,6 +45,7 @@ func start_in_town() -> void:
 
 ## Welcome to Toriano
 func step_welcome() -> void:
+	approval_at_start = int(game.state.harmony)
 	check("augusto_waits", "Augusto waits on the platform with a request", at("augusto").distance_to(game.player.pos) < 8.0 and game.story.marker_for(who("augusto")) == "offer", "%s, marker %s" % [at("augusto"), game.story.marker_for(who("augusto"))])
 	await shot("augusto_station")
 	await chat("augusto")
@@ -60,7 +62,7 @@ func step_welcome() -> void:
 	check("welcome_neighbours", "you meet Signora Elvira and Simone upstairs, and Ragioniere Sala", step_done("welcome", "elvira") and step_done("welcome", "simone") and step_done("welcome", "sala"),
 		str(game.state.quests.get(P + "welcome", {}).get("done", {}).keys()))
 	await chat("augusto")
-	check("welcome_done", "Augusto gives you your keys: 5 column inches, and no approval for the Sindaco", done("welcome") and inches() == 5 and int(game.state.harmony) == 0 and game.state.flags.get(P + "settled", false), "%s, %d inches" % [status("welcome"), inches()])
+	check("welcome_done", "Augusto gives you your keys: 5 column inches, and no approval for the Sindaco", done("welcome") and inches() == 5 and int(game.state.harmony) == approval_at_start and game.state.flags.get(P + "settled", false), "%s, %d inches" % [status("welcome"), inches()])
 
 ## The Balcony Flat
 func step_flat() -> void:
