@@ -126,7 +126,9 @@ func chat(npc: String, accept: bool = true) -> bool:
 				continue
 		await walk_to(a.pos.x, a.pos.z, 1.5)
 		a = game.npcs[id]
-		if await face_and_press("npc:" + id, a.pos.x, a.pos.z): return await converse(id, accept)
+		if await face_and_press("npc:" + id, a.pos.x, a.pos.z):
+			if await converse(id, accept): return true
+			await frames(10)   # no conversation opened (a catch's panel still closing had the keys): try again
 	note("could not reach %s to talk" % npc)
 	return false
 
