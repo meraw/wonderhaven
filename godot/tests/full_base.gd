@@ -10,29 +10,61 @@ func steer(x: float, z: float) -> void:
 	var p: Vector3 = game.player.pos
 	game.cam.yaw = atan2(-(x - p.x), -(z - p.z)); game.cam.cur.yaw = game.cam.yaw
 
+## Budgets count frames (as if at 30 fps), not wall-clock time: on a slow machine (software rendering, several
+## runs at once) a wall-clock limit cut walks short while the game itself was fine.
 func walk_direct(x: float, z: float, tol: float = 0.8, max_s: float = 40.0) -> bool:
-	var t0 := Time.get_ticks_msec()
+	var budget := int(max_s * 30.0)
+	var used := 0
 	var last: Vector3 = game.player.pos
-	var last_move := Time.get_ticks_msec()
+	var still := 0
+	var best := INF; var since_best := 0   # no closer for ~8 s of frames: really stuck, so give up and say where
 	key(KEY_SHIFT, true)
-	while Time.get_ticks_msec() - t0 < max_s * 1000.0:
+	while used < budget:
 		var p: Vector3 = game.player.pos
-		if Vector2(x - p.x, z - p.z).length() < tol: break
+		var dist := Vector2(x - p.x, z - p.z).length()
+		if dist < tol: break
+		if dist < best - 0.05: best = dist; since_best = 0
+		elif since_best > 240:
+			note("walk stuck at (%.1f, %.1f) heading for (%.1f, %.1f)" % [p.x, p.z, x, z]); break
 		steer(x, z)
-		key(KEY_W, true)
-		await frames(2)
-		if p.distance_to(last) > 0.1: last = p; last_move = Time.get_ticks_msec()
-		elif Time.get_ticks_msec() - last_move > 1200:
-			key(KEY_W, false); key(KEY_D if randf() < 0.5 else KEY_A, true); await wait(0.25); key(KEY_A, false); key(KEY_D, false)
-			await tap(KEY_SPACE); last_move = Time.get_ticks_msec()
+		if dist < 2.5:   # the last stretch at a walk, a frame at a time: at a low frame rate a running step is over a metre
+			key(KEY_SHIFT, false); key(KEY_W, true); await frames(1); key(KEY_W, false); await frames(1)
+		else:
+			key(KEY_SHIFT, true); key(KEY_W, true); await frames(2)
+		used += 2; since_best += 2
+		if p.distance_to(last) > 0.1: last = p; still = 0
+		else:
+			still += 2
+			if still > 36:   # no headway for about a second of frames: sidestep and hop, as a player would
+				key(KEY_W, false); key(KEY_D if randf() < 0.5 else KEY_A, true); await frames(8); key(KEY_A, false); key(KEY_D, false)
+				await tap(KEY_SPACE); still = 0; used += 8; since_best += 8
 	key(KEY_W, false); key(KEY_SHIFT, false)
 	await frames(2)
 	return Vector2(x - game.player.pos.x, z - game.player.pos.z).length() < tol + 0.4
 
+## True when a body could walk the straight line from a to b (no water, wall or scenery in the way).
+func line_clear(a: Vector2, b: Vector2) -> bool:
+	var n := maxi(1, int(a.distance_to(b) / 0.25))
+	for i in n + 1:
+		var q := a.lerp(b, float(i) / n)
+		if game.walk.can_stand(q.x, q.y, game.player.pos.y, 0.3, game.player.body).is_empty(): return false
+	return true
+
+## The nearest nav node you can walk to in a straight line: the nearest as the crow flies can be across a stream.
+func reachable_node(x: float, z: float, f: Dictionary) -> String:
+	var ids: Array = Data.layout.nav_nodes.keys()
+	var here := Vector2(x, z)
+	ids.sort_custom(func(a, b): return Vector2(Data.layout.nav_nodes[a][0], Data.layout.nav_nodes[a][1]).distance_to(here) < Vector2(Data.layout.nav_nodes[b][0], Data.layout.nav_nodes[b][1]).distance_to(here))
+	var near := Schedule.nearest_node(x, z, f)
+	for id in ids.slice(0, 8):
+		if String(id).contains(":") and id != near: continue   # indoor spots only from inside, as nearest_node does
+		if line_clear(here, Vector2(Data.layout.nav_nodes[id][0], Data.layout.nav_nodes[id][1])): return id
+	return near
+
 func walk_to(x: float, z: float, tol: float = 0.8) -> bool:
 	var f: Dictionary = game.state.flags
 	var p: Vector3 = game.player.pos
-	var path := Schedule.find_path(Schedule.nearest_node(p.x, p.z, f), Schedule.nearest_node(x, z, f), f)
+	var path := Schedule.find_path(reachable_node(p.x, p.z, f), Schedule.nearest_node(x, z, f), f)
 	var pts: Array = []
 	for i in path.size():
 		var a: Array = Data.layout.nav_nodes[path[i]]
@@ -43,8 +75,10 @@ func walk_to(x: float, z: float, tol: float = 0.8) -> bool:
 	var here := Vector2(game.player.pos.x, game.player.pos.z)
 	var start := 0
 	for i in pts.size():
-		if pts[i].distance_to(here) < pts[start].distance_to(here): start = i
+		if pts[i].distance_to(here) < pts[start].distance_to(here) and line_clear(here, pts[i]): start = i
 	for i in range(start, pts.size()):
+		var at := Vector2(game.player.pos.x, game.player.pos.z)
+		if i > start and not line_clear(at, pts[i]): await walk_direct(pts[i - 1].x, pts[i - 1].y, 0.35)   # back onto the path first
 		await walk_direct(pts[i].x, pts[i].y, 1.2)
 	return await walk_direct(x, z, tol)
 

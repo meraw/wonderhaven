@@ -1,14 +1,14 @@
 class_name WorldActions
 extends RefCounted
-## Everything you can do with the world itself: chop, mine, dig clay, fish, pick, shake, dig where the metal detector
+## Everything you can do with the world itself: chop, mine, dig clay, fish, pick, shake, forage, dig where the metal detector
 ## beeps, open chests, pick up lost things, dig through the street bins, garden, and see off the bakery's boars.
 ## A layout node may say what it gives ("gives", see gives()), what it's called when you find it ("name": a lost thing,
 ## or what the metal detector turns up) and what its prompt says ("label"): loose rice straw is a "flowers" node that
 ## gives straw, labelled "Gather loose straw".
 const P := preload("res://scripts/world/palette.gd")
-const REGROW := {"chop": 180.0, "mine": 240.0, "clay": 150.0, "flowers": 180.0, "shake": 90.0, "fruit": 240.0, "fragment": 1440.0, "bin": 300.0}
+const REGROW := {"chop": 180.0, "mine": 240.0, "clay": 150.0, "flowers": 180.0, "shake": 90.0, "fruit": 240.0, "fragment": 1440.0, "bin": 300.0, "forage": 300.0}
 const SQUIRREL_SPOTS := [[-8.4, -3.2], [-13.7, -3.3], [-7.2, -6.6]]
-const LABELS := {"chop": "Chop tree", "mine": "Mine rock", "clay": "Dig clay", "fish": "Fish here", "flowers": "Pick flowers", "shake": "Shake the chestnut tree", "fruit": "Pick hazelnuts", "chest": "Open chest", "fragment": "Pick up the lost thing", "bin": "Dig through the bin"}
+const LABELS := {"chop": "Chop tree", "mine": "Mine rock", "clay": "Dig clay", "fish": "Fish here", "flowers": "Pick flowers", "shake": "Shake the chestnut tree", "fruit": "Pick hazelnuts", "chest": "Open chest", "fragment": "Pick up the lost thing", "bin": "Dig through the bin", "forage": "Pick the porcini"}
 ## What the lost things turn out to be; the first one is always the Sindaco's reading glasses.
 const LOST := ["the Sindaco's reading glasses", "a bunch of keys", "a dog's ball", "a single glove", "a lottery ticket (not a winner)", "a cassette of love songs", "a phone card with 200 lire left on it"]
 ## Copper wire from the bins, and what else comes up with it.
@@ -80,7 +80,9 @@ func _register_feature(f: Dictionary) -> void:
 		# a stop on a line within this place (a tram, a funicular): ride to another stop on it (Travel.stops_on)
 		"stop": game.add_interactable({"id": f.id, "x": f.x, "z": f.z, "radius": 2.2, "object": game.village.objects.get(f.id), "label": func(): return String(f.get("ride_label", "Take a ride")), "act": func(): game.panels.stops(f)})
 		# the departure point (any id; "depart_label" names how you leave, a train from a city station, say)
-		"boat": game.add_interactable({"id": f.id, "x": f.x, "z": f.z, "radius": 2.6, "object": game.village.objects.get(f.id), "available": func(): return state().flags.get("boatReady", false), "label": func(): return String(f.get("depart_label", "Catch the bus")), "act": func(): game.panels.map(true)})
+		"boat":   # a bus can be boarded anywhere along its side, not just by its middle
+			var reach: float = float(f.get("length", 8.6)) / 2.0 + 0.6 if f.get("model", "boat") == "bus" else 2.6
+			game.add_interactable({"id": f.id, "x": f.x, "z": f.z, "radius": reach, "object": game.village.objects.get(f.id), "available": func(): return state().flags.get("boatReady", false), "label": func(): return String(f.get("depart_label", "Catch the bus")), "act": func(): game.panels.map(true)})
 
 func _src(n: Dictionary, up: float = 1.0) -> Vector3: return Vector3(n.x, Heightfield.height(n.x, n.z) + up, n.z)
 
@@ -88,7 +90,7 @@ func act(n: Dictionary) -> void:
 	game.player.yaw = atan2(n.x - game.player.pos.x, n.z - game.player.pos.z); game.player.sync()
 	match n.kind:
 		"chop": pending_node = n; game.start_minigame("chop", Minigames.Chop.new(), _src(n, 0.0))
-		"mine": pending_node = n; game.start_minigame("mine", Minigames.Mine.new(n.get("rich", false)), _src(n, 0.0))
+		"mine": pending_node = n; game.start_minigame("mine", Minigames.Mine.new(n.get("rich", false), null, String(Data.layout.get("richRock", "metal"))), _src(n, 0.0))
 		"fish": start_fishing(n)
 		"clay":
 			game.player_char.play("dig"); game.sfx("dig")
@@ -102,6 +104,7 @@ func act(n: Dictionary) -> void:
 		"chest": open_chest(n)
 		"fragment": catch_fragment(n)
 		"bin": dig_bin(n)
+		"forage": game.player_char.play("dig"); game.sfx("pick"); game.give({String(n.get("item", "mushroom")): 1}, _src(n, 0.4)); deplete(n)
 
 ## A swing or strike in the minigame: the tree or rock shakes and chips fly (a miss barely moves it).
 func minigame_hit(kind: String, result: String) -> void:
@@ -207,7 +210,7 @@ func _fishing_done(mg) -> void:
 
 ## Which kinds of place give each item (for pointing the compass at the nearest one).
 const SOURCES := {"wood": ["chop"], "stone": ["mine"], "metal": ["mine", "bin"], "crystal": ["bin"], "clay": ["clay"], "flowers": ["flowers"],
-	"fish": ["fish"], "acorn": ["shake"], "fruit": ["fruit"], "fragment": ["fragment"]}
+	"fish": ["fish"], "acorn": ["shake"], "fruit": ["fruit"], "fragment": ["fragment"], "mushroom": ["forage"]}
 
 ## The nearest place that gives `item` and is ready right now, or {}.
 func nearest_ready(item: String) -> Dictionary:
@@ -227,7 +230,7 @@ func refresh_node(n: Dictionary) -> void:
 	match n.kind:
 		"chop": o.visible = r; (o.get_meta("stump") as Node3D).visible = not r
 		"mine": o.scale = Vector3.ONE * (1.0 if r else 0.45)
-		"clay", "flowers", "fragment": o.visible = r
+		"clay", "flowers", "fragment", "forage": o.visible = r
 		"bin": (o.get_node("lid") as Node3D).rotation.x = 0.0 if r else -1.1
 		"fruit": (o.get_node("fruit") as Node3D).visible = r
 		"shake": (o.get_node("acorns") as Node3D).visible = r

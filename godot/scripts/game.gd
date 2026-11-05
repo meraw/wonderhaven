@@ -332,7 +332,7 @@ func _fade(on: bool) -> Tween:
 	var tw := create_tween(); tw.tween_property(r, "color:a", 1.0 if on else 0.0, 0.5)
 	return tw
 
-## Change outfit anywhere you're settled: by the inn's wardrobe, or at your own home once it's built.
+## Change outfit anywhere you're settled: by the guest room's wardrobe, or at your own home once it's built.
 func open_wardrobe() -> void:
 	if screens == null or mode != "explore": return
 	var w: Dictionary = {}
@@ -391,9 +391,9 @@ func on_quest_completed(qid: String) -> void:
 		"bridge": actions.refresh_all(); effects.sparkle(Vector3(0.5, 0.5, -18), 50, Color("fff2a8"), 0.35)
 		"workshop": effects.sparkle(Vector3(-13, 2, 10), 40)
 		"fountain": effects.sparkle(Vector3(0, 2.5, 2), 60, Color("bff3ff"))
-		"decree": cam.shake = 0.4; sfx("gate"); toast("The harbor gate creaks open to the south!", "good", 4.0)
 		"dock":
-			effects.sparkle(Vector3(5.5, 1, 51), 50)
+			for f in Data.layout.features:
+				if f.id == "boat": effects.sparkle(Vector3(f.x, 1.5, f.z), 50)
 			get_tree().create_timer(4.4).timeout.connect(func(): banner("The city bus is running!", "New places will appear on your map (%s) as the line grows" % Controls.key_label("map"), [], 5.0))
 		"lighthouse": effects.sparkle(Vector3(-24, 7.5, -21), 50, Color("fff2a8"), 0.4); toast("The lighthouse turns again! Its beam sweeps the bay at night.", "good", 4.0)
 		"clocktower":
@@ -914,7 +914,7 @@ func _apply_window() -> void:
 	if settings.get("fullscreen", false) and not full: DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
 	elif not settings.get("fullscreen", false) and full: DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_MAXIMIZED)
 
-## Pause menu "I'm stuck": back to the Lantern Inn's door, wherever you were.
+## Pause menu "I'm stuck": back to the layout's safe spot (safeSpot, a nav node), wherever you were.
 func unstick() -> void:
 	var safe: String = Data.layout.get("safeSpot", "cottageDoor")
 	var door: Array = Data.layout.nav_nodes.get(safe, [Data.layout.spawn.x, Data.layout.spawn.z])

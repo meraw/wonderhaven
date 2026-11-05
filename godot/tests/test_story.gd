@@ -48,7 +48,7 @@ func test_quest_flow():
 	t.ok(ev.any(func(x): return x.has("ready")), "four railings on the bridge: ready")
 	built[0] = false
 	t.ok(e.is_ready("bridge"), "build objective latched")
-	t.eq(e.next_step("bridge").npc, "fern", "next step")
+	t.eq(e.next_step("bridge").npc, "captain", "next step: tell Aldo")
 
 func test_stages_gate_gathering_and_talks():
 	var s := GameState.new_game()
@@ -57,13 +57,13 @@ func test_stages_gate_gathering_and_talks():
 	e.accept("workshop")
 	e.on_talk("bram")
 	t.ok(not e.objective("workshop", Data.quest("workshop").objectives[3]).done, "talking to Bram early doesn't skip the materials")
-	e.on_gain({"wood": 10, "metal": 2, "crystal": 1})
+	e.on_gain({"wood": 12, "metal": 2, "crystal": 2})
 	t.eq(e.next_step("workshop").get("npc", ""), "bram", "materials gathered: go and talk to Bram")
 	var ev := e.on_talk("bram")
 	t.ok(ev.any(func(x): return x.has("objective") and x.objective.id == "plan"), "talking to him completes that step")
 	t.eq(e.current_stage("workshop"), 2, "then furnish")
 	e.on_gain({"wood": 50})
-	t.eq(int(s.quests.workshop.progress.wood), 10, "gathering after its step doesn't keep counting")
+	t.eq(int(s.quests.workshop.progress.wood), 12, "gathering after its step doesn't keep counting")
 
 func test_pay_for_the_deed():
 	var s := GameState.new_game()
@@ -89,7 +89,7 @@ func test_conversation():
 	t.eq(c.main_offer.get("id", ""), "tool", "main offer")
 	s.quests["tool"] = {"status": "done", "progress": {}}; s.quests["bridge"] = {"status": "done", "progress": {}}
 	c = Conversation.build(Data.npc("percival"), e, s.flags, "Pip")
-	t.eq(c.main_offer.get("id", ""), "decree")
+	t.eq(c.main_offer.get("id", ""), "home", "after the crossing he offers the farmhouse")
 	t.ok(c.options.any(func(o): return o.kind == "offer" and o.id == "stones"), "side quest choice")
 	t.eq(c.options.back().kind, "bye")
 	t.ok(not "{name}" in c.greeting)
@@ -205,11 +205,13 @@ func test_home_of_your_own():
 	var z := Data.zone("plot")
 	var pls: Array = []
 	var add := func(id: String, i: int, k: int) -> void: pls.append({"uid": pls.size() + 1, "id": id, "i": float(i), "k": float(k), "r": 0, "y": 0.0})
-	add.call("woodWall", 19, 10); add.call("woodWall", 20, 10); add.call("doorWall", 21, 10)
+	add.call("woodWall", 15, -36); add.call("woodWall", 16, -36); add.call("doorWall", 17, -36)
 	t.ok(not Validate.room_checklist(z, pls, home_needs).all(func(r): return r.ok), "not a home yet: missing a wall, roof and bed")
-	add.call("windowWall", 19, 11); add.call("roof", 19, 11); add.call("bed", 22, 12)
+	add.call("windowWall", 15, -35); add.call("roof", 15, -35); add.call("bed", 18, -34)
 	t.ok(Validate.room_checklist(z, pls, home_needs).all(func(r): return r.ok), "3 walls, a door, a roof and a bed make a home")
-	t.ok(Data.layout.buildings.any(func(b): return b.id == "playerHouse" and b.get("inn", false) and b.name == "The Lantern Inn"), "you start out at the Lantern Inn")
+	var bed: Dictionary = Data.layout.features.filter(func(f): return f.kind == "rest")[0]
+	var castle: Dictionary = Data.layout.buildings.filter(func(b): return b.id == "castle")[0]
+	t.ok(absf(bed.x - castle.x) < castle.w / 2.0 and absf(bed.z - castle.z) < castle.d / 2.0, "you start out in the castle's guest room")
 
 func test_live_checks_are_cached_until_something_changes():
 	# villagers' markers, the compass and the tracker ask every frame; the bridge's path search runs once a frame
@@ -238,20 +240,20 @@ func test_some_requests_keep_hours():
 	t.ok(timed.size() >= 3 and timed.size() < Data.quests.size() / 2, "a few requests keep hours, not most (%d)" % timed.size())
 	t.ok(not timed.any(func(q): return q.get("main", false)), "story requests are never hidden by the clock")
 	var s := GameState.new_game()
-	for q in ["tool", "bridge", "decree"]: s.quests[q] = {"status": "done", "progress": {}}
+	for q in ["tool", "bridge"]: s.quests[q] = {"status": "done", "progress": {}}
 	var e := QuestEngine.new(s)
 	s.time.minute = 14 * 60.0
-	t.ok(not e.can_offer("catch"), "the Captain doesn't offer his fishing request in the afternoon")
-	t.ok(e.later_for("captain").any(func(q): return q.id == "catch"), "...but you can tell he will, at dawn")
-	var opts: Array = Conversation.build(Data.npc("captain"), e, s.flags, "Pip").options
-	t.ok(opts.any(func(o): return o.kind == "later" and o.id == "catch" and "5 AM" in o.label), "his conversation says when to come back")
-	s.time.minute = 6 * 60.0
-	t.ok(e.can_offer("catch") and e.later_for("captain").is_empty(), "at 6 AM he asks")
+	t.ok(not e.can_offer("squirrels"), "Ornella doesn't bring up the boars in the afternoon")
+	t.ok(e.later_for("mabel").any(func(q): return q.id == "squirrels"), "...but you can tell she will, in the morning")
+	var opts: Array = Conversation.build(Data.npc("mabel"), e, s.flags, "Pip").options
+	t.ok(opts.any(func(o): return o.kind == "later" and o.id == "squirrels" and "6 AM" in o.label), "her conversation says when to come back")
+	s.time.minute = 7 * 60.0
+	t.ok(e.can_offer("squirrels") and e.later_for("mabel").is_empty(), "at 7 AM she asks")
 
 func test_steps_with_hours_count_only_then():
 	var s := GameState.new_game()
 	s.island = "clockwork"
-	for q in ["tool", "bridge", "workshop", "decree", "dock", "cove"]: s.quests[q] = {"status": "done", "progress": {}}
+	for q in ["tool", "bridge", "workshop", "fountain", "dock", "cove"]: s.quests[q] = {"status": "done", "progress": {}}
 	s.quests["lighthouse"] = {"status": "active", "progress": {"wood": 8, "metal": 2, "light": 1}, "done": {}}
 	var e := QuestEngine.new(s)
 	t.eq(e.current_stage("lighthouse"), 2, "lighthouse lit: now watch it with Juniper")
@@ -323,3 +325,29 @@ func test_the_railway_pieces():
 	var lantern := PieceMeshes.make("railLantern")
 	t.ok(Data.piece("railLantern").get("light", false) and not lantern.find_children("bulb", "MeshInstance3D", true, false).is_empty(), "the lantern glows at night")
 	lantern.free()
+
+func test_requests_ask_for_enough_to_build_what_they_ask_for():
+	# What a request has you gather (gifts on accepting count towards it) covers the cheapest way to build its
+	# room or pieces: otherwise the step ticks off and you still can't afford the last lamp.
+	for q in Data.quests:
+		var gather := {}
+		for o in q.objectives:
+			if o.kind == "gather": gather[o.item] = int(o.count)
+		if gather.is_empty(): continue
+		var need := {}
+		var add := func(options: Array, count: int) -> void:
+			var best := {}; var best_n := INF
+			for id in options:
+				var c: Dictionary = Data.piece(id).get("cost", {})
+				if Data.piece(id).is_empty(): continue
+				var n := 0
+				for k in gather: n += int(c.get(k, 0))
+				if n < best_n: best_n = n; best = c
+			for k in best: need[k] = int(need.get(k, 0)) + int(best[k]) * count
+		for o in q.objectives:
+			if o.kind == "room":
+				for nd in o.needs:
+					if nd.has("any"): add.call(nd.any, int(nd.get("count", 1)))
+			elif o.kind == "pieces": add.call(o.any, int(o.get("count", 1)))
+		for k in gather:
+			t.ok(int(gather[k]) >= int(need.get(k, 0)), "%s: gathering %d %s covers the %d its building takes" % [q.id, gather[k], k, need.get(k, 0)])

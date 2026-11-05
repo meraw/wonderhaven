@@ -31,6 +31,7 @@ func build(decor: Dictionary) -> void:
 				"caravan": o = Props.caravan(b)
 				"lighthouse": o = Props.lighthouse(b)
 				"clocktower": o = Props.clocktower(b)
+				"church": o = Props.church(b)
 				_: o = Props.cottage(b)
 		# "y": a building standing on a raised floor (a flat off an upstairs balcony)
 		o.position = Vector3(b.x, float(b.y) if b.has("y") else (Heightfield.CASTLE_MOUND.y if b.kind == "castle" else maxf(0.0, H.call(b.x, b.z))), b.z)
@@ -40,28 +41,19 @@ func build(decor: Dictionary) -> void:
 		for ln in o.find_children("inn_lantern", "MeshInstance3D", true, false): window_mats.append(ln.material_override)
 	if Data.island == "hearthglow": _dress_hearthglow(H)
 	_build_props()
+	if Data.layout.has("horizon"): add_child(TerrainBuilder.build_backdrop(Data.layout.horizon))
+	_build_vineyards()
 	_build_decor(decor)
 	_build_nodes()
 	_build_features()
 	if pack_fns.has("dress"): pack.dress(self)
 
-## Hearthglow's scenery: fountain, harbor cliffs and gate, market stall, dock pilings, the broken bridge, lamp
-## posts, fences, garden beds and the west pier.
+## Monteforchetta's hand-placed scenery (the "hearthglow" id): fountain, the market stall on the belvedere, the
+## posts of the washed-out crossing, lamp posts, fences and Gigia's garden beds. Buses, the bus stop and the
+## farmhouse ruins are layout `props`; vineyards, woods and the horizon come from the layout too.
 func _dress_hearthglow(H: Callable) -> void:
 	var f := Props.fountain(); var F: Dictionary = Data.layout.fountain; f.position = Vector3(F.x, 0, F.z); add_child(f); objects["fountain"] = f
-	for c in Data.layout.harbor_cliffs:
-		var w: float = c.maxX - c.minX
-		if w > 60: continue
-	for seg in [[-48.0, 2.5], [7.5, 50.0]]:
-		var cl := Props.cliff(seg[1] - seg[0]); cl.position = Vector3((seg[0] + seg[1]) / 2.0, -0.2, 34.8); add_child(cl)
-	var G: Dictionary = Data.layout.harbor_gate
-	var gate := Props.gate(); gate.position = Vector3((G.minX + G.maxX) / 2.0, H.call(5, 34.7), 34.7); add_child(gate); objects["harborGate"] = gate
 	var stall := Props.market_stall(); stall.position = Vector3(-2, H.call(-2, 39), 39); stall.rotation.y = 0.2; add_child(stall)
-	var dock: Dictionary = Data.zone("dock")
-	for s in dock.fixedSupports:
-		add_child(P.mi(P.cyl(0.2, 0.24, 2.4, 8), P.wood("8a6a50"), Vector3(s[0] + 0.5, -1.0, s[1] + 0.5)))
-		add_child(P.mi(P.cyl(0.26, 0.26, 0.08, 8), P.wood("6a4a30"), Vector3(s[0] + 0.5, 0.02, s[1] + 0.5)))
-	add_child(P.mi(P.cyl(0.18, 0.22, 2.6, 8), P.wood("8a6a50"), Vector3(4.3, -0.6, 50.4)))
 	for bp in [[-1.6, -17.2, 0.3], [1.8, -19.6, -0.4], [-0.4, -20.4, 0.2]]:
 		var p := Props.broken_post(); p.position = Vector3(bp[0], -0.2, bp[1]); p.rotation.z = bp[2]; add_child(p)
 	var plank := P.mi(P.box(0.9, 0.1, 1.6), P.wood("9a7a5a"), Vector3(1.2, -0.36, -16.6)); plank.rotation = Vector3(0.1, 0.7, 0.15); add_child(plank)
@@ -70,10 +62,39 @@ func _dress_hearthglow(H: Callable) -> void:
 	for fc in [[3.4, -12.2, 4, 0.0], [3.4, -8.0, 4, 0.0], [1.4, -10.1, 4, PI / 2], [-40, 2.5, 3, 0.0], [-40, 7.6, 3, 0.0]]:
 		var fe := Props.fence(fc[2]); fe.position = Vector3(fc[0], H.call(fc[0], fc[1]), fc[1]); fe.rotation.y = fc[3]; add_child(fe)
 	for bd in [[4.4, -9.4], [6.6, -9.4], [4.4, -11], [6.6, -11]]: add_child(P.mi(P.box(1.6, 0.16, 1.1), P.wood("9a6a45"), Vector3(bd[0], 0.08, bd[1])))
-	var pier := P.mi(P.box(7, 0.15, 2.2), P.wood("c49a6c"), Vector3(-48.5, 0.05, 5)); add_child(pier)
+
+## Vineyard rows from the layout's `vineyards`: [{from, to (degrees round the centre), rows, e0 (where the first row
+## sits, metres beyond the playable edge; negative = down the slope), spacing}]. Rows follow the slope's contour, so
+## the hillsides are striped with vines the way Langhe hills are. They stand outside the walkable land.
+func _build_vineyards() -> void:
+	var items: Array = []
+	for v in Data.layout.get("vineyards", []):
+		var a0 := deg_to_rad(float(v["from"])); var a1 := deg_to_rad(float(v["to"]))
+		for k in int(v.get("rows", 8)):
+			var e := float(v.get("e0", -1.0)) - k * float(v.get("spacing", 2.4))
+			var a := a0
+			while a < a1:
+				var r := Heightfield._island_radius(a) - e
+				var x := cos(a) * r; var z := sin(a) * r
+				items.append({"x": x, "z": z, "a": a, "k": k})
+				a += 2.8 / r
+	if items.is_empty(): return
+	var autumn := [Color("d8b84a"), Color("c9863a"), Color("b5552e"), Color("a9b84a"), Color("d6a23c")]
+	var cz := FastNoiseLite.new(); cz.seed = 9; cz.frequency = 0.05
+	var leaf := Foliage.plant_material(0.01, 0.2)
+	var post := _tinted()
+	_multimesh(Foliage.bush(), leaf, items, func(it):
+		var yaw := atan2(-cos(it.a), -sin(it.a))
+		var c: Color = autumn[int(absf(cz.get_noise_2d(it.x, it.z)) * 13.0 + it.k) % autumn.size()]
+		return [Transform3D(Basis.from_euler(Vector3(0, yaw, 0)).scaled(Vector3(3.4, 1.15, 0.6)), Vector3(it.x, Heightfield.height(it.x, it.z) - 0.05, it.z)), c], false)
+	_multimesh(P.cyl(0.04, 0.05, 1.3, 5), post, items, func(it):
+		var off := Vector3(-sin(it.a), 0, cos(it.a)) * 1.4
+		var p := Vector3(it.x, 0, it.z) + off
+		return [Transform3D(Basis.IDENTITY, Vector3(p.x, Heightfield.height(p.x, p.z) + 0.55, p.z)), Color("8a6a50")], false)
 
 ## Scenery from the layout: props [{kind, x, z, r?, ...}] with kind lamp_post, fence (n), crate, barrel, gear,
-## piece (any build piece model, id), pier (w, d), market_stall, rock.
+## piece (any build piece model, id), pier (w, d), market_stall, rock, bus (length, color, sign), bus_stop, ruin_wall
+## (length, seed). Solid props block walking: a circle of `rad`, or a box of `w` x `d` when given.
 func _build_props() -> void:
 	for pr in Data.layout.get("props", []):
 		var o: Node3D
@@ -84,6 +105,9 @@ func _build_props() -> void:
 			"pier": o = Node3D.new(); o.add_child(P.mi(P.box(float(pr.w), 0.15, float(pr.d)), P.wood("c49a6c"), Vector3(0, 0.05, 0)))
 			"market_stall": o = Props.market_stall()
 			"rock": o = Props.rock(false); o.scale = Vector3.ONE * float(pr.get("s", 1.0))
+			"bus": o = Props.bus(float(pr.get("length", 6.4)), String(pr.get("color", "3a6fb5")), String(pr.get("sign", "MONTEFORCHETTA")))
+			"bus_stop": o = Props.bus_stop_sign()
+			"ruin_wall": o = Props.ruin_wall(float(pr.get("length", 3.0)), int(pr.get("seed", 1)))
 			_: o = Props.interior_prop(pr.kind)
 		var y: float = float(pr.y) if pr.has("y") else Heightfield.height(pr.x, pr.z)
 		o.position = Vector3(pr.x, y, pr.z); o.rotation.y = float(pr.get("r", 0.0))
@@ -134,11 +158,18 @@ func _build_decor(decor: Dictionary) -> void:
 	_multimesh(P.cyl(0.13, 0.24, 1.5, 9), tint, round, func(t): return [xf.call(Vector3(t.x, H.call(t.x, t.z) + 0.75 * t.s, t.z), Vector3.ONE * t.s), P.TRUNK])
 	_multimesh(P.cyl(0.08, 0.16, 0.9, 7), tint, pine, func(t): return [xf.call(Vector3(t.x, H.call(t.x, t.z) + 0.45 * t.s, t.z), Vector3.ONE * t.s), P.TRUNK])
 	# Canopies: lumpy blob clusters that sway gently; two shapes so neighbours don't look cloned.
-	var leaves := [Color("6cc45e"), Color("7cd062"), Color("5cb86a"), Color("8ad468"), Color("68c47e")]
+	# A place can set its own leaf colours (layout decor.leaves, say an autumn mix); woods trees take decor.woodLeaves.
+	var D: Dictionary = Data.layout.get("decor", {})
+	var leaves: Array = D.get("leaves", ["6cc45e", "7cd062", "5cb86a", "8ad468", "68c47e"]).map(func(c): return Color(c))
+	var wood_leaves: Array = D.get("woodLeaves", D.get("leaves", [])).map(func(c): return Color(c))
+	if wood_leaves.is_empty(): wood_leaves = leaves
+	var leaf_of := func(t: Dictionary) -> Color:
+		var pal: Array = wood_leaves if t.has("wood") else leaves
+		return pal[int(t.hue * pal.size()) % pal.size()]
 	var canopy_mat := Foliage.plant_material(0.025, -0.6)
 	for variant in 2:
 		var group := round.filter(func(t): return int(t.hue * 10.0) % 2 == variant)
-		_multimesh(Foliage.canopy(variant), canopy_mat, group, func(t): return [xf.call(Vector3(t.x, H.call(t.x, t.z) + 2.0 * t.s, t.z), Vector3(1.0, 0.95, 1.0) * t.s, t.hue * 6.0), leaves[int(t.hue * leaves.size()) % leaves.size()]])
+		_multimesh(Foliage.canopy(variant), canopy_mat, group, func(t): return [xf.call(Vector3(t.x, H.call(t.x, t.z) + 2.0 * t.s, t.z), Vector3(1.0, 0.95, 1.0) * t.s, t.hue * 6.0), leaf_of.call(t)])
 	var pine_cols := [Color("4aa872"), Color("3f9a6a"), Color("55b07a")]
 	_multimesh(Foliage.pine(), Foliage.plant_material(0.012, 0.5), pine, func(t): return [xf.call(Vector3(t.x, H.call(t.x, t.z), t.z), Vector3.ONE * t.s, t.hue * 6.0), pine_cols[int(t.hue * 3.0) % 3]])
 	var bush_cols := [Color("72c464"), Color("62b060"), Color("86d470")]
@@ -150,7 +181,6 @@ func _build_decor(decor: Dictionary) -> void:
 	var grass: Array = decor.grass.duplicate()
 	var rng := Rng.new(11)
 	var tries := 0
-	var D: Dictionary = Data.layout.get("decor", {})
 	var area: Array = D.get("area", [])   # greenery confined to a box (a city's park), as in generate_decor
 	var target := int(D.get("grass", 1400)) + 2800   # the decor's tufts plus 2800 visual-only ones
 	while tries < 9000 and grass.size() < target:
@@ -171,7 +201,7 @@ func _build_nodes() -> void:
 		var o: Node3D
 		match n.kind:
 			"chop": o = Props.round_tree(1.05, fmod(n.x * 7.3, 1.0) if n.x > 0 else fmod(-n.x * 7.3, 1.0)); Props.add_ribbon(o)
-			"mine": o = Props.rock(n.get("rich", false))
+			"mine": o = Props.rock(n.get("rich", false), String(Data.layout.get("richRock", "metal")))
 			"clay": o = Props.clay_mound()
 			"fish": o = Props.fishing_spot()
 			"flowers": o = Props.flower_patch()
@@ -181,6 +211,7 @@ func _build_nodes() -> void:
 			"chest": o = Props.chest()
 			"fragment": o = Props.fragment()
 			"bin": o = Props.garbage_bin()
+			"forage": o = Props.porcini()
 			_: o = Node3D.new()
 		var y := maxf(Heightfield.height(n.x, n.z), -0.2) if n.kind == "fish" else Heightfield.height(n.x, n.z)
 		o.position = Vector3(n.x, y, n.z)
@@ -200,10 +231,14 @@ func _build_features() -> void:
 			"sign", "stop": o = Props.sign_post()
 			"board": o = Props.notice_board()
 			"wardrobe": o = Props.wardrobe()
-			"boat": o = Props.boat(); o.visible = false
+			"boat":   # how you travel on: a ferry, or a bus ("model": "bus")
+				o = Props.bus(float(f.get("length", 8.6)), String(f.get("color", "e8822e")), String(f.get("sign", "CITY"))) if f.get("model", "boat") == "bus" else Props.boat()
+				o.visible = false
 			"bench": o = PieceMeshes.make("bench"); o.rotation.y = -int(f.get("r", 0)) * PI / 2.0
 			_: o = Node3D.new()
-		o.position = Vector3(f.x, -0.45 if f.kind == "boat" else Heightfield.height(f.x, f.z), f.z)
+		var floating: bool = f.kind == "boat" and f.get("model", "boat") == "boat"
+		o.position = Vector3(f.x, float(f.y) if f.has("y") else (-0.45 if floating else Heightfield.height(f.x, f.z)), f.z)
+		if f.has("rot"): o.rotation.y = float(f.rot)
 		if f.id == "welcomeSign": o.rotation.y = PI / 2
 		o.name = f.id; add_child(o); objects[f.id] = o
 
@@ -220,12 +255,12 @@ func update_world(dt: float, t: float, flags: Dictionary) -> void:
 		for f in Data.layout.features:
 			if f.id == "boat": bf = f
 		boat.visible = not bf.has("flag") or flags.get(bf.flag, false)
-		if boat.visible: boat.position.y = -0.45 + sin(t * 1.3) * 0.06; boat.rotation.z = sin(t * 0.9) * 0.03
+		if boat.visible and bf.get("model", "boat") == "boat": boat.position.y = -0.45 + sin(t * 1.3) * 0.06; boat.rotation.z = sin(t * 0.9) * 0.03
 	if objects.has("workshop"):
 		var ws: Node3D = objects.workshop
 		ws.get_node("clutter").visible = not flags.get("workshopDone", false)
 		if flags.get("workshopDone", false): ws.get_node("signGear").rotation.x = t * 1.5
-	if objects.has("caravan"): objects.caravan.get_node("cog").rotation.y = t * 0.8
+	if objects.has("caravan") and objects.caravan.has_node("cog"): objects.caravan.get_node("cog").rotation.y = t * 0.8
 	# machines that come to life when a machine target is fed (lighthouse lamp, clock hands)
 	for b in Data.layout.buildings:
 		if b.kind in ["lighthouse", "clocktower"] and objects.has(b.id): Props.animate_machine(objects[b.id], b, t, dt, flags.get("fed:" + String(b.get("machine", "")), false), flags.get("night", false))

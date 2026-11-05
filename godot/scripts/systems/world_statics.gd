@@ -49,7 +49,6 @@ static func generate_decor(seed: int = 7) -> Dictionary:
 	var rx := func(lo: float, hi: float) -> float: return rng.range_f(area[0], area[2]) if boxed else rng.range_f(lo, hi)
 	var rz := func(lo: float, hi: float) -> float: return rng.range_f(area[1], area[3]) if boxed else rng.range_f(lo, hi)
 	var out_of_reach := func(x: float, z: float, r: float) -> bool: return not boxed and sqrt(x * x + z * z) > r
-	var hearth := Data.island == "hearthglow"
 	var clear := func(x: float, z: float, pad: float) -> bool:
 		var h := Heightfield.height(x, z)
 		if h < Heightfield.WALKABLE_MIN + 0.25: return false
@@ -61,7 +60,6 @@ static func generate_decor(seed: int = 7) -> Dictionary:
 		if _in_zone(x, z, pad + 0.6): return false
 		if Vector2(x - F.x, z - F.z).length() < 8 + pad: return false
 		if _near_point(x, z, points, pad + 1.6) or _near_point(x, z, nav, pad + 1.4): return false
-		if hearth and z > 33 and z < 37: return false   # Hearthglow's harbor wall
 		return true
 	var n := 0
 	while n < 900 and trees.size() < int(D.get("trees", 95)):
@@ -76,6 +74,24 @@ static func generate_decor(seed: int = 7) -> Dictionary:
 			if Vector2(t.x - x, t.z - z).length() < 3: crowded = true; break
 		if crowded: continue
 		trees.append({"x": x, "z": z, "s": rng.range_f(0.85, 1.3), "kind": "pine" if rng.next() < 0.3 else "round", "hue": rng.next()})
+	# Woods: denser stands from the layout's decor.woods [{x, z, r, n, pine?}], on top of the scattered trees.
+	var wi := 0
+	for w in D.get("woods", []):
+		wi += 1
+		var placed := 0
+		n = 0
+		while n < int(w.n) * 25 and placed < int(w.n):
+			n += 1
+			var a := rng.range_f(0, TAU); var d := sqrt(rng.next()) * float(w.r)
+			var x: float = float(w.x) + cos(a) * d
+			var z: float = float(w.z) + sin(a) * d
+			if not clear.call(x, z, 0.9): continue
+			var crowded := false
+			for t in trees:
+				if Vector2(t.x - x, t.z - z).length() < 2.6: crowded = true; break
+			if crowded: continue
+			trees.append({"x": x, "z": z, "s": rng.range_f(0.95, 1.4), "kind": "pine" if rng.next() < float(w.get("pine", 0.1)) else "round", "hue": rng.next(), "wood": wi})
+			placed += 1
 	n = 0
 	while n < 600 and bushes.size() < int(D.get("bushes", 70)):
 		n += 1
@@ -203,7 +219,13 @@ static func build_statics(decor: Dictionary) -> Array:
 		var gate := _box(G.minX, G.maxX, G.minZ, G.maxZ, "gate"); gate["flag"] = G.flag
 		out.append(gate)
 	for pr in Data.layout.get("props", []):   # solid scenery (lamp posts, crates, barrels...)
-		if pr.get("solid", true) and pr.kind != "pier": out.append({"type": "circle", "x": pr.x, "z": pr.z, "r": float(pr.get("rad", 0.3)), "tag": "prop"})
+		if not pr.get("solid", true) or pr.kind == "pier": continue
+		if pr.has("w"):   # a box w x d (a parked bus, a stretch of ruined wall), turned by r radians
+			var c := cos(float(pr.get("r", 0.0))); var sn := sin(float(pr.get("r", 0.0)))
+			var hw := absf(c) * float(pr.w) / 2.0 + absf(sn) * float(pr.d) / 2.0
+			var hd := absf(sn) * float(pr.w) / 2.0 + absf(c) * float(pr.d) / 2.0
+			out.append(_box(pr.x - hw, pr.x + hw, pr.z - hd, pr.z + hd, "prop"))
+		else: out.append({"type": "circle", "x": pr.x, "z": pr.z, "r": float(pr.get("rad", 0.3)), "tag": "prop"})
 	for nd in Data.layout.nodes:
 		if nd.kind in ["chop", "fruit", "shake"]: out.append({"type": "circle", "x": nd.x, "z": nd.z, "r": 0.45, "tag": nd.id})
 		elif nd.kind == "mine": out.append({"type": "circle", "x": nd.x, "z": nd.z, "r": 0.75, "tag": nd.id})
@@ -211,6 +233,12 @@ static func build_statics(decor: Dictionary) -> Array:
 		elif nd.kind == "bin": out.append({"type": "circle", "x": nd.x, "z": nd.z, "r": 0.65, "tag": nd.id})
 	for f in Data.layout.features:
 		if f.kind in ["sign", "board", "wardrobe", "stop"]: out.append({"type": "circle", "x": f.x, "z": f.z, "r": 0.3, "tag": f.id})
+		if f.kind == "boat" and f.get("model", "boat") == "bus":   # the bus you travel on: solid once it's there
+			var hl := float(f.get("length", 8.6)) / 2.0 + 0.1; var hw := 1.25
+			var turned := absf(sin(float(f.get("rot", 0.0)))) > 0.7
+			var bx := _box(f.x - (hw if turned else hl), f.x + (hw if turned else hl), f.z - (hl if turned else hw), f.z + (hl if turned else hw), f.id)
+			if f.has("flag"): bx["whileFlag"] = f.flag
+			out.append(bx)
 		if f.kind == "bench":
 			var st := Interiors.item_static({"piece": true, "id": "bench", "x": f.x, "z": f.z, "r": int(f.get("r", 0))})
 			out.append(_box(st.minX, st.maxX, st.minZ, st.maxZ, f.id))

@@ -39,11 +39,14 @@ func test_bake_matches_kind_at():
 	t.ok(same, "every texel holds the kind of ground at its centre")
 
 func test_villages_keep_their_size_and_grass():
-	Data.use_island("hearthglow")
+	Data.use_island("clockwork")
 	t.eq(Data.map_size(), 124.0, "a village is 124 m across")
-	t.ok(Ground.shapes().is_empty() and not Ground.paved(0, 0), "Hearthglow is all grass")
+	Data.use_island("hearthglow")
+	# Monteforchetta (the "hearthglow" id) is a hilltop: its ground runs on down the slopes to the valley floor
+	t.eq(Data.map_size(), 250.0, "Monteforchetta's ground reaches past its slopes")
+	t.ok(Ground.shapes().is_empty() and not Ground.paved(0, 0), "Monteforchetta is all grass")
 	var m := TerrainBuilder.build_terrain()
-	t.eq(m.get_meta("height_rect"), Vector4(-62, -62, 124, 124), "Hearthglow's terrain covers 124 m")
+	t.eq(m.get_meta("height_rect"), Vector4(-125, -125, 250, 250), "its terrain covers 250 m")
 	m.free()
 
 func test_a_bigger_map():

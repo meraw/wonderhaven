@@ -158,9 +158,9 @@
      "id": "wood",
      "kind": "gather",
      "item": "wood",
-     "count": 4,
+     "count": 10,
      "stage": 0,
-     "text": "Chop 4 wood for battens"
+     "text": "Chop 10 wood: battens for the roof, and timber for the furniture"
     },
     {
      "id": "roof",

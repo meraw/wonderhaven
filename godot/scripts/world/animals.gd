@@ -20,7 +20,7 @@ func setup(g) -> void:
 				var w := MeshInstance3D.new(); var q := QuadMesh.new(); q.size = Vector2(0.16, 0.14); w.mesh = q; w.material_override = wm; w.position.x = s * 0.07; w.rotation.x = -PI / 2; w.set_meta("side", s); b.add_child(w)
 			add_child(b)
 			butterflies.append({"obj": b, "x": float(spots[n][0]), "z": float(spots[n][1]), "ph": randf() * 10.0, "sp": 0.6 + randf() * 0.5})
-	for n in 4:
+	for n in mini(int(Data.layout.get("ducks", 4)), 4):   # a place without a river sets "ducks": 0
 		var d := Node3D.new()
 		var body := P.mi(P.sphere(0.22, 10, 8), P.mat("ffffff")); body.scale = Vector3(1, 0.7, 1.3); d.add_child(body)
 		d.add_child(P.mi(P.sphere(0.12, 10, 8), P.mat("3c9a4a"), Vector3(0, 0.2, 0.22)))

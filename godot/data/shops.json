@@ -200,11 +200,11 @@
    "greet": "Things passengers left behind. After a year, lost property is mine. That's the law. Probably.",
    "requires": {
     "quests": [
-     "decree"
+     "bridge"
     ]
    },
    "buys": {
-    "fish": 10,
+    "mushroom": 6,
     "wood": 3
    },
    "stock": [
