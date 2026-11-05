@@ -146,16 +146,27 @@ func build(zone: String, pieces: Array) -> Array:
 	await leave_build()
 	return out
 
+## Walks (no running) towards a spot, for tight places like the landing and inside the tower: at a couple of frames
+## a second a running step is longer than the landing is wide.
+func walk_slow(x: float, z: float, tol: float = 0.5, max_s: float = 30.0) -> bool:
+	var t0 := Time.get_ticks_msec()
+	while Time.get_ticks_msec() - t0 < max_s * 1000.0:
+		var p: Vector3 = game.player.pos
+		if Vector2(x - p.x, z - p.z).length() < tol: break
+		steer(x, z); key(KEY_W, true); await frames(1); key(KEY_W, false)
+	key(KEY_W, false); await frames(2)
+	return Vector2(x - game.player.pos.x, z - game.player.pos.z).length() < tol + 0.3
+
 ## Up the outside stair at the station's east end and in at the flat's door.
 func climb_to_flat() -> bool:
 	await walk_to(25.7, -30.6, 0.6)
-	await walk_direct(25.7, -37.4, 0.4, 30.0)
-	await walk_direct(22.0, -37.6, 0.6, 20.0)
+	await walk_slow(25.7, -37.3, 0.5)
+	await walk_slow(22.0, -37.6, 0.6)
 	return game.player.pos.y > 3.3
 
 func down_from_flat() -> void:
-	await walk_direct(25.6, -37.4, 0.4, 20.0)
-	await walk_direct(25.7, -30.4, 0.5, 30.0)
+	await walk_slow(25.7, -37.3, 0.5)
+	await walk_slow(25.7, -30.6, 0.6)
 
 ## The software renderer in a cloud session draws only a couple of frames a second at full size; drawing the 3D at
 ## half size (the interface stays full size) makes a long playthrough several times quicker without changing what's
@@ -249,9 +260,9 @@ func water() -> void:
 	await frames(20)
 	check(32, "rebuild the sluice: two pillars, a lever and a walkway across", progress("water", "sluice") == 1 and progress("water", "walk") == 1, str(sl))
 	check(33, "the canal fills", game.state.flags.get("rice_village_canalFull", false) and game.village.get_node("rice_village_life/canal_water").visible, "")
-	await walk_direct(-37.0, -29.6, 0.5); await walk_direct(-44.0, -29.6, 0.6)
+	await walk_slow(-37.0, -28.6, 0.5); await walk_slow(-44.0, -28.6, 0.6, 40.0)
 	check(34, "and you can walk across the sluice", game.player.pos.x < -43.0, str(game.player.pos))
-	await walk_direct(-37.0, -29.6, 0.6)
+	await walk_slow(-37.0, -28.6, 0.6, 40.0)
 	await shot("sluice")
 	await gather_to("clay", "clay", 4, 12)
 	await gather_to("chop", "wood", 5)
