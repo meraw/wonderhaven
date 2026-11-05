@@ -38,8 +38,46 @@ func play() -> void:
 	s.tutorial = Tutorial.new_state(false, true)   # no guided day here yet: just walk
 	s.time.minute = 10 * 60.0
 	game.hud.apply_reveals(); await frames(10)
+	if game.shot_cfg.get("part", "") == "shots": await shots(); return
 	if game.shot_cfg.get("part", "") != "requests": await walk_around()
 	await requests()
+
+## Pictures of the places the story changes, for the pull request (--part=shots; RENDERER=forward_plus for Forward+).
+## Test-only: it sets the story's flags and the clock directly instead of playing up to them.
+func view(x: float, z: float, yaw: float, pitch: float, dist: float, h: float, name: String) -> void:
+	game.state.time.minute = h * 60.0
+	game.player.teleport(x, z)
+	for a in game.npcs.values(): a.teleport_home()
+	game.cam.yaw = yaw; game.cam.pitch = pitch; game.cam.dist = dist
+	game.cam.limits.explore = [2.0, 120.0, 0.05, 1.5]
+	game.cam.update(0.016, game.player.pos); game.cam.snap()
+	await wait(2.5)
+	await shot(name)
+
+func story_at(flags: Array) -> void:
+	for f in flags: game.state.flags[P + f] = true
+	game.request_rebuild()
+	await await_rebuild()
+
+func shots() -> void:
+	game.shot_cfg["weather"] = "clear"
+	await view(26.0, 9.0, 2.2, 0.42, 12.0, 11.0, "pumping-house")
+	await view(-41.5, 23.4, -2.2, 0.35, 8.0, 9.5, "ermes-waits")
+	await story_at(["welcomed", "bridge_open", "piazza_drained"])
+	await view(4.0, 6.0, 0.6, 0.55, 15.0, 12.5, "piazza-drained")
+	await story_at(["hall_ready", "hall_open"])
+	await view(9.0, 31.5, -1.3, 0.4, 13.0, 21.2, "dance-night")
+	await story_at(["launched"])
+	await view(-18.6, 33.0, 0.5, 0.45, 13.0, 9.0, "houseboat-afloat")
+	await story_at(["monster_seen"])
+	await view(6.4, -4.2, 3.14, 0.35, 5.0, 10.0, "bar-photo")
+	await story_at(["wall_built", "storm"])
+	Daylight.force(game.state, "rain", 8.0)
+	game.shot_cfg.erase("weather")
+	await view(-3.0, 23.5, -0.4, 0.38, 16.0, 22.0, "storm-night")
+	await story_at(["flood_over"])
+	game.shot_cfg["weather"] = "clear"
+	await view(5.0, 16.5, 3.0, 0.5, 14.0, 10.0, "after-the-storm")
 
 func walk_around() -> void:
 	var s: Dictionary = game.state
@@ -308,13 +346,12 @@ func sec_piazza() -> void:
 		pz_ok and fed and drained and qs("piazza") == "done" and not game.village.objects[P + "pond"].visible and Data.world_flags.has(P + "piazza_drained") and pts() == 300,
 		"fed=%s rebuilt=%s %s pond=%s gauge %s" % [fed, drained, qs("piazza"), game.village.objects[P + "pond"].visible, reading()])
 	# villagers use the bridge you built: Tullio crosses it after lunch
-	if hour() < 13.0: await nap_until(12)
+	if hour() < 12.0 or hour() > 14.0: await nap_until(12)
 	if hour() < 14.0: await wait_until(14.0, 200.0)
 	var crossing_seen := false
 	for k in 240:
 		var tp: Vector3 = game.npcs[P + "tullio"].pos
 		if tp.x > 26.0 and tp.x < 37.0 and absf(tp.z - 13.5) < 1.6 and tp.y > -0.3: crossing_seen = true; break
-		if tp.x > 38.5: crossing_seen = crossing_seen or false
 		await wait(0.5)
 	check("s4", "Villagers walk across the bridge you built: Tullio crosses it on his pontoons", crossing_seen, "Tullio at %s" % game.npcs[P + "tullio"].pos)
 
@@ -399,14 +436,14 @@ func sec_houseboat() -> void:
 	await gather_until("chop", func(): return inv("wood") >= 4)
 	await walk_to(door[0], door[1], 0.5); await walk_direct(boat.x + 3.2, boat.z, 0.3)
 	await open_build(P + "cabin")
-	# the rug and table by the door, the lamp by the bed, a way through between them
-	await select_piece("rug"); print("   rug: ", await place_at(-24, 35, 0.25, 0))
-	await select_piece("table"); print("   table: ", await place_at(-23, 36, 0.3))
-	await select_piece("chair"); print("   chair: ", await place_at(-24, 36, 0.3, 1))
-	await select_piece("lamp"); print("   lamp: ", await place_at(-26, 36, 0.25))
+	# along the cabin's north side, leaving the way from the door to the bed free
+	await select_piece("rug"); print("   rug: ", await place_at(-24, 35, 0.2, 0))
+	await select_piece("table"); print("   table: ", await place_at(-24, 35, 0.25))
+	await select_piece("chair"); print("   chair: ", await place_at(-23, 35, 0.25, 3))
+	await select_piece("lamp"); print("   lamp: ", await place_at(-25, 35, 0.2))
 	await tap(KEY_ESCAPE)
 	for p in game.state.placements:
-		if p.id == "table" and p.k >= 35.0:
+		if p.id == "table" and p.k >= 34.0:
 			await place_at(p.i, p.k, 0.85)
 			await ui_click("sw_ffd166")
 			break
@@ -417,7 +454,7 @@ func sec_houseboat() -> void:
 	check("s6", "A Roof That Floats: a slipway into the backwater, the launch at dawn moves the houseboat to her mooring, you walk aboard and furnish her cabin",
 		hb_ok and slip and launched and boat.get("afloat", false) and aboard and cosy and qs("houseboat") == "done",
 		"slip=%s launched=%s aboard=%s at %s cosy=%s %s" % [slip, launched, aboard, game.player.pos, cosy, qs("houseboat")])
-	await walk_to(door[0], door[1], 0.5); await walk_direct(boat.x + 2.4, boat.z + 0.6, 0.3); await walk_direct(boat.x - 0.8, boat.z - 0.4, 0.3)
+	await walk_to(door[0], door[1], 0.5); await walk_direct(boat.x + 3.0, boat.z + 0.5, 0.3); await walk_direct(boat.x - 1.2, boat.z + 0.5, 0.3)
 	var sleep_spot := feature(P + "bed")
 	check("s7", "Her bed went with her: you sleep aboard at her mooring", Interiors.room(boat, float(boat.y)).has_point(Vector3(sleep_spot.x, float(boat.y) + 0.5, sleep_spot.z)) and await sleep_at(P + "bed", 18), "bed at %.1f, %.1f" % [sleep_spot.x, sleep_spot.z])
 
