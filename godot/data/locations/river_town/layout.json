@@ -1875,6 +1875,10 @@
    5.0,
    38.8
   ],
+  "shackCorner": [
+   -39.5,
+   33.6
+  ],
   "hallA": [
    12.6,
    29.3
@@ -2193,6 +2197,10 @@
   [
    "fishing",
    "sandbank"
+  ],
+  [
+   "river_town_shack:in",
+   "shackCorner"
   ],
   [
    "river_town_dance_hall:in",

@@ -593,7 +593,7 @@ func sec_lost() -> void:
 	# ---- 7. Ines's Runaway Logs and the six lost things: ask everyone, one tour to find them, then hand them back
 	await talk(P + "ines")
 	for who in ["pierina", "rina", "wanda", "primo", "mattia", "tullio"]: await talk(P + who)
-	var asked: int = ["logs", "lost_clock", "lost_gnome", "lost_trophy", "lost_photo", "lost_walkman", "lost_oar"].filter(func(id): return qs(id) == "active").size()
+	var asked: int = ["logs", "lost_clock", "lost_gnome", "lost_trophy", "lost_photo", "lost_walkman", "lost_oar"].filter(func(id): return qs(id) in ["active", "done"]).size()   # some may be back home already
 	var found := 0
 	for id in ["lost_photo", "log2", "log4", "log3", "lost_gnome", "lost_trophy", "log1", "lost_oar", "log5", "log0", "lost_walkman", "lost_clock"]:
 		if await pick_up(P + id): found += 1
