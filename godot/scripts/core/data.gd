@@ -47,11 +47,11 @@ func load_all() -> void:
 	appearance = _read("appearance")
 	tutorial = _read("tutorial")
 	shops = _read("shops")
-	var lists := {"islands": islands, "npcs": npcs, "quests": quests, "shops": shops.get("shops", {}), "resources": resources, "order": resource_order}
+	var lists := {"islands": islands, "npcs": npcs, "quests": quests, "shops": shops.get("shops", {}), "resources": resources, "order": resource_order, "appearance": appearance}
 	for id in location_ids():
 		var dir := "%s/%s/" % [LOCATIONS, id]
 		merge_pack(lists, id, {"location": _read_opt(dir + "location"), "npcs": _read_opt(dir + "npcs"), "quests": _read_opt(dir + "quests"),
-			"shops": _read_opt(dir + "shops"), "resources": _read_opt(dir + "resources")})
+			"shops": _read_opt(dir + "shops"), "resources": _read_opt(dir + "resources"), "appearance": _read_opt(dir + "appearance")})
 	for n in npcs: npc_by_id[n.id] = n
 	for q in quests: quest_by_id[q.id] = q
 	_add_interior_nav()
@@ -94,6 +94,26 @@ static func merge_pack(lists: Dictionary, id: String, pack: Dictionary) -> void:
 		if not lists.resources.has(k): lists.resources[k] = res.resources[k]
 	for k in res.get("order", res.get("resources", {}).keys()):
 		if not lists.order.has(k): lists.order.append(k)
+	if lists.has("appearance"): merge_variants(lists.appearance, pack.get("appearance", {}).get("variants", {}))
+
+## Which appearance list each kind of clothing variant joins.
+const VARIANT_SLOTS := {"hat": "HATS", "accessory": "ACCESSORIES", "shoes": "SHOES", "top": "TOPS", "bottom": "BOTTOMS"}
+
+## A location's own clothes (appearance.json in its pack): {"variants": {id: {"slot", "base", "color", "trim"?, "label",
+## "unlock"?}}}, each a shape that already exists (base) in its own colours. It joins that slot's list, so the
+## wardrobe shows it, with its label, and stays locked (unlock is the hint) until a reward, a shop or a friend's gift
+## gives it. Chibi.resolve draws it. A variant of a shape that doesn't exist is left out.
+static func merge_variants(A: Dictionary, vs: Dictionary) -> void:
+	if vs.is_empty(): return
+	if not A.has("variants"): A["variants"] = {}
+	for k in vs:
+		var v: Dictionary = vs[k]
+		var list: String = VARIANT_SLOTS.get(String(v.get("slot", "")), "")
+		if A.variants.has(k) or list == "" or not A.get(list, []).has(v.get("base", "")): continue
+		A.variants[k] = v
+		A[list].append(k)
+		A.labels[k] = String(v.get("label", k))
+		if v.has("unlock"): A.locked[k] = String(v.unlock)
 
 ## The location's own script (scripts/locations/<id>.gd), or null when it has none.
 static func location_script(id: String) -> Script:

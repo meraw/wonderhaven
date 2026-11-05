@@ -1,0 +1,9 @@
+{
+ "_comment": "Casalrana's own clothes (stage 4): shapes the wardrobe already has, in Casalrana's colours (Data.merge_variants, Chibi.resolve). The cap is sold in Paletta's storeroom, Nonna Pierina knits the hat and scarf as a friendship gift (in colours she chose without asking you), and the boots are Water for the Winter's reward.",
+ "variants": {
+  "rice_village_stationCap": {"slot": "hat", "base": "captain", "color": "#c23a32", "trim": "#1d1f27", "label": "Station master's cap", "unlock": "Paletta keeps a spare in the station storeroom"},
+  "rice_village_woolHat": {"slot": "hat", "base": "beanie", "color": "#9b4a7a", "label": "Nonna's wool hat", "unlock": "Make friends with Nonna Pierina"},
+  "rice_village_scarf": {"slot": "accessory", "base": "scarf", "color": "#d9a336", "label": "Nonna's scarf", "unlock": "Make friends with Nonna Pierina"},
+  "rice_village_boots": {"slot": "shoes", "base": "boots", "color": "#3d7a3a", "label": "Green rubber boots", "unlock": "Get water to Barba Tista's winter paddy"}
+ }
+}

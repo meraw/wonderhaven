@@ -3,7 +3,9 @@ extends Node3D
 ## - walking up to the level crossing on your first day (Welcome to Casalrana's first step);
 ## - the trains you watch go by at the crossing, for Matteo's Train Log (one event per kind of train, "rice_village_saw_<kind>");
 ## - patching the flat's leaking roof from inside the flat (The Flat above the Station), with the clay and wood you gathered;
-## - pulling the bell ropes on the tower's ringing floor (The Bell Tower Stairs, and any time after);
+## - pulling the bell ropes on the tower's ringing floor (The Bell Tower Stairs, and any time after), and the church
+##   bells pealing for the living nativity and the finale;
+## - changing your outfit at the flat's old wardrobe once the flat is yours;
 ## - the canal filling once the sluice is rebuilt, and the winter paddy flooding once water reaches its inlet (Water for
 ##   the Winter). Both beds are below walkable ground from the start, so walking and building don't change: only the
 ##   water shows.
@@ -11,6 +13,8 @@ extends Node3D
 ## their events and shows what they change.
 const P := preload("res://scripts/world/palette.gd")
 const TT := preload("res://scripts/locations/rice_village/timetable.gd")
+const Sounds := preload("res://scripts/locations/rice_village/sounds.gd")
+const PEAL_FLAGS := ["rice_village_nativityDone", "rice_village_trainStops"]   # the church bells ring out for these
 
 const CROSSING := Vector2(2.0, -45.0)          # the middle of the level crossing
 const WATCH_RANGE := 16.0                       # how close you stand to note a train down
@@ -22,6 +26,7 @@ const RING_Y := 2.42
 const FLAT := Rect2(13.2, -40.3, 11.6, 4.6)     # inside the flat upstairs
 const FLAT_Y := 3.5
 const ROOF_COST := {"clay": 4, "wood": 4}
+const WARDROBE := Vector2(13.65, -39.55)        # the flat's old wardrobe: change your outfit there once the flat is yours
 
 var game = null
 var village: Node3D
@@ -40,14 +45,22 @@ func setup(g, v: Node3D) -> void:
 	paddy.name = "paddy_water"; add_child(paddy)
 	refresh_water()
 	if g == null: return
-	if g.has_signal("game_event"): g.game_event.connect(func(type: String, _data: Dictionary): if type == "flag": refresh_water())
+	if g.has_signal("game_event"): g.game_event.connect(_on_event)
 	if g.has_method("add_interactable"):
 		g.add_interactable({"id": "rice_village_roof", "x": FLAT.get_center().x, "z": FLAT.get_center().y, "radius": 7.0, "priority": -1.0,
 			"available": func(): return in_flat() and step_current("rice_village_flat", "roof"),
 			"label": func(): return "Patch the leaking roof (4 clay, 4 wood)", "act": func(): patch_roof()})
+		g.add_interactable({"id": "rice_village_wardrobe", "x": WARDROBE.x, "z": WARDROBE.y, "y": FLAT_Y, "radius": 1.6,
+			"available": func(): return game.state.flags.get("rice_village_flatHome", false) and game.screens != null,
+			"label": func(): return "Change outfit", "act": func(): game.screens.creator(true)})
 		g.add_interactable({"id": "rice_village_ropes", "x": ROPES.x, "z": ROPES.y, "radius": 1.8,
 			"available": func(): return game.player.pos.y > RING_Y - 0.4 and game.state.quests.has("rice_village_stairs"),
 			"label": func(): return "Pull the bell ropes", "act": func(): ring()})
+
+func _on_event(type: String, data: Dictionary) -> void:
+	if type != "flag": return
+	refresh_water()
+	if data.get("flag", "") in PEAL_FLAGS and data.get("value", false): Sounds.peal(game)
 
 func refresh_water() -> void:
 	var flags: Dictionary = game.state.flags if game != null and game.get("state") != null else {}
@@ -77,8 +90,8 @@ func patch_roof() -> void:
 	game.build.rebuild_grid()
 
 func ring() -> void:
-	ringing = 3.0
-	game.sfx("fanfare_small"); game.cam.shake = 0.15
+	ringing = 7.0
+	Sounds.peal(game); game.cam.shake = 0.15
 	game.toast("Dong... dang... dong! The bells ring out across the plain.", "good", 3.0)
 	game.story.event("rice_village_peal")
 
@@ -92,7 +105,7 @@ func _process(dt: float) -> void:
 	near_crossing = near
 	# a train going over the crossing while you're watching: one note per train, for Matteo's log
 	if d < WATCH_RANGE and game.state.quests.get("rice_village_trainlog", {}).get("status", "") == "active":
-		var tr := TT.at_crossing(int(game.state.time.day), float(game.state.time.minute))
+		var tr := TT.at_crossing(int(game.state.time.day), float(game.state.time.minute), game.state.flags.get(TT.STOP_FLAG, false))
 		if not tr.is_empty():
 			var key := "%d:%d" % [tr.day, tr.n]
 			if not noted.has(key):
@@ -103,4 +116,4 @@ func _process(dt: float) -> void:
 		ringing = maxf(0.0, ringing - dt)
 		var tower: Node3D = village.objects.get("rice_village_tower")
 		var bell: Node3D = tower.get_node_or_null("bell") if tower else null
-		if bell: bell.rotation.x = sin(ringing * 6.0) * 0.5 * ringing / 3.0
+		if bell: bell.rotation.x = sin(ringing * 3.2) * 0.5 * minf(1.0, ringing / 3.0)

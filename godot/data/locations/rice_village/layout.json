@@ -1452,6 +1452,14 @@
    "x": -37.0,
    "z": 2.0,
    "r": 1
+  },
+  {
+   "id": "rice_village_platformStop",
+   "kind": "boat",
+   "x": 8.5,
+   "z": -42.9,
+   "depart_label": "Take the regional train",
+   "flag": "rice_village_trainStops"
   }
  ],
  "nav_nodes": {

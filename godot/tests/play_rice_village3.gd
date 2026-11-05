@@ -2,7 +2,9 @@ extends "res://tests/play_rice_village2.gd"
 ## Casalrana's requests with real input, part two: loads part one's save (slot 2) from the title screen, then Matteo's
 ## Train Log (by day, at night and at dawn), The Bell Tower Stairs (a climb you build and walk up, and the first peal),
 ## The Old Rice Mill, The Living Nativity (the stable, the straw, the evening) and the finale, The Train Stops Here
-## (the inspector, the platform over its holes, the shelter, 250 signatures and the first stopping train).
+## (the inspector, the platform over its holes, the shelter, 250 signatures and the first stopping train). Stage 4 on the
+## way: frost and thin ice at dawn, gone by noon; the night's tune; a V of cranes over the plain; and after the finale a
+## regional waiting at the platform, which is now somewhere to leave from.
 ## It loads part one's save, so run play_rice_village2.gd first (with play_all.sh: play_rice_village2,play_rice_village3).
 ## Run: TIMEOUT=7100 ./play.sh res://tests/play_rice_village3.gd /tmp/out --island=rice_village --title --limit=7000
 ## Add --from=nativity to pick up from its save after the mill.
@@ -22,10 +24,33 @@ func play() -> void:
 		check(101, "the petition carried over", signatures() >= 140, "signatures %d" % signatures())
 		await train_log()
 		await stairs()
+		check(126, "the frost has gone by the afternoon", float(game.state.time.minute) < 11 * 60 or float(game.state.time.minute) > 17 * 60 or frost() == 0.0, "%s frost %.2f" % [Clock.text(game.state.time), frost()])
 		await mill()
+		await cranes()
 		check(139, "saved after the mill (slot 3)", await save_to("slot3"), "signatures %d" % signatures())
 	await nativity()
 	await finale()
+
+func frost() -> float: return float((game.village.terrain.material_override as ShaderMaterial).get_shader_parameter("frost"))
+func ice() -> float: return float((game.village.water.material_override as ShaderMaterial).get_shader_parameter("ice"))
+
+## Waits for the cranes' next crossing (by the clock) and looks up at them.
+func cranes() -> void:
+	var W = load("res://scripts/locations/rice_village/wildlife.gd")
+	var d := int(game.state.time.day); var m := int(game.state.time.minute)
+	var at := -1
+	for k in range(m, m + 2880):
+		if W.crane_pass(d + int(k / 1440), float(k % 1440)) >= 0.0: at = k; break
+	if at - m > 240:   # not within four hours: sleep to the morning and wait there
+		await sleep_until(9)
+	var seen := await wait_until(func(): return game.village.get_node("rice_village_wildlife").cranes.visible, 400.0)
+	await wait_until(func(): return W.crane_pass(int(game.state.time.day), float(game.state.time.minute)) > 0.25, 60.0)
+	var c: Node3D = game.village.get_node("rice_village_wildlife").cranes
+	var p: Vector3 = game.player.pos
+	game.cam.yaw = atan2(p.x - c.global_position.x, p.z - c.global_position.z); game.cam.pitch = 0.05; game.cam.dist = 7.0
+	await frames(6)
+	await shot("cranes")
+	check(135, "a V of cranes passes high over the plain", seen, "%s, day %d" % [Clock.text(game.state.time), int(game.state.time.day)])
 
 ## Waits at the crossing until this kind of train has gone by (or max_s real seconds pass).
 func watch_for(kind: String, max_s: float) -> bool:
@@ -53,12 +78,17 @@ func train_log() -> void:
 	if not TT.is_night(float(game.state.time.minute)): await sleep_until(21)
 	var ok := await watch_for("night_express", 2400.0)
 	check(112, "the night express, after dark", ok, Clock.text(game.state.time))
+	check(116, "the night has Casalrana's own night tune", game.audio != null and game.audio.want_song == P + "night", game.audio.want_song if game.audio else "no audio")
 	await shot("night-express")
 	# the yellow inspection train comes once, at dawn: wait up for it if it's due before six, or sleep till then
 	var insp := next_train("inspection")
 	if fposmod(insp, 1440.0) >= 360.0: await sleep_until(6)
 	ok = await watch_for("inspection", 3600.0)
 	check(113, "the yellow inspection train, at dawn", ok, "%s (it was due at %d)" % [Clock.text(game.state.time), int(fposmod(insp, 1440.0))])
+	check(115, "hoarfrost on the ground and thin ice on the puddles at dawn", float(game.state.time.minute) > 8 * 60 or (frost() > 0.9 and ice() > 0.3), "%s frost %.2f ice %.2f" % [Clock.text(game.state.time), frost(), ice()])
+	game.cam.yaw = 2.2; game.cam.pitch = 0.45; game.cam.dist = 14.0
+	await frames(6)
+	await shot("frost-at-dawn")
 	await shot("inspection-train")
 	# and the day's trains (at a couple of frames a second the game clock runs slow, so allow a while)
 	for kind in ["regional", "intercity", "freight"]:
@@ -167,3 +197,20 @@ func finale() -> void:
 	check(157, "the next morning the first regional train in years stops at Casalrana", status("train") == "done" and game.state.flags.get("rice_village_trainStops", false), "%s" % Clock.text(game.state.time))
 	check(158, "Toriano opens on the travel map", Travel.on_map(Data.island_def("metropolis"), game.state.flags, "rice_village") if not Data.island_def("metropolis").is_empty() else true, "")
 	await shot("finale")
+	await regional_stops()
+
+## After the finale: the next westbound regional stops at the platform, and the platform is somewhere to leave from.
+func regional_stops() -> void:
+	await walk_to(8.5, -42.4, 0.8)
+	var stopped := await wait_until(func(): return TT.on_line(int(game.state.time.day), float(game.state.time.minute), true).any(func(x): return x.stopped), 300.0)
+	var model := false
+	for c in game.village.get_node("rice_village_trains").get_children():
+		if c is Node3D and c.name.begins_with("train_regional") and absf(c.position.x - TT.STOP_X) < 0.2: model = true
+	game.cam.yaw = 2.5; game.cam.pitch = 0.3; game.cam.dist = 12.0
+	await frames(6)
+	await shot("regional-stops")
+	check(159, "a regional train stops at Casalrana's platform and waits", stopped and model, "%s, model at the platform %s" % [Clock.text(game.state.time), model])
+	await wait_until(func(): return not TT.on_line(int(game.state.time.day), float(game.state.time.minute), true).any(func(x): return x.stopped), 30.0)
+	await face_and_press(P + "platformStop", 8.5, -42.9); await frames(10)
+	check(160, "the platform is now somewhere to leave from: the travel map opens", game.panels.current == "map", game.panels.current)
+	await tap(KEY_ESCAPE); await frames(10)

@@ -82,3 +82,31 @@ func test_day_songs():
 			if int(m[0]) < last: sorted = false
 			last = int(m[0])
 		t.ok(sorted and s.chords.size() > 0, "%s melody is in order and has chords" % id)
+
+func test_a_location_can_bring_its_own_music():
+	# "music" in a map entry: its own songs, and which one plays in each part of the day; parts it leaves out keep
+	# the shared tunes, and build mode keeps the building tune unless it names its own.
+	var music := {"songs": {"x_dawn": {"bpm": 60, "root": 60, "lead": "flute", "arp": "", "drums": "", "pad": 0.1, "length": 96,
+		"chords": [[0, 4, 7]], "melody": [[0, 12], [8, 7]]}}, "parts": {"dawn": "x_dawn"}}
+	t.eq(AudioDirector.song_for("dawn", false, music), "x_dawn", "dawn plays the location's own tune")
+	t.eq(AudioDirector.song_for("evening", false, music), AudioDirector.DAY_SONGS.evening, "a part it leaves out keeps the shared tune")
+	t.eq(AudioDirector.song_for("dawn", true, music), "build", "build mode keeps the building tune")
+	t.eq(AudioDirector.song_for("morning", false, {}), AudioDirector.DAY_SONGS.morning, "a place without music plays the shared tunes")
+	t.eq(AudioDirector.song_def("x_dawn", music).bpm, 60, "the location's song is found by id")
+	t.eq(AudioDirector.song_def("night", music), AudioDirector.SONGS.night, "and the shared ones still are")
+	t.eq(AudioDirector.loop_steps(AudioDirector.song_def("x_dawn", music)), 96, "length leaves a pause after the phrase")
+	t.eq(AudioDirector.loop_steps(AudioDirector.SONGS.night), 64, "songs without a length repeat right after their melody")
+	# Casalrana: sparse, quiet themes of its own for every part of the day, with long pauses between phrases.
+	var rv: Dictionary = Data.island_def("rice_village").get("music", {})
+	var ids := {}
+	for part in AudioDirector.DAY_SONGS:
+		var id := AudioDirector.song_for(part, false, rv)
+		t.ok(rv.songs.has(id), "Casalrana has its own %s tune (%s)" % [part, id])
+		ids[id] = true
+		var s := AudioDirector.song_def(id, rv)
+		t.ok(s.lead in AudioDirector.INSTRUMENTS and (s.arp == "" or s.arp in AudioDirector.INSTRUMENTS), "%s uses known instruments" % id)
+		t.eq(s.drums, "", "%s has no drums" % id)
+		var last := 0
+		for m in s.melody: last = maxi(last, int(m[0]))
+		t.ok(AudioDirector.loop_steps(s) >= last + 48, "%s rests at least three bars after its phrase" % id)
+	t.eq(ids.size(), 5, "each part of the day has its own Casalrana tune")

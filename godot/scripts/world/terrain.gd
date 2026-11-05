@@ -127,6 +127,7 @@ uniform vec4 cobble_a : source_color = vec4(0.93, 0.89, 0.82, 1.0);
 uniform vec4 cobble_b : source_color = vec4(0.85, 0.8, 0.74, 1.0);
 uniform vec4 grout : source_color = vec4(0.72, 0.68, 0.6, 1.0);
 uniform float path_reach = 60.0;   // dirt paths are drawn within this many metres of the middle (half the map)
+uniform float frost = 0.0;         // hoarfrost (a location's look, by the hour: Atmosphere.frost_at)
 // Paved ground (Ground): kind index per texel (0 grass, 1 asphalt, 2 setts, 3 slabs, 4 gravel).
 uniform bool has_ground = false;
 uniform sampler2D ground_map : filter_nearest, repeat_disable;
@@ -271,6 +272,18 @@ void fragment() {
 		bed *= 1.0 + ca * 0.55 * world_weather.x * (1.0 - 0.7 * wet);
 		col = mix(col, bed, under);
 	}
+	// Hoarfrost: a patchy white crust over the ground (paths and paving, drawn next, stay clear where they're walked),
+	// thickest on flat open ground, never under water, with a few glints in the sun.
+	if (frost > 0.001) {
+		float crust = smoothstep(0.42, 0.76, fbm(p * 0.3 + 3.0) * 0.6 + noise(p * 6.0) * 0.3 + frost * 0.26);
+		float flat_ground = smoothstep(0.4, 0.05, slope);
+		float fz = frost * crust * (1.0 - under) * smoothstep(water_y + 0.02, water_y + 0.12, wpos.y);
+		float speck = mix(1.0, 0.86 + 0.14 * smoothstep(0.3, 0.7, noise(p * 9.0)), fine);
+		vec3 rime = vec3(0.86, 0.9, 0.95) * speck;
+		col = mix(col, max(col, rime), fz * mix(0.4, 0.72, flat_ground));
+		vec2 gl = scatter(p * 9.0 + 17.0);
+		col += vec3(0.3) * step(0.965, gl.y) * smoothstep(0.08, 0.02, gl.x) * fz * fine * world_weather.x;
+	}
 	// Dirt paths: uneven edges, raised pebbles lit from the sun's side, a worn rim, a darker grass lip, and
 	// puddles that mirror the sky after rain.
 	if (has_ground) {
@@ -412,6 +425,8 @@ uniform float water_y = -0.35;
 uniform sampler2D heights : filter_linear, repeat_disable;
 uniform vec4 hrect = vec4(-62.0, -62.0, 124.0, 124.0);
 uniform float water_r = 100000.0;   // no water beyond this distance from the centre (inland places)
+uniform float ice = 0.0;            // thin ice on shallow water (a location's look, by the hour: Atmosphere.ice_at)
+uniform float foam_amount = 1.0;    // shore foam (a location's look: still paddy water has next to none)
 // Shared world values (Atmosphere); colours are linear.
 global uniform vec3 world_sun_dir;
 global uniform vec3 world_sun_color;
@@ -471,16 +486,23 @@ void fragment() {
 	float fn = fbm(wpos.xz * 1.6 + vec2(TIME * 0.3, -TIME * 0.2));
 	float foam = smoothstep(0.16, 0.05, depth + (fn - 0.5) * 0.12);
 	float lap = fract(depth * 3.0 - TIME * 0.35);
-	foam = max(foam, smoothstep(0.08, 0.0, abs(lap - 0.5)) * smoothstep(0.55, 0.12, depth) * step(0.45, fn) * 0.8);
+	foam = max(foam, smoothstep(0.08, 0.0, abs(lap - 0.5)) * smoothstep(0.55, 0.12, depth) * step(0.45, fn) * 0.8) * foam_amount;
 	col = mix(col, vec3(0.97, 1.0, 1.0), foam * 0.85);
+	// Thin ice on shallow water: pale and matte, crazed with fine cracks, the ripples stilled under it.
+	float ic = ice * smoothstep(0.34, 0.12, depth);
+	if (ic > 0.001) {
+		float crack = smoothstep(0.035, 0.0, abs(noise(q * 2.3) - 0.5)) + smoothstep(0.025, 0.0, abs(noise(q * 5.1 + 7.0) - 0.5)) * 0.6;
+		vec3 icec = vec3(0.78, 0.84, 0.88) * (0.94 + 0.1 * noise(q * 3.0)) * (1.0 - 0.12 * clamp(crack, 0.0, 1.0));
+		col = mix(col, mix(icec, sky, 0.25), ic * 0.8);
+	}
 	col = mix(col, col * vec3(0.35, 0.45, 0.8), night);
 	ALBEDO = col;
 	ROUGHNESS = 0.4;
 	// Glitter: the sun (or a silver moon) caught on ripple crests.
 	float g = pow(max(dot(reflect(-v, nrm), normalize(world_sun_dir)), 0.0), 380.0);
 	float lightness = world_weather.x + 0.35 * world_weather.y * (1.0 - world_weather.w);
-	EMISSION = world_sun_color * g * 7.0 * lightness * (1.0 - foam) * (1.0 - 0.6 * wet);
-	ALPHA = clamp(mix(0.5, 0.94, smoothstep(0.0, 1.0, depth)) + fr * 0.25 + foam * 0.5, 0.0, 1.0);
+	EMISSION = world_sun_color * g * 7.0 * lightness * (1.0 - foam) * (1.0 - 0.6 * wet) * (1.0 - ic);
+	ALPHA = clamp(mix(0.5, 0.94, smoothstep(0.0, 1.0, depth)) + fr * 0.25 + foam * 0.5 + ic * 0.6, 0.0, 1.0);
 }
 """
 

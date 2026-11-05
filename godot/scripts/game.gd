@@ -826,6 +826,8 @@ func _update_hotkeys() -> void:
 ## Sky, light, fog and rain follow the clock: keyframed colours through dawn, day, dusk and night, the sun and
 ## moon crossing the sky, and weather that drifts between clear, fair, cloudy, drizzle, rain and morning mist.
 var weather_now: Dictionary = {}
+var look_here: Dictionary = {}   # the look block of the place you're on (its map entry)
+var _look_island := ""
 func _update_world_time(dt: float) -> void:
 	var s := state
 	if mode != "menu": Clock.advance(s.time, dt); s.play_time += dt
@@ -854,6 +856,8 @@ func _update_world_time(dt: float) -> void:
 	var sky_mat: ShaderMaterial = e.sky.sky_material
 	var top: Color = look.zenith.lerp(Color("8f9cab"), grey)
 	var bottom: Color = look.horizon.lerp(Color("c3cbd3"), grey)
+	if _look_island != Data.island: _look_island = Data.island; look_here = Data.island_def(Data.island).get("look", {})
+	var tb := Atmosphere.sky_look(look_here, top, bottom, nt); top = tb[0]; bottom = tb[1]   # a location's own sky
 	sky_mat.set_shader_parameter("top_color", top); sky_mat.set_shader_parameter("bottom_color", bottom)
 	sky_mat.set_shader_parameter("sun_dir", Daylight.sun_dir(h)); sky_mat.set_shader_parameter("moon_dir", Daylight.moon_dir(h))
 	sky_mat.set_shader_parameter("sun_color", look.sun_color); sky_mat.set_shader_parameter("night", nt)
@@ -864,6 +868,8 @@ func _update_world_time(dt: float) -> void:
 	e.fog_depth_begin = lerpf(45.0, 2.0, fog)
 	e.fog_depth_end = lerpf(220.0, 45.0, fog)
 	e.fog_density = lerpf(0.55, 0.92, fog)
+	var hz := Atmosphere.haze(look_here, e.fog_light_color, e.fog_depth_begin, e.fog_depth_end, nt)   # and its haze
+	e.fog_light_color = hz.color; e.fog_depth_begin = hz.begin; e.fog_depth_end = hz.end
 	(village.water.material_override as ShaderMaterial).set_shader_parameter("night", nt)
 	rain.emitting = wet > 0.05
 	rain.amount_ratio = clampf(wet, 0.05, 1.0)

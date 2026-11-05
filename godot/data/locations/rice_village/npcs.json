@@ -18,12 +18,12 @@
     "hairColor": "#f2f2f2",
     "mouth": "calm",
     "top": "jacket",
-    "topColor": "#2f5fa8",
+    "topColor": "#2f3f6a",
     "bottom": "pants",
-    "bottomColor": "#4a4a6a",
+    "bottomColor": "#2b2b38",
     "shoes": "boots",
-    "shoesColor": "#4a4a6a",
-    "hat": "captain",
+    "shoesColor": "#2b2b30",
+    "hat": "rice_village_stationCap",
     "hatColor": "#2f5fa8",
     "accessory": "beard"
    },
@@ -147,13 +147,13 @@
     "hairColor": "#7a4a2a",
     "mouth": "calm",
     "top": "jacket",
-    "topColor": "#3fb5a3",
+    "topColor": "#5b6b3a",
     "bottom": "pants",
     "bottomColor": "#4a4a6a",
-    "shoes": "boots",
+    "shoes": "rice_village_boots",
     "shoesColor": "#4a4a6a",
     "hat": "beret",
-    "hatColor": "#4a4a6a",
+    "hatColor": "#7a6a58",
     "accessory": "beard"
    },
    "schedule": [
@@ -255,13 +255,13 @@
     "hairColor": "#f2f2f2",
     "mouth": "smile",
     "top": "sweater",
-    "topColor": "#4a4a6a",
+    "topColor": "#7a3b4a",
     "bottom": "skirt",
-    "bottomColor": "#4a4a6a",
+    "bottomColor": "#3a3a46",
     "shoes": "boots",
-    "shoesColor": "#4a4a6a",
-    "hat": "none",
-    "hatColor": "#4a4a6a",
+    "shoesColor": "#3a2f2a",
+    "hat": "beanie",
+    "hatColor": "#3a3a46",
     "accessory": "scarf"
    },
    "schedule": [
@@ -374,6 +374,14 @@
       "rice_village_biscuits": 2
      },
      "line": "Take these home. No, don't argue. I'm knitting you something too, in a colour I'll choose."
+    },
+    {
+     "hearts": 6,
+     "clothes": [
+      "rice_village_woolHat",
+      "rice_village_scarf"
+     ],
+     "line": "There. A hat and a scarf. I didn't ask what colours you like because you'd have said the wrong ones. Wear them on the bus, it's draughty."
     }
    ]
   },
@@ -395,14 +403,14 @@
     "hairColor": "#7a4a2a",
     "mouth": "smile",
     "top": "jacket",
-    "topColor": "#7bd389",
+    "topColor": "#c9a27a",
     "bottom": "pants",
     "bottomColor": "#2f5fa8",
-    "shoes": "boots",
+    "shoes": "rice_village_boots",
     "shoesColor": "#7bd389",
     "hat": "none",
-    "hatColor": "#4a4a6a",
-    "accessory": "none"
+    "hatColor": "#e85d75",
+    "accessory": "scarf"
    },
    "schedule": [
     [
@@ -504,11 +512,11 @@
     "hairColor": "#7a4a2a",
     "mouth": "smile",
     "top": "tunic",
-    "topColor": "#4a4a6a",
-    "bottom": "pants",
-    "bottomColor": "#4a4a6a",
+    "topColor": "#1f1f26",
+    "bottom": "dress",
+    "bottomColor": "#1f1f26",
     "shoes": "boots",
-    "shoesColor": "#4a4a6a",
+    "shoesColor": "#1f1f26",
     "hat": "none",
     "hatColor": "#4a4a6a",
     "accessory": "glasses"
@@ -680,7 +688,7 @@
     "shoesColor": "#ffffff",
     "hat": "beanie",
     "hatColor": "#ffd166",
-    "accessory": "none"
+    "accessory": "scarf"
    },
    "schedule": [
     [
@@ -780,11 +788,11 @@
     "hairColor": "#d9a35a",
     "mouth": "calm",
     "top": "jacket",
-    "topColor": "#2f5fa8",
+    "topColor": "#3a4a5a",
     "bottom": "pants",
-    "bottomColor": "#4a4a6a",
+    "bottomColor": "#3a4a5a",
     "shoes": "boots",
-    "shoesColor": "#4a4a6a",
+    "shoesColor": "#1f1f26",
     "hat": "none",
     "hatColor": "#4a4a6a",
     "accessory": "glasses"

@@ -65,3 +65,49 @@ func test_a_location_look_tints_the_grade():
 	var ok := true
 	for k in range(1, curve.size()): ok = ok and curve[k].r >= curve[k - 1].r and curve[k].g >= curve[k - 1].g and curve[k].b >= curve[k - 1].b
 	t.ok(ok, "a tinted grade still never flips colours")
+
+func test_a_location_can_have_a_white_sky_haze_frost_and_a_low_sun():
+	# sky: the daytime sky leans toward its colour (the horizon fully, the zenith a little over half); night stays.
+	var lk := {"sky": {"color": [1.0, 1.0, 1.0], "pale": 1.0}, "haze": {"color": [1.0, 1.0, 1.0], "amount": 1.0, "near": 20, "far": 100}}
+	var blue := Color(0.2, 0.5, 0.9); var dusk := Color(0.6, 0.7, 0.8)
+	var day := Atmosphere.sky_look(lk, blue, dusk, 0.0)
+	t.ok((day[1] as Color).is_equal_approx(Color.WHITE), "by day the horizon is the location's white")
+	t.ok(day[0].b > blue.b and day[0].r > blue.r and day[0].r < 0.9, "and the zenith paler but still blue")
+	var night := Atmosphere.sky_look(lk, blue, dusk, 1.0)
+	t.ok(night[0] == blue and night[1] == dusk, "the night sky is untouched")
+	t.eq(Atmosphere.sky_look({}, blue, dusk, 0.0), [blue, dusk], "a place without a sky block keeps the shared sky")
+	# haze: its colour by day and nearer, but never further than the weather already put it.
+	var hz := Atmosphere.haze(lk, dusk, 45.0, 220.0, 0.0)
+	t.ok((hz.color as Color).is_equal_approx(Color.WHITE) and hz.begin == 20.0 and hz.end == 100.0, "by day the haze is white and closer")
+	var misty := Atmosphere.haze(lk, dusk, 2.0, 45.0, 0.0)
+	t.ok(misty.begin == 2.0 and misty.end == 45.0, "morning mist that is already closer stays")
+	var dark := Atmosphere.haze(lk, dusk, 45.0, 220.0, 1.0)
+	t.ok(dark.color == dusk and dark.begin == 45.0, "at night the haze is the sky's own")
+	t.eq(Atmosphere.haze({}, dusk, 45.0, 220.0, 0.0), {"color": dusk, "begin": 45.0, "end": 220.0}, "a place without haze keeps the shared one")
+	# frost whitens the ground through the night and early morning and is gone by late morning; ice only in the
+	# small hours.
+	t.eq(Atmosphere.frost_at(6.0), 1.0, "frost at dawn")
+	t.ok(Atmosphere.frost_at(9.25) > 0.0 and Atmosphere.frost_at(9.25) < 1.0, "melting at 9:15")
+	t.eq(Atmosphere.frost_at(11.0), 0.0, "gone by 11")
+	t.eq(Atmosphere.frost_at(15.0), 0.0, "none in the afternoon")
+	t.eq(Atmosphere.frost_at(23.0), 1.0, "back on a clear night")
+	t.eq(Atmosphere.ice_at(5.0), 1.0, "thin ice on the puddles at 5")
+	t.eq(Atmosphere.ice_at(10.0), 0.0, "melted by 10")
+	t.eq(Atmosphere.ice_at(22.0), 0.0, "not yet in the evening")
+	var biggest := 0.0
+	for m in range(1, 1440):
+		biggest = maxf(biggest, maxf(absf(Atmosphere.frost_at(m / 60.0) - Atmosphere.frost_at((m - 1) / 60.0)), absf(Atmosphere.ice_at(m / 60.0) - Atmosphere.ice_at((m - 1) / 60.0))))
+	t.ok(biggest < 0.03, "frost and ice come and go gradually (largest change in a minute %.3f)" % biggest)
+	# a low winter sun: the same path, lower in the sky.
+	var noon_high := Daylight.sun_dir(13.0).y
+	Daylight.sun_peak = 30.0
+	var noon_low := Daylight.sun_dir(13.0).y
+	t.ok(absf(rad_to_deg(asin(noon_low)) - 30.0) < 0.5, "a 30° sun_peak puts the sun 30° up at 13:00 (%.1f°)" % rad_to_deg(asin(noon_low)))
+	t.ok(Daylight.sun_dir(6.0).x > 0.5 and Daylight.sun_dir(20.0).x < -0.5, "it still rises in the east and sets in the west")
+	for h in 24: t.ok(Daylight.light_dir(h).y >= 0.12, "the light still comes from above the horizon (%d:00)" % h)
+	Daylight.sun_peak = Daylight.SUN_PEAK
+	t.eq(Daylight.sun_dir(13.0).y, noon_high, "and the shared sun is back to its height")
+	# Casalrana uses all of it.
+	var rv: Dictionary = Data.island_def("rice_village").look
+	for k in ["sky", "haze", "water", "frost", "sun_peak"]: t.ok(rv.has(k), "Casalrana's look has %s" % k)
+	t.ok(float(rv.sun_peak) < 40.0, "Casalrana's winter sun is low")
