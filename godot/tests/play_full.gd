@@ -109,8 +109,9 @@ func play() -> void:
 	check(10, "New blueprints become available as you progress", game.state.blueprints.size() > bp0 and game.state.blueprints.has("flowerBed"), "%d→%d blueprints" % [bp0, game.state.blueprints.size()])
 	# Workshop: materials, then Bram's plan, then furnishing
 	await talk("bram")
-	await gather_until("chop", func(): return int(q("workshop").progress.get("wood", 0)) >= 10 and inv("wood") >= 12, [], 18)
-	await gather_until("mine", func(): return int(q("workshop").progress.get("metal", 0)) >= 2 and int(q("workshop").progress.get("crystal", 0)) >= 1, ["rock5", "rock0", "rock1", "rock2", "rock3", "rock4"], 14)
+	await gather_until("chop", func(): return int(q("workshop").progress.get("wood", 0)) >= 12 and inv("wood") >= 12, [], 18)
+	await gather_until("mine", func(): return int(q("workshop").progress.get("metal", 0)) >= 2, ["rock5", "rock0", "rock1", "rock2", "rock3", "rock4"], 14)
+	await gather_until("bin", func(): return int(q("workshop").progress.get("crystal", 0)) >= 2 and inv("crystal") >= 2, [], 6)   # copper wire, head first
 	print("   workshop materials: ", game.state.inventory, " step ", game.story.engine.stage_index("workshop"))
 	await talk("bram")
 	check("A3", "Talking to Bram is its own step: he explains the plan", game.story.engine.current_stage("workshop") == 2, "step %d" % game.story.engine.stage_index("workshop"))

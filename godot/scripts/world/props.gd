@@ -261,7 +261,14 @@ static func camera_blockers() -> Array:
 	var out: Array = []
 	for b in Data.layout.buildings:
 		var pad := 1.1 if b.kind == "castle" else 0.4
-		var top: float = 6.5 if b.kind == "castle" else (3.0 if b.kind == "caravan" else (9.0 if b.kind in ["lighthouse", "clocktower"] else (11.5 if b.kind == "church" else 2.6 + roof_rise(b.w, b.d) + 0.3)))
+		if b.kind == "church":   # the nave at its own height, and the bell tower as a tall narrow box at its back corner
+			var tw := 2.4; var nave_w: float = b.w - tw
+			var back: float = 1.0 if b.door == "N" else -1.0
+			out.append(AABB(Vector3(b.x - b.w / 2.0 - pad, -1.0, b.z - b.d / 2.0 - pad), Vector3(nave_w + pad * 2.0, 4.6 + roof_rise(nave_w, b.d) + 1.3, b.d + pad * 2.0)))
+			var tz: float = b.z + back * (b.d / 2.0 - tw / 2.0)
+			out.append(AABB(Vector3(b.x + b.w / 2.0 - tw - pad, -1.0, tz - tw / 2.0 - pad), Vector3(tw + pad * 2.0, 13.5, tw + pad * 2.0)))
+			continue
+		var top: float = 6.5 if b.kind == "castle" else (3.0 if b.kind == "caravan" else (9.0 if b.kind in ["lighthouse", "clocktower"] else 2.6 + roof_rise(b.w, b.d) + 0.3))
 		out.append(AABB(Vector3(b.x - b.w / 2.0 - pad, -1.0, b.z - b.d / 2.0 - pad), Vector3(b.w + pad * 2.0, top + 1.0, b.d + pad * 2.0)))
 	return out
 

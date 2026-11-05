@@ -218,9 +218,9 @@
      "id": "wood",
      "kind": "gather",
      "item": "wood",
-     "count": 10,
+     "count": 12,
      "stage": 0,
-     "text": "Gather 10 wood for the fittings"
+     "text": "Gather 12 wood for the fittings"
     },
     {
      "id": "metal",
@@ -238,12 +238,12 @@
      "id": "crystal",
      "kind": "gather",
      "item": "crystal",
-     "count": 1,
+     "count": 2,
      "stage": 0,
-     "text": "Find copper wire for a second lamp (dig through the big street bins)",
+     "text": "Have 2 lengths of copper wire, one per lamp (Elio gives you one; dig the other out of the big street bins)",
      "hint": {
-      "x": -30,
-      "z": -12
+      "x": -7.6,
+      "z": 5.2
      }
     },
     {
@@ -675,9 +675,9 @@
      "id": "stone",
      "kind": "gather",
      "item": "stone",
-     "count": 10,
+     "count": 12,
      "stage": 0,
-     "text": "Mine 10 stone for the paving (the old quarry)",
+     "text": "Mine 12 stone for the paving (the old quarry)",
      "hint": {
       "x": -30,
       "z": -7

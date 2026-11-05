@@ -56,13 +56,13 @@ func test_stages_gate_gathering_and_talks():
 	e.accept("workshop")
 	e.on_talk("bram")
 	t.ok(not e.objective("workshop", Data.quest("workshop").objectives[3]).done, "talking to Bram early doesn't skip the materials")
-	e.on_gain({"wood": 10, "metal": 2, "crystal": 1})
+	e.on_gain({"wood": 12, "metal": 2, "crystal": 2})
 	t.eq(e.next_step("workshop").get("npc", ""), "bram", "materials gathered: go and talk to Bram")
 	var ev := e.on_talk("bram")
 	t.ok(ev.any(func(x): return x.has("objective") and x.objective.id == "plan"), "talking to him completes that step")
 	t.eq(e.current_stage("workshop"), 2, "then furnish")
 	e.on_gain({"wood": 50})
-	t.eq(int(s.quests.workshop.progress.wood), 10, "gathering after its step doesn't keep counting")
+	t.eq(int(s.quests.workshop.progress.wood), 12, "gathering after its step doesn't keep counting")
 
 func test_pay_for_the_deed():
 	var s := GameState.new_game()
@@ -271,3 +271,29 @@ func test_sleep_until_a_chosen_hour():
 	t.ok(t0.day == 2 and t0.minute == 360.0 and slept == 540.0 and t0.total == 900.0 + 360.0 + 540.0, "then through the night to 6 AM")
 	slept = Clock.sleep_until(t0, 6.0)
 	t.ok(t0.day == 3 and slept == 1440.0, "asking for the hour it already is sleeps a whole day round")
+
+func test_requests_ask_for_enough_to_build_what_they_ask_for():
+	# What a request has you gather (gifts on accepting count towards it) covers the cheapest way to build its
+	# room or pieces: otherwise the step ticks off and you still can't afford the last lamp.
+	for q in Data.quests:
+		var gather := {}
+		for o in q.objectives:
+			if o.kind == "gather": gather[o.item] = int(o.count)
+		if gather.is_empty(): continue
+		var need := {}
+		var add := func(options: Array, count: int) -> void:
+			var best := {}; var best_n := INF
+			for id in options:
+				var c: Dictionary = Data.piece(id).get("cost", {})
+				if Data.piece(id).is_empty(): continue
+				var n := 0
+				for k in gather: n += int(c.get(k, 0))
+				if n < best_n: best_n = n; best = c
+			for k in best: need[k] = int(need.get(k, 0)) + int(best[k]) * count
+		for o in q.objectives:
+			if o.kind == "room":
+				for nd in o.needs:
+					if nd.has("any"): add.call(nd.any, int(nd.get("count", 1)))
+			elif o.kind == "pieces": add.call(o.any, int(o.get("count", 1)))
+		for k in gather:
+			t.ok(int(gather[k]) >= int(need.get(k, 0)), "%s: gathering %d %s covers the %d its building takes" % [q.id, gather[k], k, need.get(k, 0)])

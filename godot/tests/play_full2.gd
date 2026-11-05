@@ -35,7 +35,7 @@ func play() -> void:
 	print("   fountain: ", q("fountain").get("status", ""), " harmony ", game.state.harmony)
 	# The city bus (Aldo): stone first, then pave the turning circle on the belvedere, with a bench and a sign
 	await talk("captain")
-	await gather_until("mine", func(): return int(q("dock").progress.get("stone", 0)) >= 10 and inv("stone") >= 12, ["rock5", "rock0", "rock1", "rock2", "rock3", "rock4"], 24)
+	await gather_until("mine", func(): return int(q("dock").progress.get("stone", 0)) >= 12 and inv("stone") >= 12, ["rock5", "rock0", "rock1", "rock2", "rock3", "rock4"], 24)
 	await gather_until("chop", func(): return inv("wood") >= 4, [], 6)
 	await walk_to(4.0, 32.6, 1.0)
 	await open_build("dock")
