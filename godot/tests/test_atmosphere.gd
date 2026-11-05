@@ -65,3 +65,15 @@ func test_a_location_look_tints_the_grade():
 	var ok := true
 	for k in range(1, curve.size()): ok = ok and curve[k].r >= curve[k - 1].r and curve[k].g >= curve[k - 1].g and curve[k].b >= curve[k - 1].b
 	t.ok(ok, "a tinted grade still never flips colours")
+
+func test_valley_mist_lifts_by_late_morning():
+	var spec := {"morning": 0.9, "day": 0.1, "evening": 0.3, "night": 0.5}
+	var clear: Dictionary = Daylight.WEATHER.clear
+	t.ok(Atmosphere.valley_fog_at(6.5, spec, clear) > 0.85, "a sea of mist at dawn")
+	t.ok(Atmosphere.valley_fog_at(13.0, spec, clear) < 0.15, "burnt off by early afternoon")
+	t.ok(Atmosphere.valley_fog_at(9.5, spec, clear) < Atmosphere.valley_fog_at(8.0, spec, clear), "thinning through the morning")
+	t.ok(Atmosphere.valley_fog_at(20.0, spec, clear) > Atmosphere.valley_fog_at(15.0, spec, clear), "gathering again in the evening")
+	t.ok(absf(Atmosphere.valley_fog_at(23.9, spec, clear) - Atmosphere.valley_fog_at(0.1, spec, clear)) < 0.01, "no jump at midnight")
+	var misty := {"fog": 1.0}
+	t.ok(Atmosphere.valley_fog_at(13.0, spec, misty) > 0.8, "a misty day keeps it thick at noon")
+	for h in 24: t.ok(Atmosphere.valley_fog_at(h, spec, Daylight.WEATHER.rain) <= 1.0, "stays within 0..1 at %d" % h)

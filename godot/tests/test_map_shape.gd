@@ -200,3 +200,13 @@ func test_a_path_across_any_zone_between_heights():
 		pls[0].r = 1   # the first flight turned sideways: you'd have to step onto the side of it
 		w.surfaces = BuildGrid.surfaces_for(pls)
 		t.ok(not Validate.path_across(zone, w).ok, "stepping onto the side of a stair doesn't count"))
+
+func test_wildlife_stands_on_dry_land():
+	Data.use_island("hearthglow")
+	var W: Dictionary = Data.layout.get("wildlife", {})
+	t.ok(int(W.get("boars", 0)) > 0 and not Data.layout.get("decor", {}).get("woods", []).is_empty(), "Monteforchetta's boars have woods to root about in")
+	for kind in ["cats", "crows"]:
+		for s in W.get(kind, []):
+			var x := float(s[0]); var z := float(s[1])
+			t.ok(Heightfield.height(x, z) >= Heightfield.WALKABLE_MIN, "%s at (%s, %s) stand on dry land" % [kind, x, z])
+			t.ok(not WorldStatics._near_building(x, z, 0.0), "%s at (%s, %s) are not inside a building" % [kind, x, z])

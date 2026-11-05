@@ -1,14 +1,21 @@
 extends Node3D
 ## Ambient wildlife: butterflies over flowers, ducks on the river, chickens in Fern's yard (pet them, toss ducks an apple).
+## Any place can add its own from the layout's "wildlife": {"boars": n (rooting about in decor.woods), "cats": [[x, z,
+## yaw, y?], ...] (sitting about the village; pet them), "crows": [[x, z], ...] (hopping in the fields, flying off when
+## you come close)}.
 const P := preload("res://scripts/world/palette.gd")
 var game
 var t := 0.0
 var butterflies: Array = []
 var ducks: Array = []
 var chickens: Array = []
+var boars: Array = []
+var cats: Array = []
+var crows: Array = []
 
 func setup(g) -> void:
 	game = g
+	_wildlife(Data.layout.get("wildlife", {}))
 	if Data.island != "hearthglow": return   # Hearthglow's ducks, chickens and butterflies live along its river and meadows
 	var spots := [[-20, -2], [18, -12], [-9, 25], [22, 21], [3, -38], [4, 6], [-6, 4], [12, 18]]
 	var cols := ["ffd84a", "ff9ec7", "9fd8ff", "c9a8ff"]
@@ -45,6 +52,55 @@ func setup(g) -> void:
 		chickens.append(ch)
 		game.add_interactable({"id": "chicken%d" % n, "x": func(): return ch.x, "z": func(): return ch.z, "radius": 1.1, "object": c, "label": func(): return "Pet the chicken", "act": func(): pet(ch, "chicken")})
 
+func _wildlife(W: Dictionary) -> void:
+	var woods: Array = Data.layout.get("decor", {}).get("woods", [])
+	for n in int(W.get("boars", 0)) if not woods.is_empty() else 0:
+		var w: Dictionary = woods[n % woods.size()]
+		var o := Props.wild_boar(); o.scale = Vector3.ONE * 1.1; add_child(o)
+		var c := Vector2(float(w.x), float(w.z))
+		boars.append({"obj": o, "head": o.get_node("head"), "c": c, "r": float(w.r) * 0.75, "pos": c + Vector2(n * 1.7, -n * 1.3), "goal": c,
+			"wait": n * 1.5, "yaw": 0.0, "ph": n * 2.3})
+	for i in W.get("cats", []).size():
+		var spot: Array = W.cats[i]
+		var o := _cat(i); add_child(o)
+		var y: float = float(spot[3]) if spot.size() > 3 else Heightfield.height(spot[0], spot[1])
+		o.position = Vector3(spot[0], y, spot[1]); o.rotation.y = float(spot[2])
+		var cat := {"obj": o, "tail": o.get_node("tail"), "head": o.get_node("head"), "yaw": float(spot[2]), "ph": i * 1.9, "peck": 0.0}
+		cats.append(cat)
+		game.add_interactable({"id": "cat%d" % i, "x": float(spot[0]), "z": float(spot[1]), "radius": 1.2, "object": o, "label": func(): return "Pet the cat", "act": func(): pet(cat, "cat")})
+	var spots: Array = W.get("crows", [])
+	for i in spots.size():
+		var o := _crow(); add_child(o)
+		var at := Vector2(spots[i][0], spots[i][1])
+		crows.append({"obj": o, "spot": i, "pos": at, "home": at, "fly": -1.0, "from": Vector3.ZERO, "to": Vector3.ZERO, "ph": i * 1.3, "yaw": i * 1.1, "spots": spots})
+
+## A village cat sitting tidily, tail curled round, in tabby, ginger, black or white.
+func _cat(i: int) -> Node3D:
+	var c := Node3D.new()
+	var fur := P.mat(["9a8572", "e0a05a", "2e2b2c", "f2eee6"][i % 4])
+	var body := P.mi(P.sphere(0.16, 10, 8), fur, Vector3(0, 0.16, -0.02)); body.scale = Vector3(0.9, 1.15, 1.0); c.add_child(body)
+	var head := Node3D.new(); head.name = "head"; head.position = Vector3(0, 0.36, 0.06); c.add_child(head)
+	head.add_child(P.mi(P.sphere(0.11, 10, 8), fur))
+	for s in [-1, 1]:
+		var ear := P.mi(P.cone(0.045, 0.08, 4), fur, Vector3(s * 0.065, 0.1, 0), false); ear.rotation.z = -s * 0.3; head.add_child(ear)
+		head.add_child(P.mi(P.sphere(0.018, 6, 4), P.mat("6fae3a" if i % 4 != 2 else "e8c24a"), Vector3(s * 0.04, 0.02, 0.095), false))
+	var tail := Node3D.new(); tail.name = "tail"; tail.position = Vector3(0.08, 0.05, -0.12); c.add_child(tail)
+	var tl := P.mi(P.cyl(0.025, 0.035, 0.3, 6), fur, Vector3(0, 0, -0.14), false); tl.rotation.x = PI / 2 - 0.3; tail.add_child(tl)
+	return c
+
+## A crow: glossy black, a stout grey beak.
+func _crow() -> Node3D:
+	var c := Node3D.new()
+	var black := P.mat("1d1f26")
+	var body := P.mi(P.sphere(0.12, 8, 6), black, Vector3(0, 0.16, 0)); body.scale = Vector3(0.85, 0.9, 1.5); c.add_child(body)
+	c.add_child(P.mi(P.sphere(0.075, 8, 6), black, Vector3(0, 0.27, 0.15)))
+	var beak := P.mi(P.cone(0.03, 0.09, 5), P.mat("3b3d44"), Vector3(0, 0.26, 0.25), false); beak.rotation.x = PI / 2; c.add_child(beak)
+	var tail := P.mi(P.box(0.1, 0.02, 0.16), black, Vector3(0, 0.17, -0.22), false); tail.rotation.x = 0.3; c.add_child(tail)
+	for s in [-1, 1]:
+		var wing := P.mi(P.box(0.22, 0.02, 0.14), black, Vector3(s * 0.08, 0.2, -0.02), false); wing.name = "wing%d" % (s + 1); c.add_child(wing)
+		c.add_child(P.mi(P.cyl(0.008, 0.008, 0.1, 4), P.mat("3b3d44"), Vector3(s * 0.04, 0.05, 0), false))
+	return c
+
 func pet(a: Dictionary, kind: String) -> void:
 	var s: Dictionary = game.state
 	if kind == "duck": s.inventory.fruit -= 1; game.render_resources(["fruit"])
@@ -54,12 +110,13 @@ func pet(a: Dictionary, kind: String) -> void:
 	var key := "pet_%s_%d" % [kind, int(s.time.day)]
 	if not s.flags.get(key, false):
 		s.flags[key] = true
-		game.toast("Quack! The duck does a happy little spin." if kind == "duck" else "Bawk! The chicken clucks contentedly.", "good")
+		game.toast({"duck": "Quack! The duck does a happy little spin.", "cat": "The cat leans into your hand and purrs."}.get(kind, "Bawk! The chicken clucks contentedly."), "good")
 	game.story.event("animal")
 
 func _process(dt: float) -> void:
 	if game == null: return
 	t += dt
+	_process_wildlife(dt)
 	var night: bool = game.state.flags.get("night", false)
 	for b in butterflies:
 		b.obj.visible = not night
@@ -85,3 +142,60 @@ func _process(dt: float) -> void:
 		c.obj.rotation.y = c.yaw
 		c.head.position.y = 0.45 - (0.12 if sin(c.ph * 3.0) > 0.7 or c.peck > 0.0 else 0.0)
 		c.peck -= dt
+
+func _process_wildlife(dt: float) -> void:
+	var pp: Vector3 = game.player.pos
+	var me := Vector2(pp.x, pp.z)
+	for b in boars:
+		# amble to a spot in the woods, root about there for a while, then pick another; trot off if you come close
+		var to: Vector2 = b.goal - b.pos
+		var scared: bool = b.pos.distance_to(me) < 4.0
+		if scared and b.wait > -10.0:
+			var away: Vector2 = (b.pos - me).normalized()
+			b.goal = b.c + (b.pos - b.c + away * 5.0).limit_length(b.r); b.wait = 0.0
+		if to.length() > 0.15:
+			var sp := 1.6 if scared else 0.45
+			b.pos += to.normalized() * minf(to.length(), sp * dt)
+			b.yaw = lerp_angle(b.yaw, atan2(to.x, to.y), minf(1.0, dt * 4.0))
+		else:
+			b.wait -= dt
+			if b.wait <= 0.0:
+				var a := randf() * TAU; var r: float = sqrt(randf()) * b.r
+				b.goal = b.c + Vector2(cos(a), sin(a)) * r; b.wait = randf_range(3.0, 8.0)
+		var moving: bool = to.length() > 0.15
+		b.obj.position = Vector3(b.pos.x, Heightfield.height(b.pos.x, b.pos.y) + (absf(sin(t * 9.0)) * 0.03 if moving else 0.0), b.pos.y)
+		b.obj.rotation.y = b.yaw
+		b.head.rotation.x = 0.0 if moving else 0.35 + 0.12 * sin(t * 4.0 + b.ph)   # nose down, rooting
+	for c in cats:
+		c.tail.rotation.y = sin(t * 1.3 + c.ph) * 0.5
+		var near: bool = Vector2(c.obj.position.x, c.obj.position.z).distance_to(me) < 4.0
+		var look: float = wrapf(atan2(pp.x - c.obj.position.x, pp.z - c.obj.position.z) - c.yaw, -PI, PI) if near else sin(t * 0.2 + c.ph) * 0.4
+		c.head.rotation.y = lerp_angle(c.head.rotation.y, clampf(look, -1.1, 1.1), minf(1.0, dt * 3.0))
+		c.head.rotation.x = -0.25 if c.peck > 0.0 else 0.0   # eyes closed in bliss, as it were
+		c.peck -= dt
+	for c in crows:
+		var spots: Array = c.spots
+		if c.fly < 0.0:
+			if c.pos.distance_to(me) < 4.5:   # off to another of the fields
+				c.from = c.obj.position
+				var j := (int(c.spot) + 1 + randi() % maxi(1, spots.size() - 1)) % spots.size()
+				c.spot = j; c.home = Vector2(spots[j][0], spots[j][1]) + Vector2(randf_range(-1.5, 1.5), randf_range(-1.5, 1.5)); c.pos = c.home
+				c.to = Vector3(c.home.x, Heightfield.height(c.home.x, c.home.y), c.home.y)
+				c.fly = 0.0
+			else:   # hop and peck
+				c.ph += dt
+				if fmod(c.ph, 2.2) < dt: c.yaw += randf_range(-1.2, 1.2)
+				var hop := maxf(0.0, sin(c.ph * 7.0)) * 0.06 if fmod(c.ph, 2.2) < 0.5 else 0.0
+				c.pos += Vector2(sin(c.yaw), cos(c.yaw)) * (0.25 * dt if hop > 0.0 else 0.0)
+				c.pos = c.home + (c.pos - c.home).limit_length(1.6)
+				c.obj.position = Vector3(c.pos.x, Heightfield.height(c.pos.x, c.pos.y) + hop, c.pos.y)
+				c.obj.rotation = Vector3(0.35 if fmod(c.ph, 2.2) > 1.6 else 0.0, c.yaw, 0)
+				for w in [c.obj.get_node("wing0"), c.obj.get_node("wing2")]: w.rotation.z = 0.0
+		else:
+			c.fly += dt / maxf(1.0, (c.to - c.from).length() / 7.0)
+			var f: float = minf(c.fly, 1.0)
+			var p: Vector3 = c.from.lerp(c.to, f) + Vector3(0, sin(f * PI) * 6.0, 0)
+			var d: Vector3 = c.to - c.from
+			c.obj.position = p; c.obj.rotation = Vector3(0, atan2(d.x, d.z), 0)
+			c.obj.get_node("wing0").rotation.z = sin(t * 22.0) * 0.9; c.obj.get_node("wing2").rotation.z = -sin(t * 22.0) * 0.9
+			if c.fly >= 1.0: c.fly = -1.0; c.yaw = atan2(d.x, d.z)

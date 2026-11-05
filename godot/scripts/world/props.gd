@@ -24,12 +24,95 @@ static func round_tree(s: float = 1.0, hue: float = 0.5, fruit: bool = false) ->
 	var g := Node3D.new()
 	_add(g, P.cyl(0.13, 0.24, 1.5, 9), P.wood(P.TRUNK), Vector3(0, 0.75, 0))
 	_add(g, P.cyl(0.05, 0.08, 0.6, 6), P.wood(P.TRUNK), Vector3(0.22, 1.35, 0.05), Vector3(0, 0, -0.7))
-	var leaf := Color("6cc45e")
-	leaf.h += (hue - 0.5) * 0.06; leaf.v += (hue - 0.5) * 0.08
-	_add(g, Foliage.canopy(int(hue * 10.0) % 2), leaf_mat(leaf), Vector3(0, 2.0, 0), Vector3(0, hue * 6.0, 0))
+	_add(g, Foliage.canopy(int(hue * 10.0) % 2), leaf_mat(tree_leaf(hue)), Vector3(0, 2.0, 0), Vector3(0, hue * 6.0, 0))
 	if fruit: add_fruit(g)
 	g.scale = Vector3.ONE * s
 	return g
+
+## A tree's leaf colour from the place's palette (layout decor `leaves`: autumn golds in Monteforchetta), or the
+## shared summer green shifted a little by `hue`.
+static func tree_leaf(hue: float) -> Color:
+	var pal: Array = Data.layout.get("decor", {}).get("leaves", [])
+	if not pal.is_empty(): return Color(pal[int(hue * 997.0) % pal.size()])
+	var leaf := Color("6cc45e")
+	leaf.h += (hue - 0.5) * 0.06; leaf.v += (hue - 0.5) * 0.08
+	return leaf
+
+## A hazel: a clump of slender stems fanning out from the ground under a low, wide crown (Gigia's groves). Same size
+## as a round tree, so the hazelnut clusters (add_fruit) sit on its crown.
+static func hazel(s: float = 1.0, hue: float = 0.5) -> Node3D:
+	var g := Node3D.new()
+	var bark := P.wood("8a6f55")
+	for k in 6:
+		var a := k * TAU / 6.0 + hue * 3.0
+		var lean := 0.22 + 0.08 * sin(k * 2.3)
+		_add(g, P.cyl(0.035, 0.065, 1.8, 6), bark, Vector3(cos(a) * 0.2, 0.85, sin(a) * 0.2), Vector3(sin(a) * lean, 0, -cos(a) * lean))
+	var cols := [Color("c2b94c"), Color("a9b04a"), Color("d2b24a"), Color("98a84c")]
+	var leaf := leaf_mat(cols[int(hue * 7.0) % cols.size()])
+	_add(g, Foliage.canopy(0), leaf, Vector3(0, 1.95, 0), Vector3(0, hue * 6.0, 0), Vector3(1.12, 0.78, 1.12))
+	_add(g, Foliage.canopy(1), leaf_mat(cols[(int(hue * 7.0) + 1) % cols.size()]), Vector3(0.35, 1.7, -0.25), Vector3(0, hue * 4.0, 0), Vector3(0.7, 0.55, 0.7))
+	g.scale = Vector3.ONE * s
+	return g
+
+## A persimmon tree late in the year: bare grey-brown branches hung with orange fruit, a few last red leaves.
+static func persimmon(seed: int = 11) -> Node3D:
+	var g := Node3D.new()
+	var bark := P.wood("6f5a48")
+	var fruit := P.mat("f2862a"); var calyx := P.mat("5d4a2c")
+	var leaves := [P.mat("d0582a"), P.mat("b8432a")]
+	var rng := RandomNumberGenerator.new(); rng.seed = seed
+	_add(g, P.cyl(0.12, 0.2, 1.7, 8), bark, Vector3(0, 0.85, 0))
+	for k in 7:
+		var a := k * TAU / 7.0 + rng.randf_range(-0.3, 0.3)
+		var up := rng.randf_range(0.45, 0.95)
+		var L := rng.randf_range(1.1, 1.7)
+		var dir := Vector3(cos(a) * sin(up), cos(up), sin(a) * sin(up))
+		var base := Vector3(0, 1.55 + rng.randf_range(-0.1, 0.25), 0)
+		var br := _add(g, P.cyl(0.022, 0.055, L, 5), bark, base + dir * L / 2.0)
+		br.quaternion = Quaternion(Vector3.UP, dir)
+		for j in 3:   # fruit along the outer half of the branch and at its tip
+			var at := base + dir * L * (0.55 + 0.22 * j) + Vector3(0, -0.12, 0)
+			_add(g, P.sphere(0.09, 10, 8), fruit, at, Vector3.ZERO, Vector3(1, 0.85, 1))
+			_add(g, P.cyl(0.05, 0.05, 0.02, 6), calyx, at + Vector3(0, 0.08, 0), Vector3.ZERO, Vector3.ONE, false)
+		if rng.randf() < 0.6:
+			_add(g, P.sphere(0.12, 6, 4), leaves[rng.randi() % 2], base + dir * L * 0.8 + Vector3(0.1, 0.05, 0), Vector3(0.4, a, 0), Vector3(1, 0.25, 0.6), false)
+	return g
+
+## A pile of pumpkins with a leaf or two (by a farm door, on a market stall).
+static func pumpkins(n: int = 4, seed: int = 3) -> Node3D:
+	var g := Node3D.new()
+	var rng := RandomNumberGenerator.new(); rng.seed = seed
+	var cols := ["e8892c", "f09a34", "d9762a", "e9b24a"]
+	for k in n:
+		var a := k * TAU / maxf(1.0, n) + rng.randf_range(-0.4, 0.4)
+		var r := 0.0 if k == 0 else rng.randf_range(0.35, 0.55)
+		var sz := rng.randf_range(0.17, 0.26)
+		var at := Vector3(cos(a) * r, sz * 0.75, sin(a) * r)
+		var pm := P.mat(cols[rng.randi() % cols.size()])
+		for rib in 5:   # ribbed: lobes round a centre
+			var ra := rib * TAU / 5.0
+			_add(g, P.sphere(sz * 0.62, 10, 8), pm, at + Vector3(cos(ra) * sz * 0.38, 0, sin(ra) * sz * 0.38), Vector3.ZERO, Vector3(1, 1.15, 1))
+		_add(g, P.cyl(0.02, 0.03, 0.09, 5), P.wood("6b5a2c"), at + Vector3(0, sz * 0.75, 0), Vector3(0.3, 0, 0.2), Vector3.ONE, false)
+	_add(g, P.sphere(0.22, 6, 4), P.mat("7d9a45"), Vector3(0.3, 0.04, -0.35), Vector3.ZERO, Vector3(1.2, 0.18, 0.9), false)
+	return g
+
+## A wild boar: a bristly brown barrel on short legs, its head (a "head" node, pivoting at the neck, so it can root
+## about) with a long snout and two little tusks. The bakery's boars and the ones in the woods.
+static func wild_boar() -> Node3D:
+	var s := Node3D.new()
+	var hide := P.mat("5b4636"); var dark := P.mat("3a2c22"); var snout := P.mat("9a7466")
+	var body := P.mi(P.sphere(0.3, 12, 8), hide, Vector3(0, 0.36, 0)); body.scale = Vector3(0.85, 0.8, 1.35); s.add_child(body)
+	var ridge := P.mi(P.sphere(0.12, 8, 6), dark, Vector3(0, 0.58, -0.02)); ridge.scale = Vector3(0.5, 0.7, 2.6); s.add_child(ridge)
+	var head := Node3D.new(); head.name = "head"; head.position = Vector3(0, 0.4, 0.3); s.add_child(head)
+	head.add_child(P.mi(P.sphere(0.2, 10, 8), hide, Vector3(0, -0.02, 0.12)))
+	var nose := P.mi(P.cyl(0.07, 0.09, 0.14, 10), snout, Vector3(0, -0.07, 0.32)); nose.rotation.x = PI / 2; head.add_child(nose)
+	for sx in [-1, 1]:
+		head.add_child(P.mi(P.cone(0.05, 0.1, 5), dark, Vector3(sx * 0.1, 0.16, 0.08)))
+		head.add_child(P.mi(P.sphere(0.022, 6, 4), P.mat("1d1414"), Vector3(sx * 0.08, 0.04, 0.28)))
+		var tusk := P.mi(P.cone(0.018, 0.08, 5), P.mat("f3ead8"), Vector3(sx * 0.06, -0.1, 0.36)); tusk.rotation.x = -0.6; head.add_child(tusk)
+		for z in [-0.22, 0.22]: s.add_child(P.mi(P.cyl(0.045, 0.04, 0.22, 6), dark, Vector3(sx * 0.13, 0.11, z)))
+	var tail := P.mi(P.cyl(0.012, 0.02, 0.16, 4), dark, Vector3(0, 0.42, -0.42)); tail.rotation.x = 0.7; s.add_child(tail)
+	return s
 
 ## A pink ribbon tied round the trunk with a bow: the forester's mark on trees that are ready for cutting.
 static func add_ribbon(tree: Node3D) -> Node3D:
@@ -145,13 +228,35 @@ uniform float alpha = 1.0;
 uniform bool plain = false;   // a plain colour, no tiles or shading: the fading copy of a plain part
 uniform float row_h = 0.17;
 uniform float tile_w = 0.42;
+uniform int style = 0;   // 0: fish-scale tiles; 1: curved terracotta tiles (coppi) in channels down the slope
 varying vec3 lp;
 varying vec3 ln;
+varying vec3 tx;   // the roof's ridge direction, in view space (for tilting the light across each channel)
 float h1(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
-void vertex() { lp = VERTEX; ln = NORMAL; }
+void vertex() { lp = VERTEX; ln = NORMAL; tx = normalize((MODELVIEW_MATRIX * vec4(1.0, 0.0, 0.0, 0.0)).xyz); }
 void fragment() {
 	vec3 c = color.rgb;
 	if (plain) {
+	} else if (ln.y > 0.2 && style == 1) {
+		// Coppi: hollow pans laid in channels down the slope, narrow rounded caps over the joints between them; each
+		// tile's lower end overlaps the one below it. From a little way off they read as ribs running down the roof.
+		float u = lp.x / 0.4;
+		float ci = floor(u); float f = fract(u);
+		float capw = 0.4;
+		bool cap = f < capw;
+		float g = cap ? f / capw : (f - capw) / (1.0 - capw);   // 0..1 across this cap or pan
+		float sn = sin(PI * (g - 0.5)); float cs = cos(PI * (g - 0.5));
+		float row = lp.y / 0.26 + h1(vec2(ci, 7.0)) * 0.15;
+		float ri = floor(row); float rf = fract(row);
+		NORMAL = normalize(NORMAL + tx * (cap ? sn * 0.7 : -sn * 0.3));
+		float shade = cap ? 0.8 + 0.38 * cs * cs : 0.64 + 0.12 * (1.0 - cs);   // a bright crest on each cap; the pans lie in their shade
+		shade *= 1.0 - 0.35 * (1.0 - smoothstep(0.0, 0.1, cap ? min(g, 1.0 - g) : 1.0));   // dark seam where a cap meets a pan
+		shade *= 1.0 - 0.12 * smoothstep(0.85, 1.0, rf);   // in the shadow of the next tile's lip
+		vec2 id = vec2(ci * 2.0 + (cap ? 0.0 : 1.0), ri);
+		shade *= 0.9 + 0.16 * h1(id);
+		c = mix(c, c * vec3(0.78, 0.7, 0.62), step(0.87, h1(id + 3.7)) * 0.8);   // older, browner tiles
+		c = mix(c, c * vec3(1.08, 1.0, 0.84), step(0.92, h1(id + 9.1)) * 0.6);   // a few paler new ones
+		c *= shade;
 	} else if (ln.y > 0.2) {
 		// Fish-scale tiles: each course's rounded lower edge overlaps the course below it.
 		float row = lp.y / row_h;
@@ -195,6 +300,7 @@ static func roof_material(color, fade: bool = false) -> ShaderMaterial:
 		_roof_shaders[key] = sh
 	var m := ShaderMaterial.new(); m.shader = _roof_shaders[key]
 	m.set_shader_parameter("color", Color(color) if color is String else color)
+	m.set_shader_parameter("style", 1 if Data.layout.get("roofStyle", "") == "coppi" else 0)   # a location's own tiles
 	return m
 
 ## Gable roof slab with the ridge along X, centred on the origin at the eave-top height.
@@ -362,13 +468,23 @@ static func cottage(b: Dictionary) -> Node3D:
 	else:
 		_add(g, P.rbox(b.w, h, b.d, 0.06), wall_mat, Vector3(0, h / 2.0, 0))
 		_add(g, P.rbox(b.w + 0.24, 0.4, b.d + 0.24, 0.08), P.stone("c9bfae"), Vector3(0, 0.15, 0))
+	# A location's house style (layout `houseStyle`): {"posts": false} drops the timber corner posts, "quoins": a
+	# stone colour for blocks stacked up the corners instead, "cornice": a plaster band under the eaves in place of
+	# the timber beam, "shutters": the shutters' colour (otherwise a shade of the roof).
+	var hs: Dictionary = Data.layout.get("houseStyle", {})
 	for c in [[-1, -1], [1, -1], [-1, 1], [1, 1]]:
-		_add(g, P.box(0.2, h, 0.2), P.wood(trim), Vector3(c[0] * (b.w / 2.0 - 0.06), h / 2.0, c[1] * (b.d / 2.0 - 0.06)))
+		if hs.get("posts", true):
+			_add(g, P.box(0.2, h, 0.2), P.wood(trim), Vector3(c[0] * (b.w / 2.0 - 0.06), h / 2.0, c[1] * (b.d / 2.0 - 0.06)))
+		elif hs.has("quoins"):
+			for k in 4:   # long and short blocks in turn, proud of the plaster
+				var lx := 0.46 if k % 2 == 0 else 0.3; var lz := 0.3 if k % 2 == 0 else 0.46
+				_add(g, P.box(lx, 0.34, lz), P.stone(hs.quoins), Vector3(c[0] * (b.w / 2.0 - lx / 2.0 + 0.03), 0.5 + k * 0.42, c[1] * (b.d / 2.0 - lz / 2.0 + 0.03)), Vector3.ZERO, Vector3.ONE, false)
+	var beam: Material = P.plaster(hs.cornice) if hs.has("cornice") else P.wood(trim)
 	if enter:
-		for zs in [-1, 1]: _add(g, P.box(b.w + 0.06, 0.16, 0.3), P.wood(trim), Vector3(0, h - 0.08, zs * (b.d / 2.0 - 0.12)))
-		for xs in [-1, 1]: _add(g, P.box(0.3, 0.16, b.d + 0.06), P.wood(trim), Vector3(xs * (b.w / 2.0 - 0.12), h - 0.08, 0))
+		for zs in [-1, 1]: _add(g, P.box(b.w + 0.06, 0.16, 0.3), beam, Vector3(0, h - 0.08, zs * (b.d / 2.0 - 0.12)))
+		for xs in [-1, 1]: _add(g, P.box(0.3, 0.16, b.d + 0.06), beam, Vector3(xs * (b.w / 2.0 - 0.12), h - 0.08, 0))
 	else:
-		_add(g, P.box(b.w + 0.06, 0.16, b.d + 0.06), P.wood(trim), Vector3(0, h - 0.08, 0))
+		_add(g, P.box(b.w + 0.06, 0.16, b.d + 0.06), beam, Vector3(0, h - 0.08, 0))
 	var roof := _gable_roof(g, b.w, b.d, h, wall_mat, roof_material(b.roof), Color(b.roof).darkened(0.25))
 	var rise: float = roof.get_meta("rise"); var L: float = roof.get_meta("length"); var S: float = roof.get_meta("span")
 	# Stone chimney poking through one slope, near the ridge.
@@ -390,7 +506,7 @@ static func cottage(b: Dictionary) -> Node3D:
 		_add(aw, P.cyl(0.22, 0.22, 0.02, 16), P.unique_mat("a9ddf5"), Vector3.ZERO, Vector3(PI / 2, 0, 0), Vector3.ONE, false)
 		g.add_child(aw)
 	_door(g, b, "a0623a", null if b.get("inn", false) else roof_material(b.roof))   # the inn's name board sits over its door instead
-	var shutter := Color(b.roof).lightened(0.05)
+	var shutter := Color(hs.shutters) if hs.has("shutters") else Color(b.roof).lightened(0.05)
 	var glasses: Array = []
 	var seed := int(absf(b.x * 3.0 + b.z))
 	var spots: Array = []   # [side, offset] of every window
