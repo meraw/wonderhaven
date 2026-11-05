@@ -40,9 +40,14 @@ const DAY_SONGS := {"dawn": "dawn", "morning": "hearthglow", "afternoon": "after
 
 ## A location can bring its own music: "music" in its map entry (islands.json or a pack's location.json), as
 ## {"songs": {id: song}, "parts": {part of the day or "build": song id}}. Its songs have the shape of SONGS; a part
-## it leaves out keeps the shared tune.
-static func song_for(part: String, building: bool, music: Dictionary) -> String:
+## it leaves out keeps the shared tune. "when": [{flag, parts}] lets the story change them: the first entry whose
+## flag is set swaps in its parts (sleigh bells on Christmas Eve, a finale's own tune); an empty parts goes back.
+static func song_for(part: String, building: bool, music: Dictionary, flags: Dictionary = {}) -> String:
 	var parts: Dictionary = music.get("parts", {})
+	for w in music.get("when", []):
+		if flags.get(String(w.get("flag", "")), false):
+			parts = parts.merged(w.get("parts", {}), true)
+			break
 	if building: return String(parts.get("build", "build"))
 	return String(parts.get(part, DAY_SONGS.get(part, "hearthglow")))
 
@@ -253,7 +258,7 @@ func play(kind: String, midi: int, vol: float = 0.5, bus: int = -1, delay: float
 func update_music(game, dt: float) -> void:
 	var part := Daylight.part_of_day(float(game.state.time.minute) / 60.0)
 	if music_island != Data.island: music_island = Data.island; music = Data.island_def(Data.island).get("music", {})
-	want_song = song_for(part, game.mode == "build", music)
+	want_song = song_for(part, game.mode == "build", music, game.state.flags)
 	soft = lerpf(soft, clampf(game.weather_now.get("rain", 0.0) * 1.4, 0.0, 1.0), 1.0 - exp(-dt * 0.5))
 	# crossfade: fade the current tune out, switch while silent (once the new tune's notes are ready), fade it in
 	if want_song != song:

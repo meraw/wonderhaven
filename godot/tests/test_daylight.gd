@@ -154,6 +154,28 @@ func test_a_location_can_bring_its_own_music():
 		t.ok(AudioDirector.loop_steps(s) >= last + 48, "%s rests at least three bars after its phrase" % id)
 	t.eq(ids.size(), 5, "each part of the day has its own Casalrana tune")
 
+func test_the_story_can_change_the_music():
+	var music := {"songs": {}, "parts": {"evening": "town_evening", "night": "town_night"},
+		"when": [{"flag": "done", "parts": {}}, {"flag": "eve", "parts": {"evening": "carols"}}]}
+	t.eq(AudioDirector.song_for("evening", false, music, {}), "town_evening", "the usual evening tune")
+	t.eq(AudioDirector.song_for("evening", false, music, {"eve": true}), "carols", "a story flag swaps in its own")
+	t.eq(AudioDirector.song_for("night", false, music, {"eve": true}), "town_night", "only for the parts it names")
+	t.eq(AudioDirector.song_for("evening", false, music, {"eve": true, "done": true}), "town_evening", "and the first flag that's set wins: back to normal")
+	t.eq(AudioDirector.song_for("evening", false, music), "town_evening", "without flags, as before")
+
+func test_toriano_plays_its_own_city_pop():
+	var lt: Dictionary = Data.island_def("metropolis")
+	var m: Dictionary = lt.get("music", {})
+	t.ok(not m.is_empty(), "Toriano brings its own music")
+	for part in ["dawn", "morning", "afternoon", "evening", "night"]:
+		var id := AudioDirector.song_for(part, false, m, {})
+		t.ok(m.songs.has(id), "%s plays Toriano's own %s" % [part, id])
+	t.eq(AudioDirector.song_for("evening", false, m, {"metropolis_christmas_eve": true}), "metropolis_xmas", "sleigh bells on Christmas Eve")
+	t.eq(AudioDirector.song_for("night", false, m, {"metropolis_christmas_eve": true, "metropolis_angel_on": true}), "metropolis_finale", "the finale's own tune once the angel lights up")
+	for id in m.songs:
+		var s: Dictionary = m.songs[id]
+		t.ok(s.chords.size() >= 4 and s.melody.size() >= 10 and s.bpm >= 60, "%s is a whole tune" % id)
+
 func test_monteforchetta_plays_its_own_pop():
 	# Monteforchetta's music (its map entry's "music"): its own tune for every part of the day and for building, on
 	# instruments the synthesiser knows, with the drum and bass patterns of late-1990s Italian pop.

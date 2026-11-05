@@ -352,3 +352,11 @@ func test_traffic_queues_on_the_tram_line():
 	t.ok(Trams.room_ahead(395.0, 2.0, [[5.0, 2.0]], 400.0) > 0.0, "round the end of the loop too")
 	t.ok(Trams.room_ahead(30.0, 2.0, [[10.0, 6.0]], 400.0) > 300.0, "the one behind doesn't hold it up")
 
+func test_the_cathedral_strikes_the_hour():
+	var Life = load("res://scripts/locations/metropolis/life.gd")
+	t.eq(Life.strikes(9), 9, "nine strokes at nine")
+	t.eq(Life.strikes(12), 12, "twelve at noon")
+	t.eq(Life.strikes(17), 5, "five at five")
+	t.eq(Life.strikes(3), 0, "and quiet in the night")
+	t.eq(Life.strikes(23), 0, "")
+

@@ -4,6 +4,8 @@ extends Node3D
 ##   come close, wheel round and land on the free spot farthest from you;
 ## - ducks paddling round the park pond;
 ## - gulls wheeling over the Darsena, crying now and then.
+## And the city's sounds: the cathedral striking the hour, a big peal when the Golden Angel lights up on Christmas
+## Eve, and a horn somewhere in the traffic now and then.
 ## The cats in number 14's courtyard are the shared wildlife (the layout's "wildlife"). The decisions are pure
 ## static functions (tested in test_metropolis.gd); the pigeons are drawn with MultiMeshes, a few draw calls for all.
 
@@ -26,6 +28,10 @@ var ducks: Array = []
 var gulls: Array = []
 var coo_t := 3.0
 var cry_t := 6.0
+var horn_t := 20.0
+var last_hour := -1
+var pealed := false
+const DUOMO := Vector2(45, 8)
 
 # ---- Decisions (pure) ---------------------------------------------------------------------------------------
 
@@ -216,8 +222,30 @@ func _clatter(d: float) -> void:
 	var vol := clampf(1.0 - d / 30.0, 0.0, 1.0) * 0.16
 	for i in 7: _play("thud", 52 + (i * 5) % 9, vol, i * 0.045)
 
-## Pigeons cooing near a flock on the ground, gulls crying near the water.
+## How many times the cathedral strikes at the start of an hour (0 at night: it keeps quiet from 22:00 to 7:00).
+static func strikes(hour: int) -> int:
+	if hour < 7 or hour >= 22: return 0
+	return 12 if hour % 12 == 0 else hour % 12
+
+## Pigeons cooing near a flock on the ground, gulls crying near the water; the cathedral's bells; the traffic.
 func _sounds(dt: float, pl: Vector2) -> void:
+	var hour := int(float(game.state.time.minute) / 60.0)
+	if hour != last_hour:
+		if last_hour != -1:   # (not on arrival)
+			var n := strikes(hour)
+			var vol := maxf(0.08, clampf(1.0 - pl.distance_to(DUOMO) / 160.0, 0.0, 1.0) * 0.3)   # the bells carry across the city
+			for i in n: _play("bell", 50, vol, i * 1.5)
+		last_hour = hour
+	if game.state.flags.get("metropolis_angel_on", false) and not pealed:
+		pealed = true
+		for i in 20: _play("bell", [64, 60, 57, 52][i % 4], 0.26, i * 0.5)   # every bell in the Duomo, for the angel
+	horn_t -= dt
+	if horn_t < 0.0:
+		var night := Daylight.nightness(float(game.state.time.minute) / 60.0) > 0.5
+		horn_t = (40.0 if night else 14.0) + randf() * 25.0
+		var vol := 0.03 + randf() * 0.025
+		_play("horn", 62, vol); _play("horn", 66, vol)
+		if randf() < 0.4: _play("horn", 62, vol, 0.25); _play("horn", 66, vol, 0.25)
 	coo_t -= dt; cry_t -= dt
 	if coo_t < 0.0:
 		coo_t = 2.0 + randf() * 4.0
