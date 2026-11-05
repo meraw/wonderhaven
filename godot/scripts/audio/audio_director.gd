@@ -5,7 +5,8 @@ extends Node
 const RATE := 22050
 ## Original tunes. Steps are eighth notes; chords are semitones above the root, one per bar of 16 steps; melody is
 ## [step, semitone]. lead/arp name the instruments; arp_every is how often (in steps) the arpeggio plays; drums is
-## "full", "light" (shaker only) or "" (none).
+## "full", "light" (shaker only) or "" (none). Optional: length (steps before the melody repeats, so a phrase can be
+## followed by silence), bass (volume of the low plucks, 1 by default) and pad_every (bars between pad chords, 1).
 const SONGS := {
 	"dawn": {"bpm": 74, "root": 62, "lead": "flute", "arp": "glock", "arp_every": 4, "drums": "", "pad": 0.11,
 		"chords": [[0, 4, 7, 11], [9, 12, 16], [5, 9, 12, 16], [7, 12, 14]],
@@ -30,7 +31,29 @@ const SONGS := {
 }
 ## Which tune plays in each part of the day (Daylight.part_of_day).
 const DAY_SONGS := {"dawn": "dawn", "morning": "hearthglow", "afternoon": "afternoon", "evening": "evening", "night": "night"}
-const INSTRUMENTS := ["marimba", "glock", "pluck", "pad", "kick", "hat", "blip", "chirp", "hiss", "thud", "flute", "rhodes"]
+
+## A location can bring its own music: "music" in its map entry (islands.json or a pack's location.json), as
+## {"songs": {id: song}, "parts": {part of the day or "build": song id}}. Its songs have the shape of SONGS; a part
+## it leaves out keeps the shared tune.
+static func song_for(part: String, building: bool, music: Dictionary) -> String:
+	var parts: Dictionary = music.get("parts", {})
+	if building: return String(parts.get("build", "build"))
+	return String(parts.get(part, DAY_SONGS.get(part, "hearthglow")))
+
+## A song by id: the location's own first, then the shared ones.
+static func song_def(id: String, music: Dictionary) -> Dictionary:
+	var own: Dictionary = music.get("songs", {})
+	return own[id] if own.has(id) else SONGS.get(id, SONGS.hearthglow)
+
+## Steps before a song's melody repeats.
+static func loop_steps(s: Dictionary) -> int:
+	var last := 0
+	for m in s.melody: last = maxi(last, int(m[0]))
+	return maxi(int(s.get("length", 0)), int(ceil((last + 8) / 16.0)) * 16)
+const INSTRUMENTS := ["marimba", "glock", "pluck", "pad", "kick", "hat", "blip", "chirp", "hiss", "thud", "flute", "rhodes", "bell", "horn", "rasp", "whistle"]
+## Sounds of a place, for its location code (play(kind, note, volume)): "bell" a church bell with its hum and minor
+## third, ringing long; "horn" a reedy horn (two at once make a train's two-tone horn); "rasp" a harsh, falling croak;
+## "whistle" a note that slides up and back (a bird's call).
 
 var cache := {}
 var pool: Array = []
@@ -43,6 +66,8 @@ var step := 0
 var song_time := 0.0
 var next_step_time := 0.0
 var amb_t := 1.0
+var music: Dictionary = {}   # the location's own music ("music" in its map entry)
+var music_island := ""
 var music_bus := 0
 var sfx_bus := 0
 
@@ -67,7 +92,8 @@ func _gen(kind: String, midi: int) -> AudioStreamWAV:
 	var key := "%s:%d" % [kind, midi]
 	if cache.has(key): return cache[key]
 	var f := freq(midi)
-	var length: float = {"marimba": 0.6, "glock": 1.2, "pluck": 0.45, "pad": 2.4, "kick": 0.25, "hat": 0.06, "blip": 0.09, "hiss": 1.6, "chirp": 0.07, "thud": 0.3, "flute": 0.9, "rhodes": 1.4}.get(kind, 0.5)
+	var length: float = {"marimba": 0.6, "glock": 1.2, "pluck": 0.45, "pad": 2.4, "kick": 0.25, "hat": 0.06, "blip": 0.09, "hiss": 1.6, "chirp": 0.07, "thud": 0.3, "flute": 0.9, "rhodes": 1.4,
+		"bell": 3.6, "horn": 0.9, "rasp": 0.4, "whistle": 0.36}.get(kind, 0.5)
 	var n := int(RATE * length)
 	var data := PackedByteArray(); data.resize(n * 2)
 	var lp := 0.0
@@ -115,6 +141,26 @@ func _gen(kind: String, midi: int) -> AudioStreamWAV:
 			"rhodes":
 				# electric-piano-ish: warm body, a bell-like overtone and a quick tine
 				v = (sin(TAU * f * t) + 0.3 * sin(TAU * f * 2.0 * t) * exp(-t * 3.0) + 0.18 * sin(TAU * f * 7.0 * t) * exp(-t * 28.0)) * exp(-t * 2.4) * 0.55
+			"bell":
+				# a cast bell's partials: the hum an octave down, the strike note, a minor third, a fifth, the octave
+				# and a bright nominal, each dying away at its own pace
+				v = (0.5 * sin(TAU * f * 0.5 * t) * exp(-t * 0.6) + 0.6 * sin(TAU * f * t) * exp(-t * 1.1) + 0.35 * sin(TAU * f * 1.19 * t) * exp(-t * 1.4)
+					+ 0.25 * sin(TAU * f * 1.5 * t) * exp(-t * 2.0) + 0.3 * sin(TAU * f * 2.0 * t) * exp(-t * 2.6) + 0.18 * sin(TAU * f * 2.74 * t) * exp(-t * 4.5)) * minf(1.0, t / 0.004) * 0.6
+			"horn":
+				# reedy: a square and a slightly sharp square through a soft filter, held, with a short swell and release
+				var sq1 := 1.0 if fmod(f * t, 1.0) < 0.5 else -1.0
+				var sq2 := 1.0 if fmod(f * 1.006 * t, 1.0) < 0.5 else -1.0
+				lp += ((sq1 + sq2) * 0.5 - lp) * 0.12
+				v = lp * minf(1.0, t / 0.04) * minf(1.0, (length - t) / 0.15) * 0.45
+			"rasp":
+				# a harsh croak: a falling sawtooth roughened by noise
+				var saw2 := fmod(f * (1.0 - 0.25 * t / length) * t, 1.0) * 2.0 - 1.0
+				lp += ((saw2 * (0.55 + 0.45 * randf())) - lp) * 0.3
+				v = lp * minf(1.0, t / 0.02) * pow(1.0 - t / length, 1.5) * 0.7
+			"whistle":
+				# a pure note sliding up and back down
+				phase += TAU * f * (1.0 + 0.3 * sin(PI * t / length)) / RATE
+				v = sin(phase) * sin(PI * t / length) * 0.5
 		var s := int(clampf(v, -1.0, 1.0) * 32000.0)
 		data.encode_s16(i * 2, s)
 	var w := AudioStreamWAV.new(); w.format = AudioStreamWAV.FORMAT_16_BITS; w.mix_rate = RATE; w.stereo = false; w.data = data
@@ -133,7 +179,8 @@ func play(kind: String, midi: int, vol: float = 0.5, bus: int = -1, delay: float
 
 func update_music(game, dt: float) -> void:
 	var part := Daylight.part_of_day(float(game.state.time.minute) / 60.0)
-	want_song = "build" if game.mode == "build" else DAY_SONGS.get(part, "hearthglow")
+	if music_island != Data.island: music_island = Data.island; music = Data.island_def(Data.island).get("music", {})
+	want_song = song_for(part, game.mode == "build", music)
 	soft = lerpf(soft, clampf(game.weather_now.get("rain", 0.0) * 1.4, 0.0, 1.0), 1.0 - exp(-dt * 0.5))
 	# crossfade: fade the current tune out, switch while silent, fade the new one in
 	if want_song != song:
@@ -142,7 +189,7 @@ func update_music(game, dt: float) -> void:
 	else:
 		gain = minf(1.0, gain + dt / 3.0)
 	song_time += dt
-	var s: Dictionary = SONGS[song]
+	var s: Dictionary = song_def(song, music)
 	var step_dur: float = 60.0 / s.bpm / 2.0
 	var guard := 0
 	while next_step_time <= song_time and guard < 8:
@@ -169,10 +216,12 @@ func _music_step(s: Dictionary) -> void:
 	var chord: Array = s.chords[bar]
 	var R: int = s.root
 	var g := gain
+	var bass: float = float(s.get("bass", 1.0))
 	if beat == 0:
-		for nn in chord: play("pad", R + int(nn) - 12, s.pad * g, music_bus)
-		play("pluck", R + int(chord[0]) - 24, 0.4 * g, music_bus)
-	if beat == 8: play("pluck", R + int(chord[2]) - 24, 0.3 * g, music_bus)
+		if int(step / 16) % maxi(1, int(s.get("pad_every", 1))) == 0:
+			for nn in chord: play("pad", R + int(nn) - 12, s.pad * g, music_bus)
+		if bass > 0.0: play("pluck", R + int(chord[0]) - 24, 0.4 * g * bass, music_bus)
+	if beat == 8 and bass > 0.0: play("pluck", R + int(chord[2 % chord.size()]) - 24, 0.3 * g * bass, music_bus)
 	var every: int = s.arp_every
 	if s.arp != "" and beat % every == 0:
 		var idx: int = int(beat / every) % chord.size()
@@ -184,10 +233,7 @@ func _music_step(s: Dictionary) -> void:
 		if beat % 4 == 2: play("hat", 60, 0.12 * g, music_bus)
 		if beat == 0 or beat == 10: play("kick", 40, 0.35 * g, music_bus)
 	elif drums == "light" and beat % 4 == 2: play("hat", 60, 0.08 * g, music_bus)
-	var last := 0
-	for m in s.melody: last = maxi(last, int(m[0]))
-	var loop: int = int(ceil((last + 8) / 16.0)) * 16
-	var ms := step % loop
+	var ms := step % loop_steps(s)
 	var lv: float = {"glock": 0.25, "flute": 0.3, "rhodes": 0.32}.get(s.lead, 0.4)
 	for m in s.melody:
 		if int(m[0]) == ms: play(s.lead, R + int(m[1]), lv * g * lerpf(1.0, 0.75, soft), music_bus)

@@ -34,7 +34,30 @@ static func make(b: Dictionary) -> Node3D:
 		"rice_village_track": return track(b)
 		"rice_village_tractor": return tractor(b)
 		"rice_village_thresher": return thresher(b)
+		"rice_village_paddock": return paddock(b)
 	return null
+
+## The paddock behind the cowshed: posts and two rails round it, a hay rack and a stone trough. (Its cows, the ox and
+## the donkey are wildlife.gd's; the layout's box keeps you outside the rails.)
+static func paddock(b: Dictionary) -> Node3D:
+	var g := Node3D.new()
+	var post := P.wood(Color(b.wall)); var rail := P.wood(Color(b.roof))
+	var hw: float = b.w / 2.0; var hd: float = b.d / 2.0
+	var corners := [Vector2(-hw, -hd), Vector2(hw, -hd), Vector2(hw, hd), Vector2(-hw, hd)]
+	for i in 4:
+		var a: Vector2 = corners[i]; var c: Vector2 = corners[(i + 1) % 4]
+		var n := int(ceil(a.distance_to(c) / 1.9))
+		for k in n + 1:
+			var q := a.lerp(c, float(k) / n)
+			_add(g, P.box(0.12, 1.1, 0.12), post, Vector3(q.x, 0.55, q.y))
+		var mid := (a + c) / 2.0
+		for y in [0.45, 0.9]:
+			_add(g, P.box(a.distance_to(c), 0.07, 0.05), rail, Vector3(mid.x, y, mid.y), Vector3(0, -atan2(c.y - a.y, c.x - a.x), 0))
+	_add(g, P.box(0.5, 0.9, 1.4), P.wood("5e4636"), Vector3(hw - 0.7, 0.45, -hd + 1.6))
+	_add(g, P.box(0.45, 0.4, 1.3), P.fabric("d9c27a"), Vector3(hw - 0.7, 1.0, -hd + 1.6))
+	_add(g, P.box(0.6, 0.45, 1.4), P.stone("8d8a84"), Vector3(-hw + 0.8, 0.22, hd - 1.5))
+	_add(g, P.box(0.48, 0.02, 1.26), P.mat("8fa6a3"), Vector3(-hw + 0.8, 0.44, hd - 1.5))
+	return g
 
 static func _add(parent: Node3D, mesh: Mesh, mat: Material, pos: Vector3, rot: Vector3 = Vector3.ZERO, scl: Vector3 = Vector3.ONE) -> MeshInstance3D:
 	var m := P.mi(mesh, mat, pos)

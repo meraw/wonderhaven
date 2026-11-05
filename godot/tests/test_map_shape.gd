@@ -93,6 +93,17 @@ func test_a_departure_point_with_its_own_id():
 		var bus: Array = g.registered.filter(func(d): return d.get("id", "") == "boat")
 		t.eq(bus[0].label.call(), "Catch the bus", "without a label it's still the bus")
 		g.free())
+	# a departure point can wait for a story flag (a station where the trains only stop after a request)
+	_with_layout({"nodes": [], "features": [{"id": "x_platform", "kind": "boat", "x": 3, "z": 4, "depart_label": "Take the train", "flag": "x_trainsStop"}]}, func():
+		Data.island = "zz_elsewhere"
+		var g := FakeGame.new()
+		WorldActions.new(g)
+		Data.island = "hearthglow"
+		var platform: Dictionary = g.registered.filter(func(d): return d.get("id", "") == "x_platform")[0]
+		t.ok(not platform.available.call(), "not before its flag")
+		g.state.flags["x_trainsStop"] = true
+		t.ok(platform.available.call(), "and there once it's set")
+		g.free())
 
 func test_a_stop_offers_a_ride():
 	_with_layout({"nodes": [], "features": [{"id": "stop_a", "kind": "stop", "line": "tram", "name": "Duomo", "x": 3, "z": 4, "ride_label": "Take the tram"}]}, func():

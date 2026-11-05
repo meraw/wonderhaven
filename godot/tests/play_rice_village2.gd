@@ -2,7 +2,9 @@ extends "res://tests/full_base.gd"
 ## Casalrana's requests with real input, part one: Welcome to Casalrana, The Flat above the Station (up the outside
 ## stair, patching the roof, furnishing the flat in build mode, sleeping in your own bed), Water for the Winter (the
 ## sluice and the waterwheel, pump and pipes to the winter paddy), Nonna's Bench (and the song at dusk), Things from the
-## Trains and Matteo's Museum. Then it saves to slot 2 for part two (play_rice_village3.gd).
+## Trains and Matteo's Museum. Then it saves to slot 2 for part two (play_rice_village3.gd). Stage 4 on the way: a heron
+## flushed from the ditch by the road, Casalrana's own music, the station master's cap bought and worn from the flat's
+## wardrobe, Barba Tista's green boots, lapwings wheeling up off the stubble, the cat and the donkey.
 ## It starts as if you had played Monteforchetta's and Boccapioppo's main stories and come on the bus (arrive_as_if_played).
 ## Run: TIMEOUT=7100 ./play.sh res://tests/play_rice_village2.gd /tmp/out --island=rice_village --limit=7000
 ##
@@ -10,6 +12,7 @@ extends "res://tests/full_base.gd"
 ## input. Time passes by sleeping on a bed or bench, as a player would.
 
 const P := "rice_village_"
+const AudioDirector := preload("res://scripts/audio/audio_director.gd")
 
 func status(qid: String) -> String: return String(q(P + qid).get("status", ""))
 func progress(qid: String, oid: String) -> int: return int(q(P + qid).progress.get(oid, 0))
@@ -102,7 +105,7 @@ func buy(npc: String, item: String, times: int = 1) -> bool:
 	var lines := Shop.stock(game.state, P + npc)
 	var idx := -1
 	for j in lines.size():
-		if lines[j].get("items", {}).has(item): idx = int(lines[j].i)
+		if lines[j].get("items", {}).has(item) or String(lines[j].get("id", "")) == item: idx = int(lines[j].i)
 	var got := 0
 	for t in times:
 		await frames(6)
@@ -190,8 +193,10 @@ func play() -> void:
 		check(2, "the HUD shows Paletta's petition instead of the approval rating", game.hud.harmony_title.text.ends_with("The Petition") and game.hud.harmony_label.text == "0", "%s %s" % [game.hud.harmony_title.text, game.hud.harmony_label.text])
 		await welcome()
 		await flat()
+		await outfit()
 		await save_to("slot1")
 	await water()
+	await wildlife()
 	await bench()
 	await lost_things()
 	await museum()
@@ -205,8 +210,15 @@ func welcome() -> void:
 	check(10, "Paletta waits for your bus at the crossroads", Vector2(pal.pos.x - 2.8, pal.pos.z - 0.2).length() < 2.0 and game.story.marker_for(P + "ernesto") == "offer", str(pal.pos))
 	await talk(P + "ernesto")
 	check(11, "he welcomes you and gives you the Geometra's kit back", status("welcome") == "active" and game.state.flags.get("hasTool", false), status("welcome"))
+	var tune: String = AudioDirector.song_for(Daylight.part_of_day(float(game.state.time.minute) / 60.0), false, Data.island_def("rice_village").music)
+	check(17, "Casalrana plays its own tune for the time of day", game.audio != null and game.audio.want_song == tune and tune.begins_with(P), "%s (wants %s)" % [game.audio.want_song if game.audio else "no audio", tune])
+	var heron: Dictionary = wild().waders[0]
+	var was: Vector2 = heron.at
 	await walk_to(2.0, -42.0, 1.0)
 	check(12, "walk up the road to the level crossing", progress("welcome", "crossing") >= 1, str(game.player.pos))
+	var flew: bool = heron.state == "fly" or heron.at != was
+	await wait_until(func(): return heron.state == "stand", 40.0)
+	check(18, "the heron in the ditch by the road takes off as you pass and lands somewhere else", flew and heron.at != was and heron.at.distance_to(was) > 10.0, "%s -> %s (%s)" % [was, heron.at, heron.state])
 	for who in ["battista", "pierina", "remo"]:
 		await talk(P + who)
 	check(13, "meet Barba Tista, Nonna Pierina and Don Remo", progress("welcome", "tista") == 1 and progress("welcome", "nonna") == 1 and progress("welcome", "remo") == 1,
@@ -277,6 +289,57 @@ func water() -> void:
 	await shot("paddy")
 	await talk(P + "battista")
 	check(37, "Water for the Winter is done", status("water") == "done" and signatures() >= 80, "signatures %d" % signatures())
+	check(38, "and Barba Tista gives you green rubber boots", game.state.clothes_owned.has(P + "boots"), str(game.state.clothes_owned))
+
+# ---- Stage 4: the station master's cap ------------------------------------------------------------------------
+func wild() -> Node: return game.village.get_node("rice_village_wildlife")
+
+## Buys the cap in Paletta's storeroom and wears it, from the flat's old wardrobe.
+func outfit() -> void:
+	var lire := inv("coins")
+	await buy("ernesto", P + "stationCap")
+	check(28, "buy the station master's cap in Paletta's storeroom", game.state.clothes_owned.has(P + "stationCap") and inv("coins") == lire - 25, "coins %d -> %d" % [lire, inv("coins")])
+	await climb_to_flat()
+	await walk_slow(17.5, -36.3, 0.4); await walk_slow(14.2, -38.3, 0.3)   # round the table to stand before the wardrobe
+	if not await face_and_press(P + "wardrobe", 13.65, -39.55): note("no wardrobe prompt (target %s)" % (game.target.id if game.target else "none"))
+	await frames(10)
+	var opened: bool = game.screens.wardrobe_mode and game.mode == "creator"
+	var b := game.screens.find_child("opt_hat_" + P + "stationCap", true, false) as Button
+	var scroll := game.screens.find_child("creator_scroll", true, false) as ScrollContainer
+	if b and scroll: scroll.ensure_control_visible(b); await frames(4)   # scrolls the list to it, as the mouse wheel would
+	if b: await click(b.get_global_rect().get_center()); await frames(6)
+	var go := game.screens.find_child("btn_start", true, false) as Button
+	if go: await click(go.get_global_rect().get_center()); await frames(10)
+	var drawn := Chibi.resolve(game.player_char.appearance)
+	check(29, "and put it on at the flat's old wardrobe: a red cap with a black band", opened and game.state.appearance.hat == P + "stationCap" and drawn.hat == "captain" and drawn.hatColor == "#c23a32",
+		"opened %s, hat %s drawn %s %s" % [opened, game.state.appearance.get("hat", ""), drawn.hat, drawn.get("hatColor", "")])
+	game.cam.yaw = 2.6; game.cam.pitch = 0.35; game.cam.dist = 4.0
+	await shot("the-cap")
+	await walk_slow(17.5, -36.3, 0.4); await walk_slow(22.0, -37.6, 0.5)   # back round the table to the door
+	await down_from_flat()
+
+## Lapwings on the stubble, the cat by the farmhouse door and the donkey by the paddock fence.
+func wildlife() -> void:
+	var flock: Dictionary = wild().flocks[0]
+	var field: Vector2 = flock.at
+	await walk_to(field.x + 3.0, field.y - 7.0, 1.0)
+	var rose := await wait_until(func(): return flock.state == "wheel", 6.0)
+	game.cam.yaw = atan2(game.player.pos.x - field.x, game.player.pos.z - field.y); game.cam.pitch = 0.2; game.cam.dist = 6.0
+	await frames(8)
+	await shot("lapwings")
+	check(70, "walk at the lapwings on the stubble: they wheel up, flashing black and white", rose, "%s at %s" % [flock.state, field])
+	var landed := await wait_until(func(): return flock.state == "ground", 30.0)
+	check(71, "and settle on another field", landed and flock.at != field, "%s -> %s" % [field, flock.at])
+	await walk_to(27.6, -12.8, 0.6)
+	var day := int(game.state.time.day)
+	await face_and_press(P + "cat2", 27.6, -14.55); await frames(10)
+	check(72, "stroke the ginger cat by the farmhouse door", game.state.flags.keys().any(func(k): return String(k).begins_with("pet_rice_village_cat_") and String(k).ends_with("_%d" % day)), "")
+	await walk_to(37.5, -5.0, 0.6); await walk_direct(46.2, -5.0, 0.6)
+	await face_and_press(P + "donkey", 46.3, -2.2); await frames(10)
+	check(73, "and scratch the donkey's ears over the paddock fence", game.state.flags.has("pet_rice_village_donkey_%d" % day), str(game.player.pos))
+	game.cam.yaw = 3.4; game.cam.pitch = 0.4; game.cam.dist = 9.0
+	await shot("paddock")
+	await walk_direct(37.5, -5.0, 0.6)
 
 # ---- Nonna's Bench ----------------------------------------------------------------------------------------------
 func bench() -> void:
