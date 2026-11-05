@@ -300,6 +300,7 @@ func outfit() -> void:
 	await buy("ernesto", P + "stationCap")
 	check(28, "buy the station master's cap in Paletta's storeroom", game.state.clothes_owned.has(P + "stationCap") and inv("coins") == lire - 25, "coins %d -> %d" % [lire, inv("coins")])
 	await climb_to_flat()
+	await walk_slow(17.5, -36.3, 0.4); await walk_slow(14.2, -38.3, 0.3)   # round the table to stand before the wardrobe
 	if not await face_and_press(P + "wardrobe", 13.65, -39.55): note("no wardrobe prompt (target %s)" % (game.target.id if game.target else "none"))
 	await frames(10)
 	var opened: bool = game.screens.wardrobe_mode and game.mode == "creator"
