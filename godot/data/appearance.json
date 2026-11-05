@@ -5,13 +5,18 @@
   "scarf",
   "backpack",
   "bowtie",
-  "beard"
+  "beard",
+  "sash",
+  "pens",
+  "discman",
+  "apron"
  ],
  "BOTTOMS": [
   "pants",
   "shorts",
   "skirt",
-  "dress"
+  "dress",
+  "jeans"
  ],
  "CLOTH_COLORS": [
   "#ff8fab",
@@ -74,7 +79,9 @@
   "flowerCrown",
   "captain",
   "crown",
-  "goggles"
+  "goggles",
+  "headphones",
+  "drivercap"
  ],
  "MOUTHS": [
   "smile",
@@ -102,7 +109,12 @@
   "tunic",
   "jacket",
   "sailor",
-  "overalls"
+  "overalls",
+  "windbreaker",
+  "hoodie",
+  "suit",
+  "shirt",
+  "workjacket"
  ],
  "default": {
   "skin": "#f8cfa8",
@@ -111,7 +123,7 @@
   "hair": "bob",
   "hairColor": "#7a4a2a",
   "mouth": "smile",
-  "top": "jacket",
+  "top": "windbreaker",
   "topColor": "#3fb5a3",
   "bottom": "pants",
   "bottomColor": "#4a4a6a",
@@ -119,7 +131,7 @@
   "shoesColor": "#c9a27a",
   "hat": "none",
   "hatColor": "#ffd166",
-  "accessory": "scarf"
+  "accessory": "none"
  },
  "locked": {
   "overalls": "Help Elio fit out his shop",
@@ -127,10 +139,12 @@
   "flowerCrown": "Find the old chest beyond the groves",
   "goggles": "Get the piazza fountain running for Fede",
   "chef": "See the boars out of Ornella's bakery",
-  "captain": "Win Aldo's porcini bet",
+  "captain": "Reach a 120 approval rating",
   "crown": "Reach a 200 approval rating",
   "sailor": "Reach a 120 approval rating",
-  "backpack": "Help Fede test her metal detector"
+  "backpack": "Help Fede test her metal detector",
+  "drivercap": "Win Aldo's porcini bet",
+  "sash": "Reach a 200 approval rating"
  },
  "labels": {
   "round": "Round",
@@ -178,6 +192,18 @@
   "scarf": "Scarf",
   "backpack": "Backpack",
   "bowtie": "Bow tie",
-  "beard": "Beard"
+  "beard": "Beard",
+  "windbreaker": "Windbreaker",
+  "hoodie": "Hoodie",
+  "suit": "Suit",
+  "shirt": "Uniform shirt",
+  "workjacket": "Work jacket",
+  "jeans": "Baggy jeans",
+  "headphones": "Headphones",
+  "drivercap": "Driver's cap",
+  "sash": "Tricolour sash",
+  "pens": "Pocket of pens",
+  "discman": "CD player",
+  "apron": "Apron"
  }
 }

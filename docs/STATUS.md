@@ -1,9 +1,30 @@
 # Status
 
-Working title: **Wonderhaven** (to be renamed). The game is moving to a comic, late-1990s north-west Italy (`docs/WORLD.md`). The first location, **Monteforchetta** (`docs/MONTEFORCHETTA.md`), replaces Hearthglow in stages; **stages 1 to 3 (names and text, map and buildings, look and plants) are done** (see below). Clockwork Cove, from the old fantasy setting, is still in the game but hidden from the map.
+Working title: **Wonderhaven** (to be renamed). The game is moving to a comic, late-1990s north-west Italy (`docs/WORLD.md`). The first location, **Monteforchetta** (`docs/MONTEFORCHETTA.md`), replaces Hearthglow in stages; **stages 1 to 3 (names and text, map and buildings, look and plants) are done, and stage 4 has its outfits** (the music is next; see below). Clockwork Cove, from the old fantasy setting, is still in the game but hidden from the map.
 
 - **Godot 4 (`godot/`)** is the game. See `godot/README.md`. Its content (`godot/data/*.json`) is edited directly.
 - **Web / Three.js (`index.html`, `src/`)** is the original prototype, **frozen**: kept as it was, no longer updated. Everything added since the Godot port (interiors, shops, staged requests, the guided day, the look) exists only in Godot.
+
+## Monteforchetta, stage 4 (outfits; the music is next)
+Checked in Forward+ renders of the cast, reviewed by eye, by the headless tests, and in the character creator's screenshot; the playthroughs cover that nothing in play broke.
+- **The cast in late-1990s clothes:**
+  - the Sindaco: a dark suit with a tie and the tricolour sash;
+  - Gigia: a brown work jacket with big pockets and a corduroy collar, and rubber boots;
+  - Elio: blue overalls with a pocket full of pens and a screwdriver;
+  - Fede: an oversized hoodie, baggy jeans, white sneakers, headphones with orange foam pads and a CD player at her hip;
+  - Ornella: a baker's apron over a sweater;
+  - Aldo: a bus driver's shirt with shoulder straps and a peaked driver's cap.
+
+  Gigia's and Ornella's hair are natural colours now.
+- **The Geometra:** arrives in a colour-blocked windbreaker and carries a clipboard instead of the old magic staff. The creator says "Create your Geometra", and the default name is Geometra.
+- **New pieces for everyone:**
+  - tops: windbreaker, hoodie, suit, uniform shirt, work jacket;
+  - baggy jeans;
+  - hats: headphones, driver's cap;
+  - accessories: tricolour sash, pocket of pens, CD player, apron.
+
+  Most are in the wardrobe from the start. Aldo's porcini bet now gives his spare driver's cap; the captain's cap joins the sailor top at a 120 approval rating; the 200 milestone adds the Sindaco's spare sash, lent for the photographs.
+- **Tested:** every villager's outfit uses pieces that exist (none falls back to the default look), every piece builds a character, and every clothing reward and unlock hint names a real piece.
 
 ## Monteforchetta, stage 3 (look and plants)
 Checked in Forward+ screenshots, reviewed by eye, and by the headless tests; the playthroughs cover that nothing in play broke, not the look.

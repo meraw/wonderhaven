@@ -118,6 +118,7 @@ func test_camera_rays_ignore_a_thin_miss():
 func test_character_lathes_face_outward():
 	t.ok(_outward(Chibi._lathe("torso", Chibi.TORSO, 0.86), Vector3(0, 0.5, 0)) > 0.9, "torso normals point outward")
 	t.ok(_outward(Chibi._lathe("leg", Chibi.LEG), Vector3(0, -0.12, 0)) > 0.9, "leg normals point outward")
+	t.ok(_outward(Chibi._lathe("jeans_leg", Chibi.JEANS_LEG), Vector3(0, -0.12, 0)) > 0.9, "baggy jeans' normals point outward")
 
 func test_face_follows_mood_and_blink():
 	var c := Chibi.new({})
@@ -143,3 +144,27 @@ func test_castle_hall_floor_is_level():
 			if Interiors.room(castle).has_point(Vector3(x, 0.0, z)): worst_below = minf(worst_below, h - Heightfield.CASTLE_MOUND.y)
 	t.ok(worst_above < Props.CASTLE_FLOOR - 0.005, "no ground above the castle floor (highest %.3f m over the mound)" % worst_above)
 	t.ok(worst_below > -0.001, "the throne room's ground is level with the mound (lowest %.3f)" % worst_below)
+
+func test_the_cast_wear_their_own_clothes():
+	# Each Monteforchetta villager's outfit is made of pieces that exist, so none falls back to the default look,
+	# and every piece builds a character without errors.
+	var A: Dictionary = Data.appearance
+	for n in Data.npcs:
+		if Data.npc_island(n.id) != "hearthglow": continue
+		var app: Dictionary = n.appearance
+		var kept := Chibi.sanitize(app)
+		for k in ["top", "bottom", "shoes", "hat", "accessory"]:
+			t.eq(kept[k], app[k], "%s keeps their %s (%s)" % [n.name, k, app[k]])
+	for slot in [["top", "TOPS"], ["bottom", "BOTTOMS"], ["hat", "HATS"], ["accessory", "ACCESSORIES"]]:
+		for piece in A[slot[1]]:
+			var c := Chibi.new({slot[0]: piece})
+			t.ok(c.body != null and c.body.get_child_count() > 4, "%s %s builds" % [slot[0], piece])
+			c.free()
+	# Rewards and unlock hints name real pieces.
+	var all: Array = A.TOPS + A.BOTTOMS + A.SHOES + A.HATS + A.ACCESSORIES
+	for k in A.locked: t.ok(all.has(k), "the unlock hint for %s is for a real piece" % k)
+	for q in Data.quests:
+		for c in q.get("rewards", {}).get("clothes", []): t.ok(all.has(c), "%s gives a real piece (%s)" % [q.id, c])
+	for u in Data.harmony_unlocks:
+		for c in u.get("clothes", []): t.ok(all.has(c), "the %d milestone gives a real piece (%s)" % [int(u.at), c])
+	t.eq(A.default.top, "windbreaker", "the new Geometra arrives in a windbreaker")

@@ -1069,7 +1069,7 @@
      "coins": 25
     },
     "clothes": [
-     "captain"
+     "drivercap"
     ]
    },
    "dialogue": {
@@ -1090,7 +1090,7 @@
     ],
     "complete": [
      "Three! Real ones! I'd say you were lucky, but I've been unlucky for twenty years, so it evens out.",
-     "Here's the hat, driver {name}. It's a captain's hat. Don't ask why."
+     "Here, have my spare cap, driver {name}. The bus company sent me two. I've only got the one head."
     ]
    }
   },

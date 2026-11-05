@@ -78,7 +78,7 @@ func creator(wardrobe: bool = false) -> void:
 	var base: Dictionary = game.state.appearance.duplicate()
 	if not wardrobe:
 		base.hair = A.HAIR_STYLES[randi() % 6]; base.hairColor = A.HAIR_COLORS[randi() % A.HAIR_COLORS.size()]; base.topColor = A.CLOTH_COLORS[randi() % A.CLOTH_COLORS.size()]
-	draft = {"name": game.state.name if wardrobe else "Apprentice", "appearance": Chibi.sanitize(base)}
+	draft = {"name": game.state.name if wardrobe else "Geometra", "appearance": Chibi.sanitize(base)}
 	game.set_mode("creator"); game.hud.visible = false
 	game.player_char.visible = true
 	if not wardrobe: game.player.teleport(0, 9.5, 0.0)
@@ -108,7 +108,7 @@ func _render_creator() -> void:
 	p.offset_left = -500; p.offset_right = -30; p.offset_top = 24; p.offset_bottom = -24
 	add_child(p)
 	var outer := VBoxContainer.new(); p.add_child(outer)
-	outer.add_child(UiTheme.label("👗 Wardrobe" if wardrobe_mode else "✨ Create your apprentice", 24))
+	outer.add_child(UiTheme.label("👗 Wardrobe" if wardrobe_mode else "📋 Create your Geometra", 24))
 	var scroll := ScrollContainer.new(); scroll.name = "creator_scroll"; scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED; scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL; outer.add_child(scroll)
 	var v := VBoxContainer.new(); v.size_flags_horizontal = Control.SIZE_EXPAND_FILL; v.add_theme_constant_override("separation", 6); scroll.add_child(v)
 	if not wardrobe_mode:
@@ -202,7 +202,7 @@ func close_wardrobe(keep: bool) -> void:
 
 func start_new_game() -> void:
 	var n := String(draft.name).strip_edges()
-	var state := GameState.new_game(n if n != "" else "Apprentice", draft.appearance)
+	var state := GameState.new_game(n if n != "" else "Geometra", draft.appearance)
 	state.tutorial = Tutorial.new_state(guided)
 	_close()
 	var sp: Dictionary = Data.layout.spawn
