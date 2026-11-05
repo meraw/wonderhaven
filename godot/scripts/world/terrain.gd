@@ -429,6 +429,8 @@ uniform vec4 hrect = vec4(-62.0, -62.0, 124.0, 124.0);
 uniform float water_r = 100000.0;   // no water beyond this distance from the centre (inland places)
 uniform float ice = 0.0;            // thin ice on shallow water (a location's look, by the hour: Atmosphere.ice_at)
 uniform float foam_amount = 1.0;    // shore foam (a location's look: still paddy water has next to none)
+uniform sampler2D tints : source_color, filter_linear, repeat_disable;   // a location's water colours (Heightfield.water_tint)
+uniform bool has_tints = false;
 // Shared world values (Atmosphere); colours are linear.
 global uniform vec3 world_sun_dir;
 global uniform vec3 world_sun_color;
@@ -462,9 +464,17 @@ void fragment() {
 	float depth = max(0.0, water_y - ground);
 	vec3 col = mix(shallow.rgb, mid.rgb, smoothstep(0.0, 0.7, depth));
 	col = mix(col, deep.rgb, smoothstep(0.8, 2.2, depth));
+	// Silt clouding the water where the location says so (a brown river beside a clear one): its colour, lighter in
+	// the shallows, and it hides the bed. Past the map's edge the edge's colours carry on.
+	float murk = 0.0;
+	if (has_tints) {
+		vec4 tn = texture(tints, clamp(uv, vec2(0.0), vec2(1.0)));
+		murk = tn.a;
+		col = mix(col, tn.rgb * mix(1.06, 0.86, smoothstep(0.0, 1.6, depth)), murk);
+	}
 	// soft moving ripples
 	float n = noise(wpos.xz * 0.5 + vec2(TIME * 0.22, TIME * 0.15)) * noise(wpos.xz * 0.9 - vec2(TIME * 0.18, 0.0));
-	col += vec3(0.9, 0.97, 1.0) * smoothstep(0.36, 0.52, n) * 0.18;
+	col += vec3(0.9, 0.97, 1.0) * smoothstep(0.36, 0.52, n) * 0.18 * (1.0 - 0.7 * murk);   // (dull on silty water)
 	col *= 0.96 + 0.08 * noise(wpos.xz * 0.15 + TIME * 0.05);
 	// Surface normal from the ripples (calmer far away, where detail would only shimmer).
 	vec2 wd = normalize(world_wind.xy + vec2(0.0001));
@@ -480,7 +490,7 @@ void fragment() {
 	// your feet shows its depth.
 	float fr = pow(1.0 - clamp(dot(nrm, v), 0.0, 1.0), 4.0);
 	vec3 sky = mix(world_sky_horizon, world_sky_zenith, 0.55 + 0.35 * clamp(dot(reflect(-v, nrm), vec3(0.0, 1.0, 0.0)), 0.0, 1.0));
-	col = mix(col, sky, clamp(0.04 + fr * 0.6, 0.0, 0.42));
+	col = mix(col, sky, clamp(0.04 + fr * 0.6, 0.0, 0.42) * (1.0 - 0.45 * murk));   // silty water shows its own colour more
 	// raindrop rings when it rains
 	float wet = world_weather.z;
 	if (wet > 0.02) col += vec3(0.85, 0.92, 1.0) * (rings(q * 1.7, TIME) + rings(q * 2.3 + 0.5, TIME * 1.13)) * wet * 0.35 * (1.0 - smoothstep(0.03, 0.12, px));
@@ -505,6 +515,7 @@ void fragment() {
 	float lightness = world_weather.x + 0.35 * world_weather.y * (1.0 - world_weather.w);
 	EMISSION = world_sun_color * g * 7.0 * lightness * (1.0 - foam) * (1.0 - 0.6 * wet) * (1.0 - ic);
 	ALPHA = clamp(mix(0.5, 0.94, smoothstep(0.0, 1.0, depth)) + fr * 0.25 + foam * 0.5 + ic * 0.6, 0.0, 1.0);
+	ALPHA = mix(ALPHA, 0.96, murk * 0.85);
 }
 """
 
@@ -521,11 +532,24 @@ static func build_water(terrain: MeshInstance3D) -> MeshInstance3D:
 	sm.set_shader_parameter("hrect", terrain.get_meta("height_rect"))
 	sm.set_shader_parameter("water_y", Heightfield.WATER_Y)
 	sm.set_shader_parameter("water_r", water_radius())
+	if Heightfield.has_water_tint():
+		sm.set_shader_parameter("tints", ImageTexture.create_from_image(bake_water_tints(terrain.get_meta("height_rect"))))
+		sm.set_shader_parameter("has_tints", true)
 	m.material_override = sm
 	m.position.y = Heightfield.WATER_Y
 	m.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	m.name = "Water"
 	return m
+
+## A location's water colours (Heightfield.water_tint) over the height map's rect (x, z, width, depth), one pixel a
+## metre: the water shader blends them in by their alpha.
+static func bake_water_tints(rect: Vector4) -> Image:
+	var n := int(ceil(rect.z)) + 1
+	var img := Image.create(n, n, false, Image.FORMAT_RGBA8)
+	for j in n:
+		for i in n:
+			img.set_pixel(i, j, Heightfield.water_tint(rect.x + rect.z * i / (n - 1), rect.y + rect.w * j / (n - 1)))
+	return img
 
 ## Mist lying in the valley below a hilltop (a layout's `valley_fog`: {"y": top of the mist, ...}): a sheet at `y`
 ## that thins where the ground comes up through it, so slopes and hills rise out of a sea of fog. Atmosphere sets

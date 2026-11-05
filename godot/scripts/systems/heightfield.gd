@@ -18,6 +18,7 @@ static var _pack = null   # untyped, so its static functions can be called
 static var _pack_height := false
 static var _pack_stream := false
 static var _pack_paint := false
+static var _pack_water := false
 
 ## Switch to an island's ground.
 static func use(id: String) -> void:
@@ -29,6 +30,7 @@ static func use(id: String) -> void:
 	_pack_height = names.has("height")
 	_pack_stream = names.has("is_stream_cell")
 	_pack_paint = names.has("paint")
+	_pack_water = names.has("water_tint")
 
 # Clockwork Cove: a round island with Gearspring Hill to the north-east, a knoll with the lighthouse on the
 # north-west cape, a millrace (stream channel fed by a spring) by the clock tower, and a sheltered bay in the south.
@@ -107,6 +109,12 @@ static func is_water(x: float, z: float) -> bool: return height(x, z) < WALKABLE
 static func has_paint() -> bool: return _pack_paint
 static func paint(x: float, z: float) -> Color: return _pack.paint(x, z) if _pack_paint else Color(1, 1, 1, 1)
 static func meadow(x: float, z: float) -> float: return _pack.paint(x, z).a if _pack_paint else 1.0
+
+## Water colour: a location's script may define static water_tint(x, z) -> Color, the colour of the silt clouding its
+## water there (a brown river beside a clear one); its alpha is how cloudy (0 = clear, the look's own colours by depth).
+## It's asked for every point of the map, dry land too, so a flood over the land takes the colour it would have.
+static func has_water_tint() -> bool: return _pack_water
+static func water_tint(x: float, z: float) -> Color: return _pack.water_tint(x, z) if _pack_water else Color(0, 0, 0, 0)
 
 static func is_stream_cell(i: float, k: float) -> bool:
 	if _pack_stream: return _pack.is_stream_cell(i, k)

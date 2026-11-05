@@ -49,6 +49,8 @@ func play() -> void:
 ## Pictures of the places the story changes, for the pull request (--part=shots; RENDERER=forward_plus for Forward+).
 ## Test-only: it sets the story's flags and the clock directly instead of playing up to them.
 func view(x: float, z: float, yaw: float, pitch: float, dist: float, h: float, name: String) -> void:
+	var only := String(game.shot_cfg.get("only", ""))   # --only=aerial,the-bike takes just those
+	if only != "" and not name in only.split(","): return
 	game.state.time.minute = h * 60.0
 	game.player.teleport(x, z)
 	for a in game.npcs.values(): a.teleport_home()
@@ -84,6 +86,10 @@ func story_at(flags: Array) -> void:
 
 func shots() -> void:
 	game.shot_cfg["weather"] = "clear"
+	await view(-2.0, 12.0, PI * 0.9, 1.05, 82.0, 15.0, "aerial")
+	await view(17.0, 19.0, -PI * 0.78, 0.5, 20.0, 10.0, "where-the-rivers-meet")
+	await view(17.0, 19.0, -PI * 0.78, 0.5, 20.0, 6.6, "dawn-mist")
+	await view(-12.0, 30.0, PI * 0.75, 0.55, 18.0, 9.0, "the-floodplain")
 	await view(26.0, 9.0, 2.2, 0.42, 12.0, 11.0, "pumping-house")
 	await view(-41.5, 23.4, -2.2, 0.35, 8.0, 9.5, "ermes-waits")
 	await story_at(["welcomed", "bridge_open", "piazza_drained"])

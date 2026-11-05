@@ -135,3 +135,25 @@ func test_villagers_walk_across_what_you_bridged():
 	t.eq(Schedule.crossing("zzWest", "zzEast", {}), [], "nor before anything is built there")
 	if had: Data.layout["crossings"] = saved
 	else: Data.layout.erase("crossings")
+
+## A location can colour its water by area (Heightfield.water_tint): a brown river beside a clear one. Without the
+## hook the water keeps its look's own colours.
+func test_a_location_can_colour_its_water_by_area():
+	t.ok(not Heightfield.has_water_tint(), "Monteforchetta's water has no colours of its own")
+	var terrain := TerrainBuilder.build_terrain()
+	var water := TerrainBuilder.build_water(terrain)
+	t.ok(not (water.material_override as ShaderMaterial).get_shader_parameter("has_tints"), "...so its water shader blends nothing in")
+	water.free(); terrain.free()
+	Data.use_island("river_town")
+	terrain = TerrainBuilder.build_terrain()
+	water = TerrainBuilder.build_water(terrain)
+	var sm := water.material_override as ShaderMaterial
+	t.ok(sm.get_shader_parameter("has_tints") == true and sm.get_shader_parameter("tints") is Texture2D, "Boccapioppo's water gets a map of its colours")
+	var rect: Vector4 = terrain.get_meta("height_rect")
+	var img := TerrainBuilder.bake_water_tints(rect)
+	var px := func(x: float, z: float) -> Color: return img.get_pixel(int(round((x - rect.x) / rect.z * (img.get_width() - 1))), int(round((z - rect.y) / rect.w * (img.get_height() - 1))))
+	t.ok(img.get_width() >= int(rect.z) and px.call(-20.0, 46.0).a > 0.8, "one pixel a metre, and the Po's pixels are cloudy")
+	var alpine_x: float = load("res://scripts/locations/river_town.gd").alpine_center(-20.0)
+	t.eq(px.call(alpine_x, -20.0).a, 0.0, "the Alpine river's are clear")
+	water.free(); terrain.free()
+	Data.use_island("hearthglow")

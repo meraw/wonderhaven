@@ -9,6 +9,7 @@ extends RefCounted
 ## - the horizon: the Alps to the north, lines of poplars and other villages' bell towers across the plain, the first
 ##   Apennine hills beyond the Po.
 const P := preload("res://scripts/world/palette.gd")
+const Mist := preload("res://scripts/locations/river_town/mist.gd")
 
 static var _meshes: Dictionary = {}
 
@@ -27,6 +28,7 @@ static func dress(village: Node3D, rt) -> void:
 	_reeds(village, rt)
 	_stubble(village)
 	_horizon(village, rt)
+	village.add_child(Mist.make())   # on the water at dawn
 
 ## The story so far, as far as the scenery cares (Data.world_flags, the location's WORLD_FLAGS).
 static func _flag(f: String) -> bool: return Data.world_flags.get(f, false)
@@ -258,7 +260,7 @@ static func _flood(village: Node3D, rt) -> void:
 	village.add_child(pond); village.objects["river_town_pond"] = pond
 	pond.visible = not _flag("river_town_piazza_drained")   # the pumping house emptied it
 	var cleared := _flag("river_town_flood_over")            # after the storm night the town tidies up for good
-	# mud: grey-brown flats on the floodplain and the gravel where the river overflowed
+	# damp hollows in the mud, darker than the drying flats round them
 	var rng := RandomNumberGenerator.new(); rng.seed = 7
 	var mud: Array = []; var mcols: Array = []
 	var tries := 0
@@ -269,7 +271,7 @@ static func _flood(village: Node3D, rt) -> void:
 		if y < -0.12 or y > 0.45 or WorldStatics._near_building(x, z, 1.0) or WorldStatics.dist_to_paths(x, z) < 1.2: continue
 		var r := rng.randf_range(0.7, 1.9)
 		mud.append(Transform3D(Basis.from_euler(Vector3(0, rng.randf() * TAU, 0)).scaled(Vector3(r, 1, r * rng.randf_range(0.35, 0.7))), Vector3(x, y + 0.025, z)))
-		mcols.append(Color("8f8460").lerp(Color("7a7050"), rng.randf()))
+		mcols.append(Color("736c5f").lerp(Color("666054"), rng.randf()))
 	_mm(village, P.cyl(1.0, 1.0, 0.02, 14), _tint_mat(0.6), mud, mcols, false)
 	# the ferry, half sunk at the bank, its rope still tied to a post
 	for f in _props("river_town_ferry"):

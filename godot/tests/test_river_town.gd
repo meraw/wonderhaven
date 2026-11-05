@@ -300,3 +300,44 @@ func test_the_crossings_you_build_are_walkable():
 			slip.append(pl)
 		w.surfaces = BuildGrid.surfaces_for(slip)
 		t.ok(Validate.path_across(moor, w).ok, "two planks from beside the houseboat out over the backwater make her slipway"))
+
+## Stage 4: the ground is painted (grey flood mud outside the levee, white pebbles along the Alpine river, the Po's
+## sandbank, maize stubble, autumn grass in town) and the two rivers look different: the Alpine river clear, the Po
+## brown, with the clear water's plume where they meet.
+func test_the_ground_and_the_two_waters():
+	_on(func():
+		t.ok(Heightfield.has_paint() and Heightfield.has_water_tint(), "Boccapioppo paints its ground and colours its water")
+		var bare := 0; var n := 0
+		for x in range(-48, -6, 3):
+			for z in range(26, 33, 2):
+				if Heightfield.height(x, z) < 0.0: continue
+				n += 1
+				if Heightfield.meadow(x, z) < 0.5: bare += 1
+		t.ok(bare > n * 0.7, "the floodplain is mostly bare mud (%d of %d spots), with grass coming back in patches" % [bare, n])
+		var mud := Heightfield.paint(-30.0, 28.0)
+		t.ok(mud.g <= mud.r and mud.s < 0.3, "the mud is grey-brown, not green (%s)" % mud.to_html(false))
+		t.eq(Heightfield.meadow(-10.0, 0.0), 1.0, "the town is grass")
+		var gx := RT.alpine_center(-30.0) + RT.ALPINE_HALF + 0.8
+		var peb := Heightfield.paint(gx, -30.0)
+		t.ok(Heightfield.height(gx, -30.0) > Heightfield.WALKABLE_MIN and peb.v > 0.7 and Heightfield.meadow(gx, -30.0) == 0.0, "white pebbles along the Alpine river (%s)" % peb.to_html(false))
+		t.ok(Heightfield.meadow(RT.SANDBANK.x, RT.SANDBANK.z) == 0.0 and Heightfield.paint(RT.SANDBANK.x, RT.SANDBANK.z).v > 0.8, "the Po's sandbank is pale sand")
+		t.eq(Heightfield.meadow(-45.0, -45.0), 0.0, "the maize fields north-west of town are stubble")
+		var decor := WorldStatics.generate_decor()
+		t.ok(decor.grass.all(func(g): return Heightfield.meadow(g.x, g.z) >= 0.5), "no grass tufts on the mud, the pebbles or the stubble")
+		# the waters
+		var po := Heightfield.water_tint(-20.0, 46.0)
+		t.ok(po.a > 0.8 and po.r > po.b + 0.15, "the Po is brown and cloudy (%s, %.2f)" % [po.to_html(false), po.a])
+		t.eq(Heightfield.water_tint(RT.alpine_center(-20.0), -20.0).a, 0.0, "the Alpine river is clear")
+		var mx := RT.alpine_center(RT.po_bank(30.0))
+		var mouth := Heightfield.water_tint(mx, RT.po_bank(mx) + 1.0)
+		var down := Heightfield.water_tint(mx + 30.0, RT.po_bank(mx + 30.0) + 1.0)
+		t.ok(mouth.a < 0.3 and down.a > 0.8, "where they meet you can see the line: clear at the Alpine river's mouth (%.2f), brown downstream (%.2f)" % [mouth.a, down.a])
+		var bw := Heightfield.water_tint(RT.BACKWATER.x, RT.BACKWATER.z)
+		t.ok(bw.a > 0.5 and bw.a < po.a, "the backwater is still and green-brown"))
+
+## A thin mist on the water at dawn only, lying below the floodplain so only the water shows it.
+func test_mist_on_the_water_at_dawn():
+	var M := preload("res://scripts/locations/river_town/mist.gd")
+	t.ok(M.amount_at(6.5) > 0.9 and M.amount_at(8.5) > 0.0, "a mist lies on the water at dawn, thinning by mid-morning")
+	t.ok(M.amount_at(10.0) == 0.0 and M.amount_at(15.0) == 0.0 and M.amount_at(23.0) == 0.0 and M.amount_at(3.0) == 0.0, "...and none the rest of the day")
+	t.ok(M.Y > Heightfield.WATER_Y + 0.1 and M.Y < RT.FLOOD_H - 0.1, "it lies above the water and below the floodplain (%.2f m)" % M.Y)
