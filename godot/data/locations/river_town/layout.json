@@ -1082,6 +1082,16 @@
    "node": "river_town_fish4"
   },
   {
+   "id": "river_town_tyre_for_primo",
+   "name": "tyre",
+   "weight": 40.0,
+   "pull": 0.5,
+   "item": "river_town_tyre",
+   "node": "river_town_fish2",
+   "flag": "river_town_bike_asked",
+   "caught": "An old tyre! Just what Primo needs for your bike."
+  },
+  {
    "id": "river_town_trout",
    "name": "Marble Trout",
    "weight": 4.0,
@@ -1219,7 +1229,8 @@
    "id": "river_town_boulder3",
    "kind": "mine",
    "x": 37.0,
-   "z": -21
+   "z": -21,
+   "rich": true
   },
   {
    "id": "river_town_silt0",

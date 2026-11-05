@@ -242,6 +242,58 @@ func set_flag(f: String, v: bool = true) -> void:
 	state.flags[f] = v
 	emit_event("flag", {"flag": f, "value": v})
 	if Data.world_flags_of(Data.island, state.flags) != Data.world_flags: request_rebuild()
+	if f == Bicycle.OWNED or Bicycle.UPGRADES.values().has(f): refresh_bike()
+
+# ---- The bicycle (Bicycle, BikeModel) -----------------------------------------------------------------------------
+var bike_node: Node3D = null
+var ride_dist := 0.0
+
+## The bike under the player, as the story has it (owned, its upgrades and paint), shown while you ride.
+func refresh_bike() -> void:
+	if bike_node: bike_node.queue_free(); bike_node = null
+	if not Bicycle.owned(state.flags): return
+	bike_node = BikeModel.build(Bicycle.color(state), Bicycle.upgrades(state.flags))
+	player_char.add_child(bike_node)
+	bike_node.visible = player.riding
+
+func toggle_bike() -> void:
+	if player.riding: dismount(); return
+	var why := Bicycle.cant_mount(state.flags, Data.island_def(Data.island), Bicycle.indoors(player.pos), Bicycle.on_stairs(player.pos))
+	if why == "" and not sitting.is_empty(): why = "Stand up first."
+	if why != "":
+		if Bicycle.owned(state.flags): toast(why, "warn", 2.0)
+		return
+	if bike_node == null: refresh_bike()
+	player.riding = true; ride_dist = 0.0
+	bike_node.visible = true
+	player_char.play("ride", true)
+	sfx("select")
+
+## Off the bike: by choice, or by itself (quiet) to talk, build, gather or sleep, indoors and on stairs.
+func dismount(quiet: bool = false) -> void:
+	if not player.riding: return
+	player.riding = false
+	if bike_node: bike_node.visible = false
+	if player_char.hold == "ride": player_char.stop_hold()
+	if not quiet: sfx("select")
+
+func update_bike(dt: float) -> void:
+	if not player.riding: return
+	if mode in ["dialogue", "build", "minigame", "cutscene"] or not sitting.is_empty() or Bicycle.indoors(player.pos) or Bicycle.on_stairs(player.pos):
+		dismount(true); return
+	var before := ride_dist
+	ride_dist += player.speed * dt
+	if before < 25.0 and ride_dist >= 25.0: story.event("bike_ride")   # a request can ask you to try it out
+	BikeModel.animate(bike_node, dt, player.speed, state.flags.get("night", false))
+
+func ring_bell() -> void:
+	sfx("bell")
+	for a in npcs.values():
+		if a.present and Vector2(a.pos.x - player.pos.x, a.pos.z - player.pos.z).length() < 8.0: a.character.play("wave")
+
+func repaint_bike() -> void:
+	state["bike_color"] = Bicycle.next_color(Bicycle.color(state))
+	refresh_bike(); sfx("paint")
 
 ## The story changed the place you're on (one of its location's WORLD_FLAGS: a piazza drained, a boat launched).
 ## It is built again where you stand once the conversation that did it has ended, the way sailing rebuilds the
@@ -470,6 +522,7 @@ func load_state(s: Dictionary) -> void:
 	player_char.set_appearance(s.appearance)
 	player_char.show_staff(s.flags.get("hasTool", false))
 	player.teleport(s.player.x, s.player.z, s.player.yaw)
+	dismount(true); refresh_bike()
 	rebuild_all_pieces()
 	send_villagers_home()
 	actions.refresh_all()
@@ -487,6 +540,7 @@ func send_villagers_home() -> void:
 func begin_play() -> void:
 	started = true
 	hud.visible = true
+	refresh_bike()
 	render_resources(); hud.render_harmony(); hud.render_tracker()
 	set_mode("explore")
 	guide.reset()
@@ -779,6 +833,9 @@ func _process(dt: float) -> void:
 				else: player_char.animate(dt)
 			else:
 				player.update(dt, move_vector(), Input.is_action_pressed("sprint"), Input.is_action_just_pressed("jump"), cam.move_yaw(), true)
+			if Input.is_action_just_pressed("bike"): toggle_bike()
+			elif player.riding and Input.is_action_just_pressed("bell") and Bicycle.has(state.flags, "bell"): ring_bell()
+			elif player.riding and Input.is_action_just_pressed("recolor") and Bicycle.has(state.flags, "paint"): repaint_bike()
 			if Input.is_action_just_pressed("build"):
 				if build.open(): set_mode("build")
 			elif Input.is_action_just_pressed("inventory"): panels.inventory()
@@ -796,6 +853,7 @@ func _process(dt: float) -> void:
 			if mode == "dialogue": dialogue.update(dt)
 			if mode == "minigame": minigame.update(dt)
 			if mode == "menu": panels.update(dt)
+	update_bike(dt)
 	for a in npcs.values(): a.update(dt)
 	actions.update(dt)
 	cam.update(dt, player.pos)
@@ -829,6 +887,10 @@ func _update_hotkeys() -> void:
 	var progress_name: String = String(meter_def.get("short", String(meter_def.get("name", "Approval")).trim_prefix("The ")))
 	for pair in [["inventory", "Bag"], ["journal", "Journal"], ["map", "Map"], ["progress", progress_name]]:
 		if Tutorial.revealed(tut, "key:" + pair[0]): entries.append([k.call(pair[0]), pair[1]])
+	if Bicycle.owned(state.flags) and Bicycle.allowed(Data.island_def(Data.island)):
+		entries.append([k.call("bike"), "Get off" if player.riding else "Bike"])
+		if player.riding and Bicycle.has(state.flags, "bell"): entries.append([k.call("bell"), "Bell"])
+		if player.riding and Bicycle.has(state.flags, "paint"): entries.append([k.call("recolor"), "Repaint"])
 	entries.append([k.call("pause"), "Menu"])
 	var t: String = " · ".join(entries.map(func(e): return "%s %s" % e))
 	if t == hotkeys.text: return

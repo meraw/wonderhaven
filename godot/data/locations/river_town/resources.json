@@ -89,6 +89,16 @@
    "name": "Monster's Whisker",
    "icon": "〰️",
    "color": "#4a4a42"
+  },
+  "river_town_letter": {
+   "name": "Letter",
+   "icon": "✉️",
+   "color": "#f4f1ea"
+  },
+  "river_town_parcel": {
+   "name": "Tuba-Shaped Parcel",
+   "icon": "📦",
+   "color": "#c9a06e"
   }
  },
  "order": [
@@ -108,6 +118,8 @@
   "river_town_photo",
   "river_town_walkman",
   "river_town_oar",
-  "river_town_whisker"
+  "river_town_whisker",
+  "river_town_letter",
+  "river_town_parcel"
  ]
 }

@@ -35,9 +35,10 @@
    "at": 120,
    "id": "newsletter",
    "title": "Front Page of the Newsletter",
-   "desc": "The town hall newsletter puts your photo on the front page, just under the Sindaco's. A sailor top turns up for you in the lost property box.",
+   "desc": "The town hall newsletter puts your photo on the front page, just under the Sindaco's. A sailor top and a captain's cap turn up for you in the lost property box.",
    "clothes": [
-    "sailor"
+    "sailor",
+    "captain"
    ]
   },
   {
@@ -53,9 +54,10 @@
    "at": 200,
    "id": "crown",
    "title": "Honorary Citizen",
-   "desc": "A paper crown from the Sindaco's last birthday party. The proper sash is on order.",
+   "desc": "The Sindaco lends you his spare tricolour sash for the photographs, and a paper crown from his last birthday party.",
    "clothes": [
-    "crown"
+    "crown",
+    "sash"
    ]
   },
   {

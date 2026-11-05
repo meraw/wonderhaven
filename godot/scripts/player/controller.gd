@@ -12,6 +12,8 @@ var speed := 0.0
 var moving := false
 var walk_speed := 4.4
 var run_speed := 7.2
+var riding := false   # on the bicycle (Bicycle): faster, no hopping, steadier turns, a lean into them
+var lean := 0.0
 var body := {"x": 0.0, "z": 0.0, "r": WalkWorld.PLAYER_RADIUS}
 
 func _init(p_char: Chibi, p_walk: WalkWorld, x: float, z: float, p_yaw: float) -> void:
@@ -25,7 +27,8 @@ func teleport(x: float, z: float, p_yaw = null) -> void:
 
 func update(dt: float, move: Vector2, run: bool, jump: bool, cam_yaw: float, enabled: bool = true) -> void:
 	if not enabled: move = Vector2.ZERO; run = false; jump = false
-	var target := (run_speed if run else walk_speed) * minf(1.0, move.length())
+	if riding: jump = false
+	var target := (Bicycle.SPEED if riding else (run_speed if run else walk_speed)) * minf(1.0, move.length())
 	speed += (target - speed) * minf(1.0, dt * 10.0)
 	var fx := -sin(cam_yaw)
 	var fz := -cos(cam_yaw)
@@ -35,9 +38,13 @@ func update(dt: float, move: Vector2, run: bool, jump: bool, cam_yaw: float, ena
 	var dz := fz * move.y + rz * move.x
 	var l := sqrt(dx * dx + dz * dz)
 	moving = l > 0.05
+	var turn := 0.0
 	if moving:
 		dx /= l; dz /= l
-		yaw = lerp_angle(yaw, atan2(dx, dz), 1.0 - exp(-14.0 * dt))
+		var before := yaw
+		yaw = lerp_angle(yaw, atan2(dx, dz), 1.0 - exp(-(5.0 if riding else 14.0) * dt))
+		turn = wrapf(yaw - before, -PI, PI) / maxf(dt, 1e-4)
+	lean = lerpf(lean, clampf(-turn * 0.12, -0.3, 0.3) if riding else 0.0, 1.0 - exp(-6.0 * dt))
 	var total := speed * dt
 	var steps := maxi(1, int(ceil(total / 0.12)))
 	var moved_any := false
@@ -63,11 +70,12 @@ func update(dt: float, move: Vector2, run: bool, jump: bool, cam_yaw: float, ena
 	else:
 		pos.y = ground; grounded = true
 	sync()
-	character.animate(dt, speed / walk_speed if moving else 0.0, not grounded)
+	character.animate(dt, speed / walk_speed if moving else 0.0, not grounded and not riding)
 
 func sync() -> void:
 	body.x = pos.x; body.z = pos.z
 	character.position = pos
 	character.rotation.y = yaw
+	character.rotation.z = lean
 
 func forward() -> Vector2: return Vector2(sin(yaw), cos(yaw))
