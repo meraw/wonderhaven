@@ -21,7 +21,7 @@
      "kind": "gather",
      "item": "wood",
      "count": 3,
-     "text": "Chop 3 wood from a tree with a pink ribbon (on the slope beside the village gate)",
+     "text": "Chop 3 wood from a tree with a pink ribbon (in the grove by the village gate)",
      "hint": {
       "x": -29,
       "z": 13.5
@@ -82,11 +82,11 @@
   {
    "id": "bridge",
    "title": "The Washed-Out Road",
-   "giver": "fern",
+   "giver": "captain",
    "main": true,
    "type": "construction",
    "chapter": 1,
-   "description": "The storm washed away the crossing over the stream, cutting off Gigia's hazelnut groves and the road Aldo's bus comes up. Gather wood, rebuild a crossing people can actually walk across, then add railings.",
+   "description": "The storm washed out the main road's crossing over the stream, cutting off Gigia's hazelnut groves and stranding Aldo's bus at the lay-by. Gather wood, rebuild a crossing people can actually walk across, then add railings.",
    "requires": {
     "quests": [
      "tool"
@@ -144,9 +144,9 @@
     {
      "id": "tell",
      "kind": "talk",
-     "npc": "fern",
+     "npc": "captain",
      "final": true,
-     "text": "Tell Gigia the crossing is open"
+     "text": "Tell Aldo the crossing is open"
     }
    ],
    "rewards": {
@@ -165,25 +165,25 @@
    },
    "dialogue": {
     "offer": [
-     "You're the Geometra? Good. Sit down. No, stand up, there's work.",
-     "The storm took the crossing over the stream. My groves are on the other side, and so is the road Aldo's bus comes up. Nobody gets in, nothing gets out, and my trees think I've abandoned them.",
-     "Can you rebuild it? Planks can stretch two tiles over the water. After that they need a post underneath. And railings. I'm not having the Sindaco fall in. Well. Not on my land."
+     "You're the new Geometra? Aldo Barbero. I drove you up. You slept through the best bend. Bend thirty-one. There's a story about a goat.",
+     "Here's my problem. The storm washed out the crossing on the main road, down past Gigia's groves. I came up the old mule track instead, and this bus is not going back down it. Not with me inside.",
+     "Rebuild the crossing so people can walk across it, with railings, please. Planks can stretch two tiles over the water; after that they need a post underneath. Then Gigia gets her groves back and I stop sleeping on the back seat."
     ],
     "acceptLabel": "I'll rebuild the crossing",
     "declineLabel": "Maybe later",
     "accept": [
-     "Good. I've chalked out where the old one stood, you'll see it at the washout. But build it however you like. You're the Geometra.",
-     "Here's some wood to start. Gather the rest, then build. Railings last."
+     "Good. The line of the old one is still chalked on the ground at the washout. Build it however you like, you're the one with the diploma.",
+     "Here's some wood. I keep it under the seats for emergencies. Gather the rest, build it, then the railings."
     ],
     "decline": [
-     "Fine. The trees are patient. I'm less patient, but I'm older."
+     "No hurry. The bus and I have nowhere to be. That's the problem."
     ],
     "progress": [
      "Wood first, then build from bank to bank. Planks reach two tiles from the bank or from a post. Then four railings."
     ],
     "complete": [
-     "Listen. Hear that? That's the groves. Aunt Teresa is rustling. That means thank you.",
-     "Here, my best flower-bed plan and a young tree. Plant something. The village could use it."
+     "Open? Properly open? I'll take your word for it, and Gigia's. I'm not walking it. I drive.",
+     "Gigia sent this over for you: her flower-bed plan and a young tree. She says plant something. The village could use it."
     ]
    }
   },
@@ -218,9 +218,9 @@
      "id": "wood",
      "kind": "gather",
      "item": "wood",
-     "count": 10,
+     "count": 12,
      "stage": 0,
-     "text": "Gather 10 wood for the fittings"
+     "text": "Gather 12 wood for the fittings"
     },
     {
      "id": "metal",
@@ -238,12 +238,12 @@
      "id": "crystal",
      "kind": "gather",
      "item": "crystal",
-     "count": 1,
+     "count": 2,
      "stage": 0,
-     "text": "Find copper wire for a second lamp (dig through the big street bins)",
+     "text": "Have 2 lengths of copper wire, one per lamp (Elio gives you one; dig the other out of the big street bins)",
      "hint": {
-      "x": -30,
-      "z": -12
+      "x": -7.6,
+      "z": 5.2
      }
     },
     {
@@ -478,76 +478,13 @@
    }
   },
   {
-   "id": "decree",
-   "title": "Ordinance No. 47",
-   "giver": "percival",
-   "main": true,
-   "type": "character",
-   "chapter": 1,
-   "description": "The lower road has been closed by Town Hall Ordinance No. 47 for years. The Sindaco will lift it once his approval rating reaches 120.",
-   "requires": {
-    "quests": [
-     "bridge"
-    ]
-   },
-   "objectives": [
-    {
-     "id": "harmony",
-     "kind": "harmony",
-     "value": 120,
-     "text": "Raise the Sindaco's approval rating to 120 by helping the village"
-    },
-    {
-     "id": "tell",
-     "kind": "talk",
-     "npc": "percival",
-     "final": true,
-     "text": "Ask the Sindaco to lift the ordinance"
-    }
-   ],
-   "rewards": {
-    "harmony": 0,
-    "items": {
-     "coins": 30
-    },
-    "clothes": [
-     "sailor"
-    ],
-    "flags": [
-     "harborOpen"
-    ]
-   },
-   "dialogue": {
-    "offer": [
-     "Geometra! Your crossing has been noticed at the very highest level. By me. The Sindaco.",
-     "You may have heard that the lower road is closed by Ordinance Number Forty-Seven. I signed it during a hard winter. The reasons are… archived.",
-     "Help the villagers, mend what is broken, and when my approval rating reaches one hundred and twenty, I shall lift it! With a ceremony. Possibly a band."
-    ],
-    "acceptLabel": "I'll win over the village",
-    "declineLabel": "Maybe another time",
-    "accept": [
-     "Splendid! I shall prepare scissors. And a ribbon. And a speech about the scissors."
-    ],
-    "decline": [
-     "Very well. The ordinance shall remain ordained."
-    ],
-    "progress": [
-     "Approval grows with every good deed. Check it with P. I check mine hourly."
-    ],
-    "complete": [
-     "By the authority vested in me by the voters, and by me, I hereby lift Ordinance Number Forty-Seven!",
-     "The lower road is open! Go and see. And take this sailor's outfit. It was in the lost property box. Ceremonially."
-    ]
-   }
-  },
-  {
    "id": "home",
    "title": "A Roof of Your Own",
    "giver": "percival",
    "main": true,
    "type": "construction",
    "chapter": 1,
-   "description": "The Sindaco will sell you the plot where the old farmhouse stood, beside the guest house, for a symbolic 100,000 lire. Pay for the deed, build a little house there, then make it cosy.",
+   "description": "The Sindaco will sell you the ruined farmhouse across the stream, where the vines meet the woods, for a symbolic 100,000 lire. Pay for the deed, rebuild a little house there, then make it cosy.",
    "requires": {
     "quests": [
      "bridge"
@@ -566,7 +503,7 @@
      "label": "Pay 100 coins for the deed",
      "text": "Pay the Sindaco 100,000 lire for the plot's deed (sell spare goods at the shops)",
      "lines": [
-      "Splendid! Signed, sealed and very slightly sticky. The plot beside the inn is yours.",
+      "Splendid! Signed, sealed and very slightly sticky. The old farmhouse is yours. Roof not included.",
       "Here are the house blueprints and a few planks to begin. The kingdom provides! Once paid for."
      ],
      "onDone": {
@@ -620,11 +557,11 @@
       }
      ],
      "stage": 1,
-     "text": "Build your home on the plot beside the guest house: 3 walls, a door, a roof and a bed",
+     "text": "Rebuild the ruined farmhouse across the stream: 3 walls, a door, a roof and a bed",
      "buildHint": "Walls stand on cell edges; the roof rests on top of them.",
      "hint": {
-      "x": 21.5,
-      "z": 12.5
+      "x": 18,
+      "z": -34
      }
     },
     {
@@ -665,8 +602,8 @@
      ],
      "text": "Make it cosy: a table, a seat and two homely touches",
      "hint": {
-      "x": 21.5,
-      "z": 12.5
+      "x": 18,
+      "z": -34
      }
     },
     {
@@ -689,7 +626,7 @@
    "dialogue": {
     "offer": [
      "Geometra! A professional like you should not sleep in a guest room under a portrait of my grandfather forever.",
-     "The plot where the old farmhouse stood, beside the guest house, could be yours. For a symbolic price: one hundred thousand lire. The town hall has upkeep, you know. Battlements don't polish themselves.",
+     "The ruined farmhouse across the stream, where the vines meet the woods, could be yours. For a symbolic price: one hundred thousand lire. The town hall has upkeep, you know. Battlements don't polish themselves.",
      "Sell your spare goods at the village shops, then bring me the money."
     ],
     "acceptLabel": "A home of my own!",
@@ -716,38 +653,83 @@
    "main": true,
    "type": "construction",
    "chapter": 1,
-   "description": "The region has sent a new city bus, and it's too long to turn round anywhere up here. Lay the platform for a new stop out to the old posts by the lower road, so the line to the city can run.",
+   "description": "The region has sent a new city bus, and it's too long to turn round anywhere up here. Pave a turning circle on the belvedere at the south end, with a bench and a sign for the stop, so the line to the city can run.",
    "requires": {
     "quests": [
-     "decree"
+     "fountain"
     ]
    },
    "onAccept": {
+    "blueprints": [
+     "gardenPath",
+     "bench",
+     "signpost"
+    ],
     "items": {
-     "wood": 4
+     "stone": 4,
+     "wood": 2
     }
    },
    "objectives": [
     {
-     "id": "wood",
+     "id": "stone",
      "kind": "gather",
-     "item": "wood",
+     "item": "stone",
      "count": 12,
      "stage": 0,
-     "text": "Gather 12 wood for the platform"
+     "text": "Mine 12 stone for the paving (the old quarry)",
+     "hint": {
+      "x": -30,
+      "z": -7
+     }
     },
     {
-     "id": "build",
-     "kind": "build",
-     "check": "dock",
+     "id": "paving",
+     "kind": "pieces",
      "zone": "dock",
+     "any": [
+      "gardenPath",
+      "stoneBlock",
+      "foundation"
+     ],
+     "count": 12,
      "stage": 1,
-     "text": "Lay the new stop's platform out to the old posts",
-     "goal": "Planks from the bank out to the far post",
-     "buildHint": "The old posts hold planks up.",
+     "text": "Pave the turning circle on the belvedere (12 paving stones)",
+     "buildHint": "Garden paths make good paving.",
      "hint": {
-      "x": 5,
-      "z": 44
+      "x": 4,
+      "z": 37
+     }
+    },
+    {
+     "id": "bench",
+     "kind": "pieces",
+     "zone": "dock",
+     "any": [
+      "bench"
+     ],
+     "count": 1,
+     "stage": 1,
+     "text": "Put a bench at the stop",
+     "hint": {
+      "x": 4,
+      "z": 37
+     }
+    },
+    {
+     "id": "sign",
+     "kind": "pieces",
+     "zone": "dock",
+     "any": [
+      "signpost",
+      "streetlight"
+     ],
+     "count": 1,
+     "stage": 1,
+     "text": "Put up a signpost or a street light",
+     "hint": {
+      "x": 4,
+      "z": 37
      }
     },
     {
@@ -755,7 +737,7 @@
      "kind": "talk",
      "npc": "captain",
      "final": true,
-     "text": "Tell Aldo the stop is ready"
+     "text": "Tell Aldo the turnaround is ready"
     }
    ],
    "rewards": {
@@ -772,23 +754,22 @@
    },
    "dialogue": {
     "offer": [
-     "You must be the Geometra everyone's talking about. Literally. Ornella made up a song. It's not a good song.",
-     "The region has finally sent us a new bus. It's beautiful. It's also two metres too long to turn round anywhere in this village.",
-     "The old posts by the lower road are still standing. Lay a platform out to the last one and we'll have a stop worthy of the city line!"
+     "Big news. The region has finally sent us a new bus. A city bus. It's beautiful. It's also two metres too long to turn round anywhere in this village.",
+     "The belvedere at the south end is the only flat bit wide enough. Pave a turning circle there, give me a bench and a sign, and the city line can run."
     ],
-    "acceptLabel": "One bus stop, coming up",
+    "acceptLabel": "One turnaround, coming up",
     "declineLabel": "Not yet, Aldo",
     "accept": [
-     "That's the spirit! Here's some timber. It fell off a lorry. Ask me about the lorry sometime."
+     "That's the spirit! Here's some stone and timber. It fell off a lorry. Ask me about the lorry sometime."
     ],
     "decline": [
      "The bus will wait. Buses are very good at waiting. It's mostly what they do."
     ],
     "progress": [
-     "Planks from the bank out to the far post. The old posts will hold them up."
+     "Twelve paving stones in the turning circle, a bench to wait on and a sign so people know it's a stop. Nobody waits for a bus without a sign. I've tested this."
     ],
     "complete": [
-     "Would you look at that. A stop fit for a city bus. Or a bus that thinks it's a city.",
+     "Would you look at that. A turning circle fit for a city bus. Or a bus that thinks it's a city.",
      "Climb aboard whenever you like. The line doesn't go anywhere new yet, but the map's ready for when it does."
     ]
    }
@@ -1051,30 +1032,26 @@
   },
   {
    "id": "catch",
-   "title": "Aldo's Fish Story",
+   "title": "Aldo's Porcini Bet",
    "giver": "captain",
    "type": "collection",
    "chapter": 1,
-   "description": "Aldo swears he once caught a pike as long as his bus. He bets you can't even catch five fish.",
+   "description": "Aldo bets you can't find three porcini in the woods across the stream. He has never found one himself, and says that proves they're rare.",
    "requires": {
     "quests": [
-     "decree"
+     "bridge"
     ]
    },
-   "hours": [
-    5,
-    10
-   ],
    "objectives": [
     {
-     "id": "fish",
-     "kind": "event",
-     "event": "fish",
-     "count": 5,
-     "text": "Catch 5 fish (fishing spots by the stream and the lower road)",
+     "id": "porcini",
+     "kind": "gather",
+     "item": "mushroom",
+     "count": 3,
+     "text": "Find 3 porcini in the woods across the stream",
      "hint": {
-      "x": -8,
-      "z": -14.6
+      "x": -25,
+      "z": -27.5
      }
     },
     {
@@ -1082,7 +1059,7 @@
      "kind": "talk",
      "npc": "captain",
      "final": true,
-     "text": "Show Aldo your catch"
+     "text": "Show Aldo your porcini"
     }
    ],
    "rewards": {
@@ -1096,24 +1073,24 @@
    },
    "dialogue": {
     "offer": [
-     "Anyone can drive a bus. Fishing is the real art. I once caught a pike as long as my bus. Well. As long as a small bus. A minibus.",
-     "Catch me five fish and I'll make you an honorary driver. There's a hat."
+     "Porcini. Everyone in this valley claims to know a secret spot. I've been looking for twenty years. I found a shoe once.",
+     "Bet you can't find three in the woods across the stream. If you do, I'll make you an honorary driver. There's a hat."
     ],
-    "acceptLabel": "Challenge accepted",
+    "acceptLabel": "You're on",
     "declineLabel": "I'll pass",
     "accept": [
-     "Cast your line, wait for the bite, and keep the tension steady. Like a good clutch."
+     "Look under the chestnuts and oaks, where it's damp. And don't tell anyone where. That's the rule. Nobody knows why."
     ],
     "decline": [
-     "Suit yourself. More fish for the fish."
+     "Suit yourself. More porcini for the boars."
     ],
     "progress": [
-     "Steady on the reel. Too much tension and SNAP. Like the old bus's fan belt."
+     "Three porcini. Little brown caps, fat white stems. If it's red with white spots, put it down and wash your hands."
     ],
     "complete": [
-     "Five fine fish! You're a natural. Here's the hat, driver {name}. It's a captain's hat. Don't ask why."
-    ],
-    "later": "The fish bite best at dawn. Find me early, between 5 and 10 in the morning."
+     "Three! Real ones! I'd say you were lucky, but I've been unlucky for twenty years, so it evens out.",
+     "Here's the hat, driver {name}. It's a captain's hat. Don't ask why."
+    ]
    }
   },
   {

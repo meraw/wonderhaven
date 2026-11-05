@@ -422,7 +422,7 @@ func sec_dancehall() -> void:
 	var dh_ok: bool = qs("dancehall") == "active"
 	await buy("primo", "crystal", 2)
 	await gather_more("mine", func(): return inv("stone") >= 1)
-	await gather_more("chop", func(): return int(q(P + "dancehall").progress.get("wood", 0)) >= 14 and inv("wood") >= 17)
+	await gather_more("chop", func(): return int(q(P + "dancehall").progress.get("wood", 0)) >= 15 and inv("wood") >= 17)
 	await walk_to(12.4, 31.5, 0.6); await walk_direct(12.8, 31.5, 0.4)
 	await open_build(P + "hall")
 	await select_piece("floor")

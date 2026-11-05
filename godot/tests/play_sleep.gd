@@ -1,6 +1,7 @@
 extends "res://tests/full_base.gd"
 ## Sleeping until a chosen time, and requests that keep hours, with real input: nap on a bench in the square until the
-## evening, find Mabel's morning request isn't offered then, sleep in the inn until morning and find it is; and a
+## evening, find Mabel's morning request isn't offered then, sleep in the castle's guest room until morning and find
+## it is; and a
 ## bench can also just be sat on.
 
 func play() -> void:
@@ -27,11 +28,11 @@ func play() -> void:
 	# Mabel's squirrel request is a morning one
 	var e: QuestEngine = game.story.engine
 	check("s3", "In the evening Mabel doesn't offer her morning request, but says when to come back", not e.can_offer("squirrels") and e.later_for("mabel").any(func(q): return q.id == "squirrels") and game.story.marker_for("mabel") != "offer", game.story.marker_for("mabel"))
-	# Sleep at the Lantern Inn until morning
+	# Sleep in the castle's guest room (the camp bed in the hall) until morning
 	var bed := feature("bed")
-	game.player.teleport(bed.x - 1.4, bed.z + 0.4, PI / 2); game.cam.snap(); await frames(10)
+	game.player.teleport(bed.x - 0.95, bed.z + 0.5, PI / 2); game.cam.snap(); await frames(10)
 	var ok := await sleep_at("bed", 9)
-	check("s4", "Sleeping in the inn until 9 AM: the next morning", ok and int(s.time.day) == 2 and absf(s.time.minute - 9 * 60.0) < 2.0, Clock.text(s.time))
+	check("s4", "Sleeping in the guest room until 9 AM: the next morning", ok and int(s.time.day) == 2 and absf(s.time.minute - 9 * 60.0) < 2.0, Clock.text(s.time))
 	await frames(20)
 	check("s5", "In the morning Mabel offers it", e.can_offer("squirrels") and game.story.marker_for("mabel") == "offer", game.story.marker_for("mabel"))
 	await talk("mabel")

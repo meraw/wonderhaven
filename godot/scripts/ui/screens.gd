@@ -228,7 +228,7 @@ func arrival(player_name: String) -> void:
 	var t := UiTheme.label("Monteforchetta, at last", 32, UiTheme.PINK_DARK); t.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(t)
 	var body := func(text: String, size: int = 17, col: Color = UiTheme.INK) -> void:
 		var l := UiTheme.label(text, size, col); l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART; l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; l.custom_minimum_size.x = 600; v.add_child(l)
-	body.call("Aldo's bus left you at the washout, %s. The storm took half the road, so you walk the last stretch up the hill with your suitcase and a letter from the province:" % player_name)
+	body.call("The storm washed out the main road, %s, so Aldo's bus took the old mule track and got you as far as the lay-by by the village gate. It is going no further. You step off with your suitcase and a letter from the province:" % player_name)
 	var note := UiTheme.panel(Color("fffdf6"), Color("d9b48a"), 6)
 	var nv := VBoxContainer.new(); note.add_child(nv)
 	for line in [["LETTER OF APPOINTMENT", 22, UiTheme.INK], ["The Province is pleased to appoint you Geometra of Monteforchetta.", 15, UiTheme.INK2], ["Lodging provided by the town hall. Report to the Sindaco.", 15, UiTheme.INK2]]:

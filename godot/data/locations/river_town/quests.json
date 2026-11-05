@@ -388,9 +388,9 @@
      "id": "wood",
      "kind": "gather",
      "stage": 0,
-     "text": "Gather 14 wood",
+     "text": "Gather 15 wood",
      "item": "wood",
-     "count": 14,
+     "count": 15,
      "hint": {
       "x": 46,
       "z": -18

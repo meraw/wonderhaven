@@ -122,15 +122,15 @@
   "accessory": "scarf"
  },
  "locked": {
-  "overalls": "Help Bram furnish his workshop",
-  "sunhat": "Become good friends with Fern",
-  "flowerCrown": "Find the chest hidden in the orchard",
-  "goggles": "Restore the garden fountain with Tilly",
-  "chef": "Shoo the squirrels out of Mabel's bakery",
-  "captain": "Earn the Captain's trust by catching fish",
-  "crown": "Reach 200 Kingdom Harmony",
-  "sailor": "Open the harbor",
-  "backpack": "Find three hidden treasures"
+  "overalls": "Help Elio fit out his shop",
+  "sunhat": "Grow pumpkins for Gigia",
+  "flowerCrown": "Find the old chest beyond the groves",
+  "goggles": "Get the piazza fountain running for Fede",
+  "chef": "See the boars out of Ornella's bakery",
+  "captain": "Win Aldo's porcini bet",
+  "crown": "Reach a 200 approval rating",
+  "sailor": "Reach a 120 approval rating",
+  "backpack": "Help Fede test her metal detector"
  },
  "labels": {
   "round": "Round",
