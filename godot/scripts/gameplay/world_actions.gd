@@ -70,7 +70,9 @@ func _register_feature(f: Dictionary) -> void:
 			var fp := BuildGrid.footprint(Data.piece("bench"), r)
 			var seat := {"id": "bench", "i": f.x - fp.x / 2.0, "k": f.z - fp.y / 2.0, "r": r, "y": Heightfield.height(f.x, f.z)}
 			game.add_interactable({"id": f.id, "x": f.x, "z": f.z, "radius": 1.5, "object": game.village.objects.get(f.id), "label": func(): return "Sit or nap on the bench", "act": func(): game.rest("bench", seat)})
-		"wardrobe": game.add_interactable({"id": f.id, "x": f.x, "z": f.z, "object": game.village.objects[f.id], "label": func(): return "Change outfit", "act": func(): game.open_wardrobe()})
+		# a wardrobe with a flag is yours once that's set (in a flat you rent, say)
+		"wardrobe": game.add_interactable({"id": f.id, "x": f.x, "z": f.z, "object": game.village.objects[f.id], "available": func(): return not f.has("flag") or state().flags.get(f.flag, false),
+			"label": func(): return "Change outfit", "act": func(): game.open_wardrobe()})
 		"board": game.add_interactable({"id": f.id, "x": f.x, "z": f.z, "object": game.village.objects[f.id], "label": func(): return "Read the notice board", "act": func(): game.panels.notice_board()})
 		# a stop on a line within this place (a tram, a funicular): ride to another stop on it (Travel.stops_on)
 		"stop": game.add_interactable({"id": f.id, "x": f.x, "z": f.z, "radius": 2.2, "object": game.village.objects.get(f.id), "label": func(): return String(f.get("ride_label", "Take a ride")), "act": func(): game.panels.stops(f)})
@@ -126,6 +128,7 @@ func minigame_done(kind: String, mg) -> void:
 	game.give(mg.reward(), _src(n))
 	if kind == "chop": state().stats.chopped += 1; game.effects.poof(_src(n), Color("9fdc7a"))
 	else: state().stats.mined += 1
+	game.story.event(kind)   # "chop" or "mine", for requests that count trees pruned or rocks cut
 	deplete(n); game.sfx("collect")
 
 func catch_fragment(n: Dictionary) -> void:

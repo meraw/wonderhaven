@@ -23,6 +23,7 @@ func attach(state: Dictionary) -> void: engine.state = state; engine.invalidate(
 
 func _on_event(type: String, data: Dictionary) -> void:
 	if type == "gain": handle(engine.on_gain(data.items))
+	if type == "rode": event("ride"); event("ride:" + String(data.to))   # a ride between stops, and where to
 	if type == "build":
 		if data.get("action", "") == "place": first_of_kind(data.pl.id)
 		handle(engine.refresh())
@@ -287,6 +288,7 @@ func apply_milestone(m: Dictionary, island: String) -> void:
 	var d := Meter.def(island)
 	if m.has("blueprints"): unlock_blueprints(m.blueprints, "", true)
 	if m.has("clothes"): unlock_clothes(m.clothes, true)
+	if m.has("items"): game.give(_ints(m.items), null, true)
 	for f in m.get("flags", []): game.set_flag(f)
 	game.build.rebuild_grid()   # a build site there may grow with it
 	game.get_tree().create_timer(1.8).timeout.connect(func(): game.banner(String(d.get("name", "Milestone")), "%d %s %s" % [int(m.at), d.get("icon", "⭐"), m.title], [m.desc], 4.0); game.sfx("unlock"))

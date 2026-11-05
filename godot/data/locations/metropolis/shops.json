@@ -1,0 +1,45 @@
+{
+ "shops": {
+  "metropolis_franco": {
+   "name": "Bar Brioschi", "label": "What'll it be?",
+   "greet": "Panettone by the slice, and hot chocolate with coffee and cream, the proper way. Anything you fish out of the canal, I'll take it. My wall has room.",
+   "requires": {"quests": ["metropolis_welcome"]},
+   "buys": {"metropolis_bicycle": 14, "metropolis_trolley": 10, "metropolis_boot": 2, "fish": 5},
+   "stock": [{"items": {"metropolis_chocolate": 1}, "price": 9}, {"items": {"metropolis_panettone": 1}, "price": 16}]
+  },
+  "metropolis_chiara": {
+   "name": "Pozzi Sartoria", "label": "Let's see your fabric",
+   "greet": "Offcuts by the bundle, and patterns for the cosy things. Bring me fabric or winter flowers and I'll pay. A collection doesn't sew itself.",
+   "requires": {"quests": ["metropolis_welcome"]},
+   "buys": {"fabric": 4, "flowers": 3},
+   "stock": [{"items": {"fabric": 4}, "price": 22}, {"blueprint": "rug", "price": 30}, {"blueprint": "painting", "price": 30}, {"blueprint": "sofa", "price": 60, "requires": {"quests": ["metropolis_chiara"]}}]
+  },
+  "metropolis_gennaro": {
+   "name": "Gennaro's chestnuts", "label": "A cone of chestnuts",
+   "greet": "Hot chestnuts, roasted on the coals! Warm your hands first, then your heart. Raw chestnuts I'll buy, if you find any. Fog tomorrow, by the way. My knee says so.",
+   "buys": {"acorn": 3},
+   "stock": [{"items": {"metropolis_roast_chestnuts": 1}, "price": 6}]
+  },
+  "metropolis_ottavio": {
+   "name": "The park keeper's hut", "label": "Anything from the park?",
+   "greet": "Prunings by the bundle, young trees, and plans for beds and hedges. Flowers from the park beds I'll buy back, for the greenhouse.",
+   "requires": {"quests": ["metropolis_welcome"]},
+   "buys": {"flowers": 3, "wood": 2},
+   "stock": [{"items": {"wood": 5}, "price": 20}, {"blueprint": "tree", "price": 25}, {"blueprint": "flowerBed", "price": 25}, {"blueprint": "hedge", "price": 20}]
+  },
+  "metropolis_annoni": {
+   "name": "The Cathedral Works", "label": "Marble, plans, centuries",
+   "greet": "Marble from the yard by the bundle, and statue and pillar plans from the archive. We've been selling both since 1387. No hurry.",
+   "requires": {"quests": ["metropolis_flat"]},
+   "buys": {"stone": 3},
+   "stock": [{"items": {"stone": 4}, "price": 22}, {"blueprint": "pillar", "price": 35}, {"blueprint": "statue", "price": 45}]
+  },
+  "metropolis_ambrogio": {
+   "name": "The tram depot", "label": "Anything from the depot?",
+   "greet": "Old overhead wire by the coil, and a spare driver's cap, if you've got the head for it. Scrap metal I'll take for the depot. Carlotta approves.",
+   "buys": {"metal": 3, "metropolis_trolley": 8},
+   "requires": {"quests": ["metropolis_welcome"]},
+   "stock": [{"items": {"crystal": 2}, "price": 36}, {"clothes": "captain", "price": 60}]
+  }
+ }
+}

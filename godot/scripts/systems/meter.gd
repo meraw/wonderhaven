@@ -2,7 +2,7 @@ class_name Meter
 ## A location's own progress meter, in place of the Sindaco's approval rating: the column inches a city's evening
 ## paper gives you, say. A location declares one in its location.json:
 ##   "meter": {"name": "La Sera di Toriano", "unit": "column inches", "icon": "📰", "about": "how it grows",
-##             "milestones": [{"at": 10, "id", "title", "desc", "blueprints"?, "clothes"?, "flags"?,
+##             "milestones": [{"at": 10, "id", "title", "desc", "blueprints"?, "clothes"?, "items"?, "flags"?, "waits"?,
 ##                             "requires"?: {"quests": [...], "flags": [...]}}]}
 ## Requests given by that location's villagers, and the first piece of a kind built there, add to it instead of the
 ## approval rating (their `harmony` reward is the number of points). A milestone with `requires` also waits for

@@ -1,0 +1,13 @@
+{
+ "resources": {
+  "metropolis_bicycle": {"name": "Old Bicycles", "icon": "🚲", "color": "#7a8a96"},
+  "metropolis_trolley": {"name": "Shopping Trolleys", "icon": "🛒", "color": "#a9adb0"},
+  "metropolis_boot": {"name": "Old Boots", "icon": "👢", "color": "#6b4a32"},
+  "metropolis_score_page": {"name": "Score Pages", "icon": "🎼", "color": "#efe2c4"},
+  "metropolis_roman": {"name": "Roman Finds", "icon": "🏺", "color": "#c98a5e"},
+  "metropolis_panettone": {"name": "Panettone", "icon": "🍞", "color": "#e8b06a", "treat": 3},
+  "metropolis_chocolate": {"name": "Hot Chocolate with Coffee and Cream", "icon": "☕", "color": "#6b3f2a", "treat": 2},
+  "metropolis_roast_chestnuts": {"name": "Roast Chestnuts", "icon": "🌰", "color": "#8a4a2a", "treat": 2}
+ },
+ "order": ["metropolis_bicycle", "metropolis_trolley", "metropolis_boot", "metropolis_score_page", "metropolis_roman", "metropolis_panettone", "metropolis_chocolate", "metropolis_roast_chestnuts"]
+}

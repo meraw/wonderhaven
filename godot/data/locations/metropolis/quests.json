@@ -1,0 +1,1928 @@
+{
+ "_comment": "Toriano's requests (stage 3): six main and thirteen side. Points (harmony) are column inches in La Sera di Toriano, Toriano's own meter (see location.json).",
+ "quests": [
+  {
+   "id": "metropolis_welcome",
+   "title": "Welcome to Toriano",
+   "giver": "metropolis_augusto",
+   "main": true,
+   "type": "character",
+   "description": "Signor Augusto, the portinaio of number 14, meets your train with a hand-drawn map. Ride the tram to the Darsena, meet him at the gate, say hello to the neighbours, and he'll give you your keys.",
+   "requires": {},
+   "onAccept": {
+    "flags": [
+     "metropolis_met"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "tram",
+     "kind": "event",
+     "event": "ride:metropolis_stop_darsena",
+     "count": 1,
+     "stage": 0,
+     "text": "Take the tram from the stop across the square to the Darsena (press E at the stop)",
+     "hint": {
+      "x": 110,
+      "z": -104.5
+     }
+    },
+    {
+     "id": "gate",
+     "kind": "talk",
+     "npc": "metropolis_augusto",
+     "text": "Meet Augusto at the gate of number 14, with the iron lilies",
+     "stage": 1,
+     "lines": [
+      "There you are! I walked. Thirty years I've walked it. The tram is for people in a hurry, and I'm never in a hurry. I'm just always late.",
+      "This is number 14. Built in 1902, three floors round a courtyard, and a balcony all the way round the first floor, where everybody knows everybody's business.",
+      "The lodge is mine, by the gate. The office round the courtyard is the Ragioniere's. Upstairs: Signora Elvira, young Simone, and you. And the toilet. Shared. At the end. You'll see.",
+      "Go and say hello. Neighbours first, keys after. That's the rule of the house. I just made it up, but it's a good rule."
+     ],
+     "hint": {
+      "x": -38,
+      "z": 90
+     }
+    },
+    {
+     "id": "elvira",
+     "kind": "talk",
+     "npc": "metropolis_elvira",
+     "text": "Say hello to Signora Elvira on the balcony (the stair is in the courtyard)",
+     "stage": 2,
+     "lines": [
+      "So you're number 3. Augusto said you were tall. You're not tall. Augusto thinks everyone's tall. He's very short.",
+      "That washing over your window is mine. It's been there since 1961. The window was put in around it."
+     ],
+     "hint": {
+      "x": -42,
+      "z": 104.7
+     }
+    },
+    {
+     "id": "simone",
+     "kind": "talk",
+     "npc": "metropolis_simone",
+     "text": "Say hello to Simone next door",
+     "stage": 2,
+     "lines": [
+      "Neighbour! Finally, someone under seventy! No offence to Signora Elvira. She's very cool. She knows all the words to my cassettes.",
+      "If you hear a thump at two in the morning, it's a model falling over. Or me. Usually both."
+     ],
+     "hint": {
+      "x": -30.7,
+      "z": 115.5
+     }
+    },
+    {
+     "id": "sala",
+     "kind": "talk",
+     "npc": "metropolis_sala",
+     "text": "Report to Ragioniere Sala in his office across the courtyard",
+     "stage": 2,
+     "lines": [
+      "Ah. The new tenant. Sala. Administrator. Here is the tenancy agreement, the house rules, the regulations of 1953 and the amendments.",
+      "Read them tonight. There'll be a test. Not really. But there could be. Come back when you're settled and we'll talk about the rent."
+     ],
+     "hint": {
+      "x": -48,
+      "z": 112
+     }
+    },
+    {
+     "id": "keys",
+     "kind": "talk",
+     "npc": "metropolis_augusto",
+     "text": "Collect your keys from Augusto at the lodge",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "harmony": 5,
+    "items": {
+     "coins": 40
+    },
+    "flags": [
+     "metropolis_settled"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "{name}? The Geometra from Monteforchetta? Benvenuto! Welcome to Toriano! Augusto Viganò, portinaio of number 14, your new home.",
+     "I drew you a map. By hand. It's mostly the cathedral, because that's what I draw best, and an arrow saying 'you are here', which you won't be for long.",
+     "The Cathedral Works sent for you, but first things first. A bed, a roof, the neighbours. Take the tram to the Darsena from the stop across the square. I'll meet you at the gate."
+    ],
+    "acceptLabel": "Lead the way, Augusto",
+    "declineLabel": "Give me a minute",
+    "accept": [
+     "Bravo! The tram stop is across the square, with the orange sign. Press the button, choose the Darsena. It's like the opera, but with a bell instead of a soprano.",
+     "I'll walk. See you at the gate with the iron lilies!"
+    ],
+    "decline": [
+     "Of course, of course. Look around. The station has the most beautiful ceiling in the city. Nobody ever looks up. They're all in a hurry."
+    ],
+    "progress": [
+     "Tram to the Darsena, then the gate with the iron lilies. Then the neighbours. Then the keys. Then dinner. I always think about dinner."
+    ],
+    "complete": [
+     "Your keys! Front door, gate, balcony, and this little one, which nobody knows what it opens. Every flat in Toriano comes with a mystery key.",
+     "Welcome home, {name}. The Ragioniere will want the rent. He always wants the rent. It's how he shows affection."
+    ]
+   }
+  },
+  {
+   "id": "metropolis_flat",
+   "title": "The Balcony Flat",
+   "giver": "metropolis_sala",
+   "main": true,
+   "type": "construction",
+   "description": "Your flat on the first-floor balcony is empty, apart from an old wardrobe. Pay Ragioniere Sala the first month's rent, then furnish the basics: a bed, a table, a chair and a lamp. Then it's home, and the roof terrace over the back wing is yours to build on.",
+   "requires": {
+    "quests": [
+     "metropolis_welcome"
+    ]
+   },
+   "onAccept": {
+    "blueprints": [
+     "bed",
+     "table",
+     "chair",
+     "lamp"
+    ],
+    "items": {
+     "wood": 6,
+     "fabric": 2,
+     "crystal": 1
+    }
+   },
+   "objectives": [
+    {
+     "id": "rent",
+     "kind": "pay",
+     "npc": "metropolis_sala",
+     "items": {
+      "coins": 80
+     },
+     "stage": 0,
+     "label": "Pay 80,000 lire rent",
+     "text": "Pay Ragioniere Sala the first month's rent: 80,000 lire (sell spare goods at the shops)",
+     "lines": [
+      "Eighty thousand lire, counted, receipted, stamped and filed. In triplicate. One copy for you, one for me, one for the archive, which is also me.",
+      "The flat is yours to furnish. Bed, table, chair, a lamp. The building provides the walls. And the wardrobe, which the last tenant couldn't get down the stairs."
+     ],
+     "onDone": {
+      "flags": [
+       "metropolis_rented"
+      ]
+     }
+    },
+    {
+     "id": "furnish",
+     "kind": "room",
+     "zone": "metropolis_flat",
+     "needs": [
+      {
+       "any": [
+        "bed"
+       ],
+       "label": "A bed"
+      },
+      {
+       "any": [
+        "table",
+        "desk",
+        "counter"
+       ],
+       "label": "A table or desk"
+      },
+      {
+       "any": [
+        "chair",
+        "sofa",
+        "bench"
+       ],
+       "label": "A chair"
+      },
+      {
+       "any": [
+        "lamp",
+        "streetlight",
+        "poweredLamp"
+       ],
+       "label": "A lamp"
+      }
+     ],
+     "stage": 1,
+     "text": "Furnish your flat: a bed, a table, a chair and a lamp",
+     "hint": {
+      "x": -26.5,
+      "z": 110
+     },
+     "buildHint": "Your flat is up the courtyard stair and round the balcony, the door past Signora Elvira's. Build inside it."
+    },
+    {
+     "id": "show",
+     "kind": "talk",
+     "npc": "metropolis_sala",
+     "text": "Show Ragioniere Sala your flat is furnished",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "harmony": 8,
+    "items": {
+     "coins": 20
+    },
+    "flags": [
+     "metropolis_home"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "The flat on the east balcony, number 3. One room, one window, one radiator that works on Thursdays.",
+     "Eighty thousand lire a month, the first in advance. Then make it liveable: a bed, a table, a chair, a lamp. The building regulations require a lamp. Article 31."
+    ],
+    "acceptLabel": "I'll take it",
+    "declineLabel": "Not yet",
+    "accept": [
+     "Excellent. Here are some plans and a few planks to start. The building lends them. They go on the bill. Just kidding. Mostly."
+    ],
+    "decline": [
+     "As you wish. The flat will wait. It has been empty since 1996. It's very patient. Like a Ragioniere."
+    ],
+    "progress": [
+     "Rent first, then furniture. A bed, a table, a chair and a lamp. Article 31."
+    ],
+    "complete": [
+     "Furnished, inspected and approved. Number 3 is officially your home, {name}.",
+     "And the roof of the back wing, above the courtyard, is yours to build on. Please do not build anything taller than the regulations allow. I will measure."
+    ]
+   }
+  },
+  {
+   "id": "metropolis_marble",
+   "title": "Marble by Water",
+   "giver": "metropolis_annoni",
+   "main": true,
+   "type": "mechanism",
+   "description": "The cathedral's marble has come up the canal by barge for six hundred years. The old crane on the quay at the canal's mouth stopped when its engine gave out. Gather materials, then drive the crane with a waterwheel in the flowing canal, so the barges can unload the marble for the spire.",
+   "requires": {
+    "quests": [
+     "metropolis_flat"
+    ]
+   },
+   "onAccept": {
+    "blueprints": [
+     "waterwheel",
+     "shaft",
+     "gear"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "wood",
+     "kind": "gather",
+     "item": "wood",
+     "count": 8,
+     "stage": 0,
+     "text": "Prune the plane trees in the Parco dei Platani for 8 wood",
+     "hint": {
+      "x": -120,
+      "z": -112
+     }
+    },
+    {
+     "id": "metal",
+     "kind": "gather",
+     "item": "metal",
+     "count": 2,
+     "stage": 0,
+     "text": "Dig 2 metal out of the builders' skips (the building sites behind the hoardings)",
+     "hint": {
+      "x": 48,
+      "z": 104
+     }
+    },
+    {
+     "id": "crane",
+     "kind": "build",
+     "check": "fed:metropolis_crane",
+     "zone": "metropolis_crane",
+     "stage": 1,
+     "text": "Drive the old crane with a waterwheel in the canal",
+     "goal": "Power reaches the crane's drive on the quay",
+     "buildHint": "Waterwheels turn in flowing water and push power out north and south. The crane's drive is the quay cell right by it, at the canal's edge. Shafts carry power in a line; gear boxes turn corners.",
+     "hint": {
+      "x": -145,
+      "z": 99
+     }
+    },
+    {
+     "id": "barge",
+     "kind": "talk",
+     "npc": "metropolis_annoni",
+     "text": "Watch the first barge unload with the Architetto at the Darsena",
+     "stage": 2,
+     "lines": [
+      "There. Listen. The crane groans, the chain rattles, and the first block comes up out of the barge like a tooth. Candoglia marble. Pink veins. Six hundred years of it.",
+      "That's the block for the spire. It'll take the masons a year to carve it. Two, if it rains. Three, if Ambrogio brings them coffee."
+     ],
+     "hint": {
+      "x": -136,
+      "z": 89
+     }
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "metropolis_annoni",
+     "text": "Tell the Architetto the crane is working",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "harmony": 15,
+    "items": {
+     "coins": 60,
+     "stone": 4
+    },
+    "flags": [
+     "metropolis_crane_running"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "Geometra. The Cathedral Works has a small problem. Small, by our standards. Four hundred years old.",
+     "The marble comes up the Naviglio by barge. The old crane at the canal's mouth lifted it out for centuries, until the engine gave out. Now the barges just sit there, looking embarrassed.",
+     "The canal flows, day and night. A waterwheel in the water, and power up to the crane's drive. It's how they did it in 1450. It'll work now."
+    ],
+    "acceptLabel": "Let's get the marble moving",
+    "declineLabel": "Later",
+    "accept": [
+     "Good. Here are the old plans: a waterwheel, shafts, gear boxes. Wood from the park, metal from the skips. Ottavio prunes the plane trees; ask him nicely and he'll let you."
+    ],
+    "decline": [
+     "Of course. The marble has waited since Easter. Easter of which year, I couldn't say."
+    ],
+    "progress": [
+     "Wood and metal first. Then a waterwheel in the flowing canal, and power to the crane's drive on the quay."
+    ],
+    "complete": [
+     "The barge is unloaded, the block is in the yard, and the masons are sharpening their chisels. You've moved the cathedral forward by a year, {name}. That's practically a sprint.",
+     "Take this, from the Works' petty cash. Petty, by cathedral standards."
+    ]
+   }
+  },
+  {
+   "id": "metropolis_footbridge",
+   "title": "The Footbridge",
+   "giver": "metropolis_franco",
+   "main": true,
+   "type": "construction",
+   "description": "The old iron footbridge over the Naviglio was condemned and taken away, so Franco's regulars walk all the way round the Darsena, and the marble carts can't cross. Build a new footbridge from quay to quay, then add railings.",
+   "requires": {
+    "quests": [
+     "metropolis_marble"
+    ]
+   },
+   "onAccept": {
+    "blueprints": [
+     "bridgeDeck",
+     "bridgePost",
+     "railing"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "wood",
+     "kind": "gather",
+     "item": "wood",
+     "count": 14,
+     "stage": 0,
+     "text": "Gather 14 wood for the deck and posts",
+     "hint": {
+      "x": -120,
+      "z": -112
+     }
+    },
+    {
+     "id": "bridge",
+     "kind": "build",
+     "check": "path:metropolis_footbridge",
+     "zone": "metropolis_footbridge",
+     "stage": 1,
+     "text": "Build a footbridge across the Naviglio, from quay to quay",
+     "goal": "A walkable way from the west quay to the east quay",
+     "buildHint": "Planks reach 2 tiles from a support. Stand bridge posts in the canal bed, then lay planks across. Any continuous, supported path counts.",
+     "hint": {
+      "x": -107,
+      "z": 136
+     }
+    },
+    {
+     "id": "rails",
+     "kind": "pieces",
+     "zone": "metropolis_footbridge",
+     "any": [
+      "railing",
+      "fence"
+     ],
+     "count": 6,
+     "stage": 2,
+     "text": "Add railings along the footbridge (6), so nobody ends up in the Naviglio",
+     "hint": {
+      "x": -107,
+      "z": 136
+     }
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "metropolis_franco",
+     "text": "Tell Franco his regulars can cross",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "harmony": 15,
+    "items": {
+     "coins": 50
+    },
+    "flags": [
+     "metropolis_footbridge_done"
+    ],
+    "blueprints": [
+     "bench"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "…Sit, sit. Something to drink? Take your time.",
+     "Since they took the old footbridge away, my regulars walk round the whole Darsena to get here. Twelve men, average age seventy-eight. It takes them till lunchtime.",
+     "A new bridge, from this quay to the far one, and some railings. In the fog, a man needs railings. Especially after a grappa."
+    ],
+    "acceptLabel": "I'll build it",
+    "declineLabel": "Another time",
+    "accept": [
+     "Good. Wood you'll need, and plenty. Posts in the canal bed, planks across. And then railings. Did I mention railings? I'll mention them again."
+    ],
+    "decline": [
+     "No hurry. The regulars have been walking round since spring. Good for the heart, the doctor says. Bad for the bar."
+    ],
+    "progress": [
+     "Posts in the water, planks on top, and railings. My regulars thank you in advance. Slowly."
+    ],
+    "complete": [
+     "…Look at that. They're coming across. All twelve. In order of age. Signor Fumagalli is waving his hat. He's never waved his hat.",
+     "Your name goes on the slate, {name}. Nobody's name goes on the slate. It means coffee, forever."
+    ]
+   }
+  },
+  {
+   "id": "metropolis_scaffold",
+   "title": "Scaffolding for the Spire",
+   "giver": "metropolis_annoni",
+   "main": true,
+   "type": "construction",
+   "description": "The new marble has to go up to the roof. Build a walkable climb of stairs and platforms from the works yard up the cathedral's south side to the aisle roof, 6 metres up, where the parapet has a gap. Any continuous climb counts, and you can really walk up it.",
+   "requires": {
+    "quests": [
+     "metropolis_footbridge"
+    ]
+   },
+   "onAccept": {
+    "blueprints": [
+     "stairs",
+     "platform",
+     "stoneBlock"
+    ],
+    "items": {
+     "wood": 4
+    }
+   },
+   "objectives": [
+    {
+     "id": "wood",
+     "kind": "gather",
+     "item": "wood",
+     "count": 12,
+     "stage": 0,
+     "text": "Gather 12 wood for stairs and platforms",
+     "hint": {
+      "x": -120,
+      "z": -112
+     }
+    },
+    {
+     "id": "stone",
+     "kind": "gather",
+     "item": "stone",
+     "count": 10,
+     "stage": 0,
+     "text": "Cut 10 stone from the marble offcuts in the works yard",
+     "hint": {
+      "x": 86,
+      "z": -2
+     }
+    },
+    {
+     "id": "climb",
+     "kind": "build",
+     "check": "path:metropolis_scaffold",
+     "zone": "metropolis_scaffold",
+     "stage": 1,
+     "text": "Build a walkable climb from the works yard up to the roof terrace",
+     "goal": "A way up from the yard onto the terrace through the parapet's gap",
+     "buildHint": "Stairs rise one metre over one tile. Stack blocks to raise each stair on the one before. The terrace is about 6 metres up; the gap in the parapet is at the west end of the site.",
+     "hint": {
+      "x": 73,
+      "z": 10
+     }
+    },
+    {
+     "id": "roof",
+     "kind": "flag",
+     "flag": "metropolis_on_roof",
+     "stage": 2,
+     "text": "Climb your scaffolding up onto the cathedral's roof terrace",
+     "hint": {
+      "x": 66,
+      "z": 11
+     }
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "metropolis_annoni",
+     "text": "Tell the Architetto the roof is reachable",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "harmony": 15,
+    "items": {
+     "coins": 60
+    },
+    "flags": [
+     "metropolis_scaffold_done"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "The block is carved. Now it has to go up. Up there, on the south aisle's roof, where the terraces are. We used to have scaffolding. We used it for firewood in 1944.",
+     "Build me a climb. Stairs, platforms, whatever stands up. From the yard to the gap in the parapet at the east end of the terrace. Six metres. That's nothing. The spire is a hundred and eight."
+    ],
+    "acceptLabel": "Up we go",
+    "declineLabel": "I'm not good with heights",
+    "accept": [
+     "Splendid. The plans for stairs, platforms and blocks. Wood from the park, marble offcuts from the yard. Build it so it stands. I'll know if it doesn't. I'll be underneath."
+    ],
+    "decline": [
+     "Nobody is good with heights. Masons are just good at pretending."
+    ],
+    "progress": [
+     "From the yard up to the gap in the parapet. Stairs climb a metre a tile; stack blocks under them."
+    ],
+    "complete": [
+     "You walked up it! On your own legs! The last person to do that was a mason called Bartolomeo, in 1891, and he had wings carved on his tombstone out of sheer pride.",
+     "The roof is yours to build on now. Mind the pigeons. They think it's theirs."
+    ]
+   }
+  },
+  {
+   "id": "metropolis_angel",
+   "title": "The Golden Angel",
+   "giver": "metropolis_annoni",
+   "main": true,
+   "type": "mechanism",
+   "description": "The Golden Angel on the top spire used to shine over the square every Christmas Eve, until her floodlight's drive broke in 1989. Up on the roof terrace among the spires, build a windmill and carry its power to the drive in the nave wall. Then meet everyone in the square after dark.",
+   "requires": {
+    "quests": [
+     "metropolis_scaffold"
+    ]
+   },
+   "onAccept": {
+    "blueprints": [
+     "windmill",
+     "shaft",
+     "gear"
+    ],
+    "items": {
+     "fabric": 1
+    }
+   },
+   "objectives": [
+    {
+     "id": "wood",
+     "kind": "gather",
+     "item": "wood",
+     "count": 8,
+     "stage": 0,
+     "text": "Gather 8 wood for a windmill and shafts",
+     "hint": {
+      "x": -120,
+      "z": -112
+     }
+    },
+    {
+     "id": "fabric",
+     "kind": "gather",
+     "item": "fabric",
+     "count": 2,
+     "stage": 0,
+     "text": "Find 2 fabric for the sails (Chiara's shop, or the flea market by the canal)",
+     "hint": {
+      "x": -96.5,
+      "z": 144
+     }
+    },
+    {
+     "id": "metal",
+     "kind": "gather",
+     "item": "metal",
+     "count": 2,
+     "stage": 0,
+     "text": "Find 2 metal for gear boxes (the builders' skips)",
+     "hint": {
+      "x": 128,
+      "z": 30
+     }
+    },
+    {
+     "id": "light",
+     "kind": "build",
+     "check": "fed:metropolis_angel",
+     "zone": "metropolis_terrace",
+     "stage": 1,
+     "text": "Up on the roof terrace, carry wind power to the Golden Angel's drive",
+     "goal": "Power reaches the floodlight drive in the nave wall",
+     "buildHint": "Windmills push power out of their south side. Shafts carry it in a line, gear boxes turn corners. The drive is the terrace cell against the nave wall, halfway along.",
+     "hint": {
+      "x": 52,
+      "z": 9
+     },
+     "onDone": {
+      "flags": [
+       "metropolis_christmas_eve"
+      ]
+     }
+    },
+    {
+     "id": "eve",
+     "kind": "talk",
+     "npc": "metropolis_annoni",
+     "text": "It's Christmas Eve! Meet the Architetto in the cathedral square after dark (after 6 PM)",
+     "stage": 2,
+     "lines": [
+      "Here they all are. The whole neighbourhood. Augusto in his good scarf, Franco out of his bar for the first time since 1962, Gennaro handing out chestnuts.",
+      "And there's Ambrogio, on his last run. Hear the bell? He's taking Carlotta round the square one more time.",
+      "Now. Look up. Wait for it… the bells…",
+      "…There she is. The Golden Angel, shining over Toriano again. After thirty-five years. Six hundred and twelve, if you count the waiting."
+     ],
+     "hint": {
+      "x": 12,
+      "z": 0
+     },
+     "hours": [
+      18,
+      24
+     ]
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "metropolis_annoni",
+     "text": "Wish the Architetto a happy Christmas",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "harmony": 25,
+    "items": {
+     "coins": 100
+    },
+    "flags": [
+     "metropolis_angel_lit"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "One last thing, Geometra. The most important thing, and the least urgent, which is how we like it.",
+     "The Golden Angel, on the top spire. Every Christmas Eve, for a hundred years, a floodlight lit her up over the square. In 1989 the drive broke. The plans were lost. The electrician retired to Liguria.",
+     "Up on the terrace, the wind never stops. A windmill, and power to the drive in the nave wall. Then, on Christmas Eve, the whole city in the square, and the Angel shining. Like it used to be."
+    ],
+    "acceptLabel": "Let's light the Angel",
+    "declineLabel": "Not yet",
+    "accept": [
+     "Bless you. The plans: windmill, shafts, gear boxes. Sails need fabric; Chiara will have some. And metal for the gears, from the skips. Then up you go."
+    ],
+    "decline": [
+     "She's waited thirty-five years. She has a lot of practice."
+    ],
+    "progress": [
+     "Windmill on the terrace, power to the drive in the nave wall. Then Christmas Eve in the square, after dark."
+    ],
+    "complete": [
+     "Buon Natale, {name}. In six hundred years of Cathedral Works, there are eleven names on the brass plate by the door. Next year, there'll be twelve.",
+     "Nearly finished, the cathedral. 2130 at the latest. But tonight, it's done."
+    ]
+   }
+  },
+  {
+   "id": "metropolis_lodge",
+   "title": "The Lost-Property Lodge",
+   "giver": "metropolis_augusto",
+   "type": "collection",
+   "description": "Everybody in Toriano drops things in the fog and brings them to Augusto's lodge, except the things nobody finds. Find five lost things around the city and bring them to him.",
+   "requires": {
+    "quests": [
+     "metropolis_welcome"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "lost",
+     "kind": "gather",
+     "item": "fragment",
+     "count": 5,
+     "stage": 0,
+     "text": "Find 5 lost things dropped in the fog (they glint on the pavement)",
+     "hint": {
+      "x": 98,
+      "z": -118
+     }
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "metropolis_augusto",
+     "text": "Bring the lost things to Augusto's lodge",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "harmony": 6,
+    "items": {
+     "coins": 30
+    }
+   },
+   "dialogue": {
+    "offer": [
+     "The lost property cupboard is getting empty, {name}. That's bad. An empty lost property cupboard means people are finding their own things, and then what am I for?",
+     "Find me some. Five things. Umbrellas, gloves, hats, anything people have dropped in the fog. They glint on the pavement, if you look down. Nobody in this city looks down."
+    ],
+    "acceptLabel": "I'll keep my eyes down",
+    "declineLabel": "Some other day",
+    "accept": [
+     "Bravo. Try the station, the square, the streets by the canal. Everywhere people walk fast and think about something else, which is everywhere."
+    ],
+    "decline": [
+     "Fine. I'll just sort the single gloves again. I have forty-one left ones. Nobody in Toriano loses a right glove. It's a mystery."
+    ],
+    "progress": [
+     "Five lost things. Look down. The fog hides them, the streetlights find them."
+    ],
+    "complete": [
+     "Wonderful! A glove, a hat, an umbrella… and this. A Walkman. I'll listen to it while I wait for the owner. For research.",
+     "And now the gossip, as promised: the Ragioniere has a cat. He calls it 'Budget'. Don't tell him I told you."
+    ]
+   }
+  },
+  {
+   "id": "metropolis_meeting",
+   "title": "The Residents' Meeting",
+   "giver": "metropolis_sala",
+   "type": "character",
+   "description": "To buy your flat outright you need the residents' vote. Talk round every neighbour at number 14, then pay Ragioniere Sala the deposit.",
+   "requires": {
+    "quests": [
+     "metropolis_flat"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "elvira",
+     "kind": "talk",
+     "npc": "metropolis_elvira",
+     "text": "Win Signora Elvira's vote",
+     "stage": 0,
+     "lines": [
+      "My vote? For the young one in number 3? Of course. You've never once complained about my washing. That's worth a vote. That's worth two, but they only give me one."
+     ],
+     "hint": {
+      "x": -42,
+      "z": 104.7
+     }
+    },
+    {
+     "id": "simone",
+     "kind": "talk",
+     "npc": "metropolis_simone",
+     "text": "Win Simone's vote",
+     "stage": 0,
+     "lines": [
+      "A vote? I didn't know I had a vote! Do I get to vote on the music? No? Then yes, of course, for you. Solidarity between tenants!"
+     ],
+     "hint": {
+      "x": -30.7,
+      "z": 115.5
+     }
+    },
+    {
+     "id": "augusto",
+     "kind": "talk",
+     "npc": "metropolis_augusto",
+     "text": "Win Augusto's vote",
+     "stage": 0,
+     "lines": [
+      "The portinaio doesn't vote, technically. But the portinaio knows where everyone's post goes. Which is to say: you have my vote, and my influence."
+     ],
+     "hint": {
+      "x": -32.5,
+      "z": 100.5
+     }
+    },
+    {
+     "id": "deposit",
+     "kind": "pay",
+     "npc": "metropolis_sala",
+     "items": {
+      "coins": 150
+     },
+     "stage": 1,
+     "label": "Pay 150,000 lire",
+     "text": "Pay Ragioniere Sala the deposit: 150,000 lire",
+     "lines": [
+      "Three votes in favour, none against, the Ragioniere abstaining for reasons of propriety. And a hundred and fifty thousand lire. Motion carried."
+     ]
+    },
+    {
+     "id": "deed",
+     "kind": "talk",
+     "npc": "metropolis_sala",
+     "text": "Collect the deed from Ragioniere Sala",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "harmony": 8,
+    "items": {
+     "coins": 20
+    },
+    "flags": [
+     "metropolis_owner"
+    ],
+    "blueprints": [
+     "bookshelf"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "You want to buy the flat? Outright? That requires a residents' meeting, a vote, and a deposit. In that order. The regulations are very clear. I wrote them.",
+     "Talk to the residents: Signora Elvira, Simone, and Augusto, who doesn't vote but will tell you he does. Then come back with the deposit."
+    ],
+    "acceptLabel": "I'll call a meeting",
+    "declineLabel": "Not now",
+    "accept": [
+     "Excellent. The meeting is quorate when everyone has been talked round. That's not in the regulations. It's just how this building works."
+    ],
+    "decline": [
+     "Very well. Renting is also an excellent life choice. Article 12."
+    ],
+    "progress": [
+     "Elvira, Simone and Augusto, then the deposit. Then the deed. Then a lifetime of service charges."
+    ],
+    "complete": [
+     "The deed to number 3, first floor, east balcony. Yours. Signed, stamped, filed. You are now a proprietor, {name}. You may now complain at meetings.",
+     "I've included the plans of a bookshelf. For the regulations. You'll want to keep them close."
+    ]
+   }
+  },
+  {
+   "id": "metropolis_bathroom",
+   "title": "A Bathroom of Your Own",
+   "giver": "metropolis_sala",
+   "type": "construction",
+   "description": "After your interview in La Sera, in which you mentioned the shared toilet down the balcony, Ragioniere Sala has approved a bathroom in your flat. Fit a toilet, a washbasin and a bathtub.",
+   "requires": {
+    "quests": [
+     "metropolis_flat"
+    ],
+    "flags": [
+     "metropolis_interview"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "clay",
+     "kind": "gather",
+     "item": "clay",
+     "count": 6,
+     "stage": 0,
+     "text": "Gather 6 clay for the porcelain (old bricks from the skips)",
+     "hint": {
+      "x": 48,
+      "z": 104
+     }
+    },
+    {
+     "id": "metal",
+     "kind": "gather",
+     "item": "metal",
+     "count": 4,
+     "stage": 0,
+     "text": "Gather 4 metal for the pipes and taps",
+     "hint": {
+      "x": 128,
+      "z": 30
+     }
+    },
+    {
+     "id": "fit",
+     "kind": "room",
+     "zone": "metropolis_flat",
+     "needs": [
+      {
+       "any": [
+        "toilet"
+       ],
+       "label": "A toilet"
+      },
+      {
+       "any": [
+        "washbasin"
+       ],
+       "label": "A washbasin"
+      },
+      {
+       "any": [
+        "bathtub"
+       ],
+       "label": "A bathtub"
+      }
+     ],
+     "stage": 1,
+     "text": "Fit a toilet, a washbasin and a bathtub in your flat",
+     "hint": {
+      "x": -26.5,
+      "z": 110
+     },
+     "buildHint": "Build them inside your flat. The bathtub is two tiles long."
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "metropolis_sala",
+     "text": "Tell Ragioniere Sala the plumbing is in",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "harmony": 8,
+    "items": {
+     "coins": 30
+    },
+    "flags": [
+     "metropolis_bathroom_done"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "I read your interview. Half a page. 'Lovely city, terrible toilets.' Signora Elvira has had it framed.",
+     "The building has considered the matter. The building has voted. The building, which is me, has approved a bathroom in number 3. You have the plans from the paper. Fit it yourself; the building has no budget."
+    ],
+    "acceptLabel": "Finally!",
+    "declineLabel": "I like the queue",
+    "accept": [
+     "Clay for the porcelain, metal for the pipes. And please, no singing in the bath after ten. Article 44."
+    ],
+    "decline": [
+     "Many do. It's the only place in the building where everyone talks to each other."
+    ],
+    "progress": [
+     "A toilet, a washbasin and a bathtub, in your flat. Article 44 applies from the moment the tap turns."
+    ],
+    "complete": [
+     "Inspected and approved. A private bathroom, on the first floor of number 14. The first since 1902.",
+     "Signora Elvira says the queue won't be the same. She's going to miss you. She told me to tell you she isn't."
+    ]
+   }
+  },
+  {
+   "id": "metropolis_shelter",
+   "title": "A Shelter in the Fog",
+   "giver": "metropolis_ambrogio",
+   "type": "construction",
+   "description": "Passengers waiting at the Duomo stop can't see the tram coming in the fog, and Ambrogio can't see them. Rebuild the stop's shelter with a bench, a streetlight and a sign.",
+   "requires": {
+    "quests": [
+     "metropolis_welcome"
+    ]
+   },
+   "onAccept": {
+    "blueprints": [
+     "streetlight",
+     "bench",
+     "signpost"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "wire",
+     "kind": "gather",
+     "item": "crystal",
+     "count": 1,
+     "stage": 0,
+     "text": "Get a coil of copper wire for the streetlight (the depot's scrap pile, behind the station)",
+     "hint": {
+      "x": 120,
+      "z": -80
+     }
+    },
+    {
+     "id": "stop",
+     "kind": "room",
+     "zone": "metropolis_shelter",
+     "needs": [
+      {
+       "any": [
+        "bench"
+       ],
+       "label": "A bench to wait on"
+      },
+      {
+       "any": [
+        "streetlight",
+        "poweredLamp"
+       ],
+       "label": "A streetlight"
+      },
+      {
+       "any": [
+        "signpost"
+       ],
+       "label": "A sign for the stop"
+      }
+     ],
+     "stage": 1,
+     "text": "Rebuild the Duomo stop's shelter: a bench, a streetlight and a sign",
+     "hint": {
+      "x": -1,
+      "z": 28
+     }
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "metropolis_ambrogio",
+     "text": "Tell Ambrogio the Duomo stop has a light again",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "harmony": 8,
+    "items": {
+     "coins": 35
+    },
+    "flags": [
+     "metropolis_shelter_done"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "Ding ding! Geometra! A favour, for an old tram driver. The Duomo stop. In the fog I can't see who's waiting, and they can't see Carlotta till she's on top of them.",
+     "A bench to wait on, a streetlight so I can see them, a sign so they know they're at a stop and not just standing in a square, looking lost. Which they also are."
+    ],
+    "acceptLabel": "Leave it to me",
+    "declineLabel": "Next stop",
+    "accept": [
+     "Bravo! Take the plans for a streetlight, and a bench. Copper wire you'll find on the depot's scrap pile, behind the station. Tell them Ambrogio sent you. Nobody's there. Tell them anyway."
+    ],
+    "decline": [
+     "Next stop, then! Mind the doors."
+    ],
+    "progress": [
+     "A bench, a streetlight and a sign at the Duomo stop. Carlotta and I thank you."
+    ],
+    "complete": [
+     "I can see them! A whole queue of them, under the light, like actors waiting to go on. Carlotta rang her bell all by herself.",
+     "Here, from the drivers' kitty. Thirty years of fines for dirty boots. Mine, mostly."
+    ]
+   }
+  },
+  {
+   "id": "metropolis_chiara",
+   "title": "Chiara's First Collection",
+   "giver": "metropolis_chiara",
+   "type": "construction",
+   "description": "Chiara is putting together her first collection and needs materials, and then a shop window that makes people stop. Gather fabric and winter flowers, then fit out a display in front of her workshop in the Galleria.",
+   "requires": {
+    "quests": [
+     "metropolis_welcome"
+    ]
+   },
+   "onAccept": {
+    "blueprints": [
+     "counter",
+     "rug",
+     "painting",
+     "lamp"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "fabric",
+     "kind": "gather",
+     "item": "fabric",
+     "count": 6,
+     "stage": 0,
+     "text": "Gather 6 fabric (the flea market by the canal, or buy it)",
+     "hint": {
+      "x": -96.5,
+      "z": 144
+     }
+    },
+    {
+     "id": "flowers",
+     "kind": "gather",
+     "item": "flowers",
+     "count": 4,
+     "stage": 0,
+     "text": "Pick 4 winter flowers in the park beds",
+     "hint": {
+      "x": -142,
+      "z": -112
+     }
+    },
+    {
+     "id": "hand",
+     "kind": "pay",
+     "npc": "metropolis_chiara",
+     "items": {
+      "fabric": 4,
+      "flowers": 3
+     },
+     "stage": 1,
+     "label": "Give 4 fabric and 3 flowers",
+     "text": "Give Chiara 4 fabric and 3 flowers for the collection",
+     "lines": [
+      "Velvet! Tartan! Cyclamen to dye the silk! This is it, the Pozzi winter collection. Six pieces. One of them is a hat. The hat has opinions.",
+      "Now the window. People walk past the Galleria at a run. Make them stop: a counter, two lamps, a rug, a painting, and something in a colour nobody expects."
+     ]
+    },
+    {
+     "id": "window",
+     "kind": "room",
+     "zone": "metropolis_window",
+     "needs": [
+      {
+       "any": [
+        "counter"
+       ],
+       "label": "A counter"
+      },
+      {
+       "any": [
+        "lamp",
+        "streetlight",
+        "poweredLamp"
+       ],
+       "label": "Two lamps",
+       "count": 2
+      },
+      {
+       "any": [
+        "rug"
+       ],
+       "label": "A rug"
+      },
+      {
+       "any": [
+        "painting"
+       ],
+       "label": "A painting"
+      },
+      {
+       "recolored": true,
+       "label": "A splash of colour (repaint something)"
+      }
+     ],
+     "stage": 2,
+     "text": "Fit out Chiara's shop window: a counter, two lamps, a rug, a painting and a splash of colour",
+     "hint": {
+      "x": -7,
+      "z": -77
+     },
+     "buildHint": "Build the display in front of her workshop. Repaint any piece to give it a splash of colour."
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "metropolis_chiara",
+     "text": "Show Chiara her new window",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "harmony": 10,
+    "items": {
+     "coins": 40,
+     "fabric": 4
+    },
+    "flags": [
+     "metropolis_collection_done"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "Can I ask you something enormous? My first collection. My own label. Pozzi. I've got the sketches, I've got the nerve, I've got none of the fabric.",
+     "And then a window. The Galleria is full of people in a hurry. I need them to stop. Just for a second. Long enough to fall in love with a padded jacket."
+    ],
+    "acceptLabel": "Let's make them stop",
+    "declineLabel": "Not right now",
+    "accept": [
+     "You're a saint! Fabric from the flea market by the canal, or my offcuts if you buy them. Winter flowers from the park beds, for dyes. Then the window."
+    ],
+    "decline": [
+     "That's fine. I'll keep sewing hems. Thousands of hems. Hems all the way down."
+    ],
+    "progress": [
+     "Fabric and flowers first, then the window: a counter, two lamps, a rug, a painting and a splash of colour."
+    ],
+    "complete": [
+     "They're stopping! A man just walked into the glass. On purpose, I think. He wanted a closer look.",
+     "Here, take some fabric back. And when the collection's ready, the first padded jacket is yours. In the brightest colour I've got."
+    ]
+   }
+  },
+  {
+   "id": "metropolis_score",
+   "title": "The Scattered Score",
+   "giver": "metropolis_gino",
+   "type": "collection",
+   "description": "The wind blew the pages of a rare score out of the Teatro Civico and across the city. Maestro Gino needs six pages back. They only turn up at night, after the opera, when he's free.",
+   "requires": {
+    "quests": [
+     "metropolis_welcome"
+    ]
+   },
+   "hours": [
+    20,
+    24
+   ],
+   "objectives": [
+    {
+     "id": "pages",
+     "kind": "gather",
+     "item": "metropolis_score_page",
+     "count": 6,
+     "stage": 0,
+     "text": "Find 6 pages of the score blowing about the city at night (8 PM to 6 AM)",
+     "hint": {
+      "x": -20,
+      "z": -122
+     },
+     "hours": [
+      20,
+      6
+     ]
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "metropolis_gino",
+     "text": "Bring the pages to Maestro Gino by the Teatro Civico",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "harmony": 8,
+    "items": {
+     "coins": 40
+    },
+    "flags": [
+     "metropolis_score_done"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "(whispering) Psst. Over here. The prompter's secret. The only copy of an opera nobody has sung since 1847. I took it home to read on the tram.",
+     "(whispering) The tram window was open. The pages flew. All over the city. They only come out at night, the pages. Like owls. Like tenors.",
+     "(whispering) Find me six. After dark. Please."
+    ],
+    "acceptLabel": "(whispering) I'll find them",
+    "declineLabel": "(whispering) Not tonight",
+    "accept": [
+     "(whispering) Bless you. Look by the theatre, in the Galleria, round the square. Paper likes corners. And in the dark they catch the streetlight."
+    ],
+    "decline": [
+     "(whispering) Of course. The opera has waited a hundred and fifty years. What's another night."
+    ],
+    "progress": [
+     "(whispering) Six pages. Only at night. Paper likes corners."
+    ],
+    "complete": [
+     "(whispering) The overture! The duet! The bit where the baritone falls through a trapdoor! It's all here.",
+     "(whispering) We'll sing it in the spring. I'll whisper it to them. They'll get it wrong. It'll be glorious."
+    ],
+    "later": "(whispering) I'm in the prompter's box until the opera ends. Find me after eight in the evening."
+   }
+  },
+  {
+   "id": "metropolis_ducks",
+   "title": "Pruning, then the Ducks",
+   "giver": "metropolis_ottavio",
+   "type": "construction",
+   "description": "The plane trees in the Parco dei Platani need their winter pruning, and the ducks have had nowhere to sleep since the old duck house sank in 1994. Prune six trees, then build a duck house out on the pond: a platform over the water with a roof.",
+   "requires": {
+    "quests": [
+     "metropolis_welcome"
+    ]
+   },
+   "onAccept": {
+    "blueprints": [
+     "roof",
+     "bridgeDeck",
+     "pillar"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "prune",
+     "kind": "event",
+     "event": "chop",
+     "count": 6,
+     "stage": 0,
+     "text": "Prune 6 plane trees in the park",
+     "hint": {
+      "x": -120,
+      "z": -112
+     }
+    },
+    {
+     "id": "house",
+     "kind": "room",
+     "zone": "metropolis_ducks",
+     "needs": [
+      {
+       "any": [
+        "bridgeDeck",
+        "floor",
+        "platform"
+       ],
+       "label": "A platform over the water (2 planks)",
+       "count": 2
+      },
+      {
+       "any": [
+        "roof"
+       ],
+       "label": "A roof over it"
+      }
+     ],
+     "stage": 1,
+     "text": "Build a duck house out on the pond: a platform over the water with a roof",
+     "hint": {
+      "x": -106.5,
+      "z": -124
+     },
+     "buildHint": "Planks reach out over the water from the bank. A roof needs something to rest on: a pillar on the planks."
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "metropolis_ottavio",
+     "text": "Tell Ottavio the ducks have a house",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "harmony": 8,
+    "items": {
+     "coins": 35
+    },
+    "flags": [
+     "metropolis_ducks_done"
+    ],
+    "blueprints": [
+     "tree"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "Morning. The plane trees want pruning before the frost. Six of them, the ones by the lawns. I'd do it myself, but my ladder has retired.",
+     "And then, if you've wood left, the ducks. They've been sleeping on the bench by the pond since the old duck house sank. The bench has complained."
+    ],
+    "acceptLabel": "Trees, then ducks",
+    "declineLabel": "Not today",
+    "accept": [
+     "Good. Here are the plans for a roof and planks. Prune first: it's the chopping, but gentler. Then a platform out on the water, with a roof. Ducks like a roof. They're very bourgeois."
+    ],
+    "decline": [
+     "The trees will wait. The ducks will not stop talking about it."
+    ],
+    "progress": [
+     "Six trees pruned, then a platform on the pond with a roof over it."
+    ],
+    "complete": [
+     "Look at them! In a line, in order of importance. The big one at the front has already taken the best corner. Typical.",
+     "Take a young plane tree for your courtyard. Plant it somewhere it can grow for two hundred years."
+    ]
+   }
+  },
+  {
+   "id": "metropolis_cart",
+   "title": "A New Chestnut Cart",
+   "giver": "metropolis_gennaro",
+   "type": "construction",
+   "description": "Gennaro's chestnut cart at the castle gate is falling apart. Build him a proper stall beside it: a counter, a roof and a lamp for the dark afternoons.",
+   "requires": {
+    "quests": [
+     "metropolis_welcome"
+    ]
+   },
+   "onAccept": {
+    "blueprints": [
+     "counter",
+     "roof",
+     "pillar",
+     "lamp"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "stall",
+     "kind": "room",
+     "zone": "metropolis_cart",
+     "needs": [
+      {
+       "any": [
+        "counter"
+       ],
+       "label": "A counter"
+      },
+      {
+       "any": [
+        "roof"
+       ],
+       "label": "A roof over it"
+      },
+      {
+       "any": [
+        "lamp",
+        "streetlight",
+        "poweredLamp"
+       ],
+       "label": "A lamp"
+      }
+     ],
+     "stage": 0,
+     "text": "Build Gennaro a chestnut stall at the castle gate: a counter, a roof and a lamp",
+     "hint": {
+      "x": -92,
+      "z": -85
+     },
+     "buildHint": "A roof needs something to rest on, like pillars at its corners."
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "metropolis_gennaro",
+     "text": "Tell Gennaro his stall is ready",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "harmony": 8,
+    "items": {
+     "coins": 30,
+     "metropolis_roast_chestnuts": 3
+    },
+    "flags": [
+     "metropolis_cart_done"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "My cart, look at her. A wheel in November, a handle in December, and in January I'll be roasting chestnuts in my hat.",
+     "A proper stall. A counter for the cones, a roof for the fog, and a lamp, because at five o'clock it's night and people buy chestnuts by smell, and smell needs a light."
+    ],
+    "acceptLabel": "A stall it is",
+    "declineLabel": "Not today",
+    "accept": [
+     "Bless you! Here, the plans for a counter and a roof. Pillars to hold the roof up. Build it by the gate, where people pass."
+    ],
+    "decline": [
+     "Next week, then. The wheel will hold. Probably. Possibly."
+    ],
+    "progress": [
+     "A counter, a roof and a lamp, by the castle gate. The chestnuts are getting impatient."
+    ],
+    "complete": [
+     "Che bellezza! A counter for the cones, a roof for the fog, a light for the evening. My wife will cry. With happiness. And then ask about the cost.",
+     "Take some chestnuts. Take three. Take my eternal gratitude, which is warmer."
+    ]
+   }
+  },
+  {
+   "id": "metropolis_fog_light",
+   "title": "A Light in the Fog",
+   "giver": "metropolis_rocco",
+   "type": "construction",
+   "description": "Drivers can't see Vigile Rocco in the fog, white helmet and all. Build him a raised platform in his corner of the cathedral square, with a streetlight beside it.",
+   "requires": {
+    "quests": [
+     "metropolis_welcome"
+    ]
+   },
+   "onAccept": {
+    "blueprints": [
+     "platform",
+     "streetlight"
+    ],
+    "items": {
+     "crystal": 1,
+     "metal": 1
+    }
+   },
+   "objectives": [
+    {
+     "id": "platform",
+     "kind": "room",
+     "zone": "metropolis_fog_light",
+     "needs": [
+      {
+       "any": [
+        "platform",
+        "stoneBlock",
+        "foundation"
+       ],
+       "label": "A raised platform to stand on"
+      },
+      {
+       "any": [
+        "streetlight",
+        "poweredLamp"
+       ],
+       "label": "A streetlight beside it"
+      }
+     ],
+     "stage": 0,
+     "text": "Build Rocco a raised platform in his corner of the square, with a streetlight",
+     "hint": {
+      "x": -27,
+      "z": 9
+     }
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "metropolis_rocco",
+     "text": "Tell Vigile Rocco he'll be seen",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "harmony": 8,
+    "items": {
+     "coins": 30
+    },
+    "flags": [
+     "metropolis_fog_light_done"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "*FWEET!* Geometra! A matter of public safety. In the fog, nobody sees me. A bus nearly took my gloves this morning. My good gloves.",
+     "A platform, so I'm up high. And a streetlight, so I'm lit. Rocco Spreafico, visible from the Galleria. Imagine."
+    ],
+    "acceptLabel": "You'll be seen",
+    "declineLabel": "Not now",
+    "accept": [
+     "*fweet* Excellent! Plans for a platform and a streetlight, from the municipal archive. I borrowed them. With a form. Build it in my corner, on the south side of the square, where the pigeons hold their meetings."
+    ],
+    "decline": [
+     "Understood! Carry on! *fweet*"
+    ],
+    "progress": [
+     "A platform and a streetlight in my corner of the square. *fweet*"
+    ],
+    "complete": [
+     "Up here I can see the whole square! The Galleria, the cathedral, a man jaywalking by the Christmas tree. *FWEEEET!* Ha! He saw me!",
+     "Thank you, Geometra. From the traffic police of Toriano. Well. From me."
+    ]
+   }
+  },
+  {
+   "id": "metropolis_roman",
+   "title": "Roman Finds",
+   "giver": "metropolis_vale",
+   "type": "exploration",
+   "description": "Toriano was a Roman town, and every building site turns something up. Vale needs a story. Dig up three Roman finds with the metal detector at the building sites.",
+   "requires": {
+    "quests": [
+     "metropolis_welcome"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "finds",
+     "kind": "gather",
+     "item": "metropolis_roman",
+     "count": 3,
+     "stage": 0,
+     "text": "Dig up 3 Roman finds where the metal detector beeps at the building sites",
+     "hint": {
+      "x": 48,
+      "z": 104
+     }
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "metropolis_vale",
+     "text": "Show Vale the finds",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "harmony": 6,
+    "items": {
+     "coins": 30
+    },
+    "flags": [
+     "metropolis_roman_done"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "{name}! I need a story. A real one. The editor says if I bring him one more piece about the fog he'll make me do the horoscopes.",
+     "Every building site in Toriano turns up something Roman. Coins, lamps, bits of mosaic. Dig me up three, with your detector thing, and I'll make you famous. Page nine famous."
+    ],
+    "acceptLabel": "For the front page",
+    "declineLabel": "Another time",
+    "accept": [
+     "Brilliant! There are two sites behind hoardings: one south of the cathedral by the long street, one by the east avenue. Listen for the beeps!"
+    ],
+    "decline": [
+     "Fine, fine. 'Fog Continues'. Page twelve. Again."
+    ],
+    "progress": [
+     "Three Roman finds from the building sites. The detector beeps faster as you get close."
+    ],
+    "complete": [
+     "A coin, a lamp and half a dolphin! 'Geometra Digs Up Ancient Toriano.' With a photo! I'm taking it to the editor right now. Running. Everyone runs here, but this time I mean it."
+    ]
+   }
+  },
+  {
+   "id": "metropolis_model",
+   "title": "Full-Size Model",
+   "giver": "metropolis_simone",
+   "type": "construction",
+   "description": "Simone dares you to build his cardboard exam model full size in the courtyard: a pergola of four pillars with a roof, and two benches.",
+   "requires": {
+    "quests": [
+     "metropolis_flat"
+    ]
+   },
+   "onAccept": {
+    "blueprints": [
+     "pillar",
+     "roof",
+     "bench"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "pergola",
+     "kind": "room",
+     "zone": "metropolis_courtyard",
+     "needs": [
+      {
+       "any": [
+        "pillar"
+       ],
+       "label": "Four pillars",
+       "count": 4
+      },
+      {
+       "any": [
+        "roof"
+       ],
+       "label": "A roof on them"
+      },
+      {
+       "any": [
+        "bench"
+       ],
+       "label": "Two benches",
+       "count": 2
+      }
+     ],
+     "stage": 0,
+     "text": "Build Simone's pergola in the courtyard: four pillars, a roof and two benches",
+     "hint": {
+      "x": -38,
+      "z": 112
+     },
+     "buildHint": "Stand four pillars at the corners of a 2×2 square, then rest a roof on them."
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "metropolis_simone",
+     "text": "Show Simone his model, full size",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "harmony": 8,
+    "items": {
+     "coins": 30
+    },
+    "flags": [
+     "metropolis_model_done"
+    ],
+    "blueprints": [
+     "sofa"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "I have a bet with my professor. He says my pergola won't stand up. In cardboard, it doesn't. But full size? In proper materials?",
+     "Four pillars, a roof on top, two benches underneath. In the courtyard. If it stands, I'm photographing it for my exam. If it falls, I'm moving to Bergamo."
+    ],
+    "acceptLabel": "Challenge accepted",
+    "declineLabel": "Not my style",
+    "accept": [
+     "Yes! Here's the drawing. Four pillars at the corners, the roof resting on them, two benches. Pure. Classical. Slightly derivative."
+    ],
+    "decline": [
+     "Fair. It's a very simple pergola. Some would say too simple. My professor says it every week."
+    ],
+    "progress": [
+     "Four pillars, a roof on them, two benches. In the courtyard."
+    ],
+    "complete": [
+     "It stands! It STANDS! I'm calling the professor. No, I'm calling my mother. No, I'm sitting on the bench. Just for a moment. Look at it."
+    ]
+   }
+  },
+  {
+   "id": "metropolis_tree",
+   "title": "A Tree for the Courtyard",
+   "giver": "metropolis_elvira",
+   "type": "construction",
+   "description": "Signora Elvira wants a proper Christmas tree in the courtyard of number 14, like before the war. Plant a young tree with flower beds and lamps around it.",
+   "requires": {
+    "quests": [
+     "metropolis_flat"
+    ]
+   },
+   "onAccept": {
+    "blueprints": [
+     "tree",
+     "flowerBed",
+     "lamp"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "tree",
+     "kind": "room",
+     "zone": "metropolis_courtyard",
+     "needs": [
+      {
+       "any": [
+        "tree"
+       ],
+       "label": "A young tree"
+      },
+      {
+       "any": [
+        "flowerBed"
+       ],
+       "label": "Two flower beds",
+       "count": 2
+      },
+      {
+       "any": [
+        "lamp",
+        "streetlight",
+        "poweredLamp"
+       ],
+       "label": "Two lamps",
+       "count": 2
+      }
+     ],
+     "stage": 0,
+     "text": "Plant a tree in the courtyard with two flower beds and two lamps around it",
+     "hint": {
+      "x": -38,
+      "z": 112
+     }
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "metropolis_elvira",
+     "text": "Show Signora Elvira the courtyard tree",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "harmony": 8,
+    "items": {
+     "coins": 25,
+     "flowers": 4
+    },
+    "flags": [
+     "metropolis_tree_done"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "Before the war, the courtyard had a Christmas tree. A real one, in the ground. The whole building decorated it. One year with spoons, it was a hard year.",
+     "Now it has bicycles. Plant me a tree, young one. With flower beds round it, and lamps, so I can see it from my balcony in the evening."
+    ],
+    "acceptLabel": "A tree for the courtyard",
+    "declineLabel": "Maybe later",
+    "accept": [
+     "Good. Plans for a tree, flower beds and a lamp. And not too near my washing."
+    ],
+    "decline": [
+     "Later is what my husband said about the hall light. It's still broken. 1974."
+    ],
+    "progress": [
+     "A tree, two flower beds, two lamps. In the courtyard, where I can see it."
+    ],
+    "complete": [
+     "Oh. Oh, look at it. With the lamps on. It's exactly right. It's better than before the war. Don't tell anyone I said that."
+    ]
+   }
+  },
+  {
+   "id": "metropolis_canal",
+   "title": "The Canal's Treasures",
+   "giver": "metropolis_franco",
+   "type": "collection",
+   "description": "Franco wants a wall of bicycles fished out of the Naviglio for his bar. Fish three old bicycles out of the canals.",
+   "requires": {
+    "quests": [
+     "metropolis_welcome"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "bikes",
+     "kind": "gather",
+     "item": "metropolis_bicycle",
+     "count": 3,
+     "stage": 0,
+     "text": "Fish 3 old bicycles out of the canals",
+     "hint": {
+      "x": -108,
+      "z": 91
+     }
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "metropolis_franco",
+     "text": "Bring the bicycles to Franco",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "harmony": 6,
+    "items": {
+     "coins": 45
+    },
+    "flags": [
+     "metropolis_canal_done"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "…A bar needs a theme. Mine is going to be bicycles. Ones the canal gave back.",
+     "People ride home from here in the fog and the Naviglio keeps a few. Fish me three out. I'll hang them on the wall, and people will say 'that's the bar with the bicycles'. Instead of 'that's the bar where nothing ever happens'."
+    ],
+    "acceptLabel": "I'll go fishing",
+    "declineLabel": "Not today",
+    "accept": [
+     "…Good. Fish from the quays. You'll get boots, trolleys, the odd carp. Keep going. The bicycles are down there. Waiting."
+    ],
+    "decline": [
+     "…No hurry. The bicycles aren't going anywhere. That's rather the point."
+    ],
+    "progress": [
+     "…Three bicycles. The trolleys you can sell me. The boots, keep."
+    ],
+    "complete": [
+     "…There. On the wall. Three bicycles, dripping. Signor Fumagalli recognised one. It's his. From 1971. He's not getting it back."
+    ]
+   }
+  }
+ ]
+}

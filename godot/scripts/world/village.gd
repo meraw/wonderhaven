@@ -208,7 +208,7 @@ func _build_features() -> void:
 			"boat": o = Props.boat(); o.visible = false
 			"bench": o = PieceMeshes.make("bench"); o.rotation.y = -int(f.get("r", 0)) * PI / 2.0
 			_: o = Node3D.new()
-		o.position = Vector3(f.x, -0.45 if f.kind == "boat" else Heightfield.height(f.x, f.z), f.z)
+		o.position = Vector3(f.x, -0.45 if f.kind == "boat" else (float(f.y) if f.has("y") else Heightfield.height(f.x, f.z)), f.z)   # y: up on a raised floor
 		if f.id == "welcomeSign": o.rotation.y = PI / 2
 		o.name = f.id; add_child(o); objects[f.id] = o
 
