@@ -272,12 +272,12 @@
     ],
     [
      12,
-     14,
-     "metropolis_franco:spot",
-     "talk"
+     13,
+     "metropolis_courtyard",
+     "idle"
     ],
     [
-     14,
+     13,
      19,
      "metropolis_sala:spot",
      "work"
@@ -301,12 +301,12 @@
       ],
       [
        12,
-       14,
-       "metropolis_franco:spot",
-       "talk"
+       13,
+       "metropolis_courtyard",
+       "idle"
       ],
       [
-       14,
+       13,
        19,
        "metropolis_sala:spot",
        "work"
@@ -330,12 +330,12 @@
       ],
       [
        12,
-       14,
-       "metropolis_franco:spot",
-       "talk"
+       13,
+       "metropolis_courtyard",
+       "idle"
       ],
       [
-       14,
+       13,
        17,
        "metropolis_sala:spot",
        "work"

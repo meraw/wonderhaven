@@ -78,7 +78,7 @@
      "id": "sala",
      "kind": "talk",
      "npc": "metropolis_sala",
-     "text": "Report to Ragioniere Sala (his office is across the courtyard; he lunches at Franco's)",
+     "text": "Report to Ragioniere Sala in his office across the courtyard",
      "stage": 2,
      "lines": [
       "Ah. The new tenant. Sala. Administrator. Here is the tenancy agreement, the house rules, the regulations of 1953 and the amendments.",
