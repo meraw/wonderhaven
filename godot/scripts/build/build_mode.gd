@@ -257,13 +257,17 @@ func evaluate(c: Dictionary) -> Dictionary:
 func _clear_ghost() -> void:
 	if ghost: ghost.queue_free(); ghost = null; ghost_key = ""
 
+## How far the build view can move from the middle of the map, each way: over the whole map, 55 m in a village.
+static func view_limit() -> float: return Data.map_size() / 2.0 - 7.0
+
 func update(dt: float) -> void:
 	var mv: Vector2 = game.move_vector()
 	var yaw: float = game.cam.move_yaw()
 	var fx := -sin(yaw); var fz := -cos(yaw)
 	var spd := 9.0 * (2.0 if Input.is_action_pressed("sprint") else 1.0) * dt
-	focus.x = clampf(focus.x + (fx * mv.y - fz * mv.x) * spd, -55, 55)
-	focus.z = clampf(focus.z + (fz * mv.y + fx * mv.x) * spd, -55, 55)
+	var lim := view_limit()
+	focus.x = clampf(focus.x + (fx * mv.y - fz * mv.x) * spd, -lim, lim)
+	focus.z = clampf(focus.z + (fz * mv.y + fx * mv.x) * spd, -lim, lim)
 	game.cam.focus = Vector3(focus.x, maxf(Heightfield.height(focus.x, focus.z), focus.y) + 0.5, focus.z)
 	if Input.is_action_just_pressed("pause"):
 		if not moving.is_empty(): cancel_move()
@@ -294,7 +298,7 @@ func update(dt: float) -> void:
 		ghost.visible = true
 	else:
 		if ghost: ghost.visible = false
-		if not check.is_empty(): check = {}; _render_status()
+		if not check.is_empty(): check = {}; ghost_key = ""; _render_status()   # (so coming back to the same cell checks it again)
 	var sm: Node3D = game.piece_nodes.get(selected)
 	sel_box.visible = sm != null and moving.is_empty()
 	if sm:
