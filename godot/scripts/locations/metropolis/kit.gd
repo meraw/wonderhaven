@@ -325,7 +325,8 @@ static func block(b: Dictionary, style: int = PLAIN) -> Node3D:
 	return g
 
 ## [mesh, solid material, see-through copy] for each mesh under `nodes`, for game.gd's fading roofs: façades fade
-## through their own dither (`alpha`), other materials with alpha hash.
+## through their own dither (`alpha`), other materials through the roof shader's dither (as `Props.fade_parts` does:
+## the compatibility renderer draws alpha-hashed surfaces solid).
 static func fade_parts(nodes: Array) -> Array:
 	var parts: Array = []
 	for nd in nodes:
@@ -336,7 +337,8 @@ static func fade_parts(nodes: Array) -> Array:
 			if solid == null: continue
 			var faded: Material = solid.duplicate()
 			if faded is StandardMaterial3D:
-				faded.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_HASH; faded.alpha_hash_scale = 1.0
+				faded = Props.roof_material((solid as StandardMaterial3D).albedo_color, true)
+				(faded as ShaderMaterial).set_shader_parameter("plain", true)
 			elif faded is ShaderMaterial and (solid as ShaderMaterial).get_shader_parameter("color") != null:
 				faded = Props.roof_material((solid as ShaderMaterial).get_shader_parameter("color"), true)
 			parts.append([m, solid, faded])

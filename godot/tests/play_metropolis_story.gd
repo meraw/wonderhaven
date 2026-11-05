@@ -161,6 +161,9 @@ func step_scaffold() -> void:
 	await leave_build()
 	check("scaffold_built", "a walkable climb from the works yard up to the roof terrace", step_done("scaffold", "climb"), "%d of %d placed" % [placed, climb.size()])
 	await climb_scaffold(67.5)
+	for n in 20:   # (the roof notices you on its next frame)
+		if step_done("scaffold", "roof"): break
+		await frames(1)
 	check("scaffold_climbed", "you walk up your scaffolding onto the cathedral's roof terrace, 6.3 m up", game.player.pos.y > 6.1 and step_done("scaffold", "roof"), "at %s" % game.player.pos)
 	await shot("on_the_roof")
 	await descend_scaffold()
