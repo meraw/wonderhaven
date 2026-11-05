@@ -83,7 +83,9 @@ Starting points only. Each location's session settles the details with the user 
    building pieces are shared: ask the user first.
 5. **Stay current:** merge main into your branch often. Never rebase or force-push.
 6. **Before each push:** run `godot/run_tests.sh`, take screenshots of your location in both renderers, and run a
-   scripted playthrough of its requests. `npm test` and `npm run build` still apply, because the web version is
+   scripted playthrough of its requests: your location's only, not the other places'. It starts as if the player had
+   reached your location, with realistic stats (`arrive_as_if_played([earlier places])` in `tests/autoplay_base.gd`:
+   the earlier places' main stories done, with what they gave), and plays only your location. `npm test` and `npm run build` still apply, because the web version is
    frozen but must keep building. Say what you verified in play and what you only unit-tested.
 
 ## Tools in a cloud session
