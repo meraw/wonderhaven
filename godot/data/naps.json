@@ -1,0 +1,38 @@
+{
+  "_doc": "Waking up from a nap on a bench in the open (BenchNap, world/nap_gags.gd). If it rained while you slept you wake up soaked; otherwise `chance` of the time one of the other gags happens, weighted, never the same one twice in a row. {name} is the villager caught staring, {paper} the local paper. A layout can override any key with its own \"naps\" block (a city's paper, its own odds).",
+  "chance": 0.35,
+  "paper": "Eco del Colle",
+  "gags": {
+    "newspaper": {
+      "weight": 3,
+      "lines": [
+        "You wake up under yesterday's {paper}. The wind takes it back.",
+        "Somebody tucked you in with the {paper}. The sports pages leave first.",
+        "You slept under the {paper}'s classifieds. One of them was for a mattress. The wind takes that one too."
+      ]
+    },
+    "umbrella": {
+      "weight": 2,
+      "lines": [
+        "Somebody left a wet umbrella open beside the bench to dry. It dried on you.",
+        "An umbrella stands open next to you, dripping. Its owner has very dry feet somewhere.",
+        "A stranger's umbrella spent the night drying over your left side. Your left side did not dry."
+      ]
+    },
+    "stared": {
+      "weight": 3,
+      "lines": [
+        "{name} was standing over you, staring, and has just remembered somewhere else to be.",
+        "You open your eyes. {name} is right there, watching you, and is suddenly very interested in the sky.",
+        "{name} was waiting for you to wake up. Or wasn't, and is leaving now, briskly."
+      ]
+    },
+    "rain": {
+      "lines": [
+        "It rained while you slept. You are mostly puddle now.",
+        "You slept through the rain. Your shoes didn't.",
+        "It rained in the night. The bench stayed dry underneath you. Only underneath you."
+      ]
+    }
+  }
+}

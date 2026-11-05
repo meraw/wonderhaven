@@ -19,6 +19,7 @@ var resource_order: Array
 var appearance: Dictionary
 var tutorial: Dictionary   # Godot-only: guided first day steps and tip cards (data/tutorial.json)
 var shops: Dictionary      # Godot-only: what villagers buy and sell, gift lines (data/shops.json)
+var naps: Dictionary       # waking up from a nap on a bench: odds and lines of the gags (data/naps.json, BenchNap)
 ## The island you're on. `layout` is that island's layout (data/layout.json for Hearthglow, layout_<id>.json or a
 ## location pack's layout for the others); Heightfield follows it. Sailing reloads the scene with the new island.
 var island := "hearthglow"
@@ -47,6 +48,7 @@ func load_all() -> void:
 	appearance = _read("appearance")
 	tutorial = _read("tutorial")
 	shops = _read("shops")
+	naps = _read("naps")
 	var lists := {"islands": islands, "npcs": npcs, "quests": quests, "shops": shops.get("shops", {}), "resources": resources, "order": resource_order}
 	for id in location_ids():
 		var dir := "%s/%s/" % [LOCATIONS, id]
@@ -173,6 +175,12 @@ func npcs_here() -> Array: return npcs.filter(func(n): return n.get("island", "h
 func piece(id: String) -> Dictionary: return piece_by_id.get(id, {})
 func npc(id: String) -> Dictionary: return npc_by_id.get(id, {})
 func quest(id: String) -> Dictionary: return quest_by_id.get(id, {})
+## Bench-nap odds and lines here: data/naps.json, with any keys the layout's own "naps" block sets (a city's paper).
+func naps_here() -> Dictionary:
+	var n: Dictionary = naps.duplicate()
+	n.merge(layout.get("naps", {}), true)
+	return n
+
 func zone(id: String) -> Dictionary:
 	for z in layout.zones:
 		if z.id == id: return z
