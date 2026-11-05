@@ -78,6 +78,7 @@ func _ready() -> void:
 	decor = WorldStatics.generate_decor()
 	statics = WorldStatics.build_statics(decor)
 	walk = WalkWorld.new(statics, func(f): return state.flags.get(f, false))
+	walk.floors = WorldStatics.floors()   # balconies, roof terraces and decks from the layout
 	env = TerrainBuilder.build_environment(); add_child(env)
 	sun = DirectionalLight3D.new(); sun.shadow_enabled = true; sun.light_energy = 0.62; sun.light_color = Color("fff1d6")
 	sun.directional_shadow_max_distance = 70.0; sun.rotation_degrees = Vector3(-50, 35, 0)
@@ -284,6 +285,22 @@ func sleep_until(hour: float, where: String = "bed") -> void:
 	sfx("morning")
 	autosave("rest", true)
 	emit_event("slept", {"hour": hour, "where": where})
+
+## Ride from one stop to another on a line within this place (Travel.stops_on): the screen fades, the clock moves
+## on by the ride's length, and you step off at the other stop.
+func ride_to(from: Dictionary, to: Dictionary) -> void:
+	panels.close()
+	set_mode("cutscene")
+	stand_up()
+	await _fade(true).finished
+	Clock.advance(state.time, Travel.ride_minutes(from, to) / Clock.MINUTES_PER_SECOND)
+	var spot := walk.free_spot(float(to.x), float(to.z), Rect2(), 6.0, WalkWorld.PLAYER_RADIUS, player.body)
+	if not spot.is_empty(): player.teleport(spot.x, spot.z)
+	cam.snap()
+	_fade(false)
+	set_mode("explore")
+	toast(String(to.get("arrive_text", String(to.get("name", "")))))
+	emit_event("rode", {"from": from.id, "to": to.id})
 
 func _fade(on: bool) -> Tween:
 	var r: ColorRect = ui_root.get_node_or_null("Fade")

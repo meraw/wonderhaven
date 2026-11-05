@@ -90,3 +90,75 @@ func test_a_departure_point_with_its_own_id():
 		var bus: Array = g.registered.filter(func(d): return d.get("id", "") == "boat")
 		t.eq(bus[0].label.call(), "Catch the bus", "without a label it's still the bus")
 		g.free())
+
+func test_a_stop_offers_a_ride():
+	_with_layout({"nodes": [], "features": [{"id": "stop_a", "kind": "stop", "line": "tram", "name": "Duomo", "x": 3, "z": 4, "ride_label": "Take the tram"}]}, func():
+		Data.island = "zz_elsewhere"
+		var g := FakeGame.new()
+		WorldActions.new(g)
+		Data.island = "hearthglow"
+		var stop: Array = g.registered.filter(func(d): return d.get("id", "") == "stop_a")
+		t.eq(stop.size(), 1, "a stop is something you can do")
+		t.eq(stop[0].label.call(), "Take the tram", "it says what you ride")
+		var statics := WorldStatics.build_statics({"trees": [], "bushes": [], "flowers": [], "grass": []})
+		t.ok(statics.any(func(s): return s.get("tag", "") == "stop_a"), "its sign post is solid")
+		g.free())
+
+func test_raised_floors_carry_you_and_what_you_build():
+	# a balcony along x 0..8 at 3.2 m, reached by stairs climbing from z 5.5 (ground) to its edge at z 1.5
+	var floors := [
+		{"id": "balcony", "rect": [0, 0, 8, 1.5], "top": 3.2},
+		{"id": "stairs", "rect": [6, 1.5, 8, 5.5], "rise": [3.2, 0.0], "axis": "z", "bottom": -0.5}]
+	var tower := {"id": "terrace", "kind": "city_block", "x": 20, "z": 20, "w": 8, "d": 8, "h": 6.5, "y": 0.0, "roof_walk": true}
+	var zone := {"id": "roof", "name": "Roof terrace", "minI": 17, "maxI": 22, "minK": 17, "maxK": 22, "floorY": 6.5}
+	_with_layout({"floors": floors, "buildings": [tower], "zones": [zone], "nodes": [], "features": []}, func():
+		var statics := WorldStatics.build_statics({"trees": [], "bushes": [], "flowers": [], "grass": []})
+		t.ok(not statics.any(func(s): return s.get("tag", "") == "terrace"), "a walkable roof isn't a wall to the sky")
+		var w := WalkWorld.new(statics); w.floors = WorldStatics.floors()
+		var g := Heightfield.height(3, 0.7)
+		t.eq(w.surface_at(3, 0.7, g).y, g, "on the ground you walk under the balcony")
+		t.ok(not w.blocked(3, 0.7, g), "and nothing stops you there")
+		t.ok(absf(w.surface_at(3, 0.7, 3.2).y - 3.2) < 0.01, "up on it, you stand on the balcony")
+		var pos := Vector3(7, Heightfield.height(7, 6.0), 6.0)
+		for n in 34: pos = w.step_move(pos, 0.0, -0.15).pos
+		t.ok(absf(pos.y - 3.2) < 0.01 and pos.z < 1.5, "the stairs take you up onto the balcony (at %s)" % pos)
+		for n in 30: pos = w.step_move(pos, -0.2, 0.0).pos
+		t.ok(absf(pos.y - 3.2) < 0.01 and pos.x < 3.0, "and you walk along it, up to Hearthglow's fountain (at %s)" % pos)
+		t.ok(w.blocked(15.85, 20, Heightfield.height(15.85, 20)), "the terrace block stops you on the ground")
+		t.ok(absf(w.surface_at(20, 20, 6.5).y - 6.5) < 0.01, "and carries you on its roof")
+		t.ok(absf(BuildGrid.ground_at(19, 19) - 6.5) < 0.01 and absf(BuildGrid.ground_at(30, 30) - Heightfield.height(30.5, 30.5)) < 0.01, "pieces rest on the roof there, on the ground elsewhere")
+		var ctx := {"placements": [], "zones": [zone], "statics": statics}
+		var pl := {"uid": 1, "id": "pillar", "i": 19.0, "k": 19.0, "r": 0, "y": BuildGrid.suggest_bottom("pillar", 19, 19, 0, 10.0, [], zone)}
+		var v := BuildGrid.validate_placement(pl, ctx)
+		t.ok(v.ok and absf(pl.y - 6.5) < 0.01, "a pillar goes up on the roof terrace (%s)" % v.get("reason", ""))
+		zone.erase("floorY")
+		t.eq(BuildGrid.validate_placement(pl, ctx).get("reason", ""), "Too high to build safely", "without the site's floor height, up there counts as too high"))
+
+func test_rooms_stack_on_raised_floors():
+	# a shop at street level with its door on the south, and a flat above it with its door on the north balcony; both
+	# say which storey they're on ("y"), so neither one's walls block the other's door
+	var g := Heightfield.height(-15, 18)
+	var shop := {"id": "shop", "kind": "city_block", "x": -15, "z": 18, "w": 6, "d": 5, "h": 2.6, "y": g, "door": "S", "interior": {"items": [["table", 1.5, 0, 0]]}}
+	var flat := {"id": "flat", "kind": "city_block", "x": -15, "z": 18, "w": 6, "d": 5, "h": 2.6, "y": g + 3.2, "door": "N", "interior": {"items": [["table", -1.5, 0, 0]]}}
+	var mass := {"id": "wing", "kind": "city_block", "x": -5, "z": 18, "w": 6, "d": 5, "h": 9.0, "solid": false}
+	var floors := [{"id": "flat_floor", "rect": [-18, 15.5, -12, 20.5], "top": g + 3.2}, {"id": "balcony", "rect": [-18, 14, -12, 15.5], "top": g + 3.2}]
+	_with_layout({"buildings": [shop, flat, mass], "floors": floors, "nodes": [], "features": [], "zones": []}, func():
+		var statics := WorldStatics.build_statics({"trees": [], "bushes": [], "flowers": [], "grass": []})
+		t.ok(not statics.any(func(st): return st.get("tag", "") in ["shop", "flat", "wing"]), "rooms on their own storey and a scenery-only wing put no walls to the sky")
+		var w := WalkWorld.new(statics); w.floors = WorldStatics.floors()
+		var up := g + 3.2
+		var pos := Vector3(-15, g, 21.5)
+		for n in 20: pos = w.step_move(pos, 0.0, -0.15).pos
+		t.ok(pos.z < 19.0 and pos.y < g + 1.0, "in through the shop's south door at street level, under the flat (at %s)" % pos)
+		pos = Vector3(-15, up, 14.5)
+		for n in 20: pos = w.step_move(pos, 0.0, 0.15).pos
+		t.ok(pos.z > 17.0 and absf(pos.y - up) < 0.01, "in through the flat's north door from the balcony (at %s)" % pos)
+		pos = Vector3(-15, up, 18)
+		for n in 20: pos = w.step_move(pos, 0.0, 0.15).pos
+		t.ok(pos.z < 20.5 and absf(pos.y - up) < 0.01, "but not out of the flat through the shop's door below (at %s)" % pos)
+		t.ok(w.blocked(-16.5, 18, up) and not w.blocked(-16.5, 18, g), "the flat's table stands upstairs, not in the shop")
+		t.ok(w.blocked(-13.5, 18, g) and not w.blocked(-13.5, 18, up), "and the shop's table downstairs"))
+
+func test_a_building_on_a_raised_floor():
+	_with_layout({"buildings": [{"id": "flat", "kind": "city_block", "x": 0, "z": 0, "w": 6, "d": 5, "h": 2.6, "y": 3.2}]}, func():
+		t.ok((Props.camera_blockers()[0] as AABB).end.y >= 5.8, "an upstairs flat blocks the camera up to its own roof"))

@@ -69,6 +69,8 @@ func _register_feature(f: Dictionary) -> void:
 			game.add_interactable({"id": f.id, "x": f.x, "z": f.z, "radius": 1.5, "object": game.village.objects.get(f.id), "label": func(): return "Sit or nap on the bench", "act": func(): game.rest("bench", seat)})
 		"wardrobe": game.add_interactable({"id": f.id, "x": f.x, "z": f.z, "object": game.village.objects[f.id], "label": func(): return "Change outfit", "act": func(): game.open_wardrobe()})
 		"board": game.add_interactable({"id": f.id, "x": f.x, "z": f.z, "object": game.village.objects[f.id], "label": func(): return "Read the notice board", "act": func(): game.panels.notice_board()})
+		# a stop on a line within this place (a tram, a funicular): ride to another stop on it (Travel.stops_on)
+		"stop": game.add_interactable({"id": f.id, "x": f.x, "z": f.z, "radius": 2.2, "object": game.village.objects.get(f.id), "label": func(): return String(f.get("ride_label", "Take a ride")), "act": func(): game.panels.stops(f)})
 		# the departure point (any id; "depart_label" names how you leave, a train from a city station, say)
 		"boat": game.add_interactable({"id": f.id, "x": f.x, "z": f.z, "radius": 2.6, "object": game.village.objects.get(f.id), "available": func(): return state().flags.get("boatReady", false), "label": func(): return String(f.get("depart_label", "Catch the bus")), "act": func(): game.panels.map(true)})
 

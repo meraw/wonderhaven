@@ -35,7 +35,8 @@ Shared rules for everyone building a location, people and Claude sessions alike,
   game goes on (its view widens to take in what's there). Give the entry a `reveal` flag, set by whatever opens the
   way there. For now every location needs a departure point, a feature of kind `boat`, because the islands test
   expects one. It becomes a general stop once Monteforchetta's bus is built. Transport inside a location, like
-  trams or funiculars, is that location's own design.
+  trams or funiculars, is that location's own design; riding between its stops is shared (features of kind `stop`,
+  see `Travel.stops_on`), and so are raised floors for balconies, terraces and bridges (`floors` in a layout).
 - **Look:** shared shaders and the atmosphere module (`docs/GRAPHICS.md`) give every location wind, light,
   weather and ambient life. A location tunes its mood with the `look` block in its map entry: `shade` is added to
   shadows, `light` multiplies highlights, `wind` scales the wind, and `life` scales motes, fireflies and leaves.

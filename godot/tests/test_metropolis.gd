@@ -11,7 +11,9 @@ func _on(fn: Callable) -> void:
 	Data.use_island("hearthglow")
 
 func _world() -> WalkWorld:
-	return WalkWorld.new(WorldStatics.build_statics(WorldStatics.generate_decor()), func(_f): return true)
+	var w := WalkWorld.new(WorldStatics.build_statics(WorldStatics.generate_decor()), func(_f): return true)
+	w.floors = WorldStatics.floors()
+	return w
 
 func test_the_city_is_big_and_paved():
 	_on(func():
@@ -35,7 +37,8 @@ func test_water_and_quays():
 		t.ok(Heightfield.height(-116, 92.2) < Heightfield.WALKABLE_MIN, "the quay wall drops straight into the Darsena")
 		t.ok(Heightfield.is_stream_cell(-108, 150) and Heightfield.is_stream_cell(-148, 104), "both canals flow, for waterwheels")
 		t.ok(not Heightfield.is_stream_cell(-116, 105) and not Heightfield.is_stream_cell(-120, -126), "the Darsena and the pond are still")
-		t.ok(not Heightfield.is_stream_cell(-157, 104), "no water flows on the old bridge"))
+		t.ok(Heightfield.is_stream_cell(-157, 104) and Heightfield.is_water(-157, 104), "the west canal flows on under the old bridge")
+		t.ok(absf(WorldStatics.floor_top(-157, 104) - 0.4) < 0.01, "whose stone deck carries the street over it"))
 
 func test_the_old_bridge_and_the_quay_hold_you():
 	_on(func():
@@ -47,14 +50,14 @@ func test_the_old_bridge_and_the_quay_hold_you():
 		for n in 60: pos = w.step_move(pos, 0.0, 0.2).pos
 		t.ok(pos.z < 92.0 and not Heightfield.is_water(pos.x, pos.z), "walking at the Darsena stops at the quay (z %.2f)" % pos.z))
 
-## Flood-fills the streets from the station in 1.5 m steps: every nav spot is reached and nothing past the backdrop.
-func test_every_spot_is_reachable_and_the_edge_is_closed():
+## Flood-fills the streets from the station in 1.5 m steps: nothing past the backdrop at the city's edge.
+func test_the_edge_is_closed():
 	_on(func():
 		var w := _world()
 		var step := 1.5
 		var sp: Dictionary = Data.layout.spawn
 		var start := Vector2i(roundi(sp.x / step), roundi(sp.z / step))
-		var seen := {start: true}
+		var seen := {start: Heightfield.height(sp.x, sp.z)}   # cell -> the height you stand at there
 		var queue: Array = [start]
 		var beyond := 0
 		while not queue.is_empty():
@@ -64,18 +67,60 @@ func test_every_spot_is_reachable_and_the_edge_is_closed():
 				if seen.has(n): continue
 				var x := n.x * step; var z := n.y * step
 				if absf(x) > 186.0 or absf(z) > 186.0: beyond += 1; continue
-				if w.can_stand(x, z, Heightfield.height(x, z), 0.3).is_empty(): continue
-				seen[n] = true
+				var s := w.can_stand(x, z, seen[c], 0.3)   # from the height of the cell you came from: over bridges, up stairs
+				if s.is_empty(): continue
+				seen[n] = s.y
 				if absf(x) > 163.0 or absf(z) > 163.0: beyond += 1
 				queue.append(n)
 		t.eq(beyond, 0, "no way out past the backdrop at the city's edge")
+		t.ok(seen.size() > 15000, "the streets are open (%d cells)" % seen.size()))
+
+## Walks every nav path with the real walker, as villagers do, from the station outwards and carrying your height
+## up the courtyard stair: every spot is reached, rooms upstairs included.
+func test_every_nav_path_can_be_walked():
+	_on(func():
+		var w := _world()
+		var adj := {}
+		for e in Data.layout.nav_edges:
+			for pair in [[e[0], e[1]], [e[1], e[0]]]:
+				if not adj.has(pair[0]): adj[pair[0]] = []
+				adj[pair[0]].append(pair[1])
+		var start: String = P + "station"
+		var p0: Array = Data.layout.nav_nodes[start]
+		var at := {start: Heightfield.height(p0[0], p0[1])}   # node -> the height you reached it at
+		var queue: Array = [start]
+		while not queue.is_empty():
+			var a: String = queue.pop_front()
+			var pa: Array = Data.layout.nav_nodes[a]
+			for b in adj.get(a, []):
+				if at.has(b): continue
+				var pb: Array = Data.layout.nav_nodes[b]
+				var pos := Vector3(pa[0], at[a], pa[1])
+				var goal := Vector2(pb[0], pb[1])
+				for n in int(goal.distance_to(Vector2(pa[0], pa[1])) / 0.2) + 40:
+					var dir := (goal - Vector2(pos.x, pos.z))
+					if dir.length() < 0.15: break
+					dir = dir.normalized() * minf(0.2, dir.length())
+					pos = w.step_move(pos, dir.x, dir.y).pos
+				if Vector2(pos.x, pos.z).distance_to(goal) < 0.5:
+					at[b] = pos.y; queue.append(b)
 		for k in Data.layout.nav_nodes:
-			var p: Array = Data.layout.nav_nodes[k]
-			var c := Vector2i(roundi(p[0] / step), roundi(p[1] / step))
-			var near := false
-			for dx in [-1, 0, 1]:
-				for dz in [-1, 0, 1]: near = near or seen.has(c + Vector2i(dx, dz))
-			t.ok(near, "%s can be reached on foot from the station" % k))
+			t.ok(at.has(k), "%s can be walked to from the station" % k)
+		# and every path can be walked from one end or the other (villagers follow them in straight lines)
+		for e in Data.layout.nav_edges:
+			if not at.has(e[0]) or not at.has(e[1]): continue
+			var ok := false
+			for pair in [[e[0], e[1]], [e[1], e[0]]]:
+				var pa: Array = Data.layout.nav_nodes[pair[0]]; var pb: Array = Data.layout.nav_nodes[pair[1]]
+				var pos := Vector3(pa[0], at[pair[0]], pa[1]); var goal := Vector2(pb[0], pb[1])
+				for n in int(goal.distance_to(Vector2(pa[0], pa[1])) / 0.2) + 40:
+					var dir := goal - Vector2(pos.x, pos.z)
+					if dir.length() < 0.15: break
+					dir = dir.normalized() * minf(0.2, dir.length())
+					pos = w.step_move(pos, dir.x, dir.y).pos
+				ok = ok or Vector2(pos.x, pos.z).distance_to(goal) < 0.5
+			t.ok(ok, "the path %s-%s can be walked" % [e[0], e[1]])
+		t.ok(absf(at.get(P + "home:spot", 0.0) - 3.5) < 0.05, "your flat is up on the first floor (%.2f)" % at.get(P + "home:spot", 0.0)))
 
 func test_build_sites_sit_where_their_requests_need_them():
 	_on(func():

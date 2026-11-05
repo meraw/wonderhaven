@@ -3,7 +3,8 @@ extends RefCounted
 ## blocks for every building, so the street plan can be walked and seen; the real models come in stage 2.
 
 ## Flat city ground, with stone-walled water cut into it: the Darsena (the dock basin), the canal that feeds it from
-## the west, the Naviglio dei Fiori leaving it to the south, and the duck pond in the park.
+## the west, the Naviglio dei Fiori leaving it to the south, and the duck pond in the park. The old bridge over the
+## west canal is a raised floor in the layout, with the water running on underneath.
 const GROUND := 0.3
 const BED := -1.4
 const QUAY := 0.4   # the quay walls are almost sheer
@@ -11,7 +12,6 @@ const DARSENA := Rect2(-140, 92, 48, 26)
 const CANAL_A := Rect2(-200, 100, 60, 10)   # runs on under the city's edge
 const CANAL_B := Rect2(-112, 118, 10, 80)   # the Naviglio dei Fiori
 const POND := Vector3(-120, -126, 11)        # x, z, radius
-const OLD_BRIDGE := Rect2(-160, 99, 6, 12)   # a street carried over the canal and its quay walls (solid until stage 2)
 
 static func _outside(r: Rect2, x: float, z: float) -> float:
 	var dx := maxf(maxf(r.position.x - x, x - r.end.x), 0.0)
@@ -19,7 +19,6 @@ static func _outside(r: Rect2, x: float, z: float) -> float:
 	return sqrt(dx * dx + dz * dz)
 
 static func height(x: float, z: float) -> float:
-	if OLD_BRIDGE.has_point(Vector2(x, z)): return GROUND
 	var h := GROUND
 	var d := minf(_outside(DARSENA, x, z), minf(_outside(CANAL_A, x, z), _outside(CANAL_B, x, z)))
 	if d < QUAY: h = lerpf(BED, GROUND, d / QUAY) if d > 0.0 else BED
@@ -33,12 +32,34 @@ static func height(x: float, z: float) -> float:
 ## The two canals flow (waterwheels turn there); the Darsena and the pond are still water.
 static func is_stream_cell(i: float, k: float) -> bool:
 	var p := Vector2(i + 0.5, k + 0.5)
-	if OLD_BRIDGE.has_point(p): return false
 	return CANAL_A.has_point(p) or CANAL_B.has_point(p)
 
-## Stage 1: every building is a plain block of its wall colour, with a darker roof and a stone plinth, at its full
-## height (the camera knows it from "h"). The Duomo gets a spire for the Golden Angel so the skyline reads.
+const Kit := preload("res://scripts/locations/metropolis/kit.gd")
+const Scenery := preload("res://scripts/locations/metropolis/scenery.gd")
+const Landmarks := preload("res://scripts/locations/metropolis/landmarks.gd")
+
+## Scenery added after everything else (Village calls this): see scenery.gd.
+static func dress(village: Node3D) -> void: Scenery.dress(village)
+
+## Models for Toriano's buildings. City blocks and the backdrop use the painted-façade kit; landmarks not yet
+## modelled stay plain blocks of their wall colour at full height (the camera knows it from "h").
 static func building(b: Dictionary) -> Node3D:
+	var style: int = Kit.ARCHED if b.kind == "galleria" else Kit.PLAIN
+	match String(b.kind):
+		"duomo": return Landmarks.duomo_nave(b)
+		"duomo_front": return Landmarks.duomo_front(b)
+		"duomo_aisle": return Landmarks.duomo_aisle(b)
+		"teatro": return Landmarks.teatro(b)
+		"castello": return Landmarks.castello(b)
+		"centrale": return Landmarks.centrale(b)
+		"tenement_low": return Landmarks.tenement_low(b)
+		"depot": return Kit.block(b, Kit.BRICK)
+		"backdrop": return Kit.block(b, Kit.BLANK)
+	if Interiors.enterable(b): return Kit.room(b, style)
+	if b.kind in ["city_block", "tenement", "galleria"]: return Kit.block(b, style)
+	return _plain(b)
+
+static func _plain(b: Dictionary) -> Node3D:
 	var P := preload("res://scripts/world/palette.gd")
 	var g := Node3D.new()
 	var w := float(b.w); var d := float(b.d); var h := float(b.get("h", 12.0))

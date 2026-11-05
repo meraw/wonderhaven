@@ -11,6 +11,10 @@ See `docs/WORLD.md` for the rules and the file shapes. A pack is picked up when 
     `flowers` and `grass`.
   - `h` on a building: its height, for the camera.
   - `depart_label` on the departure point: how you leave, for example "Take the train".
+  - `floors`: raised floors you walk and build on (balconies, roof terraces, stairs, bridge decks; see
+    `WorldStatics.floors`), `roof_walk` on a building for a walkable roof, `y` on a building that stands on one,
+    `floorY` on a build site up there, `solid: false` for scenery-only buildings.
+  - features of kind `stop` with a `line`: ride between stops (`Travel.stops_on`).
   See `metropolis/` for a city that uses them.
 - `location.json`: its entry on the travel map (`name`, `desc`, `x`, `y`, `r`, `color`, `reveal`) and its `look`. The
   place stays off the map until its `reveal` flag is set (`Travel.on_map`).
