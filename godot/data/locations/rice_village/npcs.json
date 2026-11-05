@@ -166,7 +166,7 @@
     [
      12,
      14,
-     "rice_village_farmhouse:1",
+     "courtyard",
      "idle"
     ],
     [
@@ -178,11 +178,11 @@
     [
      19,
      22,
-     "rice_village_farmhouse:in",
+     "courtyard",
      "idle"
     ]
    ],
-   "home": "rice_village_farmhouse:in",
+   "home": "farmhouseDoor",
    "greetings": [
     {
      "flag": "rice_village_paddyFlooded",
@@ -420,7 +420,7 @@
     [
      18,
      22,
-     "rice_village_farmhouse:1",
+     "courtyardNE",
      "idle"
     ]
    ],
