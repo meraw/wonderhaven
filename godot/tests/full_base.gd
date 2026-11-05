@@ -17,19 +17,24 @@ func walk_direct(x: float, z: float, tol: float = 0.8, max_s: float = 40.0) -> b
 	var used := 0
 	var last: Vector3 = game.player.pos
 	var still := 0
+	var best := INF; var since_best := 0   # no closer for ~8 s of frames: really stuck, so give up and say where
 	key(KEY_SHIFT, true)
 	while used < budget:
 		var p: Vector3 = game.player.pos
-		if Vector2(x - p.x, z - p.z).length() < tol: break
+		var dist := Vector2(x - p.x, z - p.z).length()
+		if dist < tol: break
+		if dist < best - 0.05: best = dist; since_best = 0
+		elif since_best > 240:
+			note("walk stuck at (%.1f, %.1f) heading for (%.1f, %.1f)" % [p.x, p.z, x, z]); break
 		steer(x, z)
 		key(KEY_W, true)
-		await frames(2); used += 2
+		await frames(2); used += 2; since_best += 2
 		if p.distance_to(last) > 0.1: last = p; still = 0
 		else:
 			still += 2
 			if still > 36:   # no headway for about a second of frames: sidestep and hop, as a player would
 				key(KEY_W, false); key(KEY_D if randf() < 0.5 else KEY_A, true); await frames(8); key(KEY_A, false); key(KEY_D, false)
-				await tap(KEY_SPACE); still = 0; used += 8
+				await tap(KEY_SPACE); still = 0; used += 8; since_best += 8
 	key(KEY_W, false); key(KEY_SHIFT, false)
 	await frames(2)
 	return Vector2(x - game.player.pos.x, z - game.player.pos.z).length() < tol + 0.4
