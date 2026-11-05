@@ -209,6 +209,15 @@ func choose(id: String, want: String) -> bool:
 		await tap(KEY_1 + idx)
 	return false
 
+## Places a piece with its corner cell at (i, k), clicking the middle of its whole footprint (for a piece two cells
+## wide, the middle of its first cell is exactly where the grid rounds to the next cell).
+func place_piece(id: String, i: int, k: int, y: float, r: int = 0) -> String:
+	var fp := BuildGrid.footprint(Data.piece(id), r)
+	var status := await place_at(i + fp.x / 2.0 - 0.5, k + fp.y / 2.0 - 0.5, y, r)
+	var ok: bool = game.state.placements.any(func(p): return p.id == id and int(p.i) == i and int(p.k) == k)
+	note("placed %s at %d, %d: %s (%s)" % [id, i, k, ok, status])
+	return status
+
 ## Opens someone's shop through their conversation and waits for the panel to be laid out.
 func open_shop(id: String) -> bool:
 	if not await choose(id, "shop"): note("no shop option at %s" % id); return false
@@ -347,7 +356,7 @@ func sec_bridge() -> void:
 	await walk_to(23.5, 10.5, 1.0); await walk_direct(24.5, 11.0, 0.6)
 	await open_build(P + "bridge")
 	await select_piece("pontoon")
-	for i in [27, 29, 31, 33, 35]: print("   pontoon: ", await place_at(i, 13, 0.1, 1))
+	for i in [27, 29, 31, 33, 35]: await place_piece("pontoon", i, 13, 0.1, 1)
 	var path_done: bool = stage("bridge") >= 3
 	await shot("pontoons")
 	await select_piece("railing")
@@ -418,8 +427,8 @@ func sec_dancehall() -> void:
 	await open_build(P + "hall")
 	await select_piece("floor")
 	for i in range(14, 20): print("   floor: ", await place_at(i, 31, 0.9))
-	await select_piece("platform"); print("   stage: ", await place_at(18, 29, 0.9, 0))
-	await select_piece("counter"); print("   counter: ", await place_at(14, 29, 0.9, 0))
+	await select_piece("platform"); await place_piece("platform", 18, 29, 0.9, 0)
+	await select_piece("counter"); await place_piece("counter", 14, 29, 0.9, 0)
 	await select_piece("lamp"); print("   lamp: ", await place_at(12, 29, 0.9)); print("   lamp: ", await place_at(12, 33, 0.9))
 	await select_piece("chair")
 	for i in [15, 16, 17]: print("   chair: ", await place_at(i, 33, 0.9, 0))
@@ -488,7 +497,7 @@ func sec_houseboat() -> void:
 	await walk_to(door[0], door[1], 0.5); await walk_direct(boat.x + 3.2, boat.z, 0.3)
 	await open_build(P + "cabin")
 	# along the cabin's north side, leaving the way from the door to the bed free
-	await select_piece("rug"); print("   rug: ", await place_at(-24, 35, 0.2, 0))
+	await select_piece("rug"); await place_piece("rug", -24, 35, 0.2, 0)
 	await select_piece("table"); print("   table: ", await place_at(-24, 35, 0.25))
 	await select_piece("chair"); print("   chair: ", await place_at(-23, 35, 0.25, 3))
 	await select_piece("lamp"); print("   lamp: ", await place_at(-25, 35, 0.2))
