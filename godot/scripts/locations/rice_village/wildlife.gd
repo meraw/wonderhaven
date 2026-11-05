@@ -5,7 +5,7 @@ extends Node3D
 ## - flocks of lapwings on the stubble that wheel up when you walk at them, flashing black and white, and settle on
 ##   another field;
 ## - now and then a V of cranes passing high over the plain, trumpeting (twice on most days, by the clock);
-## - at Cascina Grande: the white Piedmontese cows, the ox and the donkey in a paddock behind the cowshed, chickens
+## - at Cascina Grande: the white Piedmontese cows, the ox and the donkey in the paddock behind the cowshed, chickens
 ##   pecking by the barn, and two cats that let you stroke them.
 ## The decisions (where a bird goes, when the cranes pass) are static functions, tested in test_rice_village.gd.
 const P := preload("res://scripts/world/palette.gd")
@@ -21,7 +21,7 @@ const PADDY := [Vector2(-29.5, 10.8), Vector2(-25.2, 15.6)]
 const PADDY_FLAG := "rice_village_paddyFlooded"
 ## Open stubble where the lapwings feed (away from paths, buildings and the line).
 const FIELDS := [Vector2(-22.0, 21.0), Vector2(30.0, 31.0), Vector2(-12.0, -33.0), Vector2(24.0, 15.0), Vector2(-27.0, -35.0), Vector2(-45.0, 0.0)]
-const PADDOCK := Rect2(45.2, -3.6, 5.8, 9.4)    # behind the cowshed (its east wall is at x 44)
+const PADDOCK := Rect2(45.2, -3.6, 5.8, 9.4)    # behind the cowshed (its east wall is at x 44): the layout's rice_village_paddock
 const HENS := Vector2(31.0, -1.2)               # between the barn front and the tractor
 const SHY := {"heron": 8.0, "egret": 7.0}       # how close you can get before they fly
 const LAPWING_SHY := 9.0
@@ -170,26 +170,6 @@ static func _clear_mat(col: String) -> StandardMaterial3D:
 	return m
 
 func _build_farm() -> void:
-	# the paddock: posts and two rails round it, a hay rack and a trough
-	var post := P.wood("6b5440"); var rail := P.wood("8a6c50")
-	var r := PADDOCK
-	var corners := [r.position, Vector2(r.end.x, r.position.y), r.end, Vector2(r.position.x, r.end.y)]
-	for i in 4:
-		var a: Vector2 = corners[i]; var b: Vector2 = corners[(i + 1) % 4]
-		var n := int(ceil(a.distance_to(b) / 1.9))
-		for k in n + 1:
-			var q := a.lerp(b, float(k) / n)
-			add_child(P.mi(P.box(0.12, 1.1, 0.12), post, _ground(q) + Vector3(0, 0.55, 0)))
-		var mid := (a + b) / 2.0
-		for y in [0.45, 0.9]:
-			var rl := P.mi(P.box(a.distance_to(b), 0.07, 0.05), rail, _ground(mid) + Vector3(0, y, 0))
-			rl.rotation.y = -atan2(b.y - a.y, b.x - a.x); add_child(rl)
-	var rack := Vector2(r.end.x - 0.7, r.position.y + 1.6)
-	add_child(P.mi(P.box(0.5, 0.9, 1.4), P.wood("5e4636"), _ground(rack) + Vector3(0, 0.45, 0)))
-	add_child(P.mi(P.box(0.45, 0.4, 1.3), P.fabric("d9c27a"), _ground(rack) + Vector3(0, 1.0, 0)))
-	var trough := Vector2(r.position.x + 0.8, r.end.y - 1.5)
-	add_child(P.mi(P.box(0.6, 0.45, 1.4), P.stone("8d8a84"), _ground(trough) + Vector3(0, 0.22, 0)))
-	add_child(P.mi(P.box(0.48, 0.02, 1.26), P.mat("8fa6a3"), _ground(trough) + Vector3(0, 0.44, 0), false))
 	# the herd: three white Piedmontese cows, the ox with his long horns, and the donkey
 	var spots := [[Vector2(47.0, -1.6), 0.4, "cow"], [Vector2(49.4, 0.8), 2.6, "cow"], [Vector2(47.4, 3.6), -1.2, "cow"], [Vector2(49.6, 4.4), 3.6, "ox"], [Vector2(46.3, -2.2), 1.4, "donkey"]]   # the donkey by the fence, to have his ears scratched
 	for s in spots:

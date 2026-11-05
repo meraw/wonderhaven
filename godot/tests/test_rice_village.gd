@@ -465,8 +465,13 @@ func test_the_animals_keep_to_their_places():
 			t.ok(Vector2(n[0], n[1]).distance_to(Wild.HENS) > 2.5 or k == "courtyard", "the hens aren't on %s" % k)
 		for n in Data.layout.nodes:
 			t.ok(not pad.has_point(Vector2(n.x, n.z)), "%s is outside the paddock" % n.id)
-		t.eq(_in_building(Wild.PADDOCK.get_center().x, Wild.PADDOCK.get_center().y, 0.0), "", "the paddock is open ground")
+		var pb: Array = Data.layout.buildings.filter(func(b): return b.id == "rice_village_paddock")
+		t.ok(pb.size() == 1 and Rect2(pb[0].x - pb[0].w / 2.0, pb[0].z - pb[0].d / 2.0, pb[0].w, pb[0].d).is_equal_approx(Wild.PADDOCK), "the paddock's fence is solid: a box in the layout round the herd")
 		t.ok(_path_d(Wild.PADDOCK.get_center().x, Wild.PADDOCK.get_center().y) > 6.0, "and no path runs through it")
+		var w := _world()
+		t.ok(not _stand(w, Wild.PADDOCK.get_center().x, Wild.PADDOCK.get_center().y), "you can't walk in among the cows")
+		t.ok(_stand(w, 46.3, -4.4), "but you can stand at the fence by the donkey")
+		t.ok(_stand(w, 44.6, 1.0), "and squeeze between the cowshed and the fence")
 	)
 
 func test_startled_birds_fly_away_from_you():

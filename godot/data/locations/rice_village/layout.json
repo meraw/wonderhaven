@@ -919,6 +919,19 @@
    "roof": "#3a3632"
   },
   {
+   "id": "rice_village_paddock",
+   "kind": "rice_village_paddock",
+   "name": "The paddock",
+   "x": 48.1,
+   "z": 1.1,
+   "w": 5.8,
+   "d": 9.4,
+   "h": 1.1,
+   "eaves": 1.1,
+   "wall": "#6b5440",
+   "roof": "#8a6c50"
+  },
+  {
    "id": "rice_village_trackWest",
    "kind": "rice_village_track",
    "name": "The main line",

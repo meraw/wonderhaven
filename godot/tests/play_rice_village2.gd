@@ -216,7 +216,9 @@ func welcome() -> void:
 	var was: Vector2 = heron.at
 	await walk_to(2.0, -42.0, 1.0)
 	check(12, "walk up the road to the level crossing", progress("welcome", "crossing") >= 1, str(game.player.pos))
-	check(18, "the heron in the ditch by the road takes off as you pass and lands somewhere else", heron.at != was and heron.at.distance_to(was) > 10.0, "%s -> %s (%s)" % [was, heron.at, heron.state])
+	var flew: bool = heron.state == "fly" or heron.at != was
+	await wait_until(func(): return heron.state == "stand", 40.0)
+	check(18, "the heron in the ditch by the road takes off as you pass and lands somewhere else", flew and heron.at != was and heron.at.distance_to(was) > 10.0, "%s -> %s (%s)" % [was, heron.at, heron.state])
 	for who in ["battista", "pierina", "remo"]:
 		await talk(P + who)
 	check(13, "meet Barba Tista, Nonna Pierina and Don Remo", progress("welcome", "tista") == 1 and progress("welcome", "nonna") == 1 and progress("welcome", "remo") == 1,

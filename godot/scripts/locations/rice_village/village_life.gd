@@ -50,7 +50,8 @@ func setup(g, v: Node3D) -> void:
 		g.add_interactable({"id": "rice_village_roof", "x": FLAT.get_center().x, "z": FLAT.get_center().y, "radius": 7.0, "priority": -1.0,
 			"available": func(): return in_flat() and step_current("rice_village_flat", "roof"),
 			"label": func(): return "Patch the leaking roof (4 clay, 4 wood)", "act": func(): patch_roof()})
-		g.add_interactable({"id": "rice_village_wardrobe", "x": WARDROBE.x, "z": WARDROBE.y, "y": FLAT_Y, "radius": 1.6,
+		# (a priority, so a bed you put beside it doesn't take the prompt while you face the wardrobe)
+		g.add_interactable({"id": "rice_village_wardrobe", "x": WARDROBE.x, "z": WARDROBE.y, "y": FLAT_Y, "radius": 1.6, "priority": 0.8,
 			"available": func(): return game.state.flags.get("rice_village_flatHome", false) and game.screens != null,
 			"label": func(): return "Change outfit", "act": func(): game.screens.creator(true)})
 		g.add_interactable({"id": "rice_village_ropes", "x": ROPES.x, "z": ROPES.y, "radius": 1.8,
