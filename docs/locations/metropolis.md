@@ -5,8 +5,8 @@ stages follow. The rules every location shares are in `docs/WORLD.md`; `docs/MON
 follows.
 
 ## Status
-**Stages 1 to 3 are built: the ground, the map, the buildings and scenery, and the people and requests.** Stage 4
-(look and ambient life) is still to do.
+**All four stages are built: the ground and map, the buildings and scenery, the people and requests, and the look
+and ambient life.**
 - **Ground and map (stage 1):** the city is 372 m across, with paved ground painted by the layout (asphalt streets,
   stone-slab pavements and squares, setts along the tram loop and in the courtyard, gravel in the park and the
   building sites). The Darsena and its two canals have stone quays; the park has its pond, lawns and gravel paths.
@@ -53,9 +53,25 @@ follows.
     lost things in the streets, Gino's score pages at night, and Roman finds at the building sites.
   - **Machines:** the old crane, moved to the canal's mouth, swings and lifts marble once a waterwheel drives it; the
     Golden Angel shines over the square after dark once she's lit on Christmas Eve.
-- **Not yet (stage 4):** the look, Christmas Eve's bells, Ambrogio's last run and the snowfall, passers-by, moving
-  traffic, sounds, and the outfits (the winter coat and scarf at 25 inches and Chiara's padded jacket wait for the new
-  clothing shapes; until then the 25-inch milestone pays for the photo).
+- **Look and ambient life (stage 4):**
+  - **Light and weather:** a pale winter sky, a cool grey-blue haze, grey-green canals, a low sun and hoarfrost at
+    night; fog most mornings; dusk at five (only the light: the clock and routines stay); the Alps on clear days.
+  - **Night:** the sodium street lamps, the Christmas tree, Christmas lights strung across the Galleria and number
+    14's courtyard, and the Golden Angel light up at dusk.
+  - **The finale's snow:** when the angel lights up on Christmas Eve, it snows for the first time, with a white
+    dusting on the square, the streets and the roofs.
+  - **Animals:** a hundred pigeons in the cathedral square, in flocks that clatter up when you come close and land
+    on the far side; ducks on the park pond; gulls over the Darsena and the canal; cats in number 14's courtyard.
+  - **People and traffic:** passers-by hurrying about the streets near you (ten by day, a few at night), and five
+    small cars driving round the tram loop, queueing behind the trams.
+  - **Sound:** Toriano's own music (dance pop in the morning, pop in the afternoon, lounge at night, a sleigh-bell
+    tune on Christmas Eve and the finale's own), the cathedral striking the hour, a peal for the angel, a horn in the
+    traffic now and then, pigeons cooing and gulls crying; no songbirds in December.
+  - **Outfits:** the cast in their winter clothes (the Architetto's camel coat and hard hat, Rocco's white helmet
+    and the rest); the long camel coat and red scarf at 25 inches, Chiara's padded jacket, a wool hat in her shop
+    and Rocco's helmet as a friendship gift.
+  - **Ambrogio's last run:** on Christmas Eve his tram, number 1528, goes round strung with Christmas lights after
+    dark, ringing its bell as it passes you.
 - **Shared changes so far:** see the table below.
 
 ## The concept
@@ -290,9 +306,10 @@ Other locations can reuse all of them.
 | **Build mode on raised floors:** the cursor lands on balconies, terraces and upstairs floors, and the site's grid is drawn there; the build view can move over the whole of a big map (`BuildMode.view_limit()`), and a cell is checked again when the cursor comes back to it from the build bar. *Done in stage 3.* | Furnishing your flat; the windmill on the cathedral's roof | 3 |
 | **Walking out of an edge you overlap** (`WalkWorld.unstick`): stepped off the side of a stair onto the ground beside it, you were still touching its edge and could never walk away; you now ease out to the nearest free spot within half a metre. *Done in stage 3.* | Found by the side-requests playthrough at number 14's courtyard stair (which now has sides too) | 3 |
 | **Villagers squeeze past you** after waiting two seconds for you to step out of their way (`NpcAgent`): met head-on on a narrow balcony, you couldn't, and you'd both wait for ever. *Done in stage 3.* | Number 14's balconies are 1.3 m wide, and the neighbours use them | 3 |
-| **Daylight shifted per location** (light only; the clock's parts of the day stay) | Dusk at five in December | 4 |
-| **A scripted snowfall** (falling snow and a light white dusting) that a request can start | The finale | 4 |
-| **New clothing shapes** if an outfit needs one the characters don't have (a long coat, a white helmet) | The cast's winter outfits | 4 |
+| **Daylight shifted per location**: a look's `sunrise` and `sunset` (only the light follows them, `Daylight.light_hour`; the clock's parts of the day stay), and how often mornings are misty (`mist`). *Done in stage 4.* | Dusk at five in December, fog most mornings | 4 |
+| **A scripted snowfall**: a `snow` weather that only a request brings (a step's `onDone` weather), with flakes and a light white dusting on the ground, paving and roofs (the shader global `world_snow`). *Done in stage 4.* | The finale | 4 |
+| **New clothing shapes**: a long coat and a helmet, locked until Toriano gives them. *Done in stage 4.* | The cast's winter outfits | 4 |
+| **Music that changes with the story** (`"when": [{flag, parts}]` in a location's music) and **no songbirds** where a look says so (`songbirds`). *Done in stage 4.* | Christmas Eve's sleigh bells and the finale's tune; a city in December | 4 |
 
 Everything else lives in Toriano's own files (`docs/WORLD.md`): `godot/data/locations/metropolis/`,
 `godot/scripts/locations/metropolis.gd` and helpers in `godot/scripts/locations/metropolis/`,

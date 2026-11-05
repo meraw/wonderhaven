@@ -2,6 +2,8 @@ extends Node3D
 ## Toriano's trams: old orange cars running round the loop line, slowing into each stop and waiting there a few
 ## seconds, and holding back while someone stands on the track ahead. They are solid (moving bodies in the walk
 ## world). Riding is the shared stop feature (Travel.stops_on, game.ride_to); these are the cars you see.
+## On Christmas Eve, Ambrogio's last run: his tram (number 1528, the first) goes round strung with Christmas lights
+## after dark, ringing its bell as it passes you.
 ## The traffic shares their street, as it does in a real city: small cars driving round the loop on the tracks,
 ## queueing behind each other and behind a tram at its stop, waiting (with a toot) for anyone in the road.
 
@@ -23,6 +25,10 @@ var dist := PackedFloat32Array()   # distance along the line at each sample
 var length := 0.0
 var stops: Array = []               # distances along the line where trams stop
 var cars: Array = []                # trams and cars: {node, s, wait, bodies, tram, half, toot}
+var festive: MeshInstance3D         # the Christmas lights on Ambrogio's tram
+var festive_mat: StandardMaterial3D
+var bell_t := 0.0
+var t := 0.0
 
 ## The loop's corners, rounded; returns the sampled closed path.
 static func rounded(corners: Array, radius: float) -> PackedVector2Array:
@@ -76,6 +82,7 @@ func setup(g, corners: Array, stop_points: Array, count: int = 3, autos: int = 0
 			if game and game.walk: game.walk.dynamic.append(body)
 		cars.append(car)
 		_place(car)
+		if i == 0: _string_lights(node)
 
 ## Distance along the line of the point nearest to p.
 func nearest_s(p: Vector2) -> float:
@@ -106,8 +113,23 @@ func _place(car: Dictionary) -> void:
 		var q: Vector2 = pos + dir * (k - (n_b - 1) / 2.0) * (4.2 if car.tram else 1.3)
 		car.bodies[k].x = q.x; car.bodies[k].z = q.y
 
+## Christmas lights along the roof of Ambrogio's tram, hidden until Christmas Eve.
+func _string_lights(node: Node3D) -> void:
+	var m := Kit.Merge.new()
+	var cols := [Color("ffd27a"), Color("ff5a4a"), Color("6ab0ff"), Color("ffffff")]
+	for sd in [-1, 1]:
+		for k in 24:
+			m.box(Vector3(-5.8 + k * 0.5, 3.42 - 0.1 * sin(k * 0.8) * 0.0, sd * 1.22), Vector3(0.1, 0.1, 0.1), cols[k % 4])
+	festive_mat = Kit.vc_mat().duplicate() as StandardMaterial3D
+	festive_mat.emission_enabled = true; festive_mat.emission = Color(1, 0.86, 0.62); festive_mat.emission_energy_multiplier = 2.0
+	festive = m.node(festive_mat, "christmas_lights"); festive.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	festive.visible = false
+	node.add_child(festive)
+
 func _process(dt: float) -> void:
 	if game == null or length <= 0.0: return
+	t += dt
+	_last_run(dt)
 	var pl := Vector2(game.player.pos.x, game.player.pos.z) if game.player else Vector2(1e9, 1e9)
 	for car in cars:
 		if car.wait > 0.0: car.wait -= dt; continue
@@ -214,3 +236,20 @@ static func line(corners: Array) -> MeshInstance3D:
 			var arm := a + nrm * 2.3
 			m.box(Vector3(arm.x, 6.1, arm.y), Vector3(0.08, 0.08, 4.6), Color("3f4a40"), ry + PI / 2.0)
 	return m.node(Kit.vc_mat(), "tram_line")
+
+## Ambrogio's last run, on Christmas Eve: his tram lit up after dark, its bell ringing as it comes past you.
+func _last_run(dt: float) -> void:
+	if festive == null or game.get("state") == null: return
+	var eve: bool = game.state.flags.get("metropolis_christmas_eve", false) and not game.state.flags.get("metropolis_angel_lit", false)
+	var dark := Daylight.nightness(float(game.state.time.minute) / 60.0) > 0.3
+	festive.visible = eve and dark
+	if not festive.visible: return
+	festive_mat.emission_energy_multiplier = 1.6 + 0.6 * sin(t * 3.0)
+	bell_t -= dt
+	var p: Vector3 = (cars[0].node as Node3D).position
+	var d := Vector2(p.x, p.z).distance_to(Vector2(game.player.pos.x, game.player.pos.z))
+	if bell_t < 0.0 and d < 30.0 and game.get("audio") != null:
+		bell_t = 6.0
+		var vol := clampf(1.0 - d / 30.0, 0.0, 1.0) * 0.18
+		for i in 2: game.audio.play("glock", 88, vol, -1, i * 0.18)   # ding-ding
+
