@@ -108,7 +108,7 @@ func jump_to(zone: Dictionary) -> void:
 	current_zone = zone
 	if zone.is_empty(): focus = game.player.pos; return
 	var b := BuildGrid.zone_bounds(zone, Meter.progress(state(), Data.island))
-	focus = Vector3((b.minI + b.maxI + 1) / 2.0, maxf(0.0, zone.get("spanY", 0.0)), (b.minK + b.maxK + 1) / 2.0)
+	focus = Vector3((b.minI + b.maxI + 1) / 2.0, maxf(float(zone.get("floorY", 0.0)), maxf(0.0, zone.get("spanY", 0.0))), (b.minK + b.maxK + 1) / 2.0)
 
 func cycle_zone(dir: int) -> void:
 	var zones := unlocked_zones()
@@ -118,7 +118,7 @@ func cycle_zone(dir: int) -> void:
 
 # ---- Grid and plan visuals
 func _cell_y(zone: Dictionary, i: int, k: int) -> float:
-	var g := Heightfield.height(i + 0.5, k + 0.5)
+	var g := BuildGrid.ground_at(i, k)   # the terrain, or a raised floor (a roof terrace, an upstairs flat)
 	return (zone.spanY if g < Heightfield.WALKABLE_MIN and zone.has("spanY") else maxf(g, Heightfield.WATER_Y)) + 0.04
 
 func rebuild_grid() -> void:
@@ -168,6 +168,14 @@ func pick(screen: Vector2) -> Dictionary:
 		var b := BuildGrid.bounds(pl)
 		var r := _ray_box(o, d, Vector3(b.minX, b.bottom, b.minZ), Vector3(b.maxX, b.top, b.maxZ))
 		if not r.is_empty() and r.t < best_t: best_t = r.t; hit = {"point": o + d * r.t, "normal": r.n, "uid": pl.uid}
+	# raised floors (a balcony, a roof terrace, an upstairs flat): the cursor lands on them, not on the ground below
+	if absf(d.y) > 0.001:
+		for s in WorldStatics.floors():
+			if not s.walkable or s.has("ramp"): continue
+			var ft := (float(s.top) - o.y) / d.y
+			if ft <= 0.0 or ft >= best_t: continue
+			var q := o + d * ft
+			if q.x >= s.minX and q.x <= s.maxX and q.z >= s.minZ and q.z <= s.maxZ: best_t = ft; hit = {"point": q, "normal": Vector3.UP, "uid": -1}
 	var tt := 0.0
 	var prev := 0.0
 	while tt < minf(best_t, 220.0):

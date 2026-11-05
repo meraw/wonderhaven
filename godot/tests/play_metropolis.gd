@@ -1,61 +1,13 @@
-extends "res://tests/full_base.gd"
+extends "res://tests/metropolis_base.gd"
 ## Toriano with real input: arrive at Toriano Centrale, take the tram to the Duomo and walk up its nave, through the
 ## Galleria, by tram to the Darsena and home to number 14 (up the courtyard stair, round the balcony into your flat,
 ## out onto the terrace), round the Darsena, over the old bridge into Franco's bar, by tram to the castle and a nap in
-## the park, and back by tram to the train. Checks that the quays and the edge of the city stop you. Stage 3 adds the
-## requests.
+## the park, and back by tram to the train. Checks that the quays and the edge of the city stop you. The requests are
+## played in play_metropolis_story.gd and play_metropolis_side.gd.
 ## Run: TIMEOUT=1500 ./play.sh res://tests/play_metropolis.gd /tmp/out --island=metropolis --limit=1400
 
-const P := "metropolis_"
-
-func node(id: String) -> Vector2:
-	var a: Array = Data.layout.nav_nodes[P + id]
-	return Vector2(a[0], a[1])
-
-## Walks along the nav graph to a named spot with real keys, then checks you got there.
-func go(id: String, label: String) -> bool:
-	var to := node(id)
-	var t0 := Time.get_ticks_msec()
-	await walk_to(to.x, to.y, 1.5)
-	var d := Vector2(game.player.pos.x, game.player.pos.z).distance_to(to)
-	check(id, label, d < 2.5, "%.1f m away after %.0f s" % [d, (Time.get_ticks_msec() - t0) / 1000.0])
-	return d < 2.5
-
-## Holds a key towards (x, z) for a while and reports where you ended up.
-func push_towards(x: float, z: float, seconds: float) -> Vector3:
-	steer(x, z)
-	key(KEY_SHIFT, true); key(KEY_W, true)
-	await wait(seconds)
-	key(KEY_W, false); key(KEY_SHIFT, false)
-	await frames(4)
-	return game.player.pos
-
-## Takes the tram with real input: walk to the stop, press E, click the destination, and wait to step off there.
-func ride(from: String, to: String) -> bool:
-	var a := feature(P + from); var b := feature(P + to)
-	await walk_to(a.x + 1.0, a.z + (1.2 if a.z < 0 else -1.2), 0.8)
-	var t0: float = game.state.time.minute + 1440.0 * float(game.state.time.day)
-	if not await face_and_press(a.id, a.x, a.z): return false
-	await frames(8)
-	var btn := game.panels.find_child("ride_" + b.id, true, false) as Button
-	if btn == null: note("no ride button for %s in panel '%s'" % [to, game.panels.current]); return false
-	await click(btn.get_global_rect().get_center())
-	for n in 300:
-		await frames(2)
-		if game.mode == "explore" and Vector2(game.player.pos.x, game.player.pos.z).distance_to(Vector2(b.x, b.z)) < 6.0: break
-	var t1: float = game.state.time.minute + 1440.0 * float(game.state.time.day)
-	var there := Vector2(game.player.pos.x, game.player.pos.z).distance_to(Vector2(b.x, b.z)) < 6.0
-	check("ride_" + to, "the tram from %s to %s" % [a.name, b.name], there and t1 - t0 >= 2.0, "%.0f min later, %.1f m from the stop" % [t1 - t0, Vector2(game.player.pos.x, game.player.pos.z).distance_to(Vector2(b.x, b.z))])
-	await frames(10)
-	return there
-
-## True when the player stands inside a building's walls.
-func inside(bid: String) -> bool:
-	for b in Data.layout.buildings:
-		if b.id == P + bid: return absf(game.player.pos.x - b.x) < b.w / 2.0 and absf(game.player.pos.z - b.z) < b.d / 2.0
-	return false
-
 func play() -> void:
+	lighten()
 	game.state.tutorial = Tutorial.new_state(false, true)
 	await frames(20)
 	var p: Vector3 = game.player.pos

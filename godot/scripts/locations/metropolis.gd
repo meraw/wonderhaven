@@ -1,6 +1,7 @@
 extends RefCounted
-## Toriano (working id metropolis): the city. See docs/locations/metropolis.md. Stage 1: the ground shape and plain
-## blocks for every building, so the street plan can be walked and seen; the real models come in stage 2.
+## Toriano (working id metropolis): the city. See docs/locations/metropolis.md. This script gives the ground its
+## shape, draws Toriano's buildings and gathering spots, and adds its scenery and moving parts; the helpers live in
+## scripts/locations/metropolis/.
 
 ## Flat city ground, with stone-walled water cut into it: the Darsena (the dock basin), the canal that feeds it from
 ## the west, the Naviglio dei Fiori leaving it to the south, and the duck pond in the park. The old bridge over the
@@ -38,8 +39,17 @@ const Kit := preload("res://scripts/locations/metropolis/kit.gd")
 const Scenery := preload("res://scripts/locations/metropolis/scenery.gd")
 const Landmarks := preload("res://scripts/locations/metropolis/landmarks.gd")
 
-## Scenery added after everything else (Village calls this): see scenery.gd.
-static func dress(village: Node3D) -> void: Scenery.dress(village)
+const Gathering := preload("res://scripts/locations/metropolis/gathering.gd")
+const Works := preload("res://scripts/locations/metropolis/works.gd")
+
+## Scenery added after everything else (Village calls this): see scenery.gd; and the parts that answer your requests
+## (the crane, the Golden Angel, the prizes in your flat): see works.gd.
+static func dress(village: Node3D) -> void:
+	Scenery.dress(village)
+	var w := Works.new(); w.name = "MetropolisWorks"; village.add_child(w); w.setup(village)
+
+## Toriano's own gathering spots (plane trees to prune, marble offcuts, skips, score pages): see gathering.gd.
+static func node(n: Dictionary) -> Node3D: return Gathering.node(n)
 
 ## Models for Toriano's buildings. City blocks and the backdrop use the painted-façade kit; landmarks not yet
 ## modelled stay plain blocks of their wall colour at full height (the camera knows it from "h").

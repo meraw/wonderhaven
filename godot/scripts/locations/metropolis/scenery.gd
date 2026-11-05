@@ -209,7 +209,7 @@ static func street(v: Node3D) -> void:
 	for p in _props("skip"): _skip(m, p)
 	for p in _props("sand"): m.cone(_at(p), 1.5, 1.1, Color("cdb88e"), 10)
 	for p in _props("marble"): _marble(m, p)
-	for p in _props("crane_old"): _crane(m, p)
+	for p in _props("crane_old"): v.add_child(crane(p))
 	for p in _props("barge"): _barge(m, p)
 	for p in _props("cart_old"): _cart(m, p)
 	for p in _props("flea"): _flea(m, p)
@@ -224,6 +224,17 @@ static func _o(p: Dictionary, local: Vector3) -> Vector3: return _at(p) + Basis(
 static func _trees(v: Node3D) -> void:
 	var list := _props("plane")
 	if list.is_empty(): return
+	var mesh := plane_mesh()
+	var mm := MultiMesh.new(); mm.transform_format = MultiMesh.TRANSFORM_3D; mm.mesh = mesh; mm.instance_count = list.size()
+	for i in list.size():
+		var p: Dictionary = list[i]
+		var sc := float(p.get("s", 1.0))
+		mm.set_instance_transform(i, Transform3D(Basis(Vector3.UP, float(p.x) * 0.37).scaled(Vector3.ONE * sc), _at(p)))
+	var inst := MultiMeshInstance3D.new(); inst.multimesh = mm; inst.material_override = Kit.vc_mat(); inst.name = "plane_trees"
+	v.add_child(inst)
+
+## One bare plane tree, standing at the origin (also the park's trees you prune, see gathering.gd).
+static func plane_mesh() -> Mesh:
 	var m := Kit.Merge.new()
 	var bark := Color("a59a80"); var patch := Color("c9c2a6"); var dark := Color("7d735f")
 	m.cyl(Vector3(0, 0, 0), 0.32, 2.2, bark, 8, false)
@@ -241,14 +252,7 @@ static func _trees(v: Node3D) -> void:
 					m.box(Vector3(cos(a + tw * 0.4) * (r + 0.35), y + 0.25, sin(a + tw * 0.4) * (r + 0.35)), Vector3(0.07, 0.5, 0.07), dark)
 		m.box(Vector3(cos(a) * (r + 0.2), y - 0.6, sin(a) * (r + 0.2)), Vector3(0.12, 0.12, 0.12), Color("6b4a2a"))   # a seed ball
 		m.box(Vector3(cos(a + 0.3) * (r - 0.4), y - 0.2, sin(a + 0.3) * (r - 0.4)), Vector3(0.32, 0.06, 0.26), Color("b07a3a"))   # a last leaf
-	var mesh: Mesh = m.node(Kit.vc_mat()).mesh
-	var mm := MultiMesh.new(); mm.transform_format = MultiMesh.TRANSFORM_3D; mm.mesh = mesh; mm.instance_count = list.size()
-	for i in list.size():
-		var p: Dictionary = list[i]
-		var sc := float(p.get("s", 1.0))
-		mm.set_instance_transform(i, Transform3D(Basis(Vector3.UP, float(p.x) * 0.37).scaled(Vector3.ONE * sc), _at(p)))
-	var inst := MultiMeshInstance3D.new(); inst.multimesh = mm; inst.material_override = Kit.vc_mat(); inst.name = "plane_trees"
-	v.add_child(inst)
+	return m.node(Kit.vc_mat()).mesh
 
 ## Street lamps: a dark green pole with a curved arm and a lantern whose sodium bulb glows orange after dusk
 ## (glow.gd follows the village's lamp glow).
@@ -336,16 +340,31 @@ static func _marble(m: Kit.Merge, p: Dictionary) -> void:
 	m.box(_at(p) + Vector3(0, 0.5 * s, 0), Vector3(1.6, 1.0, 1.2) * s, Color("efe7e0"), float(p.r))
 	m.box(_at(p) + Vector3(0, 1.0 * s + 0.01, 0), Vector3(1.3, 0.02, 0.9) * s, Color("ddd0c6"), float(p.r))
 
-## The old crane on the Darsena's quay: a rusty iron mast and jib leaning out over the water, its hook hanging.
-static func _crane(m: Kit.Merge, p: Dictionary) -> void:
-	var rust := Color("8a4a32"); var r := float(p.r)
-	m.box(_o(p, Vector3(0, 0.3, 0)), Vector3(1.8, 0.6, 1.8), Color("6f6a64"), r)
-	m.box(_o(p, Vector3(0, 4.2, 0)), Vector3(0.45, 7.6, 0.45), rust, r)
-	for k in 9:   # the jib, rising as it reaches over the water
-		m.box(_o(p, Vector3(0, 7.2 + k * 0.28, 0.6 + k * 0.85)), Vector3(0.3, 0.3, 0.9), rust.darkened(0.05 * (k % 2)), r)
-	m.box(_o(p, Vector3(0, 6.6, 8.1)), Vector3(0.04, 3.6, 0.04), Color("2b2826"), r)
-	m.box(_o(p, Vector3(0, 4.7, 8.1)), Vector3(0.3, 0.3, 0.3), Color("2b2826"), r)
-	m.box(_o(p, Vector3(0, 1.0, -0.9)), Vector3(1.2, 1.2, 0.8), rust.darkened(0.2), r)   # the winch house
+## The old crane by the canal's mouth: a rusty iron mast and a jib leaning out over the water, its hook hanging. The
+## jib (with the hook and a marble block, shown once the crane is driven) turns on the mast: see works.gd.
+static func crane(p: Dictionary) -> Node3D:
+	var g := Node3D.new(); g.name = "metropolis_crane"
+	g.position = _at(p); g.rotation.y = float(p.r)
+	var rust := Color("8a4a32")
+	var m := Kit.Merge.new()
+	m.box(Vector3(0, 0.3, 0), Vector3(1.8, 0.6, 1.8), Color("6f6a64"))
+	m.box(Vector3(0, 4.2, 0), Vector3(0.45, 7.6, 0.45), rust)
+	m.box(Vector3(0, 1.0, -0.9), Vector3(1.2, 1.2, 0.8), rust.darkened(0.2))   # the winch house
+	g.add_child(m.node(Kit.vc_mat(), "mast"))
+	var jib := Node3D.new(); jib.name = "jib"; g.add_child(jib)
+	var j := Kit.Merge.new()
+	for k in 9:   # rising as it reaches over the water
+		j.box(Vector3(0, 7.2 + k * 0.28, 0.6 + k * 0.85), Vector3(0.3, 0.3, 0.9), rust.darkened(0.05 * (k % 2)))
+	j.box(Vector3(0, 6.6, 8.1), Vector3(0.04, 3.6, 0.04), Color("2b2826"))
+	jib.add_child(j.node(Kit.vc_mat(), "arm"))
+	var hook := Node3D.new(); hook.name = "hook"; hook.position = Vector3(0, 4.7, 8.1); jib.add_child(hook)
+	var h := Kit.Merge.new()
+	h.box(Vector3.ZERO, Vector3(0.3, 0.3, 0.3), Color("2b2826"))
+	hook.add_child(h.node(Kit.vc_mat(), "hook"))
+	var block := Kit.Merge.new()
+	block.box(Vector3(0, -1.0, 0), Vector3(1.6, 1.1, 1.1), Color("efe7e0")); block.box(Vector3(0, -0.4, 0), Vector3(0.04, 0.6, 0.04), Color("2b2826"))
+	var bl := block.node(Kit.vc_mat(), "block"); bl.visible = false; hook.add_child(bl)
+	return g
 
 static func _barge(m: Kit.Merge, p: Dictionary) -> void:
 	var col := Color(String(p.get("color", "#6b3f2a")))

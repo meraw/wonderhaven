@@ -918,6 +918,8 @@ func _parse_args() -> void:
 		cam.yaw = float(c[0]); cam.pitch = float(c[1]); cam.dist = float(c[2])
 		cam.limits.explore = [2.0, 120.0, 0.05, 1.5]
 	if shot_cfg.has("time"): state.time.minute = float(shot_cfg.time) * 60.0
+	if shot_cfg.has("flags"):   # look-dev: --flags=a,b sets story flags (a request's results, a lit landmark)
+		for f in String(shot_cfg.flags).split(","): state.flags[f] = true
 
 var _frames := 0
 func _tick_shot() -> void:

@@ -147,3 +147,121 @@ func test_ids_carry_the_location_prefix():
 		for k in Data.layout.nav_nodes:
 			if not String(k).contains(":"): t.ok(String(k).begins_with(P), "nav spot %s" % k)
 		t.eq(Data.island_def("metropolis").get("reveal", ""), "rice_village_trainStops", "the map entry opens when the regional train stops at the rice village again"))
+
+# ---- Stage 3: people, requests, gathering and the evening paper --------------------------------------------------
+
+func test_villagers_and_requests_hang_together():
+	_on(func():
+		var people: Array = Data.npcs.filter(func(n): return n.get("island", "") == "metropolis")
+		t.eq(people.size(), 13, "thirteen villagers live in Toriano")
+		for n in people:
+			t.ok(String(n.id).begins_with(P), "villager %s has the prefix" % n.id)
+			t.ok(Data.layout.nav_nodes.has(n.home), "%s's home %s is a nav spot" % [n.id, n.home])
+			var rows: Array = n.schedule.duplicate()
+			for w in n.get("when", []): rows.append_array(w.schedule)
+			t.ok(rows.all(func(r): return Data.layout.nav_nodes.has(r[2])), "%s's routine only goes to nav spots" % n.id)
+			t.ok(n.likes.all(func(i): return Data.resources.has(i)), "%s likes real things" % n.id)
+		var qs: Array = Data.quests.filter(func(q): return String(q.id).begins_with(P))
+		t.eq(qs.size(), 19, "nineteen requests")
+		t.eq(qs.filter(func(q): return q.get("main", false)).size(), 6, "six of them the main story")
+		var made := {}   # every flag something sets
+		for q in qs:
+			for f in q.get("rewards", {}).get("flags", []) + q.get("onAccept", {}).get("flags", []): made[f] = true
+			for o in q.objectives:
+				for f in o.get("onDone", {}).get("flags", []): made[f] = true
+		for m in Meter.milestones("metropolis"):
+			for f in m.get("flags", []): made[f] = true
+		var machines: Array = Data.layout.machines.map(func(m): return m.id)
+		for q in qs:
+			t.ok(Data.npc(q.giver).get("island", "") == "metropolis", "%s is asked by a Toriano villager" % q.id)
+			for f in q.get("requires", {}).get("flags", []): t.ok(made.has(f), "%s waits for %s, which something sets" % [q.id, f])
+			for o in q.objectives:
+				if o.has("npc"): t.ok(not Data.npc(o.npc).is_empty(), "%s/%s: %s exists" % [q.id, o.id, o.npc])
+				if o.has("zone"): t.ok(not Data.zone(o.zone).is_empty(), "%s/%s: site %s exists" % [q.id, o.id, o.zone])
+				if o.kind == "gather": t.ok(Data.resources.has(o.item), "%s/%s gathers a real item" % [q.id, o.id])
+				if o.kind == "pay": t.ok(o.items.keys().all(func(k): return Data.resources.has(k)), "%s/%s pays with real things" % [q.id, o.id])
+				if o.kind == "flag": t.ok(made.has(o.flag) or o.flag == P + "on_roof", "%s/%s waits for a flag that gets set" % [q.id, o.id])
+				if o.kind == "build" and String(o.check).begins_with("fed:"): t.ok(machines.has(String(o.check).substr(4)), "%s: the machine target exists" % q.id)
+				if o.kind == "build" and String(o.check).begins_with("path:"): t.ok(Data.zone(String(o.check).substr(5)).has("endpoints"), "%s: the path's site has endpoints" % q.id)
+			for b in q.get("onAccept", {}).get("blueprints", []) + q.get("rewards", {}).get("blueprints", []): t.ok(not Data.piece(b).is_empty(), "%s hands out real plans (%s)" % [q.id, b])
+		var inches := 0
+		for q in qs: inches += int(q.rewards.get("harmony", 0))
+		t.ok(inches > 120, "more column inches on offer (%d) than the front page needs" % inches)
+		for sid in Data.shops.shops:
+			if String(sid).begins_with(P): t.ok(Data.npc(sid).get("island", "") == "metropolis", "shop %s belongs to a Toriano villager" % sid))
+
+func test_the_evening_paper():
+	_on(func():
+		t.ok(Meter.has("metropolis"), "Toriano has its own meter")
+		var ms := Meter.milestones("metropolis")
+		t.eq(ms.map(func(m): return int(m.at)), [10, 25, 45, 70, 90, 120], "six milestones")
+		t.eq(ms.back().get("requires", {}).get("quests", []), [P + "angel"], "the front page waits for the Golden Angel")
+		var roof := Data.zone(P + "roof_terrace")
+		t.eq(int(roof.expanded.harmony), 70, "your weekly column widens the roof terrace")
+		var s := GameState.new_game()
+		s.harmony = 999
+		t.ok(not BuildGrid.zone_contains(roof, -30, 123, Meter.progress(s, "metropolis")), "approval earned elsewhere doesn't grow it")
+		Meter.add(s, "metropolis", 70)
+		t.ok(BuildGrid.zone_contains(roof, -30, 123, Meter.progress(s, "metropolis")), "column inches do"))
+
+func test_gathering_spots_are_where_they_can_be_used():
+	_on(func():
+		var nodes: Array = Data.layout.nodes
+		var count := func(kind: String) -> int: return nodes.filter(func(n): return n.kind == kind).size()
+		t.ok(count.call("chop") >= 6 and count.call("mine") >= 4 and count.call("fish") >= 4 and count.call("bin") >= 5 and count.call("flowers") >= 3, "trees, marble, fishing spots, skips and flower beds")
+		for n in nodes:
+			t.ok(String(n.id).begins_with(P), "node %s has the prefix" % n.id)
+			var b: Array = Data.layout.buildings.filter(func(x): return x.get("solid", true) and absf(n.x - x.x) < x.w / 2.0 and absf(n.z - x.z) < x.d / 2.0)
+			t.ok(b.is_empty(), "%s isn't inside a building" % n.id)
+			if n.kind == "fish":
+				var ahead := Vector2(n.x + sin(n.facing) * 3.0, n.z + cos(n.facing) * 3.0)
+				t.ok(not Heightfield.is_water(n.x, n.z) and Heightfield.is_water(ahead.x, ahead.y), "%s stands on the quay and casts into the water" % n.id)
+			else: t.ok(not Heightfield.is_water(n.x, n.z), "%s is on dry ground" % n.id)
+			if n.kind == "chop": t.ok(n.x < -88 and n.z < -98, "%s is a plane tree in the park" % n.id)
+		t.eq(nodes.filter(func(n): return n.get("item", "") == P + "score_page" and n.get("hours", []).map(func(h): return int(h)) == [20, 6]).size(), 8, "eight score pages, out only at night")
+		t.ok(nodes.filter(func(n): return n.kind == "dig" and n.get("loot", {}).has(P + "roman")).size() >= 3, "Roman finds at the building sites")
+		t.ok(Data.layout.catches.all(func(c): return Data.resources.has(c.get("item", "fish"))), "everything the canal gives is a real item")
+		t.ok(Data.layout.catches.any(func(c): return c.item == P + "bicycle"), "including old bicycles"))
+
+## The builds the playthrough makes (and a player might), checked with the shared rules: each piece can go where it
+## goes, and the request's check passes.
+func _build(zone_id: String, list: Array) -> Array:
+	var placed: Array = []
+	var zone := Data.zone(zone_id)
+	var statics := WorldStatics.build_statics(WorldStatics.generate_decor())
+	for e in list:
+		var pl := {"uid": placed.size() + 1, "id": e[0], "i": float(e[1]), "k": float(e[2]), "r": int(e[3]) if e.size() > 3 else 0}
+		pl["y"] = BuildGrid.suggest_bottom(pl.id, pl.i, pl.k, pl.r, float(e[4]) if e.size() > 4 else 10.0, placed, zone)
+		var v := BuildGrid.validate_placement(pl, {"placements": placed, "zones": [zone], "statics": statics, "bodies": []})
+		t.ok(v.ok, "%s: %s at %d,%d (%s)" % [zone_id, pl.id, pl.i, pl.k, v.get("reason", "")])
+		if v.ok: placed.append(pl)
+	return placed
+
+func test_the_footbridge_and_the_scaffolding_can_be_built_and_walked():
+	_on(func():
+		var bridge := _build(P + "footbridge", [["bridgeDeck", -113, 135, 0, 0.4], ["bridgePost", -110, 135, 0, 0.2], ["bridgeDeck", -110, 135, 0, 0.2], ["bridgeDeck", -111, 135, 0, 0.2], ["bridgeDeck", -112, 135, 0, 0.2], ["bridgeDeck", -109, 135, 0, 0.2],
+			["bridgePost", -107, 135, 0, 0.2], ["bridgeDeck", -107, 135, 0, 0.2], ["bridgeDeck", -108, 135, 0, 0.2], ["bridgeDeck", -106, 135, 0, 0.2],
+			["bridgePost", -104, 135, 0, 0.2], ["bridgeDeck", -104, 135, 0, 0.2], ["bridgeDeck", -105, 135, 0, 0.2], ["bridgeDeck", -103, 135, 0, 0.2], ["bridgeDeck", -102, 135, 0, 0.4]])
+		var w := _world()
+		t.ok(not Validate.path_across(Data.zone(P + "footbridge"), w).ok, "no way across the Naviglio before")
+		w.surfaces = BuildGrid.surfaces_for(bridge)
+		t.ok(Validate.path_across(Data.zone(P + "footbridge"), w).ok, "posts in the canal bed and planks across make a path")
+		var climb: Array = []
+		for n in 6:
+			for b in n: climb.append(["stoneBlock", 75 - n, 10, 0, 0.3 + b])
+			climb.append(["stairs", 75 - n, 10, 3, 0.3 + n])
+		var scaffold := _build(P + "scaffold", climb)
+		t.ok(not Validate.path_across(Data.zone(P + "scaffold"), _world()).ok, "no way up the cathedral before")
+		w = _world(); w.surfaces = BuildGrid.surfaces_for(scaffold)
+		t.ok(Validate.path_across(Data.zone(P + "scaffold"), w).ok, "a stair on stacked blocks reaches the roof terrace through the parapet's gap")
+		var pos := Vector3(76.6, 0.3, 10.5)
+		for n in 120: pos = w.step_move(pos, -0.1, 0.0).pos
+		t.ok(pos.x < 69.0 and absf(pos.y - 6.3) < 0.1, "and the walker climbs it onto the terrace (at %s)" % pos))
+
+func test_the_crane_and_the_angel_can_be_driven():
+	_on(func():
+		var wheel := _build(P + "crane", [["waterwheel", -145, 100, 0], ["shaft", -145, 99, 0]])
+		t.ok(Mechanics.solve(wheel, Data.layout.machines).fed.get(P + "crane", false), "a waterwheel in the canal and a shaft drive the crane")
+		var mill := _build(P + "terrace", [["windmill", 52, 9, 2, 7.0], ["shaft", 52, 8, 0, 7.0]])
+		t.ok(mill.all(func(p): return absf(p.y - 6.3) < 0.01), "on the roof terrace, 6.3 m up")
+		t.ok(Mechanics.solve(mill, Data.layout.machines).fed.get(P + "angel", false), "a windmill and a shaft drive the Golden Angel's floodlight"))

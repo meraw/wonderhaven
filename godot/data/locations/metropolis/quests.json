@@ -93,7 +93,7 @@
      "id": "keys",
      "kind": "talk",
      "npc": "metropolis_augusto",
-     "text": "Collect your keys from Augusto at the lodge",
+     "text": "Collect your keys from Augusto",
      "final": true
     }
    ],
@@ -390,7 +390,10 @@
      "bridgeDeck",
      "bridgePost",
      "railing"
-    ]
+    ],
+    "items": {
+     "wood": 6
+    }
    },
    "objectives": [
     {
@@ -413,7 +416,7 @@
      "stage": 1,
      "text": "Build a footbridge across the Naviglio, from quay to quay",
      "goal": "A walkable way from the west quay to the east quay",
-     "buildHint": "Planks reach 2 tiles from a support. Stand bridge posts in the canal bed, then lay planks across. Any continuous, supported path counts.",
+     "buildHint": "Start the planks a tile back on each quay, past the lip of the quay wall. Planks reach 2 tiles from a support: stand bridge posts in the canal bed. Any continuous, supported path counts.",
      "hint": {
       "x": -107,
       "z": 136
@@ -464,7 +467,7 @@
     "acceptLabel": "I'll build it",
     "declineLabel": "Another time",
     "accept": [
-     "Good. Wood you'll need, and plenty. Posts in the canal bed, planks across. And then railings. Did I mention railings? I'll mention them again."
+     "Good. Take the planks from the old bridge, what's left of them. Wood you'll need, and plenty more. Posts in the canal bed, planks across. And then railings. Did I mention railings? I'll mention them again."
     ],
     "decline": [
      "No hurry. The regulars have been walking round since spring. Good for the heart, the doctor says. Bad for the bar."
@@ -484,7 +487,7 @@
    "giver": "metropolis_annoni",
    "main": true,
    "type": "construction",
-   "description": "The new marble has to go up to the roof. Build a walkable climb of stairs and platforms from the works yard up the cathedral's south side to the aisle roof, 6 metres up, where the parapet has a gap. Any continuous climb counts, and you can really walk up it.",
+   "description": "The new marble has to go up to the roof. Build a walkable climb of stairs and platforms from the works yard up the cathedral's south side to the aisle roof, six stairs up, where the parapet has a gap. Any continuous climb counts, and you can really walk up it.",
    "requires": {
     "quests": [
      "metropolis_footbridge"
@@ -497,7 +500,8 @@
      "stoneBlock"
     ],
     "items": {
-     "wood": 4
+     "wood": 4,
+     "stone": 14
     }
    },
    "objectives": [
@@ -517,9 +521,9 @@
      "id": "stone",
      "kind": "gather",
      "item": "stone",
-     "count": 10,
+     "count": 16,
      "stage": 0,
-     "text": "Cut 10 stone from the marble offcuts in the works yard",
+     "text": "Cut 16 stone from the marble offcuts in the works yard (or buy it from the Works)",
      "hint": {
       "x": 86,
       "z": -2
@@ -533,7 +537,7 @@
      "stage": 1,
      "text": "Build a walkable climb from the works yard up to the roof terrace",
      "goal": "A way up from the yard onto the terrace through the parapet's gap",
-     "buildHint": "Stairs rise one metre over one tile. Stack blocks to raise each stair on the one before. The terrace is about 6 metres up; the gap in the parapet is at the west end of the site.",
+     "buildHint": "Stairs rise one metre over one tile. Stand each stair on a stack of stone blocks one higher than the last (or on platforms). The terrace is exactly six stairs up; the gap in the parapet is at the west end of the site.",
      "hint": {
       "x": 73,
       "z": 10
@@ -575,7 +579,7 @@
     "acceptLabel": "Up we go",
     "declineLabel": "I'm not good with heights",
     "accept": [
-     "Splendid. The plans for stairs, platforms and blocks. Wood from the park, marble offcuts from the yard. Build it so it stands. I'll know if it doesn't. I'll be underneath."
+     "Splendid. The plans for stairs, platforms and blocks, and seven blocks' worth of marble from the yard to start you off. Wood from the park, more offcuts from the yard. Build it so it stands. I'll know if it doesn't. I'll be underneath."
     ],
     "decline": [
      "Nobody is good with heights. Masons are just good at pretending."
@@ -686,7 +690,12 @@
      "hours": [
       18,
       24
-     ]
+     ],
+     "onDone": {
+      "flags": [
+       "metropolis_angel_on"
+      ]
+     }
     },
     {
      "id": "tell",
@@ -1126,7 +1135,8 @@
      "counter",
      "rug",
      "painting",
-     "lamp"
+     "lamp",
+     "woodWall"
     ]
    },
    "objectives": [
@@ -1213,7 +1223,7 @@
       "x": -7,
       "z": -77
      },
-     "buildHint": "Build the display in front of her workshop. Repaint any piece to give it a splash of colour."
+     "buildHint": "Build the display in front of her workshop. Hang the painting on a wall piece; repaint any piece (T) for the splash of colour."
     },
     {
      "id": "tell",

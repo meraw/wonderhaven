@@ -5,8 +5,8 @@ stages follow. The rules every location shares are in `docs/WORLD.md`; `docs/MON
 follows.
 
 ## Status
-**Stages 1 and 2 are built: the ground, the map, the buildings and the scenery.** Stages 3 (people and requests) and
-4 (look and ambient life) are still to do.
+**Stages 1 to 3 are built: the ground, the map, the buildings and scenery, and the people and requests.** Stage 4
+(look and ambient life) is still to do.
 - **Ground and map (stage 1):** the city is 372 m across, with paved ground painted by the layout (asphalt streets,
   stone-slab pavements and squares, setts along the tram loop and in the courtyard, gravel in the park and the
   building sites). The Darsena and its two canals have stone quays; the park has its pond, lawns and gravel paths.
@@ -26,7 +26,7 @@ follows.
     the balcony; a shared WC at the end of it.
 - **Rooms you can walk into:** the nave (pews, pillars, the altar), Franco's bar, Chiara's workshop, the Cathedral
   Works office, and the tenement's rooms. Your flat is empty for the Balcony Flat request.
-- **Roof terraces:** the Duomo's aisle roofs are marble terraces 6.5 m up with parapets, and a gap where the
+- **Roof terraces:** the Duomo's aisle roofs are marble terraces 6.3 m up with parapets, and a gap where the
   scaffolding will arrive. They're reachable once you build the scaffolding in stage 3.
 - **The old bridge:** a stone deck over the west canal, which flows on underneath.
 - **Trams:** three orange trams run the loop on rails under an overhead wire, stop at the five stops and wait for
@@ -37,8 +37,25 @@ follows.
 - **On the travel map:** Toriano stays off the map until the flag `rice_village_trainStops` is set, then turns up as
   a surprise (every place does, as the user decided after stage 1). That's the flag the rice village's design
   proposes for its finale, when the regional train stops there again.
-- **Not yet:** villagers, requests, gathering and the evening paper (stage 3); the look, the snowfall, passers-by,
-  moving traffic and sounds (stage 4).
+- **People and requests (stage 3):**
+  - **The cast:** the thirteen villagers below, with daily routines on the city's nav spots, greetings that change
+    with the story, topics and gifts. Augusto waits on the platform until you arrive; on Christmas Eve everyone
+    gathers round the Christmas tree in the cathedral square.
+  - **Requests:** the six main and thirteen side requests below, worth 183 column inches in all.
+  - **The evening paper:** column inches in *La Sera di Toriano* replace the approval rating here, in the HUD and the
+    progress panel, with the six milestones below. The 70-inch column widens your roof terrace; the radio and the
+    framed front page turn up in your flat.
+  - **Shops:** Franco's bar, Chiara's sartoria, Gennaro's chestnuts, Ottavio's hut, the Cathedral Works and the tram
+    depot.
+  - **Gathering:** plane trees to prune in the park (with a pink ribbon while they're ready), marble offcuts in the
+    works yard, builders' skips (metal and old bricks), old tram wire on the depot's scrap pile, the flea-market
+    stall (fabric), fishing on the canals (old bicycles, trolleys, boots and carp), Christmas roses in the park beds,
+    lost things in the streets, Gino's score pages at night, and Roman finds at the building sites.
+  - **Machines:** the old crane, moved to the canal's mouth, swings and lifts marble once a waterwheel drives it; the
+    Golden Angel shines over the square after dark once she's lit on Christmas Eve.
+- **Not yet (stage 4):** the look, Christmas Eve's bells, Ambrogio's last run and the snowfall, passers-by, moving
+  traffic, sounds, and the outfits (the winter coat and scarf at 25 inches and Chiara's padded jacket wait for the new
+  clothing shapes; until then the 25-inch milestone pays for the photo).
 - **Shared changes so far:** see the table below.
 
 ## The concept
@@ -266,10 +283,11 @@ Other locations can reuse all of them.
 | **A departure point with any id**, and an optional `depart_label` ("Take the train"). *Done in stage 1.* | The station isn't a bus stop called `boat` | 1 |
 | **Raised floors:** a layout's `floors` (slabs, solid blocks, stairs that rise) and buildings with a walkable roof (`roof_walk`), read by `WalkWorld` and build mode; build sites with a floor height (`floorY`); rooms on their own storey (`y`), so rooms stack with their own doors; scenery-only buildings (`solid: false`). *Done in stage 2.* | The cathedral's roof terraces, the tenement's balcony, flats and terrace, the old bridge's deck | 2 |
 | **Rides between stops:** features of kind `stop` on a `line`; at a stop you choose another and ride there (`Travel.stops_on`, `game.ride_to`). *Done in stage 2.* | The trams. Funiculars, public lifts and cable cars elsewhere can reuse it | 2 |
-| **A path check for any zone** (`path:<zone>` in place of the hard-coded `bridge` and `dock`), with endpoints that may be at different heights | The footbridge, and the scaffolding climb | 3 |
-| **What fishing catches, per location** | Bicycles, a trolley and a boot from the canal | 3 |
-| **A location's own progress meter** (name, unit, milestones), fed by that location's requests instead of the approval rating | The evening paper's column inches | 3 |
-| **Three new building pieces:** toilet, washbasin, bathtub (agreed with the user in the interview) | A Bathroom of Your Own; usable anywhere | 3 |
+| **A path check for any zone** (`path:<zone>` in place of the hard-coded `bridge` and `dock`), with endpoints that may be at different heights. *Done in stage 3: the check now steps between tiles the way the walker does, so stairs count.* | The footbridge, and the scaffolding climb | 3 |
+| **What fishing catches, per location** (`catches`), and what the lost things are (`lost`); gathering spots with their own loot, label and hours; a location's own models for them (`node(n)`). *Done in stage 3.* | Bicycles, a trolley and a boot from the canal; skips, score pages at night, Roman finds | 3 |
+| **A location's own progress meter** (`meter` in `location.json`, see `Meter`), fed by that location's requests instead of the approval rating. *Done in stage 3.* | The evening paper's column inches | 3 |
+| **Three new building pieces:** toilet, washbasin, bathtub (agreed with the user in the interview). *Done in stage 3.* | A Bathroom of Your Own; usable anywhere | 3 |
+| **Build mode on raised floors:** the cursor lands on balconies, terraces and upstairs floors, and the site's grid is drawn there. *Done in stage 3.* | Furnishing your flat; the windmill on the cathedral's roof | 3 |
 | **Daylight shifted per location** (light only; the clock's parts of the day stay) | Dusk at five in December | 4 |
 | **A scripted snowfall** (falling snow and a light white dusting) that a request can start | The finale | 4 |
 | **New clothing shapes** if an outfit needs one the characters don't have (a long coat, a white helmet) | The cast's winter outfits | 4 |

@@ -29,7 +29,8 @@ Shared rules for everyone building a location, people and Claude sessions alike,
   mayor's approval rating, magic fragments become lost things, and the treasure hum becomes a metal detector.
   Design with those in mind, and merge main into your branch to pick them up.
 - **Progress meter:** the approval rating belongs to Monteforchetta's mayor. If your location wants its own meter,
-  ask the user before building one.
+  ask the user first, then declare it in `location.json` (`meter`, see `Meter`): requests given there and pieces
+  built there for the first time feed it instead, and the HUD and progress panel show it there.
 - **Travel:** Monteforchetta's finale opens the bus line to the city and the travel map. Each location has an entry
   on that map, which stays off it until the place is unlocked: every place is a surprise, and the map grows as the
   game goes on (its view widens to take in what's there). Give the entry a `reveal` flag, set by whatever opens the
@@ -37,6 +38,10 @@ Shared rules for everyone building a location, people and Claude sessions alike,
   expects one. It becomes a general stop once Monteforchetta's bus is built. Transport inside a location, like
   trams or funiculars, is that location's own design; riding between its stops is shared (features of kind `stop`,
   see `Travel.stops_on`), and so are raised floors for balconies, terraces and bridges (`floors` in a layout).
+- **Gathering and building checks:** a layout can say what fishing catches there (`catches`) and what the lost
+  things turn out to be (`lost`); a gathering spot can carry its own `label`, `hours`, `loot` and lines; and a
+  request can check for a walkable path across any build zone (`path:<zone>`), up stairs as well as over water.
+  See `godot/data/locations/README.md`.
 - **Look:** shared shaders and the atmosphere module (`docs/GRAPHICS.md`) give every location wind, light,
   weather and ambient life. A location tunes its mood with the `look` block in its map entry: `shade` is added to
   shadows, `light` multiplies highlights, `wind` scales the wind, and `life` scales motes, fireflies and leaves.
@@ -66,7 +71,8 @@ Starting points only. Each location's session settles the details with the user 
      shared files and are merged in when the game loads.
    - `godot/scripts/locations/<id>.gd`, and helpers in `godot/scripts/locations/<id>/`. The script can define
      static `height(x, z)` for the ground shape, `is_stream_cell(i, k)`, `building(b)` for its own building
-     models, and `dress(village)` for extra scenery. See the README files in those folders.
+     models, `node(n)` for its own gathering spots, and `dress(village)` for extra scenery. See the README files
+     in those folders.
    - `godot/tests/test_<id>.gd` and `godot/tests/play_<id>.gd` for your tests and playthroughs.
    - `docs/locations/<id>.md` for your design and status.
 3. **Ids:** prefix every id with `<id>_`: villagers, requests, shops, materials and story flags. The tests check
