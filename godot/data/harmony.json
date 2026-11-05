@@ -33,9 +33,12 @@
   },
   {
    "at": 120,
-   "id": "harbor",
-   "title": "Ordinance No. 47, Reconsidered",
-   "desc": "The Sindaco can finally lift Ordinance No. 47 and reopen the lower road."
+   "id": "newsletter",
+   "title": "Front Page of the Newsletter",
+   "desc": "The town hall newsletter puts your photo on the front page, just under the Sindaco's. A sailor top turns up for you in the lost property box.",
+   "clothes": [
+    "sailor"
+   ]
   },
   {
    "at": 160,

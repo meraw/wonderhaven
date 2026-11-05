@@ -81,6 +81,11 @@
    "name": "Pumpkins",
    "icon": "🎃",
    "color": "#f08a2c"
+  },
+  "mushroom": {
+   "name": "Porcini",
+   "icon": "🍄",
+   "color": "#a8703a"
   }
  },
  "order": [
@@ -96,6 +101,7 @@
   "fish",
   "fruit",
   "acorn",
+  "mushroom",
   "pumpkin",
   "seeds",
   "bread",

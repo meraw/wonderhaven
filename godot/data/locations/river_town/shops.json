@@ -1,0 +1,127 @@
+{
+ "_comment": "Boccapioppo's shops.",
+ "shops": {
+  "river_town_rina": {
+   "name": "Rina's Bar",
+   "label": "A coffee and something sweet",
+   "greet": "What'll it be? Don't say tea.",
+   "requires": {
+    "quests": [
+     "river_town_welcome"
+    ]
+   },
+   "buys": {
+    "river_town_pioppino": 6,
+    "fish": 3
+   },
+   "stock": [
+    {
+     "items": {
+      "river_town_sbrisolona": 1
+     },
+     "price": 6
+    },
+    {
+     "items": {
+      "river_town_goose_sandwich": 1
+     },
+     "price": 5
+    },
+    {
+     "items": {
+      "river_town_fried_fish": 1
+     },
+     "price": 5
+    },
+    {
+     "items": {
+      "river_town_zabaglione": 1
+     },
+     "price": 4
+    },
+    {
+     "items": {
+      "fabric": 3
+     },
+     "price": 9
+    }
+   ]
+  },
+  "river_town_ines": {
+   "name": "Gandini Sawmill",
+   "label": "Let's trade",
+   "greet": "Planks, beams, offcuts. Measured twice.",
+   "requires": {
+    "quests": [
+     "river_town_welcome"
+    ]
+   },
+   "buys": {
+    "wood": 2,
+    "river_town_log": 8
+   },
+   "stock": [
+    {
+     "items": {
+      "wood": 5
+     },
+     "price": 16
+    },
+    {
+     "items": {
+      "wood": 12
+     },
+     "price": 38
+    },
+    {
+     "blueprint": "fence",
+     "price": 15
+    },
+    {
+     "blueprint": "bench",
+     "price": 20
+    }
+   ]
+  },
+  "river_town_primo": {
+   "name": "Rampoldi Cycles",
+   "label": "Let's trade",
+   "greet": "Spokes, cables, bells, metal. No car parts. Never car parts.",
+   "requires": {
+    "quests": [
+     "river_town_welcome"
+    ]
+   },
+   "buys": {
+    "river_town_boot": 2,
+    "river_town_wheel": 4,
+    "river_town_tyre": 4,
+    "metal": 3
+   },
+   "stock": [
+    {
+     "items": {
+      "metal": 2
+     },
+     "price": 20
+    },
+    {
+     "items": {
+      "metal": 5
+     },
+     "price": 48
+    },
+    {
+     "items": {
+      "crystal": 1
+     },
+     "price": 18
+    },
+    {
+     "blueprint": "lever",
+     "price": 30
+    }
+   ]
+  }
+ }
+}

@@ -306,7 +306,7 @@
      ]
     },
     {
-     "flag": "harborOpen",
+     "flag": "boatReady",
      "schedule": [
       [
        7,
@@ -338,9 +338,9 @@
    "home": "castle:spot",
    "greetings": [
     {
-     "flag": "harborOpen",
+     "flag": "boatReady",
      "lines": [
-      "The lower road is open again! I have written the speech. Twice. The second one has pauses for applause."
+      "The city bus is running! I have written the speech. Twice. The second one has pauses for applause."
      ]
     },
     {
@@ -363,11 +363,11 @@
      ]
     },
     {
-     "id": "harbor",
-     "label": "Why is the lower road closed?",
+     "id": "belvedere",
+     "label": "What's at the south end of the village?",
      "lines": [
-      "Ordinance Number Forty-Seven! I signed it myself, the winter the road froze. Then I lost the paper that explains why.",
-      "I will lift it when the village approves of me enough. Of us. When the approval rating reaches one hundred and twenty. That is the procedure. I invented it."
+      "The belvedere. The finest view in the province, by my own decree. On a clear day you can see the Alps.",
+      "Aldo wants to turn his buses round there. I want a statue there. We may both be right."
      ]
     },
     {
@@ -658,7 +658,7 @@
     [
      0,
      24,
-     "harborIn",
+     "busStop",
      "idle"
     ]
    ],
@@ -673,15 +673,25 @@
        "idle"
       ]
      ]
+    },
+    {
+     "flag": "orchardOpen",
+     "schedule": [
+      [
+       6,
+       22,
+       "busStop",
+       "idle"
+      ]
+     ]
     }
    ],
-   "present": "harborOpen",
    "home": "captainHut:spot",
    "greetings": [
     {
      "flag": "boatReady",
      "lines": [
-      "The new stop is ready, and so am I. Climb aboard whenever you like. Mind the second step, it has opinions."
+      "The turnaround is ready, and so am I. Climb aboard whenever you like. Mind the second step, it has opinions."
      ]
     },
     {

@@ -47,7 +47,12 @@ func test_camera_stops_in_front_of_buildings():
 	t.ok(c.clear_distance(Vector3(3.8, 1, 0), east, 10.0) <= FollowCamera.MIN_DIST + 0.01, "right by the wall the camera comes in close instead of into the house")
 	t.ok(c.blocked(Vector3(0, 1, 0), Vector3(10, 3, 0)) and not c.blocked(Vector3(0, 1, 0), Vector3(-10, 3, 0)), "blocked() agrees")
 	var blockers := Props.camera_blockers()
-	t.eq(blockers.size(), Data.layout.buildings.size(), "one camera blocker per building")
+	var towers: int = Data.layout.buildings.filter(func(b): return b.kind == "church").size()   # a church's bell tower gets a box of its own
+	t.eq(blockers.size(), Data.layout.buildings.size() + towers, "one camera blocker per building (two for a church)")
+	# the bell tower is tall, but the nave isn't: building in Elio's shop, north of the church, the camera can look over it
+	for b in Data.layout.buildings.filter(func(b): return b.kind == "church"):
+		var low := blockers.filter(func(x: AABB): return x.has_point(Vector3(b.x - b.w / 2.0 + 0.5, 7.5, b.z)))
+		t.ok(low.is_empty(), "nothing blocks the camera above the nave at 7.5 m")
 	var sp: Dictionary = Data.layout.spawn
 	for b in blockers: t.ok(not (b as AABB).has_point(Vector3(sp.x, 1.0, sp.z)), "spawn point is outside every blocker")
 

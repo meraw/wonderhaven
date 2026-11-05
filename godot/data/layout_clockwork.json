@@ -1,4 +1,5 @@
 {
+ "richRock": "crystal",
  "_comment": "Clockwork Cove, the second island. Same format as layout.json; Hearthglow-only keys (fountain, harbor_gate, harbor_cliffs) are left out. machines: cells where a machine delivers power (or water) to something in the world; build objectives check them as fed:<id>. props: scenery. decor: how much procedural greenery. safeSpot: where 'I'm stuck' takes you.",
  "spawn": {
   "x": 2,

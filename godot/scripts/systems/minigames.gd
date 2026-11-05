@@ -55,8 +55,9 @@ class Mine:
 	var speed := 0.55
 	var target := [0.32, 0.46]
 	var last := ""
-	func _init(p_rich: bool = false, rr: Rng = null) -> void:
-		rich = p_rich; rng = rr if rr else Rng.new(Time.get_ticks_usec() & 0xffff); reset()
+	var bonus := "metal"   # what a rich rock is rich in (a layout's richRock): iron-red metal, or glowing crystal
+	func _init(p_rich: bool = false, rr: Rng = null, p_bonus: String = "metal") -> void:
+		rich = p_rich; bonus = p_bonus; rng = rr if rr else Rng.new(Time.get_ticks_usec() & 0xffff); reset()
 	const GRACE := 0.02   # half the drawn ring's thickness
 	func reset() -> void: r = 1.0; speed = 0.55 + results.size() * 0.12
 	## Judges a press against the ring as it was last drawn, then shrinks it. The ring stays where it was struck
@@ -81,9 +82,13 @@ class Mine:
 		var hits := results.filter(func(x): return x != "miss").size()
 		var perf := results.filter(func(x): return x == "perfect").size()
 		var out := {"stone": 1 + hits + (1 if perf >= 2 else 0)}
-		# the rusty-red rocks are iron-rich: they give more metal
-		if rich and hits >= 1: out["metal"] = 2 if hits >= 3 else 1
-		elif hits >= 2: out["metal"] = 1
+		if bonus == "metal":   # the rusty-red rocks are iron-rich: they give more metal
+			if rich and hits >= 1: out["metal"] = 2 if hits >= 3 else 1
+			elif hits >= 2: out["metal"] = 1
+		else:   # rich in something else (the cove's glowing crystals); two perfect strikes find a little anywhere
+			if hits >= 2 or (rich and hits >= 1): out["metal"] = 1
+			if rich and hits >= 1: out[bonus] = 2 if hits >= 3 else 1
+			elif perf >= 2: out[bonus] = 1
 		return out
 
 const FISH := [{"id": "minnow", "name": "Minnow", "weight": 5.0, "pull": 0.5}, {"id": "trout", "name": "Brown Trout", "weight": 3.0, "pull": 0.8},

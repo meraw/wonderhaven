@@ -71,8 +71,8 @@ Starting points only. Each location's session settles the details with the user 
      shared files and are merged in when the game loads.
    - `godot/scripts/locations/<id>.gd`, and helpers in `godot/scripts/locations/<id>/`. The script can define
      static `height(x, z)` for the ground shape, `is_stream_cell(i, k)`, `building(b)` for its own building
-     models, `node(n)` for its own gathering spots, and `dress(village)` for extra scenery. See the README files
-     in those folders.
+     models, `node(n)` for its own gathering spots, `dress(village)` for extra scenery, and `WORLD_FLAGS` with
+     `adjust(layout, flags)` for a place that changes with the story. See the README files in those folders.
    - `godot/tests/test_<id>.gd` and `godot/tests/play_<id>.gd` for your tests and playthroughs.
    - `docs/locations/<id>.md` for your design and status.
 3. **Ids:** prefix every id with `<id>_`: villagers, requests, shops, materials and story flags. The tests check

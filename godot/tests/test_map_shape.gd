@@ -39,11 +39,14 @@ func test_bake_matches_kind_at():
 	t.ok(same, "every texel holds the kind of ground at its centre")
 
 func test_villages_keep_their_size_and_grass():
-	Data.use_island("hearthglow")
+	Data.use_island("clockwork")
 	t.eq(Data.map_size(), 124.0, "a village is 124 m across")
-	t.ok(Ground.shapes().is_empty() and not Ground.paved(0, 0), "Hearthglow is all grass")
+	Data.use_island("hearthglow")
+	# Monteforchetta (the "hearthglow" id) is a hilltop: its ground runs on down the slopes to the valley floor
+	t.eq(Data.map_size(), 250.0, "Monteforchetta's ground reaches past its slopes")
+	t.ok(Ground.shapes().is_empty() and not Ground.paved(0, 0), "Monteforchetta is all grass")
 	var m := TerrainBuilder.build_terrain()
-	t.eq(m.get_meta("height_rect"), Vector4(-62, -62, 124, 124), "Hearthglow's terrain covers 124 m")
+	t.eq(m.get_meta("height_rect"), Vector4(-125, -125, 250, 250), "its terrain covers 250 m")
 	m.free()
 
 func test_a_bigger_map():
@@ -55,7 +58,7 @@ func test_a_bigger_map():
 		t.ok((w.mesh as PlaneMesh).size.x >= 600.0, "the sea reaches well beyond it")
 		t.eq(BuildMode.view_limit(), 93.0, "build mode's view reaches across it")
 		w.free(); m.free())
-	t.eq(BuildMode.view_limit(), 55.0, "and stays over a village, as before")
+	t.eq(BuildMode.view_limit(), Data.map_size() / 2.0 - 7.0, "and over a village it reaches as far as its edge allows")
 
 func test_greenery_stays_off_paving_and_in_its_area():
 	var ground := [{"kind": "asphalt", "rect": [-60, -60, 60, 60]}, {"kind": "grass", "rect": [-40, -40, -10, -10]}, {"kind": "gravel", "line": [[-40, -25], [-10, -25]], "w": 3}]

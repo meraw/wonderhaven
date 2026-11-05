@@ -5,8 +5,8 @@
   "yaw": 1.5707963267948966
  },
  "arrive": {
-  "x": 5,
-  "z": 38.5,
+  "x": 4,
+  "z": 40.9,
   "yaw": 3.141592653589793
  },
  "square": {
@@ -30,13 +30,13 @@
   {
    "id": "workshop",
    "kind": "workshop",
-   "name": "Bram's Workshop",
+   "name": "Fusibile Electrics",
    "x": -13,
    "z": 10,
    "w": 9,
    "d": 7,
-   "wall": "#f3dfc1",
-   "roof": "#d9734e",
+   "wall": "#efd29a",
+   "roof": "#c0603a",
    "door": "E",
    "doorAt": 10,
    "doorWidth": 2
@@ -44,15 +44,15 @@
   {
    "id": "bakery",
    "kind": "shop",
-   "name": "Crumb & Co. Bakery",
+   "name": "Tealdi Bakery",
    "x": -11,
    "z": -6.5,
    "w": 6,
    "d": 5,
-   "wall": "#ffe4ec",
-   "roof": "#e98aa8",
+   "wall": "#f0d2c2",
+   "roof": "#b85a3c",
    "door": "S",
-   "awning": "#ff9fb8",
+   "awning": "#c8323c",
    "navDoor": "bakeryDoor",
    "interior": {
     "shell": "house",
@@ -138,13 +138,13 @@
   {
    "id": "fernHouse",
    "kind": "cottage",
-   "name": "Fern's Cottage",
+   "name": "Ghisolfi House",
    "x": 10,
    "z": -9,
    "w": 5,
    "d": 5,
-   "wall": "#e9f5d8",
-   "roof": "#6fae5c",
+   "wall": "#efe2c0",
+   "roof": "#b8613f",
    "door": "S",
    "navDoor": "fernDoor",
    "interior": {
@@ -217,94 +217,26 @@
   },
   {
    "id": "odessaHouse",
-   "kind": "cottage",
-   "name": "Odessa's House",
+   "kind": "church",
+   "name": "San Martino",
    "x": -5,
    "z": 17,
-   "w": 6,
+   "w": 8,
    "d": 5,
-   "wall": "#efe3ff",
-   "roof": "#8f78d6",
-   "door": "N",
-   "navDoor": "odessaDoor",
-   "interior": {
-    "shell": "house",
-    "items": [
-     [
-      "bookshelf",
-      -2.2,
-      1.75,
-      0
-     ],
-     [
-      "bookshelf",
-      -1.2,
-      1.75,
-      0
-     ],
-     [
-      "bookshelf",
-      -0.2,
-      1.75,
-      0
-     ],
-     [
-      "bed",
-      2.2,
-      0.9,
-      0,
-      "#b59cff"
-     ],
-     [
-      "desk",
-      -1.6,
-      -0.5,
-      0
-     ],
-     [
-      "chair",
-      -1.6,
-      0.4,
-      2,
-      "#b59cff"
-     ],
-     [
-      "rug",
-      0.6,
-      -0.2,
-      0,
-      "#b59cff"
-     ],
-     [
-      "lamp",
-      2.2,
-      -1.6,
-      0
-     ]
-    ],
-    "route": [
-     [
-      0.0,
-      -1.6
-     ],
-     [
-      0.5,
-      0.65
-     ]
-    ]
-   }
+   "wall": "#ead2a0",
+   "roof": "#c4623a",
+   "door": "N"
   },
   {
    "id": "playerHouse",
    "kind": "cottage",
-   "name": "The Lantern Inn",
-   "inn": true,
+   "name": "Newsstand and Tobacconist",
    "x": 14,
    "z": 13,
    "w": 6,
    "d": 6,
-   "wall": "#fff3d6",
-   "roof": "#5f9be0",
+   "wall": "#f2e2bc",
+   "roof": "#c46a3e",
    "door": "S",
    "navDoor": "cottageDoor",
    "interior": {
@@ -315,14 +247,21 @@
       -1.6,
       -1.6,
       0,
-      "#5f9be0"
+      "#2f5f9e"
      ],
      [
-      "bed",
-      2.2,
-      -1.5,
+      "bookshelf",
+      1.2,
+      -1.75,
       0,
-      "#ffb3c7"
+      "#d9a066"
+     ],
+     [
+      "bookshelf",
+      2.2,
+      -1.75,
+      0,
+      "#d9a066"
      ],
      [
       "table",
@@ -335,14 +274,14 @@
       0.8,
       1.2,
       1,
-      "#5f9be0"
+      "#2f5f9e"
      ],
      [
       "chair",
       2.4,
       1.2,
       3,
-      "#5f9be0"
+      "#2f5f9e"
      ],
      [
       "table",
@@ -355,21 +294,21 @@
       -2.4,
       1.2,
       1,
-      "#5f9be0"
+      "#2f5f9e"
      ],
      [
       "chair",
       -0.8,
       1.2,
       3,
-      "#5f9be0"
+      "#2f5f9e"
      ],
      [
       "rug",
       0.0,
       -0.3,
       0,
-      "#ffd166"
+      "#c8323c"
      ],
      [
       "lamp",
@@ -392,14 +331,14 @@
   },
   {
    "id": "caravan",
-   "kind": "caravan",
-   "name": "Tilly's Caravan",
-   "x": 21,
-   "z": 5,
-   "w": 4,
-   "d": 2.6,
-   "wall": "#ffd36b",
-   "roof": "#5ab8b0",
+   "kind": "cottage",
+   "name": "Cauda Farm",
+   "x": 22.5,
+   "z": 6,
+   "w": 5,
+   "d": 4,
+   "wall": "#e9d3a6",
+   "roof": "#b55a36",
    "door": "W"
   },
   {
@@ -410,8 +349,8 @@
    "z": -10,
    "w": 5,
    "d": 4,
-   "wall": "#f5ead2",
-   "roof": "#c25b6a",
+   "wall": "#e8d6b4",
+   "roof": "#b8613f",
    "door": "E",
    "navDoor": "gatehouse",
    "interior": {
@@ -452,13 +391,13 @@
   {
    "id": "captainHut",
    "kind": "hut",
-   "name": "Captain's Hut",
+   "name": "Aldo's Cottage",
    "x": 13,
    "z": 38,
    "w": 4,
    "d": 4,
-   "wall": "#d6eef7",
-   "roof": "#3f7fb5",
+   "wall": "#efe0c4",
+   "roof": "#b8613f",
    "door": "W",
    "navDoor": "harborHut",
    "interior": {
@@ -517,13 +456,13 @@
   {
    "id": "castle",
    "kind": "castle",
-   "name": "Hearthglow Castle",
+   "name": "The Castle Town Hall",
    "x": 31,
    "z": -5,
    "w": 11,
    "d": 9,
-   "wall": "#f4ecdf",
-   "roof": "#5f7fd8",
+   "wall": "#e6c9a0",
+   "roof": "#a8553a",
    "door": "W",
    "navDoor": "castleSteps",
    "interior": {
@@ -603,6 +542,13 @@
       -3.7,
       2.7,
       0
+     ],
+     [
+      "bed",
+      3.6,
+      -2.1,
+      0,
+      "#ffb3c7"
      ]
     ],
     "route": [
@@ -624,49 +570,28 @@
   "minK": 7,
   "maxK": 12
  },
- "harbor_gate": {
-  "minX": 2.5,
-  "maxX": 7.5,
-  "minZ": 34,
-  "maxZ": 35.4,
-  "flag": "harborOpen"
- },
- "harbor_cliffs": [
-  {
-   "minX": -70,
-   "maxX": 2.5,
-   "minZ": 34,
-   "maxZ": 35.6
-  },
-  {
-   "minX": 7.5,
-   "maxX": 70,
-   "minZ": 34,
-   "maxZ": 35.6
-  }
- ],
  "zones": [
   {
    "id": "plot",
-   "name": "Your plot, beside the inn",
-   "minI": 18,
-   "maxI": 25,
-   "minK": 9,
-   "maxK": 16,
+   "name": "The ruined farmhouse",
+   "minI": 14,
+   "maxI": 21,
+   "minK": -38,
+   "maxK": -31,
    "unlock": {
     "flag": "homePlot"
    },
    "expanded": {
-    "minI": 18,
-    "maxI": 29,
-    "minK": 6,
-    "maxK": 19,
+    "minI": 12,
+    "maxI": 25,
+    "minK": -41,
+    "maxK": -28,
     "harmony": 50
    }
   },
   {
    "id": "bridge",
-   "name": "Orchard Bridge site",
+   "name": "The washout",
    "minI": -3,
    "maxI": 2,
    "minK": -22,
@@ -739,7 +664,7 @@
   },
   {
    "id": "workshop",
-   "name": "Bram's Workshop",
+   "name": "Elio's shop",
    "minI": -17,
    "maxI": -10,
    "minK": 7,
@@ -751,7 +676,7 @@
   },
   {
    "id": "plaza",
-   "name": "Fountain plaza",
+   "name": "The piazza",
    "minI": 2,
    "maxI": 11,
    "minK": -1,
@@ -817,90 +742,18 @@
   },
   {
    "id": "dock",
-   "name": "Harbor dock",
-   "minI": 4,
-   "maxI": 6,
-   "minK": 40,
-   "maxK": 49,
-   "spanY": 0,
+   "name": "The bus turnaround",
+   "minI": 0,
+   "maxI": 7,
+   "minK": 34,
+   "maxK": 39,
    "unlock": {
-    "flag": "harborOpen"
-   },
-   "fixedSupports": [
-    [
-     5,
-     44
-    ],
-    [
-     5,
-     47
-    ]
-   ],
-   "endpoints": {
-    "a": {
-     "minI": 4,
-     "maxI": 6,
-     "minK": 40,
-     "maxK": 40
-    },
-    "b": {
-     "minI": 4,
-     "maxI": 6,
-     "minK": 49,
-     "maxK": 49
-    }
-   },
-   "blueprint": [
-    [
-     5,
-     41,
-     "bridgeDeck"
-    ],
-    [
-     5,
-     42,
-     "bridgeDeck"
-    ],
-    [
-     5,
-     43,
-     "bridgeDeck"
-    ],
-    [
-     5,
-     44,
-     "bridgeDeck"
-    ],
-    [
-     5,
-     45,
-     "bridgeDeck"
-    ],
-    [
-     5,
-     46,
-     "bridgeDeck"
-    ],
-    [
-     5,
-     47,
-     "bridgeDeck"
-    ],
-    [
-     5,
-     48,
-     "bridgeDeck"
-    ],
-    [
-     5,
-     49,
-     "bridgeDeck"
-    ]
-   ]
+    "quest": "dock"
+   }
   },
   {
    "id": "orchardPlot",
-   "name": "Orchard garden",
+   "name": "Gigia's groves",
    "minI": 4,
    "maxI": 11,
    "minK": -35,
@@ -1030,28 +883,6 @@
    "kind": "clay",
    "x": 16,
    "z": -11.528886608387776
-  },
-  {
-   "id": "fish0",
-   "kind": "fish",
-   "x": -8,
-   "z": -14.089186884035934,
-   "facing": 3.141592653589793
-  },
-  {
-   "id": "fish1",
-   "kind": "fish",
-   "x": 11,
-   "z": -12.8261195201818,
-   "facing": 3.141592653589793
-  },
-  {
-   "id": "fish2",
-   "kind": "fish",
-   "x": -7,
-   "z": 41.2,
-   "facing": 0,
-   "flag": "harborOpen"
   },
   {
    "id": "flowers0",
@@ -1186,8 +1017,7 @@
    "z": -11,
    "loot": {
     "crystal": 2,
-    "spark": 12,
-    "coins": 25
+    "coins": 37
    },
    "blueprint": "statue"
   },
@@ -1198,8 +1028,7 @@
    "z": -14.5,
    "loot": {
     "metal": 3,
-    "spark": 10,
-    "coins": 25
+    "coins": 35
    },
    "blueprint": "windmill"
   },
@@ -1210,8 +1039,7 @@
    "z": -41,
    "loot": {
     "fabric": 3,
-    "spark": 10,
-    "coins": 25
+    "coins": 35
    },
    "outfit": "flowerCrown"
   },
@@ -1285,8 +1113,8 @@
   {
    "id": "bin1",
    "kind": "bin",
-   "x": -8.2,
-   "z": 5.6,
+   "x": -7.6,
+   "z": 5.2,
    "facing": 1.984
   },
   {
@@ -1295,51 +1123,109 @@
    "x": 2.6,
    "z": 10.4,
    "facing": -2.841
+  },
+  {
+   "id": "oak1",
+   "kind": "shake",
+   "x": -27,
+   "z": -26.5
+  },
+  {
+   "id": "oak2",
+   "kind": "shake",
+   "x": 29,
+   "z": -30
+  },
+  {
+   "id": "porcini0",
+   "kind": "forage",
+   "item": "mushroom",
+   "x": -25,
+   "z": -27.5
+  },
+  {
+   "id": "porcini1",
+   "kind": "forage",
+   "item": "mushroom",
+   "x": -33,
+   "z": -33
+  },
+  {
+   "id": "porcini2",
+   "kind": "forage",
+   "item": "mushroom",
+   "x": -21.5,
+   "z": -34
+  },
+  {
+   "id": "porcini3",
+   "kind": "forage",
+   "item": "mushroom",
+   "x": 30,
+   "z": -23.5
+  },
+  {
+   "id": "porcini4",
+   "kind": "forage",
+   "item": "mushroom",
+   "x": 34.5,
+   "z": -27
+  },
+  {
+   "id": "porcini5",
+   "kind": "forage",
+   "item": "mushroom",
+   "x": 37.5,
+   "z": -23.5
   }
  ],
  "features": [
   {
    "id": "wardrobe",
    "kind": "wardrobe",
-   "x": 11.65,
-   "z": 12.6,
+   "x": 34.6,
+   "z": -2.4,
    "label": "Change outfit"
   },
   {
    "id": "bed",
    "kind": "rest",
-   "x": 16.2,
-   "z": 11.5,
-   "label": "Rest at the Lantern Inn"
+   "x": 34.6,
+   "z": -7.1,
+   "label": "Sleep in the guest room"
   },
   {
    "id": "welcomeSign",
    "kind": "sign",
    "x": -33,
    "z": 7.5,
-   "text": "Welcome to Hearthglow Village! Population: cozy."
+   "text": "Monteforchetta. Please drive slowly: the bends are older than you."
   },
   {
    "id": "bridgeSign",
    "kind": "sign",
    "x": 2.5,
    "z": -13,
-   "text": "Orchard Bridge — closed for repairs (since forever)."
+   "text": "Road closed. Washed out by the storm. The Town Hall apologises for the storm."
   },
   {
    "id": "harborSign",
    "kind": "sign",
    "x": 9,
    "z": 32.5,
-   "text": "Hearthglow Harbor. Gate sealed by Royal Decree No. 47."
+   "text": "Belvedere. On a clear day you can see the Alps. On other days, take our word for it."
   },
   {
    "id": "boat",
    "kind": "boat",
-   "x": 5.5,
-   "z": 51.6,
-   "label": "Board the ferry",
-   "flag": "boatReady"
+   "x": 4,
+   "z": 43.2,
+   "label": "Catch the bus",
+   "flag": "boatReady",
+   "model": "bus",
+   "length": 8.6,
+   "color": "e8822e",
+   "sign": "CITY"
   },
   {
    "id": "noticeBoard",
@@ -1478,16 +1364,16 @@
    32
   ],
   "harborIn": [
-   5,
-   37.5
+   -1,
+   35.5
   ],
   "harborHut": [
    10,
    38.5
   ],
   "dockStart": [
-   5.4,
-   41.2
+   4,
+   41.0
   ],
   "quarry": [
    -26,
@@ -1512,6 +1398,14 @@
   "gatehouseNE": [
    -16.4,
    -7.0
+  ],
+  "busStop": [
+   -37.4,
+   2.8
+  ],
+  "springPath": [
+   16.5,
+   -2.6
   ]
  },
  "nav_edges": [
@@ -1580,10 +1474,6 @@
    "squareE"
   ],
   [
-   "eastRoad",
-   "caravan"
-  ],
-  [
    "caravan",
    "castleSteps"
   ],
@@ -1644,18 +1534,27 @@
   ],
   [
    "harborGate",
-   "harborIn",
-   "harborOpen"
+   "harborIn"
   ],
   [
    "harborIn",
-   "harborHut",
-   "harborOpen"
+   "harborHut"
   ],
   [
    "harborIn",
-   "dockStart",
-   "harborOpen"
+   "dockStart"
+  ],
+  [
+   "busStop",
+   "westGate"
+  ],
+  [
+   "eastRoad",
+   "springPath"
+  ],
+  [
+   "springPath",
+   "caravan"
   ]
  ],
  "paths": [
@@ -1707,8 +1606,8 @@
     -1.5
    ],
    [
-    18,
-    4.5
+    16.5,
+    -2.6
    ],
    [
     23.5,
@@ -1800,6 +1699,149 @@
     -5,
     13.4
    ]
+  ],
+  [
+   [
+    0,
+    -23
+   ],
+   [
+    9,
+    -25.5
+   ],
+   [
+    13,
+    -26.5
+   ]
+  ],
+  [
+   [
+    -38,
+    4.6
+   ],
+   [
+    -37.4,
+    2.8
+   ]
+  ],
+  [
+   [
+    16.5,
+    -2.6
+   ],
+   [
+    18.2,
+    5.4
+   ]
   ]
- ]
+ ],
+ "water_radius": 47,
+ "ducks": 0,
+ "horizon": {
+  "hills": true,
+  "alps": true,
+  "alps_from": 150,
+  "alps_to": 305
+ },
+ "vineyards": [
+  {
+   "from": 15,
+   "to": 165,
+   "rows": 11,
+   "e0": -2.5,
+   "spacing": 2.8
+  },
+  {
+   "from": 315,
+   "to": 350,
+   "rows": 9,
+   "e0": -2.5,
+   "spacing": 2.8
+  }
+ ],
+ "decor": {
+  "radius": 50,
+  "trees": 60,
+  "leaves": [
+   "7cb85a",
+   "8fbf55",
+   "c9b24a",
+   "d99a3a",
+   "6aa956"
+  ],
+  "woodLeaves": [
+   "c98a3a",
+   "b8642e",
+   "d6a83c",
+   "8a9a48",
+   "a5482a",
+   "7f9f4a"
+  ],
+  "woods": [
+   {
+    "x": -30,
+    "z": -30,
+    "r": 12,
+    "n": 30,
+    "pine": 0.15
+   },
+   {
+    "x": 33,
+    "z": -26,
+    "r": 10,
+    "n": 22,
+    "pine": 0.1
+   }
+  ]
+ },
+ "safeSpot": "castleSteps",
+ "safeText": "Back at the castle steps.",
+ "props": [
+  {
+   "kind": "bus",
+   "x": -42,
+   "z": 0.8,
+   "r": 0,
+   "length": 6.4,
+   "color": "3a6fb5",
+   "sign": "MONTEFORCHETTA",
+   "w": 6.6,
+   "d": 2.4
+  },
+  {
+   "kind": "bus_stop",
+   "x": -36.4,
+   "z": 2.0,
+   "rad": 0.12
+  },
+  {
+   "kind": "ruin_wall",
+   "x": 17,
+   "z": -42.3,
+   "length": 6,
+   "seed": 3,
+   "w": 6,
+   "d": 0.6
+  },
+  {
+   "kind": "ruin_wall",
+   "x": 26.8,
+   "z": -36.5,
+   "r": 1.5708,
+   "length": 4,
+   "seed": 5,
+   "w": 4,
+   "d": 0.6
+  },
+  {
+   "kind": "ruin_wall",
+   "x": 22,
+   "z": -26.4,
+   "length": 3.5,
+   "seed": 8,
+   "w": 3.5,
+   "d": 0.6
+  }
+ ],
+ "size": 250
 }

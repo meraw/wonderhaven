@@ -11,7 +11,7 @@
    "name": "Pozzi Sartoria", "label": "Let's see your fabric",
    "greet": "Offcuts by the bundle, and patterns for the cosy things. Bring me fabric or winter flowers and I'll pay. A collection doesn't sew itself.",
    "requires": {"quests": ["metropolis_welcome"]},
-   "buys": {"fabric": 4, "flowers": 3},
+   "buys": {"fabric": 2, "flowers": 3},
    "stock": [{"items": {"fabric": 4}, "price": 22}, {"blueprint": "rug", "price": 30}, {"blueprint": "painting", "price": 30}, {"blueprint": "sofa", "price": 60, "requires": {"quests": ["metropolis_chiara"]}}]
   },
   "metropolis_gennaro": {

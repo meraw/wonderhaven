@@ -44,6 +44,8 @@ const CANAL_E := 55.5
 const CANAL_HALF := 2.0
 const RAIL_X := -17.0      # the valley railway's embankment runs north from the station
 const RAIL_SOUTH := -38.0
+const PUMPHOUSE := Vector2(21.5, 5.0)   # the old drainage pumping house, dug into the levee's river side
+const QUAY := Rect2(22.5, 1.5, 4.5, 7.0)   # its stone quay: level ground to a sheer edge on the Alpine river
 
 static func ss(a: float, b: float, v: float) -> float:
 	var t := clampf((v - a) / (b - a), 0.0, 1.0)
@@ -124,6 +126,11 @@ static func _land(x: float, z: float) -> float:
 		h = maxf(h, lerpf(top, h, ss(0.0, SLOPE, ld)))
 	return h
 
+## The quay by the pumping house: level with the floodplain right to its stone edge, where the river runs deep and
+## fast (a waterwheel there turns, and a shaft on the quay takes its turning to the pump's drive).
+static func _quay(x: float, z: float) -> bool:
+	return x >= QUAY.position.x and x < QUAY.end.x and z >= QUAY.position.y and z < QUAY.end.y
+
 static func height(x: float, z: float) -> float:
 	var h := _land(x, z)
 	# the Alpine river: clear, fast and shallow, with a gravel bar on its east side
@@ -135,6 +142,7 @@ static func height(x: float, z: float) -> float:
 		var bed := lerpf(-1.05, -0.55, ss(half - 2.5, half, da))
 		var rh := bed if da < half else lerpf(-0.5, h, ss(half, half + 1.5, da))
 		h = minf(h, rh)
+	if _quay(x, z): h = maxf(h, FLOOD_H)
 	if dx > 0.0 and _east_bar(z) > 0.05 and da < ALPINE_HALF + 0.2 and da >= half - 0.6:
 		h = maxf(h, -0.16 + 0.04 * sin(z * 1.3))   # pale gravel, just above the water
 	# the Roman bridge: a narrow hump-backed walkway over the river (its stone model sits on top)
@@ -176,6 +184,40 @@ static func is_stream_cell(i: float, k: float) -> bool:
 	var half := ALPINE_HALF - (_east_bar(z) if dx > 0.0 else 0.0)
 	if absf(z - ROMAN_Z) < ROMAN_HALF + 0.5: return false
 	return absf(dx) < half - 0.3
+
+# ---- The story's changes to the place -----------------------------------------------------------------------------
+## Flags that reshape Boccapioppo (Data.apply_world_flags): when one is set, the world is built again where you
+## stand. The scenery and models read Data.world_flags; adjust() moves the houseboat.
+const WORLD_FLAGS := ["river_town_piazza_drained", "river_town_hall_open", "river_town_storm", "river_town_flood_over",
+	"river_town_launched", "river_town_monster_seen"]
+const MOORING := Vector2(-24.0, 36.0)   # where the Speranza floats once she's launched
+const DECK_Y := 0.18                     # her deck, and the jetty at her door
+
+static func adjust(layout: Dictionary, flags: Dictionary) -> void:
+	if flags.get("river_town_launched", false): _launch(layout)
+
+## The Speranza afloat: from the mud to her mooring in the backwater, standing on her own deck, with a jetty at her
+## door and a gangway to the bank. The flood's junk is gone from her cabin: her bed and wardrobe wait for you to
+## furnish the rest (interior "launched_items").
+static func _launch(layout: Dictionary) -> void:
+	for b in layout.buildings:
+		if b.id != "river_town_houseboat": continue
+		var d := MOORING - Vector2(b.x, b.z)
+		b.x = MOORING.x; b.z = MOORING.y; b["y"] = DECK_Y; b["afloat"] = true
+		b.interior["items"] = b.interior.get("launched_items", [])
+		for f in layout.features:
+			if f.id in ["river_town_bed", "river_town_wardrobe"]: f.x += d.x; f.z += d.y
+		var door_x: float = b.x + b.w / 2.0
+		layout.nav_nodes["houseboat"] = [door_x + 0.9, b.z]
+		layout.nav_nodes["jettyFoot"] = [door_x + 1.3, 32.0]
+		var edges: Array = layout.nav_edges.filter(func(e): return not ("houseboat" in [e[0], e[1]]))
+		edges.append(["floodRamp", "jettyFoot"]); edges.append(["jettyFoot", "houseboat"])
+		layout.nav_edges = edges
+		var floors: Array = layout.get("floors", [])
+		floors.append({"id": "river_town_deck", "rect": [b.x - b.w / 2.0 - 0.25, b.z - b.d / 2.0 - 0.2, door_x + 0.25, b.z + b.d / 2.0 + 0.2], "top": DECK_Y, "bottom": -1.0})
+		floors.append({"id": "river_town_jetty", "rect": [door_x - 0.05, b.z - 1.4, door_x + 1.85, b.z + 1.4], "top": DECK_Y, "bottom": -1.0})
+		floors.append({"id": "river_town_gangway", "rect": [door_x + 0.75, 32.2, door_x + 1.85, b.z - 1.4], "top": DECK_Y, "bottom": -1.0})
+		layout["floors"] = floors
 
 # ---- Buildings and scenery ---------------------------------------------------------------------------------------
 # The models live in river_town/models.gd and the scenery in river_town/scenery.gd.

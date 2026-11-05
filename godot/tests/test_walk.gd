@@ -6,7 +6,8 @@ func test_terrain_shape():
 	t.ok(Heightfield.height(0, -18) < Heightfield.WALKABLE_MIN, "river is water")
 	t.ok(Heightfield.height(0, -14.5) >= Heightfield.WALKABLE_MIN, "south bank walkable")
 	t.ok(Heightfield.height(0, -21.5) >= Heightfield.WALKABLE_MIN, "north bank walkable")
-	t.ok(Heightfield.height(0, -60) < Heightfield.WALKABLE_MIN, "sea around the island")
+	t.ok(Heightfield.height(0, -60) < Heightfield.WALKABLE_MIN, "the hill falls away past the edge")
+	t.ok(Heightfield.height(0, -115) < -25.0 and Heightfield.height(112, 0) < -25.0, "down to the valley floor far below")
 
 func test_bridge_zone_has_six_water_cells():
 	var z: Dictionary = Data.zone("bridge")
@@ -15,11 +16,16 @@ func test_bridge_zone_has_six_water_cells():
 		if Heightfield.height(0.5, k + 0.5) < Heightfield.WALKABLE_MIN: water.append(k)
 	t.eq(water, [-21, -20, -19, -18, -17, -16], "water cells")
 
-func test_decor_matches_web_version():
+func test_decor_is_deterministic_with_woods():
 	var d := WorldStatics.generate_decor()
-	t.eq([d.trees.size(), d.bushes.size(), d.flowers.size(), d.grass.size()], [95, 70, 520, 1400], "same counts as the web version")
-	t.ok(absf(d.trees[0].x - 22.9822) < 0.001 and absf(d.trees[0].z + 23.7653) < 0.001, "same first tree (%s)" % str(d.trees[0]))
-	t.ok(absf(d.trees[50].x + 15.5284) < 0.001, "same 51st tree")
+	var d2 := WorldStatics.generate_decor()
+	t.eq([d.trees.size(), d.bushes.size(), d.flowers.size(), d.grass.size()], [d2.trees.size(), d2.bushes.size(), d2.flowers.size(), d2.grass.size()], "the same scenery every time")
+	t.ok(d.trees[7].x == d2.trees[7].x and d.trees[7].z == d2.trees[7].z, "tree by tree")
+	var woods: Array = d.trees.filter(func(tr): return tr.has("wood"))
+	t.ok(woods.size() >= 25, "the layout's woods are planted (%d trees)" % woods.size())
+	for w in Data.layout.decor.woods:
+		t.ok(woods.any(func(tr): return Vector2(tr.x - w.x, tr.z - w.z).length() <= float(w.r)), "trees in the wood at %s, %s" % [w.x, w.z])
+	t.ok(d.trees.all(func(tr): return Heightfield.height(tr.x, tr.z) >= Heightfield.WALKABLE_MIN), "no tree stands on the slopes or in the stream")
 
 func test_river_blocks_but_bank_is_walkable():
 	var w := WalkWorld.new(WorldStatics.build_statics(WorldStatics.generate_decor()))
@@ -46,12 +52,22 @@ func test_nav_nodes_are_free():
 		var p: Array = Data.layout.nav_nodes[id]
 		t.ok(not w.can_stand(p[0], p[1], Heightfield.height(p[0], p[1]), 0.3).is_empty(), "nav node %s" % id)
 
-func test_harbor_gate_flag():
-	var open := [false]
-	var w := WalkWorld.new(WorldStatics.build_statics(WorldStatics.generate_decor()), func(f): return f == "harborOpen" and open[0])
-	t.ok(w.blocked(5, 34.7, 0.2), "gate closed")
-	open[0] = true
-	t.ok(not w.blocked(5, 34.7, 0.2), "gate open")
+func test_flagged_statics():
+	# a `flag` static (a gate) stops blocking once its flag is set; a `whileFlag` one (the bus) only blocks while set
+	var on := [false]
+	var gate := {"type": "box", "minX": 0.0, "maxX": 1.0, "minZ": 0.0, "maxZ": 1.0, "flag": "open"}
+	var w := WalkWorld.new([gate], func(f): return f == "open" and on[0])
+	t.ok(w.blocked(0.5, 0.5, 0.2), "gate closed")
+	on[0] = true
+	t.ok(not w.blocked(0.5, 0.5, 0.2), "gate open")
+	var ready := [false]
+	var statics := WorldStatics.build_statics(WorldStatics.generate_decor())
+	var bus: Dictionary = Data.layout.features.filter(func(f): return f.id == "boat")[0]
+	var w2 := WalkWorld.new(statics, func(f): return f == "boatReady" and ready[0])
+	t.ok(not w2.blocked(bus.x, bus.z, 0.2), "no city bus yet: you can walk where it will stand")
+	ready[0] = true
+	t.ok(w2.blocked(bus.x, bus.z, 0.2), "once it's there, it's solid")
+	t.ok(not w2.blocked(Data.layout.nav_nodes.dockStart[0], Data.layout.nav_nodes.dockStart[1], 0.3), "the stop beside it stays free")
 
 func test_free_spot_steps_off_a_build_site():
 	# a body boxed in by solid pieces is stuck; free_spot finds open ground outside the zone

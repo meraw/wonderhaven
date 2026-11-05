@@ -1,6 +1,8 @@
 class_name TerrainBuilder
 ## Terrain mesh from the shared heightfield, with painted vertex colours; water; sky.
 
+## The ground mesh, as wide as the layout's `size` (a city, or Monteforchetta's slopes running down to the valley
+## past the playable edge).
 static func build_terrain() -> MeshInstance3D:
 	var size := Data.map_size()   # 124 m unless the layout says otherwise; vertex spacing stays the same
 	var seg := int(round(150.0 * size / Data.DEFAULT_MAP_SIZE))
@@ -54,6 +56,7 @@ static func build_terrain() -> MeshInstance3D:
 	var sq: Dictionary = Data.layout.get("square", {"x": 0.0, "z": 0.0, "r": 0.0})
 	mt.set_shader_parameter("square", Vector3(sq.x, sq.z, sq.r))
 	mt.set_shader_parameter("water_y", Heightfield.WATER_Y)
+	mt.set_shader_parameter("water_r", water_radius())
 	mt.set_shader_parameter("path_reach", size / 2.0 - 2.0)
 	# Streets, squares and quays painted over the grass (Ground): one byte per half metre, the kind of paving.
 	if not Ground.shapes().is_empty():
@@ -116,6 +119,7 @@ uniform vec4 segs[32];
 uniform int seg_count = 0;
 uniform vec3 square = vec3(0.0, 2.0, 7.0);
 uniform float water_y = -0.35;
+uniform float water_r = 100000.0;   // water (and its sand and river bed) only within this distance of the centre
 uniform vec4 path_col : source_color = vec4(0.91, 0.79, 0.57, 1.0);
 uniform vec4 sand_col : source_color = vec4(0.95, 0.87, 0.66, 1.0);
 uniform vec4 bed_col : source_color = vec4(0.78, 0.7, 0.52, 1.0);
@@ -250,14 +254,16 @@ void fragment() {
 	petal = mix(petal, vec3(1.0, 0.85, 0.35), smoothstep(0.04, 0.02, fl.x));   // a golden eye
 	col = mix(col, petal, bloom * 0.9);
 	col *= 1.0 - 0.16 * wet;   // rain darkens the grass
-	// Sandy shore with a wobbly edge, darker wet sand at the waterline.
+	// Sandy shore with a wobbly edge, darker wet sand at the waterline (only where there is water: inland slopes
+	// that run below the water level stay grass).
+	float wet_zone = 1.0 - smoothstep(water_r - 2.0, water_r + 2.0, length(p));
 	float shore = -0.04 + (fbm(p * 0.8) - 0.5) * 0.08;
 	vec3 sand = sand_col.rgb * (0.94 + 0.08 * noise(p * 5.0));
 	sand = mix(sand, sand * 0.84, smoothstep(water_y + 0.25, water_y + 0.02, wpos.y));
 	sand *= 1.0 - 0.2 * wet;
-	col = mix(col, sand, smoothstep(shore + 0.03, shore - 0.03, wpos.y) * meadow);
+	col = mix(col, sand, smoothstep(shore + 0.03, shore - 0.03, wpos.y) * meadow * wet_zone);
 	// River and pond beds, with caustics dancing over the shallows when the sun is out.
-	float under = smoothstep(water_y + 0.02, water_y - 0.12, wpos.y);
+	float under = smoothstep(water_y + 0.02, water_y - 0.12, wpos.y) * wet_zone;
 	if (under > 0.0) {
 		vec3 bed = bed_col.rgb * (0.85 + 0.2 * fbm(p * 0.6));
 		float depth = max(0.0, water_y - wpos.y);
@@ -405,6 +411,7 @@ uniform float night = 0.0;
 uniform float water_y = -0.35;
 uniform sampler2D heights : filter_linear, repeat_disable;
 uniform vec4 hrect = vec4(-62.0, -62.0, 124.0, 124.0);
+uniform float water_r = 100000.0;   // no water beyond this distance from the centre (inland places)
 // Shared world values (Atmosphere); colours are linear.
 global uniform vec3 world_sun_dir;
 global uniform vec3 world_sun_color;
@@ -432,6 +439,7 @@ float rings(vec2 q, float t) {
 }
 void vertex() { wpos = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz; }
 void fragment() {
+	if (length(wpos.xz) > water_r) discard;
 	vec2 uv = (wpos.xz - hrect.xy) / hrect.zw;
 	float ground = (uv.x < 0.0 || uv.y < 0.0 || uv.x > 1.0 || uv.y > 1.0) ? -2.4 : texture(heights, uv).r;
 	float depth = max(0.0, water_y - ground);
@@ -476,6 +484,9 @@ void fragment() {
 }
 """
 
+## How far from the centre water exists (a layout's `water_radius`; islands have the sea all round).
+static func water_radius() -> float: return float(Data.layout.get("water_radius", 100000.0))
+
 static func build_water(terrain: MeshInstance3D) -> MeshInstance3D:
 	var ws := maxf(420.0, Data.map_size() * 3.4)   # the sea reaches the horizon whatever the map's size
 	var p := PlaneMesh.new(); p.size = Vector2(ws, ws); p.subdivide_width = 0; p.subdivide_depth = 0
@@ -485,11 +496,85 @@ static func build_water(terrain: MeshInstance3D) -> MeshInstance3D:
 	sm.set_shader_parameter("heights", terrain.get_meta("height_tex"))
 	sm.set_shader_parameter("hrect", terrain.get_meta("height_rect"))
 	sm.set_shader_parameter("water_y", Heightfield.WATER_Y)
+	sm.set_shader_parameter("water_r", water_radius())
 	m.material_override = sm
 	m.position.y = Heightfield.WATER_Y
 	m.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	m.name = "Water"
 	return m
+
+## The view beyond the playable land, from a layout's `horizon` block: {"hills": true} rings the valley with rolling
+## hills patched in field and vineyard colours, {"alps": true} adds a snowy mountain range from the west round to
+## the north (as seen from the Langhe on a clear day). Both sit far out, so the haze softens them.
+static func build_backdrop(spec: Dictionary) -> Node3D:
+	var root := Node3D.new(); root.name = "Backdrop"
+	var mat := StandardMaterial3D.new()
+	mat.vertex_color_use_as_albedo = true; mat.vertex_color_is_srgb = true
+	mat.diffuse_mode = BaseMaterial3D.DIFFUSE_LAMBERT_WRAP; mat.specular_mode = BaseMaterial3D.SPECULAR_DISABLED
+	mat.roughness = 1.0; mat.cull_mode = BaseMaterial3D.CULL_DISABLED
+	var floor_y := float(spec.get("floor", Heightfield.VALLEY_Y))
+	var nz := FastNoiseLite.new(); nz.seed = 31; nz.frequency = 0.012; nz.fractal_octaves = 4
+	var cz := FastNoiseLite.new(); cz.seed = 77; cz.frequency = 0.012
+	if spec.get("hills", false):
+		var st := SurfaceTool.new(); st.begin(Mesh.PRIMITIVE_TRIANGLES)
+		var radii := [112.0, 118.0, 126.0, 136.0, 148.0, 162.0, 178.0, 196.0, 216.0, 238.0, 262.0, 290.0, 320.0]
+		var segs := 160
+		# soft patches of meadow, stubble and vineyard gold, darker woods on the tops, bluer with distance
+		var meadow := Color("93a565"); var stubble := Color("b7a86e"); var vines := Color("b98a4e"); var woods := Color("5f7046")
+		var grid: Array = []
+		for ri in radii.size():
+			var row: Array = []
+			for ai in segs + 1:
+				var a := TAU * ai / segs
+				var r: float = radii[ri]
+				var x := cos(a) * r; var z := sin(a) * r
+				var rise := Heightfield.ss(118.0, 200.0, r) * 30.0 + Heightfield.ss(190.0, 300.0, r) * 12.0
+				var y := floor_y - 0.3 + rise * (0.55 + 0.45 * (nz.get_noise_2d(x, z) * 0.5 + 0.5)) + 6.0 * nz.get_noise_2d(x * 2.3, z * 2.3) * Heightfield.ss(118.0, 170.0, r)
+				var f := cz.get_noise_2d(x, z) * 0.5 + 0.5
+				var c := meadow.lerp(stubble, Heightfield.ss(0.35, 0.6, f)).lerp(vines, Heightfield.ss(0.62, 0.8, f) * 0.8)
+				c = c.lerp(woods, Heightfield.ss(0.5, 0.85, (y - floor_y) / 42.0) * 0.7)
+				c = c.lerp(Color("97a8bb"), Heightfield.ss(140.0, 320.0, r) * 0.55)
+				row.append([Vector3(x, y, z), c])
+			grid.append(row)
+		for ri in radii.size() - 1:
+			for ai in segs:
+				var q := [grid[ri][ai], grid[ri][ai + 1], grid[ri + 1][ai], grid[ri + 1][ai + 1]]
+				for v in [q[0], q[2], q[1], q[1], q[2], q[3]]:
+					st.set_color(v[1]); st.add_vertex(v[0])
+		st.generate_normals()
+		root.add_child(Palette.mi(st.commit(), mat, Vector3.ZERO, false))
+	if spec.get("alps", false):
+		# a range from alps_from round to alps_to (degrees; default west-south-west to north-north-east), far out across the plain
+		var st := SurfaceTool.new(); st.begin(Mesh.PRIMITIVE_TRIANGLES)
+		var rn := FastNoiseLite.new(); rn.seed = 5; rn.noise_type = FastNoiseLite.TYPE_SIMPLEX; rn.fractal_type = FastNoiseLite.FRACTAL_RIDGED
+		rn.frequency = 0.45; rn.fractal_octaves = 3
+		var a0 := deg_to_rad(float(spec.get("alps_from", 150.0))); var a1 := deg_to_rad(float(spec.get("alps_to", 305.0)))
+		var n := 260
+		# rows from the far foot up to the crest and down the near side: deep enough that the slopes read as mountains
+		var radii := [480.0, 462.0, 445.0, 428.0, 412.0]
+		var rows: Array = []
+		for i in n + 1:
+			var t := float(i) / n
+			var a := lerpf(a0, a1, t)
+			var ends := Heightfield.ss(0.0, 0.1, t) * Heightfield.ss(1.0, 0.88, t)   # the range rises from the haze and sinks back
+			var crest := (55.0 + 80.0 * (rn.get_noise_1d(a * 9.0) * 0.5 + 0.5)) * ends
+			var shoulder := (30.0 + 40.0 * (rn.get_noise_1d(a * 14.0 + 7.0) * 0.5 + 0.5)) * ends
+			rows.append([a, [0.0, crest * 0.7, crest, shoulder, 0.0]])   # heights above the floor, far foot to near foot
+		for i in n:
+			var A: Array = rows[i]; var B: Array = rows[i + 1]
+			var p := func(row: Array, k: int) -> Array:
+				var a: float = row[0]
+				var y: float = floor_y + float(row[1][k]) if k > 0 and k < 4 else floor_y - 4.0
+				var snow := Heightfield.ss(floor_y + 60.0, floor_y + 85.0, y)
+				var c := Color("7f8fa6").lerp(Color("eef3f8"), snow)
+				return [Vector3(cos(a) * radii[k], y, sin(a) * radii[k]), c]
+			for band in 4:
+				var q := [p.call(A, band), p.call(B, band), p.call(A, band + 1), p.call(B, band + 1)]
+				for v in [q[0], q[2], q[1], q[1], q[2], q[3]]:
+					st.set_color(v[1]); st.add_vertex(v[0])
+		st.generate_normals()
+		root.add_child(Palette.mi(st.commit(), mat, Vector3.ZERO, false))
+	return root
 
 static func build_environment() -> WorldEnvironment:
 	var env := Environment.new()
