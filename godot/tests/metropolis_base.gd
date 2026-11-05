@@ -180,14 +180,16 @@ func put(id: String, i: float, k: float, r: int = 0, y: float = 0.3) -> bool:
 		if game.build.rotation == r: break
 		await tap(KEY_R); await frames(2)
 	var fp := BuildGrid.footprint(Data.piece(id), r)
-	# aim at the middle of the whole piece (a bed is two tiles long), or at its first tile (a roof rests on a pillar's
-	# top: between the pillars the cursor would fall through to the ground)
-	var aims: Array = [Vector3(i + fp.x / 2.0, y + 0.02, k + fp.y / 2.0), Vector3(i + 0.5, y + 0.02, k + 0.5)]
+	# aim at the middle of the whole piece (a bed is two tiles long), or anywhere within half a tile of it, which picks
+	# the same cell: a roof rests on a pillar's top, and between the pillars the cursor would fall through to the ground
+	var aims: Array = [Vector3(i + fp.x / 2.0, y + 0.02, k + fp.y / 2.0)]
+	for off in [Vector2(-0.4, -0.4), Vector2(0.4, 0.4), Vector2(-0.4, 0.4), Vector2(0.4, -0.4), Vector2(-0.4, 0), Vector2(0.4, 0), Vector2(0, -0.4), Vector2(0, 0.4)]:
+		aims.append(aims[0] + Vector3(off.x, 0, off.y))
 	game.build.focus = Vector3(aims[0].x, y, aims[0].z)
 	var p := Vector2.ZERO
 	var on_it := false
-	for attempt in 12:   # point at the cell, and make sure the build cursor is on it (the view may still be gliding there)
-		if attempt > 0 and attempt % 3 == 0: await turn_view(PI / 2.0)   # something taller is in the way: look from another side
+	for attempt in 27:   # point at the cell, and make sure the build cursor is on it (the view may still be gliding there)
+		if attempt > 0 and attempt % 9 == 0: await turn_view(PI / 2.0)   # something taller is in the way: look from another side
 		await settle()
 		p = game.camera.unproject_position(aims[attempt % aims.size()])
 		mouse_move(p, Vector2(1, 0)); await frames(4)
