@@ -132,7 +132,7 @@ func play() -> void:
 	# ---- Franco's bicycles ------------------------------------------------------------------------------------
 	await chat("franco")
 	check("canal_on", "Franco wants bicycles for his wall", status("canal") == "active", status("canal"))
-	await gather_until("fish", func(): return step_done("canal", "bikes"), [], 24)
+	await gather_until("fish", func(): return step_done("canal", "bikes"), [], 40)   # (a bicycle is the likeliest catch, but luck varies)
 	check("canal_fished", "three old bicycles fished out of the canal (with boots, trolleys and carp)", step_done("canal", "bikes"), "bicycles %d, boots %d, trolleys %d, fish %d" % [inv(P + "bicycle"), inv(P + "boot"), inv(P + "trolley"), inv("fish")])
 	await chat("franco")
 	check("canal_done", "the bicycles go up on the wall", done("canal"), status("canal"))
