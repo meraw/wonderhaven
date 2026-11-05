@@ -24,7 +24,7 @@ func play() -> void:
 		check(101, "the petition carried over", signatures() >= 140, "signatures %d" % signatures())
 		await train_log()
 		await stairs()
-		check(126, "the frost has gone by the afternoon", float(game.state.time.minute) < 11 * 60 or float(game.state.time.minute) > 17 * 60 or frost() == 0.0, "%s frost %.2f" % [Clock.text(game.state.time), frost()])
+		check(126, "the frost has melted by late morning", float(game.state.time.minute) < 10.5 * 60 or float(game.state.time.minute) > 17 * 60 or frost() == 0.0, "%s frost %.2f" % [Clock.text(game.state.time), frost()])
 		await mill()
 		await cranes()
 		check(139, "saved after the mill (slot 3)", await save_to("slot3"), "signatures %d" % signatures())
@@ -206,7 +206,7 @@ func regional_stops() -> void:
 	var model := false
 	for c in game.village.get_node("rice_village_trains").get_children():
 		if c is Node3D and c.name.begins_with("train_regional") and absf(c.position.x - TT.STOP_X) < 0.2: model = true
-	game.cam.yaw = 2.5; game.cam.pitch = 0.3; game.cam.dist = 12.0
+	game.cam.yaw = -0.3; game.cam.pitch = 0.4; game.cam.dist = 10.0   # from the south, past the station's west end
 	await frames(6)
 	await shot("regional-stops")
 	check(159, "a regional train stops at Casalrana's platform and waits", stopped and model, "%s, model at the platform %s" % [Clock.text(game.state.time), model])

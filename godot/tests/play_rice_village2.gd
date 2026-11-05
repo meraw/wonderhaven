@@ -315,6 +315,7 @@ func outfit() -> void:
 		"opened %s, hat %s drawn %s %s" % [opened, game.state.appearance.get("hat", ""), drawn.hat, drawn.get("hatColor", "")])
 	game.cam.yaw = 2.6; game.cam.pitch = 0.35; game.cam.dist = 4.0
 	await shot("the-cap")
+	await walk_slow(17.5, -36.3, 0.4); await walk_slow(22.0, -37.6, 0.5)   # back round the table to the door
 	await down_from_flat()
 
 ## Lapwings on the stubble, the cat by the farmhouse door and the donkey by the paddock fence.
