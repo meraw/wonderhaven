@@ -344,3 +344,11 @@ func test_passers_by_keep_to_the_streets():
 			if PB.street_node(id): streets += 1
 		t.ok(streets > 40, "plenty of streets to walk (%d spots)" % streets))
 
+func test_traffic_queues_on_the_tram_line():
+	var Trams = load("res://scripts/locations/metropolis/trams.gd")
+	t.eq(Trams.room_ahead(10.0, 2.0, [], 400.0), INF, "alone on the line, nothing ahead")
+	t.ok(absf(Trams.room_ahead(10.0, 2.0, [[30.0, 6.0]], 400.0) - (20.0 - 8.0 - Trams.GAP)) < 0.001, "a car keeps its distance behind a tram")
+	t.ok(Trams.room_ahead(10.0, 2.0, [[19.0, 6.0]], 400.0) <= 0.0, "and waits behind one that's stopped close ahead")
+	t.ok(Trams.room_ahead(395.0, 2.0, [[5.0, 2.0]], 400.0) > 0.0, "round the end of the loop too")
+	t.ok(Trams.room_ahead(30.0, 2.0, [[10.0, 6.0]], 400.0) > 300.0, "the one behind doesn't hold it up")
+

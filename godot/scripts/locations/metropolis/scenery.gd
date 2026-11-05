@@ -18,7 +18,7 @@ static func dress(v: Node3D) -> void:
 	trams(v)
 	street(v)
 
-## The tram line: rails, overhead wire, and three trams running round it, stopping at the stops.
+## The tram line: rails, overhead wire, three trams running round it, stopping at the stops, and the traffic.
 static func trams(v: Node3D) -> void:
 	var loop: Array = Data.layout.get("metropolis_tram_loop", []).map(func(p): return Vector2(p[0], p[1]))
 	if loop.is_empty(): return
@@ -26,7 +26,7 @@ static func trams(v: Node3D) -> void:
 	var stops: Array = Data.layout.features.filter(func(f): return f.kind == "stop").map(func(f): return Vector2(f.x, f.z))
 	var t := Trams.new()
 	v.add_child(t)
-	t.setup(v.get_parent(), loop, stops, 3)
+	t.setup(v.get_parent(), loop, stops, 3, 5)   # and five cars in the traffic
 
 ## Every floor of the layout, drawn by its "look": slab (a stone balcony on iron brackets), rail (iron railing),
 ## parapet (a plastered low wall), balustrade (marble), stair (stone steps), deck and stone_parapet (the old bridge),

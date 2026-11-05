@@ -2,11 +2,16 @@ extends Node3D
 ## Toriano's trams: old orange cars running round the loop line, slowing into each stop and waiting there a few
 ## seconds, and holding back while someone stands on the track ahead. They are solid (moving bodies in the walk
 ## world). Riding is the shared stop feature (Travel.stops_on, game.ride_to); these are the cars you see.
+## The traffic shares their street, as it does in a real city: small cars driving round the loop on the tracks,
+## queueing behind each other and behind a tram at its stop, waiting (with a toot) for anyone in the road.
 
 const Kit := preload("res://scripts/locations/metropolis/kit.gd")
 
 const SPEED := 7.0
+const CAR_SPEED := 8.0
 const DWELL := 6.0
+const GAP := 3.0           # what a vehicle keeps between itself and the one ahead
+const CAR_COLOURS := ["c23a32", "e8e2d0", "2f5a8a", "3f6a4a", "d9a43a", "5a5a62", "7a2f35"]
 const CORNER := 9.0        # radius the rails take round each corner
 const ORANGE := Color("e8892c")
 const CREAM := Color("efe2c4")
@@ -17,7 +22,7 @@ var path := PackedVector2Array()   # the line, sampled every metre or so, closed
 var dist := PackedFloat32Array()   # distance along the line at each sample
 var length := 0.0
 var stops: Array = []               # distances along the line where trams stop
-var cars: Array = []                # {node, s, wait, bodies: [3 dicts]}
+var cars: Array = []                # trams and cars: {node, s, wait, bodies, tram, half, toot}
 
 ## The loop's corners, rounded; returns the sampled closed path.
 static func rounded(corners: Array, radius: float) -> PackedVector2Array:
@@ -37,7 +42,17 @@ static func rounded(corners: Array, radius: float) -> PackedVector2Array:
 			out.append(e.lerp(after, k * 2.0 / seg))
 	return out
 
-func setup(g, corners: Array, stop_points: Array, count: int = 3) -> void:
+## How far a vehicle at `s` (half its length `half`) can go before it's GAP behind the next one round the loop;
+## `others` are [s, half] of the rest. INF when it's alone.
+static func room_ahead(s: float, half: float, others: Array, length: float) -> float:
+	var best := INF
+	for o in others:
+		var d := fposmod(float(o[0]) - s, length)
+		if d <= 0.001: continue
+		best = minf(best, d - half - float(o[1]) - GAP)
+	return best
+
+func setup(g, corners: Array, stop_points: Array, count: int = 3, autos: int = 0) -> void:
 	game = g
 	name = "Trams"
 	path = rounded(corners, CORNER)
@@ -48,12 +63,15 @@ func setup(g, corners: Array, stop_points: Array, count: int = 3) -> void:
 		length += path[i].distance_to(path[(i + 1) % path.size()])
 	for sp in stop_points: stops.append(nearest_s(sp))
 	stops.sort()
-	for i in count:
-		var node := model(i == 0)
+	for i in count + autos:
+		var tram := i < count
+		var node := model(i == 0) if tram else car_model(i)
 		add_child(node)
-		var car := {"node": node, "s": length * i / count, "wait": 0.0, "bodies": []}
-		for k in 3:
-			var body := {"x": 0.0, "z": 0.0, "r": 1.35}
+		# trams evenly round the line, the cars in the gaps between them
+		var s0 := length * i / count if tram else length * (float(i - count) + 0.5) / maxf(1.0, autos)
+		var car := {"node": node, "s": s0, "wait": 0.0, "bodies": [], "tram": tram, "half": 6.0 if tram else 2.1, "toot": 0.0}
+		for k in (3 if tram else 2):
+			var body := {"x": 0.0, "z": 0.0, "r": 1.35 if tram else 1.0}
 			car.bodies.append(body)
 			if game and game.walk: game.walk.dynamic.append(body)
 		cars.append(car)
@@ -83,8 +101,9 @@ func _place(car: Dictionary) -> void:
 	var n: Node3D = car.node
 	n.position = Vector3(pos.x, 0.3, pos.y)
 	n.rotation.y = atan2(-dir.y, dir.x)
-	for k in 3:   # three round bodies along the car, for collisions
-		var q: Vector2 = pos + dir * (k - 1) * 4.2
+	var n_b: int = car.bodies.size()
+	for k in n_b:   # round bodies along the car, for collisions
+		var q: Vector2 = pos + dir * (k - (n_b - 1) / 2.0) * (4.2 if car.tram else 1.3)
 		car.bodies[k].x = q.x; car.bodies[k].z = q.y
 
 func _process(dt: float) -> void:
@@ -92,16 +111,53 @@ func _process(dt: float) -> void:
 	var pl := Vector2(game.player.pos.x, game.player.pos.z) if game.player else Vector2(1e9, 1e9)
 	for car in cars:
 		if car.wait > 0.0: car.wait -= dt; continue
-		var p: Array = at(car.s + 7.0)   # just ahead of the front
+		var p: Array = at(car.s + float(car.half) + 1.0)   # just ahead of the front
 		var ahead: Vector2 = p[0]
-		if pl.distance_to(ahead) < 3.2: continue   # someone on the track: wait for them
-		var step := SPEED * dt
-		for st in stops:   # slow into a stop, then wait
-			var gap := fposmod(st - car.s, length)
-			if gap > 0.0 and gap <= step: car.s = st; car.wait = DWELL; step = 0.0; break
-			if gap < 10.0: step *= clampf(gap / 10.0, 0.25, 1.0)
+		if pl.distance_to(ahead) < 3.2:   # someone on the track: wait for them (a car toots once)
+			car.toot += dt
+			if not car.tram and car.toot > 1.5 and car.toot - dt <= 1.5: _toot(pl.distance_to(ahead))
+			continue
+		car.toot = 0.0
+		var others: Array = []
+		for o in cars:
+			if o != car: others.append([o.s, o.half])
+		var room := room_ahead(car.s, car.half, others, length)
+		if room <= 0.0: continue   # queueing behind the one ahead
+		var step := minf((SPEED if car.tram else CAR_SPEED) * dt, room)
+		if car.tram:
+			for st in stops:   # slow into a stop, then wait
+				var gap := fposmod(st - car.s, length)
+				if gap > 0.0 and gap <= step: car.s = st; car.wait = DWELL; step = 0.0; break
+				if gap < 10.0: step *= clampf(gap / 10.0, 0.25, 1.0)
+		else: step *= clampf(room / 6.0, 0.3, 1.0)   # easing up behind the one ahead
 		car.s = fposmod(car.s + step, length)
 		_place(car)
+
+func _toot(d: float) -> void:
+	if game.get("audio") == null: return
+	var vol := clampf(1.0 - d / 25.0, 0.2, 1.0) * 0.12
+	game.audio.play("horn", 64, vol); game.audio.play("horn", 68, vol)
+	game.audio.play("horn", 64, vol, -1, 0.22); game.audio.play("horn", 68, vol, -1, 0.22)
+
+## A small city car, along x: a rounded body in one of the city's colours, a glasshouse with dark windows, black
+## wheels, pale headlamps at the front (+x) and red lamps at the back.
+static func car_model(i: int) -> Node3D:
+	var g := Node3D.new(); g.name = "Car"
+	var m := Kit.Merge.new()
+	var col := Color(CAR_COLOURS[i % CAR_COLOURS.size()])
+	m.box(Vector3(0, 0.62, 0), Vector3(3.8, 0.62, 1.66), col)
+	m.box(Vector3(-0.25, 1.18, 0), Vector3(2.0, 0.55, 1.5), col.lightened(0.04))
+	for sd in [-1, 1]:
+		m.box(Vector3(-0.25, 1.2, sd * 0.76), Vector3(1.7, 0.4, 0.02), Color("2c3a44"))
+		for x in [-1.2, 1.2]: m.box(Vector3(x, 0.32, sd * 0.78), Vector3(0.62, 0.62, 0.2), Color("1d1d1d"))
+	m.box(Vector3(0.76, 1.2, 0), Vector3(0.02, 0.42, 1.36), Color("2c3a44"))     # windscreen
+	m.box(Vector3(-1.27, 1.2, 0), Vector3(0.02, 0.4, 1.3), Color("2c3a44"))
+	for sd in [-1, 1]:
+		m.box(Vector3(1.91, 0.7, sd * 0.6), Vector3(0.03, 0.16, 0.3), Color("fff2c8"))
+		m.box(Vector3(-1.91, 0.75, sd * 0.62), Vector3(0.03, 0.14, 0.24), Color("c23a32"))
+	m.box(Vector3(0, 0.36, 0), Vector3(3.84, 0.14, 1.7), Color("3a3a3a"))           # bumpers and sills
+	g.add_child(m.node(Kit.vc_mat(), "body"))
+	return g
 
 ## One tram: an orange car with a cream window band, a grey roof, a trolley pole, a round headlamp at each end and
 ## a destination board. The first car carries Ambrogio's: CIRCOLARE.
