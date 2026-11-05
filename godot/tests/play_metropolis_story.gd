@@ -222,10 +222,13 @@ func descend_scaffold() -> void:
 
 ## A look up at the Golden Angel from the far side of the square, with the HUD out of the way.
 func angel_shot() -> void:
-	await walk_to(-44.0, 4.0, 1.0)
+	# west of the tree, the crowd round it between you and the Duomo; there along the open north side of the square,
+	# out of the way of anyone still walking to their spot along the middle
+	for wp in [Vector2(0.0, -19.0), Vector2(-36.0, -19.0), Vector2(-40.0, -8.0)]: await walk_direct(wp.x, wp.y, 1.2)
 	var lim: Array = game.cam.limits.explore
 	game.cam.limits.explore = [2.0, 120.0, -0.4, 1.5]
-	game.cam.yaw = -PI / 2.0; game.cam.pitch = -0.18; game.cam.dist = 5.0
+	var to_angel := Vector2(52.0 - game.player.pos.x, 8.0 - game.player.pos.z).normalized()
+	game.cam.yaw = atan2(-to_angel.x, -to_angel.y); game.cam.pitch = -0.22; game.cam.dist = 6.0   # just behind you, looking up at her
 	game.ui_root.visible = false
 	await frames(30)
 	await shot("golden_angel")
