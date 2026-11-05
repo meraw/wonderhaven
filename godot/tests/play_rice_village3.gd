@@ -76,7 +76,8 @@ func stairs() -> void:
 	await gather_for("chop", "stairs", "wood", 8, "wood", 4)
 	if inv("stone") < 2: await gather_to("mine", "stone", 2)
 	await walk_to(-14.0, 12.4, 0.8)
-	var placed := await build(P + "tower", [["stairs", -16, 9, 0], ["stoneBlock", -16, 8, 0], ["stairs", -16, 8, 0]])
+	# far side first, so the camera (from the south) never has to aim past something already built
+	var placed := await build(P + "tower", [["stoneBlock", -16, 8, 0], ["stairs", -16, 8, 0], ["stairs", -16, 9, 0]])
 	note("tower: %s" % [placed])
 	await frames(20)
 	check(121, "build a climb inside the tower: a flight of stairs, and a second on a stone block", progress("stairs", "climb") == 1, str(placed))
@@ -153,8 +154,8 @@ func finale() -> void:
 	check(152, "plank over the platform's three holes: one platform end to end", progress("train", "platform") == 1, str(placed))
 	await walk_slow(9.0, -42.5, 0.6); await walk_slow(32.0, -42.5, 0.6, 60.0)
 	check(153, "and walk it from the station end to the far end", game.player.pos.x > 31.0, str(game.player.pos))
-	placed = await build(P + "platform", [["pillar", 29, -44, 0], ["pillar", 30, -44, 0], ["roof", 29, -44, 0], ["bench", 29, -42, 0],
-		["lamp", 31, -44, 0], ["lamp", 31, -42, 0], ["enamelSign", 32, -42, 0]])
+	placed = await build(P + "platform", [["pillar", 29, -44, 0], ["pillar", 30, -44, 0], ["lamp", 31, -44, 0], ["roof", 29, -44, 0], ["bench", 29, -42, 0],
+		["lamp", 31, -42, 0], ["enamelSign", 32, -42, 0]])
 	note("shelter: %s" % [placed])
 	await frames(20)
 	check(154, "build the shelter: a roof, a bench, two lamps and an enamel sign", progress("train", "shelter") == 1, str(placed))
