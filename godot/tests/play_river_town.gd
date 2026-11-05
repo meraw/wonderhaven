@@ -193,10 +193,13 @@ func talk(id: String, accept: bool = true) -> bool:
 		var a = game.npcs[id]
 		await walk_to(a.pos.x, a.pos.z, 1.5)
 		a = game.npcs[id]
-		if await face_and_press("npc:" + id, a.pos.x, a.pos.z): break
-	for n in 20:
+		if not await face_and_press("npc:" + id, a.pos.x, a.pos.z): continue
+		for n in 20:
+			if game.mode == "dialogue": break
+			await frames(2)
 		if game.mode == "dialogue": break
-		await frames(2)
+		# a press just after a catch or a conversation can fall in the game's short interact cooldown: press again
+		note("pressed E at %s, no dialogue yet (mode %s)" % [id, game.mode])
 	if game.mode != "dialogue": print("   no dialogue with ", id); note("no dialogue with %s" % id); return false
 	note("talking to %s" % id)
 	for n in 300:
@@ -654,7 +657,7 @@ func sec_catfish() -> void:
 		await gather_node(P + "fish4")
 	var hooked: bool = inv(P + "whisker") > 0
 	await shot("monster")
-	await talk(P + "mattia")   # asleep in the shack: wake him for the photo
+	await talk(P + "mattia")   # wherever he is tonight: show him the whisker, for the photo
 	await talk(P + "gildo")
 	var photo := await await_rebuild()
 	check("s8", "The Monster of the Po: Primo's line, the monster bites at night where the rivers meet, Mattia's photo, and it hangs in Rina's bar",
