@@ -209,7 +209,7 @@ func test_people_and_their_days():
 func test_requests():
 	_on(func():
 		var mine: Array = Data.quests.filter(func(q): return String(q.id).begins_with("river_town_"))
-		t.eq(mine.size(), 14, "five main requests, three side requests and six lost things")
+		t.eq(mine.size(), 16, "five main requests, five side requests and six lost things")
 		t.eq(mine.filter(func(q): return q.get("main", false)).size(), 5, "five of them tell the main story")
 		var m: Dictionary = LocationMeter.def("river_town")
 		t.eq(LocationMeter.reading(m, 0), "7.40 m", "the flood gauge starts at the flood's peak")
@@ -219,7 +219,11 @@ func test_requests():
 			t.eq(int(q.rewards.get("meter", 0)), want, "%s takes %d cm off the gauge" % [q.id, want])
 		var total := 0
 		for q in mine: total += int(q.rewards.meter)
-		t.ok(total < int(m.milestones[-1].at), "the bicycle's requests are still to come: the gauge can't reach zero yet (%d cm)" % total)
+		t.ok(total >= int(m.milestones[-1].at) and total - 100 < int(m.milestones[-1].at), "everything together brings the gauge to zero, and it can't get there without the finale (%d cm)" % total)
+		var gauge_flags: Array = []
+		for u in m.milestones: gauge_flags.append_array(u.get("flags", []))
+		for f in Bicycle.UPGRADES.values(): t.ok(gauge_flags.has(f), "a gauge milestone gives the bike's %s" % f)
+		t.ok(mine.any(func(q): return q.objectives.any(func(o): return o.get("onDone", {}).get("flags", []).has(Bicycle.OWNED))), "a request here gives you the bicycle")
 		# what the steps need is in the world: things to find, the monster's spot, fish to catch
 		var seen: Dictionary = _reachable()
 		for n in Data.layout.nodes:
@@ -228,7 +232,7 @@ func test_requests():
 		for q in mine:
 			for o in q.objectives:
 				if o.kind == "gather" and String(o.item).begins_with("river_town_"):
-					t.ok(Data.layout.nodes.any(func(n): return n.get("gives", {}).has(o.item)), "%s: something in Boccapioppo gives %s" % [q.id, o.item])
+					t.ok(Data.layout.nodes.any(func(n): return n.get("gives", {}).has(o.item)) or Data.layout.fish.any(func(f): return f.get("item", "") == o.item), "%s: something in Boccapioppo gives %s" % [q.id, o.item])
 				if o.kind == "event" and String(o.event).begins_with("fish:"):
 					t.ok(Data.layout.fish.any(func(f): return "fish:" + String(f.id) == o.event), "%s: %s bites somewhere" % [q.id, o.event])
 		var monster: Dictionary = Data.layout.fish.filter(func(f): return f.id == "river_town_monster")[0]

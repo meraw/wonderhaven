@@ -275,6 +275,7 @@ func sfx(name: String) -> void:
 		"sail": play("hiss", 55, 0.35); arp.call([67, 71, 74, 79], 0.15, "marimba", 0.5)
 		"morning": arp.call([72, 76, 79], 0.12, "glock", 0.35)
 		"save": arp.call([79, 84], 0.06, "glock", 0.3)
+		"bell": arp.call([91, 91], 0.14, "glock", 0.5)   # ring ring
 
 ## Cartoon "babble": short pitched syllables.
 func voice(pitch: float, syllables: int) -> void:

@@ -1094,6 +1094,285 @@
    }
   },
   {
+   "id": "river_town_bike",
+   "title": "A Bike from the Mud",
+   "giver": "river_town_primo",
+   "main": false,
+   "type": "request",
+   "chapter": 1,
+   "description": "Primo has a flood-wrecked bike and no time to mend it. Bring him metal for new spokes and an old tyre fished out of the river; he'll rebuild it overnight. Then try it out along the levee road.",
+   "requires": {
+    "quests": [
+     "river_town_welcome"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "metal",
+     "kind": "gather",
+     "stage": 0,
+     "text": "Get 2 metal for new spokes (Primo sells scrap, or mine the rusty boulder on the gravel bar)",
+     "item": "metal",
+     "count": 2,
+     "hint": {
+      "x": 37.0,
+      "z": -21.0
+     }
+    },
+    {
+     "id": "tyre",
+     "kind": "gather",
+     "stage": 0,
+     "text": "Fish an old tyre out of the Alpine river by the town",
+     "item": "river_town_tyre",
+     "count": 1,
+     "hint": {
+      "x": 25.5,
+      "z": -2.0
+     }
+    },
+    {
+     "id": "give",
+     "kind": "pay",
+     "stage": 1,
+     "text": "Bring Primo the metal and the tyre, in the afternoon or evening",
+     "npc": "river_town_primo",
+     "items": {
+      "metal": 2,
+      "river_town_tyre": 1
+     },
+     "hours": [
+      12,
+      22
+     ],
+     "label": "Hand over the metal and the tyre",
+     "lines": [
+      "Spokes. A tyre. A frame that's been to the bottom of the Po and back. Perfect.",
+      "Leave it with me tonight. Come back in the morning. Don't come back at four in the morning, I'll be asleep. On the bike, probably."
+     ]
+    },
+    {
+     "id": "collect",
+     "kind": "talk",
+     "stage": 2,
+     "text": "Collect your bike from Primo in the morning",
+     "npc": "river_town_primo",
+     "hours": [
+      7,
+      12
+     ],
+     "lines": [
+      "There. Trued, oiled, a bell that works if you ask it nicely. She's yours.",
+      "A bike in Boccapioppo is like a pair of shoes. You'll wonder how you ever walked. Go on, try her on the levee road."
+     ],
+     "onDone": {
+      "flags": [
+       "hasBike"
+      ]
+     }
+    },
+    {
+     "id": "ride",
+     "kind": "event",
+     "stage": 3,
+     "text": "Ride it along the levee road",
+     "event": "bike_ride",
+     "count": 1,
+     "hint": {
+      "x": -20.0,
+      "z": 22.0
+     }
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "stage": 4,
+     "text": "Tell Primo how it rides",
+     "npc": "river_town_primo",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "meter": 50,
+    "items": {
+     "coins": 20
+    }
+   },
+   "dialogue": {
+    "offer": [
+     "See that? Under the tarpaulin. That was a bicycle before the flood. Now it's a sculpture.",
+     "I can't mend it, I've got forty bikes in the queue and two hands. But you... you need wheels, Geometra. On foot? On foot.",
+     "Bring me metal for spokes and a tyre. The river ate a hundred tyres; it'll give one back if you ask with a fishing rod."
+    ],
+    "acceptLabel": "I'd love a bike",
+    "declineLabel": "I like walking",
+    "accept": [
+     "Good. Metal, a tyre, then leave it with me overnight. By the morning she'll be faster than you."
+    ],
+    "decline": [
+     "Walking. Walking! In a town this flat. You'll come round."
+    ],
+    "progress": [
+     "Two metal and a tyre. Then a night. Then wheels."
+    ],
+    "complete": [
+     "How does she ride? Like a dream? Like a swallow? Like a 1953 racer coming down the Colle delle Rane?",
+     "Good. Ride her everywhere. Wherever they'll let you, anyway. Some places are all stairs and goats."
+    ]
+   },
+   "onAccept": {
+    "flags": [
+     "river_town_bike_asked"
+    ]
+   }
+  },
+  {
+   "id": "river_town_round",
+   "title": "Pierina's Round",
+   "giver": "river_town_pierina",
+   "main": false,
+   "type": "request",
+   "chapter": 1,
+   "description": "Pierina's wrist is in a sling since the flood, so she walks her bike. Now you have one, do her round: letters for Ermes, Tullio, Gildo, Ines and Rina, and a parcel for Wanda that's shaped exactly like a tuba.",
+   "requires": {
+    "quests": [
+     "river_town_bike"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "letter_ermes",
+     "kind": "pay",
+     "stage": 0,
+     "text": "Deliver Ermes's letter",
+     "npc": "river_town_ermes",
+     "items": {
+      "river_town_letter": 1
+     },
+     "label": "Hand over the letter",
+     "lines": [
+      "A letter from the river authority. Four pages. They'll write back in March, they say. It's November."
+     ]
+    },
+    {
+     "id": "letter_tullio",
+     "kind": "pay",
+     "stage": 0,
+     "text": "Deliver Tullio's letter",
+     "npc": "river_town_tullio",
+     "items": {
+      "river_town_letter": 1
+     },
+     "label": "Hand over the letter",
+     "lines": [
+      "…A postcard. From my sister. In Chioggia."
+     ]
+    },
+    {
+     "id": "letter_gildo",
+     "kind": "pay",
+     "stage": 0,
+     "text": "Deliver Gildo's letter",
+     "npc": "river_town_gildo",
+     "items": {
+      "river_town_letter": 1
+     },
+     "label": "Hand over the letter",
+     "lines": [
+      "A letter! From the fishing club. They've seen my drawings of the monster. They want to put one in the newsletter!"
+     ]
+    },
+    {
+     "id": "letter_ines",
+     "kind": "pay",
+     "stage": 0,
+     "text": "Deliver Ines's letter",
+     "npc": "river_town_ines",
+     "items": {
+      "river_town_letter": 1
+     },
+     "label": "Hand over the letter",
+     "lines": [
+      "The timber merchant in Pavia. Paying, at last. On time is too much to ask, but paying is a start."
+     ]
+    },
+    {
+     "id": "letter_rina",
+     "kind": "pay",
+     "stage": 0,
+     "text": "Deliver Rina's letter",
+     "npc": "river_town_rina",
+     "items": {
+      "river_town_letter": 1
+     },
+     "label": "Hand over the letter",
+     "lines": [
+      "The brewery. The new tap's on its way. And a postcard of the sea from someone who owes me money. Cheeky."
+     ]
+    },
+    {
+     "id": "parcel",
+     "kind": "pay",
+     "stage": 0,
+     "text": "Deliver Wanda's parcel (it's shaped like a tuba)",
+     "npc": "river_town_wanda",
+     "items": {
+      "river_town_parcel": 1
+     },
+     "label": "Hand over the parcel",
+     "lines": [
+      "A parcel! For me! From Rimini! It's… a tuba. My sister sent me a tuba.",
+      "Well. Every dance hall needs a tuba. Does anybody play the tuba? Ermes? Ermes plays everything badly."
+     ]
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "stage": 1,
+     "text": "Tell Pierina her round is done",
+     "npc": "river_town_pierina",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "meter": 50,
+    "items": {
+     "coins": 30
+    },
+    "flags": [
+     "river_town_round_done"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "Look at me. One arm in a sling, a bag full of post and a bike I can only push. Thirty-one years and never late, and now this.",
+     "You've got wheels now, Geometra. Would you do my round? Just this once. Five letters and one parcel.",
+     "The parcel's for the Signora Wanda. It's shaped like a tuba. I'm not asking."
+    ],
+    "acceptLabel": "I'll do your round",
+    "declineLabel": "Not today",
+    "accept": [
+     "Bless you. Ermes, Tullio, Gildo, Ines over the river, Rina at the bar. And the tuba. Don't stop for coffee at every house. Well. One or two."
+    ],
+    "decline": [
+     "Of course. The post can wait. It's been waiting since the flood."
+    ],
+    "progress": [
+     "Ermes, Tullio, Gildo, Ines, Rina, and the Signora Wanda's tuba."
+    ],
+    "complete": [
+     "All of them? Before lunch? Without a single coffee? You're a natural. A natural postwoman. Postman. Post-Geometra.",
+     "Here, for your trouble. And if you ever get tired of measuring things, the post office is always hiring."
+    ]
+   },
+   "onAccept": {
+    "items": {
+     "river_town_letter": 5,
+     "river_town_parcel": 1
+    }
+   }
+  },
+  {
    "id": "river_town_lost_clock",
    "title": "Pierina's cuckoo clock",
    "giver": "river_town_pierina",

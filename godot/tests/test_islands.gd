@@ -182,8 +182,8 @@ func test_benches_to_rest_on():
 
 func test_every_island_supplies_what_its_requests_gather():
 	# Each place's requests ask you to gather things: something on that island has to give them (a node, the
-	# island's rich rock, or a villager's shop there). Stage 1 turned the rich rocks to metal and left the cove's
-	# clock with no crystal anywhere; this would have said so.
+	# island's rich rock, a catch on its fishing list, or a villager's shop there). Stage 1 turned the rich rocks to
+	# metal and left the cove's clock with no crystal anywhere; this would have said so.
 	for id in _islands_with_layouts():
 		_on(id, func():
 			var have := {}
@@ -194,6 +194,7 @@ func test_every_island_supplies_what_its_requests_gather():
 				for item in WorldActions.SOURCES:
 					if WorldActions.SOURCES[item].has(n.kind): have[item] = true
 				if n.kind == "mine" and n.get("rich", false): have[String(Data.layout.get("richRock", "metal"))] = true
+			for f in Data.layout.get("fish", []): have[String(f.get("item", "fish"))] = true   # what bites there (Minigames.catch_table)
 			var shops: Dictionary = Data.shops.get("shops", {})
 			for npc in Data.npcs:
 				if String(npc.get("island", "hearthglow")) != id or not shops.has(npc.id): continue
