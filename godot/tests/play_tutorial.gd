@@ -55,10 +55,13 @@ func play() -> void:
 	game.player.teleport(f.x - 2, f.z, PI / 2); game.cam.yaw = -PI / 2; game.cam.snap(); await frames(2)
 	await hold(KEY_W, 0.8)
 	check("t11", "Picking up the glasses moves on to returning to the Sindaco", await wait_step("return"), step_id())
-	od = game.npcs.percival
-	await helper.approach(od.pos.x - 1.3, od.pos.z, od.pos.x, od.pos.z)
-	await tap(KEY_E); await frames(5)
-	await helper.talk_through(false)
+	for attempt in 3:   # he wanders about while you walk up; if he'd moved off, walk up again, as a player would
+		od = game.npcs.percival
+		await helper.approach(od.pos.x - 1.3, od.pos.z, od.pos.x, od.pos.z)
+		await tap(KEY_E); await frames(5)
+		await helper.talk_through(false)
+		if await wait_step("journal", 30): break
+		note("turning in to the Sindaco: try %d missed him (step %s)" % [attempt + 1, step_id()])
 	check("t12", "Turning in shows the approval bar and moves on to the journal", await wait_step("journal") and game.hud.harmony_box.visible, step_id())
 	await tap(KEY_J); await frames(10); await tap(KEY_ESCAPE); await frames(5)
 	check("t13", "Opening the journal moves on to meeting Aldo at his stranded bus", await wait_step("road"), step_id())

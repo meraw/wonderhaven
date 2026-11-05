@@ -60,6 +60,7 @@ const SKIRT := [Vector2(0, 0.43), Vector2(0.215, 0.43), Vector2(0.235, 0.37), Ve
 const DRESS := [Vector2(0, 0.47), Vector2(0.205, 0.47), Vector2(0.226, 0.41), Vector2(0.27, 0.31), Vector2(0.31, 0.21), Vector2(0.33, 0.17), Vector2(0.32, 0.155), Vector2(0, 0.155)]
 const TUNIC_HEM := [Vector2(0, 0.43), Vector2(0.222, 0.43), Vector2(0.232, 0.36), Vector2(0.24, 0.3), Vector2(0.232, 0.285), Vector2(0, 0.285)]
 const LEG := [Vector2(0, 0.04), Vector2(0.062, 0.03), Vector2(0.074, 0.0), Vector2(0.07, -0.12), Vector2(0.063, -0.24), Vector2(0.05, -0.27), Vector2(0, -0.275)]
+const JEANS_LEG := [Vector2(0, 0.04), Vector2(0.084, 0.03), Vector2(0.091, 0.0), Vector2(0.093, -0.12), Vector2(0.097, -0.22), Vector2(0.1, -0.25), Vector2(0.092, -0.262), Vector2(0, -0.262)]   # baggy, falling over the shoes
 const SHORTS_LEG := [Vector2(0, 0.03), Vector2(0.08, 0.02), Vector2(0.085, -0.04), Vector2(0.088, -0.1), Vector2(0.075, -0.108), Vector2(0, -0.108)]
 const ARM := [Vector2(0, 0.045), Vector2(0.045, 0.035), Vector2(0.058, 0.0), Vector2(0.054, -0.1), Vector2(0.048, -0.2), Vector2(0.04, -0.225), Vector2(0, -0.23)]
 const SLEEVE := [Vector2(0, 0.05), Vector2(0.05, 0.04), Vector2(0.068, 0.0), Vector2(0.07, -0.07), Vector2(0.066, -0.09), Vector2(0, -0.09)]
@@ -104,7 +105,10 @@ func set_appearance(app: Dictionary) -> void:
 	# Legs: tapered, with rounded two-tone shoes (soles a shade darker; sandals show the foot).
 	for s in [-1, 1]:
 		var hip := Node3D.new(); hip.position = Vector3(s * 0.1, 0.34, 0); body.add_child(hip)
-		_m(_lathe("leg", LEG), skin if bare_legs else bottom, hip, Vector3.ZERO)
+		if a.bottom == "jeans":
+			_m(_lathe("jeans_leg", JEANS_LEG), bottom, hip, Vector3.ZERO)
+			_m(P.torus(0.096, 0.014, 32), Color(bottom).lightened(0.18), hip, Vector3(0, -0.245, 0))   # turned-up hem
+		else: _m(_lathe("leg", LEG), skin if bare_legs else bottom, hip, Vector3.ZERO)
 		if a.bottom == "shorts": _m(_lathe("shorts_leg", SHORTS_LEG), bottom, hip, Vector3.ZERO)
 		if a.bottom == "pants": _m(P.torus(0.066, 0.012, 32), dark.call(bottom, 0.15), hip, Vector3(0, -0.245, 0))
 		if a.shoes == "sandals":
@@ -124,7 +128,7 @@ func set_appearance(app: Dictionary) -> void:
 	# Torso: a soft bell shape in the top's colour, with the bottom garment over the hips.
 	var torso_col = bottom if a.top == "overalls" else top
 	_m(_lathe("torso", TORSO, 0.86), top, body, Vector3.ZERO)
-	if a.bottom in ["pants", "shorts"] or a.top == "overalls":
+	if a.bottom in ["pants", "shorts", "jeans"] or a.top == "overalls":
 		_m(_lathe("waist", WAIST, 0.87), bottom, body, Vector3.ZERO)
 		_m(P.torus(0.223, 0.012, 40), dark.call(bottom, 0.2), body, Vector3(0, 0.42, 0), Vector3(1, 1, 0.87))
 	if a.bottom == "skirt": _m(_lathe("skirt", SKIRT, 0.88), bottom, body, Vector3.ZERO); _m(P.torus(0.285, 0.012, 40), dark.call(bottom, 0.18), body, Vector3(0, 0.243, 0), Vector3(1, 1, 0.88))
@@ -150,26 +154,63 @@ func set_appearance(app: Dictionary) -> void:
 			for s in [-1, 1]:
 				_m(P.rbox(0.07, 0.16, 0.03, 0.015), dark.call(top, 0.15), body, Vector3(s * 0.075, 0.64, 0.15), Vector3.ONE, Vector3(-0.35, 0, s * 0.35))
 				_m(P.sphere(0.015, 12, 8), P.GOLD, body, Vector3(s * 0.06, 0.48 - 0.0, 0.19))
+		"suit":   # lapels over a white shirt and a tie
+			_m(P.rbox(0.1, 0.2, 0.03, 0.015), "f4f1ea", body, Vector3(0, 0.6, 0.162), Vector3.ONE, Vector3(-0.22, 0, 0))
+			_m(P.sphere(0.022, 12, 8), "8a2434", body, Vector3(0, 0.672, 0.15))
+			_m(P.rbox(0.045, 0.19, 0.02, 0.01), "8a2434", body, Vector3(0, 0.575, 0.178), Vector3.ONE, Vector3(-0.2, 0, 0))
+			for s in [-1, 1]: _m(P.rbox(0.07, 0.22, 0.03, 0.015), dark.call(top, 0.14), body, Vector3(s * 0.072, 0.58, 0.165), Vector3.ONE, Vector3(-0.22, 0, s * 0.32))
+			for y in [0.44, 0.37]: _m(P.sphere(0.014, 12, 8), dark.call(top, 0.4), body, Vector3(0.03, y, 0.19))
+		"hoodie":   # oversized: a roomier body, the hood down at the back, a front pocket and drawstrings
+			_m(_lathe("torso", TORSO, 0.86), top, body, Vector3(0, -0.012, 0), Vector3(1.07, 1.02, 1.07))
+			_m(P.sphere(0.2, 24, 16), dark.call(top, 0.08), body, Vector3(0, 0.71, -0.14), Vector3(1.1, 0.7, 0.85))
+			_m(P.rbox(0.26, 0.12, 0.04, 0.03), dark.call(top, 0.08), body, Vector3(0, 0.37, 0.2), Vector3.ONE, Vector3(0.1, 0, 0))
+			_m(P.torus(0.205, 0.024, 40), dark.call(top, 0.12), body, Vector3(0, 0.285, 0), Vector3(1.07, 1, 0.92))
+			for s in [-1, 1]:
+				_m(P.cyl(0.008, 0.008, 0.15, 6), "f4f1ea", body, Vector3(s * 0.035, 0.6, 0.18), Vector3.ONE, Vector3(-0.25, 0, 0))
+				_m(P.sphere(0.014, 8, 6), "f4f1ea", body, Vector3(s * 0.035, 0.525, 0.2))
+		"windbreaker":   # colour-blocked shell: a band across the chest, a white stripe, a zip and a stand-up collar
+			var tc := Color(top)
+			var accent := Color.from_hsv(fposmod(tc.h + 0.42, 1.0), clampf(tc.s * 0.9, 0.35, 0.85), clampf(tc.v + 0.1, 0.4, 0.95))
+			_m(P.torus(0.198, 0.05, 40), accent, body, Vector3(0, 0.56, 0), Vector3(1, 1, 0.87))
+			_m(P.torus(0.217, 0.012, 40), "f4f1ea", body, Vector3(0, 0.48, 0), Vector3(1, 1, 0.87))
+			_m(P.box(0.014, 0.42, 0.012), "c9ccd2", body, Vector3(0, 0.49, 0.192), Vector3.ONE, Vector3(-0.1, 0, 0))
+			_m(P.torus(0.11, 0.032, 32), dark.call(top, 0.18), body, Vector3(0, 0.71, 0.0), Vector3(1, 1.3, 0.86))
+		"shirt":   # a short-sleeved uniform shirt: collar points, buttons, a breast pocket and shoulder straps
+			for s in [-1, 1]:
+				_m(P.rbox(0.075, 0.022, 0.06, 0.01), Color(top).lightened(0.12), body, Vector3(s * 0.05, 0.69, 0.115), Vector3.ONE, Vector3(0.35, s * 0.5, 0))
+				_m(P.rbox(0.09, 0.022, 0.05, 0.01), dark.call(top, 0.3), body, Vector3(s * 0.15, 0.662, 0.0), Vector3.ONE, Vector3(0, 0, -s * 0.45))
+			_m(P.box(0.024, 0.36, 0.01), dark.call(top, 0.08), body, Vector3(0, 0.5, 0.19), Vector3.ONE, Vector3(-0.08, 0, 0))
+			for y in [0.6, 0.5, 0.4]: _m(P.sphere(0.011, 8, 6), "f4f1ea", body, Vector3(0, y, 0.198 - absf(y - 0.45) * 0.12))
+			_m(P.rbox(0.075, 0.075, 0.012, 0.01), dark.call(top, 0.06), body, Vector3(0.095, 0.56, 0.172), Vector3.ONE, Vector3(-0.2, 0.35, 0))
+		"workjacket":   # a long work jacket with big pockets and a corduroy collar
+			_m(_lathe("tunic_hem", TUNIC_HEM, 0.87), top, body, Vector3.ZERO)
+			for s in [-1, 1]:
+				_m(P.rbox(0.1, 0.09, 0.03, 0.015), dark.call(top, 0.12), body, Vector3(s * 0.1, 0.36, 0.205), Vector3.ONE, Vector3(0, s * 0.35, 0))
+				_m(P.rbox(0.09, 0.12, 0.03, 0.015), "5a4030", body, Vector3(s * 0.075, 0.66, 0.14), Vector3.ONE, Vector3(-0.4, 0, s * 0.4))
+			for y in [0.55, 0.47, 0.39]: _m(P.sphere(0.013, 8, 6), "3a2c22", body, Vector3(0, y, 0.2))
 		"sailor":
 			_m(P.rbox(0.34, 0.06, 0.24, 0.03), "2f5fa8", body, Vector3(0, 0.7, -0.06), Vector3.ONE, Vector3(-0.15, 0, 0))
 			for s in [-1, 1]: _m(P.rbox(0.2, 0.05, 0.03, 0.015), "2f5fa8", body, Vector3(s * 0.06, 0.64, 0.17), Vector3.ONE, Vector3(-0.2, 0, s * 0.7))
 			_m(P.cone(0.05, 0.12, 16), "e85d75", body, Vector3(0, 0.58, 0.19), Vector3.ONE, Vector3(PI, 0, 0))
 	# Arms: tapered sleeves (short sleeves show the arm), mitten hands with a thumb.
-	var long_sleeves: bool = not a.top in ["tee", "overalls"]
+	var long_sleeves: bool = not a.top in ["tee", "overalls", "shirt"]
 	for s in [-1, 1]:
 		var sh := Node3D.new(); sh.position = Vector3(s * 0.22, 0.62, 0); body.add_child(sh)
 		var arm := Node3D.new(); arm.rotation.z = s * 0.15; sh.add_child(arm)
 		_m(_lathe("arm", ARM), top if long_sleeves else skin, arm, Vector3.ZERO)
 		if long_sleeves: _m(P.torus(0.052, 0.012, 32), dark.call(top, 0.15), arm, Vector3(0, -0.205, 0))
-		else: _m(_lathe("sleeve", SLEEVE), top if a.top == "tee" else torso_col, arm, Vector3.ZERO)
+		else: _m(_lathe("sleeve", SLEEVE), top if a.top in ["tee", "shirt"] else torso_col, arm, Vector3.ZERO)
 		_m(P.sphere(0.064, 28, 18), skin, arm, Vector3(0, -0.255, 0.005), Vector3(0.95, 1.05, 0.8))
 		_m(P.sphere(0.028, 16, 10), skin, arm, Vector3(-s * 0.0 + 0.0, -0.235, 0.05), Vector3(1, 1.2, 1))
 		if s < 0: arm_l = sh
 		else: arm_r = sh
+	# The Geometra's clipboard (the build tool), gripped by its top edge: board, plans, the steel clip and a pencil.
 	staff = Node3D.new(); staff.position = Vector3(0.03, -0.26, 0.02); staff.rotation.x = 0.2; staff.visible = staff_visible; arm_r.add_child(staff)
-	_m(P.cyl(0.025, 0.03, 0.95, 24), "a0623a", staff, Vector3(0, 0.2, 0))
-	_m(P.torus(0.09, 0.022, 32), P.GOLD, staff, Vector3(0, 0.72, 0), Vector3.ONE, Vector3(PI / 2, 0, 0))
-	var star := _m(P.sphere(0.1, 4, 2), P.unique_mat("fff2a8", "ffd35c", 2.0), staff, Vector3(0, 0.72, 0)); star.name = "star"
+	_m(P.rbox(0.014, 0.27, 0.2, 0.01), "b58a5a", staff, Vector3(0.01, -0.13, 0.03))
+	_m(P.box(0.006, 0.23, 0.17), "fbf8ef", staff, Vector3(0.02, -0.15, 0.03))
+	for k in 4: _m(P.box(0.004, 0.006, 0.12), "8fa6c9", staff, Vector3(0.024, -0.09 - k * 0.04, 0.035))
+	_m(P.rbox(0.024, 0.03, 0.08, 0.006), "c9ccd2", staff, Vector3(0.02, -0.01, 0.03))
+	_m(P.cyl(0.008, 0.008, 0.16, 6), "f2c94c", staff, Vector3(0.032, -0.05, 0.1), Vector3.ONE, Vector3(0.2, 0, 0))
 	head = Node3D.new(); head.position.y = 0.7; body.add_child(head)
 	face_mat = FaceShader.material()
 	face_mat.set_shader_parameter("skin", Color(a.skin))
@@ -191,6 +232,28 @@ func set_appearance(app: Dictionary) -> void:
 		"backpack": _m(P.rbox(0.3, 0.32, 0.16, 0.06), a.get("accessoryColor", a.hatColor), body, Vector3(0, 0.52, -0.25))
 		"bowtie":
 			for s in [-1, 1]: _m(P.cone(0.05, 0.1, 16), "e85d75", body, Vector3(s * 0.05, 0.66, 0.19), Vector3.ONE, Vector3(0, 0, s * PI / 2))
+		"sash":   # the tricolour sash, from the right shoulder to the left hip, with a gold tassel
+			var tilt := Basis(Vector3(0, 0, 1), -0.72)
+			var nrm := tilt * Vector3.UP
+			var cols := ["2e8b4a", "f4f1ea", "c8323a"]
+			for k in 3: _m(P.torus(0.215, 0.019, 40), cols[k], body, Vector3(0, 0.49, 0) + nrm * (k - 1) * 0.036, Vector3(1.14, 1, 0.94), Vector3(0, 0, -0.72))
+			_m(P.sphere(0.035, 12, 8), P.GOLD, body, Vector3(-0.2, 0.32, 0.12))
+		"pens":   # a row of pens and a screwdriver in the chest pocket
+			var pc := ["2f5fa8", "c8323a", "1d1f26", "3c9a4a"]
+			for k in 4: _m(P.cyl(0.009, 0.009, 0.13, 6), pc[k], body, Vector3(-0.1 + k * 0.022, 0.6, 0.205), Vector3.ONE, Vector3(0, 0, (k - 1.5) * 0.08))
+			_m(P.cyl(0.016, 0.016, 0.06, 8), "f2c94c", body, Vector3(0.09, 0.64, 0.2))
+			_m(P.cyl(0.006, 0.006, 0.07, 6), "c9ccd2", body, Vector3(0.09, 0.58, 0.2))
+		"discman":   # a portable CD player clipped at the hip, its lead running up to the collar
+			_m(P.cyl(0.075, 0.075, 0.024, 24), "c9ccd2", body, Vector3(0.15, 0.37, 0.16), Vector3.ONE, Vector3(PI / 2, 0.65, 0))
+			_m(P.cyl(0.035, 0.035, 0.026, 18), "3a4a8a", body, Vector3(0.157, 0.37, 0.168), Vector3.ONE, Vector3(PI / 2, 0.65, 0))
+			_m(P.cyl(0.006, 0.006, 0.26, 4), "2a2a30", body, Vector3(0.11, 0.54, 0.17), Vector3.ONE, Vector3(-0.15, 0, 0.3))
+		"apron":   # a baker's apron: bib, skirt with a pocket, neck strap and waist ties
+			var ap: String = a.get("accessoryColor", "fffaf0")
+			_m(P.rbox(0.25, 0.22, 0.025, 0.02), ap, body, Vector3(0, 0.56, 0.172), Vector3.ONE, Vector3(-0.14, 0, 0))
+			_m(P.rbox(0.4, 0.32, 0.025, 0.04), ap, body, Vector3(0, 0.3, 0.24), Vector3.ONE, Vector3(-0.22, 0, 0))
+			_m(P.rbox(0.14, 0.08, 0.012, 0.01), dark.call(ap, 0.08), body, Vector3(0, 0.28, 0.26), Vector3.ONE, Vector3(-0.22, 0, 0))
+			_m(P.torus(0.115, 0.012, 24), ap, body, Vector3(0, 0.69, 0), Vector3(1, 1, 0.86))
+			_m(P.torus(0.226, 0.012, 40), ap, body, Vector3(0, 0.44, 0), Vector3(1, 1, 0.87))
 
 func apply_layer() -> void:
 	for m in find_children("*", "VisualInstance3D", true, false): m.layers = vis_layer
@@ -386,6 +449,18 @@ func _build_hat(kind: String, color: String, trim: String = "") -> void:
 			_m(P.cyl(0.39, 0.39, 0.07, 24), trim if trim != "" else "2f3f6a", g, Vector3(0, 0.3, 0))
 			_m(P.box(0.4, 0.03, 0.18), trim if trim != "" else "2f3f6a", g, Vector3(0, 0.28, 0.36))
 			_m(P.sphere(0.05, 28, 18), P.GOLD, g, Vector3(0, 0.4, 0.4))
+		"drivercap":   # a bus driver's peaked cap: the crown in its colour, a black band and peak, a brass badge
+			_m(P.cyl(0.41, 0.37, 0.2, 24), color, g, Vector3(0, 0.37, 0))
+			_m(P.cyl(0.385, 0.385, 0.06, 24), "1d1f26", g, Vector3(0, 0.29, 0))
+			_m(P.rbox(0.38, 0.025, 0.2, 0.01), "1d1f26", g, Vector3(0, 0.27, 0.37), Vector3.ONE, Vector3(0.22, 0, 0))
+			_m(P.rbox(0.1, 0.06, 0.02, 0.01), P.GOLD, g, Vector3(0, 0.36, 0.385), Vector3.ONE, Vector3(-0.1, 0, 0))
+		"headphones":   # over-ear headphones with orange foam pads
+			for k in 9:
+				var an := deg_to_rad(-80.0 + k * 20.0)
+				_m(P.rbox(0.07, 0.028, 0.045, 0.01), color, g, Vector3(sin(an) * 0.45, cos(an) * 0.45, -0.02), Vector3.ONE, Vector3(0, 0, -an))
+			for s in [-1, 1]:
+				_m(P.cyl(0.1, 0.1, 0.05, 20), "2a2a30", g, Vector3(s * 0.455, -0.01, -0.02), Vector3.ONE, Vector3(0, 0, PI / 2))
+				_m(P.sphere(0.1, 16, 12), "f08a24", g, Vector3(s * 0.415, -0.01, -0.02), Vector3(0.45, 1, 1))
 		"crown":
 			_m(P.cyl(0.24, 0.24, 0.16, 24), P.GOLD, g, Vector3(0, 0.45, 0))
 			for n in 5:
@@ -461,6 +536,4 @@ func animate(dt: float, speed: float = 0.0, airborne: bool = false) -> void:
 			"build": arm_r.rotation.x = -2.8 * s; body.position.y += 0.08 * s
 			"feed": arm_r.rotation.x = -1.2 * s; body.rotation.x = 0.3 * s
 		if p >= 1.0: action = ""
-	if staff_visible:
-		var star: Node3D = staff.get_node("star")
-		star.rotation.y = t * 2.0
+
