@@ -142,6 +142,7 @@ shader_type spatial;
 render_mode diffuse_lambert_wrap, specular_disabled;
 uniform vec4 color : source_color = vec4(0.8, 0.4, 0.3, 1.0);
 uniform float alpha = 1.0;
+uniform bool plain = false;   // a plain colour, no tiles or shading: the fading copy of a plain part
 uniform float row_h = 0.17;
 uniform float tile_w = 0.42;
 varying vec3 lp;
@@ -150,7 +151,8 @@ float h1(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
 void vertex() { lp = VERTEX; ln = NORMAL; }
 void fragment() {
 	vec3 c = color.rgb;
-	if (ln.y > 0.2) {
+	if (plain) {
+	} else if (ln.y > 0.2) {
 		// Fish-scale tiles: each course's rounded lower edge overlaps the course below it.
 		float row = lp.y / row_h;
 		float ri = floor(row); float rf = fract(row);
@@ -240,8 +242,9 @@ static func fade_parts(nodes: Array) -> Array:
 				var c = (solid as ShaderMaterial).get_shader_parameter("color")
 				faded = roof_material(c if c != null else Color.WHITE, true)
 			elif solid is StandardMaterial3D:
-				faded = (solid as StandardMaterial3D).duplicate()
-				faded.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_HASH; faded.alpha_hash_scale = 1.0
+				# the roof's dither, not alpha hash: the compatibility renderer draws alpha-hashed surfaces solid
+				faded = roof_material((solid as StandardMaterial3D).albedo_color, true)
+				(faded as ShaderMaterial).set_shader_parameter("plain", true)
 			else: continue
 			parts.append([m, solid, faded])
 	return parts

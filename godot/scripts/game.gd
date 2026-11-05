@@ -120,6 +120,7 @@ func _ready() -> void:
 	apply_settings()
 	_parse_args()
 	cam.update(0.016, player.pos); cam.snap()
+	_update_world_time(0.0)   # the sky, light and fog for the hour from the first frame (the title screen doesn't tick the clock)
 	if not arriving.is_empty():
 		load_state(state)
 		begin_play()
