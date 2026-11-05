@@ -155,6 +155,7 @@ func step_scaffold() -> void:
 		for k in [10, 11]:
 			for b in n: climb.append(["stoneBlock", i, k, 0, 0.3 + b])
 			climb.append(["stairs", i, k, 3, 0.3 + n])
+	climb.sort_custom(func(a, b): return a[4] < b[4])   # a layer at a time, so nothing already built stands taller than the cell being aimed at
 	var placed := await put_all(climb)
 	await shot("scaffold")
 	await leave_build()

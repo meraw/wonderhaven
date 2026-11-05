@@ -183,19 +183,35 @@ func put(id: String, i: float, k: float, r: int = 0, y: float = 0.3) -> bool:
 	var aim := Vector3(i + fp.x / 2.0, y + 0.02, k + fp.y / 2.0)
 	game.build.focus = Vector3(aim.x, y, aim.z)
 	var p := Vector2.ZERO
-	for attempt in 6:   # point at the cell, and make sure the build cursor is on it (the view may still be gliding there)
+	var on_it := false
+	for attempt in 12:   # point at the cell, and make sure the build cursor is on it (the view may still be gliding there)
+		if attempt > 0 and attempt % 3 == 0: await turn_view(PI / 2.0)   # something taller is in the way: look from another side
 		await settle()
 		p = game.camera.unproject_position(aim)
 		mouse_move(p, Vector2(1, 0)); await frames(4)
-		var c: Dictionary = game.build.candidate()
-		if not c.is_empty() and is_equal_approx(float(c.i), i) and is_equal_approx(float(c.k), k) and int(c.r) == r: break
+		var c: Dictionary = game.build.check.get("pl", {})   # what a click would place now
+		if not c.is_empty() and c.id == id and is_equal_approx(float(c.i), i) and is_equal_approx(float(c.k), k) and int(c.r) == r and (y <= 0.3 or absf(float(c.y) - y) < 0.25): on_it = true; break   # (above the ground, on the right layer too)
 		await frames(10)
+	if not on_it:   # (clicking anyway would put the piece wherever the cursor happens to be)
+		note("could not point at %d,%d (y %.1f) for %s: the cursor is on %s" % [i, k, y, id, game.build.check.get("pl", {})])
+		return false
 	var status_text: String = game.build.status_label.text if game.build.status_label else ""
 	var before: int = game.state.placements.size()
-	await click(p); await frames(3)
+	mouse_button(p, MOUSE_BUTTON_LEFT, true); mouse_button(p, MOUSE_BUTTON_LEFT, false)   # a quick click, on the cell just checked
+	await frames(3)
 	var ok: bool = game.state.placements.size() > before and game.state.placements.back().id == id and is_equal_approx(float(game.state.placements.back().i), i) and is_equal_approx(float(game.state.placements.back().k), k)
 	if not ok: note("could not place %s at %d,%d (y %.1f): %s" % [id, i, k, y, status_text])
 	return ok
+
+## Turns the build view round by dragging with the right mouse button, as a player does to see past something.
+func turn_view(angle: float) -> void:
+	var mid: Vector2 = game.get_viewport().get_visible_rect().size / 2.0
+	var px := angle / (0.0055 * float(game.settings.sensitivity))
+	var steps := maxi(1, int(ceil(absf(px) / 20.0)))
+	mouse_button(mid, MOUSE_BUTTON_RIGHT, true); await frames(1)
+	for s in steps:
+		mouse_move(mid, Vector2(px / steps, 0)); await frames(1)
+	mouse_button(mid, MOUSE_BUTTON_RIGHT, false); await frames(2)
 
 ## Places a list of [id, i, k, r, y]; returns how many went down.
 func put_all(list: Array) -> int:
