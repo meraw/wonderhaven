@@ -144,6 +144,10 @@
     {
      "blueprint": "enamelSign",
      "price": 30
+    },
+    {
+     "clothes": "rice_village_stationCap",
+     "price": 25
     }
    ]
   }

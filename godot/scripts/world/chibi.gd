@@ -40,6 +40,19 @@ static func sanitize(a: Dictionary) -> Dictionary:
 	pick.call("hat", A.HATS); col.call("hatColor"); pick.call("accessory", A.ACCESSORIES)
 	return out
 
+## What to draw: a clothing variant (Data.appearance.variants, a location's own piece) becomes its base shape in its
+## own colours (the slot's colour, or accessoryColor for an accessory, and a trim colour where the shape has one).
+static func resolve(a: Dictionary) -> Dictionary:
+	var V: Dictionary = Data.appearance.get("variants", {})
+	var out := a.duplicate()
+	for slot in ["hat", "accessory", "shoes", "top", "bottom"]:
+		var v: Dictionary = V.get(String(out.get(slot, "")), {})
+		if v.is_empty(): continue
+		out[slot] = v.base
+		if v.has("color"): out["accessoryColor" if slot == "accessory" else slot + "Color"] = v.color
+		if v.has("trim"): out[slot + "Trim"] = v.trim
+	return out
+
 # Lathe profiles (radius, height), bottom to top, in body or limb space.
 const TORSO := [Vector2(0, 0.27), Vector2(0.12, 0.274), Vector2(0.19, 0.3), Vector2(0.214, 0.36), Vector2(0.22, 0.44), Vector2(0.21, 0.53), Vector2(0.188, 0.6), Vector2(0.155, 0.66), Vector2(0.1, 0.71), Vector2(0, 0.735)]
 const WAIST := [Vector2(0, 0.262), Vector2(0.13, 0.266), Vector2(0.198, 0.292), Vector2(0.221, 0.35), Vector2(0.224, 0.42), Vector2(0.2, 0.424), Vector2(0, 0.424)]
@@ -82,7 +95,7 @@ func _m(mesh: Mesh, color, parent: Node3D, pos: Vector3, scl: Vector3 = Vector3.
 
 func set_appearance(app: Dictionary) -> void:
 	appearance = sanitize(app)
-	var a := appearance
+	var a := resolve(appearance)
 	for c in get_children(): c.queue_free(); remove_child(c)
 	body = Node3D.new(); add_child(body)
 	var skin = P.smooth(a.skin); var top = a.topColor; var bottom = a.bottomColor; var shoes = a.shoesColor
@@ -169,13 +182,13 @@ func set_appearance(app: Dictionary) -> void:
 	for s in [-1, 1]: _m(P.sphere(0.07, 28, 18), skin, head, Vector3(s * HEAD_R * 0.98, HEAD_R * 0.9, 0), Vector3(0.6, 1, 0.8))
 	_build_hair(a.hair, a.hairColor, a.hat)
 	call_deferred("apply_layer")
-	if a.hat != "none": _build_hat(a.hat, a.hatColor)
+	if a.hat != "none": _build_hat(a.hat, a.hatColor, String(a.get("hatTrim", "")))
 	match a.accessory:
 		"glasses":
 			for s in [-1, 1]: _m(P.torus(0.08, 0.014, 32), "3a3a4a", head, Vector3(s * 0.15, HEAD_R * 0.85, HEAD_R * 0.97), Vector3.ONE, Vector3(PI / 2, 0, 0))
 		"beard": _m(P.sphere(0.26, 28, 18), P.smooth(a.hairColor), head, Vector3(0, HEAD_R * 0.45, 0.14), Vector3(1, 0.7, 0.8))
-		"scarf": _m(P.torus(0.17, 0.06, 32), a.hatColor, body, Vector3(0, 0.68, 0))
-		"backpack": _m(P.rbox(0.3, 0.32, 0.16, 0.06), a.hatColor, body, Vector3(0, 0.52, -0.25))
+		"scarf": _m(P.torus(0.17, 0.06, 32), a.get("accessoryColor", a.hatColor), body, Vector3(0, 0.68, 0))
+		"backpack": _m(P.rbox(0.3, 0.32, 0.16, 0.06), a.get("accessoryColor", a.hatColor), body, Vector3(0, 0.52, -0.25))
 		"bowtie":
 			for s in [-1, 1]: _m(P.cone(0.05, 0.1, 16), "e85d75", body, Vector3(s * 0.05, 0.66, 0.19), Vector3.ONE, Vector3(0, 0, s * PI / 2))
 
@@ -347,7 +360,7 @@ func _build_hair(style: String, color: String, hat: String = "none") -> void:
 		"short":
 			for s in [-1, 1]: lock.call(Vector3(s * 0.38, 0.0, 0.05), Vector3(0.6, 1.1, 0.9), Vector3(0, 0, s * 0.2))
 
-func _build_hat(kind: String, color: String) -> void:
+func _build_hat(kind: String, color: String, trim: String = "") -> void:
 	var g := Node3D.new(); g.position.y = HEAD_R * 0.92; head.add_child(g)
 	match kind:
 		"beret": _m(P.sphere(0.36, 28, 18), color, g, Vector3(0.06, 0.36, 0), Vector3(1.1, 0.4, 1.1), Vector3(0, 0, -0.25))
@@ -368,10 +381,10 @@ func _build_hat(kind: String, color: String) -> void:
 			for n in 9:
 				var a := n / 9.0 * TAU
 				_m(P.sphere(0.065, 28, 18), P.FLOWERS[n % 5], g, Vector3(cos(a) * 0.36, 0.3, sin(a) * 0.36))
-		"captain":
-			_m(P.cyl(0.4, 0.38, 0.22, 24), "ffffff", g, Vector3(0, 0.38, 0))
-			_m(P.cyl(0.39, 0.39, 0.07, 24), "2f3f6a", g, Vector3(0, 0.3, 0))
-			_m(P.box(0.4, 0.03, 0.18), "2f3f6a", g, Vector3(0, 0.28, 0.36))
+		"captain":   # white with a navy band; a variant with a trim colours the crown and the band itself
+			_m(P.cyl(0.4, 0.38, 0.22, 24), color if trim != "" else "ffffff", g, Vector3(0, 0.38, 0))
+			_m(P.cyl(0.39, 0.39, 0.07, 24), trim if trim != "" else "2f3f6a", g, Vector3(0, 0.3, 0))
+			_m(P.box(0.4, 0.03, 0.18), trim if trim != "" else "2f3f6a", g, Vector3(0, 0.28, 0.36))
 			_m(P.sphere(0.05, 28, 18), P.GOLD, g, Vector3(0, 0.4, 0.4))
 		"crown":
 			_m(P.cyl(0.24, 0.24, 0.16, 24), P.GOLD, g, Vector3(0, 0.45, 0))

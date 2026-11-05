@@ -76,7 +76,8 @@ static func grade_curve(lo: Color, hi: Color, steps: int = 9) -> PackedColorArra
 ## A location's own mood, from the `look` block of its map entry (islands.json or a pack's location.json):
 ## "shade": [r, g, b] added to the shadow tint, "light": [r, g, b] multiplying the highlight tint, "wind": a strength
 ## multiplier, "life": {"motes": x, "fireflies": x, "leaves": x} multipliers, "leafColors": the falling leaves' colours.
-## Missing keys change nothing.
+## Also "sky" and "haze" (sky_look, haze), "water" colours, "frost" (frost_at, ice_at) and "sun_peak"
+## (Daylight.sun_peak). Missing keys change nothing.
 static func apply_look(gr: Array, lk: Dictionary) -> Array:
 	var lo: Color = gr[0]; var hi: Color = gr[1]
 	var sh: Array = lk.get("shade", [0, 0, 0]); var li: Array = lk.get("light", [1, 1, 1])
@@ -102,6 +103,45 @@ static func valley_fog_at(hour: float, spec: Dictionary, w: Dictionary) -> float
 	else: a = nt
 	return clampf(lerpf(a, 0.95, float(w.get("fog", 0.0)) * 0.85) + 0.15 * float(w.get("rain", 0.0)), 0.0, 1.0)
 
+## A location's sky and far haze, from its look. "sky": {"color": [r, g, b], "pale": 0..1} leans the daytime sky
+## toward that colour (a white winter sky: the horizon all the way, the zenith a little over half). "haze":
+## {"color": [r, g, b], "amount": 0..1, "near": m, "far": m} leans the far haze toward its colour by day and can bring
+## it closer (never further than the weather already has it). Neither changes the night.
+static func sky_look(lk: Dictionary, top: Color, bottom: Color, night: float) -> Array:
+	var sk: Dictionary = lk.get("sky", {})
+	if sk.is_empty(): return [top, bottom]
+	var c := _rgb(sk.get("color", [0.9, 0.93, 0.96]))
+	var f := clampf(float(sk.get("pale", 0.0)), 0.0, 1.0) * (1.0 - night)
+	return [top.lerp(c, f * 0.6), bottom.lerp(c, f)]
+
+static func haze(lk: Dictionary, base: Color, begin: float, end: float, night: float) -> Dictionary:
+	var hz: Dictionary = lk.get("haze", {})
+	if hz.is_empty(): return {"color": base, "begin": begin, "end": end}
+	var day := 1.0 - night
+	var f := clampf(float(hz.get("amount", 0.5)), 0.0, 1.0) * day
+	return {"color": base.lerp(_rgb(hz.get("color", [0.93, 0.94, 0.95])), f),
+		"begin": minf(begin, lerpf(begin, float(hz.get("near", begin)), day)), "end": minf(end, lerpf(end, float(hz.get("far", end)), day))}
+
+## Hoarfrost on the ground at an hour (0..1), for a location whose look has "frost" (it scales this): white
+## through the night and early morning, melting from 8:00 to 10:30, back as the evening turns cold (full by 22:00).
+static func frost_at(hour: float) -> float:
+	var h := fposmod(hour, 24.0)
+	if h < 8.0: return 1.0
+	if h < 10.5: return 1.0 - smoothstep(8.0, 10.5, h)
+	if h < 18.0: return 0.0
+	return smoothstep(18.0, 22.0, h)
+
+## Thin ice on shallow water (0..1) with the frost: only in the small hours, forming after midnight and gone by 9:00.
+static func ice_at(hour: float) -> float:
+	var h := fposmod(hour, 24.0)
+	if h < 7.5: return smoothstep(0.5, 3.0, h)
+	if h < 9.0: return 1.0 - smoothstep(7.5, 9.0, h)
+	return 0.0
+
+static func _rgb(a) -> Color:
+	if a is String: return Color(a)
+	return Color(float(a[0]), float(a[1]), float(a[2]))
+
 ## How much of each kind of ambient life to show (0..1): motes in sunshine, fireflies on dry nights, leaves
 ## mostly in a breeze.
 static func life_at(hour: float, w: Dictionary) -> Dictionary:
@@ -119,6 +159,15 @@ func setup(g) -> void:
 	game = g
 	name = "Atmosphere"
 	look = Data.island_def(Data.island).get("look", {})
+	Daylight.sun_peak = float(look.get("sun_peak", Daylight.SUN_PEAK))
+	# The water's colours ("water": {"shallow", "mid", "deep"}, and "foam" 0..1 for the shore foam): a still paddy's
+	# grey-green instead of the sea's blue and its surf.
+	var wl: Dictionary = look.get("water", {})
+	if game.village and game.village.water:
+		var wm := game.village.water.material_override as ShaderMaterial
+		for k in ["shallow", "mid", "deep"]:
+			if wl.has(k): wm.set_shader_parameter(k, _rgb(wl[k]))
+		if wl.has("foam"): wm.set_shader_parameter("foam_amount", float(wl.foam))
 	# Light bounced up from sunlit grass: undersides (eaves, canopies, chins) pick up a warm green fill instead of
 	# a flat grey.
 	bounce = DirectionalLight3D.new(); bounce.name = "Bounce"
@@ -193,6 +242,10 @@ func _process(dt: float) -> void:
 		leaves.amount_ratio = life.leaves
 		if not tree.is_empty():
 			leaves.global_position = Vector3(tree.x, Heightfield.height(tree.x, tree.z) + 2.0 * float(tree.s), tree.z)
+	if look.has("frost") and game.village:
+		var fr := float(look.frost)
+		(game.village.terrain.material_override as ShaderMaterial).set_shader_parameter("frost", frost_at(h) * fr)
+		(game.village.water.material_override as ShaderMaterial).set_shader_parameter("ice", ice_at(h) * fr)
 	if post: (post.material_override as ShaderMaterial).set_shader_parameter("shadow_strength", 0.24 if game.settings.get("weather", true) else 0.12)
 	# Valley mist: thick at dawn, gone by late morning; lit like the haze on the horizon, grey at night.
 	var vf: MeshInstance3D = game.village.valley_fog if game.village else null
