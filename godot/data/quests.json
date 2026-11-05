@@ -504,7 +504,8 @@
      "text": "Pay the Sindaco 100,000 lire for the plot's deed (sell spare goods at the shops)",
      "lines": [
       "Splendid! Signed, sealed and very slightly sticky. The old farmhouse is yours. Roof not included.",
-      "Here are the house blueprints and a few planks to begin. The kingdom provides! Once paid for."
+      "Here are the house blueprints and a few planks to begin. The kingdom provides! Once paid for.",
+      "The bed you'll have to buy yourself, I'm afraid. 120,000 lire. Mattresses, unlike farmhouses, are not symbolic."
      ],
      "onDone": {
       "flags": [
@@ -557,7 +558,7 @@
       }
      ],
      "stage": 1,
-     "text": "Rebuild the ruined farmhouse across the stream: 3 walls, a door, a roof and a bed",
+     "text": "Rebuild the ruined farmhouse across the stream: 3 walls, a door, a roof and a bed (beds are dear: save up, and nap on benches meanwhile)",
      "buildHint": "Walls stand on cell edges; the roof rests on top of them.",
      "hint": {
       "x": 18,
