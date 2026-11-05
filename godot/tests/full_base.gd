@@ -42,10 +42,29 @@ func walk_direct(x: float, z: float, tol: float = 0.8, max_s: float = 40.0) -> b
 	await frames(2)
 	return Vector2(x - game.player.pos.x, z - game.player.pos.z).length() < tol + 0.4
 
+## True when a body could walk the straight line from a to b (no water, wall or scenery in the way).
+func line_clear(a: Vector2, b: Vector2) -> bool:
+	var n := maxi(1, int(a.distance_to(b) / 0.25))
+	for i in n + 1:
+		var q := a.lerp(b, float(i) / n)
+		if game.walk.can_stand(q.x, q.y, game.player.pos.y, 0.3, game.player.body).is_empty(): return false
+	return true
+
+## The nearest nav node you can walk to in a straight line: the nearest as the crow flies can be across a stream.
+func reachable_node(x: float, z: float, f: Dictionary) -> String:
+	var ids: Array = Data.layout.nav_nodes.keys()
+	var here := Vector2(x, z)
+	ids.sort_custom(func(a, b): return Vector2(Data.layout.nav_nodes[a][0], Data.layout.nav_nodes[a][1]).distance_to(here) < Vector2(Data.layout.nav_nodes[b][0], Data.layout.nav_nodes[b][1]).distance_to(here))
+	var near := Schedule.nearest_node(x, z, f)
+	for id in ids.slice(0, 8):
+		if String(id).contains(":") and id != near: continue   # indoor spots only from inside, as nearest_node does
+		if line_clear(here, Vector2(Data.layout.nav_nodes[id][0], Data.layout.nav_nodes[id][1])): return id
+	return near
+
 func walk_to(x: float, z: float, tol: float = 0.8) -> bool:
 	var f: Dictionary = game.state.flags
 	var p: Vector3 = game.player.pos
-	var path := Schedule.find_path(Schedule.nearest_node(p.x, p.z, f), Schedule.nearest_node(x, z, f), f)
+	var path := Schedule.find_path(reachable_node(p.x, p.z, f), Schedule.nearest_node(x, z, f), f)
 	var pts: Array = []
 	for i in path.size():
 		var a: Array = Data.layout.nav_nodes[path[i]]
@@ -56,7 +75,7 @@ func walk_to(x: float, z: float, tol: float = 0.8) -> bool:
 	var here := Vector2(game.player.pos.x, game.player.pos.z)
 	var start := 0
 	for i in pts.size():
-		if pts[i].distance_to(here) < pts[start].distance_to(here): start = i
+		if pts[i].distance_to(here) < pts[start].distance_to(here) and line_clear(here, pts[i]): start = i
 	for i in range(start, pts.size()):
 		await walk_direct(pts[i].x, pts[i].y, 1.2)
 	return await walk_direct(x, z, tol)
