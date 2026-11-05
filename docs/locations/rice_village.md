@@ -76,15 +76,17 @@ North is up (towards negative z in the game).
 The invented names the user didn't choose (San Grato, Cascina Grande) can change.
 
 ## Getting there and around
-- **Arrival by bus.** Aldo's bus, on the line Monteforchetta's finale opens, stops at the crossroads on its way across
-  the plain. Paletta is waiting.
+- **Arrival by bus.** Aldo's bus, on the line Monteforchetta's finale opens, brings you on from Boccapioppo and stops at
+  the crossroads on its way across the plain. Paletta is waiting. (The travel order, as the user decided: Monteforchetta,
+  Boccapioppo, Casalrana, Toriano. Boccapioppo's finale sets `rice_village_revealed`.)
 - **The departure point** is the bus stop: a feature of kind `boat` (`rice_village_busStop`, "Catch the bus"), as
   `docs/WORLD.md` asks. Its boat model stays hidden; a bus stop sign stands there instead.
 - **Out by train.** The finale gets the regional train stopping again. From then on the station platform is a second
   departure point, the one for Toriano. Casalrana's finale sets `rice_village_trainStops`, the flag Toriano's map
   entry reveals on (agreed: Toriano's entry already waits for it).
-- **Until those links exist,** Casalrana stays off the travel map (its entry shows once `rice_village_revealed` is set)
-  and tests reach it with `--island=rice_village`.
+- **Until then,** Casalrana stays off the travel map (its entry shows once `rice_village_revealed` is set). Tests reach
+  it with `--island=rice_village`, and the playthrough starts as if Monteforchetta and Boccapioppo had been played
+  (`arrive_as_if_played(["hearthglow", "river_town"])`).
 - **On foot.** You walk the road and the banks between the paddies. The harvested paddies are walkable stubble. The
   canal, the flooded paddy and the spring pool are water. The railway is fenced off by its embankment, except at the
   level crossing.

@@ -3,7 +3,7 @@ extends "res://tests/full_base.gd"
 ## stair, patching the roof, furnishing the flat in build mode, sleeping in your own bed), Water for the Winter (the
 ## sluice and the waterwheel, pump and pipes to the winter paddy), Nonna's Bench (and the song at dusk), Things from the
 ## Trains and Matteo's Museum. Then it saves to slot 2 for part two (play_rice_village3.gd).
-## It starts as if you'd played Monteforchetta's main story and come on the bus (arrive_as_if_played).
+## It starts as if you had played Monteforchetta's and Boccapioppo's main stories and come on the bus (arrive_as_if_played).
 ## Run: TIMEOUT=7100 ./play.sh res://tests/play_rice_village2.gd /tmp/out --island=rice_village --limit=7000
 ##
 ## The harness reads game state and turns the camera the way a mouse drag would; everything else is key and mouse
@@ -195,7 +195,7 @@ func play() -> void:
 		await load_slot("1")
 		check(3, "resumed from the save after the flat", game.mode == "explore" and status("flat") == "done", "mode %s flat %s" % [game.mode, status("flat")])
 	else:
-		await arrive_as_if_played(["hearthglow"])   # the bus line reaches Casalrana from Monteforchetta
+		await arrive_as_if_played(["hearthglow", "river_town"])   # the bus brings you on from Boccapioppo, after Monteforchetta
 		check(2, "the HUD shows Paletta's petition instead of the approval rating", game.hud.harmony_title.text.ends_with("The Petition") and game.hud.harmony_label.text == "0", "%s %s" % [game.hud.harmony_title.text, game.hud.harmony_label.text])
 		await welcome()
 		await flat()
