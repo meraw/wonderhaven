@@ -588,7 +588,7 @@ func _refresh_piece_interactables() -> void:
 		var d := Data.piece(pl.id)
 		if not d.has("interact"): continue
 		var b := BuildGrid.bounds(pl)
-		var rec := {"id": "pl:%d" % pl.uid, "piece": true, "x": (b.minX + b.maxX) / 2.0, "z": (b.minZ + b.maxZ) / 2.0, "radius": 1.3, "object": piece_nodes.get(pl.uid)}
+		var rec := {"id": "pl:%d" % pl.uid, "piece": true, "x": (b.minX + b.maxX) / 2.0, "z": (b.minZ + b.maxZ) / 2.0, "y": float(pl.y), "radius": 1.3, "object": piece_nodes.get(pl.uid)}
 		var ppl: Dictionary = pl
 		match d.interact:
 			"door":
@@ -646,6 +646,7 @@ func find_target():
 		var dz := _pos_of(it, "z") - p.z
 		var d := sqrt(dx * dx + dz * dz)
 		if d > it.radius + 0.6: continue
+		if it.has("y") and absf(float(it.y) - p.y) > 1.6: continue   # on another storey (a bed in the flat upstairs)
 		var facing := (dx * fwd.x + dz * fwd.y) / d if d > 0.01 else 1.0
 		if d > 1.0 and facing < 0.1: continue
 		var score: float = d - facing * 0.8 - it.priority

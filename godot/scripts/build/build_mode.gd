@@ -108,7 +108,7 @@ func jump_to(zone: Dictionary) -> void:
 	current_zone = zone
 	if zone.is_empty(): focus = game.player.pos; return
 	var b := BuildGrid.zone_bounds(zone, state().harmony)
-	focus = Vector3((b.minI + b.maxI + 1) / 2.0, maxf(0.0, zone.get("spanY", 0.0)), (b.minK + b.maxK + 1) / 2.0)
+	focus = Vector3((b.minI + b.maxI + 1) / 2.0, maxf(0.0, zone.get("floorY", zone.get("spanY", 0.0))), (b.minK + b.maxK + 1) / 2.0)
 
 func cycle_zone(dir: int) -> void:
 	var zones := unlocked_zones()
@@ -118,7 +118,7 @@ func cycle_zone(dir: int) -> void:
 
 # ---- Grid and plan visuals
 func _cell_y(zone: Dictionary, i: int, k: int) -> float:
-	var g := Heightfield.height(i + 0.5, k + 0.5)
+	var g := BuildGrid.ground_at(i, k)   # the ground, or a raised floor over it (a flat upstairs)
 	return (zone.spanY if g < Heightfield.WALKABLE_MIN and zone.has("spanY") else maxf(g, Heightfield.WATER_Y)) + 0.04
 
 func rebuild_grid() -> void:
@@ -168,6 +168,10 @@ func pick(screen: Vector2) -> Dictionary:
 		var b := BuildGrid.bounds(pl)
 		var r := _ray_box(o, d, Vector3(b.minX, b.bottom, b.minZ), Vector3(b.maxX, b.top, b.maxZ))
 		if not r.is_empty() and r.t < best_t: best_t = r.t; hit = {"point": o + d * r.t, "normal": r.n, "uid": pl.uid}
+	for s in WorldStatics.floors():   # raised floors you can build on (a flat upstairs, a roof terrace): their tops
+		if not s.walkable or s.has("ramp"): continue
+		var r := _ray_box(o, d, Vector3(s.minX, s.bottom, s.minZ), Vector3(s.maxX, s.top, s.maxZ))
+		if not r.is_empty() and r.t < best_t and r.n.y > 0.5: best_t = r.t; hit = {"point": o + d * r.t, "normal": r.n, "uid": -2}
 	var tt := 0.0
 	var prev := 0.0
 	while tt < minf(best_t, 220.0):
@@ -345,7 +349,7 @@ func handle_input(event: InputEvent) -> void:
 func click() -> void:
 	if not moving.is_empty(): drop_move(); return
 	if item_id != "": place(); return
-	if not hover.is_empty() and hover.uid != -1: selected = hover.uid; game.sfx("select"); _build_ui()
+	if not hover.is_empty() and hover.uid >= 0: selected = hover.uid; game.sfx("select"); _build_ui()
 	elif selected != -1: selected = -1; _build_ui()
 
 func _find(uid: int) -> Dictionary:
