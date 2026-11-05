@@ -394,7 +394,7 @@ func on_quest_completed(qid: String) -> void:
 		"dock":
 			for f in Data.layout.features:
 				if f.id == "boat": effects.sparkle(Vector3(f.x, 1.5, f.z), 50)
-			get_tree().create_timer(4.4).timeout.connect(func(): banner("The city bus is running!", "New places will appear on your map (%s) as the line grows" % Controls.key_label("map"), [], 5.0))
+			get_tree().create_timer(4.4).timeout.connect(func(): banner("The city bus is running!", "A new stop is on your map (%s): catch the bus at the turnaround" % Controls.key_label("map"), [], 5.0))
 		"lighthouse": effects.sparkle(Vector3(-24, 7.5, -21), 50, Color("fff2a8"), 0.4); toast("The lighthouse turns again! Its beam sweeps the bay at night.", "good", 4.0)
 		"clocktower":
 			effects.sparkle(Vector3(12, 6, -13), 50); sfx("gate")

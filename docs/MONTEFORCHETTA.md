@@ -100,7 +100,7 @@ Today Hearthglow has 13 requests, 7 of them main story. They map like this:
 | Furnish the Workshop | **Elio's Shop** | Elio | Gather wood, metal and copper wire, hear his plan, then fit out his shop: seats, lamps, shelves, a workbench, a splash of colour. |
 | Restore the Garden Fountain | **A Fountain for the Website** | Fede | A waterwheel in the valley stream drives a pump that sends water up through pipes to the piazza fountain. Fede photographs it for the village's first website. |
 | A Home of Your Own | **A Roof of Your Own** | Mayor | Pay the mayor in lire for the deed to the ruined farmhouse, rebuild walls, door, roof and bed, then make it cosy. |
-| The Royal Decree and All Aboard! | **The City Bus**, the finale | Aldo | The new city bus is too long for the old turnaround, so you rebuild the stop and turning circle. This opens the bus line to the city and the travel map. There is no approval-rating gate. |
+| The Royal Decree and All Aboard! | **The City Bus**, the finale | Aldo | The new city bus is too long for the old turnaround, so you rebuild the stop and turning circle. This opens the bus line and the travel map, with Boccapioppo as its first stop (Casalrana is revealed when you finish Boccapioppo). There is no approval-rating gate. |
 | Shiny Stones for the Castle | **A Plinth for the Sindaco** | Mayor | He wants local sandstone and copper wire for a plinth that lights up a bust of himself. |
 | Squirrels in the Scones | **Boars in the Bakery** | Ornella | Lure the boars back to the woods with chestnuts, then deal with the aftermath. |
 | Petals for the Plaza | **Pumpkins for Gigia** | Gigia | Grow pumpkins in her garden beds. |
