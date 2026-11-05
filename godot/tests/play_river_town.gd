@@ -328,11 +328,18 @@ func pick_up(node: String) -> bool:
 ## Like gather_until, but when nothing of that kind has grown back yet, nap until it has (the game's clock runs slow
 ## when frames are slow, so standing and waiting could take an age).
 func gather_more(kind: String, test: Callable, only: Array = [], rounds: int = 30) -> bool:
+	var unreachable := {}   # a node we couldn't get to is skipped from then on
 	for r in rounds:
 		if test.call(): return true
-		var ready: Array = Data.layout.nodes.filter(func(n): return n.kind == kind and (only.is_empty() or only.has(n.id)) and game.actions.ready(n))
-		if ready.is_empty(): note("nothing to %s has grown back: nap" % kind); await nap_until(next_wake(4.0)); continue
-		await gather_until(kind, test, only, 1)
+		var p: Vector3 = game.player.pos
+		var ready: Array = Data.layout.nodes.filter(func(n): return n.kind == kind and (only.is_empty() or only.has(n.id)) and game.actions.ready(n) and not unreachable.has(n.id))
+		if ready.is_empty():
+			var waiting: bool = Data.layout.nodes.any(func(n): return n.kind == kind and (only.is_empty() or only.has(n.id)) and not unreachable.has(n.id))
+			if not waiting: note("no %s left that can be reached" % kind); break
+			note("nothing to %s has grown back: nap" % kind); await nap_until(next_wake(4.0)); continue
+		ready.sort_custom(func(a, b): return Vector2(a.x - p.x, a.z - p.z).length() < Vector2(b.x - p.x, b.z - p.z).length())
+		note("gather %s (%d) wood=%d metal=%d stone=%d crystal=%d" % [ready[0].id, r, inv("wood"), inv("metal"), inv("stone"), inv("crystal")])
+		if not await gather_node(ready[0].id): unreachable[ready[0].id] = true; note("could not reach %s" % ready[0].id)
 	return test.call()
 
 ## Gather an item from the nodes that give it (Boccapioppo's sand, mushrooms) until you have enough.
