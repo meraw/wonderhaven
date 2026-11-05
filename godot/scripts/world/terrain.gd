@@ -696,20 +696,23 @@ static func _hill_villages(n: int, hill_y: Callable) -> ArrayMesh:
 				if p.y > best.y: best = p
 		var out := Vector2(best.x, best.z).normalized()
 		var side := Vector2(-out.y, out.x)
+		# the same distance haze as the hills under them, so they sit on the ridge instead of floating pale above it
+		var haze := Heightfield.ss(140.0, 320.0, Vector2(best.x, best.z).length()) * 0.55
+		var tint := func(c: Color) -> Color: return c.darkened(0.12).lerp(Color("97a8bb"), haze)
 		for h in rng.randi_range(8, 13):
 			var off := side * rng.randf_range(-11.0, 11.0) + out * rng.randf_range(-6.0, 6.0)
 			var x := best.x + off.x; var z := best.z + off.y
 			var size := Vector3(rng.randf_range(3.0, 4.6), rng.randf_range(2.6, 4.2), rng.randf_range(3.6, 5.4))
 			var base := Vector3(x, float(hill_y.call(x, z)) - 1.0, z)
 			var yaw := atan2(out.x, out.y) + rng.randf_range(-0.4, 0.4) + (PI / 2.0 if rng.randf() < 0.5 else 0.0)
-			_add_box(st, base, size, yaw, walls[rng.randi() % walls.size()])
-			_add_gable(st, base + Vector3(0, size.y, 0), size.x + 0.6, size.z + 0.6, size.x * 0.32, yaw, roofs[rng.randi() % roofs.size()])
+			_add_box(st, base, size, yaw, tint.call(walls[rng.randi() % walls.size()]))
+			_add_gable(st, base + Vector3(0, size.y, 0), size.x + 0.6, size.z + 0.6, size.x * 0.32, yaw, tint.call(roofs[rng.randi() % roofs.size()]))
 		# the bell tower, a little off the top
 		var t := Vector3(best.x + side.x * rng.randf_range(-3.0, 3.0), 0, best.z + side.y * rng.randf_range(-3.0, 3.0))
 		t.y = float(hill_y.call(t.x, t.z)) - 0.8
 		var th := rng.randf_range(8.5, 11.0)
-		_add_box(st, t, Vector3(2.2, th, 2.2), atan2(out.x, out.y), Color("c99a6e") if rng.randf() < 0.5 else Color("ddd0b4"))
-		_add_pyramid(st, t + Vector3(0, th, 0), 2.5, 2.2, atan2(out.x, out.y), roofs[0])
+		_add_box(st, t, Vector3(2.2, th, 2.2), atan2(out.x, out.y), tint.call(Color("c99a6e") if rng.randf() < 0.5 else Color("ddd0b4")))
+		_add_pyramid(st, t + Vector3(0, th, 0), 2.5, 2.2, atan2(out.x, out.y), tint.call(roofs[0]))
 	return st.commit()
 
 ## One flat face (a triangle or a quad), lit from the side away from `inside`, wound clockwise from outside as
