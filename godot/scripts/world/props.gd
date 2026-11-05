@@ -253,7 +253,7 @@ static func camera_rooms() -> Array:
 		if b.kind == "workshop":
 			out.append(AABB(Vector3(b.x - b.w / 2.0 + 0.35, -1.0, b.z - b.d / 2.0 + 0.35), Vector3(b.w - 0.7, 3.6, b.d - 0.7)))
 		elif Interiors.enterable(b):
-			out.append(Interiors.room(b, Heightfield.CASTLE_MOUND.y if b.kind == "castle" else 0.0))
+			out.append(Interiors.room(b, float(b.get("y", Heightfield.CASTLE_MOUND.y if b.kind == "castle" else 0.0))))
 	return out
 
 ## Boxes the follow camera should not pass through: every building's walls and roof (overhang included).
@@ -269,6 +269,7 @@ static func camera_blockers() -> Array:
 			out.append(AABB(Vector3(b.x + b.w / 2.0 - tw - pad, -1.0, tz - tw / 2.0 - pad), Vector3(tw + pad * 2.0, 13.5, tw + pad * 2.0)))
 			continue
 		var top: float = 6.5 if b.kind == "castle" else (3.0 if b.kind == "caravan" else (9.0 if b.kind in ["lighthouse", "clocktower"] else 2.6 + roof_rise(b.w, b.d) + 0.3))
+		if b.has("h"): top = float(b.get("y", 0.0)) + float(b.h)   # a building that says how tall it is (a city block, a cathedral)
 		out.append(AABB(Vector3(b.x - b.w / 2.0 - pad, -1.0, b.z - b.d / 2.0 - pad), Vector3(b.w + pad * 2.0, top + 1.0, b.d + pad * 2.0)))
 	return out
 

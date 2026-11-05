@@ -21,12 +21,14 @@ func test_every_island_is_a_playable_world():
 		_on(id, func():
 			var statics := WorldStatics.build_statics(WorldStatics.generate_decor())
 			var w := WalkWorld.new(statics, func(_f): return true)
+			w.floors = WorldStatics.floors()
 			var sp: Dictionary = Data.layout.spawn
 			t.ok(not Heightfield.is_water(sp.x, sp.z) and not w.can_stand(sp.x, sp.z, Heightfield.height(sp.x, sp.z), 0.3).is_empty(), "%s: you arrive on open ground" % id)
 			for k in Data.layout.nav_nodes:
 				if k == "workshopInside": continue
 				var p: Array = Data.layout.nav_nodes[k]
-				t.ok(not w.can_stand(p[0], p[1], Heightfield.height(p[0], p[1]), 0.3).is_empty(), "%s: nav spot %s is free" % [id, k])
+				var feet := maxf(Heightfield.height(p[0], p[1]), WorldStatics.floor_top(p[0], p[1]))   # on a balcony or a terrace, if there's one
+				t.ok(not w.can_stand(p[0], p[1], feet, 0.3).is_empty(), "%s: nav spot %s is free" % [id, k])
 			for e in Data.layout.nav_edges:
 				t.ok(Data.layout.nav_nodes.has(e[0]) and Data.layout.nav_nodes.has(e[1]), "%s: path %s-%s joins real spots" % [id, e[0], e[1]])
 			for n in Data.npcs_here():
@@ -186,6 +188,9 @@ func test_every_island_supplies_what_its_requests_gather():
 		_on(id, func():
 			var have := {}
 			for n in Data.layout.nodes:
+				if n.has("gives"):   # a node can give its own items instead of its kind's (a location's sand, say)
+					for item in n.gives: have[item] = true
+					continue
 				for item in WorldActions.SOURCES:
 					if WorldActions.SOURCES[item].has(n.kind): have[item] = true
 				if n.kind == "mine" and n.get("rich", false): have[String(Data.layout.get("richRock", "metal"))] = true
@@ -226,6 +231,11 @@ func test_nav_edges_stay_on_dry_land():
 	# following the same line stops at the bank. Edges behind a flag (the bridge, once built) are the exception.
 	for id in _islands_with_layouts():
 		_on(id, func():
+			var on_floor := func(x: float, z: float) -> bool:   # a layout's walkable floors (a city's old bridge deck)
+				for f in Data.layout.get("floors", []):
+					var r: Array = f.rect
+					if f.get("walkable", true) and x >= minf(r[0], r[2]) and x <= maxf(r[0], r[2]) and z >= minf(r[1], r[3]) and z <= maxf(r[1], r[3]): return true
+				return false
 			for e in Data.layout.nav_edges:
 				if e.size() > 2: continue
 				var a: Array = Data.layout.nav_nodes[e[0]]; var b: Array = Data.layout.nav_nodes[e[1]]
@@ -233,5 +243,5 @@ func test_nav_edges_stay_on_dry_land():
 				for k in 41:
 					var t := k / 40.0
 					var x: float = lerpf(a[0], b[0], t); var z: float = lerpf(a[1], b[1], t)
-					if Heightfield.height(x, z) < Heightfield.WALKABLE_MIN: wet = true
+					if Heightfield.height(x, z) < Heightfield.WALKABLE_MIN and not on_floor.call(x, z): wet = true
 				t.ok(not wet, "%s: the path %s-%s stays on dry land" % [id, e[0], e[1]]))

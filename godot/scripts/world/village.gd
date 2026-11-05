@@ -33,7 +33,8 @@ func build(decor: Dictionary) -> void:
 				"clocktower": o = Props.clocktower(b)
 				"church": o = Props.church(b)
 				_: o = Props.cottage(b)
-		o.position = Vector3(b.x, Heightfield.CASTLE_MOUND.y if b.kind == "castle" else maxf(0.0, H.call(b.x, b.z)), b.z)
+		# "y": a building standing on a raised floor (a flat off an upstairs balcony)
+		o.position = Vector3(b.x, float(b.y) if b.has("y") else (Heightfield.CASTLE_MOUND.y if b.kind == "castle" else maxf(0.0, H.call(b.x, b.z))), b.z)
 		o.name = b.id; add_child(o); objects[b.id] = o
 		if Interiors.enterable(b): _furnish(b, o.position.y + (Props.CASTLE_FLOOR if b.kind == "castle" else 0.0))
 		for gl in o.get_meta("glasses", []): window_mats.append(gl.material_override)
@@ -180,10 +181,14 @@ func _build_decor(decor: Dictionary) -> void:
 	var grass: Array = decor.grass.duplicate()
 	var rng := Rng.new(11)
 	var tries := 0
-	while tries < 9000 and grass.size() < 4200:
+	var area: Array = D.get("area", [])   # greenery confined to a box (a city's park), as in generate_decor
+	var target := int(D.get("grass", 1400)) + 2800   # the decor's tufts plus 2800 visual-only ones
+	while tries < 9000 and grass.size() < target:
 		tries += 1
-		var x := rng.range_f(-46, 46); var z := rng.range_f(-44, 42)
-		if Heightfield.height(x, z) < 0.02 or WorldStatics.dist_to_paths(x, z) < 1.25: continue
+		var x := rng.range_f(-46, 46) if area.is_empty() else rng.range_f(area[0], area[2])
+		var z := rng.range_f(-44, 42) if area.is_empty() else rng.range_f(area[1], area[3])
+		if Heightfield.height(x, z) < 0.02 or WorldStatics.dist_to_paths(x, z) < 1.25 or Ground.paved(x, z): continue
+		if Heightfield.meadow(x, z) < 0.5: continue   # no grass tufts on a location's bare ground
 		var sq: Dictionary = Data.layout.get("square", {"x": 0, "z": 0, "r": -1.0})
 		if Vector2(x - sq.x, z - sq.z).length() < sq.r + 0.4: continue
 		if WorldStatics._near_building(x, z, 0.15) or WorldStatics._in_zone(x, z, 0.3): continue
@@ -223,7 +228,7 @@ func _build_features() -> void:
 	for f in Data.layout.features:
 		var o: Node3D
 		match f.kind:
-			"sign": o = Props.sign_post()
+			"sign", "stop": o = Props.sign_post()
 			"board": o = Props.notice_board()
 			"wardrobe": o = Props.wardrobe()
 			"boat":   # how you travel on: a ferry, or a bus ("model": "bus")

@@ -85,7 +85,28 @@ const WEATHER := {
 static func slot_index(t: Dictionary) -> int: return int(t.day) * 6 + int(float(t.minute) / SLOT_MINUTES)
 
 ## Weather type of a slot: deterministic, mostly fair, mist only around dawn, and a sunny first day.
-static func slot_weather(slot: int) -> String:
+## `allowed` is the weather a location allows (the `weather` list in its look block, see allowed_here); any other
+## weather turns into the first type listed. Empty allows everything.
+static func slot_weather(slot: int, allowed: Array = []) -> String:
+	var w := _slot_weather(slot)
+	return w if allowed.is_empty() or allowed.has(w) else String(allowed[0])
+
+## The weather the location you're on allows (its look block's `weather`, e.g. ["clear"]), or [] for any.
+## A request can bring its own weather for a while (a storm on a finale's night): state.forced_weather = {type, until},
+## `until` in the clock's total minutes. The weather type while it lasts, else "".
+static func forced(state: Dictionary) -> String:
+	var fw = state.get("forced_weather", {})
+	if not fw is Dictionary or fw.is_empty(): return ""
+	if float(state.get("time", {}).get("total", 0.0)) >= float(fw.get("until", 0.0)): return ""
+	return String(fw.get("type", "")) if WEATHER.has(String(fw.get("type", ""))) else ""
+
+## Brings `type` weather (a key of WEATHER) for the next `hours`.
+static func force(state: Dictionary, type: String, hours: float) -> void:
+	state["forced_weather"] = {"type": type, "until": float(state.time.total) + hours * 60.0}
+
+static func allowed_here() -> Array: return Data.island_def(Data.island).get("look", {}).get("weather", [])
+
+static func _slot_weather(slot: int) -> String:
 	var day := int(slot / 6); var part := slot % 6
 	if day <= 1: return "clear" if part < 4 else "fair"
 	var x := sin(slot * 12.9898 + 4.1414) * 43758.5453
@@ -98,15 +119,15 @@ static func slot_weather(slot: int) -> String:
 	return "rain"
 
 ## Blended weather values for the moment: clouds, rain, fog (0..1) and how much sun gets through.
-static func weather(t: Dictionary) -> Dictionary:
+static func weather(t: Dictionary, allowed: Array = []) -> Dictionary:
 	var slot := slot_index(t)
 	var into := fmod(float(t.minute), SLOT_MINUTES)
-	var a: Dictionary = WEATHER[slot_weather(slot)]
+	var a: Dictionary = WEATHER[slot_weather(slot, allowed)]
 	var f := clampf((into - (SLOT_MINUTES - BLEND_MINUTES)) / BLEND_MINUTES, 0.0, 1.0)
 	var out := a.duplicate()
 	if f > 0.0:
-		var b: Dictionary = WEATHER[slot_weather(slot + 1)]
+		var b: Dictionary = WEATHER[slot_weather(slot + 1, allowed)]
 		f = f * f * (3.0 - 2.0 * f)
 		for k in out: out[k] = lerpf(a[k], b[k], f)
-	out["type"] = slot_weather(slot) if f < 0.5 else slot_weather(slot + 1)
+	out["type"] = slot_weather(slot, allowed) if f < 0.5 else slot_weather(slot + 1, allowed)
 	return out

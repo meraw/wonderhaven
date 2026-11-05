@@ -1,0 +1,2300 @@
+{
+ "_comment": "Casalrana (rice_village): a hamlet on the rice plain. Same format as layout_clockwork.json. The ground shape is godot/scripts/locations/rice_village.gd; buildings of kind rice_village_* and props of kind rice_village_* are built by the helpers in godot/scripts/locations/rice_village/ (h: a building's full height, which the camera keeps clear of; eaves: its wall height). The two rice_village_track blocks are the railway bed, with the level crossing between them; the trains and the crossing's barriers are timetable.gd and trains.gd. The departure point (kind boat) is the bus stop; its boat model stays hidden and a bus stop sign stands there. Zones for requests unlock when stage 3 adds the requests. See docs/locations/rice_village.md.",
+ "spawn": {
+  "x": 0.6,
+  "z": 1.0,
+  "yaw": 3.141592653589793
+ },
+ "arrive": {
+  "x": 0.6,
+  "z": 1.0,
+  "yaw": 3.141592653589793
+ },
+ "square": {
+  "x": 2,
+  "z": -6,
+  "r": 5
+ },
+ "safeSpot": "square",
+ "safeText": "Back at the crossroads.",
+ "decor": {
+  "radius": 54,
+  "trees": 0,
+  "bushes": 10,
+  "flowers": 0
+ },
+ "buildings": [
+  {
+   "id": "rice_village_station",
+   "kind": "rice_village_station",
+   "name": "Casalrana station",
+   "x": 19,
+   "z": -38,
+   "w": 12,
+   "d": 5,
+   "h": 8.0,
+   "eaves": 5.6,
+   "wall": "#d8ae68",
+   "roof": "#9a4632",
+   "door": "S",
+   "doorOffset": -3.0,
+   "navDoor": "stationDoor",
+   "interior": {
+    "shell": "house",
+    "items": [
+     [
+      "bench",
+      -4.6,
+      -1.75,
+      0,
+      "#7a5a3e"
+     ],
+     [
+      "bench",
+      -1.6,
+      -1.75,
+      0,
+      "#7a5a3e"
+     ],
+     [
+      "counter",
+      3.4,
+      -1.7,
+      0,
+      "#8a6a50"
+     ],
+     [
+      "cabinet",
+      5.25,
+      -1.55,
+      3,
+      "#6f5038"
+     ],
+     [
+      "bookshelf",
+      5.3,
+      0.7,
+      3,
+      "#8a6a50"
+     ],
+     [
+      "oven",
+      -5.15,
+      1.6,
+      1
+     ],
+     [
+      "lamp",
+      0.4,
+      -1.85,
+      0
+     ],
+     [
+      "rug",
+      -1.6,
+      0.7,
+      0,
+      "#7a4a3a"
+     ]
+    ],
+    "route": [
+     [
+      -3.0,
+      1.6
+     ],
+     [
+      0.6,
+      0.3
+     ]
+    ]
+   }
+  },
+  {
+   "id": "rice_village_casello",
+   "kind": "rice_village_house",
+   "name": "Paletta's crossing keeper's cottage",
+   "x": -9,
+   "z": -39.5,
+   "w": 5.5,
+   "d": 4.5,
+   "h": 6.82,
+   "eaves": 4.6,
+   "wall": "#d8ae68",
+   "roof": "#9a4632",
+   "door": "E",
+   "navDoor": "casello",
+   "interior": {
+    "shell": "house",
+    "items": [
+     [
+      "bed",
+      -2.0,
+      -0.9,
+      0,
+      "#8e3b2e"
+     ],
+     [
+      "table",
+      0.3,
+      -1.45,
+      0
+     ],
+     [
+      "chair",
+      0.3,
+      -0.65,
+      2,
+      "#8a6a50"
+     ],
+     [
+      "cabinet",
+      -2.1,
+      1.55,
+      0
+     ],
+     [
+      "oven",
+      0.9,
+      1.6,
+      2
+     ],
+     [
+      "lamp",
+      2.15,
+      -1.75,
+      0
+     ]
+    ],
+    "route": [
+     [
+      1.9,
+      0.0
+     ],
+     [
+      -0.6,
+      0.4
+     ]
+    ]
+   }
+  },
+  {
+   "id": "rice_village_church",
+   "kind": "rice_village_church",
+   "name": "The church of San Grato",
+   "x": -6.5,
+   "z": 4,
+   "w": 7,
+   "d": 12,
+   "h": 9.1,
+   "eaves": 6.5,
+   "wall": "#b8664c",
+   "roof": "#a5503a",
+   "door": "N",
+   "navDoor": "churchDoor",
+   "interior": {
+    "shell": "house",
+    "items": [
+     [
+      "bench",
+      -1.75,
+      -3.6,
+      0,
+      "#6f5038"
+     ],
+     [
+      "bench",
+      1.75,
+      -3.6,
+      0,
+      "#6f5038"
+     ],
+     [
+      "bench",
+      -1.75,
+      -2.1,
+      0,
+      "#6f5038"
+     ],
+     [
+      "bench",
+      1.75,
+      -2.1,
+      0,
+      "#6f5038"
+     ],
+     [
+      "bench",
+      -1.75,
+      -0.6,
+      0,
+      "#6f5038"
+     ],
+     [
+      "bench",
+      1.75,
+      -0.6,
+      0,
+      "#6f5038"
+     ],
+     [
+      "bench",
+      -1.75,
+      0.9,
+      0,
+      "#6f5038"
+     ],
+     [
+      "bench",
+      1.75,
+      0.9,
+      0,
+      "#6f5038"
+     ],
+     [
+      "bench",
+      -1.75,
+      2.4,
+      0,
+      "#6f5038"
+     ],
+     [
+      "bench",
+      1.75,
+      2.4,
+      0,
+      "#6f5038"
+     ],
+     [
+      "counter",
+      0.0,
+      4.95,
+      0,
+      "#efe6d6"
+     ],
+     [
+      "lamp",
+      -1.7,
+      5.2,
+      0
+     ],
+     [
+      "lamp",
+      1.7,
+      5.2,
+      0
+     ],
+     [
+      "rug",
+      0.0,
+      3.4,
+      0,
+      "#8e3b2e"
+     ]
+    ],
+    "route": [
+     [
+      0.0,
+      -5.2
+     ],
+     [
+      0.3,
+      3.7
+     ]
+    ]
+   }
+  },
+  {
+   "id": "rice_village_tower",
+   "kind": "rice_village_tower",
+   "name": "The bell tower",
+   "x": -11.75,
+   "z": 8.5,
+   "w": 3.5,
+   "d": 3.5,
+   "h": 23.0,
+   "eaves": 17.0,
+   "wall": "#b8664c",
+   "roof": "#8f4a36"
+  },
+  {
+   "id": "rice_village_presbytery",
+   "kind": "rice_village_house",
+   "name": "The presbytery",
+   "x": -6.5,
+   "z": 13.5,
+   "w": 6,
+   "d": 4,
+   "h": 5.64,
+   "eaves": 3.6,
+   "wall": "#e9dcc0",
+   "roof": "#a5503a",
+   "door": "E"
+  },
+  {
+   "id": "rice_village_mill",
+   "kind": "rice_village_mill",
+   "name": "The old rice mill",
+   "x": -29,
+   "z": -13,
+   "w": 6,
+   "d": 7,
+   "h": 7.2,
+   "eaves": 4.6,
+   "wall": "#a85c46",
+   "roof": "#a5503a",
+   "door": "S",
+   "navDoor": "millDoor",
+   "millstones": [
+    -0.8,
+    -1.2
+   ],
+   "interior": {
+    "shell": "house",
+    "items": [
+     [
+      "barrel",
+      -0.8,
+      -1.2,
+      0
+     ],
+     [
+      "crate",
+      1.9,
+      -2.7,
+      0
+     ],
+     [
+      "crate",
+      2.1,
+      -1.85,
+      1
+     ],
+     [
+      "barrel",
+      2.25,
+      0.5,
+      0
+     ],
+     [
+      "workbench",
+      -1.5,
+      2.55,
+      0
+     ],
+     [
+      "lamp",
+      2.3,
+      2.8,
+      0
+     ]
+    ],
+    "route": [
+     [
+      0.0,
+      2.6
+     ],
+     [
+      0.7,
+      0.3
+     ]
+    ]
+   }
+  },
+  {
+   "id": "rice_village_farmhouse",
+   "kind": "rice_village_house",
+   "name": "Cascina Grande",
+   "x": 25,
+   "z": -18,
+   "w": 12,
+   "d": 6,
+   "h": 8.2,
+   "eaves": 5.6,
+   "wall": "#e6cf9c",
+   "roof": "#a5503a",
+   "door": "S",
+   "navDoor": "farmhouseDoor",
+   "balcony": true,
+   "interior": {
+    "shell": "house",
+    "items": [
+     [
+      "oven",
+      -4.6,
+      -2.25,
+      0
+     ],
+     [
+      "barrel",
+      -3.4,
+      -2.35,
+      0
+     ],
+     [
+      "table",
+      -1.0,
+      0.0,
+      0,
+      "#9a6a45"
+     ],
+     [
+      "table",
+      0.0,
+      0.0,
+      0,
+      "#9a6a45"
+     ],
+     [
+      "table",
+      1.0,
+      0.0,
+      0,
+      "#9a6a45"
+     ],
+     [
+      "chair",
+      -1.0,
+      -0.85,
+      0,
+      "#8a6a50"
+     ],
+     [
+      "chair",
+      0.0,
+      -0.85,
+      0,
+      "#8a6a50"
+     ],
+     [
+      "chair",
+      1.0,
+      -0.85,
+      0,
+      "#8a6a50"
+     ],
+     [
+      "chair",
+      -1.0,
+      0.85,
+      2,
+      "#8a6a50"
+     ],
+     [
+      "chair",
+      1.0,
+      0.85,
+      2,
+      "#8a6a50"
+     ],
+     [
+      "cabinet",
+      2.6,
+      -2.35,
+      0
+     ],
+     [
+      "bookshelf",
+      3.6,
+      -2.3,
+      0,
+      "#8a6a50"
+     ],
+     [
+      "sofa",
+      4.6,
+      1.7,
+      3,
+      "#8e5a4a"
+     ],
+     [
+      "lamp",
+      -5.2,
+      2.25,
+      0
+     ],
+     [
+      "rug",
+      0.0,
+      0.0,
+      0,
+      "#9a5a3a"
+     ]
+    ],
+    "route": [
+     [
+      0.0,
+      2.1
+     ],
+     [
+      -2.4,
+      1.8
+     ],
+     [
+      -3.6,
+      -1.15
+     ]
+    ]
+   }
+  },
+  {
+   "id": "rice_village_office",
+   "kind": "rice_village_house",
+   "name": "The farm office",
+   "x": 35,
+   "z": -18.5,
+   "w": 6,
+   "d": 5,
+   "h": 5.6,
+   "eaves": 3.2,
+   "wall": "#e6cf9c",
+   "roof": "#a5503a",
+   "door": "S",
+   "navDoor": "officeDoor",
+   "chimney": false,
+   "interior": {
+    "shell": "house",
+    "items": [
+     [
+      "desk",
+      -1.2,
+      -1.65,
+      0
+     ],
+     [
+      "chair",
+      -1.2,
+      -0.75,
+      2,
+      "#8a6a50"
+     ],
+     [
+      "bookshelf",
+      1.0,
+      -1.8,
+      0
+     ],
+     [
+      "bookshelf",
+      2.0,
+      -1.8,
+      0
+     ],
+     [
+      "cabinet",
+      2.3,
+      0.5,
+      3
+     ],
+     [
+      "counter",
+      -1.4,
+      1.25,
+      0,
+      "#c9a27a"
+     ],
+     [
+      "lamp",
+      -2.4,
+      -1.9,
+      0
+     ]
+    ],
+    "route": [
+     [
+      0.2,
+      1.6
+     ],
+     [
+      0.9,
+      -0.55
+     ]
+    ]
+   }
+  },
+  {
+   "id": "rice_village_workers",
+   "kind": "rice_village_row",
+   "name": "The farm workers' houses",
+   "x": 15.5,
+   "z": -15.5,
+   "w": 4,
+   "d": 11,
+   "h": 6.84,
+   "eaves": 4.8,
+   "wall": "#d9c49a",
+   "roof": "#a5503a",
+   "door": "E"
+  },
+  {
+   "id": "rice_village_shed",
+   "kind": "rice_village_shed",
+   "name": "The machine shed",
+   "x": 41,
+   "z": -11,
+   "w": 6,
+   "d": 10,
+   "h": 6.8,
+   "eaves": 4.2,
+   "wall": "#b8664c",
+   "roof": "#a5503a",
+   "door": "W",
+   "navDoor": "shedDoor",
+   "interior": {
+    "shell": "house",
+    "items": [
+     [
+      "workbench",
+      2.0,
+      -3.6,
+      3
+     ],
+     [
+      "counter",
+      -0.6,
+      -2.4,
+      0,
+      "#8a6a50"
+     ],
+     [
+      "crate",
+      2.2,
+      1.0,
+      0
+     ],
+     [
+      "crate",
+      2.2,
+      1.8,
+      0
+     ],
+     [
+      "barrel",
+      2.3,
+      3.7,
+      0
+     ],
+     [
+      "barrel",
+      1.5,
+      4.2,
+      0
+     ],
+     [
+      "cabinet",
+      -2.3,
+      -4.3,
+      0
+     ],
+     [
+      "lamp",
+      0.0,
+      -4.4,
+      0
+     ]
+    ],
+    "route": [
+     [
+      -2.1,
+      0.0
+     ],
+     [
+      0.4,
+      -1.0
+     ]
+    ]
+   }
+  },
+  {
+   "id": "rice_village_cowshed",
+   "kind": "rice_village_cowshed",
+   "name": "The cowshed",
+   "x": 41,
+   "z": 1,
+   "w": 6,
+   "d": 10,
+   "h": 6.8,
+   "eaves": 4.2,
+   "wall": "#b8664c",
+   "roof": "#a5503a",
+   "door": "W"
+  },
+  {
+   "id": "rice_village_barn",
+   "kind": "rice_village_barn",
+   "name": "The barn",
+   "x": 27,
+   "z": 4,
+   "w": 16,
+   "d": 5,
+   "h": 8.0,
+   "eaves": 5.6,
+   "wall": "#b8664c",
+   "roof": "#a5503a",
+   "open": "N"
+  },
+  {
+   "id": "rice_village_dryer",
+   "kind": "rice_village_dryer",
+   "name": "The rice dryer",
+   "x": 32,
+   "z": -12.5,
+   "w": 2.5,
+   "d": 2.5,
+   "h": 15.0,
+   "eaves": 13.0,
+   "wall": "#b9bdc1",
+   "roof": "#8c9196"
+  },
+  {
+   "id": "rice_village_wallWestN",
+   "kind": "rice_village_wall",
+   "name": "The farmstead wall",
+   "x": 12.7,
+   "z": -16.15,
+   "w": 0.6,
+   "d": 15.7,
+   "h": 2.6,
+   "eaves": 2.2,
+   "wall": "#a89a84",
+   "roof": "#a5503a"
+  },
+  {
+   "id": "rice_village_wallWestS",
+   "kind": "rice_village_wall",
+   "name": "The farmstead wall",
+   "x": 12.7,
+   "z": 1.7,
+   "w": 0.6,
+   "d": 11.0,
+   "h": 2.6,
+   "eaves": 2.2,
+   "wall": "#a89a84",
+   "roof": "#a5503a"
+  },
+  {
+   "id": "rice_village_wallSouthW",
+   "kind": "rice_village_wall",
+   "name": "The farmstead wall",
+   "x": 16.1,
+   "z": 6.9,
+   "w": 6.2,
+   "d": 0.6,
+   "h": 2.6,
+   "eaves": 2.2,
+   "wall": "#a89a84",
+   "roof": "#a5503a"
+  },
+  {
+   "id": "rice_village_wallSouthE",
+   "kind": "rice_village_wall",
+   "name": "The farmstead wall",
+   "x": 36.5,
+   "z": 6.2,
+   "w": 3.4,
+   "d": 0.6,
+   "h": 2.6,
+   "eaves": 2.2,
+   "wall": "#a89a84",
+   "roof": "#a5503a"
+  },
+  {
+   "id": "rice_village_wallNorthW",
+   "kind": "rice_village_wall",
+   "name": "The farmstead wall",
+   "x": 18.25,
+   "z": -20.7,
+   "w": 1.5,
+   "d": 0.6,
+   "h": 2.6,
+   "eaves": 2.2,
+   "wall": "#a89a84",
+   "roof": "#a5503a"
+  },
+  {
+   "id": "rice_village_wallNorthM",
+   "kind": "rice_village_wall",
+   "name": "The farmstead wall",
+   "x": 31.5,
+   "z": -20.7,
+   "w": 1.0,
+   "d": 0.6,
+   "h": 2.6,
+   "eaves": 2.2,
+   "wall": "#a89a84",
+   "roof": "#a5503a"
+  },
+  {
+   "id": "rice_village_wallNorthE",
+   "kind": "rice_village_wall",
+   "name": "The farmstead wall",
+   "x": 41.3,
+   "z": -20.7,
+   "w": 6.6,
+   "d": 0.6,
+   "h": 2.6,
+   "eaves": 2.2,
+   "wall": "#a89a84",
+   "roof": "#a5503a"
+  },
+  {
+   "id": "rice_village_wallEast",
+   "kind": "rice_village_wall",
+   "name": "The farmstead wall",
+   "x": 44.3,
+   "z": -18.2,
+   "w": 0.6,
+   "d": 4.4,
+   "h": 2.6,
+   "eaves": 2.2,
+   "wall": "#a89a84",
+   "roof": "#a5503a"
+  },
+  {
+   "id": "rice_village_tractor",
+   "kind": "rice_village_tractor",
+   "name": "Barba Tista's tractor",
+   "x": 34.2,
+   "z": -3.4,
+   "w": 1.8,
+   "d": 3.2,
+   "h": 2.4,
+   "eaves": 1.8,
+   "wall": "#c8642e",
+   "roof": "#3a3632"
+  },
+  {
+   "id": "rice_village_thresher",
+   "kind": "rice_village_thresher",
+   "name": "The old threshing machine",
+   "x": 47.4,
+   "z": -11.0,
+   "w": 1.8,
+   "d": 4.0,
+   "h": 3.0,
+   "eaves": 2.4,
+   "wall": "#9a5a38",
+   "roof": "#3a3632"
+  },
+  {
+   "id": "rice_village_trackWest",
+   "kind": "rice_village_track",
+   "name": "The main line",
+   "x": -31.25,
+   "z": -47.0,
+   "w": 61.5,
+   "d": 4.6,
+   "h": 0.95,
+   "eaves": 0.3,
+   "wall": "#9a948c",
+   "roof": "#6f5b4a"
+  },
+  {
+   "id": "rice_village_trackEast",
+   "kind": "rice_village_track",
+   "name": "The main line",
+   "x": 33.25,
+   "z": -47.0,
+   "w": 57.5,
+   "d": 4.6,
+   "h": 0.95,
+   "eaves": 0.3,
+   "wall": "#9a948c",
+   "roof": "#6f5b4a"
+  }
+ ],
+ "zones": [
+  {
+   "id": "rice_village_plot",
+   "name": "Your yard, beside the station",
+   "minI": 28,
+   "maxI": 37,
+   "minK": -41,
+   "maxK": -35,
+   "unlock": {
+    "flag": "rice_village_homePlot"
+   }
+  },
+  {
+   "id": "rice_village_platform",
+   "name": "The station platform",
+   "minI": 5,
+   "maxI": 33,
+   "minK": -44,
+   "maxK": -42,
+   "unlock": {
+    "quest": "rice_village_train"
+   }
+  },
+  {
+   "id": "rice_village_churchyard",
+   "name": "The churchyard",
+   "minI": -18,
+   "maxI": -12,
+   "minK": -3,
+   "maxK": 4,
+   "unlock": {
+    "quest": "rice_village_nativity"
+   }
+  },
+  {
+   "id": "rice_village_sluice",
+   "name": "The collapsed sluice",
+   "minI": -45,
+   "maxI": -36,
+   "minK": -30,
+   "maxK": -27,
+   "unlock": {
+    "quest": "rice_village_water"
+   }
+  },
+  {
+   "id": "rice_village_paddy",
+   "name": "The winter paddy's inlet",
+   "minI": -42,
+   "maxI": -31,
+   "minK": 7,
+   "maxK": 13,
+   "unlock": {
+    "quest": "rice_village_water"
+   }
+  },
+  {
+   "id": "rice_village_mill",
+   "name": "The old mill's waterwheel",
+   "minI": -42,
+   "maxI": -33,
+   "minK": -16,
+   "maxK": -10,
+   "unlock": {
+    "quest": "rice_village_mill"
+   }
+  },
+  {
+   "id": "rice_village_bench",
+   "name": "Nonna's corner of the paddy",
+   "minI": 8,
+   "maxI": 12,
+   "minK": 34,
+   "maxK": 36,
+   "unlock": {
+    "quest": "rice_village_bench"
+   }
+  }
+ ],
+ "nodes": [
+  {
+   "id": "rice_village_poplar0",
+   "kind": "chop",
+   "x": 9,
+   "z": 41
+  },
+  {
+   "id": "rice_village_poplar1",
+   "kind": "chop",
+   "x": 15,
+   "z": 41
+  },
+  {
+   "id": "rice_village_poplar2",
+   "kind": "chop",
+   "x": 21,
+   "z": 41
+  },
+  {
+   "id": "rice_village_poplar3",
+   "kind": "chop",
+   "x": 27,
+   "z": 41
+  },
+  {
+   "id": "rice_village_poplar4",
+   "kind": "chop",
+   "x": 9,
+   "z": 47
+  },
+  {
+   "id": "rice_village_poplar5",
+   "kind": "chop",
+   "x": 15,
+   "z": 47
+  },
+  {
+   "id": "rice_village_poplar6",
+   "kind": "chop",
+   "x": 21,
+   "z": 47
+  },
+  {
+   "id": "rice_village_poplar7",
+   "kind": "chop",
+   "x": 27,
+   "z": 47
+  },
+  {
+   "id": "rice_village_cobbles0",
+   "kind": "mine",
+   "x": -35.3,
+   "z": -33
+  },
+  {
+   "id": "rice_village_cobbles1",
+   "kind": "mine",
+   "x": -35.3,
+   "z": -20
+  },
+  {
+   "id": "rice_village_cobbles2",
+   "kind": "mine",
+   "x": -35.3,
+   "z": 17
+  },
+  {
+   "id": "rice_village_cobbles3",
+   "kind": "mine",
+   "x": -35.3,
+   "z": 26
+  },
+  {
+   "id": "rice_village_cobbles4",
+   "kind": "mine",
+   "x": -35.3,
+   "z": 40
+  },
+  {
+   "id": "rice_village_clay0",
+   "kind": "clay",
+   "x": -14,
+   "z": -25.9
+  },
+  {
+   "id": "rice_village_clay1",
+   "kind": "clay",
+   "x": 31,
+   "z": 21.1
+  },
+  {
+   "id": "rice_village_clay2",
+   "kind": "clay",
+   "x": 46,
+   "z": -14.9
+  },
+  {
+   "id": "rice_village_pool0",
+   "kind": "fish",
+   "x": -21.3,
+   "z": 31.0
+  },
+  {
+   "id": "rice_village_pool1",
+   "kind": "fish",
+   "x": -26.5,
+   "z": 34.3
+  },
+  {
+   "id": "rice_village_hellebores0",
+   "kind": "flowers",
+   "x": -10.5,
+   "z": 0.8
+  },
+  {
+   "id": "rice_village_hellebores1",
+   "kind": "flowers",
+   "x": -10.5,
+   "z": 3.6
+  }
+ ],
+ "features": [
+  {
+   "id": "rice_village_busStop",
+   "kind": "boat",
+   "x": -0.8,
+   "z": 0.4,
+   "depart_label": "Catch the bus"
+  },
+  {
+   "id": "rice_village_sign",
+   "kind": "sign",
+   "x": 4.4,
+   "z": -14.5,
+   "text": "Casalrana Vercellese. Pop. 41. Drive slowly: the frogs are asleep."
+  },
+  {
+   "id": "rice_village_stationSign",
+   "kind": "sign",
+   "x": 11.2,
+   "z": -30.9,
+   "text": "Casalrana station. Unmanned since 1993. Trains do not stop here."
+  },
+  {
+   "id": "rice_village_millSign",
+   "kind": "sign",
+   "x": -24.0,
+   "z": -8.4,
+   "text": "The old rice mill. Stopped since 1961."
+  },
+  {
+   "id": "rice_village_waitingBench",
+   "kind": "rest",
+   "x": 14.4,
+   "z": -39.0,
+   "label": "Sleep on the waiting-room bench"
+  },
+  {
+   "id": "rice_village_board",
+   "kind": "board",
+   "x": 6.4,
+   "z": -11.6,
+   "label": "Read the notice board"
+  },
+  {
+   "id": "rice_village_benchSquare",
+   "kind": "bench",
+   "x": 5.6,
+   "z": -0.9,
+   "r": 0
+  },
+  {
+   "id": "rice_village_benchStation",
+   "kind": "bench",
+   "x": 8.0,
+   "z": -34.8,
+   "r": 0
+  },
+  {
+   "id": "rice_village_benchPool",
+   "kind": "bench",
+   "x": -21.0,
+   "z": 38.2,
+   "r": 0
+  },
+  {
+   "id": "rice_village_benchLevee",
+   "kind": "bench",
+   "x": -37.0,
+   "z": 2.0,
+   "r": 1
+  }
+ ],
+ "nav_nodes": {
+  "square": [
+   2,
+   -6
+  ],
+  "squareN": [
+   2,
+   -11.5
+  ],
+  "squareE": [
+   7.5,
+   -6
+  ],
+  "squareW": [
+   -3.5,
+   -6
+  ],
+  "busStop": [
+   0.6,
+   1.6
+  ],
+  "churchDoor": [
+   -6.5,
+   -2.9
+  ],
+  "churchCorner": [
+   -11,
+   -5
+  ],
+  "churchyard": [
+   -19,
+   -4
+  ],
+  "towerPath": [
+   -19,
+   11.2
+  ],
+  "towerDoor": [
+   -11.75,
+   11.2
+  ],
+  "presbyteryDoor": [
+   -2.6,
+   13.5
+  ],
+  "road13": [
+   2,
+   13.5
+  ],
+  "millRoad": [
+   -20,
+   -6
+  ],
+  "millDoor": [
+   -29,
+   -8.6
+  ],
+  "levee": [
+   -37.1,
+   -6
+  ],
+  "wpBankE": [
+   -20.2,
+   5.6
+  ],
+  "wpBank": [
+   -28,
+   5.6
+  ],
+  "road27": [
+   2,
+   -27
+  ],
+  "bank27": [
+   -30,
+   -27
+  ],
+  "sluice": [
+   -36.9,
+   -27
+  ],
+  "stationRoad": [
+   2,
+   -32.5
+  ],
+  "roadCasello": [
+   2,
+   -39.5
+  ],
+  "casello": [
+   -5.6,
+   -39.5
+  ],
+  "crossingS": [
+   2,
+   -42.6
+  ],
+  "crossingN": [
+   2,
+   -51.5
+  ],
+  "platformW": [
+   3.2,
+   -42.8
+  ],
+  "forecourtW": [
+   12,
+   -32.5
+  ],
+  "stationDoor": [
+   16,
+   -34.6
+  ],
+  "stationYard": [
+   27,
+   -33.2
+  ],
+  "cascinaGate": [
+   12.5,
+   -6
+  ],
+  "courtyard": [
+   28,
+   -9
+  ],
+  "courtyardNE": [
+   34.5,
+   -10
+  ],
+  "farmhouseDoor": [
+   25,
+   -14.1
+  ],
+  "officeDoor": [
+   35,
+   -15.1
+  ],
+  "shedDoor": [
+   37.1,
+   -11
+  ],
+  "cowshedDoor": [
+   37.1,
+   1
+  ],
+  "barnFront": [
+   27,
+   0.6
+  ],
+  "gardenGate": [
+   15.5,
+   -2.8
+  ],
+  "road34": [
+   2,
+   34
+  ],
+  "poolPath": [
+   -17.5,
+   34
+  ],
+  "pool": [
+   -18.4,
+   32.8
+  ],
+  "plantation": [
+   8,
+   44
+  ],
+  "nonnaPaddy": [
+   6.5,
+   32.6
+  ]
+ },
+ "nav_edges": [
+  [
+   "square",
+   "squareN"
+  ],
+  [
+   "square",
+   "squareE"
+  ],
+  [
+   "square",
+   "squareW"
+  ],
+  [
+   "square",
+   "busStop"
+  ],
+  [
+   "squareW",
+   "churchDoor"
+  ],
+  [
+   "squareW",
+   "churchCorner"
+  ],
+  [
+   "churchCorner",
+   "churchyard"
+  ],
+  [
+   "churchyard",
+   "towerPath"
+  ],
+  [
+   "towerPath",
+   "towerDoor"
+  ],
+  [
+   "churchyard",
+   "millRoad"
+  ],
+  [
+   "squareW",
+   "millRoad"
+  ],
+  [
+   "millRoad",
+   "millDoor"
+  ],
+  [
+   "millRoad",
+   "levee"
+  ],
+  [
+   "millRoad",
+   "wpBankE"
+  ],
+  [
+   "wpBankE",
+   "wpBank"
+  ],
+  [
+   "busStop",
+   "road13"
+  ],
+  [
+   "road13",
+   "presbyteryDoor"
+  ],
+  [
+   "road13",
+   "road34"
+  ],
+  [
+   "road34",
+   "poolPath"
+  ],
+  [
+   "poolPath",
+   "pool"
+  ],
+  [
+   "road34",
+   "nonnaPaddy"
+  ],
+  [
+   "road34",
+   "plantation"
+  ],
+  [
+   "squareN",
+   "road27"
+  ],
+  [
+   "road27",
+   "bank27"
+  ],
+  [
+   "bank27",
+   "sluice"
+  ],
+  [
+   "road27",
+   "stationRoad"
+  ],
+  [
+   "stationRoad",
+   "roadCasello"
+  ],
+  [
+   "roadCasello",
+   "casello"
+  ],
+  [
+   "roadCasello",
+   "crossingS"
+  ],
+  [
+   "crossingS",
+   "crossingN"
+  ],
+  [
+   "crossingS",
+   "platformW"
+  ],
+  [
+   "stationRoad",
+   "forecourtW"
+  ],
+  [
+   "forecourtW",
+   "stationDoor"
+  ],
+  [
+   "stationDoor",
+   "stationYard"
+  ],
+  [
+   "squareE",
+   "cascinaGate"
+  ],
+  [
+   "cascinaGate",
+   "courtyard"
+  ],
+  [
+   "courtyard",
+   "courtyardNE"
+  ],
+  [
+   "courtyardNE",
+   "officeDoor"
+  ],
+  [
+   "courtyardNE",
+   "shedDoor"
+  ],
+  [
+   "courtyard",
+   "farmhouseDoor"
+  ],
+  [
+   "courtyard",
+   "barnFront"
+  ],
+  [
+   "barnFront",
+   "cowshedDoor"
+  ],
+  [
+   "cascinaGate",
+   "gardenGate"
+  ]
+ ],
+ "paths": [
+  [
+   [
+    2,
+    -56
+   ],
+   [
+    2,
+    -11
+   ]
+  ],
+  [
+   [
+    2,
+    -1
+   ],
+   [
+    2,
+    56
+   ]
+  ],
+  [
+   [
+    7,
+    -6
+   ],
+   [
+    13,
+    -6
+   ]
+  ],
+  [
+   [
+    -3,
+    -6
+   ],
+   [
+    -36.5,
+    -6
+   ]
+  ],
+  [
+   [
+    -37.2,
+    -44
+   ],
+   [
+    -37.2,
+    50
+   ]
+  ],
+  [
+   [
+    2,
+    -32.5
+   ],
+   [
+    27,
+    -32.5
+   ]
+  ],
+  [
+   [
+    2,
+    -39.5
+   ],
+   [
+    -6.5,
+    -39.5
+   ]
+  ],
+  [
+   [
+    -2.4,
+    -4.0
+   ],
+   [
+    -6.5,
+    -2.2
+   ]
+  ],
+  [
+   [
+    2,
+    34
+   ],
+   [
+    -18.5,
+    33.2
+   ]
+  ],
+  [
+   [
+    -3.5,
+    -6
+   ],
+   [
+    -11,
+    -5
+   ],
+   [
+    -19,
+    -4
+   ],
+   [
+    -19,
+    11.2
+   ],
+   [
+    -13.6,
+    11.2
+   ]
+  ],
+  [
+   [
+    2,
+    -27
+   ],
+   [
+    -36.5,
+    -27
+   ]
+  ],
+  [
+   [
+    2,
+    44
+   ],
+   [
+    36,
+    44
+   ]
+  ]
+ ],
+ "props": [
+  {
+   "kind": "rice_village_poplar",
+   "x": 33,
+   "z": 41,
+   "rad": 0.35
+  },
+  {
+   "kind": "rice_village_poplar",
+   "x": 33,
+   "z": 47,
+   "rad": 0.35
+  },
+  {
+   "kind": "rice_village_poplar",
+   "x": 9,
+   "z": 51,
+   "rad": 0.35
+  },
+  {
+   "kind": "rice_village_poplar",
+   "x": 15,
+   "z": 51,
+   "rad": 0.35
+  },
+  {
+   "kind": "rice_village_poplar",
+   "x": 21,
+   "z": 51,
+   "rad": 0.35
+  },
+  {
+   "kind": "rice_village_poplar",
+   "x": 27,
+   "z": 51,
+   "rad": 0.35
+  },
+  {
+   "kind": "rice_village_poplar",
+   "x": 33,
+   "z": 51,
+   "rad": 0.35
+  },
+  {
+   "kind": "rice_village_poplar",
+   "x": 53.6,
+   "z": -42,
+   "rad": 0.3,
+   "narrow": true,
+   "s": 0.95
+  },
+  {
+   "kind": "rice_village_poplar",
+   "x": 53.6,
+   "z": -33.5,
+   "rad": 0.3,
+   "narrow": true,
+   "s": 0.95
+  },
+  {
+   "kind": "rice_village_poplar",
+   "x": 53.6,
+   "z": -28,
+   "rad": 0.3,
+   "narrow": true,
+   "s": 0.95
+  },
+  {
+   "kind": "rice_village_poplar",
+   "x": 53.6,
+   "z": -19.5,
+   "rad": 0.3,
+   "narrow": true,
+   "s": 0.95
+  },
+  {
+   "kind": "rice_village_poplar",
+   "x": 53.6,
+   "z": -14,
+   "rad": 0.3,
+   "narrow": true,
+   "s": 0.95
+  },
+  {
+   "kind": "rice_village_poplar",
+   "x": 53.6,
+   "z": -5.5,
+   "rad": 0.3,
+   "narrow": true,
+   "s": 0.95
+  },
+  {
+   "kind": "rice_village_poplar",
+   "x": 53.6,
+   "z": 0,
+   "rad": 0.3,
+   "narrow": true,
+   "s": 0.95
+  },
+  {
+   "kind": "rice_village_poplar",
+   "x": 53.6,
+   "z": 8.5,
+   "rad": 0.3,
+   "narrow": true,
+   "s": 0.95
+  },
+  {
+   "kind": "rice_village_poplar",
+   "x": 53.6,
+   "z": 14,
+   "rad": 0.3,
+   "narrow": true,
+   "s": 0.95
+  },
+  {
+   "kind": "rice_village_poplar",
+   "x": 53.6,
+   "z": 22.5,
+   "rad": 0.3,
+   "narrow": true,
+   "s": 0.95
+  },
+  {
+   "kind": "rice_village_poplar",
+   "x": 53.6,
+   "z": 28,
+   "rad": 0.3,
+   "narrow": true,
+   "s": 0.95
+  },
+  {
+   "kind": "rice_village_poplar",
+   "x": 53.6,
+   "z": 36.5,
+   "rad": 0.3,
+   "narrow": true,
+   "s": 0.95
+  },
+  {
+   "kind": "rice_village_poplar",
+   "x": 53.6,
+   "z": 42,
+   "rad": 0.3,
+   "narrow": true,
+   "s": 0.95
+  },
+  {
+   "kind": "rice_village_poplar",
+   "x": 53.6,
+   "z": 50.5,
+   "rad": 0.3,
+   "narrow": true,
+   "s": 0.95
+  },
+  {
+   "kind": "rice_village_poplar",
+   "x": -46.6,
+   "z": -44,
+   "rad": 0.3,
+   "narrow": true
+  },
+  {
+   "kind": "rice_village_poplar",
+   "x": -46.6,
+   "z": -36,
+   "rad": 0.3,
+   "narrow": true
+  },
+  {
+   "kind": "rice_village_poplar",
+   "x": -46.6,
+   "z": -28,
+   "rad": 0.3,
+   "narrow": true
+  },
+  {
+   "kind": "rice_village_poplar",
+   "x": -46.6,
+   "z": -20,
+   "rad": 0.3,
+   "narrow": true
+  },
+  {
+   "kind": "rice_village_poplar",
+   "x": -46.6,
+   "z": -12,
+   "rad": 0.3,
+   "narrow": true
+  },
+  {
+   "kind": "rice_village_poplar",
+   "x": -46.6,
+   "z": -4,
+   "rad": 0.3,
+   "narrow": true
+  },
+  {
+   "kind": "rice_village_poplar",
+   "x": -46.6,
+   "z": 4,
+   "rad": 0.3,
+   "narrow": true
+  },
+  {
+   "kind": "rice_village_poplar",
+   "x": -46.6,
+   "z": 12,
+   "rad": 0.3,
+   "narrow": true
+  },
+  {
+   "kind": "rice_village_poplar",
+   "x": -46.6,
+   "z": 20,
+   "rad": 0.3,
+   "narrow": true
+  },
+  {
+   "kind": "rice_village_poplar",
+   "x": -46.6,
+   "z": 28,
+   "rad": 0.3,
+   "narrow": true
+  },
+  {
+   "kind": "rice_village_poplar",
+   "x": -46.6,
+   "z": 36,
+   "rad": 0.3,
+   "narrow": true
+  },
+  {
+   "kind": "rice_village_poplar",
+   "x": -46.6,
+   "z": 44,
+   "rad": 0.3,
+   "narrow": true
+  },
+  {
+   "kind": "rice_village_poplar",
+   "x": -29,
+   "z": 47.4,
+   "rad": 0.35
+  },
+  {
+   "kind": "rice_village_poplar",
+   "x": -23,
+   "z": 47.4,
+   "rad": 0.35
+  },
+  {
+   "kind": "rice_village_poplar",
+   "x": -12,
+   "z": 47.4,
+   "rad": 0.35
+  },
+  {
+   "kind": "rice_village_willow",
+   "x": -26.15,
+   "z": 37.92,
+   "rad": 0.45,
+   "s": 1.16
+  },
+  {
+   "kind": "rice_village_willow",
+   "x": -29.92,
+   "z": 34.15,
+   "rad": 0.45,
+   "s": 1.08
+  },
+  {
+   "kind": "rice_village_willow",
+   "x": -29.71,
+   "z": 29.34,
+   "rad": 0.45,
+   "s": 1.08
+  },
+  {
+   "kind": "rice_village_willow",
+   "x": -26.15,
+   "z": 26.08,
+   "rad": 0.45,
+   "s": 1.08
+  },
+  {
+   "kind": "rice_village_willow",
+   "x": -20.85,
+   "z": 26.54,
+   "rad": 0.45,
+   "s": 1.0
+  },
+  {
+   "kind": "rice_village_alder",
+   "x": -30.89,
+   "z": 37.79,
+   "rad": 0.3
+  },
+  {
+   "kind": "rice_village_alder",
+   "x": -29.79,
+   "z": 25.11,
+   "rad": 0.3
+  },
+  {
+   "kind": "rice_village_alder",
+   "x": -16.21,
+   "z": 27.5,
+   "rad": 0.3
+  },
+  {
+   "kind": "rice_village_robinia",
+   "x": -52.7,
+   "z": -52.2,
+   "rad": 0.4,
+   "s": 0.9
+  },
+  {
+   "kind": "rice_village_robinia",
+   "x": -43.7,
+   "z": -52.2,
+   "rad": 0.4,
+   "s": 0.9
+  },
+  {
+   "kind": "rice_village_robinia",
+   "x": -34.7,
+   "z": -52.2,
+   "rad": 0.4,
+   "s": 0.9
+  },
+  {
+   "kind": "rice_village_robinia",
+   "x": -25.7,
+   "z": -52.2,
+   "rad": 0.4,
+   "s": 0.9
+  },
+  {
+   "kind": "rice_village_robinia",
+   "x": -16.7,
+   "z": -52.2,
+   "rad": 0.4,
+   "s": 0.9
+  },
+  {
+   "kind": "rice_village_robinia",
+   "x": -7.7,
+   "z": -52.2,
+   "rad": 0.4,
+   "s": 0.9
+  },
+  {
+   "kind": "rice_village_robinia",
+   "x": 10.3,
+   "z": -52.2,
+   "rad": 0.4,
+   "s": 0.9
+  },
+  {
+   "kind": "rice_village_robinia",
+   "x": 19.3,
+   "z": -52.2,
+   "rad": 0.4,
+   "s": 0.9
+  },
+  {
+   "kind": "rice_village_robinia",
+   "x": 28.3,
+   "z": -52.2,
+   "rad": 0.4,
+   "s": 0.9
+  },
+  {
+   "kind": "rice_village_robinia",
+   "x": 37.3,
+   "z": -52.2,
+   "rad": 0.4,
+   "s": 0.9
+  },
+  {
+   "kind": "rice_village_robinia",
+   "x": 46.3,
+   "z": -52.2,
+   "rad": 0.4,
+   "s": 0.9
+  },
+  {
+   "kind": "rice_village_robinia",
+   "x": 55.3,
+   "z": -52.2,
+   "rad": 0.4,
+   "s": 0.9
+  },
+  {
+   "kind": "rice_village_robinia",
+   "x": -55,
+   "z": -43.3,
+   "rad": 0.4
+  },
+  {
+   "kind": "rice_village_robinia",
+   "x": -47,
+   "z": -43.3,
+   "rad": 0.4
+  },
+  {
+   "kind": "rice_village_robinia",
+   "x": -31,
+   "z": -43.3,
+   "rad": 0.4
+  },
+  {
+   "kind": "rice_village_robinia",
+   "x": -23,
+   "z": -43.3,
+   "rad": 0.4
+  },
+  {
+   "kind": "rice_village_mulberry",
+   "x": -12,
+   "z": 21.4,
+   "rad": 0.4
+  },
+  {
+   "kind": "rice_village_mulberry",
+   "x": 18,
+   "z": 21.4,
+   "rad": 0.4
+  },
+  {
+   "kind": "rice_village_mulberry",
+   "x": 30,
+   "z": 18.6,
+   "rad": 0.4
+  },
+  {
+   "kind": "rice_village_mulberry",
+   "x": 44,
+   "z": 21.4,
+   "rad": 0.4
+  },
+  {
+   "kind": "rice_village_mulberry",
+   "x": 24.9,
+   "z": -31,
+   "rad": 0.4
+  },
+  {
+   "kind": "rice_village_mulberry",
+   "x": -8.6,
+   "z": -29.6,
+   "rad": 0.4
+  },
+  {
+   "kind": "rice_village_mulberry",
+   "x": 46.8,
+   "z": -27.9,
+   "rad": 0.4
+  },
+  {
+   "kind": "rice_village_bale",
+   "x": 28,
+   "z": 24,
+   "rad": 0.8,
+   "r": 0.0
+  },
+  {
+   "kind": "rice_village_bale",
+   "x": 34.5,
+   "z": 28.8,
+   "rad": 0.8,
+   "r": 0.37
+  },
+  {
+   "kind": "rice_village_bale",
+   "x": 35.8,
+   "z": 23.5,
+   "rad": 0.8,
+   "r": 0.74
+  },
+  {
+   "kind": "rice_village_bale",
+   "x": -25.5,
+   "z": -31.2,
+   "rad": 0.8,
+   "r": 1.1099999999999999
+  },
+  {
+   "kind": "rice_village_bale",
+   "x": -21.2,
+   "z": -35.2,
+   "rad": 0.8,
+   "r": 1.48
+  },
+  {
+   "kind": "rice_village_bale",
+   "x": 42.8,
+   "z": -30.0,
+   "rad": 0.8,
+   "r": 1.85
+  },
+  {
+   "kind": "rice_village_bale",
+   "x": 48.3,
+   "z": -35.6,
+   "rad": 0.8,
+   "r": 2.2199999999999998
+  },
+  {
+   "kind": "rice_village_bale",
+   "x": 6.4,
+   "z": 27.8,
+   "rad": 0.8,
+   "r": 2.59
+  },
+  {
+   "kind": "rice_village_bale",
+   "x": -13,
+   "z": -32.8,
+   "rad": 0.8,
+   "r": 2.96
+  },
+  {
+   "kind": "rice_village_payphone",
+   "x": 24.5,
+   "z": -34.4,
+   "rad": 0.35,
+   "r": 3.141592653589793
+  },
+  {
+   "kind": "rice_village_pole",
+   "x": -52,
+   "z": -50.9,
+   "rad": 0.2
+  },
+  {
+   "kind": "rice_village_pole",
+   "x": -34,
+   "z": -50.9,
+   "rad": 0.2
+  },
+  {
+   "kind": "rice_village_pole",
+   "x": -16,
+   "z": -50.9,
+   "rad": 0.2
+  },
+  {
+   "kind": "rice_village_pole",
+   "x": 20,
+   "z": -50.9,
+   "rad": 0.2
+  },
+  {
+   "kind": "rice_village_pole",
+   "x": 38,
+   "z": -50.9,
+   "rad": 0.2
+  },
+  {
+   "kind": "rice_village_pole",
+   "x": 54,
+   "z": -50.9,
+   "rad": 0.2
+  },
+  {
+   "kind": "rice_village_crossingPost",
+   "x": 3.9,
+   "z": -43.6,
+   "rad": 0.3
+  },
+  {
+   "kind": "rice_village_crossingPost",
+   "x": -0.4,
+   "z": -50.1,
+   "rad": 0.3
+  },
+  {
+   "kind": "lamp_post",
+   "x": -3.2,
+   "z": -10.4
+  },
+  {
+   "kind": "lamp_post",
+   "x": 7.6,
+   "z": -9.6
+  },
+  {
+   "kind": "lamp_post",
+   "x": 12.5,
+   "z": -35.3
+  },
+  {
+   "kind": "lamp_post",
+   "x": 26.2,
+   "z": -31.4
+  },
+  {
+   "kind": "lamp_post",
+   "x": 11.3,
+   "z": -8.8
+  },
+  {
+   "kind": "lamp_post",
+   "x": -24.2,
+   "z": -4.3
+  },
+  {
+   "kind": "lamp_post",
+   "x": 3.2,
+   "z": -40.6
+  },
+  {
+   "kind": "lamp_post",
+   "x": -1.6,
+   "z": 3.4
+  },
+  {
+   "kind": "piece",
+   "id": "flowerBed",
+   "x": 20.6,
+   "z": -34.95,
+   "rad": 0.45
+  },
+  {
+   "kind": "piece",
+   "id": "flowerBed",
+   "x": 21.7,
+   "z": -34.95,
+   "rad": 0.45
+  },
+  {
+   "kind": "piece",
+   "id": "flowerBed",
+   "x": 22.8,
+   "z": -34.95,
+   "rad": 0.45
+  }
+ ]
+}

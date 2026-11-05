@@ -75,9 +75,11 @@ func _ready() -> void:
 		var sp0: Dictionary = Data.layout.spawn
 		state.island = start_island; state.player = {"x": sp0.x, "z": sp0.z, "yaw": sp0.yaw}
 		state.tutorial = Tutorial.new_state(false, true)
+	Data.apply_world_flags(state.flags)   # the place as the story has left it (a location's WORLD_FLAGS)
 	decor = WorldStatics.generate_decor()
 	statics = WorldStatics.build_statics(decor)
 	walk = WalkWorld.new(statics, func(f): return state.flags.get(f, false))
+	walk.floors = WorldStatics.floors()   # balconies, roof terraces and decks from the layout
 	env = TerrainBuilder.build_environment(); add_child(env)
 	sun = DirectionalLight3D.new(); sun.shadow_enabled = true; sun.light_energy = 0.62; sun.light_color = Color("fff1d6")
 	sun.directional_shadow_max_distance = 70.0; sun.rotation_degrees = Vector3(-50, 35, 0)
@@ -121,7 +123,8 @@ func _ready() -> void:
 	if not arriving.is_empty():
 		load_state(state)
 		begin_play()
-		_arrived()
+		if Data.rebuilding: Data.rebuilding = false; cam.update(0.016, player.pos); cam.snap(); _fade(false)   # rebuilt where you stand
+		else: _arrived()
 	elif screens and ((not shot_cfg.has("autoplay") and not shot_cfg.has("skiptitle")) or shot_cfg.has("title")): screens.title()
 	else: begin_play()
 	if shot_cfg.has("autoplay") and not Data.autoplay_started:
@@ -229,6 +232,27 @@ func set_flag(f: String, v: bool = true) -> void:
 	if state.flags.get(f, false) == v: return
 	state.flags[f] = v
 	emit_event("flag", {"flag": f, "value": v})
+	if Data.world_flags_of(Data.island, state.flags) != Data.world_flags: request_rebuild()
+
+## The story changed the place you're on (one of its location's WORLD_FLAGS: a piazza drained, a boat launched).
+## It is built again where you stand once the conversation that did it has ended, the way sailing rebuilds the
+## world for another island: the state crosses a scene reload and the layout is laid out for the new flags.
+var rebuild_pending := false
+func request_rebuild() -> void:
+	rebuild_pending = true
+	if story == null or not story.busy: rebuild_world.call_deferred()
+
+func rebuild_world() -> void:
+	if not rebuild_pending or traveling: return
+	rebuild_pending = false
+	if build.active: build.close()
+	set_mode("cutscene")
+	await _fade(true).finished
+	snapshot()
+	traveling = true
+	Data.pending_state = state
+	Data.rebuilding = true
+	get_tree().reload_current_scene()
 
 # ---- Modes ---------------------------------------------------------------------------------------
 func set_mode(m: String) -> void:
@@ -284,6 +308,22 @@ func sleep_until(hour: float, where: String = "bed") -> void:
 	sfx("morning")
 	autosave("rest", true)
 	emit_event("slept", {"hour": hour, "where": where})
+
+## Ride from one stop to another on a line within this place (Travel.stops_on): the screen fades, the clock moves
+## on by the ride's length, and you step off at the other stop.
+func ride_to(from: Dictionary, to: Dictionary) -> void:
+	panels.close()
+	set_mode("cutscene")
+	stand_up()
+	await _fade(true).finished
+	Clock.advance(state.time, Travel.ride_minutes(from, to) / Clock.MINUTES_PER_SECOND)
+	var spot := walk.free_spot(float(to.x), float(to.z), Rect2(), 6.0, WalkWorld.PLAYER_RADIUS, player.body)
+	if not spot.is_empty(): player.teleport(spot.x, spot.z)
+	cam.snap()
+	_fade(false)
+	set_mode("explore")
+	toast(String(to.get("arrive_text", String(to.get("name", "")))))
+	emit_event("rode", {"from": from.id, "to": to.id})
 
 func _fade(on: bool) -> Tween:
 	var r: ColorRect = ui_root.get_node_or_null("Fade")
@@ -362,12 +402,13 @@ func on_quest_completed(qid: String) -> void:
 	for a in npcs.values():
 		if a.present and Vector2(a.pos.x - player.pos.x, a.pos.z - player.pos.z).length() < 12.0: a.character.play("clap" if randf() < 0.5 else "celebrate")
 
-## Path cells of the bridge the player built, so villagers walk across it.
+## Path cells of the bridge the player built, so villagers walk across it (Hearthglow's, and a layout's
+## "crossings": Schedule.crossing).
 func crossing_path(a: String, b: String) -> Array:
 	var dir := 0
 	if a == "bridgeS" and b == "bridgeN": dir = 1
 	elif a == "bridgeN" and b == "bridgeS": dir = -1
-	if dir == 0: return []
+	if dir == 0: return Schedule.crossing(a, b, state.crossings)
 	var cells: Array = state.crossings.get("bridge", [])
 	var pts := cells.map(func(c): return Vector2(c[0] + 0.5, c[1] + 0.5))
 	if dir < 0: pts.reverse()
@@ -399,7 +440,8 @@ func load_from(slot: String) -> bool:
 
 func load_state(s: Dictionary) -> void:
 	if build.active: build.close()
-	if s.get("island", "hearthglow") != Data.island:   # a save made on another island: rebuild the world for it
+	# a save made on another island, or on this one at another point of its story: rebuild the world for it
+	if s.get("island", "hearthglow") != Data.island or Data.world_flags_of(Data.island, s.get("flags", {})) != Data.world_flags:
 		traveling = true
 		Data.pending_state = s
 		Data.use_island(s.get("island", "hearthglow"))
@@ -784,7 +826,8 @@ func _update_world_time(dt: float) -> void:
 	var look := Daylight.sample(h)
 	var nt := Daylight.nightness(h)
 	var forced: String = shot_cfg.get("weather", "")   # screenshots: --weather=rain etc.
-	var w: Dictionary = Daylight.weather(s.time) if settings.weather and forced == "" else Daylight.WEATHER.get(forced if forced != "" else "clear", Daylight.WEATHER.clear).duplicate()
+	if forced == "" and settings.weather: forced = Daylight.forced(s)   # a request's own weather (Daylight.force)
+	var w: Dictionary = Daylight.weather(s.time, Daylight.allowed_here()) if settings.weather and forced == "" else Daylight.WEATHER.get(forced if forced != "" else "clear", Daylight.WEATHER.clear).duplicate()
 	if not w.has("type"): w["type"] = forced if forced != "" else "clear"
 	# ease the weather values too, so switching the setting or loading a save doesn't snap the sky
 	for k in ["clouds", "rain", "fog", "sun"]:

@@ -1,0 +1,113 @@
+{
+ "_comment": "Boccapioppo's own materials, treats, river junk and lost things.",
+ "resources": {
+  "river_town_sand": {
+   "name": "Sand",
+   "icon": "⏳",
+   "color": "#e3cf9a"
+  },
+  "river_town_pioppino": {
+   "name": "Poplar Mushrooms",
+   "icon": "🍄",
+   "color": "#c9a46a"
+  },
+  "river_town_log": {
+   "name": "Runaway Log",
+   "icon": "🪵",
+   "color": "#a59c8c"
+  },
+  "river_town_sbrisolona": {
+   "name": "Sbrisolona",
+   "icon": "🍪",
+   "color": "#e0b04a",
+   "treat": 3
+  },
+  "river_town_goose_sandwich": {
+   "name": "Goose Salami Sandwich",
+   "icon": "🥪",
+   "color": "#c9785a",
+   "treat": 2
+  },
+  "river_town_fried_fish": {
+   "name": "Fried Little Fish",
+   "icon": "🍤",
+   "color": "#e8b86a",
+   "treat": 2
+  },
+  "river_town_zabaglione": {
+   "name": "Hot Zabaglione",
+   "icon": "🥛",
+   "color": "#f2d27a",
+   "treat": 2
+  },
+  "river_town_boot": {
+   "name": "Old Boot",
+   "icon": "🥾",
+   "color": "#5a4030"
+  },
+  "river_town_wheel": {
+   "name": "Bicycle Wheel",
+   "icon": "🛞",
+   "color": "#6f6a66"
+  },
+  "river_town_tyre": {
+   "name": "Old Tyre",
+   "icon": "⭕",
+   "color": "#2a2a2a"
+  },
+  "river_town_clock": {
+   "name": "Pierina's cuckoo clock",
+   "icon": "🕰️",
+   "color": "#e8c06a"
+  },
+  "river_town_gnome": {
+   "name": "Rina's garden gnome",
+   "icon": "🧙",
+   "color": "#e8c06a"
+  },
+  "river_town_trophy": {
+   "name": "Wanda's trophy",
+   "icon": "🏆",
+   "color": "#e8c06a"
+  },
+  "river_town_photo": {
+   "name": "Race Photo",
+   "icon": "🖼️",
+   "color": "#e8c06a"
+  },
+  "river_town_walkman": {
+   "name": "Mattia's Walkman",
+   "icon": "📼",
+   "color": "#e8c06a"
+  },
+  "river_town_oar": {
+   "name": "Tullio's oar",
+   "icon": "🛶",
+   "color": "#e8c06a"
+  },
+  "river_town_whisker": {
+   "name": "Monster's Whisker",
+   "icon": "〰️",
+   "color": "#4a4a42"
+  }
+ },
+ "order": [
+  "river_town_sand",
+  "river_town_pioppino",
+  "river_town_log",
+  "river_town_sbrisolona",
+  "river_town_goose_sandwich",
+  "river_town_fried_fish",
+  "river_town_zabaglione",
+  "river_town_boot",
+  "river_town_wheel",
+  "river_town_tyre",
+  "river_town_clock",
+  "river_town_gnome",
+  "river_town_trophy",
+  "river_town_photo",
+  "river_town_walkman",
+  "river_town_oar",
+  "river_town_whisker"
+ ]
+}

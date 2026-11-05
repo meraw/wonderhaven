@@ -1,0 +1,15 @@
+{
+ "name": "Toriano",
+ "x": 600,
+ "y": 150,
+ "r": 80,
+ "color": "#c9a46a",
+ "desc": "The big city: a marble cathedral bristling with spires, a glass-roofed arcade, old orange trams and canals full of bars, all in the fog.",
+ "reveal": "rice_village_trainStops",
+ "look": {
+  "shade": [0.0, 0.006, 0.02],
+  "light": [0.97, 0.98, 1.0],
+  "wind": 0.6,
+  "life": {"motes": 0.4, "fireflies": 0.0, "leaves": 0.3}
+ }
+}

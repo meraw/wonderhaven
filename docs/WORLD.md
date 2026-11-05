@@ -31,9 +31,12 @@ Shared rules for everyone building a location, people and Claude sessions alike,
 - **Progress meter:** the approval rating belongs to Monteforchetta's mayor. If your location wants its own meter,
   ask the user before building one.
 - **Travel:** Monteforchetta's finale opens the bus line to the city and the travel map. Each location has an entry
-  on that map. For now every location needs a departure point, a feature of kind `boat`, because the islands test
+  on that map, which stays off it until the place is unlocked: every place is a surprise, and the map grows as the
+  game goes on (its view widens to take in what's there). Give the entry a `reveal` flag, set by whatever opens the
+  way there. For now every location needs a departure point, a feature of kind `boat`, because the islands test
   expects one. It becomes a general stop once Monteforchetta's bus is built. Transport inside a location, like
-  trams or funiculars, is that location's own design.
+  trams or funiculars, is that location's own design; riding between its stops is shared (features of kind `stop`,
+  see `Travel.stops_on`), and so are raised floors for balconies, terraces and bridges (`floors` in a layout).
 - **Look:** shared shaders and the atmosphere module (`docs/GRAPHICS.md`) give every location wind, light,
   weather and ambient life. A location tunes its mood with the `look` block in its map entry: `shade` is added to
   shadows, `light` multiplies highlights, `wind` scales the wind, and `life` scales motes, fireflies and leaves.
@@ -63,7 +66,8 @@ Starting points only. Each location's session settles the details with the user 
      shared files and are merged in when the game loads.
    - `godot/scripts/locations/<id>.gd`, and helpers in `godot/scripts/locations/<id>/`. The script can define
      static `height(x, z)` for the ground shape, `is_stream_cell(i, k)`, `building(b)` for its own building
-     models, and `dress(village)` for extra scenery. See the README files in those folders.
+     models, `dress(village)` for extra scenery, and `WORLD_FLAGS` with `adjust(layout, flags)` for a place that
+     changes with the story. See the README files in those folders.
    - `godot/tests/test_<id>.gd` and `godot/tests/play_<id>.gd` for your tests and playthroughs.
    - `docs/locations/<id>.md` for your design and status.
 3. **Ids:** prefix every id with `<id>_`: villagers, requests, shops, materials and story flags. The tests check

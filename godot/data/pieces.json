@@ -44,6 +44,25 @@
    "desc": "Stands on the river bed and holds up planks above the water."
   },
   {
+   "id": "pontoon",
+   "name": "Pontoon",
+   "icon": "🛶",
+   "cat": "structure",
+   "size": [
+    1,
+    2
+   ],
+   "h": 0.6,
+   "walkable": true,
+   "placeOn": "water",
+   "cost": {
+    "wood": 3,
+    "clay": 1
+   },
+   "color": "#6b5440",
+   "desc": "A flat-bottomed boat to moor on open water. Walk on it, or lay planks across a row of them: a bridge that floats."
+  },
+  {
    "id": "railing",
    "name": "Railing",
    "icon": "🚧",
@@ -102,6 +121,24 @@
    "color": "#cfc8bd",
    "colorable": true,
    "desc": "Stack them to build upward."
+  },
+  {
+   "id": "sandbags",
+   "name": "Sandbags",
+   "icon": "🧱",
+   "cat": "structure",
+   "size": [
+    1,
+    1
+   ],
+   "h": 0.5,
+   "walkable": true,
+   "cost": {
+    "river_town_sand": 2,
+    "fabric": 1
+   },
+   "color": "#c9b48a",
+   "desc": "Sacks filled with sand. Stack them into a wall that holds back water."
   },
   {
    "id": "foundation",

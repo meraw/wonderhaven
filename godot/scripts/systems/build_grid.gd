@@ -7,6 +7,7 @@ const SIDE_DIR := {"N": Vector2i(0, -1), "E": Vector2i(1, 0), "S": Vector2i(0, 1
 const OPPOSITE := {"N": "S", "S": "N", "E": "W", "W": "E"}
 const MAX_HEIGHT := 7.0
 const EPS := 0.02
+const FREEBOARD := 0.35   # how far a floating piece (placeOn "water") stands out of the water
 
 static func rot_side(side: String, r: int) -> String: return SIDES[(SIDES.find(side) + r) % 4]
 static func def(id: String) -> Dictionary: return Data.piece(id)
@@ -57,7 +58,8 @@ static func overlap2(a: Dictionary, b: Dictionary, e: float = EPS) -> bool:
 	return a.minX < b.maxX - e and a.maxX > b.minX + e and a.minZ < b.maxZ - e and a.maxZ > b.minZ + e
 static func overlap3(a: Dictionary, b: Dictionary) -> bool:
 	return overlap2(a, b) and a.bottom < b.top - EPS and a.top > b.bottom + EPS
-static func ground_at(i: float, k: float) -> float: return Heightfield.height(i + 0.5, k + 0.5)
+## The ground a piece in cell (i, k) rests on: the terrain, or a raised floor above it (a roof terrace, a balcony).
+static func ground_at(i: float, k: float) -> float: return maxf(Heightfield.height(i + 0.5, k + 0.5), WorldStatics.floor_top(i + 0.5, k + 0.5))
 
 # ---- Zones
 static func zone_bounds(zone: Dictionary, harmony: float = 0) -> Dictionary:
@@ -83,6 +85,7 @@ static func suggest_bottom(id: String, i: float, k: float, r: int, hit_y: float,
 	var g := -INF
 	for c in cells(probe): g = maxf(g, ground_at(c.x, c.y))
 	if d.get("placeOn", "") == "stream": return Heightfield.WATER_Y + 0.05
+	if d.get("placeOn", "") == "water": return float_bottom(d)
 	var base := g
 	if d.get("span", false) and g < Heightfield.WALKABLE_MIN and zone.has("spanY"): base = zone.spanY
 	var stack_top := -INF
@@ -93,6 +96,15 @@ static func suggest_bottom(id: String, i: float, k: float, r: int, hit_y: float,
 		if overlap2(rect, bounds(q), 0.05): stack_top = maxf(stack_top, qt)
 	if stack_top > -INF and stack_top >= base - 0.01: base = stack_top
 	return base
+
+## Where a floating piece's bottom sits: low in the water, its top FREEBOARD above it.
+static func float_bottom(d: Dictionary) -> float: return Heightfield.WATER_Y + FREEBOARD - float(d.h)
+
+## Is every cell under the piece open water (a river, a pond, a backwater)?
+static func _on_water(pl: Dictionary) -> bool:
+	for c in cells(pl):
+		if ground_at(c.x, c.y) >= Heightfield.WALKABLE_MIN: return false
+	return true
 
 # ---- Support
 static func _rests_on(pl: Dictionary, q: Dictionary) -> bool:
@@ -117,6 +129,7 @@ static func _base_supported(pl: Dictionary, placements: Array, sup: Dictionary, 
 		for c in cells(pl):
 			if not Heightfield.is_stream_cell(c.x, c.y): return false
 		return true
+	if d.get("placeOn", "") == "water": return _on_water(pl) and absf(float(pl.y) - float_bottom(d)) < 0.05   # it floats
 	for q in placements:
 		if not is_same(q, pl) and sup.has(q.uid) and _rests_on(pl, q): return true
 	if d.get("span", false) and env.get("fixed", {}).has("%d,%d" % [int(pl.i), int(pl.k)]) and absf(pl.y - env.get("spanY", 0.0)) < 0.1: return true
@@ -178,13 +191,14 @@ static func validate_placement(pl: Dictionary, ctx: Dictionary) -> Dictionary:
 		var locked := zone_at(ctx.get("locked_zones", []), cs[0].x, cs[0].y, harmony)
 		return {"ok": false, "reason": ("%s isn't open for building yet" % locked.name) if not locked.is_empty() else "Outside a building area — look for the glowing grid"}
 	var b := bounds(pl)
-	if b.top > MAX_HEIGHT: return {"ok": false, "reason": "Too high to build safely"}
+	if b.top - float(zone.get("floorY", 0.0)) > MAX_HEIGHT: return {"ok": false, "reason": "Too high to build safely"}   # floorY: a site up on a roof
 	var env := _env_for(zone)
 	if d.get("placeOn", "") == "stream":
 		for c in cs:
 			if not Heightfield.is_stream_cell(c.x, c.y): return {"ok": false, "reason": "A waterwheel needs flowing water underneath"}
+	if d.get("placeOn", "") == "water" and not _on_water(pl): return {"ok": false, "reason": "A %s floats: put it on open water" % String(d.name).to_lower()}
 	var placements: Array = ctx.placements
-	if not d.get("span", false) and not d.get("post", false) and d.get("placeOn", "") != "stream" and d.get("attach", "") != "wall":
+	if not d.get("span", false) and not d.get("post", false) and not d.get("placeOn", "") in ["stream", "water"] and d.get("attach", "") != "wall":
 		var on_piece := false
 		for q in placements:
 			if q.uid != pl.uid and _rests_on(pl, q): on_piece = true; break

@@ -247,12 +247,15 @@ func journal(tab: String = "active") -> void:
 func _rewards_text(r: Dictionary) -> String:
 	var parts: Array = []
 	if r.get("harmony", 0) > 0: parts.append("💖 %d" % int(r.harmony))
+	if r.get("meter", 0) > 0: parts.append(LocationMeter.reward_text(LocationMeter.def(Data.island), int(r.meter)))
 	for k in r.get("items", {}): parts.append(Money.amount(k, int(r.items[k])) if k == "coins" else "%s %d" % [Data.resources[k].icon, int(r.items[k])])
 	for b in r.get("blueprints", []): parts.append("📐 " + Data.piece(b).name)
 	for c in r.get("clothes", []): parts.append("👗 " + Data.appearance.labels.get(c, c))
 	return "Rewards: " + ("  ".join(parts) if not parts.is_empty() else "the villagers' gratitude")
 
 func progress() -> void:
+	var m := LocationMeter.def(Data.island)
+	if not m.is_empty(): _meter_progress(m); return
 	open_panel("progress", "💖 The Sindaco's Approval Rating")
 	var h := int(game.state.harmony)
 	var nx := Harmony.next_unlock(h)
@@ -264,6 +267,20 @@ func progress() -> void:
 		var v := _card(Color("f3fff6") if got else Color.WHITE)
 		v.add_child(UiTheme.label(("🌟 " if got else "🔒 ") + u.title + ("   Unlocked" if got else "   at %d approval" % int(u.at)), 16))
 		v.add_child(_wrap(u.desc, 13))
+
+## The progress screen for a location with its own meter (LocationMeter): its reading, what it's about, milestones.
+func _meter_progress(m: Dictionary) -> void:
+	open_panel("progress", "%s %s" % [m.get("icon", "📈"), m.get("name", "Progress")])
+	var pts := LocationMeter.points(game.state, Data.island)
+	var nx := LocationMeter.next_milestone(m, pts)
+	body.add_child(UiTheme.label("%s%s" % [LocationMeter.reading(m, pts), ("  ·  Next: %s at %s" % [nx.title, LocationMeter.reading(m, int(nx.at))]) if not nx.is_empty() else "  ·  Every milestone reached!"], 22))
+	var bar := ProgressBar.new(); bar.custom_minimum_size = Vector2(780, 20); bar.show_percentage = false; bar.max_value = int(nx.at) if not nx.is_empty() else 1; bar.value = pts if not nx.is_empty() else 1; body.add_child(bar)
+	if m.has("about"): body.add_child(_wrap(String(m.about)))
+	for u in m.get("milestones", []):
+		var got: bool = pts >= int(u.at)
+		var v := _card(Color("f3fff6") if got else Color.WHITE)
+		v.add_child(UiTheme.label(("🌟 " if got else "🔒 ") + String(u.title) + ("   Reached" if got else "   at %s" % LocationMeter.reading(m, int(u.at))), 16))
+		v.add_child(_wrap(String(u.desc), 13))
 
 func notice_board() -> void:
 	open_panel("board", "📌 Village Notice Board")
@@ -280,13 +297,12 @@ func map(from_boat: bool = false) -> void:
 	var info := _wrap("Where to? Pick a destination." if from_boat else "Click a place to learn about it.", 15, UiTheme.INK)
 	var canvas := MapView.new(); canvas.game = game; canvas.custom_minimum_size = Vector2(800, 430); canvas.name = "map_view"
 	canvas.picked.connect(func(isl: Dictionary):
-		var revealed: bool = (isl.get("built", false) and not isl.has("reveal")) or game.state.flags.get(isl.get("reveal", "-"), false)
-		info.text = ("%s: %s" % [isl.name, isl.desc]) if revealed else "Somewhere you haven't been. People say: " + isl.desc
+		info.text = "%s: %s" % [isl.name, isl.desc]   # only places you've unlocked are on the map (Travel.on_map)
 		for c in body.get_children():
 			if c.name == "sail": c.queue_free()
 		if isl.id == Data.island: info.text += "  (You are here.)"
-		elif not revealed: info.text += "  Build the new bus stop to start travelling." if not game.state.flags.get("boatReady", false) else "  The bus line doesn't go there yet."
-		elif from_boat or game.state.flags.get("boatReady", false):
+		elif not from_boat and not game.state.flags.get("boatReady", false): info.text += "  Build the new bus stop to start travelling."
+		else:
 			var b := UiTheme.button("🚌 Travel to " + isl.name, func(): game.sail_to(isl), true); b.name = "sail"; body.add_child(b)
 			# with a tip card above the map the button can fall below the fold: bring it into view once laid out
 			var sc := body.get_parent() as ScrollContainer
@@ -310,6 +326,16 @@ func sleep(where: String, seat = null) -> void:
 		b.name = "wake_%d" % int(hour); b.alignment = HORIZONTAL_ALIGNMENT_LEFT; v.add_child(b)
 	if where == "bench" and seat != null:
 		var st := UiTheme.button("🪑  Just sit a while", func(): close(); game.sit_on(seat), true); st.name = "just_sit"; v.add_child(st)
+
+## Where to from a stop (a tram stop, say): the other stops on its line, and how long the ride takes.
+func stops(stop: Dictionary) -> void:
+	open_panel("stops", "🚋 " + String(stop.get("name", "Stop")))
+	body.add_child(_wrap("Where to?", 16, UiTheme.INK))
+	var v := VBoxContainer.new(); v.custom_minimum_size.x = 420; v.size_flags_horizontal = Control.SIZE_SHRINK_CENTER; v.add_theme_constant_override("separation", 8); body.add_child(v)
+	for to in Travel.stops_on(stop, Data.layout.features):
+		var dest: Dictionary = to
+		var b := UiTheme.button("%s   (about %d min)" % [String(to.get("name", to.id)), int(round(Travel.ride_minutes(stop, to)))], func(): game.ride_to(stop, dest))
+		b.name = "ride_" + String(to.id); b.alignment = HORIZONTAL_ALIGNMENT_LEFT; v.add_child(b)
 
 func pause() -> void:
 	open_panel("pause", "🌟 Paused")
@@ -367,12 +393,20 @@ func settings() -> void:
 class MapView extends Control:
 	signal picked(island: Dictionary)
 	var game
-	## Places on the map (hidden ones, like the old Clockwork Cove, stay off it).
-	func _shown() -> Array: return Data.islands.filter(func(i): return not i.get("hidden", false))
+	## Places on the map: only the ones you've unlocked, and the one you're in (Travel.on_map). They turn up as
+	## surprises, and the view widens to take them in (Travel.map_frame).
+	func _shown() -> Array: return Data.islands.filter(func(i): return Travel.on_map(i, game.state.flags, Data.island))
+	func _frame() -> Rect2: return Travel.map_frame(_shown())
+	## Where a point of the map (in map units) is drawn on screen.
+	func to_screen(p: Vector2) -> Vector2:
+		var f := _frame()
+		return (p - f.position) * (size / f.size)
 
 	func _draw() -> void:
-		var s := size / Vector2(800, 500)
+		var f := _frame()
+		var k := size.x / f.size.x   # map units to pixels, for sizes
 		draw_rect(Rect2(Vector2.ZERO, size), Color("7fd0ec"))
+		var s := size / Vector2(800, 500)
 		for n in 40:
 			var x := float((n * 137) % 780 + 10) * s.x
 			var y := float((n * 89) % 480 + 10) * s.y
@@ -380,26 +414,23 @@ class MapView extends Control:
 		var hg: Dictionary = Data.islands[0]
 		for isl in _shown():
 			if isl.id == "hearthglow": continue
-			var revealed: bool = game.state.flags.get(isl.get("reveal", "-"), false)
-			var a := Vector2(hg.x, hg.y) * s
-			var b := Vector2(isl.x, isl.y) * s
+			var a := to_screen(Vector2(hg.x, hg.y))
+			var b := to_screen(Vector2(isl.x, isl.y))
 			var steps := 16
-			for k in steps:
-				if k % 2 == 1: continue
-				draw_line(a.lerp(b, float(k) / steps), a.lerp(b, float(k + 1) / steps), Color(1, 1, 1, 0.95 if revealed else 0.4), 4)
+			for j in steps:
+				if j % 2 == 1: continue
+				draw_line(a.lerp(b, float(j) / steps), a.lerp(b, float(j + 1) / steps), Color(1, 1, 1, 0.95), 4)
 		for isl in _shown():
-			var revealed: bool = (isl.get("built", false) and not isl.has("reveal")) or game.state.flags.get(isl.get("reveal", "-"), false)
-			var c := Vector2(isl.x, isl.y) * s
-			var r: float = isl.r * s.x
+			var c := to_screen(Vector2(isl.x, isl.y))
+			var r: float = isl.r * k
 			draw_circle(c + Vector2(0, 8), r + 12, Color("f0dfae"))
-			draw_circle(c, r, Color(isl.color) if revealed else Color("b9c4c8"))
-			for k in 5: draw_circle(c + Vector2(cos(k * 1.3) * r * 0.5, sin(k * 1.7) * r * 0.35), 7, Color("4fae63") if revealed else Color("9aa5a9"))
+			draw_circle(c, r, Color(isl.color))
+			for j in 5: draw_circle(c + Vector2(cos(j * 1.3) * r * 0.5, sin(j * 1.7) * r * 0.35), 7, Color("4fae63"))
 			var font := UiTheme.main_font()
-			var name: String = isl.name if revealed else "???"
+			var name: String = isl.name
 			var lw := maxf(r * 2.0, 220.0)   # wide enough for the whole name
 			draw_string_outline(font, c + Vector2(-lw / 2.0, r + 30), name, HORIZONTAL_ALIGNMENT_CENTER, lw, 18, 6, Color.WHITE)
 			draw_string(font, c + Vector2(-lw / 2.0, r + 30), name, HORIZONTAL_ALIGNMENT_CENTER, lw, 18, UiTheme.INK)
-			if not revealed: draw_string(font, c + Vector2(-16, 10), "🔒", HORIZONTAL_ALIGNMENT_LEFT, -1, 30)
 			if isl.id == Data.island:   # you are here, with how many requests are open on this island
 				draw_string(font, c + Vector2(-r * 0.7, -r * 0.4), "📍", HORIZONTAL_ALIGNMENT_LEFT, -1, 24)
 				var e: QuestEngine = game.story.engine
@@ -407,6 +438,6 @@ class MapView extends Control:
 				if n > 0: draw_string(font, c + Vector2(r * 0.5, -r * 0.5), "❗%d" % n, HORIZONTAL_ALIGNMENT_LEFT, -1, 22, UiTheme.PINK_DARK)
 	func _gui_input(ev: InputEvent) -> void:
 		if ev is InputEventMouseButton and ev.pressed and ev.button_index == MOUSE_BUTTON_LEFT:
-			var s := size / Vector2(800, 500)
+			var k := size.x / _frame().size.x
 			for isl in _shown():
-				if ev.position.distance_to(Vector2(isl.x, isl.y) * s) < isl.r * s.x + 10: picked.emit(isl); return
+				if ev.position.distance_to(to_screen(Vector2(isl.x, isl.y))) < isl.r * k + 10: picked.emit(isl); return

@@ -1,0 +1,73 @@
+{
+ "_comment": "Boccapioppo's entry on the travel map, and its look (docs/locations/river_town.md). Off the travel map until its reveal flag is set by Monteforchetta's bus line (the flag is to be agreed with that session); tests reach it with --island=river_town.",
+ "name": "Boccapioppo",
+ "desc": "A brick town where a clear Alpine river meets the Po, still mopping up after the flood. Poplars, bicycles and a levee warden who knows the river to the centimetre.",
+ "x": 450,
+ "y": 300,
+ "r": 54,
+ "color": "#b9c98f",
+ "reveal": "river_town_revealed",
+ "look": {
+  "shade": [0.0, 0.004, 0.012],
+  "light": [1.02, 1.0, 0.97],
+  "wind": 1.15,
+  "life": {
+   "motes": 0.6,
+   "fireflies": 0.0,
+   "leaves": 1.3
+  }
+ },
+ "meter": {
+  "name": "Flood gauge",
+  "icon": "🌊",
+  "about": "Ermes repainted his river gauge at the flood's peak, 7.40 m. Every request you finish in Boccapioppo brings the reading down: a metre for the big ones, half a metre for the others, ten centimetres for each lost thing back home. At 0.00 m the flood is truly over.",
+  "reward": "%d cm off the gauge",
+  "display": {
+   "from": 7.4,
+   "per_point": -0.01,
+   "format": "%.2f m"
+  },
+  "milestones": [
+   {
+    "at": 100,
+    "id": "river_town_gauge_640",
+    "title": "Down a metre. Don't get excited.",
+    "desc": "Ermes chalks the new reading on his door."
+   },
+   {
+    "at": 220,
+    "id": "river_town_gauge_520",
+    "title": "The river's back in its bed.",
+    "desc": "The mooring plot is yours: a strip of bank beside the backwater to build on.",
+    "flags": [
+     "river_town_mooring_plot"
+    ]
+   },
+   {
+    "at": 360,
+    "id": "river_town_gauge_380",
+    "title": "Halfway, give or take a centimetre.",
+    "desc": "Primo found the plans for a streetlight and an electric lamp under a drying wheel.",
+    "blueprints": [
+     "streetlight",
+     "poweredLamp"
+    ]
+   },
+   {
+    "at": 520,
+    "id": "river_town_gauge_220",
+    "title": "The ducks are back. Well, the coypus.",
+    "desc": "The mooring plot grows into a garden with a jetty out over the backwater.",
+    "flags": [
+     "river_town_mooring_garden"
+    ]
+   },
+   {
+    "at": 740,
+    "id": "river_town_gauge_000",
+    "title": "The flood is over.",
+    "desc": "Zero on the gauge. Ermes paints over the high-water mark himself."
+   }
+  ]
+ }
+}
