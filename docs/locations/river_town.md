@@ -327,7 +327,7 @@ What exists now, and the choices made while building that the design above didn'
 **Stage 3a, shared tools** (merged): the zone path and sealed checks, the Pontoon and Sandbags pieces, what a node
 gives, fishing catches per location, a request's own weather and a location's own progress meter.
 
-**Stage 3b, people, dialogue and requests** (this stage). The bicycle, "A Bike from the Mud" and "Pierina's Round" come
+**Stage 3b, people, dialogue and requests** (merged). The bicycle, "A Bike from the Mud" and "Pierina's Round" come
 in stage 3c.
 - **The people** are in `npcs.json`. Each has days that follow the story: ordinary days, then the evenings at the
   dance hall once it's fitted out, the storm night on the levee by the breach, and back to normal after it. Ermes
@@ -363,6 +363,23 @@ in stage 3c.
 - **The bus line:** Close the Breach reveals Casalrana (`rice_village_revealed`), the next stop on the bus line.
 - **Villagers cross your bridge:** the layout's `crossings` let them walk the path you built across the pontoon
   bridge.
+
+**Stage 3b, fixes from playing every request** (this stage). The full playthrough of every request found these, now
+fixed:
+- **The ferry landing:** the last strip of bank before the Alpine river was 0.46 m below the floodplain, just over
+  what a walkable path may step down, so a row of pontoons never joined the west bank. The bank now eases down to
+  the water where the pontoon bridge starts. A test builds the bridge and the houseboat's slipway and checks both make
+  a walkable path.
+- **Mattia's bed:** he and Gildo slept on the same spot, and then, inside the door, he blocked the way in to his
+  uncle. He now sleeps in his own corner of the shack. A test checks that no two villagers share a spot at the same
+  hour.
+- **Paths:** two path spots run along the dance hall's east side and one reaches the sandbank, so villagers (and
+  the playthrough) don't head for the nearest spot inside the hall. One runaway log moved from under the hall's east
+  edge to beside it.
+- **The dance hall** asks for 15 wood, what its cheapest fit-out costs (changed by the Monteforchetta session when a
+  new shared test caught it).
+- **The playthrough** starts as if you had come by Monteforchetta's bus with its main story done
+  (`arrive_as_if_played(["hearthglow"])`), and keeps a checkpoint after each request (`--from=` and `--to=`).
 
 ## Checks for every stage
 `godot/run_tests.sh`, `npm test` and `npm run build`; screenshots of Boccapioppo in both renderers

@@ -97,10 +97,10 @@ func shots() -> void:
 	await story_at(["wall_built", "storm"])
 	Daylight.force(game.state, "rain", 8.0)
 	game.shot_cfg.erase("weather")
-	await view(-3.0, 23.5, -0.4, 0.38, 16.0, 22.0, "storm-night")
+	await view(-3.0, 22.3, PI, 0.32, 13.0, 22.0, "storm-night")
 	await story_at(["flood_over"])
 	game.shot_cfg["weather"] = "clear"
-	await view(5.0, 16.5, 3.0, 0.5, 14.0, 10.0, "after-the-storm")
+	await view(-3.0, 22.3, PI, 0.32, 13.0, 10.0, "after-the-storm")
 
 func walk_around() -> void:
 	var s: Dictionary = game.state
