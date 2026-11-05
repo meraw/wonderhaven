@@ -89,6 +89,16 @@ class Mine:
 const FISH := [{"id": "minnow", "name": "Minnow", "weight": 5.0, "pull": 0.5}, {"id": "trout", "name": "Brown Trout", "weight": 3.0, "pull": 0.8},
 	{"id": "puffer", "name": "Perch", "weight": 1.5, "pull": 1.0}, {"id": "starfin", "name": "Pike", "weight": 0.6, "pull": 1.25}]
 
+## What can bite at a fishing spot. A layout may list its own catches ("fish": [{id, name, weight, pull, item?,
+## node?, flag?, hours?}]): `item` is what you get (the shared "fish" when left out, or a boot, a tyre...), and a
+## catch with `node` only bites at that spot, with `flag` only once that flag is set, with `hours` only then. Without a
+## list of its own, a location has the shared FISH.
+static func catch_table(list: Array, node_id: String, flags: Dictionary, minute: float) -> Array:
+	if list.is_empty(): return FISH
+	var out := list.filter(func(f): return (not f.has("node") or f.node == node_id) and (not f.has("flag") or flags.get(f.flag, false)) \
+		and Clock.in_hours(f.get("hours", []), minute))
+	return out if not out.is_empty() else FISH
+
 class Fish:
 	var rng: Rng
 	var phase := "wait"
@@ -101,15 +111,16 @@ class Fish:
 	var band := [0.32, 0.74]
 	var fish: Dictionary
 	var pull := 0.0
-	func _init(r: Rng = null) -> void:
+	func _init(r: Rng = null, table: Array = []) -> void:
 		rng = r if r else Rng.new(Time.get_ticks_usec() & 0xffff)
 		wait = 1.4 + rng.next() * 2.6
+		var choices: Array = table if not table.is_empty() else Minigames.FISH
 		var total := 0.0
-		for f in Minigames.FISH: total += f.weight
+		for f in choices: total += float(f.weight)
 		var x := rng.next() * total
-		fish = Minigames.FISH[0]
-		for f in Minigames.FISH:
-			x -= f.weight
+		fish = choices[0]
+		for f in choices:
+			x -= float(f.weight)
 			if x <= 0.0: fish = f; break
 	func step(dt: float, press: bool, hold: bool = false) -> void:
 		if done: return
@@ -130,4 +141,4 @@ class Fish:
 				if tension >= 0.99: done = true; result = "snap"
 				elif progress >= 1.0: done = true; result = "caught"
 				elif t > 25.0: done = true; result = "escaped"
-	func reward() -> Dictionary: return {"fish": 1} if result == "caught" else {}
+	func reward() -> Dictionary: return {String(fish.get("item", "fish")): 1} if result == "caught" else {}

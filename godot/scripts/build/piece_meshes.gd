@@ -31,6 +31,14 @@ static func make(id: String, color: String = "") -> Node3D:
 			_b(g, P.rbox(0.99, 0.12, 0.99, 0.02), t, 0, 0.06, 0)
 			for x in [-0.25, 0.25]: _b(g, P.box(0.02, 0.122, 0.95), P.wood("b98a5a"), x, 0.061, 0)
 		"stoneBlock": _b(g, P.rbox(0.99, 0.99, 0.99, 0.06), t, 0, 0.5, 0)
+		"sandbags":   # two layers of sacks, laid crosswise like a real sandbag wall
+			for x in [-0.24, 0.24]: _b(g, P.rbox(0.47, 0.25, 0.96, 0.11), t, x, 0.125, 0)
+			for z in [-0.24, 0.24]: _b(g, P.rbox(0.96, 0.25, 0.47, 0.11), t, 0, 0.375, z)
+		"pontoon":    # a flat-bottomed boat, low in the water, with a plank deck to walk on
+			_b(g, P.rbox(0.96, 0.5, 1.96, 0.18), t, 0, 0.25, 0)
+			_b(g, P.box(0.98, 0.07, 1.98), dark, 0, 0.5, 0)
+			for z in [-0.6, 0.0, 0.6]: _b(g, P.box(0.86, 0.08, 0.5), P.wood("b98a5a"), 0, 0.57, z)
+			for z in [-0.96, 0.96]: _b(g, P.cyl(0.04, 0.05, 0.3, 6), dark, 0.38, 0.65, z)
 		"foundation": _b(g, P.rbox(1.98, 0.3, 1.98, 0.05), t, 0, 0.15, 0)
 		"platform":
 			_b(g, P.rbox(1.98, 0.16, 1.98, 0.04), t, 0, 0.92, 0)

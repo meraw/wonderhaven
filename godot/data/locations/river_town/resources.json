@@ -1,0 +1,7 @@
+{
+ "_comment": "Boccapioppo's own materials (docs/locations/river_town.md, Gathering). More come with its requests in stage 3.",
+ "resources": {
+  "river_town_sand": {"name": "Sand", "icon": "⏳", "color": "#e3cf9a"}
+ },
+ "order": ["river_town_sand"]
+}

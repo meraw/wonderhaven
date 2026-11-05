@@ -84,8 +84,8 @@ func act(n: Dictionary) -> void:
 		"fish": start_fishing(n)
 		"clay":
 			game.player_char.play("dig"); game.sfx("dig")
-			game.give({"clay": 2}, _src(n)); deplete(n)
-		"flowers": game.player_char.play("dig"); game.sfx("pick"); game.give({"flowers": 2}, _src(n)); deplete(n)
+			game.give(gives(n, {"clay": 2}), _src(n)); deplete(n)
+		"flowers": game.player_char.play("dig"); game.sfx("pick"); game.give(gives(n, {"flowers": 2}), _src(n)); deplete(n)
 		"shake":
 			game.sfx("rustle"); game.cam.shake = 0.3
 			game.village.node_visuals[n.id].set_meta("shake", 0.6)
@@ -120,10 +120,19 @@ func minigame_done(kind: String, mg) -> void:
 	else: state().stats.mined += 1
 	deplete(n); game.sfx("collect")
 
+## What a node gives: its own "gives" ({item: count}) when the layout says, else the default for its kind. A
+## location can dig sand where others dig clay, or pick mushrooms where others pick flowers.
+static func gives(n: Dictionary, fallback: Dictionary) -> Dictionary:
+	if not n.has("gives"): return fallback
+	var out := {}
+	for k in n.gives: out[k] = int(n.gives[k])
+	return out
+
 func catch_fragment(n: Dictionary) -> void:
 	var p := _src(n, 0.2)
 	var what: String = LOST[0] if int(state().stats.fragments) == 0 else LOST[1 + int(state().stats.fragments) % (LOST.size() - 1)]
-	game.give({"fragment": 1}, null, true)
+	if n.has("name"): what = String(n.name)   # a particular lost thing, named in the layout
+	game.give(gives(n, {"fragment": 1}), null, true)
 	game.toast("You found %s!" % what, "good", 2.5)
 	game.effects.sparkle(p, 8, Color("ffe7a0"), 0.18); game.sfx("pick")
 	state().stats.fragments += 1
@@ -168,7 +177,7 @@ func start_fishing(n: Dictionary) -> void:
 	var fz: float = n.z + cos(facing) * 3.0
 	bobber.position = Vector3(fx, Heightfield.WATER_Y + 0.05, fz); bobber.visible = true; line.visible = true
 	game.player_char.play("cast", true); game.sfx("cast")
-	var mg := Minigames.Fish.new()
+	var mg := Minigames.Fish.new(null, Minigames.catch_table(Data.layout.get("fish", []), n.id, state().flags, float(state().time.minute)))
 	fishing = {"mg": mg, "fx": fx, "fz": fz}
 	game.start_minigame("fish", mg, Vector3(fx, Heightfield.WATER_Y, fz))
 
@@ -182,8 +191,9 @@ func _fishing_done(mg) -> void:
 	game.effects.splash(Vector3(f.fx, Heightfield.WATER_Y + 0.1, f.fz))
 	game.player_char.play("celebrate"); game.sfx("fanfare_small")
 	state().stats.fish += 1
-	game.toast("You caught a %s!" % mg.fish.name, "good")
+	game.toast(String(mg.fish.get("caught", "You caught a %s!" % mg.fish.name)), "good")
 	game.story.event("fish")
+	game.story.event("fish:" + String(mg.fish.id))   # a request can wait for one particular catch
 
 ## Which kinds of place give each item (for pointing the compass at the nearest one).
 const SOURCES := {"wood": ["chop"], "stone": ["mine"], "metal": ["mine", "bin"], "crystal": ["bin"], "clay": ["clay"], "flowers": ["flowers"],
@@ -195,7 +205,7 @@ func nearest_ready(item: String) -> Dictionary:
 	var p: Vector3 = game.player.pos
 	var best := {}; var bd := INF
 	for n in Data.layout.nodes:
-		if not n.kind in kinds or not ready(n): continue
+		if not ready(n) or not (n.kind in kinds and not n.has("gives") or n.get("gives", {}).has(item)): continue
 		var d := Vector2(n.x - p.x, n.z - p.z).length()
 		if d < bd: bd = d; best = n
 	return best

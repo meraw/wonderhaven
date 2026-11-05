@@ -5,6 +5,7 @@ extends Control
 var game
 var harmony_bar: ProgressBar
 var harmony_label: Label
+var harmony_title: Label   # "💖 Approval", or the name of the location's own meter (LocationMeter)
 var clock_label: Label
 var tracker: VBoxContainer
 var compass: Label
@@ -23,7 +24,7 @@ func setup(g) -> void:
 	var top := UiTheme.panel(); top.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var tr := HBoxContainer.new(); tr.add_theme_constant_override("separation", 10); top.add_child(tr)
 	harmony_box = HBoxContainer.new(); harmony_box.add_theme_constant_override("separation", 10); tr.add_child(harmony_box)
-	harmony_box.add_child(UiTheme.label("💖 Approval", 15))
+	harmony_title = UiTheme.label("💖 Approval", 15); harmony_box.add_child(harmony_title)
 	harmony_bar = ProgressBar.new(); harmony_bar.custom_minimum_size = Vector2(160, 14); harmony_bar.show_percentage = false; harmony_bar.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	harmony_box.add_child(harmony_bar)
 	harmony_label = UiTheme.label("0", 15); harmony_box.add_child(harmony_label)
@@ -124,6 +125,16 @@ func tick(dt: float) -> void:
 		if tip_t <= 0.0: _next_tip()
 
 func render_harmony() -> void:
+	var m := LocationMeter.def(Data.island)
+	if not m.is_empty():   # a location with its own meter shows that instead of the approval rating
+		var pts := LocationMeter.points(game.state, Data.island)
+		var nm := LocationMeter.next_milestone(m, pts)
+		harmony_title.text = "%s %s" % [m.get("icon", "📈"), m.get("name", "Progress")]
+		harmony_bar.max_value = int(nm.at) if not nm.is_empty() else 1
+		harmony_bar.value = pts if not nm.is_empty() else 1
+		harmony_label.text = LocationMeter.reading(m, pts)
+		return
+	harmony_title.text = "💖 Approval"
 	var h := int(game.state.harmony)
 	var nx := Harmony.next_unlock(h)
 	harmony_bar.max_value = nx.at if not nx.is_empty() else maxf(h, 1)
