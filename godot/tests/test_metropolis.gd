@@ -160,6 +160,7 @@ func test_villagers_and_requests_hang_together():
 			var rows: Array = n.schedule.duplicate()
 			for w in n.get("when", []): rows.append_array(w.schedule)
 			t.ok(rows.all(func(r): return Data.layout.nav_nodes.has(r[2])), "%s's routine only goes to nav spots" % n.id)
+			t.ok(rows.all(func(r): return not String(r[2]).begins_with(P + "bal_")), "%s doesn't stand about on number 14's balcony, where they'd block the way home" % n.id)
 			t.ok(n.likes.all(func(i): return Data.resources.has(i)), "%s likes real things" % n.id)
 		var qs: Array = Data.quests.filter(func(q): return String(q.id).begins_with(P))
 		t.eq(qs.size(), 19, "nineteen requests")

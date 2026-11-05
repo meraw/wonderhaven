@@ -35,7 +35,7 @@ func play() -> void:
 	await chat("augusto")
 	check("welcome_gate", "Augusto meets you at the gate", step_done("welcome", "gate"))
 	await chat("elvira"); await chat("simone"); await chat("sala")
-	check("welcome_neighbours", "you meet Signora Elvira on the balcony, Simone next door and Ragioniere Sala", step_done("welcome", "elvira") and step_done("welcome", "simone") and step_done("welcome", "sala"),
+	check("welcome_neighbours", "you meet Signora Elvira and Simone upstairs, and Ragioniere Sala", step_done("welcome", "elvira") and step_done("welcome", "simone") and step_done("welcome", "sala"),
 		str(game.state.quests.get(P + "welcome", {}).get("done", {}).keys()))
 	await chat("augusto")
 	check("welcome_done", "Augusto gives you your keys: 5 column inches, and no approval for the Sindaco", done("welcome") and inches() == 5 and int(game.state.harmony) == 0 and game.state.flags.get(P + "settled", false), "%s, %d inches" % [status("welcome"), inches()])

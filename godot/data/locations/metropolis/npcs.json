@@ -1843,7 +1843,7 @@
     [
      16,
      20,
-     "metropolis_bal_e_simone",
+     "metropolis_simone:spot",
      "read"
     ],
     [
@@ -1878,7 +1878,7 @@
       [
        16,
        20,
-       "metropolis_bal_e_simone",
+       "metropolis_simone:spot",
        "read"
       ],
       [
@@ -1919,7 +1919,7 @@
       [
        16,
        17,
-       "metropolis_bal_e_simone",
+       "metropolis_simone:spot",
        "read"
       ],
       [
@@ -2011,7 +2011,7 @@
     [
      7,
      11,
-     "metropolis_bal_n_elvira",
+     "metropolis_courtyard",
      "garden"
     ],
     [
@@ -2029,7 +2029,7 @@
     [
      17,
      21,
-     "metropolis_bal_n_elvira",
+     "metropolis_elvira:spot",
      "idle"
     ]
    ],
@@ -2040,7 +2040,7 @@
       [
        7,
        11,
-       "metropolis_bal_n_elvira",
+       "metropolis_courtyard",
        "garden"
       ],
       [
@@ -2058,7 +2058,7 @@
       [
        17,
        21,
-       "metropolis_bal_n_elvira",
+       "metropolis_elvira:spot",
        "idle"
       ]
      ]
@@ -2069,7 +2069,7 @@
       [
        7,
        11,
-       "metropolis_bal_n_elvira",
+       "metropolis_courtyard",
        "garden"
       ],
       [

@@ -48,7 +48,7 @@
      "id": "elvira",
      "kind": "talk",
      "npc": "metropolis_elvira",
-     "text": "Say hello to Signora Elvira on the balcony (the stair is in the courtyard)",
+     "text": "Say hello to Signora Elvira (her flat is up the courtyard stair, off the balcony)",
      "stage": 2,
      "lines": [
       "So you're number 3. Augusto said you were tall. You're not tall. Augusto thinks everyone's tall. He's very short.",
