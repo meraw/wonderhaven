@@ -71,8 +71,12 @@ static func room(b: Dictionary, base_y: float = 0.0) -> AABB:
 	var castle: bool = b.interior.get("shell", "house") == "castle"
 	var w: float = (b.w - 2.0 - 0.7) if castle else (b.w - WALL_T * 2.0)
 	var d: float = (b.d - 2.0 - 0.7) if castle else (b.d - WALL_T * 2.0)
-	var h := 4.2 if castle else WALL_H
+	var h := 4.2 if castle else float(b.interior.get("height", WALL_H))   # "height": a tall room (a tower you climb inside)
 	return AABB(Vector3(b.x - w / 2.0, base_y - 1.0, b.z - d / 2.0), Vector3(w, h + 1.0, d))
+
+## Is someone with their feet at p in this room, on its own storey? Rooms stacked on raised floors share a footprint
+## (a waiting room and the flat above it), so the roof over the one you're in fades, not the other's.
+static func inside(b: Dictionary, base_y: float, p: Vector3) -> bool: return room(b, base_y).has_point(Vector3(p.x, p.y + 0.5, p.z))
 
 ## Furniture as {id, x, z, r, color, piece} in world coordinates.
 static func items(b: Dictionary) -> Array:

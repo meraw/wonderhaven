@@ -279,6 +279,7 @@ func add_harmony(n: int) -> void:
 func add_meter(island: String, n: int) -> void:
 	var m := LocationMeter.def(island)
 	for u in LocationMeter.add(game.state, island, n):
+		if u.has("items"): game.give(_ints(u.items), null, true)   # expenses, a load of materials
 		if u.has("blueprints"): unlock_blueprints(u.blueprints, "", true)
 		if u.has("clothes"): unlock_clothes(u.clothes, true)
 		for f in u.get("flags", []): game.set_flag(f)

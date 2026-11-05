@@ -1,7 +1,8 @@
 extends "res://tests/full_base.gd"
 ## Casalrana (rice_village) with real input. No requests yet (stage 3 adds them), so this walks the map: from the
 ## bus stop over the level crossing and back, along the station, out to the mill, the sluice, the farmstead and the
-## spring pool, and checks that the railway and the canal keep you out. Then (stage 2) it walks into every room
+## spring pool, and checks that the railway and the canal keep you out. It starts as if you'd come on the bus after
+## Monteforchetta and Boccapioppo (arrive_as_if_played). Then (stage 2) it walks into every room
 ## through its door, and waits at the level crossing for a train: the barriers come down and keep you off the line,
 ## the train goes by, and you cross once they're up again.
 ## Run: ./play.sh res://tests/play_rice_village.gd /tmp/out --island=rice_village
@@ -52,6 +53,7 @@ func go(node: String) -> bool:
 	return at(node)
 
 func play() -> void:
+	await arrive_as_if_played(["hearthglow", "river_town"])   # off the bus from Boccapioppo, after Monteforchetta
 	check(1, "the game starts in Casalrana", Data.island == "rice_village", Data.island)
 	var sp: Dictionary = Data.layout.spawn
 	check(2, "you arrive at the bus stop", Vector2(game.player.pos.x - sp.x, game.player.pos.z - sp.z).length() < 1.0, str(game.player.pos))
@@ -109,8 +111,13 @@ func play() -> void:
 	var t0 := Time.get_ticks_msec()
 	while not TT.crossing_closed(day, game.state.time.minute) and Time.get_ticks_msec() - t0 < 30000: await frames(2)
 	check(32, "the bells ring and the barriers come down", TT.crossing_closed(day, game.state.time.minute), "%.1f" % game.state.time.minute)
-	await walk_direct(2.0, RV.RAIL_Z, 0.5, 4.0)
-	check(33, "the barriers keep you off the line", game.player.pos.z > -44.0, str(game.player.pos))
+	# push towards the line for a few seconds while the barriers are down (not long enough for the train to pass)
+	var pushed := 0
+	key(KEY_SHIFT, true)
+	while TT.crossing_closed(day, game.state.time.minute) and pushed < 30:
+		steer(2.0, RV.RAIL_Z); key(KEY_W, true); await frames(1); pushed += 1
+	key(KEY_W, false); key(KEY_SHIFT, false)
+	check(33, "the barriers keep you off the line", game.player.pos.z > -44.0 and TT.crossing_closed(day, game.state.time.minute), "%s after %d frames of pushing" % [game.player.pos, pushed])
 	while TT.at_crossing(day, game.state.time.minute).is_empty() and Time.get_ticks_msec() - t0 < 60000: await frames(1)
 	check(34, "%s goes by" % TT.NAMES[next.kind], not TT.at_crossing(day, game.state.time.minute).is_empty() and game.village.get_node("rice_village_trains").get_child_count() > 0, "%.1f" % game.state.time.minute)
 	note("frame rate as the train goes by: %d fps" % Engine.get_frames_per_second())

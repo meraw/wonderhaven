@@ -14,7 +14,8 @@ func test_npcs():
 	for n in Data.npcs:
 		var nav: Dictionary = Data.layout.nav_nodes if Data.npc_island(n.id) == Data.island else Data.island_nav(Data.npc_island(n.id))
 		t.ok(nav.has(n.home), "%s's home is a nav spot on their island" % n.id)
-		t.ok(Data.quests.any(func(q): return q.giver == n.id), "%s gives a quest" % n.id)
+		# a visitor ("visitor": true, like a railway inspector who comes for one request) needn't have a request of their own
+		if not n.get("visitor", false): t.ok(Data.quests.any(func(q): return q.giver == n.id), "%s gives a quest" % n.id)
 
 func test_quest_flow():
 	var s := GameState.new_game()
@@ -271,6 +272,59 @@ func test_sleep_until_a_chosen_hour():
 	t.ok(t0.day == 2 and t0.minute == 360.0 and slept == 540.0 and t0.total == 900.0 + 360.0 + 540.0, "then through the night to 6 AM")
 	slept = Clock.sleep_until(t0, 6.0)
 	t.ok(t0.day == 3 and slept == 1440.0, "asking for the hour it already is sleeps a whole day round")
+
+func test_a_request_step_can_wait_for_its_locations_meter():
+	# a stand-in location with a meter (LocationMeter); a step waits for its own location's meter, and it's saved
+	var isl := {"id": "zz_meter", "name": "Meterville", "meter": {"name": "Petition", "icon": "✍️",
+		"milestones": [{"at": 40, "id": "zz_page", "title": "A page", "items": {"coins": 30}}]}}
+	Data.islands.append(isl)
+	var s := GameState.new_game()
+	t.eq(LocationMeter.add(s, "zz_meter", 100).map(func(m): return m.id), ["zz_page"], "a milestone can carry items (Story.add_meter gives them)")
+	var back := SaveSystem.deserialize(SaveSystem.serialize(s))
+	t.eq(LocationMeter.points(back, "zz_meter"), 100, "saved and loaded")
+	Data.npcs.append({"id": "zz_npc", "island": "zz_meter"}); Data.npc_by_id["zz_npc"] = Data.npcs[-1]
+	var q := {"id": "zz_q", "giver": "zz_npc", "objectives": [{"id": "sig", "kind": "meter", "value": 250}, {"id": "end", "kind": "talk", "npc": "zz_npc", "final": true}]}
+	Data.quests.append(q); Data.quest_by_id["zz_q"] = q
+	var e := QuestEngine.new(s)
+	e.accept("zz_q")
+	t.eq(e.objective("zz_q", q.objectives[0]).have, 100, "100 of 250")
+	t.ok(not e.is_ready("zz_q"))
+	LocationMeter.add(s, "zz_meter", 150); e.refresh()
+	t.ok(e.is_ready("zz_q"), "ready at 250")
+	Data.quests.erase(q); Data.quest_by_id.erase("zz_q"); Data.npcs.pop_back(); Data.npc_by_id.erase("zz_npc"); Data.islands.erase(isl)
+
+func test_gathering_a_place_can_change():
+	# what a metal-detector spot gives, as with other nodes ("gives"), or its kind's usual haul
+	t.eq(WorldActions.gives({"kind": "dig", "gives": {"zz_coin": 1.0}}, {"crystal": 1}), {"zz_coin": 1}, "a dig spot's own find")
+	# a catch you put straight back gives nothing
+	var frog := Minigames.Fish.new(Rng.new(3), [{"id": "frog", "name": "Sleepy Frog", "weight": 1.0, "pull": 0.2, "item": ""}])
+	frog.result = "caught"
+	t.eq(frog.reward(), {}, "a frog you put straight back gives nothing")
+	# garden beds from the layout, each with its seed and crop
+	Data.use_island("hearthglow")
+	t.eq(Gardening.beds(), Gardening.PLOTS, "Gigia's four pumpkin beds")
+	var beds := [{"id": "zz_bed", "x": 1, "z": 1, "seed": "zz_seed", "crop": {"zz_cabbage": 3}, "look": "cabbage"}]
+	var lay: Dictionary = Data.layout.duplicate(); lay["gardens"] = beds
+	var keep: Dictionary = Data.layout; Data.layout = lay
+	t.eq(Gardening.beds(), beds, "or the place's own")
+	var gd := {}
+	t.eq(Gardening.action(gd, "zz_bed", {"seeds": 3}, "zz_seed"), "need_seeds", "pumpkin seeds don't grow cabbages")
+	t.eq(Gardening.action(gd, "zz_bed", {"zz_seed": 1}, "zz_seed"), "plant")
+	Gardening.plant(gd, "zz_bed", 0)
+	for n in 3: Gardening.water(gd, "zz_bed", n * 1000.0); Gardening.grow(gd, n * 1000.0 + Gardening.GROW_MINUTES)
+	t.eq(Gardening.harvest(gd, "zz_bed", beds[0].crop), {"zz_cabbage": 3}, "and you pick the bed's own crop")
+	Data.layout = keep
+
+func test_the_railway_pieces():
+	for id in ["railLantern", "enamelSign"]:
+		var d := Data.piece(id)
+		t.ok(not d.is_empty() and d.cost.size() > 0, "%s is a piece with a cost" % id)
+		var m := PieceMeshes.make(id)
+		t.ok(m.get_child_count() > 2, "%s has a model" % id)
+		m.free()
+	var lantern := PieceMeshes.make("railLantern")
+	t.ok(Data.piece("railLantern").get("light", false) and not lantern.find_children("bulb", "MeshInstance3D", true, false).is_empty(), "the lantern glows at night")
+	lantern.free()
 
 func test_requests_ask_for_enough_to_build_what_they_ask_for():
 	# What a request has you gather (gifts on accepting count towards it) covers the cheapest way to build its

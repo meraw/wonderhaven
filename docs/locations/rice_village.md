@@ -1,7 +1,7 @@
 # Casalrana: design for the rice village
 
-Working id `rice_village`. Agreed with the user on 2026-11-04 in a design interview. **Stages 1 and 2 (ground and
-map; buildings and scenery) are built**; stages 3 and 4 are not. This doc is the plan the build stages follow. The rules every location shares are in `docs/WORLD.md`; `docs/MONTEFORCHETTA.md`
+Working id `rice_village`. Agreed with the user on 2026-11-04 in a design interview. **Stages 1 to 3 (ground and
+map; buildings and scenery; people, dialogue and requests) are built**; stage 4 is not. This doc is the plan the build stages follow. The rules every location shares are in `docs/WORLD.md`; `docs/MONTEFORCHETTA.md`
 and `docs/locations/metropolis.md` are the models this doc follows.
 
 ## The concept
@@ -76,15 +76,17 @@ North is up (towards negative z in the game).
 The invented names the user didn't choose (San Grato, Cascina Grande) can change.
 
 ## Getting there and around
-- **Arrival by bus.** Aldo's bus, on the line Monteforchetta's finale opens, stops at the crossroads on its way across
-  the plain. Paletta is waiting.
+- **Arrival by bus.** Aldo's bus, on the line Monteforchetta's finale opens, brings you on from Boccapioppo and stops at
+  the crossroads on its way across the plain. Paletta is waiting. (The travel order, as the user decided: Monteforchetta,
+  Boccapioppo, Casalrana, Toriano. Boccapioppo's finale sets `rice_village_revealed`.)
 - **The departure point** is the bus stop: a feature of kind `boat` (`rice_village_busStop`, "Catch the bus"), as
   `docs/WORLD.md` asks. Its boat model stays hidden; a bus stop sign stands there instead.
 - **Out by train.** The finale gets the regional train stopping again. From then on the station platform is a second
   departure point, the one for Toriano. Casalrana's finale sets `rice_village_trainStops`, the flag Toriano's map
   entry reveals on (agreed: Toriano's entry already waits for it).
-- **Until those links exist,** Casalrana stays off the travel map (its entry shows once `rice_village_revealed` is set)
-  and tests reach it with `--island=rice_village`.
+- **Until then,** Casalrana stays off the travel map (its entry shows once `rice_village_revealed` is set). Tests reach
+  it with `--island=rice_village`, and the playthrough starts as if Monteforchetta and Boccapioppo had been played
+  (`arrive_as_if_played(["hearthglow", "river_town"])`).
 - **On foot.** You walk the road and the banks between the paddies. The harvested paddies are walkable stubble. The
   canal, the flooded paddy and the spring pool are water. The railway is fenced off by its embankment, except at the
   level crossing.
@@ -146,7 +148,7 @@ surname), Silvia is his niece and Matteo his grandson. Paletta and Don Remo are 
 Daily routines are drafted in stage 3. In outline: Paletta is on the platform from the first train until dusk, then in
 his cottage; Barba Tista in the fields in the morning and the machine shed in the afternoon; Nonna in her kitchen with
 a turn in the garden at midday; Silvia in the farm office, then at the mill; Don Remo at the church, sometimes away on
-his motorbike in the afternoon; Matteo doing homework at the kitchen table in the morning and at the crossing in the
+his motorbike in the afternoon; Matteo doing homework in the waiting room, by his museum shelf, in the morning and at the crossing in the
 afternoon, home by dark.
 
 ## The petition: Casalrana's progress meter
@@ -251,12 +253,13 @@ the other merges main and reuses it.
 | **Ground paint from the location script:** `paint(x, z)` colours the ground point by point and says where meadow grows (clover, flowers, grass tufts, bushes, trees). Toriano built paving laid out as shapes (`ground` in a layout); this is the other half, for fields | Stubble, banks of winter grass, mud and a brick yard instead of meadow | 1 (built) | Toriano built the paving half |
 | **A building's height in the layout** (`h`), which the camera keeps clear of | The low railway bed, the tall bell tower | 1 (Toriano's, reused) | Built by Toriano |
 | **Raised floors** in a layout that you can walk and build on | The flat upstairs and the bell chamber | 3 (moved from 2, to reuse Toriano's if it lands first) | Yes |
-| **A path check for any zone** (`path:<zone>`), with endpoints that may be at different heights | The platform, and the climb up the tower | 3 | Yes |
-| **Garden beds from the layout**, each with its crop (today there are four fixed beds that grow pumpkins) | Cabbages and leeks at the farmstead | 3 | No |
-| **What a metal detector spot gives, from the layout** (today the finds come from a fixed list) | Matteo's museum finds | 3 | Similar (Roman finds) |
-| **What fishing catches, per location** | Tench, carp and the sleepy frog | 3 | Yes |
-| **A location's own progress meter** (name, unit, milestones), fed by that location's requests | The petition | 3 | Yes |
-| **Two new building pieces:** a railway lantern and an enamel railway sign | Paletta's shop. Agreed in principle in the interview as part of his shop; to be confirmed in the review of this doc | 3 | No |
+| **A path check for any zone** (`path:<zone>`), with endpoints that may be at different heights | The platform, and the climb up the tower | 3 (built) | Yes |
+| **Garden beds from the layout**, each with its crop (today there are four fixed beds that grow pumpkins) | Cabbages and leeks at the farmstead | 3 (built) | No |
+| **What a gathering spot gives, from the layout** (`items`, `label`, `found`; today metal detector finds come from a fixed list) | Matteo's museum finds, loose straw, the lost things' names | 3 (built) | Similar (Roman finds) |
+| **What fishing catches, per location** | Tench, carp and the sleepy frog | 3 (built) | Yes |
+| **A location's own progress meter** (name, unit, milestones), fed by that location's requests | The petition | 3 (built) | Yes |
+| **Two new building pieces:** a railway lantern and an enamel railway sign | Paletta's shop | 3 (built) | No |
+| **Rooms on raised floors in play:** a room's roof fades on its own storey, a room can be tall, build mode aims at raised floors, and placed furniture is used from its own storey | The flat upstairs, the bell tower | 3 (built) | Yes (rooms upstairs) |
 | **A location's own music** (its own tune for each part of the day) | Sparse, quiet themes | 4 | Yes (its own themes) |
 | **Clothing variants:** an unlockable item that reuses an existing shape with its own colours | The station master's cap, Nonna's hat and scarf, the green boots | 4 | Similar (new clothing shapes) |
 
@@ -358,6 +361,37 @@ One pull request per stage. Each keeps the game playable and the tests passing.
   - The flooded plain is still the shared water's bright blue; it gets a paddy-water tint with the look in stage 4.
   - The haze is the shared one; the white haze comes with the look in stage 4.
   - The upstairs flat and the bell chamber, which need raised floors (stage 3).
+
+**Stage 3, people, dialogue and requests: built.**
+- **The people** (`npcs.json`): Paletta, Barba Tista, Nonna Pierina, Silvia, Don Remo and Matteo, each with a routine
+  (some change as requests are done), greetings, topics and a friendship gift; Ingegner Pautasso turns up for the
+  finale only. Paletta waits at the bus stop until he's welcomed you.
+- **The requests** (`quests.json`): all eleven, as the table above describes. Paletta's petition is Casalrana's
+  meter (`location.json`): every request adds signatures, and its milestones give the expenses, the goods yard, the
+  province's materials and the next village's 100,000 lire.
+- **Shops and items** (`shops.json`, `resources.json`): Barba Tista, Silvia and Paletta's storeroom; straw, seed
+  packets, cabbages and leeks, rice, Nonna's treats, vin brulé and the museum's three finds.
+- **The layout**: the flat on the station's upper storey with its outside stair and landing (raised floors); the bell
+  tower as a room you can walk into, with its ringing floor; three holes in the crumbled platform; loose straw, lost
+  things on both sides of the line, metal-detector finds, four garden beds, the goods yard, and the two machine
+  targets (the winter paddy's inlet and the mill's drive).
+- **Location code** (`village_life.gd`): the first walk to the crossing, noting trains for Matteo, patching the
+  roof, pulling the bell ropes, and the canal and the winter paddy showing water once they're filled.
+- **Changes from the plan:**
+  - **The bell tower:** the wooden flight that rotted runs from the tower floor up to the ringing floor, 2 m up,
+    where the bell ropes hang; the stone stair above it to the bells is sound. You build that lower climb. Ringing
+    from the ringing floor is how real towers are rung, and it keeps the climb to a few pieces in a 4 m tower. The
+    tower moved a little west and grew to 4.4 m square to fit it.
+  - **The crumbled platform** has three holes that you plank over; the path check needs one continuous platform.
+  - **The canal's east bank** is cut low at the winter paddy's inlet and the mill race, so a waterwheel in the canal
+    can drive a pump or a shaft beside it.
+  - **Moved to stage 4:** the clothes (the station master's cap, Nonna's hat and scarf, the green boots), which need
+    the clothing-variants change, and so the wardrobe in your flat; the regional you see stopping at the platform
+    (stage 3 tells it in the finale's dialogue); the platform as a second departure point.
+- **Shared changes** (each with a test; see the stage 3 pull request): the location meter; `path:<zone>` with paths
+  that climb; rooms that fade on their own storey, and tall rooms; what a gathering spot gives and what you found;
+  each location's fish; garden beds from the layout; the railway lantern and enamel sign; build mode aiming at
+  raised floors; placed furniture used only from its own storey; visitors who give no request of their own.
 
 ## Checks for every stage
 `godot/run_tests.sh`, `npm test` and `npm run build`; screenshots of Casalrana in both renderers

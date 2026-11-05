@@ -82,6 +82,7 @@ func play() -> void:
 	await face_and_press("boat", bus.x, bus.z); await frames(10)
 	await shot("world-map")
 	var mv: Control = game.panels.find_child("map_view", true, false)
-	check("B2", "The new stop works: catching the bus opens the travel map, with the old Clockwork Cove kept off it", game.panels.current == "map" and mv != null and not mv.call("_shown").any(func(i): return i.id == "clockwork"), game.panels.current)
+	var on_map: Array = mv.call("_shown").map(func(i): return i.id) if mv != null else []
+	check("B2", "The new stop works: catching the bus opens the travel map with Boccapioppo on it (Casalrana comes later, the old Clockwork Cove stays off)", game.panels.current == "map" and on_map.has("river_town") and not on_map.has("rice_village") and not on_map.has("clockwork"), "%s: %s" % [game.panels.current, on_map])
 	await tap(KEY_ESCAPE); await frames(10)
 	check(12, "All of the above through gameplay input (no debug commands)", true, "Harness only reads state, turns the camera like a mouse drag, and pans the build view like WASD; see play_full.gd")

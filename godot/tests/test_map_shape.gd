@@ -165,3 +165,38 @@ func test_rooms_stack_on_raised_floors():
 func test_a_building_on_a_raised_floor():
 	_with_layout({"buildings": [{"id": "flat", "kind": "city_block", "x": 0, "z": 0, "w": 6, "d": 5, "h": 2.6, "y": 3.2}]}, func():
 		t.ok((Props.camera_blockers()[0] as AABB).end.y >= 5.8, "an upstairs flat blocks the camera up to its own roof"))
+
+func test_a_room_fades_on_its_own_storey():
+	# a waiting room at street level and a flat above it, on the same footprint: you're in one or the other
+	var g := 0.4
+	var room := {"id": "waiting", "kind": "city_block", "x": 0, "z": 0, "w": 8, "d": 5, "y": g, "door": "S", "interior": {"items": []}}
+	var flat := {"id": "flat", "kind": "city_block", "x": 0, "z": 0, "w": 8, "d": 5, "y": g + 3.1, "door": "E", "interior": {"items": []}}
+	t.ok(Interiors.inside(room, g, Vector3(1, g, 0)) and not Interiors.inside(flat, g + 3.1, Vector3(1, g, 0)), "downstairs: the waiting room, not the flat")
+	t.ok(Interiors.inside(flat, g + 3.1, Vector3(1, g + 3.1, 0)) and not Interiors.inside(room, g, Vector3(1, g + 3.1, 0)), "upstairs: the flat, not the waiting room")
+	t.ok(not Interiors.inside(room, g, Vector3(6, g, 0)), "outside the walls is outside")
+	# a tall room ("height"), like a bell tower you climb inside, counts all the way up
+	var tower := {"id": "tower", "kind": "city_block", "x": 0, "z": 0, "w": 4.4, "d": 4.4, "door": "S", "interior": {"items": [], "height": 6.0}}
+	t.ok(Interiors.inside(tower, g, Vector3(0, g + 3.0, 0)), "up on the ringing floor, still in the tower")
+	t.ok(not Interiors.inside(room, g, Vector3(1, g + 3.0, 0)), "but an ordinary room stops at its ceiling")
+
+func test_a_path_across_any_zone_between_heights():
+	# a climb from the ground (endpoint a, at ground height) to a floor 3 m up (endpoint b says "y"): the floor's row
+	# can be walked under at ground level, which mustn't count
+	var gy := Heightfield.height(30.5, 30.5)
+	var up := gy + 3.0
+	var zone := {"id": "climb", "name": "Climb", "minI": 30, "maxI": 33, "minK": 30, "maxK": 34,
+		"endpoints": {"a": {"minI": 30, "maxI": 33, "minK": 34, "maxK": 34, "y": gy}, "b": {"minI": 30, "maxI": 33, "minK": 30, "maxK": 30, "y": up}}}
+	var floors := [{"id": "ringing", "rect": [30, 30, 34, 31], "top": up}]
+	_with_layout({"floors": floors, "zones": [zone], "nodes": [], "features": []}, func():
+		var w := WalkWorld.new([]); w.floors = WorldStatics.floors()
+		t.ok(not Validate.path_across(zone, w).ok, "walking under the floor isn't climbing to it")
+		# up from row 34 along x = 30: stairs 0->1, then on 1 and 2 blocks of stone, then the floor
+		var pls := [{"uid": 1, "id": "stairs", "i": 30.0, "k": 33.0, "r": 0, "y": gy}, {"uid": 2, "id": "stoneBlock", "i": 30.0, "k": 32.0, "r": 0, "y": gy},
+			{"uid": 3, "id": "stairs", "i": 30.0, "k": 32.0, "r": 0, "y": gy + 1.0}, {"uid": 4, "id": "stoneBlock", "i": 30.0, "k": 31.0, "r": 0, "y": gy},
+			{"uid": 5, "id": "stoneBlock", "i": 30.0, "k": 31.0, "r": 0, "y": gy + 1.0}, {"uid": 6, "id": "stairs", "i": 30.0, "k": 31.0, "r": 0, "y": gy + 2.0}]
+		w.surfaces = BuildGrid.surfaces_for(pls)
+		var r := Validate.path_across(zone, w)
+		t.ok(r.ok, "a climb you can really walk up counts (reached %s)" % r.get("reached", ""))
+		pls[0].r = 1   # the first flight turned sideways: you'd have to step onto the side of it
+		w.surfaces = BuildGrid.surfaces_for(pls)
+		t.ok(not Validate.path_across(zone, w).ok, "stepping onto the side of a stair doesn't count"))

@@ -11,8 +11,9 @@ func play() -> void:
 	var max_step := 0.0; var max_out := 0.0; var pull_ins := 0; var inside := 0; var under := 0; var frames_n := 0
 	var walls: Array = []   # the buildings' actual walls and roofs (the camera blockers add a margin around them)
 	for b in Data.layout.buildings:
-		var top: float = 6.5 if b.kind == "castle" else (2.6 if b.kind == "caravan" else 2.4 + Props.roof_rise(b.w, b.d))
-		walls.append(AABB(Vector3(b.x - b.w / 2.0, 0.0, b.z - b.d / 2.0), Vector3(b.w, top, b.d)))
+		for r in WorldStatics.footprint(b):   # a church is two boxes: the nave, and the tower at its back corner
+			var top: float = 6.5 if b.kind == "castle" else (2.6 if b.kind == "caravan" else float(r.top))
+			walls.append(AABB(Vector3(r.minX, 0.0, r.minZ), Vector3(r.maxX - r.minX, top, r.maxZ - r.minZ)))
 	var last_d := -1.0
 	for i in range(1, ROUTE.size()):
 		var goal: Vector2 = ROUTE[i]
@@ -38,7 +39,9 @@ func play() -> void:
 				if (b as AABB).has_point(cp) and not (b as AABB).has_point(game.cam.target): inside += 1
 			if cp.y < Heightfield.height(cp.x, cp.z) + 0.2: under += 1
 		key(KEY_W, false)
-		if i % 3 == 0: await shot("route-%d" % i)
+		if i % 3 == 0:
+			await shot("route-%d" % i)
+			last_d = -1.0   # the screenshot takes a few frames: compare frame to frame again from the next one
 	# A visible pop is a big jump between two frames; easing out at a few metres per second is the intended motion.
 	check("c1", "No sudden outward jumps (largest move out in one frame %.2f m, fastest %.1f m/s, %d frames)" % [max_step, max_out, frames_n], max_step < 0.5, "")
 	check("c2", "The camera never ends up inside a building", inside == 0, "%d frames inside" % inside)

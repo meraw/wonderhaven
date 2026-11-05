@@ -26,3 +26,12 @@ func test_arriving_somewhere_as_if_monteforchetta_was_played():
 func test_nothing_played_is_a_new_game_without_the_guide():
 	var s := Progress.as_if_played([], "hearthglow")
 	t.ok(s.quests.is_empty() and int(s.harmony) == 0 and not s.tutorial.on, "no requests done, no approval, no guided day")
+
+func test_the_city_bus_reaches_boccapioppo_first():
+	# Monteforchetta's finale opens the bus line to Boccapioppo; Casalrana comes after Boccapioppo, Toriano after Casalrana
+	var before := Progress.as_if_played([], "hearthglow")
+	var after := Progress.as_if_played(["hearthglow"], "hearthglow")
+	var shown := func(id: String, s: Dictionary) -> bool: return Travel.on_map(Data.island_def(id), s.flags, "hearthglow")
+	t.ok(not shown.call("river_town", before), "before the city bus, Boccapioppo isn't on the map")
+	t.ok(shown.call("river_town", after), "after it, Boccapioppo is")
+	t.ok(not shown.call("rice_village", after) and not shown.call("metropolis", after), "Casalrana and Toriano wait for later")

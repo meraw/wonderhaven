@@ -17,7 +17,7 @@ static func deserialize(text: String) -> Dictionary:
 	var base := GameState.new_game()
 	var s: Dictionary = base.duplicate(true)
 	for k in raw: s[k] = raw[k]
-	for k in ["flags", "quests", "relationships", "nodes", "gardens", "stats", "inventory", "time", "player", "crossings"]:
+	for k in ["flags", "quests", "relationships", "nodes", "gardens", "stats", "inventory", "time", "player", "crossings", "meters"]:
 		var merged: Dictionary = base[k].duplicate(true)
 		if raw.get(k) is Dictionary: merged.merge(raw[k], true)
 		s[k] = merged
@@ -44,6 +44,7 @@ static func deserialize(text: String) -> Dictionary:
 	if not Data.has_island(str(s.get("island", "hearthglow"))): s.island = "hearthglow"
 	s.next_uid = maxi(int(raw.get("next_uid", 1)), Travel.max_uid(s) + 1)
 	s.harmony = int(s.harmony)
+	for k in s.meters: s.meters[k] = int(s.meters[k])
 	for k in s.inventory: s.inventory[k] = int(s.inventory[k])
 	s.time = {"day": int(s.time.get("day", 1)), "minute": float(s.time.get("minute", 480)), "total": float(s.time.get("total", 0))}
 	s.version = GameState.SAVE_VERSION

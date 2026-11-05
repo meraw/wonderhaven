@@ -530,6 +530,31 @@
    "desc": "Glows warmly at night."
   },
   {
+   "id": "railLantern",
+   "name": "Railway Lantern",
+   "icon": "🏮",
+   "cat": "furniture",
+   "size": [
+    1,
+    1
+   ],
+   "h": 0.62,
+   "box": [
+    0.3,
+    0.3,
+    0.7,
+    0.7
+   ],
+   "light": true,
+   "cost": {
+    "metal": 1,
+    "crystal": 1
+   },
+   "color": "#b8352c",
+   "colorable": true,
+   "desc": "A station master's hand lantern with a red lens. Glows at night on a table, a shelf or a platform."
+  },
+  {
    "id": "rug",
    "name": "Rug",
    "icon": "🟥",
@@ -750,6 +775,30 @@
    "color": "#c98a55",
    "colorable": true,
    "desc": "Points the way."
+  },
+  {
+   "id": "enamelSign",
+   "name": "Enamel Sign",
+   "icon": "🪧",
+   "cat": "outdoor",
+   "size": [
+    1,
+    1
+   ],
+   "h": 1.3,
+   "box": [
+    0.05,
+    0.4,
+    0.95,
+    0.6
+   ],
+   "cost": {
+    "metal": 1,
+    "wood": 1
+   },
+   "color": "#24508a",
+   "colorable": true,
+   "desc": "An old enamel railway sign on two iron legs: white letters on blue."
   },
   {
    "id": "streetlight",
