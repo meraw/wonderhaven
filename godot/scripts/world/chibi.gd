@@ -411,6 +411,11 @@ func animate(dt: float, speed: float = 0.0, airborne: bool = false) -> void:
 	if airborne: leg_l.rotation.x = 0.5; leg_r.rotation.x = -0.3; arm_l.rotation.z = -1.2; arm_r.rotation.z = 1.2
 	match hold:
 		"sit": body.position.y = -0.2; leg_l.rotation.x = -1.4; leg_r.rotation.x = -1.4; arm_l.rotation.x = -0.3; arm_r.rotation.x = -0.3
+		"ride":   # on the bicycle's saddle: pedalling as fast as you go, hands on the handlebar
+			var pedal := t * 7.0 * minf(1.0, speed)
+			body.position.y = 0.32; body.rotation.z = 0.0; head.rotation.z = 0.0
+			leg_l.rotation.x = -1.1 + sin(pedal) * 0.45 * minf(1.0, speed); leg_r.rotation.x = -1.1 - sin(pedal) * 0.45 * minf(1.0, speed)
+			arm_l.rotation.x = -1.15; arm_r.rotation.x = -1.15; arm_l.rotation.z = 0.12; arm_r.rotation.z = -0.12
 		"sleep": body.position.y = -0.24; leg_l.rotation.x = -1.4; leg_r.rotation.x = -1.4; head.rotation.x = 0.35; head.rotation.z = 0.25
 		"cast": arm_r.rotation.x = -1.3; arm_l.rotation.x = -1.1; arm_l.rotation.z = 0.4
 		"reel": arm_r.rotation.x = -1.0 + sin(t * 14.0) * 0.15; arm_l.rotation.x = -1.0; arm_l.rotation.z = 0.4; body.rotation.x = -0.12

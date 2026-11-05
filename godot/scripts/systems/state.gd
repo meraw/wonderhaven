@@ -14,7 +14,7 @@ static func new_game(player_name: String = "Apprentice", appearance: Dictionary 
 		"clothes_owned": [], "relationships": {}, "nodes": {}, "gardens": {}, "crossings": {},
 		"time": {"day": 1, "minute": float(START_MINUTE), "total": 0.0},
 		"stats": {"fish": 0, "chopped": 0, "mined": 0, "dug": 0, "chests": 0, "fragments": 0, "placed": 0, "treasures": 0, "types": []},
-		"unlocks_seen": [], "tutorial": Tutorial.new_state(true), "meters": {},
+		"unlocks_seen": [], "tutorial": Tutorial.new_state(true), "meters": {}, "bike_color": Bicycle.COLORS[0],
 	}
 
 static func clothing_unlocked(state: Dictionary, id: String) -> bool:

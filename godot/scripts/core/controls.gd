@@ -6,15 +6,18 @@ const DEFAULTS := {
 	"sprint": [KEY_SHIFT], "jump": [KEY_SPACE], "interact": [KEY_E], "build": [KEY_B], "inventory": [KEY_I], "journal": [KEY_J],
 	"map": [KEY_M], "progress": [KEY_P], "wardrobe": [KEY_C], "pause": [KEY_ESCAPE], "rotate": [KEY_R], "remove": [KEY_DELETE, KEY_BACKSPACE],
 	"half_grid": [KEY_G], "cam_left": [KEY_Q], "cam_right": [KEY_Z], "recolor": [KEY_T], "move_piece": [KEY_N],
+	"bike": [KEY_F], "bell": [KEY_H],
 }
 const LABELS := {
 	"move_forward": "Move forward", "move_back": "Move back", "move_left": "Move left", "move_right": "Move right", "sprint": "Run", "jump": "Hop",
 	"interact": "Interact", "build": "Build mode", "inventory": "Bag", "journal": "Quest journal", "map": "World map", "progress": "Approval rating",
 	"wardrobe": "Wardrobe", "pause": "Pause / back", "rotate": "Rotate piece", "remove": "Remove piece", "half_grid": "Half-grid snapping",
 	"cam_left": "Turn camera left", "cam_right": "Turn camera right", "recolor": "Recolour piece", "move_piece": "Move piece",
+	"bike": "Get on or off the bike", "bell": "Ring the bike's bell",
 }
 const PAD := {"interact": JOY_BUTTON_A, "pause": JOY_BUTTON_START, "build": JOY_BUTTON_X, "journal": JOY_BUTTON_Y, "map": JOY_BUTTON_BACK,
-	"rotate": JOY_BUTTON_RIGHT_SHOULDER, "remove": JOY_BUTTON_LEFT_SHOULDER, "inventory": JOY_BUTTON_DPAD_UP, "progress": JOY_BUTTON_DPAD_DOWN, "jump": JOY_BUTTON_B}
+	"rotate": JOY_BUTTON_RIGHT_SHOULDER, "remove": JOY_BUTTON_LEFT_SHOULDER, "inventory": JOY_BUTTON_DPAD_UP, "progress": JOY_BUTTON_DPAD_DOWN, "jump": JOY_BUTTON_B,
+	"bike": JOY_BUTTON_LEFT_STICK, "bell": JOY_BUTTON_DPAD_LEFT}
 
 static func setup(custom: Dictionary = {}) -> void:
 	for action in DEFAULTS:

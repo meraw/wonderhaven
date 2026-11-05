@@ -5,7 +5,7 @@ extends "res://tests/full_base.gd"
 ## Roman bridge to the east bank and the sawmill (the Alpine river can't be waded), back onto the floodplain to Gildo
 ## and Mattia's shack and the stranded houseboat (sleep there until morning), up the ramp into the empty dance hall,
 ## through the breach, and to the canal that keeps you on the map.
-## Part two, every request (checks s1-s18): see requests() below.
+## Part two, every request (checks s1-s12 and b1-b3 for the bicycle): see requests() below.
 ## It starts as if you had come by Monteforchetta's bus with its main story done (arrive_as_if_played).
 ## Run: TIMEOUT=30000 ./play.sh res://tests/play_river_town.gd /tmp/out --island=river_town --limit=29000
 ##      (--part=requests plays part two only; --from=<section> and --to=<section> start and stop at a request)
@@ -359,7 +359,7 @@ func gather_item(item: String, need: int, rounds: int = 20) -> bool:
 
 ## Part two, every request, in sections. After each one the state is kept as a checkpoint (rt_<section>), so a run can
 ## start from a later section with --from=<section> (a test-only shortcut while developing; a full run plays them all).
-const SECTIONS := ["welcome", "bridge", "piazza", "crossing", "dancehall", "houseboat", "catfish", "lost", "levee"]
+const SECTIONS := ["welcome", "bike", "round", "bridge", "piazza", "crossing", "dancehall", "houseboat", "catfish", "lost", "levee"]
 
 func requests() -> void:
 	var from := String(game.shot_cfg.get("from", "welcome"))
@@ -392,6 +392,64 @@ func sec_welcome() -> void:
 	check("s1", "Straight to Work: sand from the sandbank for Ermes's patch, coffee at Rina's, and the gauge comes down a metre",
 		accepted and qs("welcome") == "done" and pts() == 100 and reading() == "6.40 m" and flag("welcomed"), "%s, gauge %s" % [qs("welcome"), reading()])
 	await shot("welcome-done")
+
+func sec_bike() -> void:
+	var s: Dictionary = game.state
+	# ---- A Bike from the Mud (Primo): metal and a tyre, a night in his workshop, then try it on the levee road
+	await talk(P + "primo")
+	var bk_ok: bool = qs("bike") == "active"
+	await buy("primo", "metal", 1)
+	for k in 5:
+		if inv(P + "tyre") >= 1: break
+		await gather_node(P + "fish2")
+	var tyre: bool = inv(P + "tyre") >= 1
+	if hour() < 12.0 or hour() >= 21.0: await nap_until(12)
+	await talk(P + "primo")   # hand them over in the afternoon
+	var paid: bool = stage("bike") >= 2
+	await nap_until(9)        # overnight
+	await talk(P + "primo")   # collect it in the morning
+	var owned: bool = Bicycle.owned(s.flags)
+	await walk_to(-14.0, 22.0, 0.8)
+	await tap(KEY_F); await frames(6)
+	var mounted: bool = game.player.riding and game.bike_node != null and game.bike_node.visible
+	var t0: float = game.time
+	var from: Vector3 = game.player.pos
+	await walk_direct(-44.0, 22.0, 0.8, 40.0)
+	var speed: float = from.distance_to(game.player.pos) / maxf(0.01, game.time - t0)
+	var tried: bool = stage("bike") >= 4 or game.story.engine.is_ready(P + "bike")
+	await shot("riding-the-levee")
+	check("b1", "A Bike from the Mud: metal and a tyre from the river for Primo, a night in his workshop, and you ride it along the levee road",
+		bk_ok and tyre and paid and owned and mounted and tried, "tyre=%s paid=%s owned=%s mounted=%s tried=%s" % [tyre, paid, owned, mounted, tried])
+	# riding: faster than running, the bell, off by itself indoors and to talk
+	var bell_ok := true
+	if Bicycle.has(s.flags, "bell"):
+		await tap(KEY_H); await frames(4)
+		bell_ok = game.player.riding and game.hotkeys.text.contains("Bell")
+	if not game.player.riding: await tap(KEY_F); await frames(4)
+	await walk_direct(-16.0, 19.5, 0.6, 30.0)
+	await walk_direct(-16.0, 15.0, 0.5, 20.0)   # in through Ermes's door
+	var off_indoors: bool = not game.player.riding
+	await walk_direct(-16.0, 19.5, 0.6, 20.0)
+	await tap(KEY_F); await frames(4)
+	var remounted: bool = game.player.riding
+	await talk(P + "primo")   # tell him how it rides: you hop off to talk
+	var off_to_talk: bool = not game.player.riding
+	check("b2", "Riding: faster than running, the bell, and you get off by yourself indoors and to talk",
+		speed > 9.0 and bell_ok and off_indoors and remounted and off_to_talk and qs("bike") == "done",
+		"speed %.1f m/s, bell=%s, off indoors=%s, off to talk=%s, %s" % [speed, bell_ok, off_indoors, off_to_talk, qs("bike")])
+
+func sec_round() -> void:
+	var s: Dictionary = game.state
+	# ---- Pierina's Round: five letters and a parcel, by bike
+	await talk(P + "pierina")
+	var got: bool = qs("round") == "active" and inv(P + "letter") == 5 and inv(P + "parcel") == 1
+	for who in ["rina", "ermes", "tullio", "gildo", "wanda", "ines"]:
+		if not game.player.riding and not Bicycle.indoors(game.player.pos): await tap(KEY_F); await frames(4)
+		await talk(P + who)
+	await talk(P + "pierina")
+	check("b3", "Pierina's Round: five letters and a tuba-shaped parcel delivered round town by bike",
+		got and qs("round") == "done" and inv(P + "letter") == 0 and inv(P + "parcel") == 0 and pts() == expected_pts(),
+		"%s, letters left %d, parcel %d, gauge %s" % [qs("round"), inv(P + "letter"), inv(P + "parcel"), reading()])
 
 func sec_bridge() -> void:
 	var s: Dictionary = game.state
@@ -604,7 +662,7 @@ func sec_lost() -> void:
 	check("s9", "Ines's six runaway logs and the six lost things: found once each along the banks and handed back",
 		asked == 7 and found == 12 and returned == 7 and inv(P + "log") == 0, "asked %d, found %d of 12, returned %d" % [asked, found, returned])
 	check("s10", "The flood gauge counts it all: a metre per main request, half a metre per side request, ten centimetres per lost thing",
-		pts() == 400 + 150 + 60 and pts() == expected_pts() and reading() == "1.30 m" and s.flags.get(P + "mooring_plot", false) and s.blueprints.has("poweredLamp") and s.flags.get(P + "mooring_garden", false),
+		pts() == 400 + 250 + 60 and pts() == expected_pts() and reading() == "0.30 m" and s.flags.get(P + "mooring_plot", false) and s.blueprints.has("poweredLamp") and s.flags.get(P + "mooring_garden", false),
 		"gauge %s (%d cm); plot=%s lamp plans=%s garden=%s" % [reading(), pts(), s.flags.get(P + "mooring_plot", false), s.blueprints.has("poweredLamp"), s.flags.get(P + "mooring_garden", false)])
 
 func sec_levee() -> void:
@@ -648,7 +706,8 @@ func sec_levee() -> void:
 	await talk(P + "ermes")   # the peak, and it holds
 	var over := await await_rebuild()
 	await shot("after-the-storm")
-	check("s12", "The levee holds: past midnight the river peaks below the wall, the flood is over, the rivers go back down and the bus line goes on to Casalrana",
-		over and qs("levee") == "done" and flag("flood_over") and absf(game.village.water.position.y - Heightfield.WATER_Y) < 0.01 and pts() == 810 - 100
+	check("s12", "The levee holds: past midnight the river peaks below the wall, the flood is over (the gauge reads zero: the bike's paint job), the rivers go back down and the bus line goes on to Casalrana",
+		over and qs("levee") == "done" and flag("flood_over") and absf(game.village.water.position.y - Heightfield.WATER_Y) < 0.01 and pts() == 810 and reading() == "0.00 m"
+		and Bicycle.has(game.state.flags, "paint")
 		and Travel.on_map(Data.island_def("rice_village"), game.state.flags, "river_town"),
 		"%s, water %.2f, gauge %s" % [qs("levee"), game.village.water.position.y, reading()])

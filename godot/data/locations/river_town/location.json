@@ -32,41 +32,52 @@
     "at": 100,
     "id": "river_town_gauge_640",
     "title": "Down a metre. Don't get excited.",
-    "desc": "Ermes chalks the new reading on his door."
+    "desc": "Ermes chalks the new reading on his door. Primo puts a bell aside for your bike: ring it while you ride.",
+    "flags": [
+     "bikeBell"
+    ]
    },
    {
     "at": 220,
     "id": "river_town_gauge_520",
     "title": "The river's back in its bed.",
-    "desc": "The mooring plot is yours: a strip of bank beside the backwater to build on.",
+    "desc": "The mooring plot is yours: a strip of bank beside the backwater to build on. A front basket for your bike, from Primo.",
     "flags": [
-     "river_town_mooring_plot"
+     "river_town_mooring_plot",
+     "bikeBasket"
     ]
    },
    {
     "at": 360,
     "id": "river_town_gauge_380",
     "title": "Halfway, give or take a centimetre.",
-    "desc": "Primo found the plans for a streetlight and an electric lamp under a drying wheel.",
+    "desc": "Primo found the plans for a streetlight and an electric lamp under a drying wheel. A dynamo lamp for your bike: it lights the way when you ride at night.",
     "blueprints": [
      "streetlight",
      "poweredLamp"
+    ],
+    "flags": [
+     "bikeLamp"
     ]
    },
    {
     "at": 520,
     "id": "river_town_gauge_220",
     "title": "The ducks are back. Well, the coypus.",
-    "desc": "The mooring plot grows into a garden with a jetty out over the backwater.",
+    "desc": "The mooring plot grows into a garden with a jetty out over the backwater. A rear rack for your bike.",
     "flags": [
-     "river_town_mooring_garden"
+     "river_town_mooring_garden",
+     "bikeRack"
     ]
    },
    {
     "at": 740,
     "id": "river_town_gauge_000",
     "title": "The flood is over.",
-    "desc": "Zero on the gauge. Ermes paints over the high-water mark himself."
+    "desc": "Zero on the gauge. Ermes paints over the high-water mark himself. Primo gives your bike a sporty paint job. Repaint it whenever you like while you ride.",
+    "flags": [
+     "bikePaint"
+    ]
    }
   ]
  }
