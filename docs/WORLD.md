@@ -96,6 +96,8 @@ Starting points only. Each location's session settles the details with the user 
 - **Screenshots:** `godot/shot.sh out.png --island=<id> --skiptitle --pos=x,z,yaw --cam=yaw,pitch,dist --time=H
   --weather=clear`. Add `RENDERER=forward_plus` for the game's normal look.
 - **Playthroughs:** `godot/play.sh res://tests/play_<id>.gd <out_dir> --island=<id>`, with scripts built on
-  `tests/autoplay_base.gd`.
+  `tests/autoplay_base.gd`, or `godot/play_all.sh <out_root> play_<id>` (it adds `--island=<id>` and the arguments on
+  the script's `## Run:` line, and prints a summary). Frames are only drawn for screenshots, and each frame is 0.1 s of
+  game time, so wait in game time (`wait`, `frames`), not wall-clock time. `RENDER_ALL=1` draws every frame.
 - **Motion:** Godot's Movie Maker (`--write-movie out.avi --fixed-fps 30`) records smoothly even on the slow
   software renderer. FFmpeg converts the result and builds side-by-side comparisons.
