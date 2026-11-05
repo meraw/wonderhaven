@@ -103,6 +103,7 @@ func step_marble() -> void:
 	check("crane", "a waterwheel in the flowing canal drives the old crane", placed == 2 and step_done("marble", "crane") and game.mech.fed.get(P + "crane", false), "%d placed, fed %s" % [placed, game.mech.fed])
 	await chat("annoni"); await chat("annoni")
 	check("marble_done", "the first barge unloads, and the request is done", done("marble"), "%s, %d inches" % [status("marble"), inches()])
+	check("photo_outfit", "25 column inches: your photo in the paper, and a long camel coat and a red scarf to go with it", game.state.clothes_owned.has(P + "camelcoat") and game.state.clothes_owned.has(P + "redscarf") and game.state.clothes_owned.has("longcoat"), "%d inches" % inches())
 
 ## The Footbridge
 func step_footbridge() -> void:
@@ -195,6 +196,9 @@ func step_angel() -> void:
 	await walk_direct(67.0, 11.0, 0.5)
 	await descend_scaffold()
 	if hour() < 18.0: await sleep_until("bench_sq1", 18)   # wait for dark on a bench in the square
+	await frames(30)
+	var Glow = load("res://scripts/locations/metropolis/glow.gd")
+	check("lamps_at_dusk", "dusk comes at five: by six the street lamps and Christmas lights are lit (before the 20:30 night)", float(Glow.level) > 0.5, "glow %.2f at %.1f h, night flag %s" % [float(Glow.level), hour(), game.state.flags.get("night", false)])
 	var crowd := 0
 	for n in 90:   # (wait in the square while they walk over from all over the city)
 		await frames(10)
@@ -206,6 +210,12 @@ func step_angel() -> void:
 	check("eve_crowd", "Christmas Eve: the neighbourhood gathers in the cathedral square", crowd >= 8, "%d villagers in the square" % crowd)
 	await chat("annoni")
 	check("angel_lit_eve", "after dark the Golden Angel lights up over the square", step_done("angel", "eve") and game.state.flags.get(P + "angel_on", false), str(game.state.quests.get(P + "angel", {}).get("done", {}).keys()))
+	var atmo = game.get_node("Atmosphere")
+	for n in 60:   # the snow starts as she lights up, and settles on the square
+		await frames(10)
+		if float(atmo.snow_cover) > 0.5: break
+	check("snow_on_christmas_eve", "and it starts to snow: flakes falling, and a white dusting settling on the square", Daylight.forced(game.state) == "snow" and float(game.weather_now.get("snow", 0.0)) > 0.5 and float(atmo.snow_cover) > 0.5,
+		"%s, falling %.2f, dusting %.2f" % [Daylight.forced(game.state), float(game.weather_now.get("snow", 0.0)), float(atmo.snow_cover)])
 	await angel_shot()
 	await chat("annoni")
 	check("angel_done", "Buon Natale: the finale is done", done("angel") and game.state.flags.get(P + "angel_lit", false), "%s, %d inches" % [status("angel"), inches()])

@@ -159,6 +159,7 @@ func play() -> void:
 	check("chiara_window", "a counter, two lamps, a rug, a painting on a wall and a splash of colour", step_done("chiara", "window"), "%d of 6 placed" % placed)
 	await chat("chiara")
 	check("chiara_done", "shoppers stop at the window", done("chiara"), status("chiara"))
+	check("padded_jacket", "and Chiara makes you a padded jacket", game.state.clothes_owned.has(P + "padded"), str(game.state.clothes_owned.filter(func(c): return String(c).begins_with(P))))
 
 	# ---- Rocco's platform and the tram shelter in the square --------------------------------------------------
 	await tram("stop_duomo")
