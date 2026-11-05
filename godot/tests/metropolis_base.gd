@@ -156,9 +156,9 @@ func open_zone(zone_id: String) -> bool:
 ## there). Returns true when the piece is standing there afterwards.
 func put(id: String, i: float, k: float, r: int = 0, y: float = 0.3) -> bool:
 	await select_piece(id)
-	for n in 4:
+	for n in 12:   # (at a low frame rate a tap can go unnoticed: press until it's turned the right way)
 		if game.build.rotation == r: break
-		await tap(KEY_R)
+		await tap(KEY_R); await frames(2)
 	game.build.focus = Vector3(i + 0.5, y, k + 0.5)
 	var p := Vector2.ZERO
 	for attempt in 6:   # point at the cell, and make sure the build cursor is on it (the view may still be gliding there)
@@ -166,7 +166,7 @@ func put(id: String, i: float, k: float, r: int = 0, y: float = 0.3) -> bool:
 		p = game.camera.unproject_position(Vector3(i + 0.5, y + 0.02, k + 0.5))
 		mouse_move(p, Vector2(1, 0)); await frames(4)
 		var c: Dictionary = game.build.candidate()
-		if not c.is_empty() and is_equal_approx(float(c.i), i) and is_equal_approx(float(c.k), k): break
+		if not c.is_empty() and is_equal_approx(float(c.i), i) and is_equal_approx(float(c.k), k) and int(c.r) == r: break
 		await frames(10)
 	var status_text: String = game.build.status_label.text if game.build.status_label else ""
 	var before: int = game.state.placements.size()
