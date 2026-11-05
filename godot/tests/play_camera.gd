@@ -24,9 +24,8 @@ func play() -> void:
 			var want := atan2(-to.x, -to.y)
 			game.cam.yaw = lerp_angle(game.cam.yaw, want, 0.08)
 			key(KEY_W, true)
-			var t0 := Time.get_ticks_usec()
 			await frames(1)
-			var dt := minf(0.1, maxf(0.001, (Time.get_ticks_usec() - t0) / 1000000.0))
+			var dt := minf(0.1, maxf(0.001, get_process_delta_time()))   # the frame's game time, as the game caps it
 			frames_n += 1
 			var cp: Vector3 = game.camera.global_position
 			var d := cp.distance_to(game.cam.target)

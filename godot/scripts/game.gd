@@ -299,7 +299,7 @@ func sleep_until(hour: float, where: String = "bed") -> void:
 	stand_up()
 	await _fade(true).finished
 	Clock.sleep_until(state.time, hour)
-	for a in npcs.values(): a.teleport_home()
+	send_villagers_home()
 	actions.refresh_all()
 	_fade(false)
 	set_mode("explore")
@@ -453,11 +453,18 @@ func load_state(s: Dictionary) -> void:
 	player_char.show_staff(s.flags.get("hasTool", false))
 	player.teleport(s.player.x, s.player.z, s.player.yaw)
 	rebuild_all_pieces()
-	for a in npcs.values(): a.teleport_home()
+	send_villagers_home()
 	actions.refresh_all()
 	build.history.clear()
 	render_resources(); hud.render_harmony(); hud.render_tracker()
 	guide.reset()
+
+## Villagers go straight to where their routine puts them now (after a sleep, or loading a save). One can land right
+## where you stand, and you couldn't walk out of them, so you step aside.
+func send_villagers_home() -> void:
+	for a in npcs.values(): a.teleport_home(); a.sync()
+	var spot := walk.step_aside(player.pos, WalkWorld.PLAYER_RADIUS, player.body)
+	if not spot.is_empty(): player.teleport(spot.x, spot.z)
 
 func begin_play() -> void:
 	started = true

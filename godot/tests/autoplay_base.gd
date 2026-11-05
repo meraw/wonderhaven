@@ -56,10 +56,19 @@ func note(msg: String) -> void:
 	if f == null: return
 	f.seek_end(); f.store_line("%s  %s" % [Time.get_time_string_from_system(), msg]); f.close()
 
+## Frames are only drawn for screenshots: on a machine with software rendering, drawing a frame takes about half a
+## second and the game's own work a few milliseconds, so a playthrough that draws every frame spends nearly all its
+## time drawing frames nobody looks at. play.sh runs the game with --fixed-fps 10, so every frame is 0.1 s of game time
+## however long it takes to compute (the step the game caps a frame at anyway); what happens in play is unchanged.
+## RENDER_ALL=1 (or --render) draws every frame, to watch a run or record it.
+var draw_every_frame := false
+
 func shot(name: String) -> void:
 	shot_n += 1
-	await frames(2)
+	RenderingServer.render_loop_enabled = true
+	await frames(3)   # two frames drawn with the world as it is now
 	get_viewport().get_texture().get_image().save_png("%s/%02d-%s.png" % [out_dir, shot_n, name])
+	RenderingServer.render_loop_enabled = draw_every_frame
 
 ## After sailing, the scene reloads with the new island. Waits for it, then follows the new game.
 func await_island(id: String, max_s: float = 90.0) -> bool:
@@ -92,6 +101,7 @@ func sail(to: String) -> bool:
 	return await await_island(to)
 
 func finish() -> void:
+	note("%d frames in %d s (%.0f frames a second, %d screenshots)" % [Engine.get_process_frames(), Time.get_ticks_msec() / 1000, Engine.get_process_frames() * 1000.0 / maxf(1.0, Time.get_ticks_msec()), shot_n])
 	var fails := results.filter(func(r): return not r.ok).size()
 	print("AUTOPLAY DONE: %d checks, %d failed" % [results.size(), fails])
 	get_tree().quit(1 if fails > 0 else 0)
@@ -102,6 +112,8 @@ func run(g) -> void:
 	DirAccess.make_dir_recursive_absolute(out_dir)
 	var limit := float(g.shot_cfg.get("limit", "900"))
 	get_tree().create_timer(limit).timeout.connect(func(): print("AUTOPLAY TIMEOUT"); get_tree().quit(3))
+	draw_every_frame = OS.get_environment("RENDER_ALL") == "1" or g.shot_cfg.has("render")
+	RenderingServer.render_loop_enabled = draw_every_frame
 	await frames(10)
 	await play()
 	finish()
