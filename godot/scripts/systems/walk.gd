@@ -68,7 +68,11 @@ func can_stand(x: float, z: float, feet_y: float, r: float = PLAYER_RADIUS, igno
 
 ## One movement step with wall sliding. pos: Vector3 (x, feet y, z).
 func step_move(pos: Vector3, dx: float, dz: float, r: float = PLAYER_RADIUS, ignore = null) -> Dictionary:
-	for t in [Vector2(dx, dz), Vector2(dx, 0), Vector2(0, dz)]:
+	var tries: Array = [Vector2(dx, dz), Vector2(dx, 0), Vector2(0, dz)]
+	# Corner assist: caught on the end of a railing, a door post or a corner a little to one side, the step turns
+	# to slip round it instead of stopping dead. Only into space the body fits; a flat wall or the water still stops you.
+	for a in [0.5, -0.5, 1.0, -1.0]: tries.append(Vector2(dx, dz).rotated(a))
+	for t in tries:
 		if t.x == 0.0 and t.y == 0.0: continue
 		var s := can_stand(pos.x + t.x, pos.z + t.y, pos.y, r, ignore)
 		if not s.is_empty(): return {"pos": Vector3(pos.x + t.x, s.y, pos.z + t.y), "moved": true}

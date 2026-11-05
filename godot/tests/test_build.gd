@@ -89,6 +89,9 @@ func test_bridge_is_walkable():
 	var q := Vector3(1.44, 0, -13.5)   # a little off the middle, as real steering is
 	for n in 140: q = walk.step_move(q, 0, -0.1).pos
 	t.ok(q.z < -22.5, "walked between railings on both sides, a little off-centre (z=%.2f)" % q.z)
+	q = Vector3(1.3, 0, -13.5)   # further off: you meet the end of a railing and slip round it into the gap
+	for n in 160: q = walk.step_move(q, 0, -0.1).pos
+	t.ok(q.z < -22.5, "walking straight at the end of a railing slips round it onto the bridge (z=%.2f)" % q.z)
 	list.append({"uid": 777, "id": "railing", "i": 1.0, "k": -19.0, "r": 0, "y": 0.15})
 	walk.surfaces = BuildGrid.surfaces_for(list)
 	t.ok(not Validate.path_across(Data.zone("bridge"), walk).ok, "railing blocks")
