@@ -1,12 +1,27 @@
 # Status
 
-Working title: **Wonderhaven** (to be renamed). The game is moving to a comic, late-1990s north-west Italy (`docs/WORLD.md`). The first location, **Monteforchetta** (`docs/MONTEFORCHETTA.md`), replaces Hearthglow in stages; **stages 1 to 3 (names and text, map and buildings, look and plants) are done, and stage 4 has its outfits** (the music is next; see below). Clockwork Cove, from the old fantasy setting, is still in the game but hidden from the map.
+Working title: **Wonderhaven** (to be renamed). The game is moving to a comic, late-1990s north-west Italy (`docs/WORLD.md`). The first location, **Monteforchetta** (`docs/MONTEFORCHETTA.md`), replaces Hearthglow in stages; **stages 1 to 4 (names and text, map and buildings, look and plants, outfits and music) are done** (see below). Clockwork Cove, from the old fantasy setting, is still in the game but hidden from the map.
 
 - **Godot 4 (`godot/`)** is the game. See `godot/README.md`. Its content (`godot/data/*.json`) is edited directly.
 - **Web / Three.js (`index.html`, `src/`)** is the original prototype, **frozen**: kept as it was, no longer updated. Everything added since the Godot port (interiors, shops, staged requests, the guided day, the look) exists only in Godot.
 
-## Monteforchetta, stage 4 (outfits; the music is next)
-Checked in Forward+ renders of the cast, reviewed by eye, by the headless tests, and in the character creator's screenshot; the playthroughs cover that nothing in play broke.
+## Monteforchetta, stage 4 (outfits and music)
+Outfits checked in Forward+ renders of the cast, reviewed by eye, by the headless tests, and in the character creator's screenshot. The music was checked by the tests and in offline renders: their levels and pitch were measured, but nobody on the team has listened to it yet. The playthroughs cover that nothing in play broke.
+- **Music:** original songs in the style of Italian pop around 2000, one for each part of the day and one for building, as data in Monteforchetta's map entry (`music` in `islands.json`):
+  - dawn: a clean guitar picking out the chords under a piano melody;
+  - morning, the main theme: guitar pop with a strummed guitar, eighth-note bass and a backbeat;
+  - afternoon: dance-pop with a kick on every beat, offbeat bass and a synth hook;
+  - evening: a piano ballad with strings, which goes up a tone every second time round;
+  - night: slow piano over strings;
+  - building: bouncy guitar pop.
+
+  New instruments for this: a plucked guitar (tuned exactly, whatever the note), piano, synth bass, a bright saw lead, strings, snare, handclap and open hi-hat. New drum patterns (pop, dance, ballad), bass patterns and strummed chords. Clockwork Cove and places without their own music keep the shared tunes, which play exactly as before.
+- **Tested:**
+  - every Monteforchetta part of the day has its own tune, on known instruments;
+  - no step stacks too many loud notes;
+  - the pop patterns land where they should (snare on the backbeat, four on the floor, offbeat bass, the key change);
+  - the guitar, piano, bass, lead and strings sound within 12 cents of their notes.
+- **To hear it:** `tests/render_music.gd` renders a place's songs to WAV files, using the game's own notes and instruments.
 - **The cast in late-1990s clothes:**
   - the Sindaco: a dark suit with a tie and the tricolour sash;
   - Gigia: a brown work jacket with big pockets and a corduroy collar, and rubber boots;

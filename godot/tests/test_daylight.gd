@@ -110,3 +110,98 @@ func test_a_location_can_bring_its_own_music():
 		for m in s.melody: last = maxi(last, int(m[0]))
 		t.ok(AudioDirector.loop_steps(s) >= last + 48, "%s rests at least three bars after its phrase" % id)
 	t.eq(ids.size(), 5, "each part of the day has its own Casalrana tune")
+
+func test_monteforchetta_plays_its_own_pop():
+	# Monteforchetta's music (its map entry's "music"): its own tune for every part of the day and for building, on
+	# instruments the synthesiser knows, with the drum and bass patterns of late-1990s Italian pop.
+	var mf: Dictionary = Data.island_def("hearthglow").get("music", {})
+	var ids := {}
+	for part in ["dawn", "morning", "afternoon", "evening", "night"]:
+		var id := AudioDirector.song_for(part, false, mf)
+		t.ok(mf.songs.has(id), "Monteforchetta has its own %s tune (%s)" % [part, id])
+		ids[id] = true
+	t.eq(ids.size(), 5, "each part of the day has its own Monteforchetta tune")
+	t.ok(mf.songs.has(AudioDirector.song_for("morning", true, mf)), "and its own building tune")
+	for id in mf.songs:
+		var s: Dictionary = mf.songs[id]
+		var insts: Array = [s.lead, s.get("pad_inst", "pad"), s.get("bass_inst", "pluck")]
+		if s.arp != "": insts.append(s.arp)
+		for c in s.get("comp", []): insts.append(c.inst)
+		t.ok(insts.all(func(i): return i in AudioDirector.INSTRUMENTS), "%s uses known instruments %s" % [id, insts])
+		t.ok(s.drums in ["", "full", "light", "pop", "dance", "ballad"], "%s has a known drum pattern (%s)" % [id, s.drums])
+		var last := -1; var sorted := true
+		for m in s.melody:
+			if int(m[0]) < last: sorted = false
+			last = int(m[0])
+		t.ok(sorted, "%s melody is in order" % id)
+		var peak := 0.0
+		for st in AudioDirector.loop_steps(s):
+			var sum := 0.0
+			for e in AudioDirector.step_events(s, st): sum += float(e[2])
+			peak = maxf(peak, sum)
+		t.ok(peak < 1.6, "%s never stacks too many loud notes on one step (%.2f)" % [id, peak])
+
+func test_pop_patterns():
+	var song := {"bpm": 120, "root": 60, "lead": "piano", "arp": "", "drums": "pop", "pad": 0.05, "bass_style": "eighths", "bass_inst": "bass",
+		"comp": [{"inst": "guitar", "steps": [0, 3], "octave": 0, "vol": 0.1, "spread": 0.01}], "lift": 2,
+		"chords": [[0, 4, 7]], "melody": [[0, 12]]}
+	var kinds := func(st: int) -> Array: return AudioDirector.step_events(song, st).map(func(e): return e[0])
+	t.ok(kinds.call(2).has("snare") and kinds.call(6).has("snare") and not kinds.call(4).has("snare"), "pop: the snare is on the backbeat")
+	t.ok(kinds.call(0).has("kick") and kinds.call(1).has("hat") and kinds.call(1).has("bass"), "a kick on the beat, eighth-note hats and bass")
+	var strum: Array = AudioDirector.step_events(song, 3).filter(func(e): return e[0] == "guitar")
+	t.eq(strum.size(), 3, "the guitar strums the whole chord on its steps")
+	t.ok(strum[2][3] > strum[0][3], "one string after another")
+	t.eq(AudioDirector.step_events(song, 1, 1.0).filter(func(e): return e[0] in ["kick", "snare", "hat"]).size(), 0, "rain takes the drums away")
+	var first: Array = AudioDirector.step_events(song, 0).filter(func(e): return e[0] == "piano")
+	var second: Array = AudioDirector.step_events(song, AudioDirector.loop_steps(song)).filter(func(e): return e[0] == "piano")
+	t.eq(int(second[0][1]) - int(first[0][1]), 2, "the second time round goes up a tone")
+	song.drums = "dance"; song.bass_style = "offbeat"
+	t.ok(kinds.call(0).has("kick") and kinds.call(2).has("kick") and kinds.call(2).has("clap") and kinds.call(1).has("openhat"), "dance: four on the floor, claps, open hats")
+	t.ok(not kinds.call(0).has("bass") and kinds.call(1).has("bass"), "and the bass on the offbeat")
+	# the shared tunes play as before: pad and a low pluck on the downbeat, the kick and shaker of "full"
+	var old: Array = AudioDirector.step_events(AudioDirector.SONGS.hearthglow, 0).map(func(e): return e[0])
+	t.ok(old.has("pad") and old.has("pluck") and old.has("kick"), "the shared tunes keep their parts")
+
+func test_pop_instruments_play_in_tune():
+	# Each pitched instrument sounds the note asked for: the strongest repeat in its waveform (autocorrelation), at
+	# the rate it plays back at, is within a few cents of the note. The plucked guitar especially, whose loop length
+	# would otherwise be rounded to whole samples.
+	var ad = AudioDirector.new()
+	for inst in ["guitar", "piano", "bass", "saw", "strings"]:
+		for midi in [45, 62, 69, 81]:
+			if inst == "bass" and midi > 62: continue
+			var w: AudioStreamWAV = ad._gen(inst, midi)
+			var n := mini(w.data.size() / 2, 6000)
+			var x := PackedFloat32Array(); x.resize(n)
+			for i in n: x[i] = w.data.decode_s16(i * 2) / 32000.0
+			var want: float = AudioDirector.freq(midi)
+			var lag_want: float = w.mix_rate / want
+			var best := 0.0; var best_lag := 0
+			for lag in range(int(lag_want * 0.9), int(lag_want * 1.1) + 2):
+				var c := 0.0
+				for i in range(400, n - lag): c += x[i] * x[i + lag]
+				if c > best: best = c; best_lag = lag
+			# refine between whole samples (parabola through the neighbours)
+			var cm := 0.0; var cp := 0.0
+			for i in range(400, n - best_lag - 1): cm += x[i] * x[i + best_lag - 1]; cp += x[i] * x[i + best_lag + 1]
+			var den := cm - 2.0 * best + cp
+			var lag_f: float = best_lag + (0.5 * (cm - cp) / den if absf(den) > 0.000001 else 0.0)
+			var cents := 1200.0 * log(w.mix_rate / lag_f / want) / log(2.0)
+			t.ok(absf(cents) < 12.0, "%s %d is in tune (%+.1f cents)" % [inst, midi, cents])
+	ad.free()
+
+func test_a_song_is_made_ready_before_it_plays():
+	# Synthesising a piano or string note takes tens of milliseconds, so a song's notes are made on a worker thread
+	# while the last tune fades out: once that's done, every note the song plays is ready.
+	var ad = AudioDirector.new()
+	ad.music = Data.island_def("hearthglow").get("music", {})
+	ad._warm("hearthglow_evening")
+	ad._warmed()
+	var s: Dictionary = AudioDirector.song_def("hearthglow_evening", ad.music)
+	var missing := 0
+	for st in AudioDirector.loop_steps(s) * 2:   # twice: the evening tune comes round a tone higher
+		for e in AudioDirector.step_events(s, st):
+			if not ad.cache.has("%s:%d" % [e[0], e[1]]): missing += 1
+	t.eq(missing, 0, "every note of the evening tune is ready, in both keys")
+	t.eq(AudioDirector.synth("piano", 60).data, AudioDirector.synth("piano", 60).data, "a note comes out the same every time")
+	ad.free()
