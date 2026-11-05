@@ -94,6 +94,16 @@ func chat(npc: String, accept: bool = true) -> bool:
 		if not near_tenement or absf(a.pos.y - game.player.pos.y) < 1.5: break
 		if a.pos.y > 1.0 and a.pos.y < 3.0: await wait(3.0); continue   # on the stair: let them get where they're going
 		await storey_to(a.pos.y > 2.0)
+	# a villager on the way somewhere (lunch over, back to the office): wait for them where they're going
+	var v = game.npcs[id]
+	if not v.waypoints.is_empty() and Data.layout.nav_nodes.has(v.goal):
+		var g: Array = Data.layout.nav_nodes[v.goal]
+		if Vector2(v.pos.x - g[0], v.pos.z - g[1]).length() > 12.0:
+			note("%s is walking to %s: meeting them there" % [npc, v.goal])
+			await walk_to(g[0], g[1], 2.0)
+			for n in 60:
+				if game.npcs[id].waypoints.is_empty(): break
+				await wait(1.0)
 	return await talk(id, accept)
 
 ## The harness tops up materials a player would gather again and again (noted, so the report says so).
