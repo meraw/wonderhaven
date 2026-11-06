@@ -367,6 +367,25 @@ static func camera_rooms() -> Array:
 			out.append(Interiors.room(b, float(b.get("y", Heightfield.CASTLE_MOUND.y if b.kind == "castle" else 0.0))))
 	return out
 
+## Each camera room's doorway (in the same order as camera_rooms): the wall it's in ("x" or "z": the axis the wall
+## faces along), where that wall stands, and the gap along it, so the camera can look out through the door.
+static func camera_room_doors() -> Array:
+	var out: Array = []
+	for b in Data.layout.buildings:
+		if b.kind == "workshop":
+			var g := float(b.doorWidth) / 2.0
+			out.append({"axis": "x", "at": float(b.x) + float(b.w) / 2.0, "g0": float(b.doorAt) - g, "g1": float(b.doorAt) + g})
+		elif Interiors.enterable(b):
+			var side: String = b.get("door", "S")
+			var off := float(b.get("doorOffset", 0.0))
+			var g := Interiors.DOOR_W / 2.0
+			match side:
+				"N": out.append({"axis": "z", "at": float(b.z) - float(b.d) / 2.0, "g0": b.x + off - g, "g1": b.x + off + g})
+				"S": out.append({"axis": "z", "at": float(b.z) + float(b.d) / 2.0, "g0": b.x + off - g, "g1": b.x + off + g})
+				"E": out.append({"axis": "x", "at": float(b.x) + float(b.w) / 2.0, "g0": b.z + off - g, "g1": b.z + off + g})
+				_: out.append({"axis": "x", "at": float(b.x) - float(b.w) / 2.0, "g0": b.z + off - g, "g1": b.z + off + g})
+	return out
+
 ## Boxes the follow camera should not pass through: every building's walls and roof (overhang included).
 static func camera_blockers() -> Array:
 	var out: Array = []

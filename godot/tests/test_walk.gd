@@ -107,3 +107,15 @@ func test_unstick_after_stepping_off_the_side_of_a_stair():
 	t.ok(not out.is_empty() and not w.blocked(out.x, out.z, at.y), "unstick finds a spot just clear of it (%s)" % str(out))
 	t.ok(not out.is_empty() and out.x < 9.85 and absf(float(out.y) - g) < 0.01 and Vector2(out.x - at.x, out.z - at.z).length() <= 0.5, "beside you, on the ground, not up on the stair")
 	t.ok(w.unstick(Vector3(8.0, w.surface_at(8.0, 5.0).y, 5.0)).is_empty(), "standing clear, you stay put")
+
+func test_no_talking_through_walls():
+	# Ornella works inside the bakery: from right outside its back wall you can't talk to her through it, but you can
+	# through the open door.
+	var bakery: Dictionary = Data.layout.buildings.filter(func(b): return b.id == "bakery")[0]
+	var walls := WorldStatics.sight_walls()
+	var inside := Vector2(bakery.x, bakery.z)
+	var door := Interiors.door_info(bakery)
+	var behind: Vector2 = door.c - door.out * (float(bakery.d if door.out.y != 0 else bakery.w) + 0.6)
+	t.ok(not WalkWorld.sight_clear(behind, inside, walls), "not through the bakery's back wall")
+	t.ok(WalkWorld.sight_clear(door.c + door.out * 0.8, door.c - door.out * 1.0, walls), "through its open door")
+	t.ok(WalkWorld.sight_clear(Vector2(0, 0), Vector2(1.5, 0.5), walls), "out in the piazza, nothing in the way")

@@ -181,6 +181,32 @@ static func floor_top(x: float, z: float) -> float:
 		y = maxf(y, s.ramp.call(x, z) if s.has("ramp") else s.top)
 	return y
 
+## The walls of the place's buildings, as boxes, for "can you see them from here?" (WalkWorld.sight_clear): a room's
+## walls (not its furniture, so you can talk across a counter), and the whole footprint of a building you can't enter.
+static func sight_walls() -> Array:
+	var out: Array = []
+	for b in Data.layout.buildings:
+		if not b.get("solid", true) or b.has("y"): continue
+		if b.kind == "workshop":
+			for st in build_statics_for(b): out.append(st)
+		elif Interiors.enterable(b):
+			for r in Interiors.walls(b): out.append(_box(r.minX, r.maxX, r.minZ, r.maxZ, b.id))
+		elif not b.get("roof_walk", false) and b.has("w"):
+			for r in footprint(b): out.append(_box(r.minX, r.maxX, r.minZ, r.maxZ, b.id))
+	return out
+
+## The workshop's walls (Elio's shop has its own shell, with a door gap).
+static func build_statics_for(b: Dictionary) -> Array:
+	var minX: float = b.x - b.w / 2.0
+	var maxX: float = b.x + b.w / 2.0
+	var minZ: float = b.z - b.d / 2.0
+	var maxZ: float = b.z + b.d / 2.0
+	var t := 0.35
+	var g0: float = b.doorAt - b.doorWidth / 2.0
+	var g1: float = b.doorAt + b.doorWidth / 2.0
+	return [_box(minX, maxX, minZ, minZ + t, b.id), _box(minX, maxX, maxZ - t, maxZ, b.id), _box(minX, minX + t, minZ, maxZ, b.id),
+		_box(maxX - t, maxX, minZ, g0, b.id), _box(maxX - t, maxX, g1, maxZ, b.id)]
+
 static func build_statics(decor: Dictionary) -> Array:
 	var out: Array = []
 	for b in Data.layout.buildings:
@@ -190,14 +216,7 @@ static func build_statics(decor: Dictionary) -> Array:
 		var minZ: float = b.z - b.d / 2.0
 		var maxZ: float = b.z + b.d / 2.0
 		if b.kind == "workshop":
-			var t := 0.35
-			var g0: float = b.doorAt - b.doorWidth / 2.0
-			var g1: float = b.doorAt + b.doorWidth / 2.0
-			out.append(_box(minX, maxX, minZ, minZ + t, b.id))
-			out.append(_box(minX, maxX, maxZ - t, maxZ, b.id))
-			out.append(_box(minX, minX + t, minZ, maxZ, b.id))
-			out.append(_box(maxX - t, maxX, minZ, g0, b.id))
-			out.append(_box(maxX - t, maxX, g1, maxZ, b.id))
+			out.append_array(build_statics_for(b))
 		elif Interiors.enterable(b):
 			if b.has("y"): continue   # an upstairs room's walls and furniture are floors (floors()), on its own storey
 			for r in Interiors.walls(b): out.append(_box(r.minX, r.maxX, r.minZ, r.maxZ, b.id))

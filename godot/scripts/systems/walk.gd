@@ -62,6 +62,19 @@ func blocked(x: float, z: float, feet_y: float, r: float = PLAYER_RADIUS, ignore
 		if Vector2(x - d.x, z - d.z).length() < d.r + r * 0.8: return true
 	return false
 
+## Can you see (and talk to) someone at b from a, or is a wall in the way? `walls` are boxes (WorldStatics.sight_walls).
+## The ends of the line are left out, so someone standing against a wall, or in a doorway, still counts.
+static func sight_clear(a: Vector2, b: Vector2, walls: Array) -> bool:
+	var d := a.distance_to(b)
+	var n := int(ceil(d / 0.1))
+	for i in range(1, n):
+		var s := float(i) / n * d
+		if s < 0.2 or s > d - 0.3: continue
+		var p := a.lerp(b, float(i) / n)
+		for w in walls:
+			if p.x > w.minX and p.x < w.maxX and p.y > w.minZ and p.y < w.maxZ: return false
+	return true
+
 ## The surface if a body can stand at (x, z) coming from feet height feet_y, else an empty Dictionary.
 func can_stand(x: float, z: float, feet_y: float, r: float = PLAYER_RADIUS, ignore = null) -> Dictionary:
 	if blocked(x, z, feet_y, r, ignore): return {}

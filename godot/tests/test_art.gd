@@ -56,6 +56,23 @@ func test_camera_stops_in_front_of_buildings():
 	var sp: Dictionary = Data.layout.spawn
 	for b in blockers: t.ok(not (b as AABB).has_point(Vector3(sp.x, 1.0, sp.z)), "spawn point is outside every blocker")
 
+func test_camera_near_a_wall_looking_away():
+	# Walking along a house, a metre from its wall, with the camera looking out the other way: nothing is between, so
+	# it keeps its distance (a side ray starting inside the wall's margin used to snap it onto your head).
+	var c := FollowCamera.new(null)
+	c.blockers = [AABB(Vector3(4, 0, -2), Vector3(4, 5, 4))]
+	var away := c.clear_distance(Vector3(3.0, 1, 0), Vector3(-1, 0.3, 0).normalized(), 8.0)
+	t.ok(away > 7.0, "a metre from the wall, looking away from it: the camera stays out (d=%.2f)" % away)
+	var along := c.clear_distance(Vector3(3.1, 1, 0), Vector3(0, 0.3, 1).normalized(), 8.0)
+	t.ok(along > 1.5, "looking along the wall: no snap onto your head (d=%.2f)" % along)
+	# walking in through a door, the camera behind you can stay outside, looking in through the doorway
+	c.rooms = [AABB(Vector3(10, -1, 0), Vector3(6, 3.6, 4))]   # a room x 10..16, z 0..4, its door in the south wall
+	c.room_doors = [{"axis": "z", "at": 4.0, "g0": 12.4, "g1": 13.6}]
+	var through := c.clear_distance(Vector3(13, 1, 3.5), FollowCamera._dir(0.0, 0.3), 7.0)
+	t.ok(through > 4.0, "stepping in, the camera looks through the doorway (d=%.2f)" % through)
+	var wall := c.clear_distance(Vector3(11, 1, 3.5), FollowCamera._dir(0.0, 0.3), 7.0)
+	t.ok(wall < 1.0, "beside the door it still stops at the wall (d=%.2f)" % wall)
+
 func test_camera_eases_out_and_never_tilts_itself():
 	# In at once, out slowly: after a wall stops blocking, the camera takes a while to go back, without jumps.
 	var d := FollowCamera.settle(9.0, 2.0, 1.0 / 60.0)

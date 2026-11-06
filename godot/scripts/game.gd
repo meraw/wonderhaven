@@ -55,6 +55,7 @@ var roof_alpha := 1.0   # the workshop's roof (kept for tests)
 var roof_fade: Dictionary = {}   # building id -> roof opacity
 var guide: Guide
 var nap_gags: NapGags
+var sight_walls: Array = []   # building walls you can't talk through (WorldStatics.sight_walls)
 var outline: MeshInstance3D
 var outline_override := ""   # look-dev renders force outlines on or off without touching saved settings
 var interact_cooldown := 0.0
@@ -81,6 +82,7 @@ func _ready() -> void:
 	decor = WorldStatics.generate_decor()
 	statics = WorldStatics.build_statics(decor)
 	walk = WalkWorld.new(statics, func(f): return state.flags.get(f, false))
+	sight_walls = WorldStatics.sight_walls()
 	walk.floors = WorldStatics.floors()   # balconies, roof terraces and decks from the layout
 	env = TerrainBuilder.build_environment(); add_child(env)
 	sun = DirectionalLight3D.new(); sun.shadow_enabled = true; sun.light_energy = 0.62; sun.light_color = Color("fff1d6")
@@ -101,6 +103,7 @@ func _ready() -> void:
 	cam = FollowCamera.new(camera)
 	cam.blockers = Props.camera_blockers()
 	cam.rooms = Props.camera_rooms()
+	cam.room_doors = Props.camera_room_doors()
 	cam.occluders = village.occluders
 	piece_root.name = "Placements"; add_child(piece_root)
 	_build_ui()
@@ -111,7 +114,7 @@ func _ready() -> void:
 		var a := NpcAgent.new(self, d)
 		npcs[d.id] = a
 		var ag := a
-		add_interactable({"id": "npc:" + d.id, "x": func(): return ag.pos.x, "z": func(): return ag.pos.z, "radius": 1.9, "priority": 0.6, "object": null,
+		add_interactable({"id": "npc:" + d.id, "x": func(): return ag.pos.x, "z": func(): return ag.pos.z, "radius": 1.9, "priority": 0.6, "object": null, "sight": true,
 			"available": func(): return ag.present, "label": func(): return "Talk to " + ag.def.name, "act": func(): story.talk(ag)})
 	for f in Data.layout.features:
 		if f.kind == "sign":
@@ -758,6 +761,7 @@ func find_target():
 		if it.has("y") and absf(float(it.y) - p.y) > 1.6: continue   # on another storey (a bed in the flat upstairs)
 		var facing := (dx * fwd.x + dz * fwd.y) / d if d > 0.01 else 1.0
 		if d > 1.0 and facing < 0.1: continue
+		if it.get("sight", false) and not WalkWorld.sight_clear(Vector2(p.x, p.z), Vector2(p.x + dx, p.z + dz), sight_walls): continue   # not through a wall
 		var score: float = d - facing * 0.8 - it.priority
 		if score < best_score: best_score = score; best = it
 	return best

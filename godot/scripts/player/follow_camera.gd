@@ -26,6 +26,7 @@ var shake := 0.0
 var blockers: Array = []   # AABBs (buildings) the camera stays in front of
 var occluders: Array = []  # [centre: Vector3, radius: float] tree canopies and bushes the dialogue view avoids
 var rooms: Array = []      # AABBs of rooms you can walk into (inside walls, up to the wall tops); see Props.camera_rooms
+var room_doors: Array = [] # each room's doorway, in the same order (Props.camera_room_doors)
 var col_dist := 8.5        # where the camera actually sits after collision
 var blend := 0.0           # seconds left of a slower blend after a mode change
 var indoor_k := 0.0        # 0 outdoors .. 1 fully in the indoor cutaway view
@@ -36,6 +37,7 @@ const MARGIN := 0.35       # how far the camera stays from walls
 const MIN_DIST := 0.15     # closest the camera comes: at the player's head, never inside a wall (the player is hidden this close; see game.gd)
 const INDOOR_PITCH := 0.95 # indoors the view looks down at least this steeply (radians)
 const INDOOR_DIST := [6.0, 9.0]
+const DOOR_TOP := 2.1      # a doorway's height: the camera can look out through it below this
 const PROBES := [Vector2(0, 0), Vector2(0.28, 0), Vector2(-0.28, 0), Vector2(0, 0.22), Vector2(0, -0.18)]
 
 func _init(cam: Camera3D) -> void: camera = cam
@@ -165,16 +167,20 @@ func _ray_clear(pivot: Vector3, o: Vector3, dir: Vector3, d: float) -> float:
 	var seg := dir * d
 	# inside a room: stay within its walls, unless the line of sight to the player leaves over the top (the roof
 	# fades away). Measured on the centre line: the probes are for building edges outside.
-	for rm in rooms:
-		var room: AABB = rm
+	for ri in rooms.size():
+		var room: AABB = rooms[ri]
 		if not room.has_point(pivot): continue
 		var te := _exit_sides(pivot, seg, room)
-		if te < 1.0 and pivot.y + seg.y * te < room.end.y: free = minf(free, te * d - 0.3)
+		if te < 1.0 and pivot.y + seg.y * te < room.end.y and not _out_the_door(ri, pivot, seg):
+			free = minf(free, te * d - 0.3)
 	for b in blockers:
 		var box: AABB = b
 		if box.has_point(pivot): continue   # standing inside (the workshop): that building doesn't block
+		if o != pivot and box.has_point(o): continue   # a side probe that starts inside the walls: the centre ray covers them
 		var grown := box.grow(MARGIN)
-		var t := _ray_box(o, seg, box if grown.has_point(pivot) else grown)
+		# close to a wall the margin would swallow a side probe's start and snap the camera onto your head, looking away
+		# from the wall or not: there, the bare walls count
+		var t := _ray_box(o, seg, box if grown.has_point(pivot) or grown.has_point(o) else grown)
 		if t >= 0.0: free = minf(free, t * d - 0.15)
 	var s := 0.5
 	while s <= d:
@@ -182,6 +188,20 @@ func _ray_clear(pivot: Vector3, o: Vector3, dir: Vector3, d: float) -> float:
 		if q.y < Heightfield.height(q.x, q.z) + 0.35: free = minf(free, s - 0.4); break
 		s += 0.5
 	return free
+
+## Does the line from `pivot` along `seg` leave room `ri` through its doorway (with a little room either side)? Then
+## the camera can stay outside behind you as you walk in, instead of snapping onto your head.
+func _out_the_door(ri: int, pivot: Vector3, seg: Vector3) -> bool:
+	if ri >= room_doors.size(): return false
+	var dr: Dictionary = room_doors[ri]
+	var a := 0 if dr.axis == "x" else 2   # the axis the line crosses the door's wall along
+	var o := 2 if a == 0 else 0
+	if absf(seg[a]) < 0.0001: return false
+	var t: float = (float(dr.at) - pivot[a]) / seg[a]
+	if t < 0.0 or t > 1.0: return false
+	var q := pivot + seg * t
+	var floor_y: float = (rooms[ri] as AABB).position.y + 1.0   # (a room's box starts a metre under its floor)
+	return q[o] > float(dr.g0) + 0.12 and q[o] < float(dr.g1) - 0.12 and q.y < floor_y + DOOR_TOP
 
 ## Last safety net: if the camera point is inside a building's walls (and the player isn't), bring it back along
 ## the line to the player until it is outside.
