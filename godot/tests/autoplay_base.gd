@@ -72,8 +72,11 @@ func shot(name: String) -> void:
 	RenderingServer.render_loop_enabled = draw_every_frame
 
 ## After sailing, the scene reloads with the new island. Waits for it, then follows the new game.
+## Loading a save made in another place swaps the scene at once, inside the click: by the time this runs, the old game
+## can already be freed. Only Godot run from the editor catches a call on a freed object; a standalone run reads freed
+## memory, and after a second swap that crashed (signal 11) about one run in two. So check before asking for its id.
 func await_island(id: String, max_s: float = 90.0) -> bool:
-	var old_id: int = game.get_instance_id()
+	var old_id: int = game.get_instance_id() if is_instance_valid(game) else 0
 	var t0 := Time.get_ticks_msec()
 	while Time.get_ticks_msec() - t0 < max_s * 1000.0:
 		await frames(2)
