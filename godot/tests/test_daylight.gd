@@ -270,3 +270,21 @@ func test_a_song_is_made_ready_before_it_plays():
 	t.eq(missing, 0, "every note of the evening tune is ready, in both keys")
 	t.eq(AudioDirector.synth("piano", 60).data, AudioDirector.synth("piano", 60).data, "a note comes out the same every time")
 	ad.free()
+
+## The dance hall's instruments, and bars of other lengths (a waltz's 3/4), for Boccapioppo's music; songs that don't
+## say keep their 16-step bars.
+func test_dance_hall_instruments_and_waltz_bars():
+	for k in ["accordion", "clarinet", "upright"]:
+		var w := AudioDirector.synth(k, 57)
+		var peak := 0
+		for i in range(0, w.data.size(), 2): peak = maxi(peak, absi(w.data.decode_s16(i)))
+		t.ok(k in AudioDirector.INSTRUMENTS and peak > 3000, "the %s sounds (peak %d)" % [k, peak])
+	var waltz := {"bpm": 150, "root": 60, "lead": "accordion", "arp": "", "drums": "", "pad": 0.0, "bar": 12, "bass_inst": "upright",
+		"chords": [[0, 4, 7], [7, 11, 14]], "melody": [[0, 12]]}
+	var bass := func(st: int) -> Array: return AudioDirector.step_events(waltz, st).filter(func(e): return e[0] == "upright")
+	t.ok(bass.call(0).size() == 1 and bass.call(6).size() == 1 and bass.call(8).is_empty(), "a waltz's bass: on the first beat of each 3/4 bar")
+	t.eq(int(bass.call(12)[0][1]), 60 + 7 - 24, "its chord changes every 12 steps")
+	t.eq(AudioDirector.loop_steps(waltz), 12, "and it loops on whole bars")
+	var hb: Array = AudioDirector.step_events(AudioDirector.SONGS.hearthglow, 8).filter(func(e): return e[0] == "pluck" and int(e[1]) < 60)
+	t.eq(hb.size(), 1, "a 16-step song keeps its second bass note on step 8")
+

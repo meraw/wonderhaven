@@ -173,6 +173,100 @@ static func height(x: float, z: float) -> float:
 		h = minf(h, lerpf(-1.0, h, ss(CANAL_HALF - 0.4, CANAL_HALF + 1.2, dc)))
 	return h
 
+# ---- The ground's colours and the waters' ----------------------------------------------------------------------
+const GRASS := [Color("9ab85e"), Color("86a64f"), Color("aec46c")]   # autumn grass in town and on the levee banks
+const EAST_GRASS := Color("8daa55")   # the east bank, under the poplars
+const MUD := Color("a89c86")          # the flood's grey mud
+const MUD_DRY := Color("bcb09a")      # mud drying to a pale crust
+const MUD_WET := Color("857a6a")      # damp mud by the water
+const SILT := Color("948c7a")         # silt left on the levee's outer slope, up to the tide mark
+const TIDE := Color("6c6457")         # the tide mark itself
+const PEBBLES := Color("d6d0c2")      # the Alpine river's white pebbles and gravel bars
+const PEBBLES_DARK := Color("bdb5a4")
+const SAND := Color("e0cf9f")         # the Po's pale sandbank
+const STUBBLE := [Color("bfa766"), Color("a99258")]   # harvested maize
+const BALLAST := Color("8a8276")
+const PO_BED := Color("6e5d48")
+const ALPINE_BED := Color("aaa392")
+const TIDE_H := 1.25                  # how high the flood came up the levee
+const FIELDS := [Rect2(-51.5, -50.0, 19.0, 9.5), Rect2(-51.5, -22.0, 9.0, 20.0), Rect2(-51.5, 14.0, 9.0, 3.0)]
+
+static func _n(x: float, z: float) -> float:   # soft patches, 0..1
+	return 0.5 + 0.25 * sin(x * 0.37 + cos(z * 0.21) * 2.0) + 0.25 * sin(z * 0.43 + sin(x * 0.19) * 2.0)
+
+## How far outside the levee this is, 0 (town) .. 1 (floodplain), as in _land().
+static func _outside(x: float, z: float) -> float:
+	if x > alpine_center(z): return 0.0
+	var south := ss(LEVEE_Z - 1.0, LEVEE_Z + 1.5, z) * ss(LEVEE_WEST - 3.0, LEVEE_WEST, x)
+	var strip := ss(LEVEE_X - 1.0, LEVEE_X + 1.5, x) * ss(LEVEE_NORTH - 10.0, LEVEE_NORTH, z)
+	return maxf(south, strip)
+
+## Ground paint (Heightfield.paint): grey flood mud on the floodplain with grass coming back in patches, silt and a
+## tide mark on the levee's outer slope, white pebbles along the Alpine river, the Po's pale sandbank, maize stubble
+## north-west of town, ballast on the railway, and autumn grass everywhere else. Alpha is how much meadow grows.
+static func paint(x: float, z: float) -> Color:
+	var h := height(x, z)
+	var n := _n(x, z)
+	var ac := alpine_center(z)
+	var da := absf(x - ac)
+	var pb := po_bank(x)
+	var sb := Vector2((x - SANDBANK.x) / SANDBANK_HALF.x, (z - SANDBANK.z) / SANDBANK_HALF.y).length()
+	# riverbeds, seen through the water: pebbles under the clear Alpine river, mud under the Po and the backwater
+	if h < Heightfield.WALKABLE_MIN:
+		if da < ALPINE_HALF + 1.0 and z < pb - 1.0: return _bare(ALPINE_BED.lerp(PEBBLES_DARK, n * 0.5))
+		return _bare(PO_BED.lerp(MUD_WET, n * 0.4))
+	if sb < 1.2: return _bare(SAND.lerp(SAND.darkened(0.1), ss(0.7, 1.2, sb)))
+	if da < ALPINE_HALF + 1.6 and z < pb - 1.0 and not _quay(x, z): return _bare(PEBBLES.lerp(PEBBLES_DARK, n * 0.7))
+	if z > pb - 2.5: return _bare(MUD_WET.lerp(SAND.darkened(0.15), n * 0.5))   # the Po's muddy bank
+	if absf(x - RAIL_X) < 2.6 and z < RAIL_SOUTH + 1.0: return _bare(BALLAST.lerp(BALLAST.lightened(0.12), n))
+	for f in FIELDS:
+		if (f as Rect2).grow(0.4).has_point(Vector2(x, z)): return _bare(STUBBLE[0].lerp(STUBBLE[1], n))
+	var out := _outside(x, z)
+	var ld := _levee_dist(x, z)
+	var on_levee := ld < SLOPE - 0.4 and _levee_strength(x, z) > 0.3
+	if out > 0.5 and not on_levee:
+		var c := MUD.lerp(MUD_DRY, ss(0.45, 0.8, n)).lerp(MUD_WET, 1.0 - ss(-0.1, 0.12, h))
+		if n > 0.74 and h > 0.05: return Color(c.lerp(GRASS[1], 0.55), 0.7)   # grass coming back
+		return _bare(c)
+	if on_levee and out > 0.3 and h < TIDE_H + 0.12:   # the outer slope, up to where the flood came
+		if h > TIDE_H - 0.06: return _bare(TIDE)
+		return _bare(SILT.lerp(MUD_DRY, n * 0.5))
+	var g: Color = GRASS[0].lerp(GRASS[1], n * 0.7).lerp(GRASS[2], maxf(0.0, sin(x * 0.11 + z * 0.07)) * 0.35)
+	if x > ac: g = EAST_GRASS.lerp(GRASS[2], n * 0.3)
+	# silt the flood pushed through the breach, fanning out into the lower town
+	var fan := Vector2(x - 5.0, (z - LEVEE_Z) * 0.6).length()
+	if z < LEVEE_Z and fan < 7.0: return Color(g.lerp(MUD_DRY, 0.55 * (1.0 - ss(3.0, 7.0, fan))), 1.0 if fan > 4.5 else 0.3)
+	return Color(g.r, g.g, g.b, 1.0)
+
+static func _bare(c: Color) -> Color: return Color(c.r, c.g, c.b, 0.0)
+
+const PO_WATER := Color("b08a4e")      # the Po: wide, brown and slow
+const STILL_WATER := Color("7d7448")   # the backwater, the canals and the piazza's sump: still and green-brown
+const PO_MURK := 0.94
+
+## The waters' colours (Heightfield.water_tint): the Alpine river runs clear (the look's own blue-green), the Po
+## brown with silt, and you can see the line where they meet: the clear water's plume reaches a little way into the
+## Po and bends downstream (east) along its north bank. The backwater and the canals are still and green-brown.
+## Over the land it's the colour a flood would be there: the Po's, outside the levee.
+static func water_tint(x: float, z: float) -> Color:
+	var pb := po_bank(x)
+	var ac := alpine_center(z)
+	var po := Color(PO_WATER.r, PO_WATER.g, PO_WATER.b, PO_MURK)
+	var still := Color(STILL_WATER.r, STILL_WATER.g, STILL_WATER.b, 0.88)
+	var bw := Vector2((x - BACKWATER.x) / BACKWATER_HALF.x, (z - BACKWATER.z) / BACKWATER_HALF.y).length()
+	if bw < 1.6 or (_seg_dist(x, z, -31.0, 35.5, -35.0, 41.0) < 3.0 and z < pb + 0.5): return still
+	if z > pb - 3.0:
+		# the plume: clear water from the Alpine river's mouth, wavy-edged, fading out downstream
+		var reach := 3.2 + 1.4 * sin(x * 0.45) + 0.6 * sin(x * 1.3 + 1.0)
+		var along := ss(ac - ALPINE_HALF - 1.0, ac - ALPINE_HALF + 1.5, x) * (1.0 - ss(ac + 4.0, ac + 22.0, x))
+		var plume := along * (1.0 - ss(reach - 1.2, reach + 0.4, z - pb))
+		return Color(po.r, po.g, po.b, PO_MURK * (1.0 - 0.95 * plume))
+	if absf(x - ac) < ALPINE_HALF + 2.0: return Color(0, 0, 0, 0)
+	if absf(z - CANAL_N) < CANAL_HALF + 1.5 or absf(x - CANAL_W) < CANAL_HALF + 1.5 or absf(x - CANAL_E) < CANAL_HALF + 1.5: return still
+	if Vector2(x - SUMP.x, z - SUMP.y).length() < SUMP_R + 1.0: return still
+	if _outside(x, z) > 0.3 or z > LEVEE_Z: return po
+	return Color(PO_WATER.r, PO_WATER.g, PO_WATER.b, 0.6)   # the town, if it ever flooded again
+
 static func _seg_dist(px: float, pz: float, ax: float, az: float, bx: float, bz: float) -> float:
 	var v := Vector2(bx - ax, bz - az)
 	var t := clampf(Vector2(px - ax, pz - az).dot(v) / v.length_squared(), 0.0, 1.0)
@@ -248,18 +342,19 @@ static func dress(village: Node3D) -> void:
 	_skirt(village, Rect2(-far, 92.0, far * 2.0, far - 92.0), 0.45, mat)
 	Scenery.dress(village, load("res://scripts/locations/river_town.gd"))
 
-## A flat stretch of far land, painted like the map's grass, at height y.
+## A flat stretch of far land at height y: the plain's patchwork of autumn grass, maize stubble and ploughed fields.
 static func _skirt(village: Node3D, r: Rect2, y: float, mat: Material) -> void:
 	var st := SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
 	var step := 8.0
 	var nx := maxi(1, int(ceil(r.size.x / step))); var nz := maxi(1, int(ceil(r.size.y / step)))
-	var grass := Color("8fd16a"); var grass2 := Color("76c25a")
+	var fields := [GRASS[0], GRASS[1], STUBBLE[0], Color("8a7458"), GRASS[2]]
 	for j in nz + 1:
 		for i in nx + 1:
 			var x := r.position.x + r.size.x * i / nx
 			var z := r.position.y + r.size.y * j / nz
-			st.set_color(grass.lerp(grass2, 0.5 + 0.5 * sin(x * 0.05) * cos(z * 0.04)))
+			var cell := fposmod(sin(floor(x / 24.0) * 12.9898 + floor(z / 24.0) * 78.233) * 43758.5453, 1.0)
+			st.set_color((fields[int(cell * fields.size()) % fields.size()] as Color).lerp(GRASS[1], 0.25 + 0.15 * sin(x * 0.05) * cos(z * 0.04)))
 			st.set_normal(Vector3.UP)
 			st.add_vertex(Vector3(x, y, z))
 	for j in nz:

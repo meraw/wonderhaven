@@ -7,6 +7,9 @@
 - `paint(x, z) -> Color`: the ground's colour (stubble, mud, winter grass) instead of meadow green; its alpha is how
   much meadow grows there (clover and flowers in the terrain, grass tufts, flowers, bushes and trees). Paving laid out
   as shapes belongs in the layout's `ground` list instead.
+- `water_tint(x, z) -> Color`: the colour of the silt clouding the water there (a brown river beside a clear one);
+  its alpha is how cloudy (0 = clear, the look's own water colours by depth). It's baked once into a map over the
+  ground, so it's asked for dry land too: give the colour a flood would have there.
 - `building(b: Dictionary) -> Node3D`: a model for one of the layout's buildings, or `null` to use the shared ones.
 - `node(n: Dictionary) -> Node3D`: a model for one of the layout's gathering spots (`nodes`), or `null` to use the
   shared one. The shared code positions it and animates its usual parts: a bin's `lid` child, a tree's stump.

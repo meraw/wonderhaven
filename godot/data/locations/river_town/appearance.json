@@ -1,0 +1,8 @@
+{
+ "_comment": "Boccapioppo's own clothes (stage 4): shapes the wardrobe already has, in Boccapioppo's colours (Data.merge_variants, Chibi.resolve). Ermes, Ines and Pierina wear theirs, and give you one when you become good friends.",
+ "variants": {
+  "river_town_oilskin": {"slot": "top", "base": "jacket", "color": "#33423a", "label": "Warden's oilskin", "unlock": "Make friends with Ermes, the levee warden"},
+  "river_town_sawApron": {"slot": "accessory", "base": "apron", "color": "#7a6448", "label": "Sawmill apron", "unlock": "Make friends with Ines at the sawmill"},
+  "river_town_postBag": {"slot": "accessory", "base": "backpack", "color": "#8a5a32", "label": "Old post bag", "unlock": "Make friends with Pierina, the postwoman"}
+ }
+}

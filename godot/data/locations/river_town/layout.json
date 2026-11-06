@@ -10,6 +10,30 @@
   "z": 4,
   "r": 6
  },
+ "grassColors": [
+  "94b85a",
+  "80a64c",
+  "aac46a"
+ ],
+ "wildlife": {
+  "cats": [
+   [
+    -35.8,
+    34.6,
+    0.0
+   ],
+   [
+    -6.0,
+    33.4,
+    0.3
+   ],
+   [
+    8.6,
+    -1.6,
+    -1.57
+   ]
+  ]
+ },
  "safeSpot": "busStop",
  "safeText": "Back at the bus stop on the levee.",
  "decor": {

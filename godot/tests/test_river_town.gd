@@ -4,6 +4,7 @@ extends RefCounted
 ## is built), and every spot on the map can be reached.
 var t
 const RT := preload("res://scripts/locations/river_town.gd")
+const AudioDirector := preload("res://scripts/audio/audio_director.gd")
 
 func _on(fn: Callable) -> void:
 	Data.use_island("river_town")
@@ -300,3 +301,131 @@ func test_the_crossings_you_build_are_walkable():
 			slip.append(pl)
 		w.surfaces = BuildGrid.surfaces_for(slip)
 		t.ok(Validate.path_across(moor, w).ok, "two planks from beside the houseboat out over the backwater make her slipway"))
+
+## Stage 4: the ground is painted (grey flood mud outside the levee, white pebbles along the Alpine river, the Po's
+## sandbank, maize stubble, autumn grass in town) and the two rivers look different: the Alpine river clear, the Po
+## brown, with the clear water's plume where they meet.
+func test_the_ground_and_the_two_waters():
+	_on(func():
+		t.ok(Heightfield.has_paint() and Heightfield.has_water_tint(), "Boccapioppo paints its ground and colours its water")
+		var bare := 0; var n := 0
+		for x in range(-48, -6, 3):
+			for z in range(26, 33, 2):
+				if Heightfield.height(x, z) < 0.0: continue
+				n += 1
+				if Heightfield.meadow(x, z) < 0.5: bare += 1
+		t.ok(bare > n * 0.7, "the floodplain is mostly bare mud (%d of %d spots), with grass coming back in patches" % [bare, n])
+		var mud := Heightfield.paint(-30.0, 28.0)
+		t.ok(mud.g <= mud.r and mud.s < 0.3, "the mud is grey-brown, not green (%s)" % mud.to_html(false))
+		t.eq(Heightfield.meadow(-10.0, 0.0), 1.0, "the town is grass")
+		var gx := RT.alpine_center(-30.0) + RT.ALPINE_HALF + 0.8
+		var peb := Heightfield.paint(gx, -30.0)
+		t.ok(Heightfield.height(gx, -30.0) > Heightfield.WALKABLE_MIN and peb.v > 0.7 and Heightfield.meadow(gx, -30.0) == 0.0, "white pebbles along the Alpine river (%s)" % peb.to_html(false))
+		t.ok(Heightfield.meadow(RT.SANDBANK.x, RT.SANDBANK.z) == 0.0 and Heightfield.paint(RT.SANDBANK.x, RT.SANDBANK.z).v > 0.8, "the Po's sandbank is pale sand")
+		t.eq(Heightfield.meadow(-45.0, -45.0), 0.0, "the maize fields north-west of town are stubble")
+		var decor := WorldStatics.generate_decor()
+		t.ok(decor.grass.all(func(g): return Heightfield.meadow(g.x, g.z) >= 0.5), "no grass tufts on the mud, the pebbles or the stubble")
+		# the waters
+		var po := Heightfield.water_tint(-20.0, 46.0)
+		t.ok(po.a > 0.8 and po.r > po.b + 0.15, "the Po is brown and cloudy (%s, %.2f)" % [po.to_html(false), po.a])
+		t.eq(Heightfield.water_tint(RT.alpine_center(-20.0), -20.0).a, 0.0, "the Alpine river is clear")
+		var mx := RT.alpine_center(RT.po_bank(30.0))
+		var mouth := Heightfield.water_tint(mx, RT.po_bank(mx) + 1.0)
+		var down := Heightfield.water_tint(mx + 30.0, RT.po_bank(mx + 30.0) + 1.0)
+		t.ok(mouth.a < 0.3 and down.a > 0.8, "where they meet you can see the line: clear at the Alpine river's mouth (%.2f), brown downstream (%.2f)" % [mouth.a, down.a])
+		var bw := Heightfield.water_tint(RT.BACKWATER.x, RT.BACKWATER.z)
+		t.ok(bw.a > 0.5 and bw.a < po.a, "the backwater is still and green-brown"))
+
+## A thin mist on the water at dawn only, lying below the floodplain so only the water shows it.
+func test_mist_on_the_water_at_dawn():
+	var M := preload("res://scripts/locations/river_town/mist.gd")
+	t.ok(M.amount_at(6.5) > 0.9 and M.amount_at(8.5) > 0.0, "a mist lies on the water at dawn, thinning by mid-morning")
+	t.ok(M.amount_at(10.0) == 0.0 and M.amount_at(15.0) == 0.0 and M.amount_at(23.0) == 0.0 and M.amount_at(3.0) == 0.0, "...and none the rest of the day")
+	t.ok(M.Y > Heightfield.WATER_Y + 0.1 and M.Y < RT.FLOOD_H - 0.1, "it lies above the water and below the floodplain (%.2f m)" % M.Y)
+
+## Stage 4b: some of the town ride bicycles round town (Bicycle.villager_bike): the postwoman first of all.
+func test_who_rides_a_bike():
+	_on(func():
+		var riders := Data.npcs_here().filter(func(n): return not Bicycle.villager_bike(n).is_empty()).map(func(n): return n.id)
+		t.ok(riders.has("river_town_pierina") and riders.size() >= 4, "Pierina and a few others ride bikes (%s)" % ", ".join(riders))
+		for n in Data.npcs_here():
+			var b := Bicycle.villager_bike(n)
+			if b.is_empty(): continue
+			t.ok(Color.html_is_valid(b.color) and b.ups.all(func(u): return Bicycle.UPGRADES.has(u)), "%s's bike has a colour and real upgrades" % n.id))
+
+## Stage 4b: coypus on banks beside deep water, cormorants on snags in the Po, the geese on grass outside the farm
+## gate, kingfisher perches over the Alpine river, and the cats on dry ground.
+func test_the_animals_live_where_they_should():
+	_on(func():
+		var A := preload("res://scripts/locations/river_town/animals.gd")
+		var cs := A.coypu_spots()
+		t.ok(cs.size() >= 4, "coypus have banks to live on (%d)" % cs.size())
+		for s in cs:
+			var land: Vector2 = s[0]; var water: Vector2 = s[1]
+			t.ok(not Heightfield.is_water(land.x, land.y) and Heightfield.height(water.x, water.y) < Heightfield.WATER_Y - 0.25, "a coypu's bank at %s has deep water beside it" % land)
+		for p in A.SNAGS: t.ok(Heightfield.height(p.x, p.y) < Heightfield.WATER_Y - 0.3, "a cormorant's snag stands in the Po at %s" % p)
+		t.ok(Heightfield.height(A.GEESE_HOME.x, A.GEESE_HOME.y) > 0.3 and Heightfield.meadow(A.GEESE_HOME.x, A.GEESE_HOME.y) == 1.0, "the geese live on the grass outside the farm gate")
+		for p in A.perches(): t.ok(absf(p.x - (RT.alpine_center(p.z) - RT.ALPINE_HALF)) < 0.5, "a kingfisher's perch on the Alpine river's bank at z %.0f" % p.z)
+		var cats: Array = Data.layout.get("wildlife", {}).get("cats", [])
+		t.ok(cats.size() >= 3 and cats.all(func(c): return not Heightfield.is_water(c[0], c[1])), "cats sit about on dry ground, one by Gildo's shack waiting for the catch")
+		var a = A.make()
+		t.ok(a.coypus.size() == cs.size() and a.cormorants.size() == A.SNAGS.size() and a.geese.size() == 5 and a.kingfishers.size() == 2, "they're all built")
+		a.free())
+
+## Stage 4c: the dance-hall music. Every part of the day has a tune of Boccapioppo's own: thin while the hall is
+## wrecked (the melody and the bass), fuller once it reopens, and the hall's own waltz in the evenings then.
+func test_the_dance_hall_music():
+	_on(func():
+		var music: Dictionary = Data.island_def("river_town").get("music", {})
+		var open := {"river_town_hall_open": true}
+		var loud := func(s: Dictionary) -> float:
+			var sum := 0.0
+			for st in AudioDirector.loop_steps(s):
+				for e in AudioDirector.step_events(s, st): sum += float(e[2])
+			return sum / AudioDirector.loop_steps(s)
+		for part in ["dawn", "morning", "afternoon", "evening", "night"]:
+			var before := AudioDirector.song_for(part, false, music)
+			var after := AudioDirector.song_for(part, false, music, open)
+			t.ok(before.begins_with("river_town_") and after.begins_with("river_town_") and before != after, "%s: %s while the hall is wrecked, %s once it reopens" % [part, before, after])
+			for id in [before, after]:
+				var s := AudioDirector.song_def(id, music)
+				var insts: Array = [s.lead, s.get("bass_inst", "pluck")] + ([s.arp] if s.arp != "" else []) + s.get("comp", []).map(func(c): return c.inst)
+				t.ok(insts.all(func(i): return i in AudioDirector.INSTRUMENTS), "%s plays known instruments %s" % [id, insts])
+			t.ok(loud.call(AudioDirector.song_def(after, music)) > loud.call(AudioDirector.song_def(before, music)), "%s is fuller once the hall reopens" % part)
+		t.eq(AudioDirector.song_for("evening", false, music, open), "river_town_dance", "the evenings get the dance hall's own waltz")
+		t.eq(int(AudioDirector.song_def("river_town_dawn", music).get("bar", 16)), 12, "dawn's waltz is in 3/4")
+		t.eq(AudioDirector.song_def("river_town_dawn", music).lead, "accordion", "and the accordion plays it"))
+
+## Stage 4c: you can hear which river you're beside: the Alpine river near it, the Po by its bank, neither in town.
+func test_the_two_rivers_sound_different():
+	_on(func():
+		var S := preload("res://scripts/locations/river_town/sounds.gd")
+		var ax := RT.alpine_center(-20.0) + RT.ALPINE_HALF + 1.0
+		var by_alpine := S.levels(Vector3(ax, 0.3, -20.0))
+		var by_po := S.levels(Vector3(-20.0, 0.2, RT.po_bank(-20.0) - 1.0))
+		var in_town := S.levels(Vector3(-10.0, 0.5, 0.0))
+		t.ok(by_alpine.x > 0.8 and by_alpine.y == 0.0, "beside the Alpine river you hear it rushing (%s)" % by_alpine)
+		t.ok(by_po.y > 0.8 and by_po.x == 0.0, "by the Po you hear it lapping (%s)" % by_po)
+		t.eq(in_town, Vector2.ZERO, "in the middle of town, neither"))
+
+## Stage 4c: the cast's outfits. Every piece is one the wardrobe knows (nothing falls back to the default clothes),
+## and Boccapioppo's own clothes are worn by their owners and given to you by them as friends.
+func test_the_cast_dresses_the_part():
+	_on(func():
+		for n in Data.npcs_here():
+			var a: Dictionary = n.appearance
+			var s := Chibi.sanitize(a)
+			for k in ["top", "bottom", "hat", "accessory", "shoes", "hair"]:
+				if a.has(k): t.eq(s[k], a[k], "%s's %s (%s) is a piece the wardrobe has" % [n.id, k, a[k]])
+		var by_id := {}
+		for n in Data.npcs_here(): by_id[n.id] = n
+		t.eq(by_id.river_town_rina.appearance.top, "jacket", "Rina's black waistcoat over a white blouse")
+		t.eq(by_id.river_town_primo.appearance.top, "workjacket", "Primo's grey work coat")
+		t.eq(by_id.river_town_mattia.appearance.accessory, "discman", "Mattia's Walkman")
+		for v in ["river_town_oilskin", "river_town_sawApron", "river_town_postBag"]:
+			t.ok(Data.appearance.get("variants", {}).has(v) and Data.appearance.locked.has(v), "%s is in the wardrobe, locked until earned" % v)
+			var givers := Data.npcs_here().filter(func(n): return n.get("gifts", []).any(func(g): return g.get("clothes", []).has(v)))
+			var wearers := Data.npcs_here().filter(func(n): return n.appearance.values().has(v))
+			t.ok(givers.size() == 1 and wearers.size() == 1 and givers[0].id == wearers[0].id, "%s: its owner wears it and gives you one as a friend" % v)
+		var r := Chibi.resolve(Chibi.sanitize(by_id.river_town_pierina.appearance))
+		t.ok(r.accessory == "backpack" and r.get("accessoryColor", "") == "#8a5a32", "Pierina's post bag is drawn as a leather bag"))

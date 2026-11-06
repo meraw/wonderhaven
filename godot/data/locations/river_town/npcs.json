@@ -1,5 +1,5 @@
 {
- "_comment": "Boccapioppo's people (docs/locations/river_town.md, The cast). Outfits are the closest the shared character shapes allow until stage 4.",
+ "_comment": "Boccapioppo's people (docs/locations/river_town.md, The cast): their days, their bicycles and their outfits (stage 4, with Boccapioppo's own clothes in appearance.json).",
  "npcs": [
   {
    "id": "river_town_ermes",
@@ -18,7 +18,7 @@
     "hair": "short",
     "hairColor": "#b8b4ac",
     "mouth": "calm",
-    "top": "jacket",
+    "top": "river_town_oilskin",
     "topColor": "#3a4a3f",
     "bottom": "pants",
     "bottomColor": "#3a3a40",
@@ -297,6 +297,13 @@
       "river_town_sand": 6
      },
      "line": "Sand from the sandbank. Good sand. You'll want it when the river tries again."
+    },
+    {
+     "hearts": 6,
+     "clothes": [
+      "river_town_oilskin"
+     ],
+     "line": "My spare oilskin. Forty winters on the levee in that coat. The river respects a good coat."
     }
    ]
   },
@@ -502,7 +509,7 @@
     "hair": "short",
     "hairColor": "#e8e4dc",
     "mouth": "grin",
-    "top": "jacket",
+    "top": "workjacket",
     "topColor": "#8a8a86",
     "bottom": "pants",
     "bottomColor": "#3a3a40",
@@ -666,7 +673,13 @@
      },
      "line": "Spokes, bent. You'll find a use. I always do."
     }
-   ]
+   ],
+   "bike": {
+    "color": "#3f8f5a",
+    "ups": [
+     "paint"
+    ]
+   }
   },
   {
    "id": "river_town_gildo",
@@ -893,13 +906,13 @@
     "mouth": "cat",
     "top": "tee",
     "topColor": "#2f5f9e",
-    "bottom": "pants",
+    "bottom": "jeans",
     "bottomColor": "#4a5a7a",
     "shoes": "sneakers",
     "shoesColor": "#f4f1ea",
     "hat": "beanie",
     "hatColor": "#e0b04a",
-    "accessory": "backpack"
+    "accessory": "discman"
    },
    "home": "shackCorner",
    "schedule": [
@@ -1034,7 +1047,10 @@
      },
      "line": "Found it in the mud. It's yours. Don't tell my uncle, he'll say the monster dropped it."
     }
-   ]
+   ],
+   "bike": {
+    "color": "#c0392b"
+   }
   },
   {
    "id": "river_town_wanda",
@@ -1201,7 +1217,13 @@
      },
      "line": "Velvet from the old curtains. The good bits. Make something that sways."
     }
-   ]
+   ],
+   "bike": {
+    "color": "#e8a0b4",
+    "ups": [
+     "basket"
+    ]
+   }
   },
   {
    "id": "river_town_rina",
@@ -1220,7 +1242,7 @@
     "hair": "bob",
     "hairColor": "#2a2420",
     "mouth": "smile",
-    "top": "tunic",
+    "top": "jacket",
     "topColor": "#2a2a2a",
     "bottom": "pants",
     "bottomColor": "#2a2a30",
@@ -1357,7 +1379,7 @@
     "hair": "ponytail",
     "hairColor": "#8a7a6a",
     "mouth": "calm",
-    "top": "jacket",
+    "top": "shirt",
     "topColor": "#b5452a",
     "bottom": "pants",
     "bottomColor": "#3a4a5a",
@@ -1365,7 +1387,7 @@
     "shoesColor": "#5a4030",
     "hat": "none",
     "hatColor": "#2a2a2a",
-    "accessory": "glasses"
+    "accessory": "river_town_sawApron"
    },
    "home": "river_town_house7:spot",
    "schedule": [
@@ -1525,8 +1547,21 @@
       "wood": 8
      },
      "line": "Offcuts. Good for small things. Don't waste them."
+    },
+    {
+     "hearts": 6,
+     "clothes": [
+      "river_town_sawApron"
+     ],
+     "line": "A sawmill apron. Canvas, double-stitched. Keep a pencil in the pocket: wood waits for nobody."
     }
-   ]
+   ],
+   "bike": {
+    "color": "#f2c53a",
+    "ups": [
+     "basket"
+    ]
+   }
   },
   {
    "id": "river_town_pierina",
@@ -1551,9 +1586,9 @@
     "bottomColor": "#3a4a6a",
     "shoes": "sneakers",
     "shoesColor": "#3a3a40",
-    "hat": "captain",
+    "hat": "drivercap",
     "hatColor": "#f2c53a",
-    "accessory": "backpack"
+    "accessory": "river_town_postBag"
    },
    "home": "river_town_pierina_house:spot",
    "schedule": [
@@ -1725,8 +1760,22 @@
       "flowers": 3
      },
      "line": "From my window box. The flood didn't reach the second floor. I checked."
+    },
+    {
+     "hearts": 6,
+     "clothes": [
+      "river_town_postBag"
+     ],
+     "line": "My first post bag, from 1971. It's carried every letter in Boccapioppo. Now it can carry your plans."
     }
-   ]
+   ],
+   "bike": {
+    "color": "#2f5f9e",
+    "ups": [
+     "basket",
+     "rack"
+    ]
+   }
   }
  ]
 }

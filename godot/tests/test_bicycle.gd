@@ -81,3 +81,17 @@ func test_its_keys():
 	for a in Controls.PAD:
 		t.ok(not pads.has(Controls.PAD[a]), "%s's gamepad button isn't also %s's" % [a, pads.get(Controls.PAD[a], "")])
 		pads[Controls.PAD[a]] = a
+
+func test_villagers_on_bicycles():
+	var walker := {"id": "zz_walker"}
+	var rider := {"id": "zz_rider", "bike": {"color": "#c0392b", "ups": ["basket"]}}
+	t.eq(Bicycle.villager_bike(walker), {}, "a villager without a bike walks")
+	t.eq(Bicycle.villager_bike(rider), {"color": "#c0392b", "ups": ["basket"]}, "a villager's bike: its colour and upgrades")
+	t.eq(Bicycle.villager_bike({"bike": "#3f8f5a"}).color, "#3f8f5a", "or just a colour")
+	t.ok(not Bicycle.villager_rides(walker, {}, 40.0, false, false, false), "nobody rides a bike they haven't got")
+	t.ok(Bicycle.villager_rides(rider, {}, 40.0, false, false, false), "a long way to go outdoors: on the bike")
+	t.ok(not Bicycle.villager_rides(rider, {}, 8.0, false, false, false), "a short way: they walk it")
+	t.ok(Bicycle.villager_rides(rider, {}, 8.0, true, false, false) and not Bicycle.villager_rides(rider, {}, 3.0, true, false, false), "once on, they ride until nearly there")
+	t.ok(not Bicycle.villager_rides(rider, {}, 40.0, true, true, false) and not Bicycle.villager_rides(rider, {}, 40.0, true, false, true), "off indoors and on stairs")
+	t.ok(not Bicycle.villager_rides(rider, {"bikes": false}, 40.0, false, false, false), "and not where bikes aren't allowed")
+	t.ok(Bicycle.VILLAGER_SPEED > 2.3 * 1.5 and Bicycle.VILLAGER_SPEED < Bicycle.SPEED, "they ride faster than they walk, slower than you race")

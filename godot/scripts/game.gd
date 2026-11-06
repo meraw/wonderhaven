@@ -248,6 +248,7 @@ func set_flag(f: String, v: bool = true) -> void:
 # ---- The bicycle (Bicycle, BikeModel) -----------------------------------------------------------------------------
 var bike_node: Node3D = null
 var ride_dist := 0.0
+var coasting := false   # stopped pedalling on the bike (the freewheel ticked)
 
 ## The bike under the player, as the story has it (owned, its upgrades and paint), shown while you ride.
 func refresh_bike() -> void:
@@ -282,6 +283,8 @@ func update_bike(dt: float) -> void:
 	if not player.riding: return
 	if mode in ["dialogue", "build", "minigame", "cutscene"] or not sitting.is_empty() or Bicycle.indoors(player.pos) or Bicycle.on_stairs(player.pos):
 		dismount(true); return
+	if player.moving: coasting = false
+	elif not coasting and player.speed > 2.0: coasting = true; sfx("freewheel")   # stop pedalling: tick-tick-tick
 	var before := ride_dist
 	ride_dist += player.speed * dt
 	if before < 25.0 and ride_dist >= 25.0: story.event("bike_ride")   # a request can ask you to try it out

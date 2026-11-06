@@ -381,7 +381,7 @@ fixed:
 - **The playthrough** starts as if you had come by Monteforchetta's bus with its main story done
   (`arrive_as_if_played(["hearthglow"])`), and keeps a checkpoint after each request (`--from=` and `--to=`).
 
-**Stage 3c, the bicycle** (this stage):
+**Stage 3c, the bicycle** (merged):
 - **The bicycle is shared** (`Bicycle`, `BikeModel`, and a ride mode in the player controller). `F` gets on and off,
   `H` rings the bell, and with the paint job `T` repaints it while you ride. It's a little under twice running speed,
   steadier in the turns and leaning into them, and it doesn't hop. You get off by yourself to talk, build, gather or
@@ -396,6 +396,46 @@ fixed:
 - **Pierina's Round:** five letters (Ermes, Tullio, Gildo, Ines, Rina) and a tuba-shaped parcel for Wanda.
 - **The gauge** now reaches 0.00 m with every request done, and can't without the finale.
 - **Villagers on bicycles** come with the look and ambient life, in stage 4.
+
+**Stage 4a, the look** (this pull request, with 4b and 4c). Stage 4 comes in three parts: the look (4a), the animals and villagers on
+bicycles (4b), and the music, sounds and outfits (4c).
+- **The ground is painted** (`paint()` in `river_town.gd`): grey flood mud on the floodplain, with grass coming back
+  in patches, silt and a dark tide mark on the levee's outer slope up to where the flood came, white pebbles along
+  the Alpine river, the Po's pale sandbank and muddy bank, maize stubble north-west of town, ballast on the railway,
+  silt fanning into the lower town from the breach, and autumn grass everywhere else. Grass tufts, flowers and bushes
+  grow only where the paint says meadow. The far land past the map's edge is a patchwork of fields.
+- **Two waters** (a new shared hook, `water_tint(x, z)`): the Alpine river runs clear blue-green over its pebbles, the
+  Po wide and brown, and you can see the line where they meet, the clear plume bending downstream along the Po's
+  bank. The backwater, the canals and the piazza's sump are still and green-brown.
+- **The look block:** warm golden highlights and slightly cool shadows, a lower autumn sun for long shadows, golden
+  poplar leaves falling, and clear blue-green water colours for the Alpine river.
+- **A thin mist on the water at dawn only**, gone by half past nine (`river_town/mist.gd`).
+
+**Stage 4b, ambient life** (this pull request):
+- **Villagers on bicycles** (a small shared change: `"bike"` in a villager's npcs.json entry, `Bicycle.villager_rides`,
+  and the villager walker). Pierina rides her blue post bike with basket and rack, Primo his old green racer, Mattia,
+  Ines and Wanda theirs. They ride on long routes outdoors, get off near where they're going, indoors and on stairs,
+  and ring the bell riding past you.
+- **Animals** (`river_town/animals.gd`): coypus waddle along the banks of the backwater, the Po and the canals, and
+  slip into the water when you come close, surfacing later. Cormorants dry their wings on snags in the Po and fly a
+  loop if you come near. The farm's geese peck about outside the gate and come after you, necks out, if you ride past
+  on your bike. Kingfishers sit on willow twigs over the Alpine river and dart along it, low over the water. Cats
+  wait by Gildo's shack and the fishing spot for his catch, and outside Rina's bar (the shared cats: pet them).
+
+**Stage 4c, music, sounds and outfits** (this pull request):
+- **The dance-hall music** (Boccapioppo's own songs in `location.json`): a lazy waltz at dawn, bouncy polkas by day, a
+  mazurka in the evening and a slow tango at night, played on an accordion, a clarinet and a double bass. Thin and quiet
+  while the dance hall is wrecked (the melody and the bass), fuller once it reopens, and then the hall's own waltz in
+  the evenings. This needed three new shared instruments, bars of other lengths (`bar`, for 3/4) and music that changes
+  with a story flag (`"when"`).
+- **The two rivers** (`river_town/sounds.gd`): the Alpine river rushing bright over its pebbles, louder as you get
+  near it; the Po a low, slow hiss with water lapping at the bank. You can hear which one you're beside.
+- **Bicycles:** villagers ring their bell riding past you (4b), and your freewheel ticks when you stop pedalling
+  (shared). The geese honk when they come after you.
+- **The cast's outfits:** Ermes in his warden's oilskin and peaked cap, Primo in his grey work coat, Mattia in jeans
+  with his Walkman, Rina in a black waistcoat over a white blouse, Ines in a red shirt and a sawmill apron, Pierina in
+  yellow with her old leather post bag. Three of these are Boccapioppo's own clothes (`appearance.json`): Ermes, Ines
+  and Pierina give you one each when you become good friends (6 hearts).
 
 ## Checks for every stage
 `godot/run_tests.sh`, `npm test` and `npm run build`; screenshots of Boccapioppo in both renderers

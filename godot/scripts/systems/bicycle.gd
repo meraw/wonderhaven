@@ -25,6 +25,26 @@ static func cant_mount(flags: Dictionary, place: Dictionary, indoors: bool, on_s
 	if on_stairs: return "Not on the stairs."
 	return ""
 
+# ---- Villagers on bicycles ------------------------------------------------------------------------------------
+## A villager whose npcs.json entry has "bike": {"color", "ups"?} (or just a colour) rides it on long routes outdoors:
+## on when more than RIDE_FROM metres are left to go, off again under RIDE_UNTIL, indoors, on stairs, or where the
+## place says no bikes (NpcAgent).
+const VILLAGER_SPEED := 4.6
+const RIDE_FROM := 14.0
+const RIDE_UNTIL := 4.0
+
+## The villager's bicycle ({color, ups}), or {} for one who walks.
+static func villager_bike(def: Dictionary) -> Dictionary:
+	var b = def.get("bike", null)
+	if b is String: return {"color": b, "ups": []}
+	if b is Dictionary: return {"color": String(b.get("color", COLORS[0])), "ups": b.get("ups", [])}
+	return {}
+
+## Should this villager be on their bike, with `left` metres of route still to go?
+static func villager_rides(def: Dictionary, place: Dictionary, left: float, riding_now: bool, indoors: bool, on_stairs: bool) -> bool:
+	if villager_bike(def).is_empty() or not allowed(place) or indoors or on_stairs: return false
+	return left > (RIDE_UNTIL if riding_now else RIDE_FROM)
+
 ## The paint job's next colour.
 static func next_color(current: String) -> String:
 	var i := COLORS.find(current)

@@ -49,6 +49,8 @@ func play() -> void:
 ## Pictures of the places the story changes, for the pull request (--part=shots; RENDERER=forward_plus for Forward+).
 ## Test-only: it sets the story's flags and the clock directly instead of playing up to them.
 func view(x: float, z: float, yaw: float, pitch: float, dist: float, h: float, name: String) -> void:
+	var only := String(game.shot_cfg.get("only", ""))   # --only=aerial,the-bike takes just those
+	if only != "" and not name in only.split(","): return
 	game.state.time.minute = h * 60.0
 	game.player.teleport(x, z)
 	for a in game.npcs.values(): a.teleport_home()
@@ -84,6 +86,10 @@ func story_at(flags: Array) -> void:
 
 func shots() -> void:
 	game.shot_cfg["weather"] = "clear"
+	await view(-2.0, 12.0, PI * 0.9, 1.05, 82.0, 15.0, "aerial")
+	await view(17.0, 19.0, -PI * 0.78, 0.5, 20.0, 10.0, "where-the-rivers-meet")
+	await view(17.0, 19.0, -PI * 0.78, 0.5, 20.0, 6.6, "dawn-mist")
+	await view(-12.0, 30.0, PI * 0.75, 0.55, 18.0, 9.0, "the-floodplain")
 	await view(26.0, 9.0, 2.2, 0.42, 12.0, 11.0, "pumping-house")
 	await view(-41.5, 23.4, -2.2, 0.35, 8.0, 9.5, "ermes-waits")
 	await story_at(["welcomed", "bridge_open", "piazza_drained"])
@@ -92,6 +98,7 @@ func shots() -> void:
 	game.player.teleport(-30.0, 22.0, PI / 2.0); game.toggle_bike()
 	await view(-30.0, 22.0, -1.25, 0.25, 4.5, 11.0, "the-bike")
 	game.dismount(true)
+	await life_shots()
 	await story_at(["hall_ready", "hall_open"])
 	await view(9.0, 31.5, -1.3, 0.4, 13.0, 21.2, "dance-night")
 	await story_at(["launched"])
@@ -105,6 +112,53 @@ func shots() -> void:
 	await story_at(["flood_over"])
 	game.shot_cfg["weather"] = "clear"
 	await view(-3.0, 22.3, PI, 0.32, 13.0, 10.0, "after-the-storm")
+
+## Stage 4b's ambient life: a villager setting off on her bike, the geese after you on yours, the coypus on the
+## backwater's bank, the cormorants on their snags and a kingfisher on its perch.
+func life_shots() -> void:
+	var only := String(game.shot_cfg.get("only", ""))
+	var want := func(n: String) -> bool: return only == "" or n in only.split(",")
+	if want.call("villager-on-a-bike"):   # Pierina leaves the piazza for the station at 11
+		var pi = game.npcs[P + "pierina"]
+		game.state.time.minute = 10.0 * 60.0 + 59.0
+		pi.teleport_home()
+		game.player.teleport(-8.0, -2.0)
+		var t0 := Time.get_ticks_msec()
+		while not pi.riding and Time.get_ticks_msec() - t0 < 20000: await frames(2)
+		await wait(1.2)
+		game.player.teleport(pi.pos.x - 2.5, pi.pos.z - 4.0)
+		game.cam.yaw = 2.6; game.cam.pitch = 0.32; game.cam.dist = 6.0; game.cam.limits.explore = [2.0, 120.0, 0.05, 1.5]
+		game.cam.update(0.016, game.player.pos); game.cam.snap()
+		await frames(3)
+		await shot("villager-on-a-bike")
+		note("Pierina riding=%s at %s" % [pi.riding, pi.pos])
+	if want.call("geese-chase"):   # ride past the farm gate and the geese come after you
+		var A := preload("res://scripts/locations/river_town/animals.gd")
+		game.state.time.minute = 10.0 * 60.0
+		game.player.teleport(A.GEESE_HOME.x + 6.0, A.GEESE_HOME.y + 1.0, -PI / 2.0); game.toggle_bike()
+		game.cam.yaw = 0.9; game.cam.pitch = 0.45; game.cam.dist = 9.0; game.cam.limits.explore = [2.0, 120.0, 0.05, 1.5]
+		game.cam.update(0.016, game.player.pos); game.cam.snap()
+		await wait(1.6)
+		await shot("geese-chase")
+		game.dismount(true)
+	if want.call("the-cast"):   # everyone in their outfits, lined up in the piazza
+		game.state.time.minute = 12.0 * 60.0
+		var k := 0
+		for id in ["ermes", "tullio", "primo", "gildo", "mattia", "wanda", "rina", "ines", "pierina"]:
+			var a = game.npcs[P + id]
+			a.teleport_home(); a.pos = Vector3(1.0 + k * 1.0, Heightfield.height(1.0 + k, 6.0 - absf(k - 4) * 0.25), 6.0 - absf(k - 4) * 0.25); a.yaw = 0.0; a.sync()
+			k += 1
+		game.player.teleport(5.0, 2.0)
+		game.cam.yaw = 0.0; game.cam.pitch = 0.22; game.cam.dist = 9.5; game.cam.limits.explore = [2.0, 120.0, 0.05, 1.5]
+		game.cam.update(0.016, game.player.pos); game.cam.snap()
+		await frames(4)
+		await shot("the-cast")
+	await view(-12.0, 31.0, 1.875, 0.35, 6.0, 17.5, "coypus")
+	await view(8.5, 40.0, -PI * 0.75, 0.3, 6.0, 11.0, "cormorants")
+	var animals = game.village.get_node_or_null("river_town_animals")
+	if animals:   # each on its own perch, sitting for its picture
+		for i in animals.kingfishers.size(): animals.kingfishers[i].merge({"wait": 60.0, "fly": -1.0, "at": i}, true)
+	await view(22.6, -28.2, -0.9, 0.18, 2.6, 9.0, "kingfisher")
 
 func walk_around() -> void:
 	var s: Dictionary = game.state

@@ -1,7 +1,8 @@
 extends Node
 ## Original procedural music and sound effects. Instrument notes are synthesised into small sample buffers
 ## the first time they are needed (no audio files): marimba, glockenspiel, ukulele-ish pluck, soft pad, kick, shaker,
-## and for pop: a plucked guitar, piano, synth bass, a bright saw lead, strings, snare, handclap and open hi-hat.
+## and for pop: a plucked guitar, piano, synth bass, a bright saw lead, strings, snare, handclap and open hi-hat; and
+## for the dance hall: an accordion, a clarinet and a plucked double bass.
 
 const RATE := 22050
 ## Original tunes. Steps are eighth notes; chords are semitones above the root, one per bar of 16 steps; melody is
@@ -12,7 +13,8 @@ const RATE := 22050
 ## default), bass_style ("" root and fifth, "eighths", "quarters" or "offbeat"), bass_inst (default "pluck"),
 ## pad_every (bars between pad chords, 1), pad_inst (default "pad"), comp ([{inst, steps, octave, vol, spread}]:
 ## chords struck on those steps of each bar, notes spread by that many seconds, a strummed guitar say) and lift
-## (semitones the whole song goes up every second time round: the pop key change), lead_vol (the melody's volume, 1).
+## (semitones the whole song goes up every second time round: the pop key change), lead_vol (the melody's volume, 1),
+## bar (steps in a bar, 16 by default: 12 is two bars of a waltz in 3/4, with the second bass note on its step 6).
 const SONGS := {
 	"dawn": {"bpm": 74, "root": 62, "lead": "flute", "arp": "glock", "arp_every": 4, "drums": "", "pad": 0.11,
 		"chords": [[0, 4, 7, 11], [9, 12, 16], [5, 9, 12, 16], [7, 12, 14]],
@@ -60,9 +62,10 @@ static func song_def(id: String, music: Dictionary) -> Dictionary:
 static func loop_steps(s: Dictionary) -> int:
 	var last := 0
 	for m in s.melody: last = maxi(last, int(m[0]))
-	return maxi(int(s.get("length", 0)), int(ceil((last + 8) / 16.0)) * 16)
+	var bl := int(s.get("bar", 16))
+	return maxi(int(s.get("length", 0)), int(ceil((last + 8) / float(bl))) * bl)
 const INSTRUMENTS := ["marimba", "glock", "pluck", "pad", "kick", "hat", "blip", "chirp", "hiss", "thud", "flute", "rhodes", "bell", "horn", "rasp", "whistle",
-	"guitar", "piano", "bass", "saw", "strings", "snare", "clap", "openhat"]
+	"guitar", "piano", "bass", "saw", "strings", "snare", "clap", "openhat", "accordion", "clarinet", "upright"]
 ## Sounds of a place, for its location code (play(kind, note, volume)): "bell" a church bell with its hum and minor
 ## third, ringing long; "horn" a reedy horn (two at once make a train's two-tone horn); "rasp" a harsh, falling croak;
 ## "whistle" a note that slides up and back (a bird's call).
@@ -115,7 +118,7 @@ static func synth(kind: String, midi: int) -> AudioStreamWAV:
 	var f := freq(midi)
 	var length: float = {"marimba": 0.6, "glock": 1.2, "pluck": 0.45, "pad": 2.4, "kick": 0.25, "hat": 0.06, "blip": 0.09, "hiss": 1.6, "chirp": 0.07, "thud": 0.3, "flute": 0.9, "rhodes": 1.4,
 		"bell": 3.6, "horn": 0.9, "rasp": 0.4, "whistle": 0.36, "guitar": 1.3, "piano": 1.6, "bass": 0.45, "saw": 0.42, "strings": 2.6, "snare": 0.22,
-		"clap": 0.2, "openhat": 0.3}.get(kind, 0.5)
+		"clap": 0.2, "openhat": 0.3, "accordion": 0.8, "clarinet": 0.9, "upright": 0.7}.get(kind, 0.5)
 	var n := int(RATE * length)
 	var data := PackedByteArray(); data.resize(n * 2)
 	var lp := 0.0
@@ -240,6 +243,25 @@ static func synth(kind: String, midi: int) -> AudioStreamWAV:
 			"openhat":
 				var nz4 := rng.randf() * 2.0 - 1.0
 				v = (nz4 - prev) * exp(-t * 13.0) * 0.4; prev = nz4
+			"accordion":
+				# two reeds a little apart (the musette's wobble) and one an octave down, through a soft filter, with the
+				# bellows' push at the start
+				var r1 := 0.68 if fmod(f * t, 1.0) < 0.32 else -0.32
+				var r2 := 0.68 if fmod(f * 1.0055 * t, 1.0) < 0.32 else -0.32
+				var r3 := 0.6 if fmod(f * 0.5 * t, 1.0) < 0.4 else -0.4
+				lp += ((r1 + r2) * 0.5 + r3 * 0.3 - lp) * 0.22
+				v = lp * minf(1.0, t / 0.05) * (0.85 + 0.15 * minf(1.0, t / 0.3)) * minf(1.0, (length - t) / 0.12) * 0.9
+			"clarinet":
+				# woody: odd harmonics only, a breath of air, and a vibrato that comes in after the attack
+				var vbc := 1.0 + 0.005 * sin(TAU * 5.0 * t) * minf(1.0, t / 0.3)
+				phase += TAU * f * vbc / RATE
+				lp += ((rng.randf() * 2.0 - 1.0) - lp) * 0.04
+				v = ((sin(phase) + 0.33 * sin(3.0 * phase) + 0.17 * sin(5.0 * phase) + 0.07 * sin(7.0 * phase)) * 0.5 + lp * 0.08) * minf(1.0, t / 0.06) * minf(1.0, (length - t) / 0.25) * 0.65
+			"upright":
+				# a plucked double bass: a round fundamental, overtones that die quickly, and the thump of the finger
+				lp += ((rng.randf() * 2.0 - 1.0) - lp) * 0.1
+				v = ((sin(TAU * f * t) + 0.45 * sin(TAU * 2.0 * f * t) * exp(-t * 6.0) + 0.2 * sin(TAU * 3.0 * f * t) * exp(-t * 12.0)) * exp(-t * 3.2) * 0.75
+					+ lp * exp(-t * 60.0) * 0.3) * minf(1.0, t / 0.006) * minf(1.0, (length - t) / 0.08)
 		var s := int(clampf(v, -1.0, 1.0) * 32000.0)
 		data.encode_s16(i * 2, s)
 	var w := AudioStreamWAV.new(); w.format = AudioStreamWAV.FORMAT_16_BITS; w.mix_rate = play_rate; w.stereo = false; w.data = data
@@ -328,14 +350,15 @@ func _music_step(s: Dictionary) -> void:
 ## and rendered offline. soft (0..1) is how much rain has softened the music.
 static func step_events(s: Dictionary, step: int, soft: float = 0.0) -> Array:
 	var out: Array = []
-	var beat := step % 16
-	var bar: int = int(step / 16) % s.chords.size()
+	var bl := int(s.get("bar", 16))
+	var beat := step % bl
+	var bar: int = int(step / bl) % s.chords.size()
 	var chord: Array = s.chords[bar]
 	var loop := loop_steps(s)
 	var R: int = int(s.root) + int(s.get("lift", 0)) * (int(step / loop) % 2)
 	var bass: float = float(s.get("bass", 1.0))
 	var bi: String = s.get("bass_inst", "pluck")
-	if beat == 0 and int(step / 16) % maxi(1, int(s.get("pad_every", 1))) == 0:
+	if beat == 0 and int(step / bl) % maxi(1, int(s.get("pad_every", 1))) == 0:
 		for nn in chord: out.append([s.get("pad_inst", "pad"), R + int(nn) - 12, float(s.pad), 0.0])
 	if bass > 0.0:
 		var low := R + int(chord[0]) - 24
@@ -345,7 +368,7 @@ static func step_events(s: Dictionary, step: int, soft: float = 0.0) -> Array:
 			"offbeat": if beat % 2 == 1: out.append([bi, low + (12 if beat % 4 == 3 else 0), 0.3 * bass, 0.0])
 			_:
 				if beat == 0: out.append([bi, low, 0.4 * bass, 0.0])
-				if beat == 8: out.append([bi, R + int(chord[2 % chord.size()]) - 24, 0.3 * bass, 0.0])
+				if beat == int(bl / 2.0): out.append([bi, R + int(chord[2 % chord.size()]) - 24, 0.3 * bass, 0.0])
 	var every: int = int(s.get("arp_every", 2))
 	if s.arp != "" and beat % every == 0:
 		var idx: int = int(beat / every) % chord.size()
@@ -418,6 +441,8 @@ func sfx(name: String) -> void:
 		"morning": arp.call([72, 76, 79], 0.12, "glock", 0.35)
 		"save": arp.call([79, 84], 0.06, "glock", 0.3)
 		"bell": arp.call([91, 91], 0.14, "glock", 0.5)   # ring ring
+		"freewheel":   # the freewheel ticking as the bike rolls on without pedalling, slowing down
+			for i in 8: play("hat", 60, 0.08 * (1.0 - i * 0.09), sfx_bus, i * (0.045 + i * 0.012))
 
 ## Cartoon "babble": short pitched syllables.
 func voice(pitch: float, syllables: int) -> void:

@@ -1,6 +1,7 @@
 extends SceneTree
 ## Renders a place's music to WAV files, so it can be listened to (and its levels checked) without playing the game:
 ##   godot --headless --path . -s res://tests/render_music.gd -- --island=hearthglow --out=/tmp/music [--loops=2]
+##   [--flags=a,b] (story flags set, for a place whose music changes as its story goes on: "when")
 ## One file per song the place plays (each part of the day, and building), mixed from the same notes the game plays
 ## (AudioDirector.step_events) and the same synthesised instruments. Prints each song's peak and loudness before
 ## the file is normalised, so a song that would clip in the game shows up.
@@ -17,10 +18,12 @@ func _initialize() -> void:
 	var music: Dictionary = root.get_node("Data").island_def(island).get("music", {})
 	var AudioDirector = load("res://scripts/audio/audio_director.gd")   # loaded now: it names the Data autoload
 	var ad = AudioDirector.new()
+	var flags := {}
+	for f in String(args.get("flags", "")).split(",", false): flags[f] = true
 	var samples := {}   # each note's samples, decoded once
 	var done := {}
 	for part in ["dawn", "morning", "afternoon", "evening", "night", "build"]:
-		var id: String = AudioDirector.song_for(part, part == "build", music)
+		var id: String = AudioDirector.song_for(part, part == "build", music, flags)
 		if done.has(id): continue
 		done[id] = true
 		var s: Dictionary = AudioDirector.song_def(id, music)
