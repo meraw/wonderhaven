@@ -54,18 +54,19 @@ func play() -> void:
 	print("   planks at k=", game.state.placements.filter(func(p): return p.id == "bridgeDeck").map(func(p): return p.k))
 	check("b2", "Bridge placed plank by plank", count("bridgeDeck") == 8 and count("bridgePost") == 1, "%d planks, %d posts" % [count("bridgeDeck"), count("bridgePost")])
 	# Place, select, rotate, move, remove, undo, redo a railing
+	# up the bank, in the village streets: on the washout's bank row a railing's edge would stand in the stream
 	await ui_click("piece_railing")
-	await cell_click(2, -15)
+	await cell_click(2, -12)
 	var rail := {}
 	for p in game.state.placements:
 		if p.id == "railing": rail = p
 	await tap(KEY_ESCAPE)
-	await cell_click(2, -15.4, 0.4)   # the railing stands on the cell's north edge
+	await cell_click(2, -12.4, 0.4)   # the railing stands on the cell's north edge
 	var selected_ok: bool = not rail.is_empty() and game.build.selected == rail.uid
 	await tap(KEY_R); await frames(3)
 	var rotated: int = int(rail.get("r", -1))
 	await tap(KEY_N); await frames(3)
-	await cell_click(-2, -15)
+	await cell_click(-2, -12)
 	var moved_to: float = rail.get("i", 99.0)
 	await tap(KEY_DELETE); await frames(3)
 	var removed := count("railing") == 0

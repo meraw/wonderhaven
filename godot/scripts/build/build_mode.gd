@@ -53,6 +53,9 @@ func open(zone_id: String = "") -> bool:
 	for z in zones:
 		if z.id == zone_id: zone = z
 	if zone.is_empty(): zone = BuildGrid.zone_at(zones, floor(p.x), floor(p.z), LocationMeter.progress(state(), Data.island))
+	if zone.get("open", false):   # in the village streets but right by a site (the washout): that site
+		for z in zones:
+			if not z.get("open", false) and not z.get("interior", false) and _near_zone(z, p, 3.0): zone = z; break
 	if zone.is_empty() and not zones.is_empty():   # the nearest site, but not someone's room when you're outdoors
 		var outdoor := zones.filter(func(z): return not z.get("interior", false))
 		var pool: Array = outdoor if not outdoor.is_empty() else zones
@@ -105,6 +108,11 @@ func _over_ui(p: Vector2) -> bool:
 	for c in ui.find_children("*", "Control", true, false):
 		if c is PanelContainer and c.visible and c.mouse_filter != Control.MOUSE_FILTER_IGNORE and c.get_global_rect().has_point(p): return true
 	return false
+
+## Is `p` within `m` metres of the zone's cells?
+func _near_zone(z: Dictionary, p: Vector3, m: float) -> bool:
+	var b := BuildGrid.zone_bounds(z, LocationMeter.progress(state(), Data.island))
+	return p.x > b.minI - m and p.x < b.maxI + 1 + m and p.z > b.minK - m and p.z < b.maxK + 1 + m
 
 func _zdist(z: Dictionary, p: Vector3) -> float: return Vector2((z.minI + z.maxI) / 2.0 - p.x, (z.minK + z.maxK) / 2.0 - p.z).length()
 

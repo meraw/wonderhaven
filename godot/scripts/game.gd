@@ -851,7 +851,7 @@ func _process(dt: float) -> void:
 			elif Input.is_action_just_pressed("map"): panels.map()
 			elif Input.is_action_just_pressed("progress"): panels.progress()
 			elif Input.is_action_just_pressed("wardrobe"): open_wardrobe()
-			elif Input.is_action_just_pressed("pause"): panels.pause()
+			elif Input.is_action_just_pressed("pause") and interact_cooldown <= 0.0: panels.pause()   # (not the Esc that just said goodbye)
 		"build":
 			player_char.animate(dt)
 			build.update(dt)
