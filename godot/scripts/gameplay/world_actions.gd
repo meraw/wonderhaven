@@ -9,7 +9,9 @@ const P := preload("res://scripts/world/palette.gd")
 const REGROW := {"chop": 180.0, "mine": 240.0, "clay": 150.0, "flowers": 180.0, "shake": 90.0, "fruit": 240.0, "fragment": 1440.0, "bin": 300.0, "forage": 300.0}
 const SQUIRREL_SPOTS := [[-8.4, -3.2], [-13.7, -3.3], [-7.2, -6.6]]
 const LABELS := {"chop": "Chop tree", "mine": "Mine rock", "clay": "Dig clay", "fish": "Fish here", "flowers": "Pick flowers", "shake": "Shake the chestnut tree", "fruit": "Pick hazelnuts", "chest": "Open chest", "fragment": "Pick up the lost thing", "bin": "Dig through the bin", "forage": "Pick the porcini"}
-## What the lost things turn out to be; the first one is always the Sindaco's reading glasses.
+## What the lost things turn out to be; the first one is always the Sindaco's reading glasses. A layout's `lost` list
+## replaces it there. A gathering node may also carry its own `label`, `hours` when it's out (a page blown about at
+## night), `gives` (see gives: a bin's or a dig spot's finds too), `lines` (a bin) and `text` (a dig spot).
 const LOST := ["the Sindaco's reading glasses", "a bunch of keys", "a dog's ball", "a single glove", "a lottery ticket (not a winner)", "a cassette of love songs", "a phone card with 200 lire left on it"]
 ## Copper wire from the bins, and what else comes up with it.
 const BIN_LINES := ["You go in head first. Copper wire! And half a pizza.", "A tangle of copper wire, a broken radio, and a very surprised cat.",
@@ -43,6 +45,7 @@ func ready(n: Dictionary) -> bool:
 	var s := node_state(n.id)
 	if s.get("done", false): return false
 	if n.has("flag") and not state().flags.get(n.flag, false): return false
+	if n.has("hours") and not Clock.in_hours(n.hours, float(state().time.minute)): return false
 	if n.kind == "fruit" and not state().flags.get("orchardOpen", false): return false
 	# Lost things only turn up once the Sindaco has welcomed you, so new players don't pick up his glasses by accident.
 	if n.kind == "fragment" and not state().flags.get("hasTool", false): return false
@@ -75,7 +78,9 @@ func _register_feature(f: Dictionary) -> void:
 			var fp := BuildGrid.footprint(Data.piece("bench"), r)
 			var seat := {"id": "bench", "i": f.x - fp.x / 2.0, "k": f.z - fp.y / 2.0, "r": r, "y": Heightfield.height(f.x, f.z)}
 			game.add_interactable({"id": f.id, "x": f.x, "z": f.z, "radius": 1.5, "object": game.village.objects.get(f.id), "label": func(): return "Sit or nap on the bench", "act": func(): game.rest("bench", seat)})
-		"wardrobe": game.add_interactable({"id": f.id, "x": f.x, "z": f.z, "object": game.village.objects[f.id], "label": func(): return "Change outfit", "act": func(): game.open_wardrobe()})
+		# a wardrobe with a flag is yours once that's set (in a flat you rent, say)
+		"wardrobe": game.add_interactable({"id": f.id, "x": f.x, "z": f.z, "object": game.village.objects[f.id], "available": func(): return not f.has("flag") or state().flags.get(f.flag, false),
+			"label": func(): return "Change outfit", "act": func(): game.open_wardrobe()})
 		"board": game.add_interactable({"id": f.id, "x": f.x, "z": f.z, "object": game.village.objects[f.id], "label": func(): return "Read the notice board", "act": func(): game.panels.notice_board()})
 		# a stop on a line within this place (a tram, a funicular): ride to another stop on it (Travel.stops_on)
 		"stop": game.add_interactable({"id": f.id, "x": f.x, "z": f.z, "radius": 2.2, "object": game.village.objects.get(f.id), "label": func(): return String(f.get("ride_label", "Take a ride")), "act": func(): game.panels.stops(f)})
@@ -131,6 +136,7 @@ func minigame_done(kind: String, mg) -> void:
 	game.give(mg.reward(), _src(n))
 	if kind == "chop": state().stats.chopped += 1; game.effects.poof(_src(n), Color("9fdc7a"))
 	else: state().stats.mined += 1
+	game.story.event(kind)   # "chop" or "mine", for requests that count trees pruned or rocks cut
 	deplete(n); game.sfx("collect")
 
 ## What a node gives: its own "gives" ({item: count}) when the layout says, else the default for its kind. A
@@ -144,20 +150,24 @@ static func gives(n: Dictionary, fallback: Dictionary) -> Dictionary:
 
 func catch_fragment(n: Dictionary) -> void:
 	var p := _src(n, 0.2)
-	var what: String = LOST[0] if int(state().stats.fragments) == 0 else LOST[1 + int(state().stats.fragments) % (LOST.size() - 1)]
+	var found := int(state().stats.fragments)
+	var here: Array = Data.layout.get("lost", [])   # what the lost things turn out to be in this place
+	var what: String = here[found % here.size()] if not here.is_empty() else (LOST[0] if found == 0 else LOST[1 + found % (LOST.size() - 1)])
 	if n.has("name"): what = String(n.name)   # a particular lost thing, named in the layout
-	game.give(gives(n, {"fragment": 1}), null, true)
+	var got := gives(n, {"fragment": 1})
+	game.give(got, null, true)
 	game.toast("You found %s!" % what, "good", 2.5)
 	game.effects.sparkle(p, 8, Color("ffe7a0"), 0.18); game.sfx("pick")
-	state().stats.fragments += 1
+	if got.has("fragment"): state().stats.fragments += 1   # (a page of a score isn't a lost thing)
 	deplete(n)
 
 ## Head first into a street bin: there is always copper wire, and usually something else.
 func dig_bin(n: Dictionary) -> void:
 	var count := int(state().stats.get("bins", 0))
 	game.player_char.play("dig"); game.sfx("dig")
-	game.give({"crystal": 1, "metal": 1} if count % 3 == 2 else {"crystal": 1}, _src(n, 1.0), true)
-	game.toast(BIN_LINES[count % BIN_LINES.size()], "good", 3.0)
+	var lines: Array = n.get("lines", BIN_LINES)
+	game.give(gives(n, {"crystal": 1, "metal": 1} if count % 3 == 2 else {"crystal": 1}), _src(n, 1.0), true)
+	game.toast(lines[count % lines.size()], "good", 3.0)
 	state().stats["bins"] = count + 1
 	deplete(n)
 
@@ -180,7 +190,8 @@ func dig(n: Dictionary) -> void:
 	var digs: Array = Data.layout.nodes.filter(func(x): return x.kind == "dig")
 	var loot: Dictionary = gives(n, [{"crystal": 1, "coins": 8}, {"fabric": 2, "coins": 5}, {"metal": 2, "coins": 5}, {"crystal": 1, "fabric": 1, "coins": 8}, {"metal": 1, "crystal": 1, "coins": 10}][digs.find(n) % 5])
 	game.give(loot, p); game.effects.sparkle(p, 22)
-	if n.has("name"): game.toast("You dig up %s!" % n.name, "good", 3.0)   # a particular find, named in the layout
+	if n.has("text"): game.toast(String(n.text), "good", 3.0)   # what the find is, in the layout
+	elif n.has("name"): game.toast("You dig up %s!" % n.name, "good", 3.0)   # a particular find, named in the layout
 	state().stats.dug += 1; state().stats.treasures += 1
 	deplete(n); game.sfx("chest")
 	game.story.event("treasure"); game.story.event("dig")
@@ -206,7 +217,7 @@ func _fishing_done(mg) -> void:
 	game.effects.splash(Vector3(f.fx, Heightfield.WATER_Y + 0.1, f.fz))
 	game.player_char.play("celebrate"); game.sfx("fanfare_small")
 	state().stats.fish += 1
-	game.toast(String(mg.fish.get("caught", "You caught a %s!" % mg.fish.name)), "good")
+	game.toast(String(mg.fish.get("caught", "You caught %s!" % Minigames.a_name(mg.fish.name))), "good")
 	game.story.event("fish")
 	game.story.event("fish:" + String(mg.fish.id))   # a request can wait for one particular catch
 
@@ -347,7 +358,7 @@ func update(dt: float) -> void:
 		check_t = 1.0
 		for n in Data.layout.nodes:
 			var o: Node3D = game.village.node_visuals.get(n.id)
-			if o and o.get_meta("depleted", false) and ready(n): refresh_node(n)
+			if o and o.get_meta("depleted", false) == ready(n): refresh_node(n)   # back, or gone (out of its hours)
 		if Gardening.grow(s.gardens, now()): refresh_gardens()
 	var p: Vector3 = game.player.pos
 	if game.mode == "explore":

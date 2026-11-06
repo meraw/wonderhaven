@@ -58,6 +58,7 @@ const TORSO := [Vector2(0, 0.27), Vector2(0.12, 0.274), Vector2(0.19, 0.3), Vect
 const WAIST := [Vector2(0, 0.262), Vector2(0.13, 0.266), Vector2(0.198, 0.292), Vector2(0.221, 0.35), Vector2(0.224, 0.42), Vector2(0.2, 0.424), Vector2(0, 0.424)]
 const SKIRT := [Vector2(0, 0.43), Vector2(0.215, 0.43), Vector2(0.235, 0.37), Vector2(0.27, 0.29), Vector2(0.29, 0.245), Vector2(0.275, 0.235), Vector2(0, 0.235)]
 const DRESS := [Vector2(0, 0.47), Vector2(0.205, 0.47), Vector2(0.226, 0.41), Vector2(0.27, 0.31), Vector2(0.31, 0.21), Vector2(0.33, 0.17), Vector2(0.32, 0.155), Vector2(0, 0.155)]
+const COAT_HEM := [Vector2(0, 0.43), Vector2(0.222, 0.43), Vector2(0.236, 0.34), Vector2(0.25, 0.24), Vector2(0.262, 0.15), Vector2(0.256, 0.13), Vector2(0, 0.13)]
 const TUNIC_HEM := [Vector2(0, 0.43), Vector2(0.222, 0.43), Vector2(0.232, 0.36), Vector2(0.24, 0.3), Vector2(0.232, 0.285), Vector2(0, 0.285)]
 const LEG := [Vector2(0, 0.04), Vector2(0.062, 0.03), Vector2(0.074, 0.0), Vector2(0.07, -0.12), Vector2(0.063, -0.24), Vector2(0.05, -0.27), Vector2(0, -0.275)]
 const JEANS_LEG := [Vector2(0, 0.04), Vector2(0.084, 0.03), Vector2(0.091, 0.0), Vector2(0.093, -0.12), Vector2(0.097, -0.22), Vector2(0.1, -0.25), Vector2(0.092, -0.262), Vector2(0, -0.262)]   # baggy, falling over the shoes
@@ -182,6 +183,12 @@ func set_appearance(app: Dictionary) -> void:
 			_m(P.box(0.024, 0.36, 0.01), dark.call(top, 0.08), body, Vector3(0, 0.5, 0.19), Vector3.ONE, Vector3(-0.08, 0, 0))
 			for y in [0.6, 0.5, 0.4]: _m(P.sphere(0.011, 8, 6), "f4f1ea", body, Vector3(0, y, 0.198 - absf(y - 0.45) * 0.12))
 			_m(P.rbox(0.075, 0.075, 0.012, 0.01), dark.call(top, 0.06), body, Vector3(0.095, 0.56, 0.172), Vector3.ONE, Vector3(-0.2, 0.35, 0))
+		"longcoat":   # a winter coat to the knees: wide lapels, a belt, two rows of buttons
+			_m(_lathe("coat_hem", COAT_HEM, 0.87), top, body, Vector3.ZERO)
+			for s in [-1, 1]:
+				_m(P.rbox(0.09, 0.24, 0.03, 0.015), dark.call(top, 0.12), body, Vector3(s * 0.075, 0.6, 0.16), Vector3.ONE, Vector3(-0.25, 0, s * 0.4))
+				for y in [0.52, 0.44, 0.36]: _m(P.sphere(0.013, 8, 6), dark.call(top, 0.4), body, Vector3(s * 0.05, y, 0.2))
+			_m(P.torus(0.226, 0.016, 40), dark.call(top, 0.2), body, Vector3(0, 0.42, 0), Vector3(1, 1, 0.87))
 		"workjacket":   # a long work jacket with big pockets and a corduroy collar
 			_m(_lathe("tunic_hem", TUNIC_HEM, 0.87), top, body, Vector3.ZERO)
 			for s in [-1, 1]:
@@ -461,6 +468,12 @@ func _build_hat(kind: String, color: String, trim: String = "") -> void:
 			for s in [-1, 1]:
 				_m(P.cyl(0.1, 0.1, 0.05, 20), "2a2a30", g, Vector3(s * 0.455, -0.01, -0.02), Vector3.ONE, Vector3(0, 0, PI / 2))
 				_m(P.sphere(0.1, 16, 12), "f08a24", g, Vector3(s * 0.415, -0.01, -0.02), Vector3(0.45, 1, 1))
+		"helmet":   # a rounded helmet with a narrow brim and a peak: a traffic warden's white one, or a hard hat
+			_m(P.sphere(0.41, 28, 18), color, g, Vector3(0, 0.3, 0), Vector3(1, 0.8, 1.06))
+			_m(P.cyl(0.47, 0.47, 0.025, 28), color, g, Vector3(0, 0.27, 0))
+			_m(P.rbox(0.34, 0.025, 0.16, 0.01), color, g, Vector3(0, 0.27, 0.4), Vector3.ONE, Vector3(0.15, 0, 0))
+			_m(P.torus(0.405, 0.018, 32), Color(color).darkened(0.18), g, Vector3(0, 0.31, 0))
+			_m(P.sphere(0.045, 12, 8), P.GOLD, g, Vector3(0, 0.44, 0.37))
 		"crown":
 			_m(P.cyl(0.24, 0.24, 0.16, 24), P.GOLD, g, Vector3(0, 0.45, 0))
 			for n in 5:

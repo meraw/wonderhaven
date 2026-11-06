@@ -3,10 +3,11 @@ class_name Validate
 
 ## Continuous walkable path, at least one player wide, from endpoint a to endpoint b of a zone. Each cell can be
 ## stood on at more than one height (the ground under a floor, the floor itself), and a step between cells may climb
-## a ramp (stairs) as long as it rises a little at a time, the way you'd walk it.
+## a ramp (stairs) as long as it rises a little at a time, the way you'd walk it. The endpoints may lie just outside
+## the build site, on the ground it joins (a quay, a roof terrace).
 static func path_across(zone: Dictionary, walk: WalkWorld) -> Dictionary:
-	var in_zone := func(i: int, k: int) -> bool: return i >= zone.minI and i <= zone.maxI and k >= zone.minK and k <= zone.maxK
 	var in_rect := func(r: Dictionary, i: int, k: int) -> bool: return i >= r.minI and i <= r.maxI and k >= r.minK and k <= r.maxK
+	var in_zone := func(i: int, k: int) -> bool: return in_rect.call(zone, i, k) or in_rect.call(zone.endpoints.a, i, k) or in_rect.call(zone.endpoints.b, i, k)
 	var stand_at := func(i: int, k: int, from_y: float):
 		var s := walk.surface_at(i + 0.5, k + 0.5, from_y)
 		if not s.walkable or s.y - from_y > WalkWorld.STEP_UP + 1e-6 or walk.blocked(i + 0.5, k + 0.5, s.y, 0.28): return null

@@ -81,7 +81,8 @@
   "crown",
   "goggles",
   "headphones",
-  "drivercap"
+  "drivercap",
+  "helmet"
  ],
  "MOUTHS": [
   "smile",
@@ -114,7 +115,8 @@
   "hoodie",
   "suit",
   "shirt",
-  "workjacket"
+  "workjacket",
+  "longcoat"
  ],
  "default": {
   "skin": "#f8cfa8",
@@ -144,7 +146,9 @@
   "sailor": "Reach a 120 approval rating",
   "backpack": "Help Fede test her metal detector",
   "drivercap": "Win Aldo's porcini bet",
-  "sash": "Reach a 200 approval rating"
+  "sash": "Reach a 200 approval rating",
+  "longcoat": "Reach 25 column inches in Toriano",
+  "helmet": "Become good friends with Rocco in Toriano"
  },
  "labels": {
   "round": "Round",
@@ -201,6 +205,8 @@
   "jeans": "Baggy jeans",
   "headphones": "Headphones",
   "drivercap": "Driver's cap",
+  "longcoat": "Long coat",
+  "helmet": "Helmet",
   "sash": "Tricolour sash",
   "pens": "Pocket of pens",
   "discman": "CD player",

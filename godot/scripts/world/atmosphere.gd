@@ -17,6 +17,7 @@ var motes: GPUParticles3D
 var fireflies: GPUParticles3D
 var leaves: GPUParticles3D
 var drift := Vector2.ZERO
+var snow_cover := 0.0   # the white dusting a request's snow leaves (world_snow)
 var _fog_drift := Vector2.ZERO
 var _grade_t := 0.0
 var _leaf_t := 0.0
@@ -76,8 +77,9 @@ static func grade_curve(lo: Color, hi: Color, steps: int = 9) -> PackedColorArra
 ## A location's own mood, from the `look` block of its map entry (islands.json or a pack's location.json):
 ## "shade": [r, g, b] added to the shadow tint, "light": [r, g, b] multiplying the highlight tint, "wind": a strength
 ## multiplier, "life": {"motes": x, "fireflies": x, "leaves": x} multipliers, "leafColors": the falling leaves' colours.
-## Also "sky" and "haze" (sky_look, haze), "water" colours, "frost" (frost_at, ice_at) and "sun_peak"
-## (Daylight.sun_peak). Missing keys change nothing.
+## Also "sky" and "haze" (sky_look, haze), "water" colours, "frost" (frost_at, ice_at), "sun_peak"
+## (Daylight.sun_peak), "sunrise"/"sunset" (Daylight.light_hour: dusk at five) and "mist" (how often early mornings
+## are misty, Daylight.mist_odds). Missing keys change nothing.
 static func apply_look(gr: Array, lk: Dictionary) -> Array:
 	var lo: Color = gr[0]; var hi: Color = gr[1]
 	var sh: Array = lk.get("shade", [0, 0, 0]); var li: Array = lk.get("light", [1, 1, 1])
@@ -160,6 +162,8 @@ func setup(g) -> void:
 	name = "Atmosphere"
 	look = Data.island_def(Data.island).get("look", {})
 	Daylight.sun_peak = float(look.get("sun_peak", Daylight.SUN_PEAK))
+	Daylight.sunrise = float(look.get("sunrise", Daylight.SUNRISE)); Daylight.sunset = float(look.get("sunset", Daylight.SUNSET))
+	Daylight.mist_odds = float(look.get("mist", Daylight.MIST_ODDS))
 	# The water's colours ("water": {"shallow", "mid", "deep"}, and "foam" 0..1 for the shore foam): a still paddy's
 	# grey-green instead of the sea's blue and its surf.
 	var wl: Dictionary = look.get("water", {})
@@ -214,6 +218,11 @@ func _process(dt: float) -> void:
 	RenderingServer.global_shader_parameter_set("world_sun_dir", Daylight.light_dir(h))
 	RenderingServer.global_shader_parameter_set("world_sun_color", _lin(sun_col))
 	RenderingServer.global_shader_parameter_set("world_weather", Vector4(sunlit, night, float(w.get("rain", 0.0)), float(w.get("clouds", 0.25))))
+	# snow settles while it falls (a light dusting in about half a minute) and melts away slowly once it stops
+	var falling := float(w.get("snow", 0.0))
+	snow_cover = move_toward(snow_cover, falling, dt * (0.035 if falling > snow_cover else 0.004))
+	if String(game.shot_cfg.get("weather", "")) != "": snow_cover = falling   # (a screenshot doesn't wait for it to settle)
+	RenderingServer.global_shader_parameter_set("world_snow", snow_cover)
 	RenderingServer.global_shader_parameter_set("world_sky_horizon", _lin(horizon))
 	RenderingServer.global_shader_parameter_set("world_sky_zenith", _lin(zenith))
 	RenderingServer.global_shader_parameter_set("world_cloud_drift", drift)

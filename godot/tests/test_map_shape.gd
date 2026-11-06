@@ -56,7 +56,9 @@ func test_a_bigger_map():
 		t.eq(m.get_meta("height_rect"), Vector4(-100, -100, 200, 200), "the terrain covers the whole map")
 		var w := TerrainBuilder.build_water(m)
 		t.ok((w.mesh as PlaneMesh).size.x >= 600.0, "the sea reaches well beyond it")
+		t.eq(BuildMode.view_limit(), 93.0, "build mode's view reaches across it")
 		w.free(); m.free())
+	t.eq(BuildMode.view_limit(), Data.map_size() / 2.0 - 7.0, "and over a village it reaches as far as its edge allows")
 
 func test_greenery_stays_off_paving_and_in_its_area():
 	var ground := [{"kind": "asphalt", "rect": [-60, -60, 60, 60]}, {"kind": "grass", "rect": [-40, -40, -10, -10]}, {"kind": "gravel", "line": [[-40, -25], [-10, -25]], "w": 3}]

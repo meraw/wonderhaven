@@ -62,6 +62,8 @@ static func overlap3(a: Dictionary, b: Dictionary) -> bool:
 static func ground_at(i: float, k: float) -> float: return maxf(Heightfield.height(i + 0.5, k + 0.5), WorldStatics.floor_top(i + 0.5, k + 0.5))
 
 # ---- Zones
+## A zone may grow (`expanded`, at `expanded.harmony`): measured on the place's progress, the approval rating or the
+## place's own meter where it has one (LocationMeter.progress).
 static func zone_bounds(zone: Dictionary, harmony: float = 0) -> Dictionary:
 	if zone.has("expanded") and harmony >= zone.expanded.harmony: return zone.expanded
 	return zone

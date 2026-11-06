@@ -95,6 +95,18 @@ func step_aside(pos: Vector3, r: float = PLAYER_RADIUS, ignore = null) -> Dictio
 	if not blocked(pos.x, pos.z, pos.y, r, ignore): return {}
 	return free_spot(pos.x, pos.z, Rect2(), 6.0, r, ignore)
 
+## Out of an overlap where it stands: a body that stepped off the side of a stair onto the ground beside it is still
+## touching the stair, and every step that leaves it touching is refused, so it could never walk away. The nearest spot
+## within half a metre, at the same height, where it stands free; {} when nothing overlaps it (or there's no such spot).
+func unstick(pos: Vector3, r: float = PLAYER_RADIUS, ignore = null) -> Dictionary:
+	if not blocked(pos.x, pos.z, pos.y, r, ignore): return {}
+	for d in [0.1, 0.2, 0.3, 0.4, 0.5]:
+		for k in 16:
+			var a := k * TAU / 16.0
+			var s := can_stand(pos.x + cos(a) * d, pos.z + sin(a) * d, pos.y, r, ignore)
+			if not s.is_empty(): return {"x": pos.x + cos(a) * d, "z": pos.z + sin(a) * d, "y": s.y}
+	return {}
+
 ## The nearest spot to (x, z) where a body can stand, can move around, and that lies outside `avoid`
 ## (a Rect2 in x/z, e.g. a build zone). Searches outward in rings; returns {} if nothing within max_r.
 func free_spot(x: float, z: float, avoid: Rect2 = Rect2(), max_r: float = 14.0, r: float = PLAYER_RADIUS, ignore = null) -> Dictionary:

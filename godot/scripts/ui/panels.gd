@@ -277,9 +277,10 @@ func _meter_progress(m: Dictionary) -> void:
 	var bar := ProgressBar.new(); bar.custom_minimum_size = Vector2(780, 20); bar.show_percentage = false; bar.max_value = int(nx.at) if not nx.is_empty() else 1; bar.value = pts if not nx.is_empty() else 1; body.add_child(bar)
 	if m.has("about"): body.add_child(_wrap(String(m.about)))
 	for u in m.get("milestones", []):
-		var got: bool = pts >= int(u.at)
+		var got: bool = pts >= int(u.at) and (not u.has("requires") or LocationMeter.reached(game.state, u))
 		var v := _card(Color("f3fff6") if got else Color.WHITE)
-		v.add_child(UiTheme.label(("🌟 " if got else "🔒 ") + String(u.title) + ("   Reached" if got else "   at %s" % LocationMeter.reading(m, int(u.at))), 16))
+		var when := "   at %s" % LocationMeter.reading(m, int(u.at)) + (" and " + String(u.waits) if u.has("waits") else "")   # waits: what else it needs
+		v.add_child(UiTheme.label(("🌟 " if got else "🔒 ") + String(u.title) + ("   Reached" if got else when), 16))
 		v.add_child(_wrap(String(u.desc), 13))
 
 func notice_board() -> void:

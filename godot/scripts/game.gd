@@ -47,6 +47,7 @@ var dragging := false
 var drag_moved := false
 var _drag_dist := 0.0
 var rain: GPUParticles3D
+var snowfall: GPUParticles3D
 var smoke_t := 0.0
 var last_autosave := -100.0
 var shot_cfg := {}
@@ -117,7 +118,7 @@ func _ready() -> void:
 			var text: String = f.text
 			add_interactable({"id": f.id, "x": f.x, "z": f.z, "object": village.objects[f.id], "label": func(): return "Read sign", "act": func(): toast(text, "", 4.0)})
 	actions = WorldActions.new(self)
-	_make_rain()
+	_make_rain(); _make_snow()
 	_load_optional_modules()
 	apply_settings()
 	_parse_args()
@@ -413,7 +414,7 @@ func open_wardrobe() -> void:
 		if f.kind == "wardrobe": w = f
 	var near_inn := not w.is_empty() and Vector2(player.pos.x - w.x, player.pos.z - w.z).length() < 6.0
 	var plot := Data.zone("plot")
-	var at_home: bool = state.flags.get("ownHome", false) and not plot.is_empty() and BuildGrid.zone_contains(plot, floorf(player.pos.x), floorf(player.pos.z), state.harmony)
+	var at_home: bool = state.flags.get("ownHome", false) and not plot.is_empty() and BuildGrid.zone_contains(plot, floorf(player.pos.x), floorf(player.pos.z), LocationMeter.progress(state, Data.island))
 	if near_inn or at_home: screens.creator(true)
 	else: toast("Change your outfit at the guest house wardrobe%s." % (", or at home" if state.flags.get("ownHome", false) else ""))
 
@@ -578,7 +579,7 @@ func placement_ctx(placements = null) -> Dictionary:
 	for a in npcs.values():
 		if a.present: bodies.append({"x": a.pos.x, "z": a.pos.z, "r": 0.3, "y": a.pos.y, "name": a.def.name})
 	return {"placements": placements if placements != null else state.placements, "zones": Data.layout.zones.filter(func(z): return zone_unlocked(z)),
-		"locked_zones": Data.layout.zones.filter(func(z): return not zone_unlocked(z)), "harmony": state.harmony, "statics": statics, "flags": state.flags, "bodies": bodies,
+		"locked_zones": Data.layout.zones.filter(func(z): return not zone_unlocked(z)), "harmony": LocationMeter.progress(state, Data.island), "statics": statics, "flags": state.flags, "bodies": bodies,
 		"no_build": Data.layout.get("noBuild", {})}
 
 func _find_pl(uid: int) -> Dictionary:
@@ -886,7 +887,8 @@ func _update_hotkeys() -> void:
 	var entries: Array = [["%s%s%s%s" % [k.call("move_forward"), k.call("move_left"), k.call("move_back"), k.call("move_right")], "Move"],
 		["Drag/%s%s" % [k.call("cam_left"), k.call("cam_right")], "Camera"], [k.call("interact"), "Interact"]]
 	if state.flags.get("hasTool", false) and Tutorial.revealed(tut, "key:build"): entries.append([k.call("build"), "Build"])
-	var progress_name: String = String(LocationMeter.def(Data.island).get("name", "Approval")).trim_prefix("The ")
+	var meter_def := LocationMeter.def(Data.island)   # its short name if it has one ("Column inches"), else its name
+	var progress_name: String = String(meter_def.get("short", String(meter_def.get("name", "Approval")).trim_prefix("The ")))
 	for pair in [["inventory", "Bag"], ["journal", "Journal"], ["map", "Map"], ["progress", progress_name]]:
 		if Tutorial.revealed(tut, "key:" + pair[0]): entries.append([k.call(pair[0]), pair[1]])
 	if Bicycle.owned(state.flags) and Bicycle.allowed(Data.island_def(Data.island)):
@@ -925,8 +927,8 @@ func _update_world_time(dt: float) -> void:
 	var w: Dictionary = Daylight.weather(s.time, Daylight.allowed_here()) if settings.weather and forced == "" else Daylight.WEATHER.get(forced if forced != "" else "clear", Daylight.WEATHER.clear).duplicate()
 	if not w.has("type"): w["type"] = forced if forced != "" else "clear"
 	# ease the weather values too, so switching the setting or loading a save doesn't snap the sky
-	for k in ["clouds", "rain", "fog", "sun"]:
-		weather_now[k] = lerpf(weather_now.get(k, w[k]), w[k], 1.0 - exp(-dt * 0.8))
+	for k in ["clouds", "rain", "fog", "sun", "snow"]:
+		weather_now[k] = lerpf(weather_now.get(k, w.get(k, 0.0)), w.get(k, 0.0), 1.0 - exp(-dt * 0.8))
 	weather_now["type"] = w.type
 	var clouds: float = weather_now.clouds; var wet: float = weather_now.rain; var fog: float = weather_now.fog
 	var grey := clampf((clouds - 0.4) * 1.1, 0.0, 0.7)
@@ -958,7 +960,10 @@ func _update_world_time(dt: float) -> void:
 	rain.emitting = wet > 0.05
 	rain.amount_ratio = clampf(wet, 0.05, 1.0)
 	rain.position = camera.global_position + Vector3(0, 8, 0)
-	var icon: String = "🌙" if night else ({"rain": "🌧️", "drizzle": "🌦️", "cloudy": "☁️", "mist": "🌫️", "fair": "⛅"}.get(weather_now.type, "☀️"))
+	snowfall.emitting = float(weather_now.snow) > 0.05
+	snowfall.amount_ratio = clampf(float(weather_now.snow), 0.05, 1.0)
+	snowfall.position = camera.global_position + Vector3(0, 7, 0)
+	var icon: String = "🌙" if night else ({"rain": "🌧️", "drizzle": "🌦️", "cloudy": "☁️", "mist": "🌫️", "fair": "⛅", "snow": "🌨️"}.get(weather_now.type, "☀️"))
 	hud.clock_label.text = "%s %s%s" % [icon, Clock.text(s.time), ("  📟 " + ["beep", "beep beep", "BEEP BEEP BEEP"][actions.hum - 1]) if actions.hum > 0 else ""]
 
 func _world_reactions(dt: float) -> void:
@@ -991,6 +996,19 @@ func _world_reactions(dt: float) -> void:
 			if m is ShaderMaterial: m.set_shader_parameter("alpha", a1)
 			else: m.albedo_color.a = a1
 	roof_alpha = roof_fade.get("workshop", 1.0)
+
+## Snowflakes: slow white dots drifting down round the camera, while a request's snow falls (Daylight "snow").
+func _make_snow() -> void:
+	snowfall = GPUParticles3D.new(); snowfall.amount = 1200; snowfall.lifetime = 6.0; snowfall.emitting = false; snowfall.visibility_aabb = AABB(Vector3(-30, -20, -30), Vector3(60, 40, 60))
+	var pm := ParticleProcessMaterial.new(); pm.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_BOX; pm.emission_box_extents = Vector3(22, 1, 22)
+	pm.direction = Vector3(0, -1, 0); pm.initial_velocity_min = 1.0; pm.initial_velocity_max = 1.8; pm.gravity = Vector3(0, -0.4, 0); pm.spread = 25.0
+	pm.turbulence_enabled = true; pm.turbulence_noise_strength = 0.6; pm.turbulence_noise_scale = 4.0
+	snowfall.process_material = pm
+	var q := QuadMesh.new(); q.size = Vector2(0.1, 0.1)
+	var m := Palette.glow_mat(Color("f4f8ff"), 0.5); m.billboard_mode = BaseMaterial3D.BILLBOARD_ENABLED; q.material = m
+	m.distance_fade_mode = BaseMaterial3D.DISTANCE_FADE_PIXEL_ALPHA; m.distance_fade_min_distance = 0.8; m.distance_fade_max_distance = 3.0
+	snowfall.draw_pass_1 = q
+	add_child(snowfall)
 
 func _make_rain() -> void:
 	rain = GPUParticles3D.new(); rain.amount = 1500; rain.lifetime = 1.6; rain.emitting = false; rain.visibility_aabb = AABB(Vector3(-30, -20, -30), Vector3(60, 40, 60))
@@ -1045,6 +1063,8 @@ func _parse_args() -> void:
 		cam.yaw = float(c[0]); cam.pitch = float(c[1]); cam.dist = float(c[2])
 		cam.limits.explore = [2.0, 120.0, 0.05, 1.5]
 	if shot_cfg.has("time"): state.time.minute = float(shot_cfg.time) * 60.0
+	if shot_cfg.has("flags"):   # look-dev: --flags=a,b sets story flags (a request's results, a lit landmark)
+		for f in String(shot_cfg.flags).split(","): state.flags[f] = true
 
 var _frames := 0
 func _tick_shot() -> void:

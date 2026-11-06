@@ -11,6 +11,8 @@
   its alpha is how cloudy (0 = clear, the look's own water colours by depth). It's baked once into a map over the
   ground, so it's asked for dry land too: give the colour a flood would have there.
 - `building(b: Dictionary) -> Node3D`: a model for one of the layout's buildings, or `null` to use the shared ones.
+- `node(n: Dictionary) -> Node3D`: a model for one of the layout's gathering spots (`nodes`), or `null` to use the
+  shared one. The shared code positions it and animates its usual parts: a bin's `lid` child, a tree's stump.
 - `dress(village: Village) -> void`: extra scenery, added after everything else is built.
 - `const WORLD_FLAGS := [...]`: story flags that reshape the place. When one changes, the world is built again where
   you stand (after the conversation that set it). `building()` and `dress()` can read `Data.world_flags`, the ones

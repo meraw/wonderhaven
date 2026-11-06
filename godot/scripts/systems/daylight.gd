@@ -27,9 +27,25 @@ const KEYS := [
 	[24.0, "0c1433", "1e2a52", "a8bde8", 0.10, "56679f", 0.22],
 ]
 
+## When the sun rises and sets here, by the clock: a look's "sunrise" and "sunset" (short winter days in a northern
+## city, dusk at five; Atmosphere sets them for the place you're on). Only the light follows them: the keyframes, the
+## sun, the moon and the night are drawn for the hour at the same point of a 6:00-20:00 day (light_hour). The clock,
+## the parts of the day, routines and every request's hours stay as they are.
+const SUNRISE := 6.0
+const SUNSET := 20.0
+static var sunrise := SUNRISE
+static var sunset := SUNSET
+
+static func light_hour(hour: float) -> float:
+	var h := fposmod(hour, 24.0)
+	if sunrise == SUNRISE and sunset == SUNSET: return h
+	if h < sunrise: return h / sunrise * SUNRISE
+	if h < sunset: return SUNRISE + (h - sunrise) / (sunset - sunrise) * (SUNSET - SUNRISE)
+	return SUNSET + (h - sunset) / (24.0 - sunset) * (24.0 - SUNSET)
+
 ## Colours and energies for a moment of the day, blended smoothly between keyframes.
 static func sample(hour: float) -> Dictionary:
-	var h := fposmod(hour, 24.0)
+	var h := light_hour(hour)
 	var i := 0
 	while i < KEYS.size() - 2 and h >= float(KEYS[i + 1][0]): i += 1
 	var a: Array = KEYS[i]; var b: Array = KEYS[i + 1]
@@ -41,7 +57,7 @@ static func sample(hour: float) -> Dictionary:
 
 ## How much it is night (0 day .. 1 night), for stars, the moon and lit windows.
 static func nightness(hour: float) -> float:
-	var h := fposmod(hour, 24.0)
+	var h := light_hour(hour)
 	if h >= 7.0 and h <= 19.0: return 0.0
 	if h > 19.0 and h < 21.5: return smoothstep(19.0, 21.5, h)
 	if h > 4.5 and h < 7.0: return 1.0 - smoothstep(4.5, 7.0, h)
@@ -54,14 +70,14 @@ static var sun_peak := SUN_PEAK
 
 ## Direction towards the sun (it rises in the east at 6:00, is highest at 13:00, sets in the west at 20:00).
 static func sun_dir(hour: float) -> Vector3:
-	var t := (fposmod(hour, 24.0) - 6.0) / 14.0            # 0 at sunrise, 1 at sunset
+	var t := (light_hour(hour) - 6.0) / 14.0            # 0 at sunrise, 1 at sunset
 	var elev := sin(clampf(t, -0.2, 1.2) * PI) * deg_to_rad(sun_peak)
 	var az := lerpf(deg_to_rad(100.0), deg_to_rad(260.0), t)  # east (x+) round the south (z+) to the west
 	return Vector3(sin(az) * cos(elev), sin(elev), -cos(az) * cos(elev)).normalized()
 
 ## Direction towards the moon (up through the night, opposite the sun's path).
 static func moon_dir(hour: float) -> Vector3:
-	var t := fposmod(fposmod(hour, 24.0) - 20.0, 24.0) / 10.0   # 0 at 20:00, 1 at 6:00
+	var t := fposmod(light_hour(hour) - 20.0, 24.0) / 10.0   # 0 at 20:00, 1 at 6:00 (of the light's day)
 	var elev := sin(clampf(t, -0.1, 1.1) * PI) * deg_to_rad(48.0)
 	var az := lerpf(deg_to_rad(110.0), deg_to_rad(250.0), t)
 	return Vector3(sin(az) * cos(elev), maxf(0.05, sin(elev)), -cos(az) * cos(elev)).normalized()
@@ -80,13 +96,16 @@ static func light_dir(hour: float) -> Vector3:
 ## Each 4-hour slot gets a weather type; the last hour of a slot blends into the next, so changes are gradual.
 const SLOT_MINUTES := 240.0
 const BLEND_MINUTES := 60.0
+## "snow" never comes by itself: a request brings it (Daylight.force; a finale's surprise), and it leaves a light
+## white dusting on the ground and the roofs while it falls (the shader global world_snow, set by Atmosphere).
 const WEATHER := {
-	"clear": {"clouds": 0.12, "rain": 0.0, "fog": 0.0, "sun": 1.0},
-	"fair": {"clouds": 0.4, "rain": 0.0, "fog": 0.0, "sun": 0.95},
-	"cloudy": {"clouds": 0.78, "rain": 0.0, "fog": 0.12, "sun": 0.6},
-	"drizzle": {"clouds": 0.86, "rain": 0.35, "fog": 0.18, "sun": 0.48},
-	"rain": {"clouds": 0.95, "rain": 0.9, "fog": 0.28, "sun": 0.38},
-	"mist": {"clouds": 0.3, "rain": 0.0, "fog": 0.8, "sun": 0.75},
+	"clear": {"clouds": 0.12, "rain": 0.0, "fog": 0.0, "sun": 1.0, "snow": 0.0},
+	"fair": {"clouds": 0.4, "rain": 0.0, "fog": 0.0, "sun": 0.95, "snow": 0.0},
+	"cloudy": {"clouds": 0.78, "rain": 0.0, "fog": 0.12, "sun": 0.6, "snow": 0.0},
+	"drizzle": {"clouds": 0.86, "rain": 0.35, "fog": 0.18, "sun": 0.48, "snow": 0.0},
+	"rain": {"clouds": 0.95, "rain": 0.9, "fog": 0.28, "sun": 0.38, "snow": 0.0},
+	"mist": {"clouds": 0.3, "rain": 0.0, "fog": 0.8, "sun": 0.75, "snow": 0.0},
+	"snow": {"clouds": 0.82, "rain": 0.0, "fog": 0.3, "sun": 0.55, "snow": 1.0},
 }
 
 static func slot_index(t: Dictionary) -> int: return int(t.day) * 6 + int(float(t.minute) / SLOT_MINUTES)
@@ -113,12 +132,16 @@ static func force(state: Dictionary, type: String, hours: float) -> void:
 
 static func allowed_here() -> Array: return Data.island_def(Data.island).get("look", {}).get("weather", [])
 
+## How often the early morning (4:00-8:00) is misty: a look's "mist" (a city in the Po valley fog, most mornings).
+const MIST_ODDS := 0.25
+static var mist_odds := MIST_ODDS
+
 static func _slot_weather(slot: int) -> String:
 	var day := int(slot / 6); var part := slot % 6
 	if day <= 1: return "clear" if part < 4 else "fair"
 	var x := sin(slot * 12.9898 + 4.1414) * 43758.5453
 	var r := x - floorf(x)
-	if part == 1 and r < 0.25: return "mist"   # 4:00–8:00
+	if part == 1 and r < mist_odds: return "mist"   # 4:00–8:00
 	if r < 0.36: return "clear"
 	if r < 0.66: return "fair"
 	if r < 0.82: return "cloudy"

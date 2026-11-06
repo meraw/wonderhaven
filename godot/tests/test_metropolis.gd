@@ -147,3 +147,238 @@ func test_ids_carry_the_location_prefix():
 		for k in Data.layout.nav_nodes:
 			if not String(k).contains(":"): t.ok(String(k).begins_with(P), "nav spot %s" % k)
 		t.eq(Data.island_def("metropolis").get("reveal", ""), "rice_village_trainStops", "the map entry opens when the regional train stops at the rice village again"))
+
+# ---- Stage 3: people, requests, gathering and the evening paper --------------------------------------------------
+
+func test_villagers_and_requests_hang_together():
+	_on(func():
+		var people: Array = Data.npcs.filter(func(n): return n.get("island", "") == "metropolis")
+		t.eq(people.size(), 13, "thirteen villagers live in Toriano")
+		for n in people:
+			t.ok(String(n.id).begins_with(P), "villager %s has the prefix" % n.id)
+			t.ok(Data.layout.nav_nodes.has(n.home), "%s's home %s is a nav spot" % [n.id, n.home])
+			var rows: Array = n.schedule.duplicate()
+			for w in n.get("when", []): rows.append_array(w.schedule)
+			t.ok(rows.all(func(r): return Data.layout.nav_nodes.has(r[2])), "%s's routine only goes to nav spots" % n.id)
+			t.ok(rows.all(func(r): return not String(r[2]).begins_with(P + "bal_")), "%s doesn't stand about on number 14's balcony, where they'd block the way home" % n.id)
+			t.ok(n.likes.all(func(i): return Data.resources.has(i)), "%s likes real things" % n.id)
+		var qs: Array = Data.quests.filter(func(q): return String(q.id).begins_with(P))
+		t.eq(qs.size(), 19, "nineteen requests")
+		t.eq(qs.filter(func(q): return q.get("main", false)).size(), 6, "six of them the main story")
+		var made := {}   # every flag something sets
+		for q in qs:
+			for f in q.get("rewards", {}).get("flags", []) + q.get("onAccept", {}).get("flags", []): made[f] = true
+			for o in q.objectives:
+				for f in o.get("onDone", {}).get("flags", []): made[f] = true
+		for m in LocationMeter.def("metropolis").get("milestones", []):
+			for f in m.get("flags", []): made[f] = true
+		var machines: Array = Data.layout.machines.map(func(m): return m.id)
+		for q in qs:
+			t.ok(Data.npc(q.giver).get("island", "") == "metropolis", "%s is asked by a Toriano villager" % q.id)
+			for f in q.get("requires", {}).get("flags", []): t.ok(made.has(f), "%s waits for %s, which something sets" % [q.id, f])
+			for o in q.objectives:
+				if o.has("npc"): t.ok(not Data.npc(o.npc).is_empty(), "%s/%s: %s exists" % [q.id, o.id, o.npc])
+				if o.has("zone"): t.ok(not Data.zone(o.zone).is_empty(), "%s/%s: site %s exists" % [q.id, o.id, o.zone])
+				if o.kind == "gather": t.ok(Data.resources.has(o.item), "%s/%s gathers a real item" % [q.id, o.id])
+				if o.kind == "pay": t.ok(o.items.keys().all(func(k): return Data.resources.has(k)), "%s/%s pays with real things" % [q.id, o.id])
+				if o.kind == "flag": t.ok(made.has(o.flag) or o.flag == P + "on_roof", "%s/%s waits for a flag that gets set" % [q.id, o.id])
+				if o.kind == "build" and String(o.check).begins_with("fed:"): t.ok(machines.has(String(o.check).substr(4)), "%s: the machine target exists" % q.id)
+				if o.kind == "build" and String(o.check).begins_with("path:"): t.ok(Data.zone(String(o.check).substr(5)).has("endpoints"), "%s: the path's site has endpoints" % q.id)
+			for b in q.get("onAccept", {}).get("blueprints", []) + q.get("rewards", {}).get("blueprints", []): t.ok(not Data.piece(b).is_empty(), "%s hands out real plans (%s)" % [q.id, b])
+		var inches := 0
+		for q in qs: inches += int(q.rewards.get("meter", 0))
+		t.ok(qs.all(func(q): return int(q.rewards.get("harmony", 0)) == 0), "and none of them raise the Sindaco's approval rating")
+		t.ok(inches > 120, "more column inches on offer (%d) than the front page needs" % inches)
+		for sid in Data.shops.shops:
+			if String(sid).begins_with(P): t.ok(Data.npc(sid).get("island", "") == "metropolis", "shop %s belongs to a Toriano villager" % sid))
+
+func test_villagers_keep_out_of_each_others_way():
+	# two people on the same spot at the same hour can't both be reached (you talk to whoever's nearer), at every
+	# point in the story: before Augusto meets you, after, once you've settled in, on Christmas Eve and after it
+	_on(func():
+		var people: Array = Data.npcs.filter(func(n): return n.get("island", "") == "metropolis")
+		var stages := [{}, {P + "met": true}, {P + "met": true, P + "settled": true}, {P + "met": true, P + "settled": true, P + "christmas_eve": true},
+			{P + "met": true, P + "settled": true, P + "christmas_eve": true, P + "angel_lit": true}]
+		var clashes: Array = []
+		for flags in stages:
+			for m in range(0, 24 * 60, 30):
+				var at := {}
+				for n in people:
+					var a := Schedule.activity_at(n, m + 15.0, flags)
+					if a.activity == "sleep": continue
+					if at.has(a.node): clashes.append("%s and %s at %s at %02d:%02d (%s)" % [at[a.node], n.id, a.node, m / 60, m % 60 + 15, flags.keys()])
+					at[a.node] = n.id
+		t.ok(clashes.is_empty(), "nobody shares a spot: %s" % [clashes.slice(0, 4)]))
+
+func test_the_flat_comes_with_what_it_needs():
+	_on(func():
+		var q := Data.quest(P + "flat")
+		var need := {}
+		for id in ["bed", "table", "chair", "lamp"]:
+			for k in Data.piece(id).cost: need[k] = int(need.get(k, 0)) + int(Data.piece(id).cost[k])
+		var given: Dictionary = q.onAccept.get("items", {})
+		var materials: Array = need.keys().filter(func(k): return k != "coins")
+		t.ok(materials.all(func(k): return int(given.get(k, 0)) >= need[k]), "the Balcony Flat hands you the materials to furnish it (%s for %s)" % [given, need])
+		# the bed is bought with lire (beds are dear), out of what you arrive with from the villages, after the rent
+		var arrived: Dictionary = Progress.as_if_played(["hearthglow", "river_town", "rice_village"], "metropolis", "Pip")
+		var rent := 0
+		for o in q.objectives:
+			if o.kind == "pay": rent += int(o.items.get("coins", 0))
+		var lire := int(arrived.inventory.get("coins", 0)) - rent
+		t.ok(lire >= int(need.get("coins", 0)), "and you can pay for the bed out of the lire you arrive with, after the rent (%d left for %d)" % [lire, int(need.get("coins", 0))]))
+
+func test_the_evening_paper():
+	_on(func():
+		t.ok(not LocationMeter.def("metropolis").is_empty(), "Toriano has its own meter")
+		var ms: Array = LocationMeter.def("metropolis").get("milestones", [])
+		t.eq(ms.map(func(m): return int(m.at)), [10, 25, 45, 70, 90, 120], "six milestones")
+		t.eq(ms.back().get("requires", {}).get("quests", []), [P + "angel"], "the front page waits for the Golden Angel")
+		var roof := Data.zone(P + "roof_terrace")
+		t.eq(int(roof.expanded.harmony), 70, "your weekly column widens the roof terrace")
+		var s := GameState.new_game()
+		s.harmony = 999
+		t.ok(not BuildGrid.zone_contains(roof, -30, 123, LocationMeter.progress(s, "metropolis")), "approval earned elsewhere doesn't grow it")
+		LocationMeter.add(s, "metropolis", 70)
+		t.ok(BuildGrid.zone_contains(roof, -30, 123, LocationMeter.progress(s, "metropolis")), "column inches do"))
+
+func test_gathering_spots_are_where_they_can_be_used():
+	_on(func():
+		var nodes: Array = Data.layout.nodes
+		var count := func(kind: String) -> int: return nodes.filter(func(n): return n.kind == kind).size()
+		t.ok(count.call("chop") >= 6 and count.call("mine") >= 4 and count.call("fish") >= 4 and count.call("bin") >= 5 and count.call("flowers") >= 3, "trees, marble, fishing spots, skips and flower beds")
+		for n in nodes:
+			t.ok(String(n.id).begins_with(P), "node %s has the prefix" % n.id)
+			var b: Array = Data.layout.buildings.filter(func(x): return x.get("solid", true) and absf(n.x - x.x) < x.w / 2.0 and absf(n.z - x.z) < x.d / 2.0)
+			t.ok(b.is_empty(), "%s isn't inside a building" % n.id)
+			if n.kind == "fish":
+				var ahead := Vector2(n.x + sin(n.facing) * 3.0, n.z + cos(n.facing) * 3.0)
+				t.ok(not Heightfield.is_water(n.x, n.z) and Heightfield.is_water(ahead.x, ahead.y), "%s stands on the quay and casts into the water" % n.id)
+			else: t.ok(not Heightfield.is_water(n.x, n.z), "%s is on dry ground" % n.id)
+			if n.kind == "chop": t.ok(n.x < -88 and n.z < -98, "%s is a plane tree in the park" % n.id)
+		t.eq(nodes.filter(func(n): return n.get("gives", {}).has(P + "score_page") and n.get("hours", []).map(func(h): return int(h)) == [20, 6]).size(), 8, "eight score pages, out only at night")
+		t.ok(nodes.filter(func(n): return n.kind == "dig" and n.get("gives", {}).has(P + "roman")).size() >= 3, "Roman finds at the building sites")
+		t.ok(Data.layout.fish.all(func(c): return Data.resources.has(c.get("item", "fish"))), "everything the canal gives is a real item")
+		t.ok(Data.layout.fish.any(func(c): return c.get("item", "") == P + "bicycle"), "including old bicycles"))
+
+## The builds the playthrough makes (and a player might), checked with the shared rules: each piece can go where it
+## goes, and the request's check passes.
+func _build(zone_id: String, list: Array) -> Array:
+	var placed: Array = []
+	var zone := Data.zone(zone_id)
+	var statics := WorldStatics.build_statics(WorldStatics.generate_decor())
+	for e in list:
+		var pl := {"uid": placed.size() + 1, "id": e[0], "i": float(e[1]), "k": float(e[2]), "r": int(e[3]) if e.size() > 3 else 0}
+		pl["y"] = BuildGrid.suggest_bottom(pl.id, pl.i, pl.k, pl.r, float(e[4]) if e.size() > 4 else 10.0, placed, zone)
+		var v := BuildGrid.validate_placement(pl, {"placements": placed, "zones": [zone], "statics": statics, "bodies": []})
+		t.ok(v.ok, "%s: %s at %d,%d (%s)" % [zone_id, pl.id, pl.i, pl.k, v.get("reason", "")])
+		if v.ok: placed.append(pl)
+	return placed
+
+func test_the_footbridge_and_the_scaffolding_can_be_built_and_walked():
+	_on(func():
+		var bridge := _build(P + "footbridge", [["bridgeDeck", -113, 135, 0, 0.4], ["bridgePost", -110, 135, 0, 0.2], ["bridgeDeck", -110, 135, 0, 0.2], ["bridgeDeck", -111, 135, 0, 0.2], ["bridgeDeck", -112, 135, 0, 0.2], ["bridgeDeck", -109, 135, 0, 0.2],
+			["bridgePost", -107, 135, 0, 0.2], ["bridgeDeck", -107, 135, 0, 0.2], ["bridgeDeck", -108, 135, 0, 0.2], ["bridgeDeck", -106, 135, 0, 0.2],
+			["bridgePost", -104, 135, 0, 0.2], ["bridgeDeck", -104, 135, 0, 0.2], ["bridgeDeck", -105, 135, 0, 0.2], ["bridgeDeck", -103, 135, 0, 0.2], ["bridgeDeck", -102, 135, 0, 0.4]])
+		var w := _world()
+		t.ok(not Validate.path_across(Data.zone(P + "footbridge"), w).ok, "no way across the Naviglio before")
+		w.surfaces = BuildGrid.surfaces_for(bridge)
+		t.ok(Validate.path_across(Data.zone(P + "footbridge"), w).ok, "posts in the canal bed and planks across make a path")
+		var climb: Array = []
+		for n in 6:
+			for b in n: climb.append(["stoneBlock", 75 - n, 10, 0, 0.3 + b])
+			climb.append(["stairs", 75 - n, 10, 3, 0.3 + n])
+		var scaffold := _build(P + "scaffold", climb)
+		t.ok(not Validate.path_across(Data.zone(P + "scaffold"), _world()).ok, "no way up the cathedral before")
+		w = _world(); w.surfaces = BuildGrid.surfaces_for(scaffold)
+		t.ok(Validate.path_across(Data.zone(P + "scaffold"), w).ok, "a stair on stacked blocks reaches the roof terrace through the parapet's gap")
+		var pos := Vector3(76.6, 0.3, 10.5)
+		for n in 120: pos = w.step_move(pos, -0.1, 0.0).pos
+		t.ok(pos.x < 69.0 and absf(pos.y - 6.3) < 0.1, "and the walker climbs it onto the terrace (at %s)" % pos))
+
+func test_the_crane_and_the_angel_can_be_driven():
+	_on(func():
+		var wheel := _build(P + "crane", [["waterwheel", -145, 100, 0], ["shaft", -145, 99, 0]])
+		t.ok(Mechanics.solve(wheel, Data.layout.machines).fed.get(P + "crane", false), "a waterwheel in the canal and a shaft drive the crane")
+		var mill := _build(P + "terrace", [["windmill", 52, 9, 2, 7.0], ["shaft", 52, 8, 0, 7.0]])
+		t.ok(mill.all(func(p): return absf(p.y - 6.3) < 0.01), "on the roof terrace, 6.3 m up")
+		t.ok(Mechanics.solve(mill, Data.layout.machines).fed.get(P + "angel", false), "a windmill and a shaft drive the Golden Angel's floodlight"))
+
+func test_the_pigeons_in_the_square():
+	var Life = load("res://scripts/locations/metropolis/life.gd")
+	t.ok(Life.FLOCKS * Life.PIGEONS >= 100, "pigeons by the hundred (%d)" % (Life.FLOCKS * Life.PIGEONS))
+	t.ok(Life.PIGEON_SPOTS.size() > Life.FLOCKS, "more spots than flocks, so a flock always has somewhere to go")
+	var a := Vector2(-8, -20)
+	t.ok(Life.startled(a, a + Vector2(3, 0)), "a flock takes off when you walk up to it")
+	t.ok(not Life.startled(a, a + Vector2(12, 0)), "and stays put while you're further off")
+	var to: Vector2 = Life.landing(Life.PIGEON_SPOTS, [Vector2(5, 6)], a + Vector2(-2, 0), a)
+	t.ok(to != a and to != Vector2(5, 6), "it lands somewhere else, not on another flock's spot")
+	for s in Life.PIGEON_SPOTS:
+		if s != a and s != Vector2(5, 6): t.ok((s as Vector2).distance_to(a) <= to.distance_to(a + Vector2(-2, 0)) + 30.0 and to.distance_to(a + Vector2(-2, 0)) >= (s as Vector2).distance_to(a + Vector2(-2, 0)) - 0.001, "it picks the free spot farthest from you (%s)" % to)
+	var off := Vector2(1.0, 0.5)
+	var p0: Vector3 = Life.wheel(a, to, off, 0.3, 0.0)
+	var p1: Vector3 = Life.wheel(a, to, off, 0.3, 1.0)
+	t.ok(Vector2(p0.x, p0.z).distance_to(a + off) < 0.01 and absf(p0.y) < 0.01, "a bird takes off from its own place")
+	t.ok(Vector2(p1.x, p1.z).distance_to(to + off) < 0.01 and absf(p1.y) < 0.01, "and lands in its place at the new spot")
+	t.ok(Life.wheel(a, to, off, 0.3, 0.5).y > 3.0, "wheeling round well up in the air on the way")
+	_on(func():
+		for s in Life.PIGEON_SPOTS:
+			t.ok((s as Vector2).distance_to(Vector2(-24, -8)) > 7.0, "spot %s is clear of the Christmas tree and the crowd round it" % s)
+			for b in Data.layout.buildings:
+				t.ok(absf(s.x - b.x) > b.w / 2.0 + 1.5 or absf(s.y - b.z) > b.d / 2.0 + 1.5, "spot %s is out in the square, not in %s" % [s, b.id]))
+
+func test_passers_by_keep_to_the_streets():
+	var PB = load("res://scripts/locations/metropolis/passersby.gd")
+	for id in ["metropolis_home:spot", "metropolis_bal_e_home", "metropolis_courtyard", "metropolis_site_a_mid", "metropolis_terrace_w"]:
+		t.ok(not PB.street_node(id), "%s isn't a street" % id)
+	t.ok(PB.street_node("metropolis_sq") and PB.street_node("metropolis_bars_quay"), "the square and the quays are")
+	var graph := {"a": ["b"], "b": ["a", "c", "d"], "c": ["b"], "d": ["b"]}
+	var r: Array = PB.route(graph, "a", 5, func(n): return 0)
+	t.eq(r.slice(0, 3), ["a", "b", "c"], "a walk follows the streets, never straight back the way it came")
+	for i in 30:
+		var app: Dictionary = Chibi.sanitize(PB.appearance(i))
+		var raw: Dictionary = PB.appearance(i)
+		t.ok(app.top == raw.top and app.bottom == raw.bottom and app.hat == raw.hat, "passer-by %d wears real clothes (%s, %s)" % [i, raw.top, raw.bottom])
+	_on(func():
+		var streets := 0
+		for id in Data.layout.nav_nodes:
+			if PB.street_node(id): streets += 1
+		t.ok(streets > 40, "plenty of streets to walk (%d spots)" % streets))
+
+func test_traffic_queues_on_the_tram_line():
+	var Trams = load("res://scripts/locations/metropolis/trams.gd")
+	t.eq(Trams.room_ahead(10.0, 2.0, [], 400.0), INF, "alone on the line, nothing ahead")
+	t.ok(absf(Trams.room_ahead(10.0, 2.0, [[30.0, 6.0]], 400.0) - (20.0 - 8.0 - Trams.GAP)) < 0.001, "a car keeps its distance behind a tram")
+	t.ok(Trams.room_ahead(10.0, 2.0, [[19.0, 6.0]], 400.0) <= 0.0, "and waits behind one that's stopped close ahead")
+	t.ok(Trams.room_ahead(395.0, 2.0, [[5.0, 2.0]], 400.0) > 0.0, "round the end of the loop too")
+	t.ok(Trams.room_ahead(30.0, 2.0, [[10.0, 6.0]], 400.0) > 300.0, "the one behind doesn't hold it up")
+
+func test_the_cathedral_strikes_the_hour():
+	var Life = load("res://scripts/locations/metropolis/life.gd")
+	t.eq(Life.strikes(9), 9, "nine strokes at nine")
+	t.eq(Life.strikes(12), 12, "twelve at noon")
+	t.eq(Life.strikes(17), 5, "five at five")
+	t.eq(Life.strikes(3), 0, "and quiet in the night")
+	t.eq(Life.strikes(23), 0, "")
+
+func test_winter_outfits():
+	_on(func():
+		for n in Data.npcs.filter(func(x): return x.get("island", "") == "metropolis"):
+			var a: Dictionary = n.appearance
+			var clean: Dictionary = Chibi.sanitize(a)
+			for slot in ["top", "hat", "accessory", "bottom"]:
+				t.eq(clean[slot], a[slot], "%s's %s (%s) is a real piece of clothing" % [n.id, slot, a[slot]])
+		t.eq(Data.npc("metropolis_annoni").appearance.top, "metropolis_camelcoat", "the Architetto wears her long camel coat")
+		t.eq(Data.npc("metropolis_rocco").appearance.hat, "helmet", "Rocco his white helmet")
+		var given: Array = []
+		for m in LocationMeter.def("metropolis").milestones:
+			given.append_array(m.get("clothes", []))
+		given.append_array(Data.quest("metropolis_chiara").rewards.get("clothes", []))
+		for g in Data.npc("metropolis_rocco").gifts: given.append_array(g.get("clothes", []))
+		for c in ["longcoat", "metropolis_camelcoat", "metropolis_redscarf", "metropolis_padded", "helmet"]:
+			t.ok(given.has(c), "%s is something you can earn in Toriano" % c)
+			t.ok(Data.appearance.get("locked", {}).has(c), "and it's locked until then (%s)" % Data.appearance.get("locked", {}).get(c, "-"))
+		var coat := Chibi.new(Chibi.sanitize({"top": "longcoat", "topColor": "#b48a5a", "hat": "helmet", "hatColor": "#f6f6f2"}))
+		var plain := Chibi.new(Chibi.sanitize({"top": "sweater", "hat": "none"}))
+		t.ok(coat.find_children("*", "MeshInstance3D", true, false).size() > plain.find_children("*", "MeshInstance3D", true, false).size() + 4, "the long coat and the helmet have their own shapes")
+		coat.free(); plain.free())
+

@@ -147,3 +147,6 @@ class Fish:
 				elif progress >= 1.0: done = true; result = "caught"
 				elif t > 25.0: done = true; result = "escaped"
 	func reward() -> Dictionary: return {String(fish.get("item", "fish")): 1} if result == "caught" and String(fish.get("item", "fish")) != "" else {}
+
+## "a Minnow", "an Old Boot".
+static func a_name(name: String) -> String: return ("an " if name.length() > 0 and "AEIOUaeiou".contains(name[0]) else "a ") + name

@@ -42,12 +42,14 @@ const DAY_SONGS := {"dawn": "dawn", "morning": "hearthglow", "afternoon": "after
 
 ## A location can bring its own music: "music" in its map entry (islands.json or a pack's location.json), as
 ## {"songs": {id: song}, "parts": {part of the day or "build": song id}}. Its songs have the shape of SONGS; a part
-## it leaves out keeps the shared tune. "when": [{"flag", "parts"}] changes parts as the story goes on: the first
-## whose flag is set (with `flags`, the story's) wins.
+## it leaves out keeps the shared tune. "when": [{flag, parts}] lets the story change them: the first entry whose
+## flag is set swaps in its parts (sleigh bells on Christmas Eve, a finale's own tune); an empty parts goes back.
 static func song_for(part: String, building: bool, music: Dictionary, flags: Dictionary = {}) -> String:
 	var parts: Dictionary = music.get("parts", {})
 	for w in music.get("when", []):
-		if flags.get(String(w.get("flag", "")), false): parts = parts.merged(w.get("parts", {}), true); break
+		if flags.get(String(w.get("flag", "")), false):
+			parts = parts.merged(w.get("parts", {}), true)
+			break
 	if building: return String(parts.get("build", "build"))
 	return String(parts.get(part, DAY_SONGS.get(part, "hearthglow")))
 
@@ -300,9 +302,10 @@ func update_music(game, dt: float) -> void:
 	amb_t -= dt
 	if amb_t < 0.0:
 		amb_t = 0.8 + randf() * 2.5
-		if game.state.flags.get("night", false):
+		var songbirds: bool = Data.island_def(Data.island).get("look", {}).get("songbirds", true)   # (a look's "songbirds": false: a city in December)
+		if songbirds and game.state.flags.get("night", false):
 			for i in 3: play("chirp", 100, 0.06, sfx_bus, i * 0.07)
-		elif randf() < 0.7:
+		elif songbirds and randf() < 0.7:
 			var base := 93 + randi() % 6
 			for i in 2 + randi() % 3: play("chirp", base + (i % 2) * 3, 0.1, sfx_bus, i * 0.09)
 		var p: Vector3 = game.player.pos
