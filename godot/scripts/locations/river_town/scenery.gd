@@ -11,6 +11,7 @@ extends RefCounted
 const P := preload("res://scripts/world/palette.gd")
 const Mist := preload("res://scripts/locations/river_town/mist.gd")
 const Animals := preload("res://scripts/locations/river_town/animals.gd")
+const Sounds := preload("res://scripts/locations/river_town/sounds.gd")
 
 static var _meshes: Dictionary = {}
 
@@ -31,6 +32,7 @@ static func dress(village: Node3D, rt) -> void:
 	_horizon(village, rt)
 	village.add_child(Mist.make())   # on the water at dawn
 	village.add_child(Animals.make())   # coypus, cormorants, geese and kingfishers
+	var snd: Node = Sounds.new(); snd.name = "river_town_sounds"; village.add_child(snd)   # the two rivers
 
 ## The story so far, as far as the scenery cares (Data.world_flags, the location's WORLD_FLAGS).
 static func _flag(f: String) -> bool: return Data.world_flags.get(f, false)

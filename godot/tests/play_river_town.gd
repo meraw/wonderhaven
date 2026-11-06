@@ -141,6 +141,18 @@ func life_shots() -> void:
 		await wait(1.6)
 		await shot("geese-chase")
 		game.dismount(true)
+	if want.call("the-cast"):   # everyone in their outfits, lined up in the piazza
+		game.state.time.minute = 12.0 * 60.0
+		var k := 0
+		for id in ["ermes", "tullio", "primo", "gildo", "mattia", "wanda", "rina", "ines", "pierina"]:
+			var a = game.npcs[P + id]
+			a.teleport_home(); a.pos = Vector3(1.0 + k * 1.0, Heightfield.height(1.0 + k, 6.0 - absf(k - 4) * 0.25), 6.0 - absf(k - 4) * 0.25); a.yaw = 0.0; a.sync()
+			k += 1
+		game.player.teleport(5.0, 2.0)
+		game.cam.yaw = 0.0; game.cam.pitch = 0.22; game.cam.dist = 9.5; game.cam.limits.explore = [2.0, 120.0, 0.05, 1.5]
+		game.cam.update(0.016, game.player.pos); game.cam.snap()
+		await frames(4)
+		await shot("the-cast")
 	await view(-12.0, 31.0, 1.875, 0.35, 6.0, 17.5, "coypus")
 	await view(8.5, 40.0, -PI * 0.75, 0.3, 6.0, 11.0, "cormorants")
 	var animals = game.village.get_node_or_null("river_town_animals")

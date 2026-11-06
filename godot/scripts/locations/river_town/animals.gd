@@ -21,6 +21,7 @@ var kingfishers: Array = []
 var t := 0.0
 var chase := 0.0     # seconds the geese have been chasing (0: not chasing)
 var calm := 0.0      # seconds before they'll chase again
+var honk := false    # the geese have just started after you: honk
 
 static func make() -> Node3D:
 	var a: Node3D = load("res://scripts/locations/river_town/animals.gd").new()
@@ -151,6 +152,9 @@ func _process(dt: float) -> void:
 	_coypus(dt, p2)
 	_cormorants(dt, p2, day)
 	_geese(dt, p2, bool(g.player.get("riding")))
+	if honk:
+		honk = false
+		if g.get("audio"): g.audio.play("rasp", 58, 0.22); g.audio.play("rasp", 62, 0.18, -1, 0.2); g.audio.play("rasp", 57, 0.16, -1, 0.55)
 	_kingfishers(dt, day)
 
 func _coypus(dt: float, p2: Vector2) -> void:
@@ -211,7 +215,7 @@ func _geese(dt: float, p2: Vector2, riding: bool) -> void:
 	calm = maxf(0.0, calm - dt)
 	var from_home := p2.distance_to(GEESE_HOME)
 	if chase <= 0.0 and calm <= 0.0 and riding and from_home < GEESE_SEE:
-		chase = 0.01
+		chase = 0.01; honk = true
 	elif chase > 0.0:
 		chase += dt
 		if chase > 6.0 or from_home > GEESE_GIVE_UP: chase = 0.0; calm = 20.0

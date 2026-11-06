@@ -411,7 +411,7 @@ bicycles (4b), and the music, sounds and outfits (4c).
   poplar leaves falling, and clear blue-green water colours for the Alpine river.
 - **A thin mist on the water at dawn only**, gone by half past nine (`river_town/mist.gd`).
 
-**Stage 4b, ambient life** (this stage):
+**Stage 4b, ambient life** (in review):
 - **Villagers on bicycles** (a small shared change: `"bike"` in a villager's npcs.json entry, `Bicycle.villager_rides`,
   and the villager walker). Pierina rides her blue post bike with basket and rack, Primo his old green racer, Mattia,
   Ines and Wanda theirs. They ride on long routes outdoors, get off near where they're going, indoors and on stairs,
@@ -421,6 +421,21 @@ bicycles (4b), and the music, sounds and outfits (4c).
   loop if you come near. The farm's geese peck about outside the gate and come after you, necks out, if you ride past
   on your bike. Kingfishers sit on willow twigs over the Alpine river and dart along it, low over the water. Cats
   wait by Gildo's shack and the fishing spot for his catch, and outside Rina's bar (the shared cats: pet them).
+
+**Stage 4c, music, sounds and outfits** (this stage):
+- **The dance-hall music** (Boccapioppo's own songs in `location.json`): a lazy waltz at dawn, bouncy polkas by day, a
+  mazurka in the evening and a slow tango at night, played on an accordion, a clarinet and a double bass. Thin and quiet
+  while the dance hall is wrecked (the melody and the bass), fuller once it reopens, and then the hall's own waltz in
+  the evenings. This needed three new shared instruments, bars of other lengths (`bar`, for 3/4) and music that changes
+  with a story flag (`"when"`).
+- **The two rivers** (`river_town/sounds.gd`): the Alpine river rushing bright over its pebbles, louder as you get
+  near it; the Po a low, slow hiss with water lapping at the bank. You can hear which one you're beside.
+- **Bicycles:** villagers ring their bell riding past you (4b), and your freewheel ticks when you stop pedalling
+  (shared). The geese honk when they come after you.
+- **The cast's outfits:** Ermes in his warden's oilskin and peaked cap, Primo in his grey work coat, Mattia in jeans
+  with his Walkman, Rina in a black waistcoat over a white blouse, Ines in a red shirt and a sawmill apron, Pierina in
+  yellow with her old leather post bag. Three of these are Boccapioppo's own clothes (`appearance.json`): Ermes, Ines
+  and Pierina give you one each when you become good friends (6 hearts).
 
 ## Checks for every stage
 `godot/run_tests.sh`, `npm test` and `npm run build`; screenshots of Boccapioppo in both renderers
