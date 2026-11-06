@@ -132,6 +132,10 @@ func _ready() -> void:
 		begin_play()
 		if Data.rebuilding: Data.rebuilding = false; cam.update(0.016, player.pos); cam.snap(); _fade(false)   # rebuilt where you stand
 		else: _arrived()
+		# a message from before the reload (loading a save made in another place: Screens.continue_from, load_from)
+		var msg: Array = Data.pending_message; Data.pending_message = []
+		if msg.size() >= 2: banner(msg[0], msg[1])
+		elif msg.size() == 1: toast(msg[0], "good")
 	elif screens and ((not shot_cfg.has("autoplay") and not shot_cfg.has("skiptitle")) or shot_cfg.has("title")): screens.title()
 	else: begin_play()
 	if shot_cfg.has("autoplay") and not Data.autoplay_started:
@@ -512,6 +516,7 @@ func load_from(slot: String) -> bool:
 	var s := SaveSystem.read(slot)
 	if s.is_empty(): toast("That save is empty", "warn"); return false
 	load_state(s)
+	if traveling: Data.pending_message = ["📂 Game loaded"]; return true   # the scene reloads for another place: it says so
 	toast("📂 Game loaded", "good")
 	return true
 

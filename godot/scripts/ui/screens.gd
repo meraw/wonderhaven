@@ -65,9 +65,13 @@ func continue_from(slot: String) -> void:
 	if s.is_empty(): game.toast("That save could not be read", "warn"); return
 	_close()
 	game.player_char.visible = true
+	var welcome := ["Welcome back, %s!" % s.name, "Day %d in %s" % [int(s.time.day), Data.island_def(String(s.get("island", Data.island))).get("name", "")]]
 	game.load_state(s)
+	# A save made in another place reloads the scene for it: this screen is on its way out, so the new one shows the
+	# welcome (it used to be drawn here after the reload had begun, a script error that stops the game in the editor).
+	if game.traveling: Data.pending_message = welcome; return
 	game.begin_play()
-	game.banner("Welcome back, %s!" % s.name, "Day %d in %s" % [int(s.time.day), Data.island_def(Data.island).get("name", "")])
+	game.banner(welcome[0], welcome[1])
 
 func _close() -> void:
 	_clear(); visible = false; mouse_filter = Control.MOUSE_FILTER_IGNORE
