@@ -118,6 +118,20 @@ static func _rests_on(pl: Dictionary, q: Dictionary) -> bool:
 static func _over_water(pl: Dictionary) -> bool:
 	for c in cells(pl):
 		if ground_at(c.x, c.y) < Heightfield.WALKABLE_MIN: return true
+	return _edge_over_water(pl)
+
+## A piece that stands on one edge of its cell (a railing, a wall, a fence): is any of that edge over water? The cell's
+## middle can be dry bank while its edge is already in the stream.
+static func _edge_over_water(pl: Dictionary) -> bool:
+	var d := def(pl.id)
+	if not d.get("edge", false): return false
+	var r := rect_of(d, pl)
+	var cx: float = (r.minX + r.maxX) / 2.0; var cz: float = (r.minZ + r.maxZ) / 2.0
+	var along_x: bool = r.maxX - r.minX >= r.maxZ - r.minZ
+	for t in [-0.4, 0.0, 0.4]:
+		var x: float = cx + (t * (r.maxX - r.minX) if along_x else 0.0)
+		var z: float = cz + (0.0 if along_x else t * (r.maxZ - r.minZ))
+		if maxf(Heightfield.height(x, z), WorldStatics.floor_top(x, z)) < Heightfield.WALKABLE_MIN: return true
 	return false
 
 static func _base_supported(pl: Dictionary, placements: Array, sup: Dictionary, env: Dictionary) -> bool:

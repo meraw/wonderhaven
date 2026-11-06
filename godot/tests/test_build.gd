@@ -170,3 +170,30 @@ func test_bus_turnaround():
 	var walk := WalkWorld.new(statics)
 	walk.surfaces = BuildGrid.surfaces_for(list)
 	t.ok(walk.surface_at(float(z.minI) + 2.5, float(z.minK) + 1.5).walkable, "you can walk on the paving")
+
+func test_no_railings_in_the_water():
+	# On the banks of Aldo's crossing a cell can be dry in the middle while one edge is already over the stream: a
+	# railing on that edge would stand in the water, so it's refused; on its dry edges it's fine.
+	var z := Data.zone("bridge")
+	var ctx := {"placements": [], "zones": [z], "statics": [], "bodies": []}
+	var wet_edge := 0
+	var dry_ok := 0
+	for i in range(int(z.minI), int(z.maxI) + 1):
+		for k in range(int(z.minK), int(z.maxK) + 1):
+			if BuildGrid.ground_at(i, k) < Heightfield.WALKABLE_MIN: continue   # the cell itself is water
+			for r in 4:
+				var pl := {"uid": 1, "id": "railing", "i": i, "k": k, "r": r, "y": 0.0}
+				pl.y = BuildGrid.suggest_bottom("railing", i, k, r, 5.0, [], z)
+				var b := BuildGrid.rect_of(Data.piece("railing"), pl)
+				var mid := Vector2((b.minX + b.maxX) / 2.0, (b.minZ + b.maxZ) / 2.0)
+				var wet := false
+				for t in [-0.4, 0.0, 0.4]:
+					var p := mid + (Vector2(t * (b.maxX - b.minX), 0.0) if b.maxX - b.minX > b.maxZ - b.minZ else Vector2(0.0, t * (b.maxZ - b.minZ)))
+					if Heightfield.height(p.x, p.y) < Heightfield.WALKABLE_MIN: wet = true
+				var v := BuildGrid.validate_placement(pl, ctx)
+				if wet:
+					wet_edge += 1
+					t.ok(not v.ok, "a railing at (%d, %d) turned %d would stand in the stream: refused" % [i, k, r])
+				elif v.ok: dry_ok += 1
+	t.ok(wet_edge > 0, "the banks have cells with a wet edge (%d railings checked)" % wet_edge)
+	t.ok(dry_ok > 0, "railings on dry edges are still allowed (%d)" % dry_ok)
