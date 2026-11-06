@@ -144,7 +144,8 @@ func life_shots() -> void:
 	await view(-12.0, 31.0, 1.875, 0.35, 6.0, 17.5, "coypus")
 	await view(8.5, 40.0, -PI * 0.75, 0.3, 6.0, 11.0, "cormorants")
 	var animals = game.village.get_node_or_null("river_town_animals")
-	if animals: for k in animals.kingfishers: k.wait = 60.0; k.fly = -1.0; k.at = 0   # sitting for its picture
+	if animals:   # each on its own perch, sitting for its picture
+		for i in animals.kingfishers.size(): animals.kingfishers[i].merge({"wait": 60.0, "fly": -1.0, "at": i}, true)
 	await view(22.6, -28.2, -0.9, 0.18, 2.6, 9.0, "kingfisher")
 
 func walk_around() -> void:
