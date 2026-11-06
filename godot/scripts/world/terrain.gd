@@ -228,7 +228,9 @@ void fragment() {
 	float wet = world_weather.z;
 	float graze = pow(1.0 - clamp(normalize(CAMERA_POSITION_WORLD - wpos).y, 0.0, 1.0), 2.0);   // puddles mirror more at a low angle
 	vec3 sky_seen = mix(world_sky_horizon, world_sky_zenith, 0.45) * 0.85;
-	vec3 c0 = COLOR.rgb;
+	// (never below zero: with MSAA a pixel at a triangle's edge reads its colours from just outside it, and pow() of a
+	// negative number is NaN, which the glow spreads into a black square)
+	vec3 c0 = max(COLOR.rgb, vec3(0.0));
 	vec3 col = mix(c0 / 12.92, pow((c0 + 0.055) / 1.055, vec3(2.4)), step(0.04045, c0));  // vertex colours are sRGB
 	// Grass: big soft light/dark patches, warm sunny patches, cooler deep patches and a fine speckle.
 	col *= 0.86 + 0.26 * fbm(p * 0.18);
@@ -629,7 +631,7 @@ varying vec3 wpos;
 """ + NOISE_LIB + """
 void vertex() { wpos = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz; }
 void fragment() {
-	vec3 c0 = COLOR.rgb;
+	vec3 c0 = max(COLOR.rgb, vec3(0.0));   // (see the terrain: never below zero, or pow() gives NaN)
 	vec3 col = mix(c0 / 12.92, pow((c0 + 0.055) / 1.055, vec3(2.4)), step(0.04045, c0));
 	float vine = COLOR.a;
 	float s = wpos.y / 1.6 + noise(wpos.xz * 0.035) * 1.8;   // rows follow the contours, wavering a little

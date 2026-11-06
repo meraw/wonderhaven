@@ -54,7 +54,9 @@ void fragment() {
 	float near_fade = smoothstep(1.9, 2.8, length(VERTEX));
 	float ign = fract(52.9829189 * fract(dot(FRAGCOORD.xy, vec2(0.06711056, 0.00583715))));
 	if (ign > near_fade) discard;
-	vec3 c = COLOR.rgb * tint.rgb;
+	// Never below zero: with MSAA a pixel at a blade's edge reads its colour from just outside the triangle, and pow()
+	// of a negative number is NaN, which the glow spreads into a black (or magenta) square.
+	vec3 c = max(COLOR.rgb * tint.rgb, vec3(0.0));
 	c = mix(c / 12.92, pow((c + 0.055) / 1.055, vec3(2.4)), step(0.04045, c));
 	if (flower && is_center > 0.5) c = center_color.rgb;
 	if (clumps > 0.0) {
