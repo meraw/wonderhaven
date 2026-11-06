@@ -53,11 +53,18 @@ func open(zone_id: String = "") -> bool:
 	for z in zones:
 		if z.id == zone_id: zone = z
 	if zone.is_empty(): zone = BuildGrid.zone_at(zones, floor(p.x), floor(p.z), LocationMeter.progress(state(), Data.island))
-	if zone.is_empty() and not zones.is_empty():
-		zones.sort_custom(func(a, b): return _zdist(a, p) < _zdist(b, p))
-		zone = zones[0]
+	if zone.get("open", false):   # in the village streets but right by a site (the washout): that site
+		for z in zones:
+			if not z.get("open", false) and not z.get("interior", false) and _near_zone(z, p, 3.0): zone = z; break
+	if zone.is_empty() and not zones.is_empty():   # the nearest site, but not someone's room when you're outdoors
+		var outdoor := zones.filter(func(z): return not z.get("interior", false))
+		var pool: Array = outdoor if not outdoor.is_empty() else zones
+		pool.sort_custom(func(a, b): return _zdist(a, p) < _zdist(b, p))
+		zone = pool[0]
 	zone_index = maxi(0, unlocked_zones().find(zone))
 	jump_to(zone)
+	if zone.get("open", false) and BuildGrid.zone_contains(zone, floor(p.x), floor(p.z), LocationMeter.progress(state(), Data.island)):
+		focus = p   # an open area (the village streets): build right where you are
 	rebuild_grid(); refresh_plan()
 	grid_root.visible = true
 	game.cam.set_mode("build")
@@ -86,7 +93,7 @@ func step_out_of(zone: Dictionary) -> void:
 	var rect := Rect2(b.minI, b.minK, b.maxI - b.minI + 1, b.maxK - b.minK + 1)
 	var p: Vector3 = game.player.pos
 	var w: WalkWorld = game.walk
-	var inside := rect.grow(0.2).has_point(Vector2(p.x, p.z))
+	var inside: bool = rect.grow(0.2).has_point(Vector2(p.x, p.z)) and not zone.get("open", false)   # (an open area is somewhere you walk anyway)
 	if not inside and not w.stuck(p, WalkWorld.PLAYER_RADIUS, game.player.body): return
 	var from: Vector3 = opened_at if opened_at != Vector3.INF else p
 	var spot := w.free_spot(from.x, from.z, rect, 14.0, WalkWorld.PLAYER_RADIUS, game.player.body)
@@ -101,6 +108,11 @@ func _over_ui(p: Vector2) -> bool:
 	for c in ui.find_children("*", "Control", true, false):
 		if c is PanelContainer and c.visible and c.mouse_filter != Control.MOUSE_FILTER_IGNORE and c.get_global_rect().has_point(p): return true
 	return false
+
+## Is `p` within `m` metres of the zone's cells?
+func _near_zone(z: Dictionary, p: Vector3, m: float) -> bool:
+	var b := BuildGrid.zone_bounds(z, LocationMeter.progress(state(), Data.island))
+	return p.x > b.minI - m and p.x < b.maxI + 1 + m and p.z > b.minK - m and p.z < b.maxK + 1 + m
 
 func _zdist(z: Dictionary, p: Vector3) -> float: return Vector2((z.minI + z.maxI) / 2.0 - p.x, (z.minK + z.maxK) / 2.0 - p.z).length()
 
@@ -143,18 +155,23 @@ func rebuild_grid() -> void:
 		lm.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF; fm.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		grid_root.add_child(lm); grid_root.add_child(fm)
 
+## The ghost plans of the steps you're on (Plans), and any older zone blueprint whose request is active: see-through
+## pieces on the site, gone as you build each one. A piece a plan uses that you haven't unlocked is unlocked.
 func refresh_plan() -> void:
 	for c in plan_root.get_children(): c.queue_free()
+	var shown: Array = []
+	for p in Plans.current(game.story.engine): shown.append_array(p.pieces)
 	for zone in Data.layout.zones:
-		if not zone.has("blueprint") or not game.zone_plan_visible(zone): continue
-		for e in zone.blueprint:
-			var id: String = e[2]; var i := float(e[0]); var k := float(e[1]); var r: int = int(e[3]) if e.size() > 3 else 0
-			if state().placements.any(func(p): return p.id == id and p.i == i and p.k == k): continue
-			var g := PieceMeshes.ghost(id, "plan")
-			var y := BuildGrid.suggest_bottom(id, i, k, r, 0.2 if id == "bridgeDeck" else -5.0, [], zone)
-			var fp := BuildGrid.footprint(Data.piece(id), r)
-			g.position = Vector3(i + fp.x / 2.0, y + 0.01, k + fp.y / 2.0); g.rotation.y = -r * PI / 2.0
-			plan_root.add_child(g)
+		if zone.has("blueprint") and game.zone_plan_visible(zone): shown.append_array(Plans.lay_out(zone.blueprint, zone, state().placements))
+	var missing: Array = []
+	for pl in shown:
+		if not state().blueprints.has(pl.id) and not missing.has(pl.id): missing.append(pl.id)
+		if Plans.built(pl, state().placements): continue
+		var g := PieceMeshes.ghost(pl.id, "plan")
+		var fp := BuildGrid.footprint(Data.piece(pl.id), int(pl.r))
+		g.position = Vector3(pl.i + fp.x / 2.0, float(pl.y) + 0.01, pl.k + fp.y / 2.0); g.rotation.y = -int(pl.r) * PI / 2.0
+		plan_root.add_child(g)
+	if not missing.is_empty(): game.story.unlock_blueprints(missing)
 
 # ---- Raycast cursor (maths against the heightfield and piece boxes; no physics needed)
 func pick(screen: Vector2) -> Dictionary:

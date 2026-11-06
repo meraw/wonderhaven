@@ -65,7 +65,7 @@ static func loop_steps(s: Dictionary) -> int:
 	var bl := int(s.get("bar", 16))
 	return maxi(int(s.get("length", 0)), int(ceil((last + 8) / float(bl))) * bl)
 const INSTRUMENTS := ["marimba", "glock", "pluck", "pad", "kick", "hat", "blip", "chirp", "hiss", "thud", "flute", "rhodes", "bell", "horn", "rasp", "whistle",
-	"guitar", "piano", "bass", "saw", "strings", "snare", "clap", "openhat", "accordion", "clarinet", "upright"]
+	"guitar", "piano", "bass", "saw", "strings", "snare", "clap", "openhat", "accordion", "clarinet", "upright", "cluck", "bawk", "purr"]
 ## Sounds of a place, for its location code (play(kind, note, volume)): "bell" a church bell with its hum and minor
 ## third, ringing long; "horn" a reedy horn (two at once make a train's two-tone horn); "rasp" a harsh, falling croak;
 ## "whistle" a note that slides up and back (a bird's call).
@@ -81,6 +81,9 @@ var step := 0
 var song_time := 0.0
 var next_step_time := 0.0
 var amb_t := 1.0
+var bird_t := 4.0        # seconds to the next birdsong
+var last_call := -1      # the last bird's call (BIRD_CALLS), so the same one never sings twice running
+var hen_t := 2.0         # seconds to the next cluck from the nearest chicken
 var music: Dictionary = {}   # the location's own music ("music" in its map entry)
 var music_island := ""
 var music_bus := 0
@@ -127,7 +130,7 @@ func _gen(kind: String, midi: int) -> AudioStreamWAV:
 static func synth(kind: String, midi: int) -> AudioStreamWAV:
 	var rng := RandomNumberGenerator.new(); rng.seed = hash("%s:%d" % [kind, midi])
 	var f := freq(midi)
-	var length: float = {"marimba": 0.6, "glock": 1.2, "pluck": 0.45, "pad": 2.4, "kick": 0.25, "hat": 0.06, "blip": 0.09, "hiss": 1.6, "chirp": 0.07, "thud": 0.3, "flute": 0.9, "rhodes": 1.4,
+	var length: float = {"marimba": 0.6, "glock": 1.2, "pluck": 0.45, "pad": 2.4, "kick": 0.25, "hat": 0.06, "blip": 0.09, "hiss": 1.6, "chirp": 0.07, "cluck": 0.13, "bawk": 0.34, "purr": 0.9, "thud": 0.3, "flute": 0.9, "rhodes": 1.4,
 		"bell": 3.6, "horn": 0.9, "rasp": 0.4, "whistle": 0.36, "guitar": 1.3, "piano": 1.6, "bass": 0.45, "saw": 0.42, "strings": 2.6, "snare": 0.22,
 		"clap": 0.2, "openhat": 0.3, "accordion": 0.8, "clarinet": 0.9, "upright": 0.7}.get(kind, 0.5)
 	var n := int(RATE * length)
@@ -174,6 +177,21 @@ static func synth(kind: String, midi: int) -> AudioStreamWAV:
 				lp += (sq - lp) * 0.25
 				v = lp * minf(1.0, t / 0.005) * exp(-t * 22.0) * 0.5
 			"chirp": v = sin(TAU * f * t * (1.0 + t * 6.0)) * sin(PI * t / length) * 0.5
+			"cluck", "bawk":
+				# a hen: a nasal, buzzy pulse (narrow pulse wave through a soft filter, with breath), its pitch falling for
+				# a cluck, rising then falling for the long "bawk"
+				var bend := (1.25 - 0.45 * t / length) if kind == "cluck" else (0.9 + 0.5 * sin(PI * minf(1.0, t / length * 1.3)))
+				phase += f * bend / RATE
+				var pulse := 1.0 if fmod(phase, 1.0) < 0.22 else -0.28
+				lp += ((pulse + (rng.randf() * 2.0 - 1.0) * 0.35) - lp) * 0.32
+				prev += (lp - prev) * 0.5
+				var envc := minf(1.0, t / 0.008) * (exp(-t * 18.0) if kind == "cluck" else minf(1.0, (length - t) / 0.12))
+				v = prev * envc * 0.8
+			"purr":
+				# a cat's purr: low breathy noise pulsing about 26 times a second
+				lp += ((rng.randf() * 2.0 - 1.0) - lp) * 0.04
+				var throb := 0.5 + 0.5 * sin(TAU * 26.0 * t)
+				v = (lp * 2.4 + sin(TAU * f * t) * 0.15) * throb * throb * minf(1.0, t / 0.1) * minf(1.0, (length - t) / 0.25) * 0.8
 			"hiss":
 				lp += ((rng.randf() * 2.0 - 1.0) - lp) * 0.06
 				v = lp * minf(1.0, t / 0.2) * minf(1.0, (length - t) / 0.8) * 1.5
@@ -310,20 +328,101 @@ func update_music(game, dt: float) -> void:
 		guard += 1
 		if gain > 0.01: _music_step(s)
 		step += 1; next_step_time += step_dur
+	var songbirds: bool = Data.island_def(Data.island).get("look", {}).get("songbirds", true)   # (a look's "songbirds": false: a city in December)
+	var night: bool = game.state.flags.get("night", false)
+	bird_t -= dt
+	if bird_t < 0.0:
+		# now and then, not all the time: a bird somewhere, a different one each time (crickets at night)
+		var hour := float(game.state.time.minute) / 60.0
+		bird_t = bird_gap(hour, night, randf())
+		if songbirds:
+			if night:
+				for i in 3: play("chirp", 100, 0.04, sfx_bus, i * 0.07)
+			elif game.weather_now.get("rain", 0.0) < 0.3:
+				last_call = next_call(last_call, randi())
+				for n in bird_call(last_call, randi()): play(n[0], n[1], n[2], sfx_bus, n[3])
+	hen_t -= dt
+	if hen_t < 0.0:
+		hen_t = 1.5 + randf() * 3.5
+		var hen := _nearest_chicken(game)
+		if hen < HEN_RANGE and not night:
+			var loud := 0.32 * (1.0 - hen / HEN_RANGE)
+			for n in hen_clucks(randi()): play(n[0], n[1], n[2] * loud, sfx_bus, n[3])
 	amb_t -= dt
 	if amb_t < 0.0:
 		amb_t = 0.8 + randf() * 2.5
-		var songbirds: bool = Data.island_def(Data.island).get("look", {}).get("songbirds", true)   # (a look's "songbirds": false: a city in December)
-		if songbirds and game.state.flags.get("night", false):
-			for i in 3: play("chirp", 100, 0.06, sfx_bus, i * 0.07)
-		elif songbirds and randf() < 0.7:
-			var base := 93 + randi() % 6
-			for i in 2 + randi() % 3: play("chirp", base + (i % 2) * 3, 0.1, sfx_bus, i * 0.09)
 		var p: Vector3 = game.player.pos
 		var river := maxf(0.0, 1.0 - (absf(p.z - Heightfield.river_center(p.x)) - 3.0) / 8.0) if Data.island == "hearthglow" else 0.0
 		if river > 0.05: play("hiss", 60, 0.15 * river)
 		var wet: float = game.weather_now.get("rain", 0.0)
 		if wet > 0.05: play("hiss", 70, 0.3 * wet)
+
+## Birdsong: the calls of a few different birds, each sung a little differently every time.
+## 0 a blackbird's fluting phrase, 1 a great tit's two-note "tea-cher", 2 a wren's fast trill, 3 a finch's falling run,
+## 4 a robin's thin, wandering warble.
+const BIRD_CALLS := 5
+const HEN_RANGE := 14.0   # chickens are heard within this many metres
+
+## Seconds until the next bird: busiest at dawn and in the morning, quieter in the afternoon, rare in the evening.
+static func bird_gap(hour: float, night: bool, r: float) -> float:
+	if night: return 3.0 + r * 5.0   # crickets
+	var busy := 0.7 if hour < 11.0 else (1.0 if hour < 17.0 else 1.6)
+	return (7.0 + r * 14.0) * busy
+
+## The next bird to sing: any but the last one.
+static func next_call(last: int, r: int) -> int:
+	var c := absi(r) % (BIRD_CALLS - 1)
+	return c + 1 if c >= last and last >= 0 else c
+
+## The notes of one call: [[instrument, note, volume, delay]].
+static func bird_call(kind: int, r: int) -> Array:
+	var rng := RandomNumberGenerator.new(); rng.seed = r
+	var out: Array = []
+	var t := 0.0
+	match kind:
+		0:   # blackbird: 3 to 5 low, mellow whistles on a pentatonic scale, unevenly spaced
+			var scale := [79, 81, 84, 86, 88, 91]
+			for i in rng.randi_range(3, 5):
+				out.append(["whistle", scale[rng.randi() % scale.size()], 0.06, t]); t += rng.randf_range(0.16, 0.3)
+		1:   # great tit: high-low, two to four times
+			var hi := rng.randi_range(93, 96)
+			for i in rng.randi_range(2, 4):
+				out.append(["chirp", hi, 0.05, t]); out.append(["chirp", hi - rng.randi_range(4, 6), 0.045, t + 0.11]); t += 0.3
+		2:   # wren: a quick trill of tiny chirps
+			var n0 := rng.randi_range(96, 99)
+			for i in rng.randi_range(6, 10):
+				out.append(["chirp", n0 + (i % 3) - 1, 0.035, t]); t += 0.055
+		3:   # finch: a falling run, then a flourish
+			var top := rng.randi_range(96, 100)
+			for i in rng.randi_range(4, 6):
+				out.append(["chirp", top - i, 0.04, t]); t += 0.075
+			out.append(["whistle", top - 2, 0.04, t + 0.05])
+		_:   # robin: thin high whistles wandering up and down
+			var nn := rng.randi_range(90, 95)
+			for i in rng.randi_range(3, 5):
+				nn += rng.randi_range(-3, 3)
+				out.append(["whistle", nn, 0.035, t]); t += rng.randf_range(0.2, 0.34)
+	return out
+
+## A hen's remark: a few clucks, sometimes ending in a long "bawk".
+static func hen_clucks(r: int) -> Array:
+	var rng := RandomNumberGenerator.new(); rng.seed = r
+	var out: Array = []
+	var t := 0.0
+	var base := rng.randi_range(66, 70)
+	for i in rng.randi_range(2, 4):
+		out.append(["cluck", base + rng.randi_range(-1, 1), 1.0, t]); t += rng.randf_range(0.16, 0.26)
+	if rng.randf() < 0.35: out.append(["bawk", base + 2, 1.0, t + 0.05])
+	return out
+
+## How far the player is from the nearest chicken (INF where there are none).
+func _nearest_chicken(game) -> float:
+	var an = game.get_node_or_null("Animals")
+	if an == null or not "chickens" in an: return INF
+	var p: Vector3 = game.player.pos
+	var best := INF
+	for c in an.chickens: best = minf(best, Vector2(c.x - p.x, c.z - p.z).length())
+	return best
 
 ## Start making a song's notes in the background (synthesising a piano or string note takes tens of milliseconds,
 ## too long to do the moment it first plays).
@@ -443,6 +542,8 @@ func sfx(name: String) -> void:
 		"pick": play("marimba", 81, 0.3)
 		"water": play("hiss", 85, 0.35)
 		"squeak": play("chirp", 98, 0.3); play("chirp", 102, 0.25, sfx_bus, 0.07)
+		"cluck": play("cluck", 68, 0.35); play("cluck", 69, 0.3, sfx_bus, 0.18); play("bawk", 70, 0.32, sfx_bus, 0.4)
+		"purr": play("purr", 40, 0.4)
 		"door": play("thud", 45, 0.35)
 		"lever": play("blip", 67, 0.3); play("thud", 60, 0.25)
 		"paint": arp.call([88, 91, 95], 0.03, "glock", 0.25)

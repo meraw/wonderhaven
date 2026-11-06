@@ -148,7 +148,7 @@ func _render_creator() -> void:
 	var sp := Control.new(); sp.size_flags_horizontal = Control.SIZE_EXPAND_FILL; row.add_child(sp)
 	if wardrobe_mode: row.add_child(UiTheme.button("Cancel", func(): close_wardrobe(false)))
 	else: row.add_child(UiTheme.button("← Back", title))
-	var go := UiTheme.button("Looks great!" if wardrobe_mode else "Begin adventure ➜", func(): close_wardrobe(true) if wardrobe_mode else start_new_game(), true)
+	var go := UiTheme.button("Looks great!" if wardrobe_mode else "Begin adventure ➜", _begin, true)
 	go.name = "btn_start"; row.add_child(go)
 	var hint := UiTheme.label("Drag to turn · locked pieces unlock as you play", 15, Color.WHITE)
 	hint.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.35)); hint.add_theme_constant_override("outline_size", 6)
@@ -200,6 +200,10 @@ func close_wardrobe(keep: bool) -> void:
 	_close(); game.hud.visible = true
 	game.set_mode("explore")
 
+func _begin() -> void:
+	if wardrobe_mode: close_wardrobe(true)
+	else: start_new_game()   # (a coroutine: Aldo's bus pulls in first)
+
 func start_new_game() -> void:
 	var n := String(draft.name).strip_edges()
 	var state := GameState.new_game(n if n != "" else "Geometra", draft.appearance)
@@ -210,9 +214,10 @@ func start_new_game() -> void:
 	game.player.teleport(sp.x - 6, sp.z, sp.yaw)
 	game.cam.yaw = sp.yaw + PI; game.cam.snap()
 	game.begin_play()
+	game.sfx("morning")
+	await BusIntro.play(game)   # Aldo's bus pulls into the lay-by and you step off
 	arrival(state.name)
 	if not guided: game.get_tree().create_timer(2.5).timeout.connect(func(): game.toast("Someone is waving at you by the village gate. Walk over with %s%s%s%s and press %s to talk." % [Controls.key_label("move_forward"), Controls.key_label("move_left"), Controls.key_label("move_back"), Controls.key_label("move_right"), Controls.key_label("interact")], "", 6.0))
-	game.sfx("morning")
 
 ## A storybook card before the first step: who you are and why you've come.
 func arrival(player_name: String) -> void:

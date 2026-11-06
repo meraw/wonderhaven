@@ -194,6 +194,12 @@ func npcs_here() -> Array: return npcs.filter(func(n): return n.get("island", "h
 
 func piece(id: String) -> Dictionary: return piece_by_id.get(id, {})
 func npc(id: String) -> Dictionary: return npc_by_id.get(id, {})
+## A villager's pronoun in the form asked for: "they" (he/she), "them" (him/her), "their" (his/her).
+## From `pronoun` in npcs.json ("he" or "she"); a villager without one is "they".
+func pron(id: String, form: String = "they") -> String:
+	var p := String(npc(id).get("pronoun", "they"))
+	var forms := {"he": {"they": "he", "them": "him", "their": "his"}, "she": {"they": "she", "them": "her", "their": "her"}}
+	return forms[p].get(form, p) if forms.has(p) else form
 func quest(id: String) -> Dictionary: return quest_by_id.get(id, {})
 ## Bench-nap odds and lines here: data/naps.json, with any keys the layout's own "naps" block sets (a city's paper).
 func naps_here() -> Dictionary:

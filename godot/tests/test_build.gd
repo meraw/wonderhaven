@@ -120,9 +120,10 @@ func test_fountain_mechanism():
 	var inlets := [{"id": "fountain", "cell": Data.layout.fountain.inlet.cell, "side": Data.layout.fountain.inlet.side}]
 	var bp: Array = []
 	var n := 100
-	for e in Data.zone("plaza").blueprint:
+	var plan: Array = Data.quest("fountain").objectives.filter(func(o): return o.id == "build")[0].plan
+	for e in plan:
 		bp.append({"uid": n, "id": e[2], "i": float(e[0]), "k": float(e[1]), "r": int(e[3]) if e.size() > 3 else 0, "y": -0.35 if e[2] == "waterwheel" else 0.0}); n += 1
-	t.ok(Mechanics.solve(bp, inlets).fed.fountain, "blueprint feeds the fountain")
+	t.ok(Mechanics.solve(bp, inlets).fed.fountain, "the plan feeds the fountain")
 	t.ok(not Mechanics.solve(bp.filter(func(p): return not (p.id == "pipe" and p.i == 5)), inlets).fed.fountain, "gap stops water")
 	var no_gear := Mechanics.solve(bp.filter(func(p): return p.id != "gear"), inlets)
 	t.ok(no_gear.pumps.is_empty() and not no_gear.fed.fountain, "no power, no water")
@@ -170,3 +171,48 @@ func test_bus_turnaround():
 	var walk := WalkWorld.new(statics)
 	walk.surfaces = BuildGrid.surfaces_for(list)
 	t.ok(walk.surface_at(float(z.minI) + 2.5, float(z.minK) + 1.5).walkable, "you can walk on the paving")
+
+func test_no_railings_in_the_water():
+	# On the banks of Aldo's crossing a cell can be dry in the middle while one edge is already over the stream: a
+	# railing on that edge would stand in the water, so it's refused; on its dry edges it's fine.
+	var z := Data.zone("bridge")
+	var ctx := {"placements": [], "zones": [z], "statics": [], "bodies": []}
+	var wet_edge := 0
+	var dry_ok := 0
+	for i in range(int(z.minI), int(z.maxI) + 1):
+		for k in range(int(z.minK), int(z.maxK) + 1):
+			if BuildGrid.ground_at(i, k) < Heightfield.WALKABLE_MIN: continue   # the cell itself is water
+			for r in 4:
+				var pl := {"uid": 1, "id": "railing", "i": i, "k": k, "r": r, "y": 0.0}
+				pl.y = BuildGrid.suggest_bottom("railing", i, k, r, 5.0, [], z)
+				var b := BuildGrid.rect_of(Data.piece("railing"), pl)
+				var mid := Vector2((b.minX + b.maxX) / 2.0, (b.minZ + b.maxZ) / 2.0)
+				var wet := false
+				for t in [-0.4, 0.0, 0.4]:
+					var p := mid + (Vector2(t * (b.maxX - b.minX), 0.0) if b.maxX - b.minX > b.maxZ - b.minZ else Vector2(0.0, t * (b.maxZ - b.minZ)))
+					if Heightfield.height(p.x, p.y) < Heightfield.WALKABLE_MIN: wet = true
+				var v := BuildGrid.validate_placement(pl, ctx)
+				if wet:
+					wet_edge += 1
+					t.ok(not v.ok, "a railing at (%d, %d) turned %d would stand in the stream: refused" % [i, k, r])
+				elif v.ok: dry_ok += 1
+	t.ok(wet_edge > 0, "the banks have cells with a wet edge (%d railings checked)" % wet_edge)
+	t.ok(dry_ok > 0, "railings on dry edges are still allowed (%d)" % dry_ok)
+
+func test_build_in_the_village_streets():
+	# The village's streets are an open building area: a bench in the street is fine, one inside a house isn't, and the
+	# sites with their own requests (the piazza, Elio's shop) still come first where they overlap.
+	var v := Data.zone("village")
+	t.ok(v.get("open", false), "the village streets are an open area")
+	var zones: Array = Data.layout.zones
+	t.eq(BuildGrid.zone_at(zones, 5, 2).get("id", ""), "plaza", "the piazza is still the piazza")
+	t.eq(BuildGrid.zone_at(zones, -13, 10).get("id", ""), "workshop", "Elio's shop is still Elio's shop")
+	var ok_spots := 0
+	for spot in [[0, 8], [-2, -4], [20, 0], [-24, 2], [3, 14]]:
+		var pl := {"uid": 1, "id": "bench", "i": spot[0], "k": spot[1], "r": 0, "y": BuildGrid.suggest_bottom("bench", spot[0], spot[1], 0, 9.0, [], v)}
+		if BuildGrid.validate_placement(pl, {"placements": [], "zones": [v], "statics": statics, "bodies": []}).ok: ok_spots += 1
+	t.ok(ok_spots >= 2, "benches go in the street (%d of 5 spots free)" % ok_spots)
+	var house: Dictionary = Data.layout.buildings.filter(func(b): return b.id == "fernHouse")[0]
+	var inside: Dictionary = {"uid": 2, "id": "bench", "i": floor(house.x) - 1, "k": floor(house.z), "r": 0, "y": Heightfield.height(house.x, house.z)}
+	var r := BuildGrid.validate_placement(inside, {"placements": [], "zones": [v], "statics": [], "bodies": []})
+	t.ok(not r.ok and String(r.reason).contains("inside"), "not inside Gigia's house: %s" % r.get("reason", "ok"))

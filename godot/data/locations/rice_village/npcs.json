@@ -3,6 +3,7 @@
   {
    "id": "rice_village_ernesto",
    "name": "Ernesto \"Paletta\" Tarditi",
+   "pronoun": "he",
    "title": "Capostazione (retired)",
    "voice": 0.85,
    "likes": [
@@ -132,6 +133,7 @@
   {
    "id": "rice_village_battista",
    "name": "Battista \"Barba Tista\" Mosso",
+   "pronoun": "he",
    "title": "Fattore",
    "voice": 0.8,
    "likes": [
@@ -140,7 +142,7 @@
     "fish"
    ],
    "appearance": {
-    "skin": "#c98a5e",
+    "skin": "#d9a37a",
     "eyeShape": "round",
     "eyeColor": "#3a2a1e",
     "hair": "short",
@@ -240,6 +242,7 @@
   {
    "id": "rice_village_pierina",
    "name": "Nonna Pierina Avondo",
+   "pronoun": "she",
    "title": "Nonna",
    "voice": 1.15,
    "likes": [
@@ -388,6 +391,7 @@
   {
    "id": "rice_village_silvia",
    "name": "Silvia Bonino",
+   "pronoun": "she",
    "title": "Perita agraria",
    "voice": 1.1,
    "likes": [
@@ -497,6 +501,7 @@
   {
    "id": "rice_village_remo",
    "name": "Don Remo Avetta",
+   "pronoun": "he",
    "title": "Parish priest",
    "voice": 0.9,
    "likes": [
@@ -666,6 +671,7 @@
   {
    "id": "rice_village_matteo",
    "name": "Matteo Mosso",
+   "pronoun": "he",
    "title": "Train spotter",
    "voice": 1.35,
    "likes": [
@@ -775,6 +781,7 @@
   {
    "id": "rice_village_carlo",
    "name": "Ingegner Carlo Pautasso",
+   "pronoun": "he",
    "title": "Railway inspector",
    "voice": 0.9,
    "visitor": true,

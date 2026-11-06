@@ -3,6 +3,7 @@
   {
    "id": "fern",
    "name": "Gigia Ghisolfi",
+   "pronoun": "she",
    "title": "Hazelnut farmer",
    "likes": [
     "fruit",
@@ -130,6 +131,7 @@
   {
    "id": "bram",
    "name": "Elio Fusibile",
+   "pronoun": "he",
    "title": "Electrician",
    "likes": [
     "crystal",
@@ -138,7 +140,7 @@
    ],
    "voice": 0.95,
    "appearance": {
-    "skin": "#c98a5e",
+    "skin": "#d9a37a",
     "eyeShape": "round",
     "eyeColor": "#3a2a1e",
     "hair": "short",
@@ -250,6 +252,7 @@
   {
    "id": "percival",
    "name": "Sindaco Dalmasso",
+   "pronoun": "he",
    "title": "Commendator Gustavo Dalmasso, mayor of Monteforchetta",
    "likes": [
     "pie",
@@ -398,6 +401,7 @@
   {
    "id": "tilly",
    "name": "Fede Cauda",
+   "pronoun": "she",
    "title": "Computer whiz",
    "likes": [
     "metal",
@@ -406,7 +410,7 @@
    ],
    "voice": 1.25,
    "appearance": {
-    "skin": "#9a6442",
+    "skin": "#e0b08a",
     "eyeShape": "wide",
     "eyeColor": "#d9822b",
     "hair": "spiky",
@@ -525,6 +529,7 @@
   {
    "id": "mabel",
    "name": "Ornella Tealdi",
+   "pronoun": "she",
    "title": "Baker",
    "likes": [
     "fruit",
@@ -631,6 +636,7 @@
   {
    "id": "captain",
    "name": "Aldo Barbero",
+   "pronoun": "he",
    "title": "Bus driver, known as Tornanti",
    "likes": [
     "fish",
@@ -638,7 +644,7 @@
    ],
    "voice": 0.7,
    "appearance": {
-    "skin": "#c98a5e",
+    "skin": "#d9a37a",
     "eyeShape": "happy",
     "eyeColor": "#2f6fdf",
     "hair": "short",
@@ -687,6 +693,7 @@
     }
    ],
    "home": "captainHut:spot",
+  "intro": "You're the new Geometra? Aldo Barbero, I drove you up. You slept through the best bend. Bend thirty-one. There's a story about a goat. Go and let the Sindaco welcome you first; he's been practising.",
    "greetings": [
     {
      "flag": "boatReady",
@@ -727,6 +734,7 @@
   {
    "id": "barnaby",
    "name": "Barnaby Sprocket",
+   "pronoun": "he",
    "title": "Master Clockmaker",
    "island": "clockwork",
    "likes": [
@@ -824,6 +832,7 @@
   {
    "id": "juniper",
    "name": "Juniper Flint",
+   "pronoun": "she",
    "title": "Lighthouse Keeper",
    "island": "clockwork",
    "likes": [
@@ -911,6 +920,7 @@
   {
    "id": "hazel",
    "name": "Hazel Rivet",
+   "pronoun": "she",
    "title": "Smith & Trader",
    "island": "clockwork",
    "likes": [

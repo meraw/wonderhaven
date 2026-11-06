@@ -142,19 +142,47 @@ func _cover_with_paper(spot: Vector3, f: Vector3) -> void:
 	var away := Vector3(wind.x, 0.0, wind.y).normalized()
 	if away.length() < 0.5: away = f
 	var side := Vector3(f.z, 0.0, -f.x)
-	# on the lap, over the face, across the chest, and one beside you on the bench (the head's centre is about 0.83 m
-	# above the seat point, 0.45 m across with the hair)
-	var at := [Vector3(0, 0.14, 0) + f * 0.34, Vector3(0, 0.8, 0) + f * 0.5, Vector3(0, 0.42, 0) + f * 0.36 + side * 0.08, Vector3(0, -0.02, 0) + side * 0.5]
-	var tilt := [Vector3(0.12, 0.0, 0.1), Vector3(PI / 2.0 - 0.4, 0.0, 0.05), Vector3(1.05, 0.35, 0.1), Vector3(0.0, 0.5, 0.0)]
-	for k in at.size():
-		var page := PlaneMesh.new(); page.size = Vector2(0.62, 0.46)   # a plane shows the whole page (a box spreads it over six faces)
-		var sh := PaperSheet.new(); sh.mesh_node = P.mi(page, _newsprint(), Vector3.ZERO, false)
+	# Measured on the napper (Chibi, the "sleep" pose, relative to the seat point; +z the way the bench faces): the
+	# head's centre is about 0.81 m up and 0.13 m forward (nodding), the hair reaching 0.58 m from it; the seat's top is
+	# 0.18 m up, and the ground 0.28 m down. One spread is draped over the head and face like a tent, one lies across
+	# the lap, one on the seat beside you and one has slid off onto the ground.
+	var sheets := [
+		_drape([Vector2(-0.14, 1.4), Vector2(0.2, 1.42), Vector2(0.52, 1.27), Vector2(0.72, 0.98), Vector2(0.72, 0.7), Vector2(0.62, 0.48)], 0.7),
+		_drape([Vector2(0.24, 0.5), Vector2(0.36, 0.3), Vector2(0.62, 0.27), Vector2(0.8, 0.22)], 0.58),
+		_drape([Vector2(-0.18, 0.19), Vector2(0.28, 0.19)], 0.5),
+		_drape([Vector2(0.55, -0.265), Vector2(1.0, -0.265)], 0.62)]
+	var at := [Vector3.ZERO, Vector3(0.02, 0.0, 0.0), Vector3(0.58, 0.0, 0.06), Vector3(-0.42, 0.0, 0.0)]
+	var turn := [0.0, 0.06, 0.35, -0.6]
+	for k in sheets.size():
+		var sh := PaperSheet.new(); sh.mesh_node = P.mi(sheets[k], _newsprint(), Vector3.ZERO, false)
 		sh.add_child(sh.mesh_node); paper.add_child(sh)
-		sh.position = at[k]
-		sh.rotation = Vector3(tilt[k].x, yaw + tilt[k].y, tilt[k].z)
+		sh.position = side * at[k].x + Vector3(0, at[k].y, 0) + f * at[k].z
+		sh.rotation = Vector3(0.0, yaw + turn[k], 0.0)
 		sh.vel = away * randf_range(1.6, 2.6) + Vector3(0, randf_range(1.4, 2.2), 0) + f.rotated(Vector3.UP, randf_range(-1, 1)) * 0.4
 		sh.spin = Vector3(randf_range(-6, 6), randf_range(-4, 4), randf_range(-6, 6))
-		sh.delay = k * 0.18
+		sh.delay = [0.25, 0.0, 0.45, 0.6][k]
+
+## A sheet of paper bent along a profile: points (forward, up) in the sheet's own frame (+z forward), `width` across.
+## Lengthwise the page's texture runs along the bend, so a long profile reads as a double-page spread.
+static func _drape(profile: Array, width: float) -> ArrayMesh:
+	var st := SurfaceTool.new(); st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var total := 0.0
+	for i in range(1, profile.size()): total += (profile[i] - profile[i - 1]).length()
+	var run := 0.0
+	var verts: Array = []
+	for i in profile.size():
+		if i > 0: run += (profile[i] - profile[i - 1]).length()
+		var u := run / total
+		var pt: Vector2 = profile[i]
+		verts.append([Vector3(-width / 2.0, pt.y, pt.x), Vector3(width / 2.0, pt.y, pt.x), u])
+	for i in range(profile.size() - 1):
+		var a: Array = verts[i]; var b: Array = verts[i + 1]
+		var along: Vector3 = b[0] - a[0]
+		var n := along.cross(Vector3.RIGHT).normalized()
+		if n.y < 0.0 and absf(n.y) > 0.01: n = -n
+		for v in [[a[0], 0.0, a[2]], [a[1], 1.0, a[2]], [b[1], 1.0, b[2]], [a[0], 0.0, a[2]], [b[1], 1.0, b[2]], [b[0], 0.0, b[2]]]:
+			st.set_normal(n); st.set_uv(Vector2(v[1], v[2])); st.add_vertex(v[0])
+	return st.commit()
 
 static var _paper_mat: StandardMaterial3D
 ## Newsprint: an off-white page with a masthead, columns of grey lines and a photo.
@@ -208,20 +236,52 @@ class PaperSheet extends Node3D:
 ## back for it) once you've walked off, or after a while.
 func _open_umbrella(spot: Vector3, f: Vector3, side: Vector3) -> void:
 	umbrella = TimedProp.new(); umbrella.name = "NapUmbrella"; add_child(umbrella)
-	var base: Vector3 = spot + side * 0.75 + f * 0.15
+	var base: Vector3 = spot + side * 0.98 + f * 0.12   # standing just off the end of the seat
 	umbrella.global_position = Vector3(base.x, game.walk.surface_at(base.x, base.z).y, base.z)
 	umbrella.game = game; umbrella.life = 90.0
 	var lean := Node3D.new(); umbrella.add_child(lean)
-	lean.transform.basis = Basis(Vector3.UP.cross(-side).normalized(), 0.38)   # tipped towards you
-	var col: String = UMBRELLA_COLORS.pick_random()
-	var canopy := P.unique_mat(col); canopy.cull_mode = BaseMaterial3D.CULL_DISABLED
-	lean.add_child(P.mi(P.cyl(0.012, 0.012, 1.25, 6), P.mat("3a3a3a"), Vector3(0, 0.62, 0)))
-	var c := P.mi(P.cone(0.7, 0.32, 8), canopy, Vector3(0, 1.32, 0)); lean.add_child(c)
-	lean.add_child(P.mi(P.cone(0.62, 0.22, 8), P.unique_mat(Color(col).darkened(0.25)), Vector3(0, 1.22, 0), false))
-	lean.add_child(P.mi(P.sphere(0.03), P.mat("3a3a3a"), Vector3(0, 1.5, 0)))
-	var hook := P.mi(P.torus(0.06, 0.014, 10), P.mat("6b3a22"), Vector3(0.06, 0.02, 0)); hook.rotation = Vector3(PI / 2, 0, 0); lean.add_child(hook)
-	var drip_at := Node3D.new(); umbrella.add_child(drip_at); drip_at.position = -side * 0.62 + Vector3(0, 1.05, 0)   # its edge, over you
+	lean.transform.basis = Basis(Vector3.UP.cross(-side).normalized(), 0.3)   # tipped towards you, its canopy over your head
+	var col := Color(UMBRELLA_COLORS.pick_random())
+	var iron := P.mat("3a3a3a")
+	lean.add_child(P.mi(P.cyl(0.012, 0.012, 1.86, 6), iron, Vector3(0, 0.93, 0)))
+	lean.add_child(P.mi(_canopy(0.82, 0.34, 8, col, col.lightened(0.55)), _canopy_mat(), Vector3(0, 1.62, 0)))
+	lean.add_child(P.mi(P.cyl(0.006, 0.014, 0.12, 5), iron, Vector3(0, 2.0, 0)))   # the ferrule on top
+	var hook := P.mi(P.torus(0.06, 0.016, 12), P.mat("6b3a22"), Vector3(0.06, 0.03, 0)); hook.rotation = Vector3(PI / 2, 0, 0); lean.add_child(hook)
+	umbrella.set_meta("edge", -side * 1.0 + Vector3(0, 1.08, 0))   # the canopy's low edge, over your shoulder
+	var drip_at := Node3D.new(); umbrella.add_child(drip_at); drip_at.position = umbrella.get_meta("edge")   # its low edge, over you
 	_drip(drip_at, 90.0, 0.05)
+
+## An umbrella's canopy: `gores` panels in two alternating colours, each a little dome stretched between two ribs,
+## the rim dipping at each rib's tip and lifting between them; open underneath, from the top at y = height.
+static func _canopy(r: float, height: float, gores: int, a: Color, b: Color) -> ArrayMesh:
+	var st := SurfaceTool.new(); st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var rings := 4
+	var cols := 6   # across each gore
+	for g in gores:
+		var c: Color = a if g % 2 == 0 else b
+		var pts: Array = []   # [ring][col]
+		for k in rings + 1:
+			var row: Array = []
+			var fr := float(k) / rings
+			for j in cols + 1:
+				var ang := TAU * (g + float(j) / cols) / gores
+				var mid := sin(PI * float(j) / cols)   # 0 at the ribs, 1 between them
+				var rr := r * fr * (1.0 - 0.06 * mid * fr)
+				var y := height * (1.0 - fr * fr) + 0.05 * mid * fr * fr   # a dome, the panel lifting between ribs
+				row.append(Vector3(cos(ang) * rr, y - height, sin(ang) * rr))
+			pts.append(row)
+		for k in rings:
+			for j in cols:
+				var q := [pts[k][j], pts[k][j + 1], pts[k + 1][j + 1], pts[k + 1][j]]
+				var n: Vector3 = (q[2] - q[0]).cross(q[1] - q[3]).normalized()
+				if n.y < 0.0: n = -n
+				for v in [q[0], q[2], q[1], q[0], q[3], q[2]]:
+					st.set_color(c); st.set_normal(n); st.add_vertex(v + Vector3(0, height, 0))
+	return st.commit()
+
+static func _canopy_mat() -> StandardMaterial3D:
+	var m := StandardMaterial3D.new(); m.vertex_color_use_as_albedo = true; m.cull_mode = BaseMaterial3D.CULL_DISABLED; m.roughness = 0.55
+	return m
 
 ## Drops of water falling off something (you, or the umbrella's edge) for a while.
 func _drip(on: Node3D, seconds: float, box: float = 0.22) -> void:

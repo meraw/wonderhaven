@@ -24,6 +24,16 @@ func test_shader_globals_are_declared():
 				t.eq(String(ProjectSettings.get_setting(key).get("type", "")), TYPES.get(g[0], g[0]), "%s has the declared type" % g[1])
 	t.ok(used >= 10, "shaders read the shared world values (%d uses)" % used)
 
+## With MSAA a pixel on a triangle's edge reads its vertex colour from just outside the triangle, a little below zero
+## on dark grass roots, and pow() of a negative number is NaN: the glow spread each one into a black (or magenta)
+## square on the meadow. Every shader that turns vertex colours from sRGB with pow() clamps them first.
+func test_vertex_colours_never_reach_pow_below_zero():
+	var codes := {"plants": Foliage.PLANT_SHADER, "terrain": TerrainBuilder.TERRAIN_SHADER, "hills": TerrainBuilder.HILLS_SHADER}
+	for k in codes:
+		var code: String = codes[k]
+		t.ok(code.contains("pow((c"), "%s turns its vertex colours from sRGB" % k)
+		t.ok(code.contains("max(COLOR.rgb"), "%s clamps its vertex colours at zero before pow()" % k)
+
 func test_grade_never_flips_colours():
 	for w in [{}, Daylight.WEATHER.rain, Daylight.WEATHER.mist, Daylight.WEATHER.cloudy]:
 		for i in 49:

@@ -46,6 +46,7 @@ func handle(list: Array) -> void:
 				if o.get("final", false): game.toast("📜 %s: %s" % [x.quest.title, o.text], "good", 4.0)
 			game.sfx("objective")
 		elif x.has("objective"): game.toast("✔ " + x.objective.text, "good", 3.0); game.sfx("objective")
+	if not list.is_empty(): game.build.refresh_plan()   # the next step's plan, if it has one
 	game.hud.render_tracker()
 
 ## Effects of finishing one step of a request (onDone in quests.json): flags, items, blueprints, and weather
@@ -67,8 +68,8 @@ func marker_for(npc: String) -> String:
 	if not engine.offers_for(npc).is_empty(): return "offer"
 	return ""
 
-func _conv(agent) -> Dictionary:
-	return Conversation.build(agent.def, engine, game.state.flags, game.state.name, agent.activity == "sleep", int(game.state.time.total / 7.0) + agent.def.id.length())
+func _conv(agent, first_meeting: bool = false) -> Dictionary:
+	return Conversation.build(agent.def, engine, game.state.flags, game.state.name, agent.activity == "sleep", int(game.state.time.total / 7.0) + agent.def.id.length(), first_meeting)
 
 func talk(agent) -> void:
 	if busy: return
@@ -79,6 +80,8 @@ func talk(agent) -> void:
 	game.enter_dialogue(agent)
 	if not s.relationships.has(agent.def.id): s.relationships[agent.def.id] = {"hearts": 0, "talked_day": 0, "gifts": []}
 	var rel: Dictionary = s.relationships[agent.def.id]
+	var met := bool(rel.get("met", int(rel.talked_day) > 0))   # talked to them before (saves from before "met" count a talk day)
+	rel.met = true
 	if rel.talked_day != s.time.day: rel.talked_day = s.time.day; add_hearts(agent.def.id, 1)
 	# a request step that was "talk to me": they explain the next part
 	var talked := engine.on_talk(agent.def.id)
@@ -86,25 +89,25 @@ func talk(agent) -> void:
 		if x.has("objective") and x.objective.get("npc", "") == agent.def.id and x.objective.has("lines"):
 			await ui.say(x.objective.lines.map(func(l): return Conversation.fill(l, s.name)))
 	handle(talked)
-	var conv := _conv(agent)
+	var conv := _conv(agent, not met)
 	for q in conv.turn_ins: await complete_quest(q.id, agent)
-	conv = _conv(agent)
-	if not conv.main_offer.is_empty(): await offer(conv.main_offer.id, agent)
+	conv = _conv(agent, not met)
+	if not conv.main_offer.is_empty(): await offer(conv.main_offer.id, agent, met); met = true
 	var greeted := false
 	var shop := false
 	while true:
-		conv = _conv(agent)
+		conv = _conv(agent, not met and not greeted)
 		if not conv.turn_ins.is_empty():
 			for q in conv.turn_ins: await complete_quest(q.id, agent)
 			continue
 		if not greeted: await ui.say([conv.greeting]); greeted = true
 		else: ui.set_text("Anything else?")
 		var choice: Dictionary = await ui.choose(conv.options)
-		if choice.kind == "bye":
-			await ui.say([{"text": Conversation.fill(["See you around!", "Bye-bye!", "Take care, {name}!"][randi() % 3], s.name), "anim": "wave"}])
+		if choice.kind == "bye":   # just ends: no parting line to click through
+			agent.character.play("wave")
 			break
 		match choice.kind:
-			"offer": await offer(choice.id, agent)
+			"offer": await offer(choice.id, agent, true)
 			"progress": await ui.say(Conversation.quest_lines(choice.id, "progress", s.name) + progress_summary(choice.id))
 			"topic": await ui.say(Conversation.topic_lines(agent.def, choice.id, s.name))
 			"gift": await gift(agent)
@@ -166,10 +169,12 @@ func progress_summary(qid: String) -> Array:
 		left.append(("%s (%d/%d)" % [o.text, st.have, st.need]) if st.need > 1 and o.kind != "harmony" else o.text)
 	return [] if left.is_empty() else ["Still to do: %s." % "; ".join(left)]
 
-func offer(qid: String, agent) -> void:
+## `met`: you've talked to them before, so an offer that opens with introductions uses its `offerMet` lines instead.
+func offer(qid: String, agent, met: bool = true) -> void:
 	var ui: DialogueUI = game.dialogue
 	var q := Data.quest(qid)
-	await ui.say(Conversation.quest_lines(qid, "offer", game.state.name), {"anim": "wave"} if q.get("main", false) else {})
+	var key := "offerMet" if met and q.dialogue.has("offerMet") else "offer"
+	await ui.say(Conversation.quest_lines(qid, key, game.state.name), {"anim": "wave"} if q.get("main", false) else {})
 	var c: Dictionary = await ui.choose([{"label": "✨ " + q.dialogue.get("acceptLabel", "I'll help!"), "kind": "yes", "quest": true}, {"label": q.dialogue.get("declineLabel", "Not right now"), "kind": "no"}])
 	if c.kind == "yes":
 		await ui.say([{"text": c.label.trim_prefix("✨ "), "player": true}])

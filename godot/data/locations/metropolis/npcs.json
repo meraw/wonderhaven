@@ -4,6 +4,7 @@
   {
    "id": "metropolis_augusto",
    "name": "Signor Augusto Viganò",
+   "pronoun": "he",
    "title": "Portinaio of Number 14",
    "likes": [
     "flowers",
@@ -240,6 +241,7 @@
   {
    "id": "metropolis_sala",
    "name": "Ragioniere Mario Sala",
+   "pronoun": "he",
    "title": "Administrator of Number 14",
    "likes": [
     "metal",
@@ -403,6 +405,7 @@
   {
    "id": "metropolis_annoni",
    "name": "Architetto Ludovica Annoni",
+   "pronoun": "she",
    "title": "Head of the Cathedral Works",
    "likes": [
     "stone",
@@ -599,6 +602,7 @@
   {
    "id": "metropolis_ambrogio",
    "name": "Ambrogio Colombo",
+   "pronoun": "he",
    "title": "Tram Driver (\"il Tranvee\")",
    "likes": [
     "crystal",
@@ -772,6 +776,7 @@
   {
    "id": "metropolis_franco",
    "name": "Franco Brioschi",
+   "pronoun": "he",
    "title": "Barman of Bar Brioschi",
    "likes": [
     "fish",
@@ -887,6 +892,7 @@
   {
    "id": "metropolis_chiara",
    "name": "Chiara Pozzi",
+   "pronoun": "she",
    "title": "Seamstress in the Galleria",
    "likes": [
     "fabric",
@@ -1026,6 +1032,7 @@
   {
    "id": "metropolis_gino",
    "name": "Maestro Gino Pirovano",
+   "pronoun": "he",
    "title": "Prompter at the Teatro Civico",
    "likes": [
     "metropolis_score_page",
@@ -1201,6 +1208,7 @@
   {
    "id": "metropolis_ottavio",
    "name": "Ottavio Re",
+   "pronoun": "he",
    "title": "Keeper of the Parco dei Platani",
    "likes": [
     "flowers",
@@ -1363,6 +1371,7 @@
   {
    "id": "metropolis_gennaro",
    "name": "Gennaro Russo",
+   "pronoun": "he",
    "title": "Chestnut Seller at the Castle Gate",
    "likes": [
     "acorn",
@@ -1371,7 +1380,7 @@
    ],
    "voice": 1.05,
    "appearance": {
-    "skin": "#c98a5e",
+    "skin": "#d9a37a",
     "eyeShape": "happy",
     "eyeColor": "#3a2a1e",
     "hair": "curly",
@@ -1480,6 +1489,7 @@
   {
    "id": "metropolis_rocco",
    "name": "Vigile Rocco Spreafico",
+   "pronoun": "he",
    "title": "Traffic Warden (\"il Ghisa\")",
    "likes": [
     "metal",
@@ -1637,6 +1647,7 @@
   {
    "id": "metropolis_vale",
    "name": "Vale Meroni",
+   "pronoun": "she",
    "title": "Junior Reporter, La Sera di Toriano",
    "likes": [
     "metropolis_roman",
@@ -1813,6 +1824,7 @@
   {
    "id": "metropolis_simone",
    "name": "Simone Bonfanti",
+   "pronoun": "he",
    "title": "Architecture Student, Next Door",
    "likes": [
     "wood",
@@ -1993,6 +2005,7 @@
   {
    "id": "metropolis_elvira",
    "name": "Signora Elvira Marelli",
+   "pronoun": "she",
    "title": "Neighbour at the End of the Balcony",
    "likes": [
     "flowers",

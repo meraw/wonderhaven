@@ -305,3 +305,25 @@ func test_the_speakers_are_looked_after():
 				starts += 1
 				t.ok(line.contains("--audio-driver Dummy"), "%s starts the game without a sound card" % sh)
 		t.ok(starts > 0, "%s still starts the game" % sh)
+
+func test_birds_and_hens():
+	# Birdsong comes now and then, never the same bird twice running, and each call varies; hens cluck, not chirp.
+	var last := -1
+	var seen := {}
+	var repeats := 0
+	for i in 200:
+		var c := AudioDirector.next_call(last, hash(i))
+		if c == last or c < 0 or c >= AudioDirector.BIRD_CALLS: repeats += 1
+		seen[c] = true; last = c
+	t.eq(repeats, 0, "a different bird each time")
+	t.eq(seen.size(), AudioDirector.BIRD_CALLS, "every bird gets a turn")
+	t.ok(AudioDirector.bird_gap(8.0, false, 0.0) >= 4.5 and AudioDirector.bird_gap(15.0, false, 0.0) >= 7.0, "seconds of quiet between birds, more in the afternoon")
+	for k in AudioDirector.BIRD_CALLS:
+		t.ok(str(AudioDirector.bird_call(k, 1)) != str(AudioDirector.bird_call(k, 2)), "bird %d sings it a little differently each time" % k)
+	var hen := AudioDirector.hen_clucks(3)
+	t.ok(hen.size() >= 2 and hen.all(func(n): return n[0] in ["cluck", "bawk"]), "a hen clucks")
+	for k in ["cluck", "bawk", "purr"]:
+		var w := AudioDirector.synth(k, 68)
+		var peak := 0
+		for i in range(0, w.data.size(), 2): peak = maxi(peak, absi(w.data.decode_s16(i)))
+		t.ok(peak > 3000 and peak < 32000, "%s is audible and doesn't clip (peak %d)" % [k, peak])

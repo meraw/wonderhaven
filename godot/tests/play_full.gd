@@ -23,8 +23,20 @@ func play() -> void:
 			await click(b.get_global_rect().get_center()); await frames(4)
 	await shot("creator")
 	await click((game.screens.find_child("btn_start", true, false) as Control).get_global_rect().get_center())
-	await frames(20)
-	var card: Control = game.screens.find_child("btn_arrive", true, false)
+	await frames(25)
+	var bus: Node3D = game.village.objects.get("arrivalBus")
+	var bus_from: Vector3 = bus.position if bus else Vector3.ZERO
+	await shot("bus-arrives")
+	await frames(40)
+	var bus_moved: bool = bus != null and bus.position.distance_to(bus_from) > 3.0
+	await shot("bus-stops")
+	var card: Control = null
+	for n in 120:   # the bus pulls in and you step off, then the letter of appointment
+		card = game.screens.find_child("btn_arrive", true, false)
+		if card: break
+		await frames(1)
+	await frames(5)
+	check("1a", "The game opens with Aldo's bus pulling into the lay-by and you stepping off", bus_moved and card != null and game.player_char.visible, "bus moved %.1f m" % (bus.position.distance_to(bus_from) if bus else 0.0))
 	var saw_card: bool = card != null and game.mode == "cutscene"
 	await shot("arrival-card")
 	if card: await click(card.get_global_rect().get_center()); await frames(20)
@@ -70,17 +82,19 @@ func play() -> void:
 	await select_piece("bridgePost"); await place_at(0, -18)
 	await select_piece("bridgeDeck")
 	for k in [-18, -19, -20, -22, -21]: await place_at(0, k, 0.2)
-	await select_piece("railing"); await place_at(2, -15, 0.1, 0)
+	# a railing up the bank, in the village streets (on the washout's own bank row a railing's edge would stand in
+	# the stream, and is refused), to place, select, turn, move, remove, undo and redo
+	await select_piece("railing"); await place_at(2, -12, 0.1, 0)
 	var rail := {}
 	for p in game.state.placements:
 		if p.id == "railing": rail = p
 	await tap(KEY_ESCAPE)
-	await place_at(2, -15.4, 0.4)
+	await place_at(2, -12.4, 0.4)
 	var sel: bool = not rail.is_empty() and game.build.selected == rail.uid
 	await tap(KEY_R); await frames(3)
 	var rot: int = int(rail.get("r", -1))
 	await tap(KEY_N); await frames(3)
-	await place_at(-2, -15)
+	await place_at(-2, -12)
 	var moved: float = rail.get("i", 99.0)
 	await tap(KEY_DELETE); await frames(3)
 	var removed: bool = not game.state.placements.any(func(p): return p.id == "railing")

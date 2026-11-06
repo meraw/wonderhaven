@@ -155,7 +155,7 @@ func shop(npc_id: String, tab: String = "buy") -> void:
 		var list := Shop.sellable(s, npc_id)
 		var wants: Array = d.get("buys", {}).keys().map(func(id): return "%s %s (%s each)" % [Data.resources[id].icon, Data.resources[id].name, Money.lire(Shop.sell_price(npc_id, id))])
 		body.add_child(_wrap("%s buys: %s." % [Data.npc(npc_id).name, ", ".join(wants)]))
-		if list.is_empty(): body.add_child(_wrap("You don't have anything they want right now.", 15, UiTheme.INK))
+		if list.is_empty(): body.add_child(_wrap("You don't have anything %s wants right now." % Data.pron(npc_id), 15, UiTheme.INK))
 		for e in list:
 			var r: Dictionary = Data.resources[e.id]
 			var row := _shop_row(r.icon, "%s × %d" % [r.name, e.have], "%s each" % Money.lire(e.price))
@@ -217,7 +217,7 @@ func journal(tab: String = "active") -> void:
 			var lv := _card(Color("fff8e6"))
 			lv.add_child(UiTheme.label("★ Next in the story · From " + Data.npc(lq.giver).name, 12, Color("b34a6a")))
 			lv.add_child(UiTheme.label(lq.title, 18))
-			lv.add_child(_wrap("%s has a request for you. Find them (look for the ! over their head) and talk to them to begin." % Data.npc(lq.giver).name))
+			lv.add_child(_wrap("%s has a request for you. Find %s (look for the ! over %s head) and talk to %s to begin." % [Data.npc(lq.giver).name, Data.pron(lq.giver, "them"), Data.pron(lq.giver, "their"), Data.pron(lq.giver, "them")]))
 			var lid: String = "lead:" + lq.id
 			var tb := UiTheme.button("📍 Tracking" if game.state.tracked == lid else "📍 Track", func(): game.state.tracked = lid; game.hud.render_tracker(); close(); game.toast("Heading for %s" % Data.npc(lq.giver).name), game.state.tracked == lid)
 			tb.name = "track_" + lid; lv.add_child(tb)

@@ -257,11 +257,22 @@ func refresh_all() -> void:
 	refresh_gardens(); place_squirrels()
 
 # ---- Gardens
+const SOIL := "7a5236"       # dry tilled earth
+const SOIL_WET := "5a3a26"   # darker once watered
 func _build_gardens() -> void:
 	for p in Gardening.beds():
-		var g := Node3D.new(); g.position = Vector3(p.x, 0.17 if Data.island == "hearthglow" else Heightfield.height(p.x, p.z) + 0.03, p.z); game.add_child(g)
-		var soil := P.mi(P.box(1.4, 0.03, 0.9), P.mat("7a4a2a"), Vector3(0, 0.01, 0)); g.add_child(soil)
-		var pl := Node3D.new(); g.add_child(pl)
+		# a raised bed: a low plank frame heaped with tilled earth in three ridges, the plants along the middle one
+		var g := Node3D.new(); g.position = Vector3(p.x, Heightfield.height(p.x, p.z), p.z); game.add_child(g)
+		var plank := P.wood("8a6440")
+		for sz in [-1, 1]: g.add_child(P.mi(P.box(1.52, 0.16, 0.06), plank, Vector3(0, 0.08, sz * 0.47)))
+		for sx in [-1, 1]: g.add_child(P.mi(P.box(0.06, 0.16, 0.88), plank, Vector3(sx * 0.73, 0.08, 0)))
+		var soil: Array = [P.mi(P.box(1.4, 0.12, 0.88), P.mat(SOIL), Vector3(0, 0.07, 0))]
+		for rz in [-0.27, 0.0, 0.27]:
+			var ridge := P.mi(P.cyl(0.11, 0.11, 1.36, 10), P.mat(SOIL), Vector3(0, 0.13, rz))
+			ridge.rotation.z = PI / 2.0; ridge.scale = Vector3(0.55, 1.0, 1.0)   # lying along the bed, low and rounded
+			soil.append(ridge)
+		for m in soil: g.add_child(m)
+		var pl := Node3D.new(); pl.position.y = 0.17; g.add_child(pl)
 		var rec := {"def": p, "group": g, "soil": soil, "plant": pl, "stage": -99, "watered": false}
 		plots.append(rec)
 		var pid: String = p.id
@@ -290,7 +301,7 @@ func refresh_gardens() -> void:
 		var st := Gardening.plot(state().gardens, rec.def.id)
 		if rec.stage == st.stage and rec.watered == st.get("watered", false): continue
 		rec.stage = st.stage; rec.watered = st.get("watered", false)
-		rec.soil.material_override = P.mat("5a3420" if rec.watered else "7a4a2a")
+		for m in rec.soil: m.material_override = P.mat(SOIL_WET if rec.watered else SOIL)
 		for c in rec.plant.get_children(): c.queue_free()
 		if st.stage < 0: continue
 		for x in [-0.35, 0.0, 0.35]:
