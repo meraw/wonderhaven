@@ -24,6 +24,9 @@ var naps: Dictionary       # waking up from a nap on a bench: odds and lines of 
 ## location pack's layout for the others); Heightfield follows it. Sailing reloads the scene with the new island.
 var island := "hearthglow"
 var pending_state: Dictionary = {}   # the game state carried across that reload
+## A message to show once the reloaded scene is up ([title, subtitle] for a banner, or [text] for a toast): loading a
+## save made in another place reloads the scene, and the old one can't show anything any more (Screens.continue_from).
+var pending_message: Array = []
 var rebuilding := false              # that reload rebuilds the island you're on for the story (Game.rebuild_world)
 ## The story flags the current island was built for: only its location script's WORLD_FLAGS (apply_world_flags).
 var world_flags: Dictionary = {}
