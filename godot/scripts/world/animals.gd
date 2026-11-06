@@ -58,8 +58,13 @@ func _wildlife(W: Dictionary) -> void:
 		var w: Dictionary = woods[n % woods.size()]
 		var o := Props.wild_boar(); o.scale = Vector3.ONE * 1.1; add_child(o)
 		var c := Vector2(float(w.x), float(w.z))
-		boars.append({"obj": o, "head": o.get_node("head"), "c": c, "r": float(w.r) * 0.75, "pos": c + Vector2(n * 1.7, -n * 1.3), "goal": c,
-			"wait": n * 1.5, "yaw": 0.0, "ph": n * 2.3})
+		var boar := {"obj": o, "head": o.get_node("head"), "c": c, "r": float(w.r) * 0.75, "pos": c + Vector2(n * 1.7, -n * 1.3), "goal": c,
+			"wait": n * 1.5, "yaw": 0.0, "ph": n * 2.3, "full": 0.0}
+		boars.append(boar)
+		# with chestnuts in your pocket they come and see you instead of trotting off, and take one
+		game.add_interactable({"id": "boar%d" % n, "x": func(): return boar.pos.x, "z": func(): return boar.pos.y, "radius": 1.6, "object": o,
+			"available": func(): return int(game.state.inventory.get("acorn", 0)) > 0 and boar.full <= 0.0,
+			"label": func(): return "Offer a chestnut", "act": func(): feed_boar(boar)})
 	for i in W.get("cats", []).size():
 		var spot: Array = W.cats[i]
 		var o := _cat(i); add_child(o)
@@ -113,6 +118,19 @@ func pet(a: Dictionary, kind: String) -> void:
 		game.toast({"duck": "Quack! The duck does a happy little spin.", "cat": "The cat leans into your hand and purrs."}.get(kind, "Bawk! The chicken clucks contentedly."), "good")
 	game.story.event("animal")
 
+## A boar in the woods takes a chestnut: it crunches it, snuffles at your pockets, and goes back to rooting about,
+## not scared of you for a while. Ornella's three at the bakery are the ones her request is about.
+func feed_boar(b: Dictionary) -> void:
+	var s: Dictionary = game.state
+	if int(s.inventory.get("acorn", 0)) <= 0: return
+	s.inventory.acorn -= 1; game.render_resources(["acorn"])
+	b.full = 45.0; b.wait = 4.0; b.goal = b.pos
+	game.player_char.play("feed"); game.sfx("rustle")
+	game.effects.hearts(b.obj.position + Vector3(0, 0.7, 0), 3)
+	var bakery: bool = s.quests.get("squirrels", {}).get("status", "") == "active" and not s.flags.get("squirrelsGone", false)
+	game.toast("Crunch. The boar snuffles your pockets for more." + (" This one lives in the woods; Ornella's three are at the bakery." if bakery else ""), "good")
+	game.story.event("animal")
+
 func _process(dt: float) -> void:
 	if game == null: return
 	t += dt
@@ -148,13 +166,19 @@ func _process_wildlife(dt: float) -> void:
 	var me := Vector2(pp.x, pp.z)
 	for b in boars:
 		# amble to a spot in the woods, root about there for a while, then pick another; trot off if you come close
+		b.full -= dt
+		var tempted: bool = int(game.state.inventory.get("acorn", 0)) > 0 and b.full <= 0.0 and b.pos.distance_to(me) < 7.0
+		if tempted and b.pos.distance_to(me) > 1.4:   # it smells the chestnuts: comes over and stops in front of you
+			b.goal = b.c + (me + (b.pos - me).normalized() * 1.2 - b.c).limit_length(b.r + 3.0); b.wait = 2.0
 		var to: Vector2 = b.goal - b.pos
-		var scared: bool = b.pos.distance_to(me) < 4.0
+		var scared: bool = b.pos.distance_to(me) < 4.0 and not tempted and b.full <= 0.0
 		if scared and b.wait > -10.0:
 			var away: Vector2 = (b.pos - me).normalized()
 			b.goal = b.c + (b.pos - b.c + away * 5.0).limit_length(b.r); b.wait = 0.0
-		if to.length() > 0.15:
-			var sp := 1.6 if scared else 0.45
+		if tempted and b.pos.distance_to(me) <= 1.4:
+			b.yaw = lerp_angle(b.yaw, atan2(me.x - b.pos.x, me.y - b.pos.y), minf(1.0, dt * 4.0)); to = Vector2.ZERO
+		elif to.length() > 0.15:
+			var sp := 1.6 if scared else (0.9 if tempted else 0.45)
 			b.pos += to.normalized() * minf(to.length(), sp * dt)
 			b.yaw = lerp_angle(b.yaw, atan2(to.x, to.y), minf(1.0, dt * 4.0))
 		else:

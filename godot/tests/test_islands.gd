@@ -168,7 +168,8 @@ func test_benches_to_rest_on():
 					var x: float = b.x + cos(k * TAU / 8.0) * 1.5; var z: float = b.z + sin(k * TAU / 8.0) * 1.5
 					if not w.can_stand(x, z, Heightfield.height(x, z), 0.3).is_empty(): sides += 1
 				t.ok(sides >= 4, "%s: you can walk up to %s (%d/8 sides)" % [id, b.id, sides])
-				for zn in Data.layout.zones:
+				for zn in Data.layout.zones:   # (an open area, like the village streets, takes in the benches already there)
+					if zn.get("open", false): continue
 					t.ok(not BuildGrid.zone_contains(zn, floorf(b.x), floorf(b.z), 999), "%s: %s isn't on a build site" % [id, b.id])
 			for e in Data.layout.nav_edges:
 				var a: Array = Data.layout.nav_nodes[e[0]]; var c: Array = Data.layout.nav_nodes[e[1]]

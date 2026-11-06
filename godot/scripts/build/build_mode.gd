@@ -53,11 +53,15 @@ func open(zone_id: String = "") -> bool:
 	for z in zones:
 		if z.id == zone_id: zone = z
 	if zone.is_empty(): zone = BuildGrid.zone_at(zones, floor(p.x), floor(p.z), LocationMeter.progress(state(), Data.island))
-	if zone.is_empty() and not zones.is_empty():
-		zones.sort_custom(func(a, b): return _zdist(a, p) < _zdist(b, p))
-		zone = zones[0]
+	if zone.is_empty() and not zones.is_empty():   # the nearest site, but not someone's room when you're outdoors
+		var outdoor := zones.filter(func(z): return not z.get("interior", false))
+		var pool: Array = outdoor if not outdoor.is_empty() else zones
+		pool.sort_custom(func(a, b): return _zdist(a, p) < _zdist(b, p))
+		zone = pool[0]
 	zone_index = maxi(0, unlocked_zones().find(zone))
 	jump_to(zone)
+	if zone.get("open", false) and BuildGrid.zone_contains(zone, floor(p.x), floor(p.z), LocationMeter.progress(state(), Data.island)):
+		focus = p   # an open area (the village streets): build right where you are
 	rebuild_grid(); refresh_plan()
 	grid_root.visible = true
 	game.cam.set_mode("build")
@@ -86,7 +90,7 @@ func step_out_of(zone: Dictionary) -> void:
 	var rect := Rect2(b.minI, b.minK, b.maxI - b.minI + 1, b.maxK - b.minK + 1)
 	var p: Vector3 = game.player.pos
 	var w: WalkWorld = game.walk
-	var inside := rect.grow(0.2).has_point(Vector2(p.x, p.z))
+	var inside: bool = rect.grow(0.2).has_point(Vector2(p.x, p.z)) and not zone.get("open", false)   # (an open area is somewhere you walk anyway)
 	if not inside and not w.stuck(p, WalkWorld.PLAYER_RADIUS, game.player.body): return
 	var from: Vector3 = opened_at if opened_at != Vector3.INF else p
 	var spot := w.free_spot(from.x, from.z, rect, 14.0, WalkWorld.PLAYER_RADIUS, game.player.body)

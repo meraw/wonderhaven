@@ -761,6 +761,16 @@
    "unlock": {
     "flag": "orchardOpen"
    }
+  },
+  {
+    "id": "village",
+    "name": "The village streets",
+    "open": true,
+    "minI": -26,
+    "maxI": 37,
+    "minK": -13,
+    "maxK": 22,
+    "_doc": "Anywhere in the village: build in the streets and squares. Listed last, so the sites above win where they overlap."
   }
  ],
  "nodes": [

@@ -197,3 +197,21 @@ func test_no_railings_in_the_water():
 				elif v.ok: dry_ok += 1
 	t.ok(wet_edge > 0, "the banks have cells with a wet edge (%d railings checked)" % wet_edge)
 	t.ok(dry_ok > 0, "railings on dry edges are still allowed (%d)" % dry_ok)
+
+func test_build_in_the_village_streets():
+	# The village's streets are an open building area: a bench in the street is fine, one inside a house isn't, and the
+	# sites with their own requests (the piazza, Elio's shop) still come first where they overlap.
+	var v := Data.zone("village")
+	t.ok(v.get("open", false), "the village streets are an open area")
+	var zones: Array = Data.layout.zones
+	t.eq(BuildGrid.zone_at(zones, 5, 2).get("id", ""), "plaza", "the piazza is still the piazza")
+	t.eq(BuildGrid.zone_at(zones, -13, 10).get("id", ""), "workshop", "Elio's shop is still Elio's shop")
+	var ok_spots := 0
+	for spot in [[0, 8], [-2, -4], [20, 0], [-24, 2], [3, 14]]:
+		var pl := {"uid": 1, "id": "bench", "i": spot[0], "k": spot[1], "r": 0, "y": BuildGrid.suggest_bottom("bench", spot[0], spot[1], 0, 9.0, [], v)}
+		if BuildGrid.validate_placement(pl, {"placements": [], "zones": [v], "statics": statics, "bodies": []}).ok: ok_spots += 1
+	t.ok(ok_spots >= 2, "benches go in the street (%d of 5 spots free)" % ok_spots)
+	var house: Dictionary = Data.layout.buildings.filter(func(b): return b.id == "fernHouse")[0]
+	var inside: Dictionary = {"uid": 2, "id": "bench", "i": floor(house.x) - 1, "k": floor(house.z), "r": 0, "y": Heightfield.height(house.x, house.z)}
+	var r := BuildGrid.validate_placement(inside, {"placements": [], "zones": [v], "statics": [], "bodies": []})
+	t.ok(not r.ok and String(r.reason).contains("inside"), "not inside Gigia's house: %s" % r.get("reason", "ok"))

@@ -61,6 +61,15 @@ static func overlap3(a: Dictionary, b: Dictionary) -> bool:
 ## The ground a piece in cell (i, k) rests on: the terrain, or a raised floor above it (a roof terrace, a balcony).
 static func ground_at(i: float, k: float) -> float: return maxf(Heightfield.height(i + 0.5, k + 0.5), WorldStatics.floor_top(i + 0.5, k + 0.5))
 
+## Does a piece's footprint reach inside one of the place's buildings (an open area like the village streets doesn't
+## take in people's rooms; a site that is a room, like Elio's shop, is its own zone)?
+static func _in_a_building(b: Dictionary) -> bool:
+	for bd in Data.layout.get("buildings", []):
+		if not bd.has("w"): continue
+		var r := {"minX": float(bd.x) - float(bd.w) / 2.0, "maxX": float(bd.x) + float(bd.w) / 2.0, "minZ": float(bd.z) - float(bd.d) / 2.0, "maxZ": float(bd.z) + float(bd.d) / 2.0}
+		if overlap2(b, r, 0.05): return true
+	return false
+
 # ---- Zones
 ## A zone may grow (`expanded`, at `expanded.harmony`): measured on the place's progress, the approval rating or the
 ## place's own meter where it has one (LocationMeter.progress).
@@ -210,6 +219,7 @@ static func validate_placement(pl: Dictionary, ctx: Dictionary) -> Dictionary:
 		var locked := zone_at(ctx.get("locked_zones", []), cs[0].x, cs[0].y, harmony)
 		return {"ok": false, "reason": ("%s isn't open for building yet" % locked.name) if not locked.is_empty() else "Outside a building area — look for the glowing grid"}
 	var b := bounds(pl)
+	if zone.get("open", false) and _in_a_building(b): return {"ok": false, "reason": "That's inside someone's building. Build out in the street"}
 	if b.top - float(zone.get("floorY", 0.0)) > MAX_HEIGHT: return {"ok": false, "reason": "Too high to build safely"}   # floorY: a site up on a roof
 	var env := _env_for(zone)
 	if d.get("placeOn", "") == "stream":
