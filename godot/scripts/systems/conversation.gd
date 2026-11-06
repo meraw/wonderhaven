@@ -4,7 +4,8 @@ class_name Conversation
 static func fill(text: String, player_name: String) -> String: return text.replace("{name}", player_name)
 
 ## Returns {turn_ins, main_offer, greeting, options: [{label, kind, id, quest?}]}
-static func build(npc: Dictionary, engine: QuestEngine, flags: Dictionary, player_name: String, sleepy: bool = false, seed: int = 0) -> Dictionary:
+## `first_meeting`: you've never talked to them; a villager with an `intro` line greets you with it.
+static func build(npc: Dictionary, engine: QuestEngine, flags: Dictionary, player_name: String, sleepy: bool = false, seed: int = 0, first_meeting: bool = false) -> Dictionary:
 	var turn_ins := engine.turn_ins_for(npc.id)
 	var offers := engine.offers_for(npc.id)
 	var main_offer := {}
@@ -17,6 +18,7 @@ static func build(npc: Dictionary, engine: QuestEngine, flags: Dictionary, playe
 		for g in npc.greetings:
 			if not g.has("flag") or flags.get(g.flag, false): lines = g.lines; break
 	var greeting := fill(lines[absi(seed) % lines.size()], player_name)
+	if first_meeting and npc.has("intro") and not sleepy: greeting = fill(String(npc.intro), player_name)
 	var options: Array = []
 	for pm in engine.payments_for(npc.id):
 		var o: Dictionary = pm.objective

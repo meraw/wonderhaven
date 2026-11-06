@@ -145,6 +145,17 @@ func test_castle_hall_floor_is_level():
 	t.ok(worst_above < Props.CASTLE_FLOOR - 0.005, "no ground above the castle floor (highest %.3f m over the mound)" % worst_above)
 	t.ok(worst_below > -0.001, "the throne room's ground is level with the mound (lowest %.3f)" % worst_below)
 
+func test_villagers_pronouns_and_skin():
+	# Every villager says whether they're he or she, so the interface never falls back to "they" for one person,
+	# and the Italian villagers (everyone but Clockwork Cove's old cast) have fair to tan skin.
+	for n in Data.npcs:
+		t.ok(String(n.get("pronoun", "")) in ["he", "she"], "%s has a pronoun" % n.name)
+		if Data.npc_island(n.id) == "clockwork": continue
+		var c := Color(n.appearance.skin)
+		t.ok(c.get_luminance() > 0.6, "%s's skin is fair or tan (%s)" % [n.name, n.appearance.skin])
+	t.eq([Data.pron("captain"), Data.pron("captain", "them"), Data.pron("captain", "their")], ["he", "him", "his"], "Aldo: he, him, his")
+	t.eq([Data.pron("mabel"), Data.pron("mabel", "them"), Data.pron("mabel", "their")], ["she", "her", "her"], "Ornella: she, her, her")
+
 func test_the_cast_wear_their_own_clothes():
 	# Each Monteforchetta villager's outfit is made of pieces that exist, so none falls back to the default look,
 	# and every piece builds a character without errors.

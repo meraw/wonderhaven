@@ -169,6 +169,11 @@
      "Here's my problem. The storm washed out the crossing on the main road, down past Gigia's groves. I came up the old mule track instead, and this bus is not going back down it. Not with me inside.",
      "Rebuild the crossing so people can walk across it, with railings, please. Planks can stretch two tiles over the water; after that they need a post underneath. Then Gigia gets her groves back and I stop sleeping on the back seat."
     ],
+    "offerMet": [
+     "Geometra! The Sindaco's done with you? Then you can hear my problem.",
+     "The storm washed out the crossing on the main road, down past Gigia's groves. I came up the old mule track instead, and this bus is not going back down it. Not with me inside.",
+     "Rebuild the crossing so people can walk across it, with railings, please. Planks can stretch two tiles over the water; after that they need a post underneath. Then Gigia gets her groves back and I stop sleeping on the back seat."
+    ],
     "acceptLabel": "I'll rebuild the crossing",
     "declineLabel": "Maybe later",
     "accept": [

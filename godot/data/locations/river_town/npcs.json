@@ -4,6 +4,7 @@
   {
    "id": "river_town_ermes",
    "name": "Ermes \"Centimetro\" Vercesi",
+   "pronoun": "he",
    "title": "Guardiano, the levee warden",
    "likes": [
     "river_town_zabaglione",
@@ -310,6 +311,7 @@
   {
    "id": "river_town_tullio",
    "name": "Tullio \"Caronte\" Maffi",
+   "pronoun": "he",
    "title": "Boatman",
    "likes": [
     "fish",
@@ -318,7 +320,7 @@
    ],
    "voice": 0.65,
    "appearance": {
-    "skin": "#c98a5e",
+    "skin": "#d9a37a",
     "eyeShape": "sleepy",
     "eyeColor": "#2a2a2a",
     "hair": "short",
@@ -495,6 +497,7 @@
   {
    "id": "river_town_primo",
    "name": "Primo \"Raggio\" Rampoldi",
+   "pronoun": "he",
    "title": "Bike repairman",
    "likes": [
     "metal",
@@ -684,6 +687,7 @@
   {
    "id": "river_town_gildo",
    "name": "Gildo Bergonzi",
+   "pronoun": "he",
    "title": "Fisherman",
    "likes": [
     "fish",
@@ -890,6 +894,7 @@
   {
    "id": "river_town_mattia",
    "name": "Mattia Bergonzi",
+   "pronoun": "he",
    "title": "Gildo's nephew",
    "likes": [
     "river_town_fried_fish",
@@ -1055,6 +1060,7 @@
   {
    "id": "river_town_wanda",
    "name": "Wanda Tacconi",
+   "pronoun": "she",
    "title": "Signora, \"la Regina del Liscio\"",
    "likes": [
     "flowers",
@@ -1228,6 +1234,7 @@
   {
    "id": "river_town_rina",
    "name": "Rina Daccò",
+   "pronoun": "she",
    "title": "\"la Rina\", the bar",
    "likes": [
     "river_town_pioppino",
@@ -1365,6 +1372,7 @@
   {
    "id": "river_town_ines",
    "name": "Ines Gandini",
+   "pronoun": "she",
    "title": "Sawmill owner",
    "likes": [
     "wood",
@@ -1566,6 +1574,7 @@
   {
    "id": "river_town_pierina",
    "name": "Pierina Arrigoni",
+   "pronoun": "she",
    "title": "Postwoman",
    "likes": [
     "river_town_zabaglione",

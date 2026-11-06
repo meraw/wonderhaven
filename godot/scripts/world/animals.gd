@@ -105,7 +105,7 @@ func pet(a: Dictionary, kind: String) -> void:
 	var s: Dictionary = game.state
 	if kind == "duck": s.inventory.fruit -= 1; game.render_resources(["fruit"])
 	game.effects.hearts(a.obj.position + Vector3(0, 0.6, 0), 3)
-	game.sfx("squeak")
+	game.sfx({"chicken": "cluck", "cat": "purr"}.get(kind, "squeak"))
 	a.peck = 1.2
 	var key := "pet_%s_%d" % [kind, int(s.time.day)]
 	if not s.flags.get(key, false):

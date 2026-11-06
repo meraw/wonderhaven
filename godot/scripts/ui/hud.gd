@@ -162,7 +162,7 @@ func render_tracker() -> void:
 		var v := VBoxContainer.new(); p.add_child(v)
 		var mark := "📍 " if game.state.tracked == "lead:" + lq.id else "★ "
 		v.add_child(UiTheme.label(mark + "Next in the story", 15))
-		var l := UiTheme.label("Talk to %s — look for the ! over their head" % Data.npc(lq.giver).name, 13, UiTheme.INK2); l.autowrap_mode = TextServer.AUTOWRAP_WORD; l.custom_minimum_size.x = 260
+		var l := UiTheme.label("Talk to %s — look for the ! over %s head" % [Data.npc(lq.giver).name, Data.pron(lq.giver, "their")], 13, UiTheme.INK2); l.autowrap_mode = TextServer.AUTOWRAP_WORD; l.custom_minimum_size.x = 260
 		v.add_child(l)
 		tracker.add_child(p)
 	for q in show:

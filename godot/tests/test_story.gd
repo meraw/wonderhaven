@@ -94,6 +94,15 @@ func test_conversation():
 	t.eq(c.options.back().kind, "bye")
 	t.ok(not "{name}" in c.greeting)
 
+func test_first_meeting():
+	var s := GameState.new_game()
+	var e := QuestEngine.new(s)
+	var aldo := Data.npc("captain")
+	t.ok(Conversation.build(aldo, e, s.flags, "Pip", false, 0, true).greeting.contains("Aldo Barbero"), "Aldo introduces himself the first time you talk")
+	t.ok(not Conversation.build(aldo, e, s.flags, "Pip").greeting.contains("Aldo Barbero"), "and not after that")
+	var d: Dictionary = Data.quest("bridge").dialogue
+	t.ok(d.offer[0].contains("Aldo Barbero") and not " ".join(d.offerMet).contains("Aldo Barbero"), "his request only introduces him if you haven't met")
+
 func test_schedule_and_paths():
 	t.eq(Schedule.activity_at(Data.npc("fern"), 8 * 60, {}).node, "fernGarden")
 	t.eq(Schedule.activity_at(Data.npc("fern"), 13 * 60, {"orchardOpen": true}).node, "orchard")
