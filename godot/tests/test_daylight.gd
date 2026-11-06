@@ -288,3 +288,20 @@ func test_dance_hall_instruments_and_waltz_bars():
 	var hb: Array = AudioDirector.step_events(AudioDirector.SONGS.hearthglow, 8).filter(func(e): return e[0] == "pluck" and int(e[1]) < 60)
 	t.eq(hb.size(), 1, "a 16-step song keeps its second bass note on step 8")
 
+## The speakers are looked after: nothing reaches them above -1 dB (a limiter on the master bus, added once however
+## often the scene reloads), and the scripts that start the game for playthroughs and screenshots start it without a
+## sound card, since a playthrough runs many times faster than real time.
+func test_the_speakers_are_looked_after():
+	AudioDirector.limit_master(); AudioDirector.limit_master()
+	var lims: Array = []
+	for i in AudioServer.get_bus_effect_count(0):
+		if AudioServer.get_bus_effect(0, i) is AudioEffectHardLimiter: lims.append(AudioServer.get_bus_effect(0, i))
+	t.eq(lims.size(), 1, "one limiter on the master bus, however often the music starts")
+	t.ok(lims.size() == 1 and lims[0].ceiling_db <= -1.0, "it keeps the sound below -1 dB")
+	for sh in ["play.sh", "shot.sh", "lookdev.sh"]:
+		var starts := 0
+		for line in FileAccess.get_file_as_string("res://" + sh).split("\n"):
+			if line.contains("xvfb-run") and not line.strip_edges().begins_with("#"):
+				starts += 1
+				t.ok(line.contains("--audio-driver Dummy"), "%s starts the game without a sound card" % sh)
+		t.ok(starts > 0, "%s still starts the game" % sh)

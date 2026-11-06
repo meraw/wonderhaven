@@ -1055,6 +1055,10 @@ func _parse_args() -> void:
 	for a in OS.get_cmdline_user_args():
 		var kv: PackedStringArray = a.trim_prefix("--").split("=", true, 1)
 		shot_cfg[kv[0]] = kv[1] if kv.size() > 1 else "1"
+	# A scripted run is silent: playthroughs run many times faster than real time (play.sh's --fixed-fps), so their
+	# music and sounds would pour out of the speakers at that speed, several runs at once with play_all.sh. The
+	# launch scripts also start Godot without a sound card (--audio-driver Dummy); this covers a run started by hand.
+	if shot_cfg.has("autoplay") or shot_cfg.has("shot"): AudioServer.set_bus_mute(0, true)
 	if shot_cfg.has("pos"):
 		var p: PackedStringArray = String(shot_cfg.pos).split(",")
 		player.teleport(float(p[0]), float(p[1]), float(p[2]) if p.size() > 2 else null)
