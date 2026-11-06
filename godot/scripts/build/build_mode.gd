@@ -147,18 +147,23 @@ func rebuild_grid() -> void:
 		lm.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF; fm.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		grid_root.add_child(lm); grid_root.add_child(fm)
 
+## The ghost plans of the steps you're on (Plans), and any older zone blueprint whose request is active: see-through
+## pieces on the site, gone as you build each one. A piece a plan uses that you haven't unlocked is unlocked.
 func refresh_plan() -> void:
 	for c in plan_root.get_children(): c.queue_free()
+	var shown: Array = []
+	for p in Plans.current(game.story.engine): shown.append_array(p.pieces)
 	for zone in Data.layout.zones:
-		if not zone.has("blueprint") or not game.zone_plan_visible(zone): continue
-		for e in zone.blueprint:
-			var id: String = e[2]; var i := float(e[0]); var k := float(e[1]); var r: int = int(e[3]) if e.size() > 3 else 0
-			if state().placements.any(func(p): return p.id == id and p.i == i and p.k == k): continue
-			var g := PieceMeshes.ghost(id, "plan")
-			var y := BuildGrid.suggest_bottom(id, i, k, r, 0.2 if id == "bridgeDeck" else -5.0, [], zone)
-			var fp := BuildGrid.footprint(Data.piece(id), r)
-			g.position = Vector3(i + fp.x / 2.0, y + 0.01, k + fp.y / 2.0); g.rotation.y = -r * PI / 2.0
-			plan_root.add_child(g)
+		if zone.has("blueprint") and game.zone_plan_visible(zone): shown.append_array(Plans.lay_out(zone.blueprint, zone, state().placements))
+	var missing: Array = []
+	for pl in shown:
+		if not state().blueprints.has(pl.id) and not missing.has(pl.id): missing.append(pl.id)
+		if Plans.built(pl, state().placements): continue
+		var g := PieceMeshes.ghost(pl.id, "plan")
+		var fp := BuildGrid.footprint(Data.piece(pl.id), int(pl.r))
+		g.position = Vector3(pl.i + fp.x / 2.0, float(pl.y) + 0.01, pl.k + fp.y / 2.0); g.rotation.y = -int(pl.r) * PI / 2.0
+		plan_root.add_child(g)
+	if not missing.is_empty(): game.story.unlock_blueprints(missing)
 
 # ---- Raycast cursor (maths against the heightfield and piece boxes; no physics needed)
 func pick(screen: Vector2) -> Dictionary:

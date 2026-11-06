@@ -46,6 +46,7 @@ func handle(list: Array) -> void:
 				if o.get("final", false): game.toast("📜 %s: %s" % [x.quest.title, o.text], "good", 4.0)
 			game.sfx("objective")
 		elif x.has("objective"): game.toast("✔ " + x.objective.text, "good", 3.0); game.sfx("objective")
+	if not list.is_empty(): game.build.refresh_plan()   # the next step's plan, if it has one
 	game.hud.render_tracker()
 
 ## Effects of finishing one step of a request (onDone in quests.json): flags, items, blueprints, and weather

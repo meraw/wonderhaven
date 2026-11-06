@@ -120,9 +120,10 @@ func test_fountain_mechanism():
 	var inlets := [{"id": "fountain", "cell": Data.layout.fountain.inlet.cell, "side": Data.layout.fountain.inlet.side}]
 	var bp: Array = []
 	var n := 100
-	for e in Data.zone("plaza").blueprint:
+	var plan: Array = Data.quest("fountain").objectives.filter(func(o): return o.id == "build")[0].plan
+	for e in plan:
 		bp.append({"uid": n, "id": e[2], "i": float(e[0]), "k": float(e[1]), "r": int(e[3]) if e.size() > 3 else 0, "y": -0.35 if e[2] == "waterwheel" else 0.0}); n += 1
-	t.ok(Mechanics.solve(bp, inlets).fed.fountain, "blueprint feeds the fountain")
+	t.ok(Mechanics.solve(bp, inlets).fed.fountain, "the plan feeds the fountain")
 	t.ok(not Mechanics.solve(bp.filter(func(p): return not (p.id == "pipe" and p.i == 5)), inlets).fed.fountain, "gap stops water")
 	var no_gear := Mechanics.solve(bp.filter(func(p): return p.id != "gear"), inlets)
 	t.ok(no_gear.pumps.is_empty() and not no_gear.fed.fountain, "no power, no water")
