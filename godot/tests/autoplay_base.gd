@@ -1,6 +1,7 @@
 extends Node
 ## Base for scripted playthroughs: sends real input events into the running game and records checks.
-## Run: xvfb-run godot --path godot -- --autoplay=res://tests/play_xxx.gd --out=/tmp/dir
+## Run: xvfb-run godot --path godot --audio-driver Dummy -- --autoplay=res://tests/play_xxx.gd --out=/tmp/dir (or play.sh)
+## A scripted run is silent (the game mutes itself for --autoplay and --shot).
 
 var game
 var results: Array = []

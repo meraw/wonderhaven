@@ -91,8 +91,19 @@ var warm_out := {}       # filled by the worker thread, merged into the cache on
 
 func _ready() -> void:
 	music_bus = _bus("Music"); sfx_bus = _bus("SFX")
+	limit_master()
 	for i in 40:
 		var p := AudioStreamPlayer.new(); add_child(p); pool.append(p)
+
+## Nothing reaches the speakers above -1 dB: a limiter on the master bus catches the rare moment when many notes peak
+## together (a quest's fanfare over the music with both volumes turned right up), where the sound card would
+## otherwise clip it. Normal play peaks well below it, so it doesn't change the sound. Once: the buses outlive the scene.
+static func limit_master() -> void:
+	for i in AudioServer.get_bus_effect_count(0):
+		if AudioServer.get_bus_effect(0, i) is AudioEffectHardLimiter: return
+	var lim := AudioEffectHardLimiter.new()
+	lim.ceiling_db = -1.0
+	AudioServer.add_bus_effect(0, lim)
 
 func _bus(name: String) -> int:
 	var idx := AudioServer.get_bus_index(name)
