@@ -7,9 +7,1521 @@
  "desc": "The big city: a marble cathedral bristling with spires, a glass-roofed arcade, old orange trams and canals full of bars, all in the fog.",
  "reveal": "rice_village_trainStops",
  "look": {
-  "shade": [0.0, 0.006, 0.02],
-  "light": [0.97, 0.98, 1.0],
-  "wind": 0.6,
-  "life": {"motes": 0.4, "fireflies": 0.0, "leaves": 0.3}
+  "shade": [
+   0.0,
+   0.008,
+   0.03
+  ],
+  "light": [
+   0.96,
+   0.98,
+   1.0
+  ],
+  "wind": 0.35,
+  "life": {
+   "motes": 0.3,
+   "fireflies": 0.0,
+   "leaves": 0.12
+  },
+  "weather": [
+   "mist",
+   "fair",
+   "cloudy",
+   "drizzle",
+   "clear"
+  ],
+  "mist": 0.7,
+  "sky": {
+   "color": [
+    0.86,
+    0.89,
+    0.92
+   ],
+   "pale": 0.5
+  },
+  "haze": {
+   "color": [
+    0.78,
+    0.82,
+    0.88
+   ],
+   "amount": 0.75,
+   "near": 55,
+   "far": 240
+  },
+  "water": {
+   "shallow": "#6c7c78",
+   "mid": "#55676a",
+   "deep": "#42565a",
+   "foam": 0.08
+  },
+  "frost": 0.6,
+  "sun_peak": 22,
+  "sunrise": 7.75,
+  "sunset": 17.0,
+  "songbirds": false
+ },
+ "meter": {
+  "name": "La Sera di Toriano",
+  "short": "Column inches",
+  "icon": "📰",
+  "about": "Toriano's evening paper measures you in column inches. Vale Meroni, its junior reporter, writes up every request you finish here, and big jobs make big stories. The Sindaco's approval rating stays back in Monteforchetta.",
+  "reward": "+%d column inches",
+  "display": {
+   "format": "%d in."
+  },
+  "milestones": [
+   {
+    "at": 10,
+    "id": "metropolis_notice",
+    "title": "A notice on page 18",
+    "desc": "\"New Geometra in town.\" Four lines under the crossword. The paper sends you the city's streetlight plans to go with it.",
+    "blueprints": [
+     "streetlight"
+    ]
+   },
+   {
+    "at": 25,
+    "id": "metropolis_photo",
+    "title": "Your photo in the paper",
+    "desc": "A photo with a caption: you, a plank and a pigeon. And a winter outfit to go with it, so you look the part: a long camel coat and a red wool scarf.",
+    "clothes": [
+     "longcoat",
+     "metropolis_camelcoat",
+     "metropolis_redscarf"
+    ]
+   },
+   {
+    "at": 45,
+    "id": "metropolis_interview",
+    "title": "An interview, half a page",
+    "desc": "\"The Geometra on Toriano: lovely city, terrible toilets.\" Ragioniere Sala reads it too, and the bathroom plans arrive the next morning.",
+    "blueprints": [
+     "toilet",
+     "washbasin",
+     "bathtub"
+    ],
+    "flags": [
+     "metropolis_interview"
+    ]
+   },
+   {
+    "at": 70,
+    "id": "metropolis_column",
+    "title": "Your own weekly column",
+    "desc": "\"The Geometra Answers\": readers' building questions, every Thursday. Your roof terrace at number 14 grows along the whole back wing.",
+    "flags": [
+     "metropolis_column"
+    ]
+   },
+   {
+    "at": 90,
+    "id": "metropolis_radio",
+    "title": "On the radio",
+    "desc": "Radio Naviglio interviews you live. They send a portable radio for your flat, so you can hear yourself on the repeat.",
+    "flags": [
+     "metropolis_radio"
+    ]
+   },
+   {
+    "at": 120,
+    "id": "metropolis_front_page",
+    "title": "The front page, on Christmas Day",
+    "desc": "The Golden Angel shines over the square, and your name is under the headline. Vale gets her promotion, and the framed front page hangs in your flat.",
+    "requires": {
+     "quests": [
+      "metropolis_angel"
+     ]
+    },
+    "waits": "the Golden Angel lit",
+    "flags": [
+     "metropolis_front_page"
+    ]
+   }
+  ]
+ },
+ "music": {
+  "songs": {
+   "metropolis_dawn": {
+    "bpm": 74,
+    "root": 63,
+    "lead": "piano",
+    "arp": "guitar",
+    "arp_every": 2,
+    "drums": "",
+    "pad": 0.11,
+    "pad_inst": "strings",
+    "bass": 0.8,
+    "length": 64,
+    "lead_vol": 1.5,
+    "chords": [
+     [
+      0,
+      4,
+      7,
+      11
+     ],
+     [
+      5,
+      9,
+      12,
+      16
+     ],
+     [
+      9,
+      12,
+      16,
+      19
+     ],
+     [
+      7,
+      11,
+      14
+     ]
+    ],
+    "melody": [
+     [
+      0,
+      16
+     ],
+     [
+      4,
+      14
+     ],
+     [
+      6,
+      12
+     ],
+     [
+      8,
+      11
+     ],
+     [
+      16,
+      12
+     ],
+     [
+      20,
+      16
+     ],
+     [
+      24,
+      19
+     ],
+     [
+      32,
+      16
+     ],
+     [
+      36,
+      14
+     ],
+     [
+      40,
+      12
+     ],
+     [
+      48,
+      14
+     ],
+     [
+      52,
+      11
+     ],
+     [
+      56,
+      7
+     ]
+    ]
+   },
+   "metropolis_morning": {
+    "bpm": 120,
+    "root": 57,
+    "lead": "saw",
+    "arp": "",
+    "drums": "dance",
+    "pad": 0.05,
+    "bass_style": "offbeat",
+    "bass_inst": "bass",
+    "bass": 0.85,
+    "comp": [
+     {
+      "inst": "piano",
+      "steps": [
+       2,
+       6,
+       10,
+       14
+      ],
+      "octave": 12,
+      "vol": 0.07,
+      "spread": 0.0
+     }
+    ],
+    "chords": [
+     [
+      0,
+      3,
+      7
+     ],
+     [
+      -2,
+      2,
+      5
+     ],
+     [
+      -4,
+      0,
+      3
+     ],
+     [
+      7,
+      11,
+      14
+     ],
+     [
+      0,
+      3,
+      7
+     ],
+     [
+      5,
+      8,
+      12
+     ],
+     [
+      3,
+      7,
+      10
+     ],
+     [
+      7,
+      11,
+      14
+     ]
+    ],
+    "melody": [
+     [
+      0,
+      12
+     ],
+     [
+      2,
+      12
+     ],
+     [
+      3,
+      10
+     ],
+     [
+      4,
+      7
+     ],
+     [
+      6,
+      10
+     ],
+     [
+      8,
+      12
+     ],
+     [
+      10,
+      15
+     ],
+     [
+      12,
+      14
+     ],
+     [
+      16,
+      10
+     ],
+     [
+      18,
+      10
+     ],
+     [
+      19,
+      8
+     ],
+     [
+      20,
+      7
+     ],
+     [
+      22,
+      8
+     ],
+     [
+      24,
+      10
+     ],
+     [
+      26,
+      14
+     ],
+     [
+      28,
+      12
+     ],
+     [
+      32,
+      8
+     ],
+     [
+      34,
+      8
+     ],
+     [
+      35,
+      7
+     ],
+     [
+      36,
+      5
+     ],
+     [
+      38,
+      7
+     ],
+     [
+      40,
+      8
+     ],
+     [
+      42,
+      12
+     ],
+     [
+      44,
+      10
+     ],
+     [
+      48,
+      11
+     ],
+     [
+      50,
+      11
+     ],
+     [
+      52,
+      14
+     ],
+     [
+      54,
+      11
+     ],
+     [
+      56,
+      7
+     ],
+     [
+      60,
+      11
+     ],
+     [
+      64,
+      15
+     ],
+     [
+      66,
+      15
+     ],
+     [
+      67,
+      14
+     ],
+     [
+      68,
+      12
+     ],
+     [
+      70,
+      14
+     ],
+     [
+      72,
+      15
+     ],
+     [
+      74,
+      19
+     ],
+     [
+      76,
+      17
+     ],
+     [
+      80,
+      17
+     ],
+     [
+      82,
+      17
+     ],
+     [
+      83,
+      15
+     ],
+     [
+      84,
+      12
+     ],
+     [
+      86,
+      15
+     ],
+     [
+      88,
+      17
+     ],
+     [
+      90,
+      20
+     ],
+     [
+      92,
+      19
+     ],
+     [
+      96,
+      15
+     ],
+     [
+      98,
+      15
+     ],
+     [
+      99,
+      14
+     ],
+     [
+      100,
+      12
+     ],
+     [
+      102,
+      14
+     ],
+     [
+      104,
+      15
+     ],
+     [
+      106,
+      19
+     ],
+     [
+      108,
+      17
+     ],
+     [
+      112,
+      14
+     ],
+     [
+      114,
+      14
+     ],
+     [
+      116,
+      11
+     ],
+     [
+      118,
+      14
+     ],
+     [
+      120,
+      12
+     ],
+     [
+      124,
+      11
+     ]
+    ]
+   },
+   "metropolis_afternoon": {
+    "bpm": 116,
+    "root": 65,
+    "lead": "piano",
+    "arp": "",
+    "drums": "pop",
+    "pad": 0.05,
+    "bass_style": "eighths",
+    "bass_inst": "bass",
+    "bass": 0.8,
+    "lift": 2,
+    "comp": [
+     {
+      "inst": "guitar",
+      "steps": [
+       0,
+       3,
+       6,
+       8,
+       10,
+       12,
+       14
+      ],
+      "octave": 0,
+      "vol": 0.09,
+      "spread": 0.012
+     }
+    ],
+    "chords": [
+     [
+      0,
+      4,
+      7
+     ],
+     [
+      7,
+      11,
+      14
+     ],
+     [
+      9,
+      12,
+      16
+     ],
+     [
+      5,
+      9,
+      12
+     ],
+     [
+      0,
+      4,
+      7
+     ],
+     [
+      2,
+      5,
+      9
+     ],
+     [
+      5,
+      9,
+      12
+     ],
+     [
+      7,
+      11,
+      14
+     ]
+    ],
+    "melody": [
+     [
+      0,
+      12
+     ],
+     [
+      2,
+      14
+     ],
+     [
+      4,
+      16
+     ],
+     [
+      6,
+      14
+     ],
+     [
+      8,
+      12
+     ],
+     [
+      12,
+      9
+     ],
+     [
+      16,
+      11
+     ],
+     [
+      18,
+      12
+     ],
+     [
+      20,
+      14
+     ],
+     [
+      22,
+      12
+     ],
+     [
+      24,
+      11
+     ],
+     [
+      28,
+      7
+     ],
+     [
+      32,
+      9
+     ],
+     [
+      34,
+      12
+     ],
+     [
+      36,
+      14
+     ],
+     [
+      38,
+      12
+     ],
+     [
+      40,
+      9
+     ],
+     [
+      44,
+      5
+     ],
+     [
+      48,
+      12
+     ],
+     [
+      50,
+      9
+     ],
+     [
+      52,
+      5
+     ],
+     [
+      54,
+      7
+     ],
+     [
+      56,
+      9
+     ],
+     [
+      60,
+      12
+     ],
+     [
+      64,
+      16
+     ],
+     [
+      66,
+      16
+     ],
+     [
+      67,
+      14
+     ],
+     [
+      68,
+      12
+     ],
+     [
+      70,
+      14
+     ],
+     [
+      72,
+      16
+     ],
+     [
+      76,
+      19
+     ],
+     [
+      80,
+      17
+     ],
+     [
+      82,
+      17
+     ],
+     [
+      83,
+      14
+     ],
+     [
+      84,
+      14
+     ],
+     [
+      86,
+      12
+     ],
+     [
+      88,
+      14
+     ],
+     [
+      92,
+      9
+     ],
+     [
+      96,
+      9
+     ],
+     [
+      98,
+      12
+     ],
+     [
+      100,
+      14
+     ],
+     [
+      102,
+      17
+     ],
+     [
+      104,
+      14
+     ],
+     [
+      112,
+      14
+     ],
+     [
+      114,
+      12
+     ],
+     [
+      116,
+      11
+     ],
+     [
+      118,
+      7
+     ],
+     [
+      120,
+      7
+     ]
+    ]
+   },
+   "metropolis_evening": {
+    "bpm": 88,
+    "root": 60,
+    "lead": "rhodes",
+    "arp": "",
+    "drums": "light",
+    "pad": 0.08,
+    "pad_inst": "strings",
+    "bass_style": "quarters",
+    "bass_inst": "bass",
+    "bass": 0.8,
+    "length": 64,
+    "lead_vol": 1.3,
+    "comp": [
+     {
+      "inst": "piano",
+      "steps": [
+       4,
+       12
+      ],
+      "octave": 0,
+      "vol": 0.05,
+      "spread": 0.03
+     }
+    ],
+    "chords": [
+     [
+      2,
+      5,
+      9,
+      12,
+      16
+     ],
+     [
+      7,
+      11,
+      14,
+      17,
+      21
+     ],
+     [
+      0,
+      4,
+      7,
+      11,
+      14
+     ],
+     [
+      9,
+      12,
+      16,
+      19
+     ]
+    ],
+    "melody": [
+     [
+      0,
+      14
+     ],
+     [
+      3,
+      16
+     ],
+     [
+      4,
+      17
+     ],
+     [
+      8,
+      16
+     ],
+     [
+      12,
+      14
+     ],
+     [
+      16,
+      17
+     ],
+     [
+      19,
+      16
+     ],
+     [
+      20,
+      14
+     ],
+     [
+      24,
+      11
+     ],
+     [
+      28,
+      9
+     ],
+     [
+      32,
+      11
+     ],
+     [
+      35,
+      12
+     ],
+     [
+      36,
+      14
+     ],
+     [
+      40,
+      16
+     ],
+     [
+      44,
+      19
+     ],
+     [
+      48,
+      16
+     ],
+     [
+      52,
+      14
+     ],
+     [
+      54,
+      12
+     ],
+     [
+      56,
+      9
+     ],
+     [
+      60,
+      7
+     ]
+    ]
+   },
+   "metropolis_night": {
+    "bpm": 74,
+    "root": 60,
+    "lead": "rhodes",
+    "arp": "",
+    "drums": "",
+    "pad": 0.1,
+    "pad_inst": "strings",
+    "bass": 0.7,
+    "length": 64,
+    "lead_vol": 1.4,
+    "chords": [
+     [
+      5,
+      9,
+      12,
+      16
+     ],
+     [
+      4,
+      7,
+      11,
+      14
+     ],
+     [
+      2,
+      5,
+      9,
+      12
+     ],
+     [
+      0,
+      4,
+      7,
+      11
+     ]
+    ],
+    "melody": [
+     [
+      0,
+      16
+     ],
+     [
+      6,
+      14
+     ],
+     [
+      8,
+      12
+     ],
+     [
+      16,
+      14
+     ],
+     [
+      22,
+      11
+     ],
+     [
+      24,
+      12
+     ],
+     [
+      32,
+      12
+     ],
+     [
+      36,
+      9
+     ],
+     [
+      40,
+      7
+     ],
+     [
+      48,
+      11
+     ],
+     [
+      52,
+      7
+     ],
+     [
+      56,
+      4
+     ]
+    ]
+   },
+   "metropolis_xmas": {
+    "bpm": 104,
+    "root": 67,
+    "lead": "glock",
+    "arp": "glock",
+    "arp_every": 2,
+    "drums": "light",
+    "pad": 0.08,
+    "pad_inst": "strings",
+    "bass_style": "quarters",
+    "bass_inst": "bass",
+    "bass": 0.7,
+    "lead_vol": 1.4,
+    "comp": [
+     {
+      "inst": "hat",
+      "steps": [
+       0,
+       2,
+       4,
+       6,
+       8,
+       10,
+       12,
+       14
+      ],
+      "octave": 24,
+      "vol": 0.04,
+      "spread": 0.01
+     }
+    ],
+    "chords": [
+     [
+      0,
+      4,
+      7
+     ],
+     [
+      9,
+      12,
+      16
+     ],
+     [
+      5,
+      9,
+      12
+     ],
+     [
+      7,
+      11,
+      14
+     ],
+     [
+      0,
+      4,
+      7
+     ],
+     [
+      4,
+      7,
+      11
+     ],
+     [
+      5,
+      9,
+      12
+     ],
+     [
+      7,
+      11,
+      14,
+      17
+     ]
+    ],
+    "melody": [
+     [
+      0,
+      12
+     ],
+     [
+      4,
+      11
+     ],
+     [
+      6,
+      9
+     ],
+     [
+      8,
+      7
+     ],
+     [
+      12,
+      4
+     ],
+     [
+      16,
+      9
+     ],
+     [
+      20,
+      11
+     ],
+     [
+      22,
+      12
+     ],
+     [
+      24,
+      16
+     ],
+     [
+      28,
+      14
+     ],
+     [
+      32,
+      12
+     ],
+     [
+      36,
+      9
+     ],
+     [
+      38,
+      7
+     ],
+     [
+      40,
+      5
+     ],
+     [
+      44,
+      9
+     ],
+     [
+      48,
+      11
+     ],
+     [
+      52,
+      7
+     ],
+     [
+      54,
+      9
+     ],
+     [
+      56,
+      11
+     ],
+     [
+      60,
+      14
+     ],
+     [
+      64,
+      16
+     ],
+     [
+      68,
+      14
+     ],
+     [
+      70,
+      12
+     ],
+     [
+      72,
+      11
+     ],
+     [
+      76,
+      12
+     ],
+     [
+      80,
+      11
+     ],
+     [
+      84,
+      7
+     ],
+     [
+      86,
+      4
+     ],
+     [
+      88,
+      7
+     ],
+     [
+      92,
+      11
+     ],
+     [
+      96,
+      12
+     ],
+     [
+      100,
+      9
+     ],
+     [
+      102,
+      12
+     ],
+     [
+      104,
+      16
+     ],
+     [
+      108,
+      14
+     ],
+     [
+      112,
+      14
+     ],
+     [
+      116,
+      11
+     ],
+     [
+      118,
+      9
+     ],
+     [
+      120,
+      7
+     ]
+    ]
+   },
+   "metropolis_finale": {
+    "bpm": 80,
+    "root": 62,
+    "lead": "piano",
+    "arp": "glock",
+    "arp_every": 4,
+    "drums": "ballad",
+    "pad": 0.1,
+    "pad_inst": "strings",
+    "bass": 0.9,
+    "lift": 2,
+    "lead_vol": 1.4,
+    "comp": [
+     {
+      "inst": "piano",
+      "steps": [
+       0,
+       4,
+       8,
+       12
+      ],
+      "octave": 0,
+      "vol": 0.06,
+      "spread": 0.02
+     }
+    ],
+    "chords": [
+     [
+      0,
+      4,
+      7
+     ],
+     [
+      7,
+      11,
+      14
+     ],
+     [
+      9,
+      12,
+      16
+     ],
+     [
+      5,
+      9,
+      12
+     ],
+     [
+      0,
+      4,
+      7
+     ],
+     [
+      7,
+      11,
+      14
+     ],
+     [
+      5,
+      9,
+      12
+     ],
+     [
+      7,
+      11,
+      14,
+      17
+     ]
+    ],
+    "melody": [
+     [
+      0,
+      16
+     ],
+     [
+      4,
+      14
+     ],
+     [
+      6,
+      12
+     ],
+     [
+      8,
+      11
+     ],
+     [
+      12,
+      12
+     ],
+     [
+      16,
+      11
+     ],
+     [
+      20,
+      14
+     ],
+     [
+      24,
+      19
+     ],
+     [
+      28,
+      16
+     ],
+     [
+      32,
+      16
+     ],
+     [
+      36,
+      14
+     ],
+     [
+      38,
+      12
+     ],
+     [
+      40,
+      9
+     ],
+     [
+      44,
+      12
+     ],
+     [
+      48,
+      12
+     ],
+     [
+      52,
+      9
+     ],
+     [
+      54,
+      7
+     ],
+     [
+      56,
+      5
+     ],
+     [
+      60,
+      7
+     ],
+     [
+      64,
+      19
+     ],
+     [
+      68,
+      21
+     ],
+     [
+      70,
+      19
+     ],
+     [
+      72,
+      16
+     ],
+     [
+      76,
+      14
+     ],
+     [
+      80,
+      16
+     ],
+     [
+      84,
+      19
+     ],
+     [
+      86,
+      21
+     ],
+     [
+      88,
+      23
+     ],
+     [
+      92,
+      19
+     ],
+     [
+      96,
+      24
+     ],
+     [
+      100,
+      23
+     ],
+     [
+      102,
+      21
+     ],
+     [
+      104,
+      19
+     ],
+     [
+      108,
+      17
+     ],
+     [
+      112,
+      19
+     ],
+     [
+      116,
+      16
+     ],
+     [
+      118,
+      14
+     ],
+     [
+      120,
+      12
+     ],
+     [
+      124,
+      11
+     ]
+    ]
+   }
+  },
+  "parts": {
+   "dawn": "metropolis_dawn",
+   "morning": "metropolis_morning",
+   "afternoon": "metropolis_afternoon",
+   "evening": "metropolis_evening",
+   "night": "metropolis_night"
+  },
+  "when": [
+   {
+    "flag": "metropolis_angel_lit",
+    "parts": {}
+   },
+   {
+    "flag": "metropolis_angel_on",
+    "parts": {
+     "evening": "metropolis_finale",
+     "night": "metropolis_finale"
+    }
+   },
+   {
+    "flag": "metropolis_christmas_eve",
+    "parts": {
+     "afternoon": "metropolis_xmas",
+     "evening": "metropolis_xmas",
+     "night": "metropolis_xmas"
+    }
+   }
+  ]
  }
 }

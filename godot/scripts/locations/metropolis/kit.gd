@@ -31,6 +31,7 @@ uniform int style = 0;
 uniform float shops = 1.0;      // 0: no shopfronts (a wall at street level)
 uniform float alpha = 1.0;      // < 1 while you're in a room beneath (dithered, like the fading roofs)
 global uniform vec4 world_weather;   // x sunlit, y night, z wet, w clouds
+global uniform float world_snow;     // the finale's snow on the cornices and flat roofs
 varying vec3 wp;
 varying vec3 wn;
 float hq(vec2 p) { vec3 p3 = fract(vec3(p.xyx) * 0.1031); p3 += dot(p3, p3.yzx + 33.33); return fract((p3.x + p3.y) * p3.z); }
@@ -56,6 +57,7 @@ void fragment() {
 	float fine = 1.0 - smoothstep(0.03, 0.09, length(fwidth(wp.xz)) + length(fwidth(wp.y)));
 	if (abs(wn.y) > 0.5) {   // tops and undersides: plain
 		c *= wn.y > 0.0 ? 0.82 : 0.6;
+		if (wn.y > 0.0) c = mix(c, vec3(0.88, 0.91, 0.95), world_snow * 0.8);
 	} else {
 		vec2 t2 = normalize(vec2(-wn.z, wn.x));
 		float u = dot(wp.xz, t2) + seed * 7.0;
@@ -325,7 +327,8 @@ static func block(b: Dictionary, style: int = PLAIN) -> Node3D:
 	return g
 
 ## [mesh, solid material, see-through copy] for each mesh under `nodes`, for game.gd's fading roofs: façades fade
-## through their own dither (`alpha`), other materials with alpha hash.
+## through their own dither (`alpha`), other materials through the roof shader's dither (as `Props.fade_parts` does:
+## the compatibility renderer draws alpha-hashed surfaces solid).
 static func fade_parts(nodes: Array) -> Array:
 	var parts: Array = []
 	for nd in nodes:
@@ -336,7 +339,8 @@ static func fade_parts(nodes: Array) -> Array:
 			if solid == null: continue
 			var faded: Material = solid.duplicate()
 			if faded is StandardMaterial3D:
-				faded.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_HASH; faded.alpha_hash_scale = 1.0
+				faded = Props.roof_material((solid as StandardMaterial3D).albedo_color, true)
+				(faded as ShaderMaterial).set_shader_parameter("plain", true)
 			elif faded is ShaderMaterial and (solid as ShaderMaterial).get_shader_parameter("color") != null:
 				faded = Props.roof_material((solid as ShaderMaterial).get_shader_parameter("color"), true)
 			parts.append([m, solid, faded])

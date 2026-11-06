@@ -137,6 +137,7 @@ uniform vec4 ground_rect = vec4(-62.0, -62.0, 124.0, 124.0);
 // Shared world values (Atmosphere): sun direction, weather (x sunlit, y night, z wet, w clouds), sky colours (linear).
 global uniform vec3 world_sun_dir;
 global uniform vec4 world_weather;
+global uniform float world_snow;
 global uniform vec3 world_sky_horizon;
 global uniform vec3 world_sky_zenith;
 varying vec3 wpos;
@@ -354,6 +355,13 @@ void fragment() {
 		cc += vec3(0.8, 0.88, 1.0) * drops(p * 2.2 + 3.0, TIME) * puddle * 0.3 * fine;
 		col = mix(col, cc, smoothstep(r + 0.03, r - 0.03, ds));
 		col *= 1.0 - 0.12 * smoothstep(r + 0.3, r, ds) * step(r, ds);
+	}
+	// Snow (a request brings it): a light white dusting over everything, paving and paths too, patchy where it's
+	// thin, settling on flat ground first and never on the water.
+	if (world_snow > 0.001) {
+		float cover = smoothstep(0.42, 0.78, fbm(p * 0.35 + 9.0) * 0.55 + noise(p * 4.0) * 0.3 + world_snow * 0.38);
+		float sz = world_snow * cover * smoothstep(0.55, 0.1, slope) * (1.0 - under) * smoothstep(water_y + 0.02, water_y + 0.12, wpos.y);
+		col = mix(col, vec3(0.9, 0.93, 0.97) * (0.95 + 0.05 * noise(p * 11.0)), sz * 0.8);
 	}
 	ALBEDO = col;
 	ROUGHNESS = 1.0;

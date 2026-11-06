@@ -1,0 +1,2158 @@
+{
+ "_comment": "Toriano's villagers (stage 3). Schedules use the city's nav spots; 'when' switches schedules by flag: on Christmas Eve everyone is in the cathedral square from five.",
+ "npcs": [
+  {
+   "id": "metropolis_augusto",
+   "name": "Signor Augusto Viganò",
+   "title": "Portinaio of Number 14",
+   "likes": [
+    "flowers",
+    "metropolis_panettone",
+    "metropolis_score_page"
+   ],
+   "voice": 0.8,
+   "appearance": {
+    "skin": "#f8cfa8",
+    "eyeShape": "happy",
+    "eyeColor": "#3a2a1e",
+    "hair": "short",
+    "hairColor": "#f2f2f2",
+    "mouth": "grin",
+    "top": "sweater",
+    "topColor": "#8a8d90",
+    "bottom": "pants",
+    "bottomColor": "#4a4a6a",
+    "shoes": "sandals",
+    "shoesColor": "#7a4a2a",
+    "hat": "none",
+    "hatColor": "#ffffff",
+    "accessory": "scarf",
+    "accessoryColor": "#c96a8a"
+   },
+   "schedule": [
+    [
+     0,
+     24,
+     "metropolis_station",
+     "wave"
+    ]
+   ],
+   "when": [
+    {
+     "flag": "metropolis_angel_lit",
+     "schedule": [
+      [
+       6,
+       9,
+       "metropolis_courtyard",
+       "work"
+      ],
+      [
+       9,
+       12,
+       "metropolis_lodge:spot",
+       "read"
+      ],
+      [
+       12,
+       13,
+       "metropolis_ten_gate",
+       "idle"
+      ],
+      [
+       13,
+       18,
+       "metropolis_lodge:spot",
+       "work"
+      ],
+      [
+       18,
+       21,
+       "metropolis_court_n",
+       "talk"
+      ],
+      [
+       21,
+       22,
+       "metropolis_lodge:spot",
+       "idle"
+      ]
+     ]
+    },
+    {
+     "flag": "metropolis_christmas_eve",
+     "schedule": [
+      [
+       6,
+       9,
+       "metropolis_courtyard",
+       "work"
+      ],
+      [
+       9,
+       12,
+       "metropolis_lodge:spot",
+       "read"
+      ],
+      [
+       12,
+       13,
+       "metropolis_ten_gate",
+       "idle"
+      ],
+      [
+       13,
+       17,
+       "metropolis_lodge:spot",
+       "work"
+      ],
+      [
+       17,
+       24,
+       "metropolis_eve1",
+       "wave"
+      ]
+     ]
+    },
+    {
+     "flag": "metropolis_settled",
+     "schedule": [
+      [
+       6,
+       9,
+       "metropolis_courtyard",
+       "work"
+      ],
+      [
+       9,
+       12,
+       "metropolis_lodge:spot",
+       "read"
+      ],
+      [
+       12,
+       13,
+       "metropolis_ten_gate",
+       "idle"
+      ],
+      [
+       13,
+       18,
+       "metropolis_lodge:spot",
+       "work"
+      ],
+      [
+       18,
+       21,
+       "metropolis_court_n",
+       "talk"
+      ],
+      [
+       21,
+       22,
+       "metropolis_lodge:spot",
+       "idle"
+      ]
+     ]
+    },
+    {
+     "flag": "metropolis_met",
+     "schedule": [
+      [
+       0,
+       24,
+       "metropolis_ten_gate",
+       "wave"
+      ]
+     ]
+    }
+   ],
+   "home": "metropolis_lodge:spot",
+   "greetings": [
+    {
+     "flag": "metropolis_angel_lit",
+     "lines": [
+      "Did you hear the bells? Forty years in the chorus and I never sang under a sound like that. Buon Natale, {name}."
+     ]
+    },
+    {
+     "flag": "metropolis_settled",
+     "lines": [
+      "Ah, {name}! The stairs are mopped, the post is sorted, and the courtyard smells of Signora Elvira's minestrone. All is well at number 14."
+     ]
+    },
+    {
+     "flag": "metropolis_met",
+     "lines": [
+      "This way, this way! The gate with the iron lilies. You can't miss it. Everyone misses it."
+     ]
+    },
+    {
+     "lines": [
+      "{name}? The Geometra from Monteforchetta? Welcome to Toriano! I'm Augusto, the portinaio of number 14. Your new home. Well. Your new address."
+     ]
+    }
+   ],
+   "sleepy": [
+    "Mmm… la donna è mobile… zzz…"
+   ],
+   "topics": [
+    {
+     "id": "chorus",
+     "label": "You sang at the opera?",
+     "lines": [
+      "Thirty-one years in the chorus of the Teatro Civico. Third from the left, always. In the photos you can see my elbow.",
+      "Maestro Gino was the prompter even then. He whispered the words to me in 1974 and I've never forgotten them. I've forgotten the opera, but not the words."
+     ]
+    },
+    {
+     "id": "fog",
+     "label": "Is it always this foggy?",
+     "lines": [
+      "Only from October to March. And sometimes in April. And on a Tuesday in July once, but nobody believes me.",
+      "If you get lost, follow the tram rails. Every rail in Toriano leads back to the cathedral, or to the depot, which is nearly as holy."
+     ]
+    },
+    {
+     "id": "lodge",
+     "label": "What's in the lodge?",
+     "lines": [
+      "The post, the keys, the meter readings, and the lost property of half the neighbourhood. People drop everything in the fog. Umbrellas, gloves, their dignity.",
+      "I keep it all. One day somebody will come back for a single brown glove, and I will be ready."
+     ]
+    }
+   ],
+   "gifts": [
+    {
+     "hearts": 3,
+     "items": {
+      "metropolis_panettone": 1
+     },
+     "line": "A slice of panettone, from my own tin. Don't tell the Ragioniere. He thinks the tin is a building expense."
+    },
+    {
+     "hearts": 6,
+     "blueprint": "bookshelf",
+     "line": "The plans of the bookshelf in my lodge. Every good portinaio needs somewhere to hide the post."
+    }
+   ]
+  },
+  {
+   "id": "metropolis_sala",
+   "name": "Ragioniere Mario Sala",
+   "title": "Administrator of Number 14",
+   "likes": [
+    "metal",
+    "metropolis_chocolate",
+    "stone"
+   ],
+   "voice": 0.95,
+   "appearance": {
+    "skin": "#ffe3cc",
+    "eyeShape": "round",
+    "eyeColor": "#3a2a1e",
+    "hair": "short",
+    "hairColor": "#3b2a20",
+    "mouth": "calm",
+    "top": "suit",
+    "topColor": "#6a4a30",
+    "bottom": "pants",
+    "bottomColor": "#5a3d2b",
+    "shoes": "boots",
+    "shoesColor": "#3a2a1e",
+    "hat": "none",
+    "hatColor": "#ffffff",
+    "accessory": "glasses"
+   },
+   "schedule": [
+    [
+     8,
+     12,
+     "metropolis_sala:spot",
+     "work"
+    ],
+    [
+     12,
+     13,
+     "metropolis_courtyard",
+     "idle"
+    ],
+    [
+     13,
+     19,
+     "metropolis_sala:spot",
+     "work"
+    ],
+    [
+     19,
+     21,
+     "metropolis_courtyard",
+     "idle"
+    ]
+   ],
+   "when": [
+    {
+     "flag": "metropolis_angel_lit",
+     "schedule": [
+      [
+       8,
+       12,
+       "metropolis_sala:spot",
+       "work"
+      ],
+      [
+       12,
+       13,
+       "metropolis_courtyard",
+       "idle"
+      ],
+      [
+       13,
+       19,
+       "metropolis_sala:spot",
+       "work"
+      ],
+      [
+       19,
+       21,
+       "metropolis_courtyard",
+       "idle"
+      ]
+     ]
+    },
+    {
+     "flag": "metropolis_christmas_eve",
+     "schedule": [
+      [
+       8,
+       12,
+       "metropolis_sala:spot",
+       "work"
+      ],
+      [
+       12,
+       13,
+       "metropolis_courtyard",
+       "idle"
+      ],
+      [
+       13,
+       17,
+       "metropolis_sala:spot",
+       "work"
+      ],
+      [
+       17,
+       24,
+       "metropolis_eve2",
+       "wave"
+      ]
+     ]
+    }
+   ],
+   "home": "metropolis_sala:spot",
+   "greetings": [
+    {
+     "flag": "metropolis_owner",
+     "lines": [
+      "Signor proprietario! Your share of the stair-lighting is due on the first. I say it with affection. And a receipt."
+     ]
+    },
+    {
+     "lines": [
+      "Sala. Ragioniere Sala. Administrator of number 14. Every repair needs a residents' meeting, a vote and three quotes. I have the forms."
+     ]
+    }
+   ],
+   "sleepy": [
+    "The… quarterly… balance… zzz…"
+   ],
+   "topics": [
+    {
+     "id": "rules",
+     "label": "What are the building's rules?",
+     "lines": [
+      "Rule one: no washing on the balcony railings. Rule two: Signora Elvira ignores rule one. Rule three: see rule two.",
+      "The rest are in the regulations of 1953, amended 1961, 1978 and twice in 1994 after the business with the goat."
+     ]
+    },
+    {
+     "id": "money",
+     "label": "Time is money?",
+     "lines": [
+      "Time is money, money is time, and a residents' meeting is a great deal of both.",
+      "I bill in quarter hours. This conversation has cost the building four hundred lire."
+     ]
+    }
+   ],
+   "gifts": [
+    {
+     "hearts": 4,
+     "items": {
+      "coins": 30
+     },
+     "line": "A refund. The building overcharged you for the stair lighting. It happens once every eleven years. Enjoy it."
+    },
+    {
+     "hearts": 7,
+     "blueprint": "cabinet",
+     "line": "The plans of my filing cabinet. Fireproof, fog-proof and, if you lose the key, Geometra-proof."
+    }
+   ]
+  },
+  {
+   "id": "metropolis_annoni",
+   "name": "Architetto Ludovica Annoni",
+   "title": "Head of the Cathedral Works",
+   "likes": [
+    "stone",
+    "flowers",
+    "metropolis_roman"
+   ],
+   "voice": 0.9,
+   "appearance": {
+    "skin": "#f8cfa8",
+    "eyeShape": "sleepy",
+    "eyeColor": "#3a2a1e",
+    "hair": "bun",
+    "hairColor": "#7a4a2a",
+    "mouth": "calm",
+    "top": "metropolis_camelcoat",
+    "topColor": "#b48a5a",
+    "bottom": "pants",
+    "bottomColor": "#4a4a6a",
+    "shoes": "boots",
+    "shoesColor": "#5a3d2b",
+    "hat": "helmet",
+    "hatColor": "#f4f1ea",
+    "accessory": "none"
+   },
+   "schedule": [
+    [
+     7,
+     10,
+     "metropolis_yard",
+     "work"
+    ],
+    [
+     10,
+     13,
+     "metropolis_works_office:spot",
+     "work"
+    ],
+    [
+     13,
+     16,
+     "metropolis_duomo_s",
+     "idle"
+    ],
+    [
+     16,
+     19,
+     "metropolis_duomo:spot",
+     "read"
+    ],
+    [
+     19,
+     22,
+     "metropolis_works_office:spot",
+     "read"
+    ]
+   ],
+   "when": [
+    {
+     "flag": "metropolis_angel_lit",
+     "schedule": [
+      [
+       7,
+       10,
+       "metropolis_yard",
+       "work"
+      ],
+      [
+       10,
+       13,
+       "metropolis_works_office:spot",
+       "work"
+      ],
+      [
+       13,
+       16,
+       "metropolis_duomo_s",
+       "idle"
+      ],
+      [
+       16,
+       19,
+       "metropolis_duomo:spot",
+       "read"
+      ],
+      [
+       19,
+       22,
+       "metropolis_works_office:spot",
+       "read"
+      ]
+     ]
+    },
+    {
+     "flag": "metropolis_christmas_eve",
+     "schedule": [
+      [
+       7,
+       10,
+       "metropolis_yard",
+       "work"
+      ],
+      [
+       10,
+       13,
+       "metropolis_works_office:spot",
+       "work"
+      ],
+      [
+       13,
+       16,
+       "metropolis_duomo_s",
+       "idle"
+      ],
+      [
+       16,
+       17,
+       "metropolis_duomo:spot",
+       "read"
+      ],
+      [
+       17,
+       24,
+       "metropolis_sq_front",
+       "wave"
+      ]
+     ]
+    }
+   ],
+   "home": "metropolis_works_office:spot",
+   "greetings": [
+    {
+     "flag": "metropolis_angel_lit",
+     "lines": [
+      "Six hundred and twelve years, and the Angel has never looked so pleased with herself. Nearly finished, {name}. 2130 at the latest."
+     ]
+    },
+    {
+     "flag": "metropolis_scaffold_done",
+     "lines": [
+      "Up on the roof, everything slows down. Even the pigeons. That is where the cathedral does its thinking."
+     ]
+    },
+    {
+     "lines": [
+      "You must be the Geometra. Good. The Cathedral Works has been waiting for you. Not long. Only since 1387.",
+      "There's no hurry. There is never any hurry here. Everyone else in Toriano is late for something. We are early for the year 2130."
+     ]
+    }
+   ],
+   "sleepy": [
+    "The thirty-fourth pinnacle… is leaning… zzz…"
+   ],
+   "topics": [
+    {
+     "id": "works",
+     "label": "What is the Cathedral Works?",
+     "lines": [
+      "The office that builds the cathedral. We started in 1387 and we are nearly finished. We've been nearly finished since 1813.",
+      "Marble comes up the canal by barge, the masons carve it in the yard, and every year something falls off and we start again. It's a living building. It sheds."
+     ]
+    },
+    {
+     "id": "statues",
+     "label": "How many statues are there?",
+     "lines": [
+      "Three thousand four hundred and two. I know every one by name. The one over the south door with the startled face is Ambrogio the Lesser. He saw the bill.",
+      "And on the top spire, the Golden Angel. She used to shine over the square every Christmas Eve. The floodlight broke in 1989. Nobody had the plans."
+     ]
+    },
+    {
+     "id": "hurry",
+     "label": "Why is everyone in a hurry?",
+     "lines": [
+      "Because they measure their lives in minutes. I measure mine in centuries. It's very restful.",
+      "Ask the Ragioniere what time it is. Then ask me. You'll get very different answers, and mine will be approximately the fifteenth century."
+     ]
+    }
+   ],
+   "gifts": [
+    {
+     "hearts": 4,
+     "items": {
+      "stone": 6
+     },
+     "line": "Offcuts from the yard. Candoglia marble, the pink vein. Build something that lasts. Or at least something that lasts until Tuesday."
+    },
+    {
+     "hearts": 7,
+     "blueprint": "statue",
+     "line": "The plans of a statue from the archive. 1624. Nobody remembers who it was meant to be, so it can be anyone. It looks a bit like you."
+    }
+   ]
+  },
+  {
+   "id": "metropolis_ambrogio",
+   "name": "Ambrogio Colombo",
+   "title": "Tram Driver (\"il Tranvee\")",
+   "likes": [
+    "crystal",
+    "metropolis_chocolate",
+    "metal"
+   ],
+   "voice": 0.7,
+   "appearance": {
+    "skin": "#e9b083",
+    "eyeShape": "round",
+    "eyeColor": "#3a2a1e",
+    "hair": "short",
+    "hairColor": "#d9d9d9",
+    "mouth": "grin",
+    "top": "jacket",
+    "topColor": "#2f5fa8",
+    "bottom": "pants",
+    "bottomColor": "#2f3f6f",
+    "shoes": "boots",
+    "shoesColor": "#3a2a1e",
+    "hat": "drivercap",
+    "hatColor": "#2f3f6f",
+    "accessory": "beard"
+   },
+   "schedule": [
+    [
+     6,
+     10,
+     "metropolis_n_e",
+     "idle"
+    ],
+    [
+     10,
+     14,
+     "metropolis_sq_s",
+     "idle"
+    ],
+    [
+     14,
+     18,
+     "metropolis_s1_46",
+     "idle"
+    ],
+    [
+     18,
+     22,
+     "metropolis_n_e",
+     "idle"
+    ]
+   ],
+   "when": [
+    {
+     "flag": "metropolis_angel_lit",
+     "schedule": [
+      [
+       6,
+       10,
+       "metropolis_n_e",
+       "idle"
+      ],
+      [
+       10,
+       14,
+       "metropolis_sq_s",
+       "idle"
+      ],
+      [
+       14,
+       18,
+       "metropolis_s1_46",
+       "idle"
+      ],
+      [
+       18,
+       22,
+       "metropolis_n_e",
+       "idle"
+      ]
+     ]
+    },
+    {
+     "flag": "metropolis_christmas_eve",
+     "schedule": [
+      [
+       6,
+       10,
+       "metropolis_n_e",
+       "idle"
+      ],
+      [
+       10,
+       14,
+       "metropolis_sq_s",
+       "idle"
+      ],
+      [
+       14,
+       17,
+       "metropolis_s1_46",
+       "idle"
+      ],
+      [
+       17,
+       24,
+       "metropolis_sq_s",
+       "wave"
+      ]
+     ]
+    }
+   ],
+   "home": "metropolis_station_e",
+   "greetings": [
+    {
+     "flag": "metropolis_angel_lit",
+     "lines": [
+      "My last run, {name}. Thirty years, never late in any fog. Carlotta rang her bell all the way round the square. I think she was crying. Trams do that."
+     ]
+    },
+    {
+     "lines": [
+      "Ding ding! Ambrogio Colombo, driver of the number 1 since 1969. They call me il Tranvee. My tram is Carlotta. Be nice to her, she's sensitive about her brakes."
+     ]
+    }
+   ],
+   "sleepy": [
+    "Next stop… zzz… Duomo… mind the… zzz…"
+   ],
+   "topics": [
+    {
+     "id": "carlotta",
+     "label": "Who's Carlotta?",
+     "lines": [
+      "My tram! Number 1503, built 1928. Wooden seats, brass handles, and a bell that can stop a bus at fifty metres.",
+      "She's been round the loop more times than the moon's been round the Earth. I did the sums once on a long red light."
+     ]
+    },
+    {
+     "id": "fog",
+     "label": "How do you drive in this fog?",
+     "lines": [
+      "By ear. Every crossing has its own sound. The bakery hums, the bank clicks, and the cathedral square sounds like pigeons arguing.",
+      "Thirty years, never late. Once early, in 1983. I've never forgiven myself."
+     ]
+    },
+    {
+     "id": "retire",
+     "label": "Are you retiring?",
+     "lines": [
+      "On Christmas Eve. My last run, round the square at midnight. After that, it's the young ones with their automatic doors.",
+      "Carlotta will go on without me. I've told her it's not her fault."
+     ]
+    }
+   ],
+   "gifts": [
+    {
+     "hearts": 3,
+     "items": {
+      "crystal": 3
+     },
+     "line": "Some coils of the old overhead wire. Copper, the good stuff. They're replacing it with something that hums in a key I don't like."
+    },
+    {
+     "hearts": 6,
+     "items": {
+      "coins": 40
+     },
+     "line": "Thirty years of tips from passengers. Well, a few of them. Buy yourself a hot chocolate. With cream. Ambrogio's orders."
+    }
+   ]
+  },
+  {
+   "id": "metropolis_franco",
+   "name": "Franco Brioschi",
+   "title": "Barman of Bar Brioschi",
+   "likes": [
+    "fish",
+    "metropolis_bicycle",
+    "acorn"
+   ],
+   "voice": 0.75,
+   "appearance": {
+    "skin": "#f8cfa8",
+    "eyeShape": "sleepy",
+    "eyeColor": "#3a2a1e",
+    "hair": "short",
+    "hairColor": "#a9a9a9",
+    "mouth": "calm",
+    "top": "jacket",
+    "topColor": "#f4f1ea",
+    "bottom": "pants",
+    "bottomColor": "#2b2b3a",
+    "shoes": "boots",
+    "shoesColor": "#1d1414",
+    "hat": "none",
+    "hatColor": "#ffffff",
+    "accessory": "bowtie"
+   },
+   "schedule": [
+    [
+     6,
+     23,
+     "metropolis_franco:spot",
+     "work"
+    ]
+   ],
+   "when": [
+    {
+     "flag": "metropolis_angel_lit",
+     "schedule": [
+      [
+       6,
+       23,
+       "metropolis_franco:spot",
+       "work"
+      ]
+     ]
+    },
+    {
+     "flag": "metropolis_christmas_eve",
+     "schedule": [
+      [
+       6,
+       17,
+       "metropolis_franco:spot",
+       "work"
+      ],
+      [
+       17,
+       24,
+       "metropolis_eve3",
+       "wave"
+      ]
+     ]
+    }
+   ],
+   "home": "metropolis_franco:spot",
+   "greetings": [
+    {
+     "flag": "metropolis_footbridge_done",
+     "lines": [
+      "Twelve regulars, all here by nine, all dry. That's your bridge. I've put your name on the slate. Nobody's name goes on the slate."
+     ]
+    },
+    {
+     "lines": [
+      "…Good evening. Or morning. In here it's always about half past seven. What can I get you? Take your time. Everybody else in this city is in a hurry. Not in here."
+     ]
+    }
+   ],
+   "sleepy": [
+    "…zzz… a caffè… corretto… zzz…"
+   ],
+   "topics": [
+    {
+     "id": "regulars",
+     "label": "Who are your regulars?",
+     "lines": [
+      "Twelve of them. Same twelve since 1962. The last new regular was in 1979, and he still sits by the door in case it doesn't work out.",
+      "I know all their secrets. I don't tell them. That's the job. That, and the coffee."
+     ]
+    },
+    {
+     "id": "canal",
+     "label": "What's in the canal?",
+     "lines": [
+      "Bicycles, mostly. People ride home from here in the fog and the Naviglio takes its share.",
+      "Fish me some out and I'll hang them on the wall. A bar needs a theme. Mine is 'bicycles the canal gave back'."
+     ]
+    }
+   ],
+   "gifts": [
+    {
+     "hearts": 3,
+     "items": {
+      "metropolis_chocolate": 2
+     },
+     "line": "Two hot chocolates, coffee and cream, the way they make it in Turin. On the house. Don't tell the twelve."
+    },
+    {
+     "hearts": 6,
+     "blueprint": "counter",
+     "line": "The plans of my bar counter. Walnut, 1962. It's heard more confessions than the cathedral."
+    }
+   ]
+  },
+  {
+   "id": "metropolis_chiara",
+   "name": "Chiara Pozzi",
+   "title": "Seamstress in the Galleria",
+   "likes": [
+    "fabric",
+    "flowers",
+    "metropolis_chocolate"
+   ],
+   "voice": 1.15,
+   "appearance": {
+    "skin": "#f8cfa8",
+    "eyeShape": "sparkle",
+    "eyeColor": "#3a2a1e",
+    "hair": "bob",
+    "hairColor": "#1d1414",
+    "mouth": "grin",
+    "top": "sweater",
+    "topColor": "#1f1f24",
+    "bottom": "skirt",
+    "bottomColor": "#4a4a6a",
+    "shoes": "boots",
+    "shoesColor": "#1d1414",
+    "hat": "none",
+    "hatColor": "#ffffff",
+    "accessory": "pens"
+   },
+   "schedule": [
+    [
+     8,
+     19,
+     "metropolis_chiara:spot",
+     "work"
+    ],
+    [
+     19,
+     21,
+     "metropolis_gal_mid",
+     "idle"
+    ],
+    [
+     21,
+     23,
+     "metropolis_franco:1",
+     "talk"
+    ]
+   ],
+   "when": [
+    {
+     "flag": "metropolis_angel_lit",
+     "schedule": [
+      [
+       8,
+       19,
+       "metropolis_chiara:spot",
+       "work"
+      ],
+      [
+       19,
+       21,
+       "metropolis_gal_mid",
+       "idle"
+      ],
+      [
+       21,
+       23,
+       "metropolis_franco:1",
+       "talk"
+      ]
+     ]
+    },
+    {
+     "flag": "metropolis_christmas_eve",
+     "schedule": [
+      [
+       8,
+       17,
+       "metropolis_chiara:spot",
+       "work"
+      ],
+      [
+       17,
+       24,
+       "metropolis_eve4",
+       "wave"
+      ]
+     ]
+    }
+   ],
+   "home": "metropolis_chiara:spot",
+   "greetings": [
+    {
+     "flag": "metropolis_collection_done",
+     "lines": [
+      "They stop at the window now, {name}! A lady from Paris asked if I ship. I said yes. I've no idea how. I'll learn."
+     ]
+    },
+    {
+     "lines": [
+      "Ciao! Mind the pins. This is my workshop, the smallest in the Galleria. Two metres by two. The rent is enormous. Per square centimetre, it's the most expensive room in Europe."
+     ]
+    }
+   ],
+   "sleepy": [
+    "Hem… hem… zzz… a dart there… zzz…"
+   ],
+   "topics": [
+    {
+     "id": "label",
+     "label": "You're a designer?",
+     "lines": [
+      "I will be. Pozzi, a label. Padded jackets in colours nobody's brave enough for, and scarves big enough to get lost in, which in this fog is a feature.",
+      "For now I take in hems. Lots of hems. Everybody in Toriano is in a hurry, so they all tread on their trousers."
+     ]
+    },
+    {
+     "id": "galleria",
+     "label": "What's the Galleria like?",
+     "lines": [
+      "Glass roof, mosaic floor, and a bull in the mosaic that you spin on with your heel for luck. Don't tell Annoni. She says it's three hundred years of wear on one tile.",
+      "At Christmas they hang lights under the glass. You'll see."
+     ]
+    }
+   ],
+   "gifts": [
+    {
+     "hearts": 3,
+     "items": {
+      "fabric": 4
+     },
+     "line": "Offcuts! Velvet, wool, a bit of tartan. Make something cosy. Or something outrageous. Ideally both."
+    },
+    {
+     "hearts": 6,
+     "blueprint": "rug",
+     "line": "My rug pattern. I wove the first one from forty old ties. You can tell which ones were from weddings."
+    }
+   ]
+  },
+  {
+   "id": "metropolis_gino",
+   "name": "Maestro Gino Pirovano",
+   "title": "Prompter at the Teatro Civico",
+   "likes": [
+    "metropolis_score_page",
+    "flowers",
+    "metropolis_roast_chestnuts"
+   ],
+   "voice": 1.25,
+   "appearance": {
+    "skin": "#ffe3cc",
+    "eyeShape": "round",
+    "eyeColor": "#3a2a1e",
+    "hair": "curly",
+    "hairColor": "#f2f2f2",
+    "mouth": "o",
+    "top": "suit",
+    "topColor": "#5a2a3a",
+    "bottom": "pants",
+    "bottomColor": "#2b2b3a",
+    "shoes": "boots",
+    "shoesColor": "#3a2a1e",
+    "hat": "none",
+    "hatColor": "#ffffff",
+    "accessory": "glasses"
+   },
+   "schedule": [
+    [
+     9,
+     13,
+     "metropolis_teatro",
+     "read"
+    ],
+    [
+     13,
+     17,
+     "metropolis_opera",
+     "idle"
+    ],
+    [
+     17,
+     20,
+     "metropolis_teatro",
+     "work"
+    ],
+    [
+     20,
+     24,
+     "metropolis_opera",
+     "idle"
+    ],
+    [
+     0,
+     2,
+     "metropolis_opera",
+     "idle"
+    ]
+   ],
+   "when": [
+    {
+     "flag": "metropolis_angel_lit",
+     "schedule": [
+      [
+       9,
+       13,
+       "metropolis_teatro",
+       "read"
+      ],
+      [
+       13,
+       17,
+       "metropolis_opera",
+       "idle"
+      ],
+      [
+       17,
+       20,
+       "metropolis_teatro",
+       "work"
+      ],
+      [
+       20,
+       24,
+       "metropolis_opera",
+       "idle"
+      ],
+      [
+       0,
+       2,
+       "metropolis_opera",
+       "idle"
+      ]
+     ]
+    },
+    {
+     "flag": "metropolis_christmas_eve",
+     "schedule": [
+      [
+       9,
+       13,
+       "metropolis_teatro",
+       "read"
+      ],
+      [
+       13,
+       17,
+       "metropolis_opera",
+       "idle"
+      ],
+      [
+       0,
+       2,
+       "metropolis_opera",
+       "idle"
+      ],
+      [
+       17,
+       24,
+       "metropolis_eve5",
+       "wave"
+      ]
+     ]
+    }
+   ],
+   "home": "metropolis_teatro",
+   "greetings": [
+    {
+     "flag": "metropolis_score_done",
+     "lines": [
+      "(whispering) The whole score. Every page. Tonight I'll whisper it to the tenors and they'll sing it as if they'd always known it. They never do."
+     ]
+    },
+    {
+     "lines": [
+      "(whispering) Good evening. Forgive me, I only whisper. Forty years in the prompter's box under the stage. If I spoke up, I'd ruin the second act."
+     ]
+    }
+   ],
+   "sleepy": [
+    "(whispering) …and the soprano comes in… zzz…"
+   ],
+   "topics": [
+    {
+     "id": "box",
+     "label": "What does a prompter do?",
+     "lines": [
+      "(whispering) I sit in a little box under the front of the stage and whisper the words to the singers when they forget them. Which is always.",
+      "(whispering) I know every opera by heart. All of them. I've never seen one. I've only ever seen ankles."
+     ]
+    },
+    {
+     "id": "augusto",
+     "label": "You know Augusto?",
+     "lines": [
+      "(whispering) Augusto Viganò! Third from the left. A lovely baritone and the worst memory in the chorus. I whispered him through thirty-one years of Christmas concerts.",
+      "(whispering) He still hums the overture when he mops the stairs. I can hear it from here. In my head."
+     ]
+    }
+   ],
+   "gifts": [
+    {
+     "hearts": 4,
+     "items": {
+      "coins": 35
+     },
+     "line": "(whispering) Two tickets' worth for the gallery. Sell them, or come and listen. Bring a cushion. The gallery seats are from 1891."
+    },
+    {
+     "hearts": 7,
+     "blueprint": "painting",
+     "line": "(whispering) The design of the old opera poster. Hang it somewhere quiet. Posters prefer quiet."
+    }
+   ]
+  },
+  {
+   "id": "metropolis_ottavio",
+   "name": "Ottavio Re",
+   "title": "Keeper of the Parco dei Platani",
+   "likes": [
+    "flowers",
+    "wood",
+    "acorn"
+   ],
+   "voice": 0.85,
+   "appearance": {
+    "skin": "#e9b083",
+    "eyeShape": "round",
+    "eyeColor": "#3a2a1e",
+    "hair": "short",
+    "hairColor": "#7a4a2a",
+    "mouth": "calm",
+    "top": "workjacket",
+    "topColor": "#3f6b4f",
+    "bottom": "pants",
+    "bottomColor": "#5a4a3a",
+    "shoes": "boots",
+    "shoesColor": "#3a2a1e",
+    "hat": "beanie",
+    "hatColor": "#3f6b4f",
+    "accessory": "beard"
+   },
+   "schedule": [
+    [
+     6,
+     10,
+     "metropolis_pond_n",
+     "work"
+    ],
+    [
+     10,
+     14,
+     "metropolis_park_e",
+     "garden"
+    ],
+    [
+     14,
+     17,
+     "metropolis_pond_w",
+     "work"
+    ],
+    [
+     17,
+     20,
+     "metropolis_park_gate",
+     "idle"
+    ]
+   ],
+   "when": [
+    {
+     "flag": "metropolis_angel_lit",
+     "schedule": [
+      [
+       6,
+       10,
+       "metropolis_pond_n",
+       "work"
+      ],
+      [
+       10,
+       14,
+       "metropolis_park_e",
+       "garden"
+      ],
+      [
+       14,
+       17,
+       "metropolis_pond_w",
+       "work"
+      ],
+      [
+       17,
+       20,
+       "metropolis_park_gate",
+       "idle"
+      ]
+     ]
+    },
+    {
+     "flag": "metropolis_christmas_eve",
+     "schedule": [
+      [
+       6,
+       10,
+       "metropolis_pond_n",
+       "work"
+      ],
+      [
+       10,
+       14,
+       "metropolis_park_e",
+       "garden"
+      ],
+      [
+       14,
+       17,
+       "metropolis_pond_w",
+       "work"
+      ],
+      [
+       17,
+       24,
+       "metropolis_eve6",
+       "wave"
+      ]
+     ]
+    }
+   ],
+   "home": "metropolis_park_gate",
+   "greetings": [
+    {
+     "flag": "metropolis_ducks_done",
+     "lines": [
+      "The ducks have moved in. They've already argued about the bedrooms. That's how you know it's a home."
+     ]
+    },
+    {
+     "lines": [
+      "Morning. Ottavio. I keep the park. Same loop every morning for twenty-five years, fog or no fog. I could walk it blindfold. In this fog, I do."
+     ]
+    }
+   ],
+   "sleepy": [
+    "…prune… the… zzz… plane trees… zzz…"
+   ],
+   "topics": [
+    {
+     "id": "planes",
+     "label": "What are these trees?",
+     "lines": [
+      "Plane trees. They shed their bark like old wallpaper and their leaves like the city sheds its tourists, all at once in November.",
+      "They need pruning every winter or they grow into the tram wires. Ambrogio and I have an arrangement. I prune, he doesn't swear."
+     ]
+    },
+    {
+     "id": "ducks",
+     "label": "And the ducks?",
+     "lines": [
+      "Forty-two of them, give or take. The old duck house sank in the flood of '94. They've been sleeping on the bench ever since, and the bench is not happy."
+     ]
+    }
+   ],
+   "gifts": [
+    {
+     "hearts": 3,
+     "items": {
+      "wood": 6
+     },
+     "line": "Prunings from the plane trees. Good dry wood. Take it before the ducks start building with it."
+    },
+    {
+     "hearts": 6,
+     "blueprint": "hedge",
+     "line": "The plans for the park hedges. Plant them in rows. Hedges like rows. Ducks like hedges. Everybody wins."
+    }
+   ]
+  },
+  {
+   "id": "metropolis_gennaro",
+   "name": "Gennaro Russo",
+   "title": "Chestnut Seller at the Castle Gate",
+   "likes": [
+    "acorn",
+    "wood",
+    "metropolis_roast_chestnuts"
+   ],
+   "voice": 1.05,
+   "appearance": {
+    "skin": "#c98a5e",
+    "eyeShape": "happy",
+    "eyeColor": "#3a2a1e",
+    "hair": "curly",
+    "hairColor": "#3b2a20",
+    "mouth": "grin",
+    "top": "sweater",
+    "topColor": "#7a5a3a",
+    "bottom": "pants",
+    "bottomColor": "#4a4a6a",
+    "shoes": "boots",
+    "shoesColor": "#3a2a1e",
+    "hat": "beanie",
+    "hatColor": "#b03a2e",
+    "accessory": "apron",
+    "accessoryColor": "#e8e2d0"
+   },
+   "schedule": [
+    [
+     9,
+     20,
+     "metropolis_castle_gate",
+     "work"
+    ]
+   ],
+   "when": [
+    {
+     "flag": "metropolis_angel_lit",
+     "schedule": [
+      [
+       9,
+       20,
+       "metropolis_castle_gate",
+       "work"
+      ]
+     ]
+    },
+    {
+     "flag": "metropolis_christmas_eve",
+     "schedule": [
+      [
+       9,
+       17,
+       "metropolis_castle_gate",
+       "work"
+      ],
+      [
+       17,
+       24,
+       "metropolis_eve7",
+       "wave"
+      ]
+     ]
+    }
+   ],
+   "home": "metropolis_castle_gate",
+   "greetings": [
+    {
+     "flag": "metropolis_cart_done",
+     "lines": [
+      "Look at her! A counter, a roof, a lamp! The chestnuts taste better under a roof. It's science. Neapolitan science."
+     ]
+    },
+    {
+     "lines": [
+      "Caldarroste! Hot chestnuts! Ah, a new face. Gennaro Russo, from Campania, roasting chestnuts at this gate every winter since 1986. Warm your hands, they're free. The chestnuts aren't."
+     ]
+    }
+   ],
+   "sleepy": [
+    "…the coals… keep them… zzz… red…"
+   ],
+   "topics": [
+    {
+     "id": "weather",
+     "label": "What's the weather tomorrow?",
+     "lines": [
+      "Fog in the morning, fog at lunch, and in the evening, surprise: fog. My knee is never wrong. The weatherman on the TV is always wrong. He has two good knees.",
+      "But I'll tell you a secret. One night before Christmas, it's going to snow. My knee is very excited about it."
+     ]
+    },
+    {
+     "id": "cart",
+     "label": "Your cart's seen better days.",
+     "lines": [
+      "My cart is older than my marriage and has fewer working parts. Every winter a wheel falls off. Every spring my wife says 'Gennaro, a new cart.' Every winter, the wheel."
+     ]
+    }
+   ],
+   "gifts": [
+    {
+     "hearts": 3,
+     "items": {
+      "metropolis_roast_chestnuts": 3
+     },
+     "line": "Three cones, extra hot. Give them to someone you like. Or eat them all yourself. I won't tell."
+    },
+    {
+     "hearts": 6,
+     "items": {
+      "coins": 30
+     },
+     "line": "Take this. You keep buying my chestnuts. A man should get something back from his best customer."
+    }
+   ]
+  },
+  {
+   "id": "metropolis_rocco",
+   "name": "Vigile Rocco Spreafico",
+   "title": "Traffic Warden (\"il Ghisa\")",
+   "likes": [
+    "metal",
+    "metropolis_chocolate",
+    "crystal"
+   ],
+   "voice": 0.9,
+   "appearance": {
+    "skin": "#f8cfa8",
+    "eyeShape": "round",
+    "eyeColor": "#3a2a1e",
+    "hair": "short",
+    "hairColor": "#3b2a20",
+    "mouth": "grin",
+    "top": "suit",
+    "topColor": "#1f2a3a",
+    "bottom": "pants",
+    "bottomColor": "#1f2a3a",
+    "shoes": "boots",
+    "shoesColor": "#1d1414",
+    "hat": "helmet",
+    "hatColor": "#f6f6f2",
+    "accessory": "none"
+   },
+   "schedule": [
+    [
+     7,
+     13,
+     "metropolis_sq_rocco",
+     "work"
+    ],
+    [
+     13,
+     14,
+     "metropolis_sq_n",
+     "idle"
+    ],
+    [
+     14,
+     20,
+     "metropolis_sq_rocco",
+     "work"
+    ]
+   ],
+   "when": [
+    {
+     "flag": "metropolis_angel_lit",
+     "schedule": [
+      [
+       7,
+       13,
+       "metropolis_sq_rocco",
+       "work"
+      ],
+      [
+       13,
+       14,
+       "metropolis_sq_n",
+       "idle"
+      ],
+      [
+       14,
+       20,
+       "metropolis_sq_rocco",
+       "work"
+      ]
+     ]
+    },
+    {
+     "flag": "metropolis_christmas_eve",
+     "schedule": [
+      [
+       7,
+       13,
+       "metropolis_sq_rocco",
+       "work"
+      ],
+      [
+       13,
+       14,
+       "metropolis_sq_n",
+       "idle"
+      ],
+      [
+       14,
+       17,
+       "metropolis_sq_rocco",
+       "work"
+      ],
+      [
+       17,
+       24,
+       "metropolis_sq",
+       "wave"
+      ]
+     ]
+    }
+   ],
+   "home": "metropolis_sq_nw",
+   "greetings": [
+    {
+     "flag": "metropolis_fog_light_done",
+     "lines": [
+      "Now they see me! Every car, every bus, a cyclist from Bergamo who was very surprised. Rocco Spreafico, visible at last!"
+     ]
+    },
+    {
+     "lines": [
+      "*FWEEEET!* Halt! Ah, a pedestrian. Carry on. Vigile Rocco Spreafico, traffic police. They call us 'Ghisa', for the old helmets. Mine is white. Spotless. Look at it."
+     ]
+    }
+   ],
+   "sleepy": [
+    "…left turn… only… zzz… *fweet*…"
+   ],
+   "topics": [
+    {
+     "id": "fog",
+     "label": "Who are you directing?",
+     "lines": [
+      "The traffic! There's always traffic. Sometimes I can't see it, in the fog, but I know it's out there. Somewhere. Turning left illegally.",
+      "On a foggy morning in 1995 I directed traffic for two hours before I found out I was in the park. The ducks were very well behaved."
+     ]
+    },
+    {
+     "id": "helmet",
+     "label": "Nice helmet.",
+     "lines": [
+      "Thank you. White, so they see me. Except in the fog, where white is exactly the problem. Nobody thought this through in 1890."
+     ]
+    }
+   ],
+   "gifts": [
+    {
+     "hearts": 3,
+     "items": {
+      "metal": 3
+     },
+     "line": "Confiscated hubcaps. I'm not supposed to give these away. You didn't see me. Nobody ever does."
+    },
+    {
+     "hearts": 6,
+     "blueprint": "signpost",
+     "line": "The plans of a proper road sign. Point it wherever you like. Then point it the other way. Toriano won't notice."
+    },
+    {
+     "hearts": 8,
+     "clothes": [
+      "helmet"
+     ],
+     "line": "My old helmet. The white one, from before they gave us the new ones. In the fog, people will stop when they see you. Mostly."
+    }
+   ]
+  },
+  {
+   "id": "metropolis_vale",
+   "name": "Vale Meroni",
+   "title": "Junior Reporter, La Sera di Toriano",
+   "likes": [
+    "metropolis_roman",
+    "metropolis_chocolate",
+    "fragment"
+   ],
+   "voice": 1.2,
+   "appearance": {
+    "skin": "#e9b083",
+    "eyeShape": "sparkle",
+    "eyeColor": "#3a2a1e",
+    "hair": "ponytail",
+    "hairColor": "#7a4a2a",
+    "mouth": "grin",
+    "top": "windbreaker",
+    "topColor": "#4a5a3a",
+    "bottom": "jeans",
+    "bottomColor": "#2f3f6f",
+    "shoes": "sneakers",
+    "shoesColor": "#e85d75",
+    "hat": "none",
+    "hatColor": "#ffffff",
+    "accessory": "scarf",
+    "accessoryColor": "#e0b03a"
+   },
+   "schedule": [
+    [
+     8,
+     11,
+     "metropolis_station_w",
+     "idle"
+    ],
+    [
+     11,
+     14,
+     "metropolis_sq_front",
+     "idle"
+    ],
+    [
+     14,
+     17,
+     "metropolis_gal_mid",
+     "idle"
+    ],
+    [
+     17,
+     19,
+     "metropolis_court_w",
+     "idle"
+    ],
+    [
+     19,
+     23,
+     "metropolis_franco:2",
+     "talk"
+    ]
+   ],
+   "when": [
+    {
+     "flag": "metropolis_angel_lit",
+     "schedule": [
+      [
+       8,
+       11,
+       "metropolis_station_w",
+       "idle"
+      ],
+      [
+       11,
+       14,
+       "metropolis_sq_front",
+       "idle"
+      ],
+      [
+       14,
+       17,
+       "metropolis_gal_mid",
+       "idle"
+      ],
+      [
+       17,
+       19,
+       "metropolis_court_w",
+       "idle"
+      ],
+      [
+       19,
+       23,
+       "metropolis_franco:2",
+       "talk"
+      ]
+     ]
+    },
+    {
+     "flag": "metropolis_christmas_eve",
+     "schedule": [
+      [
+       8,
+       11,
+       "metropolis_station_w",
+       "idle"
+      ],
+      [
+       11,
+       14,
+       "metropolis_sq_front",
+       "idle"
+      ],
+      [
+       14,
+       17,
+       "metropolis_gal_mid",
+       "idle"
+      ],
+      [
+       17,
+       24,
+       "metropolis_eve8",
+       "wave"
+      ]
+     ]
+    }
+   ],
+   "home": "metropolis_gal_e",
+   "greetings": [
+    {
+     "flag": "metropolis_front_page",
+     "lines": [
+      "THE FRONT PAGE, {name}! My name, your name, the Angel in colour! They've given me a desk with a window. The window faces a wall. It's a start!"
+     ]
+    },
+    {
+     "lines": [
+      "Vale Meroni, La Sera di Toriano! Can I quote you? You're the new Geometra! Say something about the city! Anything! Not 'foggy', everyone says foggy."
+     ]
+    }
+   ],
+   "sleepy": [
+    "…stop the presses… zzz… exclusive…"
+   ],
+   "topics": [
+    {
+     "id": "paper",
+     "label": "How do I get in the paper?",
+     "lines": [
+      "Do things! Help people, build things, fix things. I write it up, the editor measures it with a ruler, and you get column inches. More inches, bigger story.",
+      "Ten inches gets you a notice by the crossword. A hundred and twenty gets the front page. I've never had the front page. I've had the weather, twice."
+     ]
+    },
+    {
+     "id": "angel",
+     "label": "What's the big story in Toriano?",
+     "lines": [
+      "The Golden Angel! She hasn't shone on Christmas Eve since 1989. If she lights up again, that's the front page. Christmas Day. Colour photo.",
+      "Annoni says it'll happen 'in due course'. Her due course is about four hundred years. I need it by December."
+     ]
+    }
+   ],
+   "gifts": [
+    {
+     "hearts": 3,
+     "items": {
+      "coins": 25
+     },
+     "line": "My fee for the quote you gave me. You said 'busy'. The editor loved it. Busy! So true!"
+    },
+    {
+     "hearts": 6,
+     "blueprint": "desk",
+     "line": "The plans of a newsroom desk. Ink-proof, coffee-proof, deadline-proof. Mostly."
+    }
+   ]
+  },
+  {
+   "id": "metropolis_simone",
+   "name": "Simone Bonfanti",
+   "title": "Architecture Student, Next Door",
+   "likes": [
+    "wood",
+    "metropolis_panettone",
+    "stone"
+   ],
+   "voice": 1.1,
+   "appearance": {
+    "skin": "#ffe3cc",
+    "eyeShape": "wide",
+    "eyeColor": "#3a2a1e",
+    "hair": "spiky",
+    "hairColor": "#3b2a20",
+    "mouth": "grin",
+    "top": "hoodie",
+    "topColor": "#d9a43a",
+    "bottom": "jeans",
+    "bottomColor": "#4a4a6a",
+    "shoes": "sneakers",
+    "shoesColor": "#ffffff",
+    "hat": "none",
+    "hatColor": "#ffffff",
+    "accessory": "glasses"
+   },
+   "schedule": [
+    [
+     10,
+     13,
+     "metropolis_simone:spot",
+     "work"
+    ],
+    [
+     13,
+     16,
+     "metropolis_courtyard",
+     "idle"
+    ],
+    [
+     16,
+     20,
+     "metropolis_simone:spot",
+     "read"
+    ],
+    [
+     20,
+     24,
+     "metropolis_simone:spot",
+     "work"
+    ],
+    [
+     0,
+     2,
+     "metropolis_simone:spot",
+     "work"
+    ]
+   ],
+   "when": [
+    {
+     "flag": "metropolis_angel_lit",
+     "schedule": [
+      [
+       10,
+       13,
+       "metropolis_simone:spot",
+       "work"
+      ],
+      [
+       13,
+       16,
+       "metropolis_courtyard",
+       "idle"
+      ],
+      [
+       16,
+       20,
+       "metropolis_simone:spot",
+       "read"
+      ],
+      [
+       20,
+       24,
+       "metropolis_simone:spot",
+       "work"
+      ],
+      [
+       0,
+       2,
+       "metropolis_simone:spot",
+       "work"
+      ]
+     ]
+    },
+    {
+     "flag": "metropolis_christmas_eve",
+     "schedule": [
+      [
+       10,
+       13,
+       "metropolis_simone:spot",
+       "work"
+      ],
+      [
+       13,
+       16,
+       "metropolis_courtyard",
+       "idle"
+      ],
+      [
+       0,
+       2,
+       "metropolis_simone:spot",
+       "work"
+      ],
+      [
+       16,
+       17,
+       "metropolis_simone:spot",
+       "read"
+      ],
+      [
+       17,
+       24,
+       "metropolis_sq_w",
+       "wave"
+      ]
+     ]
+    }
+   ],
+   "home": "metropolis_simone:spot",
+   "greetings": [
+    {
+     "flag": "metropolis_model_done",
+     "lines": [
+      "My professor came round to see it. He said 'derivative but promising'. That's the nicest thing he's ever said! He said it about your pergola, but still!"
+     ]
+    },
+    {
+     "lines": [
+      "Oh hey, neighbour! Simone. Architecture, fourth year, eighth attempt at the exam. Sorry about the music. It's Ninth Wave. They're Belgian. You'll get used to them."
+     ]
+    }
+   ],
+   "sleepy": [
+    "…load-bearing… cardboard… zzz…"
+   ],
+   "topics": [
+    {
+     "id": "models",
+     "label": "What are you building?",
+     "lines": [
+      "Models! Cardboard, glue, a lot of glue. My flat is forty per cent cardboard by volume. The Ragioniere says it's a fire risk. I say it's a portfolio.",
+      "My exam model is a pergola. Four pillars, a roof, two benches. Very simple. Very pure. The professor says it doesn't stand up. It's cardboard. Of course it doesn't stand up."
+     ]
+    },
+    {
+     "id": "elvira",
+     "label": "And Signora Elvira?",
+     "lines": [
+      "She brings me soup and complains about the music. Then she taps her foot to it. I've seen her. She knows all the words now."
+     ]
+    }
+   ],
+   "gifts": [
+    {
+     "hearts": 3,
+     "items": {
+      "wood": 5
+     },
+     "line": "Offcuts from my models. Balsa, mostly. It's not strong but it's very light. Like my arguments, the professor says."
+    },
+    {
+     "hearts": 6,
+     "blueprint": "pillar",
+     "line": "My pillar drawings! Proper ones, to scale. A Geometra should have them. A student shouldn't, apparently. I photocopied them from the library."
+    }
+   ]
+  },
+  {
+   "id": "metropolis_elvira",
+   "name": "Signora Elvira Marelli",
+   "title": "Neighbour at the End of the Balcony",
+   "likes": [
+    "flowers",
+    "metropolis_panettone",
+    "fabric"
+   ],
+   "voice": 1.3,
+   "appearance": {
+    "skin": "#f8cfa8",
+    "eyeShape": "happy",
+    "eyeColor": "#3a2a1e",
+    "hair": "bun",
+    "hairColor": "#f2f2f2",
+    "mouth": "smile",
+    "top": "workjacket",
+    "topColor": "#b08ac0",
+    "bottom": "dress",
+    "bottomColor": "#c98aa8",
+    "shoes": "sandals",
+    "shoesColor": "#7a4a2a",
+    "hat": "none",
+    "hatColor": "#ffffff",
+    "accessory": "none"
+   },
+   "schedule": [
+    [
+     7,
+     11,
+     "metropolis_court_w",
+     "garden"
+    ],
+    [
+     11,
+     14,
+     "metropolis_elvira:spot",
+     "idle"
+    ],
+    [
+     14,
+     17,
+     "metropolis_court_n",
+     "talk"
+    ],
+    [
+     17,
+     21,
+     "metropolis_elvira:spot",
+     "idle"
+    ]
+   ],
+   "when": [
+    {
+     "flag": "metropolis_angel_lit",
+     "schedule": [
+      [
+       7,
+       11,
+       "metropolis_court_w",
+       "garden"
+      ],
+      [
+       11,
+       14,
+       "metropolis_elvira:spot",
+       "idle"
+      ],
+      [
+       14,
+       17,
+       "metropolis_court_n",
+       "talk"
+      ],
+      [
+       17,
+       21,
+       "metropolis_elvira:spot",
+       "idle"
+      ]
+     ]
+    },
+    {
+     "flag": "metropolis_christmas_eve",
+     "schedule": [
+      [
+       7,
+       11,
+       "metropolis_court_w",
+       "garden"
+      ],
+      [
+       11,
+       14,
+       "metropolis_elvira:spot",
+       "idle"
+      ],
+      [
+       14,
+       17,
+       "metropolis_court_n",
+       "talk"
+      ],
+      [
+       17,
+       24,
+       "metropolis_sq_n",
+       "wave"
+      ]
+     ]
+    }
+   ],
+   "home": "metropolis_elvira:spot",
+   "greetings": [
+    {
+     "flag": "metropolis_tree_done",
+     "lines": [
+      "A real tree in the courtyard, with lights! Like before the war. Well. Like after the war. Before the war we had a goat. Long story."
+     ]
+    },
+    {
+     "lines": [
+      "Ah, the new one in number 3. Welcome, welcome. Elvira Marelli. I'm the end of the balcony. That's my washing over your window. You'll learn to love it."
+     ]
+    }
+   ],
+   "sleepy": [
+    "…the washing… bring it in… zzz…"
+   ],
+   "topics": [
+    {
+     "id": "before",
+     "label": "What was the courtyard like?",
+     "lines": [
+      "Before the war? Children, chickens, a fig tree, and a Christmas tree every year that the whole building decorated with whatever it had. One year it was spoons.",
+      "Now it's bicycles and the Ragioniere's notices. The bicycles are nicer."
+     ]
+    },
+    {
+     "id": "toilet",
+     "label": "The toilet's down the balcony?",
+     "lines": [
+      "Shared, at the end, past my door. Everyone in the building has met everyone in the building in the queue for it. That's how I met my husband. 1958.",
+      "He was in there forty minutes. I married him anyway."
+     ]
+    }
+   ],
+   "gifts": [
+    {
+     "hearts": 3,
+     "items": {
+      "flowers": 4,
+      "fabric": 2
+     },
+     "line": "Some flowers from my balcony and a bit of lace. Put them in your flat. A flat without flowers is just a box with a radiator."
+    },
+    {
+     "hearts": 6,
+     "blueprint": "flowerBed",
+     "line": "How to make a proper window box. Write it down. No, I'll write it down. You young people only remember things on your computers."
+    }
+   ]
+  }
+ ]
+}

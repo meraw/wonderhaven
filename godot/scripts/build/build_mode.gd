@@ -52,7 +52,7 @@ func open(zone_id: String = "") -> bool:
 	var zone := {}
 	for z in zones:
 		if z.id == zone_id: zone = z
-	if zone.is_empty(): zone = BuildGrid.zone_at(zones, floor(p.x), floor(p.z), state().harmony)
+	if zone.is_empty(): zone = BuildGrid.zone_at(zones, floor(p.x), floor(p.z), LocationMeter.progress(state(), Data.island))
 	if zone.is_empty() and not zones.is_empty():
 		zones.sort_custom(func(a, b): return _zdist(a, p) < _zdist(b, p))
 		zone = zones[0]
@@ -82,7 +82,7 @@ func close() -> void:
 ## outside the highlighted zone, preferring where you stood when you started building.
 func step_out_of(zone: Dictionary) -> void:
 	if zone.is_empty() or zone.get("interior", false): return
-	var b := BuildGrid.zone_bounds(zone, game.state.harmony)
+	var b := BuildGrid.zone_bounds(zone, LocationMeter.progress(game.state, Data.island))
 	var rect := Rect2(b.minI, b.minK, b.maxI - b.minI + 1, b.maxK - b.minK + 1)
 	var p: Vector3 = game.player.pos
 	var w: WalkWorld = game.walk
@@ -107,7 +107,7 @@ func _zdist(z: Dictionary, p: Vector3) -> float: return Vector2((z.minI + z.maxI
 func jump_to(zone: Dictionary) -> void:
 	current_zone = zone
 	if zone.is_empty(): focus = game.player.pos; return
-	var b := BuildGrid.zone_bounds(zone, state().harmony)
+	var b := BuildGrid.zone_bounds(zone, LocationMeter.progress(state(), Data.island))
 	focus = Vector3((b.minI + b.maxI + 1) / 2.0, maxf(0.0, zone.get("floorY", zone.get("spanY", 0.0))), (b.minK + b.maxK + 1) / 2.0)
 
 func cycle_zone(dir: int) -> void:
@@ -125,7 +125,7 @@ func rebuild_grid() -> void:
 	for c in grid_root.get_children(): c.queue_free()
 	for zone in Data.layout.zones:
 		var unlocked: bool = game.zone_unlocked(zone)
-		var b := BuildGrid.zone_bounds(zone, state().harmony)
+		var b := BuildGrid.zone_bounds(zone, LocationMeter.progress(state(), Data.island))
 		var lines := SurfaceTool.new(); lines.begin(Mesh.PRIMITIVE_LINES)
 		var fill := SurfaceTool.new(); fill.begin(Mesh.PRIMITIVE_TRIANGLES)
 		for i in range(int(b.minI), int(b.maxI) + 1):
@@ -228,7 +228,7 @@ func candidate() -> Dictionary:
 		var c := _cell_for(d, r, hover.point)
 		return {"id": id, "i": c.x, "k": c.y, "r": r, "y": hover.point.y, "no_wall": true}
 	var cell := _cell_for(d, r, hover.point)
-	var zone := BuildGrid.zone_at(Data.layout.zones, cell.x, cell.y, state().harmony)
+	var zone := BuildGrid.zone_at(Data.layout.zones, cell.x, cell.y, LocationMeter.progress(state(), Data.island))
 	var others := _others()
 	return {"id": id, "i": cell.x, "k": cell.y, "r": r, "y": BuildGrid.suggest_bottom(id, cell.x, cell.y, r, hover.hit_y, others, zone)}
 
@@ -257,13 +257,17 @@ func evaluate(c: Dictionary) -> Dictionary:
 func _clear_ghost() -> void:
 	if ghost: ghost.queue_free(); ghost = null; ghost_key = ""
 
+## How far the build view can move from the middle of the map, each way: over the whole map, 55 m in a village.
+static func view_limit() -> float: return Data.map_size() / 2.0 - 7.0
+
 func update(dt: float) -> void:
 	var mv: Vector2 = game.move_vector()
 	var yaw: float = game.cam.move_yaw()
 	var fx := -sin(yaw); var fz := -cos(yaw)
 	var spd := 9.0 * (2.0 if Input.is_action_pressed("sprint") else 1.0) * dt
-	focus.x = clampf(focus.x + (fx * mv.y - fz * mv.x) * spd, -55, 55)
-	focus.z = clampf(focus.z + (fz * mv.y + fx * mv.x) * spd, -55, 55)
+	var lim := view_limit()
+	focus.x = clampf(focus.x + (fx * mv.y - fz * mv.x) * spd, -lim, lim)
+	focus.z = clampf(focus.z + (fz * mv.y + fx * mv.x) * spd, -lim, lim)
 	game.cam.focus = Vector3(focus.x, maxf(Heightfield.height(focus.x, focus.z), focus.y) + 0.5, focus.z)
 	if Input.is_action_just_pressed("pause"):
 		if not moving.is_empty(): cancel_move()
@@ -294,7 +298,7 @@ func update(dt: float) -> void:
 		ghost.visible = true
 	else:
 		if ghost: ghost.visible = false
-		if not check.is_empty(): check = {}; _render_status()
+		if not check.is_empty(): check = {}; ghost_key = ""; _render_status()   # (so coming back to the same cell checks it again)
 	var sm: Node3D = game.piece_nodes.get(selected)
 	sel_box.visible = sm != null and moving.is_empty()
 	if sm:
@@ -376,7 +380,7 @@ func place() -> void:
 
 func remove_target() -> void:
 	var uid: int = selected if selected != -1 else (hover.get("uid", -1) if not hover.is_empty() else -1)
-	if uid == -1: game.toast("Point at a piece to remove it"); return
+	if uid < 0: game.toast("Point at a piece to remove it"); return   # (not a raised floor, -2)
 	var pl := _find(uid).duplicate(true)
 	var r: Dictionary = game.commit_remove(uid)
 	if r.ok: history.push({"type": "remove", "pl": pl}); selected = -1; _build_ui()

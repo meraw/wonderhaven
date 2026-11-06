@@ -26,6 +26,7 @@ func attach(state: Dictionary) -> void: engine.state = state; engine.invalidate(
 
 func _on_event(type: String, data: Dictionary) -> void:
 	if type == "gain": handle(engine.on_gain(data.items))
+	if type == "rode": event("ride"); event("ride:" + String(data.to))   # a ride between stops, and where to
 	if type == "build":
 		if data.get("action", "") == "place": first_of_kind(data.pl.id)
 		handle(engine.refresh())
@@ -205,10 +206,10 @@ func complete_quest(qid: String, agent) -> void:
 	agent.character.play("celebrate")
 	await ui.say(Conversation.quest_lines(qid, "complete", game.state.name), {"mood": "happy"})
 	var r := engine.complete(qid)
+	var where := Data.quest_island(qid)
 	var lines: Array = []
 	if r.get("harmony", 0) > 0: lines.append("+%d 💖 approval" % int(r.harmony))
-	var isl := Data.quest_island(qid)
-	if r.get("meter", 0) > 0: lines.append(LocationMeter.reward_text(LocationMeter.def(isl), int(r.meter)))
+	if r.get("meter", 0) > 0: lines.append(LocationMeter.reward_text(LocationMeter.def(where), int(r.meter)))
 	for k in r.get("items", {}): lines.append("+" + Money.amount(k, int(r.items[k])))
 	for b in r.get("blueprints", []): lines.append("📐 " + Data.piece(b).name)
 	for c in r.get("clothes", []): lines.append("👗 " + Data.appearance.labels.get(c, c))
@@ -222,7 +223,7 @@ func complete_quest(qid: String, agent) -> void:
 	for f in r.get("flags", []): game.set_flag(f)
 	add_hearts(q.giver, 2)
 	if r.get("harmony", 0) > 0: add_harmony(int(r.harmony))
-	if r.get("meter", 0) > 0: add_meter(isl, int(r.meter))
+	if r.get("meter", 0) > 0 or not LocationMeter.waiting(game.state, where).is_empty(): add_meter(where, int(r.get("meter", 0)))
 	game.on_quest_completed(qid)
 	handle(engine.refresh())
 	game.autosave("quest", true)
@@ -276,18 +277,22 @@ func add_harmony(n: int) -> void:
 	for u in Harmony.between(before, s.harmony): apply_unlock(u)
 	handle(engine.refresh())
 
-## Points on a location's own meter (LocationMeter), and the milestones they reach.
+## Points on a location's own meter (LocationMeter), and the milestones they reach. A milestone that waits for
+## something ("requires": the front page waits for the finale) comes when that's done, if you have the points.
 func add_meter(island: String, n: int) -> void:
 	var m := LocationMeter.def(island)
-	for u in LocationMeter.add(game.state, island, n):
-		if u.has("items"): game.give(_ints(u.items), null, true)   # expenses, a load of materials
+	var due: Array = LocationMeter.add(game.state, island, n).filter(func(u): return LocationMeter.requirements_met(game.state, u))
+	for u in LocationMeter.waiting(game.state, island):
+		if not due.has(u): due.append(u)
+	for u in due:
 		if u.has("blueprints"): unlock_blueprints(u.blueprints, "", true)
 		if u.has("clothes"): unlock_clothes(u.clothes, true)
+		if u.has("items"): game.give(_ints(u.items), null, true)
 		for f in u.get("flags", []): game.set_flag(f)
-		if u.has("flags"): game.build.rebuild_grid()
 		var mu: Dictionary = u
 		game.get_tree().create_timer(1.8).timeout.connect(func(): game.banner("%s %s" % [m.get("icon", "📈"), m.get("name", "Milestone")], "%s  %s" % [LocationMeter.reading(m, int(mu.at)), mu.title], [mu.desc], 4.0); game.sfx("unlock"))
 		game.state.unlocks_seen.append(u.get("id", ""))
+	if not due.is_empty(): game.build.rebuild_grid()   # a build site there may grow with the meter
 	game.hud.render_harmony()
 	handle(engine.refresh())
 
