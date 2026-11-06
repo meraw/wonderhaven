@@ -666,7 +666,13 @@
      },
      "line": "Spokes, bent. You'll find a use. I always do."
     }
-   ]
+   ],
+   "bike": {
+    "color": "#3f8f5a",
+    "ups": [
+     "paint"
+    ]
+   }
   },
   {
    "id": "river_town_gildo",
@@ -1034,7 +1040,10 @@
      },
      "line": "Found it in the mud. It's yours. Don't tell my uncle, he'll say the monster dropped it."
     }
-   ]
+   ],
+   "bike": {
+    "color": "#c0392b"
+   }
   },
   {
    "id": "river_town_wanda",
@@ -1201,7 +1210,13 @@
      },
      "line": "Velvet from the old curtains. The good bits. Make something that sways."
     }
-   ]
+   ],
+   "bike": {
+    "color": "#e8a0b4",
+    "ups": [
+     "basket"
+    ]
+   }
   },
   {
    "id": "river_town_rina",
@@ -1526,7 +1541,13 @@
      },
      "line": "Offcuts. Good for small things. Don't waste them."
     }
-   ]
+   ],
+   "bike": {
+    "color": "#f2c53a",
+    "ups": [
+     "basket"
+    ]
+   }
   },
   {
    "id": "river_town_pierina",
@@ -1726,7 +1747,14 @@
      },
      "line": "From my window box. The flood didn't reach the second floor. I checked."
     }
-   ]
+   ],
+   "bike": {
+    "color": "#2f5f9e",
+    "ups": [
+     "basket",
+     "rack"
+    ]
+   }
   }
  ]
 }

@@ -341,3 +341,32 @@ func test_mist_on_the_water_at_dawn():
 	t.ok(M.amount_at(6.5) > 0.9 and M.amount_at(8.5) > 0.0, "a mist lies on the water at dawn, thinning by mid-morning")
 	t.ok(M.amount_at(10.0) == 0.0 and M.amount_at(15.0) == 0.0 and M.amount_at(23.0) == 0.0 and M.amount_at(3.0) == 0.0, "...and none the rest of the day")
 	t.ok(M.Y > Heightfield.WATER_Y + 0.1 and M.Y < RT.FLOOD_H - 0.1, "it lies above the water and below the floodplain (%.2f m)" % M.Y)
+
+## Stage 4b: some of the town ride bicycles round town (Bicycle.villager_bike): the postwoman first of all.
+func test_who_rides_a_bike():
+	_on(func():
+		var riders := Data.npcs_here().filter(func(n): return not Bicycle.villager_bike(n).is_empty()).map(func(n): return n.id)
+		t.ok(riders.has("river_town_pierina") and riders.size() >= 4, "Pierina and a few others ride bikes (%s)" % ", ".join(riders))
+		for n in Data.npcs_here():
+			var b := Bicycle.villager_bike(n)
+			if b.is_empty(): continue
+			t.ok(Color.html_is_valid(b.color) and b.ups.all(func(u): return Bicycle.UPGRADES.has(u)), "%s's bike has a colour and real upgrades" % n.id))
+
+## Stage 4b: coypus on banks beside deep water, cormorants on snags in the Po, the geese on grass outside the farm
+## gate, kingfisher perches over the Alpine river, and the cats on dry ground.
+func test_the_animals_live_where_they_should():
+	_on(func():
+		var A := preload("res://scripts/locations/river_town/animals.gd")
+		var cs := A.coypu_spots()
+		t.ok(cs.size() >= 4, "coypus have banks to live on (%d)" % cs.size())
+		for s in cs:
+			var land: Vector2 = s[0]; var water: Vector2 = s[1]
+			t.ok(not Heightfield.is_water(land.x, land.y) and Heightfield.height(water.x, water.y) < Heightfield.WATER_Y - 0.25, "a coypu's bank at %s has deep water beside it" % land)
+		for p in A.SNAGS: t.ok(Heightfield.height(p.x, p.y) < Heightfield.WATER_Y - 0.3, "a cormorant's snag stands in the Po at %s" % p)
+		t.ok(Heightfield.height(A.GEESE_HOME.x, A.GEESE_HOME.y) > 0.3 and Heightfield.meadow(A.GEESE_HOME.x, A.GEESE_HOME.y) == 1.0, "the geese live on the grass outside the farm gate")
+		for p in A.perches(): t.ok(absf(p.x - (RT.alpine_center(p.z) - RT.ALPINE_HALF)) < 0.5, "a kingfisher's perch on the Alpine river's bank at z %.0f" % p.z)
+		var cats: Array = Data.layout.get("wildlife", {}).get("cats", [])
+		t.ok(cats.size() >= 3 and cats.all(func(c): return not Heightfield.is_water(c[0], c[1])), "cats sit about on dry ground, one by Gildo's shack waiting for the catch")
+		var a = A.make()
+		t.ok(a.coypus.size() == cs.size() and a.cormorants.size() == A.SNAGS.size() and a.geese.size() == 5 and a.kingfishers.size() == 2, "they're all built")
+		a.free())

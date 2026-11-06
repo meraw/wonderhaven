@@ -17,6 +17,9 @@ var greeted := false
 var idle_t := 3.0
 var present := true
 var hurry_t := 0.0   # seconds left of hurrying (caught staring at you on a bench: NapGags)
+var riding := false   # on their bicycle (a villager with "bike" in npcs.json, on a long route outdoors: Bicycle)
+var bike: Node3D      # the bicycle, shown while they ride
+var rang := false     # rang the bell riding past you (again once you're well apart)
 var marker_offer: Label3D
 var marker_ready: Label3D
 
@@ -78,19 +81,28 @@ func update(dt: float) -> void:
 	var speed := 0.0
 	hurry_t = maxf(0.0, hurry_t - dt)
 	var pp: Vector3 = game.player.pos
-	if talking: face(pp, dt, 10.0)
+	if talking:
+		if riding: _ride(false)
+		face(pp, dt, 10.0)
 	elif not waypoints.is_empty():
 		var tgt: Vector2 = waypoints[0]
 		var d := Vector2(tgt.x - pos.x, tgt.y - pos.z)
 		var far := Vector2(pp.x - pos.x, pp.z - pos.z).length() > 40.0
-		var v := 6.0 if far else (4.8 if hurry_t > 0.0 else 2.3)
+		_update_riding()
+		var v := 6.0 if far else (Bicycle.VILLAGER_SPEED if riding else (4.8 if hurry_t > 0.0 else 2.3))
 		if d.length() < 0.15: waypoints.pop_front()
 		else:
 			var step := minf(d.length(), v * dt)
 			var n := Vector2(pos.x, pos.z) + d.normalized() * step
 			if n.distance_to(Vector2(pp.x, pp.z)) > 0.62: pos.x = n.x; pos.z = n.y; speed = v / 4.4
 			yaw = lerp_angle(yaw, atan2(d.x, d.y), 1.0 - exp(-8.0 * dt))
+		if riding:
+			BikeModel.animate(bike, dt, speed * 4.4, game.state.flags.get("night", false))
+			var pd := Vector2(pp.x - pos.x, pp.z - pos.z).length()
+			if not rang and pd < 6.0: rang = true; game.sfx("bell")   # ding-ding, riding past you
+			elif pd > 12.0: rang = false
 	else:
+		if riding: _ride(false)
 		var pd := Vector2(pp.x - pos.x, pp.z - pos.z).length()
 		if pd < 3.2 and activity != "sleep":
 			face(pp, dt, 5.0)
@@ -98,7 +110,7 @@ func update(dt: float) -> void:
 		elif pd > 6.0: greeted = false
 	var s: Dictionary = game.walk.surface_at(pos.x, pos.z, pos.y + 0.3)
 	if s.walkable: pos.y = s.y
-	var hold: String = "talk" if talking else ("" if speed > 0.0 else {"garden": "garden", "work": "work", "read": "read", "talk": "talk", "sleep": "sleep"}.get(activity, ""))
+	var hold: String = "talk" if talking else ("ride" if riding else ("" if speed > 0.0 else {"garden": "garden", "work": "work", "read": "read", "talk": "talk", "sleep": "sleep"}.get(activity, "")))
 	if hold != "":
 		if character.hold != hold: character.play(hold, true)
 	elif character.hold != "": character.stop_hold()
@@ -113,6 +125,27 @@ func update(dt: float) -> void:
 	var bob := sin(game.time * 3.0) * 0.08
 	marker_offer.position.y = 2.15 + bob; marker_ready.position.y = 2.15 + bob
 	sync()
+
+## How far they still have to go along their route.
+func route_left() -> float:
+	var total := 0.0
+	var p := Vector2(pos.x, pos.z)
+	for w in waypoints: total += p.distance_to(w); p = w
+	return total
+
+## On or off the bike, by Bicycle's rule (villagers who have one, on long routes outdoors).
+func _update_riding() -> void:
+	if not def.has("bike"): return
+	var want := Bicycle.villager_rides(def, Data.island_def(Data.island), route_left(), riding, Bicycle.indoors(pos), Bicycle.on_stairs(pos))
+	if want != riding: _ride(want)
+
+func _ride(on: bool) -> void:
+	riding = on
+	if on and bike == null:
+		var b := Bicycle.villager_bike(def)
+		bike = BikeModel.build(b.color, b.ups); character.add_child(bike)
+	if bike: bike.visible = on
+	if not on and character.hold == "ride": character.stop_hold()
 
 func face(p: Vector3, dt: float, rate: float) -> void:
 	yaw = lerp_angle(yaw, atan2(p.x - pos.x, p.z - pos.z), 1.0 - exp(-rate * dt))

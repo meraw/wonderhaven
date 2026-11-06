@@ -397,7 +397,7 @@ fixed:
 - **The gauge** now reaches 0.00 m with every request done, and can't without the finale.
 - **Villagers on bicycles** come with the look and ambient life, in stage 4.
 
-**Stage 4a, the look** (this stage). Stage 4 comes in three pull requests: the look (4a), the animals and villagers on
+**Stage 4a, the look** (in review). Stage 4 comes in three pull requests: the look (4a), the animals and villagers on
 bicycles (4b), and the music, sounds and outfits (4c).
 - **The ground is painted** (`paint()` in `river_town.gd`): grey flood mud on the floodplain, with grass coming back
   in patches, silt and a dark tide mark on the levee's outer slope up to where the flood came, white pebbles along
@@ -410,6 +410,17 @@ bicycles (4b), and the music, sounds and outfits (4c).
 - **The look block:** warm golden highlights and slightly cool shadows, a lower autumn sun for long shadows, golden
   poplar leaves falling, and clear blue-green water colours for the Alpine river.
 - **A thin mist on the water at dawn only**, gone by half past nine (`river_town/mist.gd`).
+
+**Stage 4b, ambient life** (this stage):
+- **Villagers on bicycles** (a small shared change: `"bike"` in a villager's npcs.json entry, `Bicycle.villager_rides`,
+  and the villager walker). Pierina rides her blue post bike with basket and rack, Primo his old green racer, Mattia,
+  Ines and Wanda theirs. They ride on long routes outdoors, get off near where they're going, indoors and on stairs,
+  and ring the bell riding past you.
+- **Animals** (`river_town/animals.gd`): coypus waddle along the banks of the backwater, the Po and the canals, and
+  slip into the water when you come close, surfacing later. Cormorants dry their wings on snags in the Po and fly a
+  loop if you come near. The farm's geese peck about outside the gate and come after you, necks out, if you ride past
+  on your bike. Kingfishers sit on willow twigs over the Alpine river and dart along it, low over the water. Cats
+  wait by Gildo's shack and the fishing spot for his catch, and outside Rina's bar (the shared cats: pet them).
 
 ## Checks for every stage
 `godot/run_tests.sh`, `npm test` and `npm run build`; screenshots of Boccapioppo in both renderers
