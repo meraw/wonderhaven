@@ -32,6 +32,7 @@ var blend := 0.0           # seconds left of a slower blend after a mode change
 var indoor_k := 0.0        # 0 outdoors .. 1 fully in the indoor cutaway view
 var indoor_pitch := 0.95   # smoothed pitch the cutaway uses
 var _t := 0.0
+var cinema := {}           # a cutscene's own shot ({pos, look}): while set, the camera sits there instead (BusIntro)
 
 const MARGIN := 0.35       # how far the camera stays from walls
 const MIN_DIST := 0.15     # closest the camera comes: at the player's head, never inside a wall (the player is hidden this close; see game.gd)
@@ -86,6 +87,9 @@ func clamp_limits() -> void:
 
 func update(dt: float, follow: Vector3) -> void:
 	_t += dt
+	if not cinema.is_empty():
+		camera.global_position = cinema.pos; camera.look_at(cinema.look, Vector3.UP)
+		return
 	clamp_limits()
 	if mode == "explore": focus = follow + Vector3(0, 1.0, 0)
 	blend = maxf(0.0, blend - dt)

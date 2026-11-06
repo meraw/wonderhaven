@@ -64,9 +64,9 @@ func _dress_hearthglow(H: Callable) -> void:
 	var plank := P.mi(P.box(0.9, 0.1, 1.6), P.wood("9a7a5a"), Vector3(1.2, -0.36, -16.6)); plank.rotation = Vector3(0.1, 0.7, 0.15); add_child(plank)
 	for l in [[-6, -3], [6, -3], [-6, 7.5], [6.8, 7.2], [-20, 5.2], [-30, 6.6], [2, -12.5], [12.6, 1.2], [4.6, 20.6], [20, 6.8], [7.4, 31.5]]:
 		var lp := Props.lamp_post(); lp.position = Vector3(l[0], H.call(l[0], l[1]), l[1]); add_child(lp); lamps.append(lp)
-	for fc in [[3.4, -12.2, 4, 0.0], [3.4, -8.0, 4, 0.0], [1.4, -10.1, 4, PI / 2], [-40, 2.5, 3, 0.0], [-40, 7.6, 3, 0.0]]:
+	# (the lay-by's south fence starts past the bus's door, so you can step off it; Gigia's beds are WorldActions')
+	for fc in [[3.4, -12.2, 4, 0.0], [3.4, -8.0, 4, 0.0], [1.4, -10.1, 4, PI / 2], [-37.4, 2.5, 2, 0.0], [-40, 7.6, 3, 0.0]]:
 		var fe := Props.fence(fc[2]); fe.position = Vector3(fc[0], H.call(fc[0], fc[1]), fc[1]); fe.rotation.y = fc[3]; add_child(fe)
-	for bd in [[4.4, -9.4], [6.6, -9.4], [4.4, -11], [6.6, -11]]: add_child(P.mi(P.box(1.6, 0.16, 1.1), P.wood("9a6a45"), Vector3(bd[0], 0.08, bd[1])))
 
 ## Vineyard rows from the layout's `vineyards`: [{from, to (degrees round the centre), rows, e0 (where the first row
 ## sits, metres beyond the playable edge; negative = down the slope), spacing}]. Rows follow the slope's contour, so
@@ -125,7 +125,10 @@ func _build_props() -> void:
 			"pier": o = Node3D.new(); o.add_child(P.mi(P.box(float(pr.w), 0.15, float(pr.d)), P.wood("c49a6c"), Vector3(0, 0.05, 0)))
 			"market_stall": o = Props.market_stall()
 			"rock": o = Props.rock(false); o.scale = Vector3.ONE * float(pr.get("s", 1.0))
-			"bus": o = Props.bus(float(pr.get("length", 6.4)), String(pr.get("color", "3a6fb5")), String(pr.get("sign", "MONTEFORCHETTA")))
+			"bus":
+				o = Props.bus(float(pr.get("length", 6.4)), String(pr.get("color", "3a6fb5")), String(pr.get("sign", "MONTEFORCHETTA")))
+				o.set_meta("length", float(pr.get("length", 6.4)))
+				if not objects.has("arrivalBus"): objects["arrivalBus"] = o   # the bus you arrive on (BusIntro)
 			"bus_stop": o = Props.bus_stop_sign()
 			"ruin_wall": o = Props.ruin_wall(float(pr.get("length", 3.0)), int(pr.get("seed", 1)))
 			"persimmon": o = Props.persimmon(int(pr.get("seed", 11)))
