@@ -497,10 +497,11 @@ func sec_bike() -> void:
 		await tap(KEY_H); await frames(4)
 		bell_ok = game.player.riding and game.hotkeys.text.contains("Bell")
 	if not game.player.riding: await tap(KEY_F); await frames(4)
-	await walk_direct(-16.0, 19.5, 0.6, 30.0)
-	await walk_direct(-16.0, 15.0, 0.5, 20.0)   # in through Ermes's door
+	var door: Array = Data.layout.nav_nodes.ermesDoor   # on the lane, north of his house
+	await walk_to(door[0], door[1], 0.6)
+	await walk_direct(-16.0, 14.0, 0.5, 20.0)   # in through Ermes's door
 	var off_indoors: bool = not game.player.riding
-	await walk_direct(-16.0, 19.5, 0.6, 20.0)
+	await walk_direct(door[0], door[1], 0.5, 20.0)
 	await tap(KEY_F); await frames(4)
 	var remounted: bool = game.player.riding
 	await talk(P + "primo")   # tell him how it rides: you hop off to talk
