@@ -539,7 +539,10 @@ func sec_bridge() -> void:
 	await select_piece("pontoon")
 	for i in [27, 29, 31, 33, 35]: await place_piece("pontoon", i, 13, 0.1, 1)
 	var path_done: bool = stage("bridge") >= 3
+	await frames(4)
+	var clash: Array = build_ui_clashes()   # the first build here: the how-to card is up beside the plan panel
 	await shot("pontoons")
+	check("u1", "Building the bridge: the how-to card, the checklist, the plan panel and the catalogue don't overlap", clash.is_empty(), ", ".join(clash))
 	await select_piece("railing")
 	for i in [28, 30, 32, 34]: print("   railing: ", await place_at(i, 13, -0.05, 0))
 	if not game.story.engine.is_ready(P + "bridge"):   # railings that won't sit on a pontoon go on planks laid across it
@@ -620,7 +623,9 @@ func sec_dancehall() -> void:
 			await ui_click("sw_7bd389")
 			break
 	var fitted: bool = stage("dancehall") >= 2
+	var clash: Array = build_ui_clashes()
 	await shot("dance-hall-fitted")
+	check("u2", "Fitting out the dance hall: its long checklist and the catalogue don't overlap", clash.is_empty(), ", ".join(clash))
 	await leave_build()
 	await talk(P + "pierina")   # spread the word
 	await nap_until(21)

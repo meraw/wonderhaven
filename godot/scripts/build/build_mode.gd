@@ -638,7 +638,7 @@ func _build_ui() -> void:
 				v.add_child(UiTheme.label("Removing refunds " + _cost_text(d.cost), 12, UiTheme.INK2))
 			else: v.add_child(UiTheme.label("Click to put it down · R rotate · right click to cancel", 12, UiTheme.INK2))
 			right.add_child(p)
-	right.add_child(help)
+	if right.get_node_or_null("plan_panel") == null: right.add_child(help)   # (with a plan, the panel and the ❓ card say how)
 	# Catalog
 	var cat := UiTheme.panel(Color(UiTheme.CREAM, 0.97), UiTheme.LILAC, 24)
 	cat.anchor_top = 1; cat.anchor_bottom = 1; cat.anchor_left = 0.5; cat.anchor_right = 0.5
@@ -695,23 +695,23 @@ func _plan_panel(col: VBoxContainer) -> void:
 	var pp := UiTheme.panel(Color("f6f0ff"), UiTheme.LILAC); pp.name = "plan_panel"
 	var pv := VBoxContainer.new(); pv.add_theme_constant_override("separation", 4); pp.add_child(pv)
 	pv.add_child(UiTheme.label("📐 Follow the glowing plan   %d / %d" % [Plans.built_count(sp.pieces, state().placements), sp.pieces.size()], 14, Color("7a5cc9")))
+	var any := UiTheme.label("(or build it your own way)", 11, UiTheme.INK2); pv.add_child(any)
 	var lines: Array = []
 	if nx.is_empty(): lines.append("Every piece of the plan is built.")
 	else:
 		var d := Data.piece(String(nx.id))
-		lines.append("Next: %s %s, on the see-through outline under the purple arrow." % [d.icon, d.name])
-		if item_id != String(nx.id): lines.append("Press %s, or the button, to pick it up." % Controls.key_label("plan_next"))
-		elif rotation != int(nx.r) and _turn_matters(d):
-			lines.append("Press %s to turn it until it matches the outline." % Controls.key_label("rotate"))
-		else: lines.append("Point at the outline: green means it fits. Click to build it.")
+		lines.append("Next: %s %s, on the outline under the purple arrow." % [d.icon, d.name])
+		if item_id == String(nx.id):   # in your hand (otherwise the button below picks it up)
+			if rotation != int(nx.r) and _turn_matters(d): lines.append("Press %s to turn it until it matches the outline." % Controls.key_label("rotate"))
+			else: lines.append("Point at the outline: green means it fits. Click to build it.")
 		var short := Inventory.missing(state().inventory, d.get("cost", {}))
 		if not short.is_empty():
 			lines.append("You need %s more for it." % ", ".join(short.map(func(m): return Money.lire(int(m.need)) if m.id == "coins" else "%d %s" % [int(m.need), String(Data.resources[m.id].name).to_lower()])))
 	for t in lines:
 		var l := UiTheme.label(t, 12, UiTheme.INK); l.autowrap_mode = TextServer.AUTOWRAP_WORD; l.custom_minimum_size.x = 246; pv.add_child(l)
-	if not nx.is_empty():
-		var b := UiTheme.button("📐 Pick the next piece  (%s)" % Controls.key_label("plan_next"), func(): follow_plan(true)); b.name = "plan_pick"; pv.add_child(b)
-	var any := UiTheme.label("Any other way that works counts too.", 11, UiTheme.INK2); any.autowrap_mode = TextServer.AUTOWRAP_WORD; any.custom_minimum_size.x = 246; pv.add_child(any)
+	if not nx.is_empty() and item_id != String(nx.id):
+		var b := UiTheme.button("📐 Pick the next piece  (%s)" % Controls.key_label("plan_next"), func(): follow_plan(true)); b.name = "plan_pick"
+		b.add_theme_font_size_override("font_size", 14); pv.add_child(b)
 	col.add_child(pp)
 
 ## Does which way a piece faces change it (a long piece, a railing on one edge, a machine's axle, a chair)?
