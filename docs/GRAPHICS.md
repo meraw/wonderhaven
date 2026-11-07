@@ -29,16 +29,21 @@ These hold for any cozy, stylised 3D game with a painted look, not only this one
 8. **Water is depth, sky and sparkle.** Tint by depth, mirror the sky by Fresnel (distant water reflects, near water
    shows its bed), add sun or moon glitter on ripple crests, and caustics on shallow beds. Build ripple normals from
    smooth (quintic) noise with rotated octaves, or the noise grid shows.
-9. **Grade gently.** A colour grade sets the mood of each hour (rosy dawn, neutral noon, warm dusk, blue night), but
+9. **Tonemap before you grade, and give the sun room.** With a linear tonemapper anything brighter than white clips
+   flat, so the sun has to stay weak and the picture goes flat: lit and shaded sides barely differ. A filmic curve
+   rolls highlights off instead, so the sun can be two to three times the ambient fill and shapes read. Pick the curve
+   by eye on lamps, lit windows and golden hour: those are what a curve drains first.
+10. **Grade gently.** A colour grade sets the mood of each hour (rosy dawn, neutral noon, warm dusk, blue night), but
    strong highlight tints dull saturated greens and kill the warmth of lamp light. Keep highlights close to white and
    tint mostly the shadows.
-10. **Use distance for mood.** Haze (fog) and a slight blur on the far distance make an island read like a miniature
+11. **Use distance for mood.** Haze (fog) and a slight blur on the far distance make an island read like a miniature
     diorama and keep attention near the player.
-11. **Ambient life carries the atmosphere.** Dust motes in sunshine, fireflies on dry nights, leaves falling from the
+12. **Ambient life carries the atmosphere.** Dust motes in sunshine, fireflies on dry nights, leaves falling from the
     nearest real tree and drifting downwind: small, cheap, tied to the hour and the weather.
-12. **Check your own work in pictures and motion.** Render the same views at the same hours before and after a change,
+13. **Check your own work in pictures and motion.** Render the same views at the same hours before and after a change,
     compare them side by side, measure average brightness so a grade doesn't drift, and record a short clip, because
-    wind, glitter and particles only show in motion.
+    wind, glitter and particles only show in motion. `godot/views.sh` renders ten fixed views and
+    `godot/measure_views.py` puts their brightness, contrast, clipping and saturation side by side.
 
 ## What the game does now
 
@@ -53,6 +58,8 @@ These hold for any cozy, stylised 3D game with a painted look, not only this one
 | Water: Fresnel sky reflection, sun and moon glitter, smooth ripples, rain rings | `terrain.gd` (water shader) | all |
 | Sky clouds drift downwind | `terrain.gd` (sky shader) | all |
 | Ground bounce light | `atmosphere.gd` | all |
+| ACES tonemapping (white point 4, exposure 0.92; 0.78 in the compatibility renderer), a sun nearly three times the ambient by day, a brighter moon and ambient at night | `terrain.gd` (`build_environment`), `daylight.gd` (`KEYS`) | all |
+| A layout's own cobblestones (`cobbleColors`: Monteforchetta's warm grey local stone instead of pale granite) | `terrain.gd` (terrain shader `cobble_a`, `cobble_b`) | all |
 | Colour grade that follows the hour and weather | `atmosphere.gd` (environment colour correction) | all |
 | Cloud shadows matching the sky's clouds, soft vignette | `atmosphere.gd` (screen pass) | Forward+ |
 | Slight blur on the far distance | `atmosphere.gd` (camera attributes) | Forward+ |
@@ -70,6 +77,13 @@ layouts, and the game loads it the same way as the animals module.
   have vertices without a usable normal.
 - **A strong colour grade.** The first version tinted highlights warm and lifted shadows by up to 8%: sunsets turned
   olive and night lamps lost their warmth. The current grade stays within a few percent of neutral.
+- **AgX tonemapping** (Godot 4.4). It ended clipping, but drained colour from everything bright: lit windows and the
+  church's rose window went cream or peach, lamps nearly white, golden hour neutral. Deeper amber lamp colours mixed
+  with tinted glass into peach; weaker lamps went pale. ACES kept the warmth.
+- **Filmic tonemapping.** Washed out at the same exposure.
+- **More contrast in the environment adjustment** (1.06 to 1.1). It pivots at mid-grey, so dark scenes got darker:
+  night 22% and golden hour 12% darker. Contrast comes from the light now (a stronger sun, a weaker fill).
+- **Darker cobbles** (`ccc2b0`, `b3a899`): the stones blurred into one another. The square uses `d4cab6`, `bbae9b`.
 
 ## Next steps worth trying
 - **More of the look as data.** A place's `look` block already sets the grade's shade and light, the wind, the amount
@@ -86,6 +100,11 @@ layouts, and the game loads it the same way as the animals module.
   how models are made, so it is a project of its own.
 
 ## How it was checked
+- Tonemapping and light (07/11): `godot/views.sh` before and after in Forward+ on software Vulkan, measured with
+  `godot/measure_views.py`. Contrast rose 15 to 55% in every view; clipped white fell from 6.2% to 0.5% in the sunset
+  view and to at most 1.6% elsewhere (bright sky); daytime views are 5 to 11% brighter (the gain is in the
+  highlights), golden hour and rain within 5%, night 15% darker (a moonlit blue, lamps and windows still warm). Three
+  views in the compatibility renderer stay within 4% of their old brightness. Not seen on a real monitor or GPU.
 - Ten fixed views (morning square, wide noon, grove, river, cottage close-up, golden hour, sunset backlight, night,
   rain, dawn mist) rendered before and after in Forward+ (software Vulkan), compared side by side with FFmpeg, with
   average ground colour measured so the grade doesn't drift.
