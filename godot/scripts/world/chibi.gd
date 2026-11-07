@@ -95,6 +95,16 @@ func _m(mesh: Mesh, color, parent: Node3D, pos: Vector3, scl: Vector3 = Vector3.
 	parent.add_child(mi)
 	return mi
 
+const EYE_SIZE := 1.45
+const EYE_SCALE := {"sparkle": 1.2, "wide": 1.0}
+const EYE_SHAPE_SIZE := {"sparkle": 1.22, "wide": 1.55}
+
+static func eye_scale(shape: String) -> float:
+	return float(EYE_SCALE.get(shape, EYE_SIZE))
+
+static func eye_size(shape: String) -> float:
+	return eye_scale(shape) * float(EYE_SHAPE_SIZE.get(shape, 1.0))
+
 func set_appearance(app: Dictionary) -> void:
 	appearance = sanitize(app)
 	var a := resolve(appearance)
@@ -226,6 +236,7 @@ func set_appearance(app: Dictionary) -> void:
 	face_mat.set_shader_parameter("style", 0 if face_style == "painted" else 1)
 	face_mat.set_shader_parameter("sparkle", a.eyeShape == "sparkle")
 	face_mat.set_shader_parameter("eye_style", {"sparkle": 1, "wide": 2}.get(a.eyeShape, 0))
+	face_mat.set_shader_parameter("eye_scale", 1.0 if face_style == "painted" else eye_scale(a.eyeShape))
 	_m(P.sphere(HEAD_R, 48, 32), face_mat, head, Vector3(0, HEAD_R * 0.92, 0))
 	for s in [-1, 1]: _m(P.sphere(0.07, 28, 18), skin, head, Vector3(s * HEAD_R * 0.98, HEAD_R * 0.9, 0), Vector3(0.6, 1, 0.8))
 	_build_hair(a.hair, a.hairColor, a.hat)

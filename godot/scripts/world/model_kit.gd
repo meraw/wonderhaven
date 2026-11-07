@@ -23,6 +23,11 @@ const PBR_TEX := {
 const PBR_PLAIN := {"iron": [0.42, 0.55], "metal": [0.36, 0.6], "glass": [0.05, 0.0], "paint": [0.72, 0.0],
 	"flower": [0.62, 0.0], "leaf": [0.58, 0.0], "eye": [0.2, 0.0], "skin": [0.52, 0.0], "hair": [0.7, 0.0]}
 const NEUTRAL_GAIN := 1.18
+const MIX := {"paving": "blender", "plaster": "blender", "knit": "blender", "denim": "blender",
+	"stone": "cc0", "wood": "cc0", "clay": "cc0", "leather": "cc0", "wool": "cc0"}
+
+static func texture_set(material: String, textures: String) -> String:
+	return String(MIX.get(material, "cc0")) if textures == "mix" else textures
 
 const WET_PAVING := """
 shader_type spatial;
@@ -149,7 +154,7 @@ static func pbr_material(kind: String, color: Color, textures: String, world: bo
 	m.metallic = plain[1]
 	var spec: Array = PBR_TEX.get(kind, [])
 	if spec.is_empty() or textures == "": return m
-	var base := "res://assets/textures/lab/%s/%s" % [textures, spec[0]]
+	var base := "res://assets/textures/lab/%s/%s" % [texture_set(spec[0], textures), spec[0]]
 	var alb := _texture(base + "_albedo.jpg")
 	if alb == null: return m
 	m.albedo_texture = alb
@@ -169,7 +174,7 @@ static func pbr_material(kind: String, color: Color, textures: String, world: bo
 static func _lab_material(kind: String, color: Color) -> Material:
 	var wet := float(look.get("wet", 0.0))
 	if kind != "paving" or wet <= 0.0: return pbr_material(kind, color, String(look.textures))
-	var base := "res://assets/textures/lab/%s/paving" % String(look.textures)
+	var base := "res://assets/textures/lab/%s/paving" % texture_set("paving", String(look.textures))
 	var sm := ShaderMaterial.new()
 	var sh := Shader.new()
 	sh.code = WET_PAVING
@@ -204,6 +209,7 @@ static func _finish_look(village: Village) -> void:
 		for n in village.get_tree().root.find_children("*", "Node3D", true, false):
 			if n is Chibi and n != player:
 				for mi: MeshInstance3D in n.find_children("*", "MeshInstance3D", true, false): mi.visible = false
+				for l: Label3D in n.find_children("*", "Label3D", true, false): l.text = ""
 	if not look.get("characters", false) or not look.has("textures"): return
 	var by_mat := {}
 	for key in Palette._cache: by_mat[Palette._cache[key]] = String(key)
