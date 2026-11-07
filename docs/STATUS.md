@@ -43,7 +43,8 @@ yourself. All of it, and the order it's built in, is in `docs/DESIGN.md`. Stage 
   - **All of Monteforchetta's playthroughs pass** (`play_all.sh`: 17 runs, 153 checks). Two changed: `play_sleep`'s bed
     now goes into the draft with too little money and is built from it, and `play_full2` waits longer for the clay to
     grow back (with the clock waiting in build mode, part one ends earlier in the day).
-  - **Seen** in the playthroughs' screenshots (compatibility renderer).
+  - **Seen** in the playthroughs' screenshots, in the compatibility renderer and in a Forward+ run of `play_build_clarity`
+    on a software GPU (which also passed).
   - **Not checked:** how it feels with a real mouse at full frame rate; the gamepad; the spot scan's speed on a real
     machine (it spends at most 4 ms a frame). The build code is shared, but Boccapioppo's, Casalrana's and Toriano's
     playthroughs were not run (their owners run them). Boccapioppo's railing hint still says R turns railings, which is
