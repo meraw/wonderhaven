@@ -12,19 +12,22 @@ static func part_of_day(hour: float) -> String:
 	return out
 
 ## Sky and light keyframes: [hour, zenith, horizon, sun colour, sun energy, ambient colour, ambient energy].
+## By day the sun is nearly three times the ambient, so lit and shaded sides read apart (it was 1.5 to 1, which looked
+## flat); the ACES tonemapper (TerrainBuilder.build_environment) keeps the brighter sun from clipping. At night the
+## moon and a stronger ambient keep the village readable, since ACES deepens dark tones.
 const KEYS := [
-	[0.0, "0c1433", "1e2a52", "a8bde8", 0.10, "56679f", 0.22],
-	[4.6, "121b3e", "28305a", "a8bde8", 0.09, "5a6aa2", 0.22],
-	[5.6, "2a3a78", "c98f96", "ffb38a", 0.14, "8a90c0", 0.26],
-	[6.6, "5a8ad0", "ffc28e", "ffc890", 0.40, "b0b8d8", 0.32],
-	[8.0, "6cbcf5", "d8f0ff", "fff0d8", 0.58, "c4d8ee", 0.40],
-	[12.0, "58b2f5", "dcf2ff", "fff6e8", 0.64, "c9dcf0", 0.42],
-	[16.5, "62b2ee", "e8f0f0", "fff0d0", 0.58, "cdd8e6", 0.40],
-	[18.5, "6a9ed8", "ffd8a0", "ffc880", 0.50, "d8c8c0", 0.36],
-	[19.6, "4a6aa8", "ff9a70", "ff9a60", 0.30, "b098b0", 0.30],
-	[20.6, "25306a", "7a5a8a", "c0a0d0", 0.14, "707ab0", 0.25],
-	[21.6, "0e1638", "222c58", "a8bde8", 0.10, "56679f", 0.22],
-	[24.0, "0c1433", "1e2a52", "a8bde8", 0.10, "56679f", 0.22],
+	[0.0, "0c1433", "1e2a52", "a8bde8", 0.14, "56679f", 0.38],
+	[4.6, "121b3e", "28305a", "a8bde8", 0.13, "5a6aa2", 0.38],
+	[5.6, "2a3a78", "c98f96", "ffb38a", 0.14, "8a90c0", 0.36],
+	[6.6, "5a8ad0", "ffc28e", "ffc890", 0.64, "b0b8d8", 0.28],
+	[8.0, "6cbcf5", "d8f0ff", "fff0d8", 0.80, "c4d8ee", 0.30],
+	[12.0, "58b2f5", "dcf2ff", "fff6e8", 0.86, "c9dcf0", 0.32],
+	[16.5, "62b2ee", "e8f0f0", "fff0d0", 0.80, "cdd8e6", 0.30],
+	[18.5, "6a9ed8", "ffd8a0", "ffb868", 0.80, "d8c8c0", 0.29],
+	[19.6, "4a6aa8", "ff9a70", "ff8a4c", 0.48, "b098b0", 0.32],
+	[20.6, "25306a", "7a5a8a", "c0a0d0", 0.14, "707ab0", 0.36],
+	[21.6, "0e1638", "222c58", "a8bde8", 0.14, "56679f", 0.38],
+	[24.0, "0c1433", "1e2a52", "a8bde8", 0.14, "56679f", 0.38],
 ]
 
 ## When the sun rises and sets here, by the clock: a look's "sunrise" and "sunset" (short winter days in a northern

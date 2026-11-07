@@ -71,7 +71,7 @@ Shared rules for everyone building a location, people and Claude sessions alike,
   weather and ambient life. A location tunes its mood with the `look` block in its map entry: `shade` is added to
   shadows, `light` multiplies highlights, `wind` scales the wind, `life` scales motes, fireflies and leaves, and
   `leafColors` colours the falling leaves. Its layout can set the rest (Monteforchetta's `layout.json` uses all of
-  them): `grassColors` (the meadow's three colours), `decor.leaves`, `decor.woodLeaves` and `decor.bushColors`,
+  them): `grassColors` (the meadow's three colours), `cobbleColors` (the square's stones, light and dark), `decor.leaves`, `decor.woodLeaves` and `decor.bushColors`,
   `decor.flowers` (how many), `decor.woodFlowers` (`{n, colors}` under the woods), `roofStyle` (`"coppi"` for curved
   terracotta tiles), `houseStyle` (`posts`, `quoins`, `cornice`, `shutters`), `fruitTree` (`"hazel"`), `wildlife`
   (`boars` in the woods, `cats` and `crows` at spots), `valley_fog` (mist below a hilltop, by the hour), `horizon`
