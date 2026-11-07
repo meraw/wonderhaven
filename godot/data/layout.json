@@ -597,9 +597,6 @@
    "minK": -22,
    "maxK": -15,
    "spanY": 0,
-   "unlock": {
-    "quest": "bridge"
-   },
    "endpoints": {
     "a": {
      "minI": -3,
@@ -622,10 +619,7 @@
    "maxI": -10,
    "minK": 7,
    "maxK": 12,
-   "interior": true,
-   "unlock": {
-    "quest": "workshop"
-   }
+   "interior": true
   },
   {
    "id": "plaza",
@@ -633,10 +627,7 @@
    "minI": 2,
    "maxI": 11,
    "minK": -1,
-   "maxK": 5,
-   "unlock": {
-    "quest": "fountain"
-   }
+   "maxK": 5
   },
   {
    "id": "dock",
@@ -644,10 +635,7 @@
    "minI": 0,
    "maxI": 7,
    "minK": 34,
-   "maxK": 39,
-   "unlock": {
-    "quest": "dock"
-   }
+   "maxK": 39
   },
   {
    "id": "orchardPlot",

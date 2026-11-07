@@ -5,6 +5,50 @@ Working title: **Wonderhaven** (to be renamed). The game is moving to a comic, l
 - **Godot 4 (`godot/`)** is the game. See `godot/README.md`. Its content (`godot/data/*.json`) is edited directly.
 - **Web / Three.js (`index.html`, `src/`)** is the original prototype, **frozen**: kept as it was, no longer updated. Everything added since the Godot port (interiors, shops, staged requests, the guided day, the look) exists only in Godot.
 
+## The redesign (07/11)
+After a review of how the game plays, the user agreed a new design: building is the core, the game values what you build
+whether or not anyone asked for it, requests become briefs with checks, and the day becomes a work day you end
+yourself. All of it, and the order it's built in, is in `docs/DESIGN.md`. Stage 1 is done; the rest is still to do.
+
+### Stage 1: building you can understand (shared)
+- **The spots where the piece in your hand can go glow green** (for walls, fences and railings, the edges), within
+  8 m of the cursor, filled in a few cells a frame. With a plank in hand you see how far it reaches from a bank or a
+  post. The check is the real one (`BuildGrid.spot`): a cached support check (`support_cache`, `supported_with`) gives
+  exactly the same answer as the full one, which a test compares on random sites.
+- **Drafts.** A piece you can't build yet goes into your draft instead of being refused: when you're short of
+  materials, when it rests on drafted pieces, when someone is standing there, or when "Draft only" is on (`G`, or the
+  button in the top bar). Drafts are blue see-through pieces that cost nothing and block nothing but other drafts; they
+  stay on the site outside build mode, are saved, and stay in their place when you travel (`state.drafts`,
+  `away[place].drafts`). **Build the draft** builds everything you can afford, bottom up; clicking a drafted piece with
+  the same piece in hand builds just that one; a drafted piece can be selected, built or removed. The build screen's
+  draft panel and the request tracker list what it needs and what you're still short of. Undo and redo cover drafts.
+  The plan panel can put the whole ghost plan into your draft at once. The build checklist marks what your draft would
+  cover ("(drafted)", "+2 drafted"). Rules in `Drafts` (`scripts/systems/drafts.gd`).
+- **Fewer rules:** the clock stops in build mode; walls, fences and railings turn to the edge you point at (R still
+  turns them when you point at a tile's middle); the half grid is gone (`G` is now draft only); Monteforchetta's sites
+  (the washout, Elio's shop, the piazza, the bus turnaround) are open from the start, while your plot still waits for
+  its deed and Gigia's groves for the crossing.
+- The build help card (kept to its old length, so it still fits between the guide card and the catalogue), the guided
+  day's building steps and the railing hints say how it works now.
+- **Checked:**
+  - **Tested** (`godot/run_tests.sh`, 263 passed). `test_build_clarity` covers: the cached support check against the
+    full one on random sites; glowing spots against validation; plank reach; edge turning; what drafts cost and short;
+    their build order; saves and travel; the sites being open.
+  - **Played** (`play_build_clarity`, 14 checks, now in `play_all.sh`): the clock waits in build mode; with a plank in
+    hand the bank glows, and the glow reaches out as you build; a plank past its reach is refused, saying why; a post you
+    can't afford is drafted, and the rest of the crossing drafts onto it; the shopping list shows in build mode and in
+    the tracker; no boxes overlap with the draft bar up; Build the draft builds it all and the request moves on;
+    railings turn to the edge you point at; draft only, undo and redo; clicking a drafted piece builds it; you can walk
+    across.
+  - **All of Monteforchetta's playthroughs pass** (`play_all.sh`: 17 runs, 153 checks). Two changed: `play_sleep`'s bed
+    now goes into the draft with too little money and is built from it, and `play_full2` waits longer for the clay to
+    grow back (with the clock waiting in build mode, part one ends earlier in the day).
+  - **Seen** in the playthroughs' screenshots (compatibility renderer).
+  - **Not checked:** how it feels with a real mouse at full frame rate; the gamepad; the spot scan's speed on a real
+    machine (it spends at most 4 ms a frame). The build code is shared, but Boccapioppo's, Casalrana's and Toriano's
+    playthroughs were not run (their owners run them). Boccapioppo's railing hint still says R turns railings, which is
+    only true when you point at a tile's middle.
+
 ## Playtest fixes (second playtest notes, Boccapioppo, 06/11–07/11)
 Each fix is the general version, for every place. What was checked how is at the end of this section.
 - **Gathering counts what's in your bag** (shared): wood chopped before anyone asked counts towards a request that asks for wood, and a finished gathering step stays finished when you build with it. Only a hunt for fresh finds (`"fresh": true`: Toriano's and Casalrana's five lost things) or one tied to hours counts just what turns up during the step. The counts now mean the total a request needs, so two were raised to what following their plans costs: Monteforchetta's crossing asks for 14 wood ("have 14 wood"), Boccapioppo's pontoon bridge 19, and the dance hall 17 wood and a stone for the bar counter's top.
@@ -133,7 +177,7 @@ Internal ids are the old ones (`fern` is Gigia, `bram` Elio, `tilly` Fede, `mabe
 - **Minigames in the world:** chopping, mining and fishing play in a small panel at the bottom right while the camera watches your character work from the side; the tree or rock shakes and chips fly with each hit.
 - **Coins, shops and gifts:** coins come from requests, chests, digging and selling. Elio, Gigia, Fede, Ornella and Aldo run shops (choose "🛍" in conversation): sell them what they want, buy materials, blueprints and Ornella's treats (`godot/data/shops.json`). Give any villager one gift a day; things they love and treats raise friendship more, and friendship unlocks their own gifts.
 - **Following the story:** the next main-story request is always shown, so side requests never hide it; the compass points at the next step (the nearest place to gather an item, or the person to talk to or pay).
-- **Build mode (the Geometra's kit):** 46 pieces in four categories; zone grids; green/red ghost with plain-language reasons; snapping and half-grid; rotate, move, remove (refund), recolour; undo/redo; stacking, stairs, doors, paintings, roofs on walls; bridges that really carry you; machines simulated (waterwheel/windmill → shafts/gears/levers → pump → pipes → fountain, spark lamps). The checklist on the right shows the request's current step. When you leave build mode standing on the site (or stuck in what you built), you step off to the nearest free spot outside it.
+- **Build mode (the Geometra's kit):** 46 pieces in four categories; zone grids; green/red ghost with plain-language reasons, glowing spots where the piece in hand fits, and drafts (blue) for what you can't build yet; snapping; rotate, move, remove (refund), recolour; undo/redo; stacking, stairs, doors, paintings, roofs on walls; bridges that really carry you; machines simulated (waterwheel/windmill → shafts/gears/levers → pump → pipes → fountain, spark lamps). The checklist on the right shows the request's current step. When you leave build mode standing on the site (or stuck in what you built), you step off to the nearest free spot outside it.
 - **Unstuck:** Menu → 🆘 I'm stuck takes you back to the castle steps (the layout's `safeSpot`).
 - **Gathering:** chop and mine minigames (fishing exists but Monteforchetta has no spots); clay, flowers, chestnuts, hazelnuts, porcini; chests; metal-detector digging; lost things; copper wire from the street bins; garden beds that grow over time; the bakery boars.
 - **Progression:** the Sindaco's approval rating with milestones; journal, bag, progress screen, world map (other islands locked; the ferry sails to a "next chapter" preview), notice board.

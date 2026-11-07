@@ -5,13 +5,13 @@ const DEFAULTS := {
 	"move_forward": [KEY_W, KEY_UP], "move_back": [KEY_S, KEY_DOWN], "move_left": [KEY_A, KEY_LEFT], "move_right": [KEY_D, KEY_RIGHT],
 	"sprint": [KEY_SHIFT], "jump": [KEY_SPACE], "interact": [KEY_E], "build": [KEY_B], "inventory": [KEY_I], "journal": [KEY_J],
 	"map": [KEY_M], "progress": [KEY_P], "wardrobe": [KEY_C], "pause": [KEY_ESCAPE], "rotate": [KEY_R], "remove": [KEY_DELETE, KEY_BACKSPACE],
-	"half_grid": [KEY_G], "cam_left": [KEY_Q], "cam_right": [KEY_Z], "recolor": [KEY_T], "move_piece": [KEY_N],
+	"draft_only": [KEY_G], "cam_left": [KEY_Q], "cam_right": [KEY_Z], "recolor": [KEY_T], "move_piece": [KEY_N],
 	"plan_next": [KEY_V], "bike": [KEY_F], "bell": [KEY_H],
 }
 const LABELS := {
 	"move_forward": "Move forward", "move_back": "Move back", "move_left": "Move left", "move_right": "Move right", "sprint": "Run", "jump": "Hop",
 	"interact": "Interact", "build": "Build mode", "inventory": "Bag", "journal": "Quest journal", "map": "World map", "progress": "Approval rating",
-	"wardrobe": "Wardrobe", "pause": "Pause / back", "rotate": "Rotate piece", "remove": "Remove piece", "half_grid": "Half-grid snapping",
+	"wardrobe": "Wardrobe", "pause": "Pause / back", "rotate": "Rotate piece", "remove": "Remove piece", "draft_only": "Draft only (plan without building)",
 	"cam_left": "Turn camera left", "cam_right": "Turn camera right", "recolor": "Recolour piece", "move_piece": "Move piece",
 	"plan_next": "Pick the plan's next piece",
 	"bike": "Get on or off the bike", "bell": "Ring the bike's bell",

@@ -244,14 +244,70 @@ static func validate_placement(pl: Dictionary, ctx: Dictionary) -> Dictionary:
 		for body in ctx.get("bodies", []):
 			if b.bottom < body.get("y", 0.0) + 1.2 and WalkWorld.circle_box(body.x, body.z, body.r, _shrink(b, 0.05)):
 				return {"ok": false, "reason": ("%s is standing there" % body.name) if body.has("name") else "You're standing there!"}
-	var all := placements.filter(func(q): return q.uid != pl.uid)
-	all.append(pl)
-	if not compute_support(all, env).supported.has(pl.uid):
+	if not _supported(pl, placements, env, ctx, String(zone.get("id", ""))):
 		if d.get("span", false): return {"ok": false, "reason": "Too far from a support — planks reach %d tiles. Add a bridge post, or build out from the other bank" % Data.span_limit}
 		if d.get("attach", "") == "wall": return {"ok": false, "reason": "Paintings hang on walls"}
 		if d.get("needsSupport", false): return {"ok": false, "reason": "Roofs need walls or pillars underneath"}
 		return {"ok": false, "reason": "Needs something solid underneath"}
 	return {"ok": true, "zone": zone}
+
+static func _supported(pl: Dictionary, placements: Array, env: Dictionary, ctx: Dictionary, zone_id: String) -> bool:
+	var others := placements.filter(func(q): return q.uid != pl.uid)
+	var memo = ctx.get("support_memo")
+	if memo is Dictionary:
+		var key := "%s|%d" % [zone_id, int(pl.uid)]
+		if not memo.has(key): memo[key] = support_cache(others, env)
+		return supported_with(pl, others, memo[key], env)
+	var all := others.duplicate()
+	all.append(pl)
+	return compute_support(all, env).supported.has(pl.uid)
+
+static func support_cache(placements: Array, env: Dictionary = {}) -> Dictionary:
+	var res := compute_support(placements, env)
+	var sup: Dictionary = res.supported
+	var chain: Dictionary = res.chain
+	var spans := placements.filter(func(p): return def(p.id).get("span", false))
+	var dist := {}
+	var queue: Array = []
+	for a in spans:
+		if sup.has(a.uid) and not chain.has(a.uid): dist[a.uid] = 0; queue.append(a)
+	while not queue.is_empty():
+		var p: Dictionary = queue.pop_front()
+		var dd: int = dist[p.uid]
+		if dd >= Data.span_limit: continue
+		for n in spans:
+			if dist.has(n.uid) or absf(n.i - p.i) + absf(n.k - p.k) != 1 or absf(n.y - p.y) > 0.3: continue
+			if not _over_water(n) and not sup.has(n.uid): continue
+			dist[n.uid] = dd + 1; queue.append(n)
+	return {"supported": sup, "chain": chain, "dist": dist}
+
+static func supported_with(pl: Dictionary, placements: Array, cache: Dictionary, env: Dictionary = {}) -> bool:
+	if _base_supported(pl, placements, cache.supported, env): return true
+	if not def(pl.id).get("span", false) or not _over_water(pl): return false
+	for n in placements:
+		if not cache.dist.has(n.uid) or int(cache.dist[n.uid]) >= Data.span_limit: continue
+		if absf(n.i - pl.i) + absf(n.k - pl.k) == 1 and absf(n.y - pl.y) <= 0.3: return true
+	return false
+
+static func spot(id: String, i: float, k: float, r: int, ctx: Dictionary, hit_y: float = 999.0) -> Dictionary:
+	var zone := zone_at(ctx.get("zones", []), i, k, ctx.get("harmony", 0))
+	var y := suggest_bottom(id, i, k, r, hit_y, ctx.placements, zone)
+	var pl := {"uid": int(ctx.get("uid", -1)), "id": id, "i": i, "k": k, "r": r, "y": y}
+	var v := validate_placement(pl, ctx)
+	v["pl"] = pl
+	return v
+
+static func edge_rotation(d: Dictionary, i: float, k: float, point: Vector3, fallback: int) -> int:
+	var off := Vector2(point.x - (i + 0.5), point.z - (k + 0.5))
+	if off.length() < 0.18: return fallback
+	var best := fallback
+	var best_dot := -INF
+	for r in 4:
+		var rc := rect_of(d, {"i": i, "k": k, "r": r})
+		var c := Vector2((rc.minX + rc.maxX) / 2.0 - (i + 0.5), (rc.minZ + rc.maxZ) / 2.0 - (k + 0.5))
+		var dot := c.normalized().dot(off.normalized())
+		if dot > best_dot + 0.001: best_dot = dot; best = r
+	return best
 
 static func validate_removal(uid: int, ctx: Dictionary) -> Dictionary:
 	var placements: Array = ctx.placements

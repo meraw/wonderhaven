@@ -4,9 +4,10 @@ class_name Travel
 
 static func leave(state: Dictionary, from: String, to: String, spawn: Dictionary) -> void:
 	if not state.get("away") is Dictionary: state["away"] = {}
-	state.away[from] = {"placements": state.placements}
+	state.away[from] = {"placements": state.placements, "drafts": state.get("drafts", [])}
 	var back: Dictionary = state.away.get(to, {})
 	state.placements = back.get("placements", [])
+	state.drafts = back.get("drafts", [])
 	state.away.erase(to)
 	state.island = to
 	state.player = {"x": float(spawn.x), "z": float(spawn.z), "yaw": float(spawn.get("yaw", 0.0))}
@@ -14,9 +15,9 @@ static func leave(state: Dictionary, from: String, to: String, spawn: Dictionary
 ## Every placement uid in use, on this island and the others (new pieces get a fresh one).
 static func max_uid(state: Dictionary) -> int:
 	var m := 0
-	for p in state.get("placements", []): m = maxi(m, int(p.uid))
+	for p in state.get("placements", []) + state.get("drafts", []): m = maxi(m, int(p.uid))
 	for isl in state.get("away", {}):
-		for p in state.away[isl].get("placements", []): m = maxi(m, int(p.uid))
+		for p in state.away[isl].get("placements", []) + state.away[isl].get("drafts", []): m = maxi(m, int(p.uid))
 	return m
 
 ## Whether a place is on the travel map. Places stay off it until they're unlocked, so each one turns up as a
