@@ -13,6 +13,39 @@ const GOLD := Color("ffd35c")
 const FLOWERS := [Color("ff7aa8"), Color("ffd84a"), Color("ffffff"), Color("b98cff"), Color("ff9a52")]
 
 static var _cache: Dictionary = {}
+static var real := true
+static var _real_tex: Dictionary = {}
+
+const PAINTED_MODES := "diffuse_lambert_wrap, specular_disabled"
+const REAL_MODES := "diffuse_burley, specular_schlick_ggx"
+const REAL_TEX := {"plaster": ["plaster", 1.4, 1.1], "wood": ["wood", 1.2, 0.8], "stone": ["stone", 0.9, 1.4],
+	"fabric": ["knit", 0.12, 1.4]}
+const REAL_ROUGHNESS := {"mottle": 0.85, "smooth": 0.5}
+const TEX_GAIN := 1.2
+const REAL_SPECULAR := {"smooth": 0.5}
+const ROUGH_SPECULAR := 0.25
+const REAL_AMBIENT := 1.35
+const REAL_AMBIENT_WARMTH := 0.3
+const REAL_SHADER_ALBEDO := 0.9
+
+static func ambient_gain(night: float = 0.0) -> float:
+	return lerpf(REAL_AMBIENT, 1.0, clampf(night, 0.0, 1.0)) if real else 1.0
+
+static func ambient_color(ambient: Color, sun: Color, night: float = 0.0) -> Color:
+	return ambient.lerp(sun, REAL_AMBIENT_WARMTH * (1.0 - clampf(night, 0.0, 1.0))) if real else ambient
+
+static func _static_init() -> void:
+	real = not OS.get_cmdline_user_args().has("--look=painted")
+
+static func shader_code(code: String, roughness: float = -1.0, specular: float = ROUGH_SPECULAR, albedo: float = 1.0) -> String:
+	if not real: return code
+	var c := code.replace(PAINTED_MODES, REAL_MODES)
+	if roughness >= 0.0: c = c.replace("ROUGHNESS = 1.0;", "ROUGHNESS = %.2f;\n\tSPECULAR = %.2f;\n\tALBEDO *= %.2f;" % [roughness, specular, albedo])
+	return c
+
+static func material_texture(name: String) -> Texture2D:
+	if not _real_tex.has(name): _real_tex[name] = load("res://assets/textures/materials/%s.jpg" % name)
+	return _real_tex[name]
 
 ## Cached material with a faint painted mottle (shared: do not modify; use unique_mat for per-object changes).
 static func mat(color, emissive = null, energy: float = 0.0) -> StandardMaterial3D:
@@ -38,11 +71,31 @@ static var _detail_tex: Dictionary = {}
 
 ## Adds the kind's detail texture to a material (in place) and returns it.
 static func texturize(m: StandardMaterial3D, kind: String) -> StandardMaterial3D:
+	if real:
+		m.roughness = float(REAL_ROUGHNESS.get(kind, 0.8))
+		m.metallic_specular = float(REAL_SPECULAR.get(kind, ROUGH_SPECULAR))
+		if REAL_TEX.has(kind): return _real_texturize(m, REAL_TEX[kind])
 	if kind == "smooth" or not DETAIL_SCALE.has(kind): return m
 	m.albedo_texture = detail_texture(kind)
 	m.uv1_triplanar = true
 	m.uv1_triplanar_sharpness = 2.0
 	m.uv1_scale = Vector3.ONE * DETAIL_SCALE[kind]
+	m.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
+	return m
+
+static func _real_texturize(m: StandardMaterial3D, spec: Array) -> StandardMaterial3D:
+	var name: String = spec[0]
+	m.albedo_texture = material_texture(name + "_albedo")
+	m.albedo_color = Color(m.albedo_color.r * TEX_GAIN, m.albedo_color.g * TEX_GAIN, m.albedo_color.b * TEX_GAIN, m.albedo_color.a)
+	m.normal_enabled = true
+	m.normal_texture = material_texture(name + "_normal")
+	m.normal_scale = float(spec[2])
+	m.roughness_texture = material_texture(name + "_rough")
+	m.roughness_texture_channel = BaseMaterial3D.TEXTURE_CHANNEL_RED
+	m.roughness = 1.0
+	m.uv1_triplanar = true
+	m.uv1_triplanar_sharpness = 4.0
+	m.uv1_scale = Vector3.ONE / float(spec[1])
 	m.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
 	return m
 
@@ -80,13 +133,19 @@ static func detail_texture(kind: String) -> Texture2D:
 static func unique_mat(color, emissive = null, energy: float = 0.0) -> StandardMaterial3D:
 	var m := StandardMaterial3D.new()
 	m.albedo_color = color if color is Color else Color(color)
-	# Soft wrapped light and a faint rim: rounded, painterly shading instead of a hard toon terminator.
-	m.diffuse_mode = BaseMaterial3D.DIFFUSE_LAMBERT_WRAP
-	m.specular_mode = BaseMaterial3D.SPECULAR_DISABLED
-	m.roughness = 1.0
-	m.rim_enabled = true
-	m.rim = 0.25
-	m.rim_tint = 0.8
+	if real:
+		m.diffuse_mode = BaseMaterial3D.DIFFUSE_BURLEY
+		m.specular_mode = BaseMaterial3D.SPECULAR_SCHLICK_GGX
+		m.roughness = 0.85
+		m.metallic_specular = ROUGH_SPECULAR
+	else:
+		# Soft wrapped light and a faint rim: rounded, painterly shading instead of a hard toon terminator.
+		m.diffuse_mode = BaseMaterial3D.DIFFUSE_LAMBERT_WRAP
+		m.specular_mode = BaseMaterial3D.SPECULAR_DISABLED
+		m.roughness = 1.0
+		m.rim_enabled = true
+		m.rim = 0.25
+		m.rim_tint = 0.8
 	if emissive != null:
 		m.emission_enabled = true
 		m.emission = emissive if emissive is Color else Color(emissive)

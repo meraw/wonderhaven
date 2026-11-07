@@ -71,6 +71,26 @@ These hold for any cozy, stylised 3D game with a painted look, not only this one
 The atmosphere module only reads the clock, the weather and the player's position. It does not touch rules, saves or
 layouts, and the game loads it the same way as the animals module.
 
+## Physically based materials (conversion, step one)
+`Palette` makes physically based materials since the conversion to the chosen look (`docs/CONVERSION.md`). Three
+things carried over from the painted look had to be handled:
+- **The old rim light was a hidden fill.** Godot narrows the rim by roughness, and at roughness 1 (every painted
+  material) it doesn't narrow at all. So the painted look added a quarter of the sun's light, warm, to every surface,
+  whichever way it faced. Shaded sides and interiors stayed warm and bright because of it, and the day's sun and
+  ambient balance (above) was tuned with it in place. Without it, a facade facing away from the sun lost half its
+  brightness and went grey, and the castle hall at dawn a third.
+- **Ambient light stands in for it.** By day, with realistic materials, the ambient is 1.35 times stronger and 30%
+  of the way to the sun's colour, so the fill is warm as before. Both fade out at night, when the moon gave little
+  rim light (`Palette.ambient_gain`, `Palette.ambient_color`, applied in `game.gd`). `--look=painted` keeps the old
+  ambient.
+- **Godot's wrapped light halves the sun at roughness 1.** Its Lambert wrap gives a face turned straight to the sun
+  only half the light, and gives the other half to the faces turned away. So realistic diffuse doubles the sun on
+  sunlit faces, which matters most on the ground. The terrain keeps its wrapped light until step two of the
+  conversion gives it textures and wet ground (`docs/CONVERSION.md`). The roof and Toriano facade shaders, which had
+  no rim fill, are 10% darker with realistic materials (`Palette.REAL_SHADER_ALBEDO`).
+- **Rough surfaces reflect less.** At the default specular, rough plaster, stone and fabric reflected the bluish sky
+  and greyed warm colours (12 to 15% less saturation). They use 0.25; smooth ones 0.5.
+
 ## Tried and dropped
 - **Normal maps from the detail textures** (plaster, wood, stone, fabric). Invisible at gentle strengths, and at
   visible strengths the rim light made surfaces lighter and flatter. Fabric relief also broke on character meshes that
