@@ -273,7 +273,7 @@ func test_live_checks_are_cached_until_something_changes():
 		return false
 	var e := QuestEngine.new(s, {"bridge": check})
 	e.accept("bridge")
-	e.on_gain({"wood": 10})
+	e.on_gain({"wood": 14})   # the wood step done, so the building step's live check is the current one
 	calls[0] = 0
 	for i in 20:
 		e.next_step("bridge"); e.is_ready("bridge"); e.current_stage("bridge"); e.shown_objectives("bridge")
