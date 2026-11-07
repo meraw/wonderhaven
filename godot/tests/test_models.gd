@@ -27,7 +27,7 @@ func test_parse_material_names():
 	t.eq(ModelKit.parse("wh_plaster_d8a557").kind, "plaster", "kind")
 	t.ok((ModelKit.parse("wh_roof_b55a35.001").color as Color).is_equal_approx(Color("b55a35")), "colour, despite a suffix")
 	t.ok(ModelKit.parse("Material.001").is_empty(), "other names are left alone")
-	t.ok(ModelKit.material_for("wh_plaster_d8a557", {"d8a557": "e6d6b4"}).albedo_color.is_equal_approx(Color("e6d6b4")), "recolour")
+	t.ok(ModelKit.material_for("wh_plaster_d8a557", {"d8a557": "e6d6b4"}).albedo_color.is_equal_approx(Palette.detailed(Color("e6d6b4"), "plaster").albedo_color), "recolour")
 
 func test_lab_models_load_with_the_games_materials():
 	var names := _models()
