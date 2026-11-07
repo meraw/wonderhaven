@@ -209,3 +209,9 @@ func test_materials_are_physically_based_with_the_chosen_textures():
 			t.ok(Palette.material_texture("%s_%s" % [spec[0], map]) != null, "%s %s map is imported" % [spec[0], map])
 	t.ok(Palette.mat("8a8a8a").normal_texture == null, "plain-colour parts stay untextured")
 	t.ok(Palette.shader_code("render_mode diffuse_lambert_wrap, specular_disabled;").contains("specular_schlick_ggx"), "custom shaders switch to real specular")
+
+func test_realistic_materials_get_a_warm_ambient_fill():
+	t.ok(Palette.ambient_gain() > 1.0, "the ambient light is stronger with realistic materials")
+	var c := Palette.ambient_color(Color("c9dcf0"), Color("fff0d8"))
+	t.ok(c.r > Color("c9dcf0").r and c.b < Color("c9dcf0").b, "and leans toward the sun's colour")
+	t.ok(Palette.mat("8a8a8a").metallic_specular < 0.5, "rough surfaces reflect less of the sky")

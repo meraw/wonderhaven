@@ -48,6 +48,14 @@ own cobble colours, and `views.sh` with `measure_views.py` for before-and-after 
    - Foliage, water, the far hills, hair and faces keep their own shading, so plants stay stylised.
    - Outlines stay on.
    - `--look=painted` brings back the old materials, for comparisons.
+   - **What it took, measured against the ten fixed views** (`views.sh`, `measure_views.py`):
+     - the generated plaster's colour variation cut to a third, and its relief halved, because on the game's small,
+       pale houses it read as dirt;
+     - specular 0.25 on rough surfaces;
+     - a stronger, warmer ambient light, to replace the fill the old rim light gave (`docs/GRAPHICS.md`).
+
+     Result: contrast up in every view, colour about where it was, and the castle hall at dawn 11% darker than
+     before. Before-and-after images: `docs/models/conversion_step1_a.jpg` and `conversion_step1_b.jpg`.
 2. **Ground and wet:**
    - the terrain's cobbles and paths use the generated flagstones and cobbles (relief and roughness) instead of
      painted ones;

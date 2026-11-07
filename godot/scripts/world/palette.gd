@@ -18,12 +18,20 @@ static var _real_tex: Dictionary = {}
 
 const PAINTED_MODES := "diffuse_lambert_wrap, specular_disabled"
 const REAL_MODES := "diffuse_burley, specular_schlick_ggx"
-const REAL_TEX := {"plaster": ["plaster", 1.4, 2.0], "wood": ["wood", 1.2, 0.8], "stone": ["stone", 0.9, 1.4],
+const REAL_TEX := {"plaster": ["plaster", 1.4, 1.1], "wood": ["wood", 1.2, 0.8], "stone": ["stone", 0.9, 1.4],
 	"fabric": ["knit", 0.12, 1.4]}
-const REAL_ROUGHNESS := {"mottle": 0.8, "smooth": 0.5}
+const REAL_ROUGHNESS := {"mottle": 0.85, "smooth": 0.5}
 const TEX_GAIN := 1.2
 const REAL_SPECULAR := {"smooth": 0.5}
 const ROUGH_SPECULAR := 0.25
+const REAL_AMBIENT := 1.45
+const REAL_AMBIENT_WARMTH := 0.4
+
+static func ambient_gain() -> float:
+	return REAL_AMBIENT if real else 1.0
+
+static func ambient_color(ambient: Color, sun: Color) -> Color:
+	return ambient.lerp(sun, REAL_AMBIENT_WARMTH) if real else ambient
 
 static func _static_init() -> void:
 	real = not OS.get_cmdline_user_args().has("--look=painted")
@@ -127,7 +135,7 @@ static func unique_mat(color, emissive = null, energy: float = 0.0) -> StandardM
 	if real:
 		m.diffuse_mode = BaseMaterial3D.DIFFUSE_BURLEY
 		m.specular_mode = BaseMaterial3D.SPECULAR_SCHLICK_GGX
-		m.roughness = 0.8
+		m.roughness = 0.85
 		m.metallic_specular = ROUGH_SPECULAR
 	else:
 		# Soft wrapped light and a faint rim: rounded, painterly shading instead of a hard toon terminator.

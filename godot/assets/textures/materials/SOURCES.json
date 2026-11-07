@@ -8,7 +8,7 @@
   "plaster": {
    "source": "blender",
    "made_by": "tools/blender/make_textures.py",
-   "note": "Colour variation at 0.45 of the generated texture's, around 82% grey: the full contrast read as dirt on the game's smaller, paler houses."
+   "note": "Colour variation at 0.32 of the generated texture's, around 82% grey: the full contrast read as dirt on the game's smaller, paler houses."
   },
   "knit": {
    "source": "blender",
