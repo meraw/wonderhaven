@@ -10,6 +10,24 @@ After a review of how the game plays, the user agreed a new design: building is 
 whether or not anyone asked for it, requests become briefs with checks, and the day becomes a work day you end
 yourself. All of it, and the order it's built in, is in `docs/DESIGN.md`. Stages 1 to 3 are done; the rest is still to do.
 
+### Less text on screen (07/11)
+The user found too much text everywhere. Changes, all shared:
+- **Smaller text:** all of it is 12% smaller (`UiTheme.TEXT_SCALE`, `UiTheme.px`), and panels are padded a little
+  less.
+- **Fewer toasts:** at most three at once, and a build that meets a need gives one toast ("✔ Something green outside
+  the bakery · charm ★ +6 💖") instead of three.
+- **Build mode:**
+  - undo, redo and help are icons with tooltips, and draft only is a toggle button;
+  - the key list only shows when you press ❓;
+  - the catalogue's buttons are smaller;
+  - hangout names only show for the places within 14 m of the view;
+  - the glowing spots are fainter and reach 6 m.
+- **Narrower cards:** the guide and tip cards, the tracker and build mode's right column are narrower.
+- **Shorter lines:** the tracker lists open needs as "The bakery door · somewhere to sit", and the paper says
+  "Noticed:" once.
+- **Checked:** all of Monteforchetta's playthroughs pass (`play_all.sh`, 18 runs), and the HUD, the morning paper and
+  build mode were compared in screenshots before and after.
+
 ### Stage 3: needs and live approval (Monteforchetta)
 - **Hangouts**: six spots in Monteforchetta's layout (`hangouts`) where people want things:
   - the piazza (green, light, a stall);
@@ -123,7 +141,7 @@ yourself. All of it, and the order it's built in, is in `docs/DESIGN.md`. Stages
 
 ### Stage 1: building you can understand (shared)
 - **The spots where the piece in your hand can go glow green** (for walls, fences and railings, the edges), within
-  8 m of the cursor, filled in a few cells a frame. With a plank in hand you see how far it reaches from a bank or a
+  6 m of the cursor, filled in a few cells a frame. With a plank in hand you see how far it reaches from a bank or a
   post. The check is the real one (`BuildGrid.spot`): a cached support check (`support_cache`, `supported_with`) gives
   exactly the same answer as the full one, which a test compares on random sites.
 - **Drafts.** A piece you can't build yet goes into your draft instead of being refused: when you're short of

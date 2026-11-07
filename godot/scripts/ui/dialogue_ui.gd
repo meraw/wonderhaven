@@ -117,7 +117,7 @@ func choose(options: Array) -> Dictionary:
 	for n in options.size():
 		var o: Dictionary = options[n]
 		var b := Button.new(); b.text = "%s. %s" % [_number(n), o.label]; b.alignment = HORIZONTAL_ALIGNMENT_LEFT; b.name = "choice_%d" % n
-		b.add_theme_font_size_override("font_size", 16 if wide else 15)
+		b.add_theme_font_size_override("font_size", UiTheme.px(16 if wide else 15))
 		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		b.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS; b.custom_minimum_size.x = 0 if wide else 300
 		b.tooltip_text = o.label

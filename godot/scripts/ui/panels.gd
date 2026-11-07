@@ -56,7 +56,7 @@ func inline_tip(tip: Dictionary) -> void:
 	for line in tip.lines:
 		var l := RichTextLabel.new(); l.bbcode_enabled = true; l.fit_content = true; l.scroll_active = false; l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		l.text = Tutorial.fill(line, func(a): return "[b][color=#e86f8f]%s[/color][/b]" % Controls.key_label(a))
-		l.add_theme_font_size_override("normal_font_size", 14); l.add_theme_font_size_override("bold_font_size", 14); l.add_theme_color_override("default_color", UiTheme.INK2)
+		l.add_theme_font_size_override("normal_font_size", UiTheme.px(14)); l.add_theme_font_size_override("bold_font_size", UiTheme.px(14)); l.add_theme_color_override("default_color", UiTheme.INK2)
 		v.add_child(l)
 	body.add_child(p); body.move_child(p, 0)
 

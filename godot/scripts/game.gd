@@ -195,7 +195,7 @@ func toast(text: String, kind: String = "", life: float = 2.8) -> void:
 	p.add_child(l); p.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var c := CenterContainer.new(); c.add_child(p); c.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	toasts.add_child(c)
-	while toasts.get_child_count() > 5: var old := toasts.get_child(0); toasts.remove_child(old); old.queue_free()
+	while toasts.get_child_count() > 3: var old := toasts.get_child(0); toasts.remove_child(old); old.queue_free()
 	var tw := create_tween(); tw.tween_interval(life); tw.tween_property(c, "modulate:a", 0.0, 0.4); tw.tween_callback(c.queue_free)
 
 func banner(title: String, sub: String = "", rewards: Array = [], seconds: float = 3.2) -> void:
@@ -472,17 +472,21 @@ func refresh_village(ev: Dictionary = {}) -> void:
 	build.refresh_hangouts()
 
 func _village_toasts(before: Dictionary, after: Dictionary, hs: Array) -> void:
-	var per := int(Data.needs.get("points", 5))
 	var was := Needs.met_keys(before)
 	var now := Needs.met_keys(after)
+	var parts: Array = []
 	for k in now:
-		if not was.has(k): toast("✔ %s: +%d approval" % [Needs.line(hs, k, "met"), per], "good", 3.0); sfx("unlock")
+		if not was.has(k): parts.append("✔ " + Needs.line(hs, k, "met"))
 	for k in was:
-		if not now.has(k): toast("%s is gone: -%d approval" % [Needs.line(hs, k, "met"), per], "warn", 3.0)
+		if not now.has(k): parts.append(Needs.line(hs, k, "met") + " is gone")
 	for i in after.get("charm", []).size():
 		var a: int = int(after.charm[i].points)
 		var b: int = int(before.get("charm", [])[i].points) if i < before.get("charm", []).size() else 0
-		if a != b: toast("%s: charm %s (%s%d approval)" % [String(Needs.hangout(hs, String(after.charm[i].hangout)).get("name", "")), "★".repeat(a) if a > 0 else "none", "+" if a > b else "", a - b], "good" if a > b else "", 2.6)
+		if a > b: parts.append("charm " + "★".repeat(a))
+	var delta := int(after.get("points", 0)) - int(before.get("points", 0))
+	if parts.is_empty() or delta == 0: return
+	toast("%s  %s%d 💖" % [" · ".join(parts), "+" if delta > 0 else "", delta], "good" if delta > 0 else "warn", 3.0)
+	if delta > 0: sfx("unlock")
 
 func render_needs() -> void:
 	if need_root == null:

@@ -19,7 +19,7 @@ static func headline(rec: Dictionary, data: Dictionary, quests: Array, roll: flo
 
 static func notes(rec: Dictionary, ctx: Dictionary, data: Dictionary) -> Array:
 	var out: Array = []
-	for n in ctx.get("noticed", []): out.append(String(data.get("noticed", "Noticed: {line}")).replace("{line}", String(n)))
+	for n in ctx.get("noticed", []): out.append(String(data.get("noticed", "Noticed: {line}")).replace("{line}", String(n)) if out.is_empty() else String(n))
 	var change := int(ctx.get("harmony", 0)) - int(rec.get("harmony", 0))
 	if change != 0:
 		out.append(String(data.get("approval", "")).replace("{n}", str(int(ctx.get("harmony", 0)))).replace("{change}", ("+%d" % change) if change > 0 else str(change)))

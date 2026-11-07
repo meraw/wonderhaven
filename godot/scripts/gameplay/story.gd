@@ -316,7 +316,7 @@ func first_of_kind(id: String) -> void:
 	if types.has(id): return
 	types.append(id)
 	add_harmony(1)
-	game.toast("First %s! +1 💖 approval" % Data.piece(id).name, "", 2.0)
+	game.toast("First %s! +1 💖" % Data.piece(id).name, "", 2.0)
 
 ## The build-mode checklist for a zone: the active request that builds here, its current step's items, and what
 ## is still to do before its building step (materials first) if that hasn't come up yet.

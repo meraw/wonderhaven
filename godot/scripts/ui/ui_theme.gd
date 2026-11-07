@@ -9,8 +9,11 @@ const PINK := Color("ff8fab")
 const PINK_DARK := Color("e86f8f")
 const GOLD := Color("ffcf5c")
 const LILAC := Color("c9a8ff")
+const TEXT_SCALE := 0.88
 
-static func box(bg: Color, border: Color = LINE, radius: int = 18, bw: int = 3, pad: int = 10, shadow: bool = true) -> StyleBoxFlat:
+static func px(size: int) -> int: return maxi(9, int(round(size * TEXT_SCALE)))
+
+static func box(bg: Color, border: Color = LINE, radius: int = 18, bw: int = 3, pad: int = 8, shadow: bool = true) -> StyleBoxFlat:
 	var s := StyleBoxFlat.new()
 	s.bg_color = bg; s.border_color = border
 	s.set_border_width_all(bw); s.set_corner_radius_all(radius)
@@ -21,7 +24,7 @@ static func box(bg: Color, border: Color = LINE, radius: int = 18, bw: int = 3, 
 static func build() -> Theme:
 	var t := Theme.new()
 	t.default_font = main_font()
-	t.default_font_size = 17
+	t.default_font_size = px(17)
 	t.set_color("font_color", "Label", INK)
 	t.set_color("font_color", "Button", INK)
 	t.set_color("font_hover_color", "Button", INK)
@@ -93,7 +96,7 @@ static func primary(b: Button) -> Button:
 ## Labels of 20 px and up are headings and use the title font.
 static func label(text: String, size: int = 17, color: Color = INK, bold: bool = true) -> Label:
 	var l := Label.new(); l.text = text
-	l.add_theme_font_size_override("font_size", size)
+	l.add_theme_font_size_override("font_size", px(size))
 	if size >= 20: l.add_theme_font_override("font", title_font())
 	l.add_theme_color_override("font_color", color)
 	if bold: l.add_theme_constant_override("outline_size", 0)
