@@ -133,6 +133,61 @@ The generated textures and the new models are not in the repository (about 24 MB
 `tools/textures/fetch_polyhaven.py`, `tools/blender/make_textures.py` and `tools/blender/toy_village.py` rebuild
 them in a couple of minutes (see How to run it).
 
+### What the tests showed
+Seen in Forward+ screenshots on a software GPU. **Not checked:** frame rate. This look adds surface relief, real
+shine and screen-space reflections, which cost more than the current look, and the test machine can't measure that.
+
+![Photo-scanned and generated textures](models/look_textures.jpg)
+
+1. **Textures.**
+   - **Photo-scanned (CC0):** the more natural look. Irregular flagstones, stone that reads as stone, and the closest
+     to the paintover's realism. Plaster from a scan is subtle: on dark walls under cloud it almost disappears.
+   - **Generated in Blender:** crisper and more designed, and fully original. The flagstones' cells and grout read a
+     little computer-made, but the plaster blotches show more, and any material can be made on demand in the
+     game's colours.
+   - Both work with the same models and code. Mixing them works too, for example scans for stone and ground and
+     generated plaster and painted wood.
+
+![Outlines off and on](models/look_outlines.jpg)
+
+2. **Outlines.** With real materials, the ink lines make the frame read as an illustration again and add dark edges
+   on wet stone. Off matches the paintover. The chibis still read well without them.
+
+![Attached along a lane, and apart round a piazza](models/look_layout.jpg)
+
+3. **Layout.**
+   - **Attached along a lane:** reads as a real Langhe village street, enclosed and intimate, but hides the
+     landscape.
+   - **Apart round a piazza, as in the paintover:** open and airy, a toy village on a table, with more room for
+     building and an easier camera.
+   - Real Langhe villages do both: a dense core of attached houses along the lanes, opening onto a piazza, with
+     houses standing apart at the edge, where the village meets the fields.
+
+![Eye sizes](models/look_eyes.jpg)
+
+4. **Eyes.** Today's dots are 1×; the paintover's eyes are about 2×. Between them, 1.45× and 1.65× keep the face
+   cute without taking it over. Coloured irises read better from about 1.45× up.
+
+![Character materials](models/look_characters.jpg)
+
+5. **Characters.** Real fabrics on today's chibis make a small difference: a softer jacket, sheen on the boots and
+   hands. The chibis' shapes are smooth and simple, so the paintover's chunky knit and curly hair would also need
+   new shapes, not just materials.
+
+![Drizzle and sun](models/look_weather.jpg)
+
+6. **Weather.** Wet stone with puddles that really reflect gives the paintover's mood. In sun, the same street is
+   bright and cheerful. The look works in both.
+
+**Converting the game would mean:**
+- moving `Palette`'s materials and the terrain shaders to physically based shading;
+- a texture pipeline;
+- outlines off;
+- reflections in the game's environment;
+- the houses and layout above.
+
+Because another agent is changing the graphics now, that starts with a new analysis of the game's state.
+
 ## How to run it
 - **Get Blender:** the 4.2 LTS Linux build from download.blender.org (`Blender4.2/blender-4.2.3-linux-x64.tar.xz`),
   unpacked in a scratch folder outside the repo.
