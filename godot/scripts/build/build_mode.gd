@@ -77,7 +77,6 @@ func open(zone_id: String = "") -> bool:
 		item_id = nx.id; rotation = int(nx.r); category = String(Data.piece(nx.id).cat)
 	_build_ui()
 	_first_time_here()
-	game.render_resources()   # the chips move under the tool bar, in the left column
 	game.emit_event("buildmode", {"open": true})
 	return true
 
@@ -90,7 +89,6 @@ func close() -> void:
 	game.player_char.stop_hold()
 	if ui: ui.queue_free(); ui = null
 	if pad_cursor: pad_cursor.visible = false
-	game.render_resources()
 	game.emit_event("buildmode", {"open": false})
 	step_out_of(zone_was)
 
@@ -652,8 +650,14 @@ func _build_ui() -> void:
 		var b := UiTheme.button("%s %s" % [c.icon, c.name], func(): category = cid; _build_ui(), category == cid)
 		b.name = "tab_" + cid
 		tabs.add_child(b)
+	# what you have, beside what the pieces cost (the HUD's chips step aside in build mode); it fills the space
+	# between the tabs and the colour swatches, and wraps rather than pushing them off the panel
+	var have: Array = game.hud_items().map(func(id): return ("%s %s" % [Data.resources[id].icon, Money.lire(int(state().inventory.get(id, 0)))]) if id == "coins" else ("%s %d" % [Data.resources[id].icon, int(state().inventory.get(id, 0))]))
+	var hv := UiTheme.label("You have  " + "   ".join(have), 13, UiTheme.INK2); hv.name = "build_have"
+	hv.size_flags_horizontal = Control.SIZE_EXPAND_FILL; hv.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	hv.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT; hv.autowrap_mode = TextServer.AUTOWRAP_WORD; hv.custom_minimum_size.x = 180
+	tabs.add_child(hv)
 	if item_id != "" and Data.piece(item_id).get("colorable", false):
-		var spacer := Control.new(); spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL; tabs.add_child(spacer)
 		tabs.add_child(_swatches(color if color != "" else Data.piece(item_id).color, set_color))
 	# Every piece stays visible: the catalog wraps onto a second row instead of scrolling sideways.
 	var items := HFlowContainer.new(); items.add_theme_constant_override("h_separation", 6); items.add_theme_constant_override("v_separation", 6); cv.add_child(items)

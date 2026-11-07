@@ -141,9 +141,9 @@
    "title": "How building works",
    "seconds": 40,
    "lines": [
-    "Pick a piece at the bottom and click to build it; {rotate} turns it. Green fits, red says why not.",
+    "Pick a piece below and click to build; {rotate} turns it. Red says why it won't fit.",
     "Purple outlines are a plan: put the same piece on each. {plan_next} picks up the next one.",
-    "Ctrl+Z undoes, {remove} takes a piece back, Esc leaves."
+    "Ctrl+Z undoes. Esc leaves."
    ]
   },
   "harmony": {

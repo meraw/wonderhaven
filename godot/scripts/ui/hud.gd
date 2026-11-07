@@ -118,13 +118,14 @@ func _next_tip() -> void:
 ## Per frame: guide card only in free play, tip cards fade out on their own after a while.
 func tick(dt: float) -> void:
 	tracker.visible = game.mode != "build" and game.mode != "dialogue"   # build mode shows its own checklist
-	# The resource chips sit top left, or in build mode in the left column below its tool bar and status line; the
-	# guide and tip cards go below them (the chips wrap onto more rows when you carry a lot).
+	# The resource chips sit top left, and the guide and tip cards go below them (the chips wrap onto more rows when
+	# you carry a lot). In build mode the catalogue shows what you have instead (BuildMode), and the cards go below
+	# the tool bar and status line.
 	var building: bool = game.mode == "build"
 	var below := 160.0 if building else 70.0
 	var rp: Control = game.hud_res.get_parent() if game.hud_res else null
 	if rp:
-		rp.position.y = 160.0 if building else 14.0
+		rp.visible = not building and Tutorial.revealed(game.state.get("tutorial", {}), "resources")
 		if rp.visible: below = maxf(below, rp.position.y + rp.size.y + 10.0)
 	left_stack.position.y = below
 	guide_card.visible = Tutorial.current(game.state.get("tutorial", {})).size() > 0 and game.mode in ["explore", "build"]

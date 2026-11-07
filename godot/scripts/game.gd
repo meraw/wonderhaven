@@ -263,10 +263,8 @@ func hud_items() -> Array:
 					for k in o.items: want[k] = true
 	return Data.resource_order.filter(func(id): return want.has(id) and Data.resources.has(id) and (id == "coins" or int(state.inventory.get(id, 0)) > 0))
 
-## How wide a row of chips may be: up to the panel at the top centre (the approval rating and clock). In build mode
-## the chips sit in the left column under the tool bar (Hud.tick), as wide as the guide card.
+## How wide a row of chips may be: up to the panel at the top centre (the approval rating and clock).
 func resources_width() -> float:
-	if build != null and build.active: return 330.0
 	var vw: float = get_viewport().get_visible_rect().size.x
 	var mid: float = hud.top_panel.size.x if hud and hud.top_panel and hud.top_panel.size.x > 0.0 else 520.0
 	return clampf(vw / 2.0 - mid / 2.0 - 14.0 - 28.0 - 16.0, 150.0, 560.0)   # left margin, the panel's own padding, a gap
