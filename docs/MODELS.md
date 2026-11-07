@@ -188,6 +188,18 @@ shine and screen-space reflections, which cost more than the current look, and t
 
 Because another agent is changing the graphics now, that starts with a new analysis of the game's state.
 
+### Decisions after the look tests (07/11)
+- **Textures: a mix, chosen material by material.** Generated in Blender for the flagstones (they clearly look better),
+  the plaster, the knit and the denim. Photo-scanned for the stone (the columns look better with the real texture),
+  the painted wood, the clay, the leather and the wool. The lab's `--labtex=mix` (`ModelKit.MIX`) uses this.
+- **Outlines stay on.** They take away a lot of the blurry look, which doesn't fit with realistic textures.
+- **Layout: attached houses for local flavour, but not every house.** Groups of attached houses of different heights,
+  colours and setbacks, broken by alleys and garden gaps, with houses standing apart at the edges, so the village
+  doesn't blend together. `tests/model_lab_village_mix.json` is a lane laid out that way, mixing both house
+  families.
+- **Eyes at 1.45× today's dots.** This is in the game now (`Chibi.EYE_SIZE`): every eye shape is between 1.45× and
+  1.55×, because the wide eyes already were 1.55×.
+
 ## How to run it
 - **Get Blender:** the 4.2 LTS Linux build from download.blender.org (`Blender4.2/blender-4.2.3-linux-x64.tar.xz`),
   unpacked in a scratch folder outside the repo.
@@ -208,7 +220,7 @@ Because another agent is changing the graphics now, that starts with a new analy
     a proxy);
   - **generated textures:** `blender -b --factory-startup -P tools/blender/make_textures.py -- --out
     godot/assets/textures/lab/blender`;
-  - **screenshots:** `--models=res://tests/model_lab_toy_dense.json` (or `_spaced`). `--labtex=cc0|blender` picks
+  - **screenshots:** `--models=res://tests/model_lab_toy_dense.json` (or `_spaced`). `--labtex=cc0|blender|mix` picks
     the texture set, `--labwet=0` makes it dry, `--labnpcs` keeps the villagers in shot, and `--outline=0|1`
     switches the ink lines. For example: `RENDERER=forward_plus ./shot.sh out.png --skiptitle --nohud --outline=0
     --weather=drizzle --models=res://tests/model_lab_toy_dense.json --pos=-25,3.4,1.57 --cam=-1.45,0.12,6.5
