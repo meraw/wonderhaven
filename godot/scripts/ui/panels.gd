@@ -318,7 +318,8 @@ func _village_why(h: int) -> void:
 		var charm := 0
 		for ch in v.get("charm", []):
 			if ch.hangout == hid: charm = int(ch.points)
-		c.add_child(UiTheme.label("%s   %s" % [String(hg.name), ("★".repeat(charm) + "  charm +%d" % charm) if charm > 0 else "no charm yet"], 16))
+		var lively := Visits.level(v, hid)
+		c.add_child(UiTheme.label("%s   %s%s" % [String(hg.name), ("★".repeat(charm) + "  charm +%d" % charm) if charm > 0 else "no charm yet", ("   · lively %d/3" % lively) if lively > 0 else ""], 16))
 		var hidden := 0
 		for n in v.get("needs", []):
 			if n.hangout != hid: continue

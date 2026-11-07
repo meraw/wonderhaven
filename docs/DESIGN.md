@@ -106,7 +106,8 @@ Each stage is playable and tested before the next.
    morning paper, naps within a day. *Done for Monteforchetta: see `docs/STATUS.md`.*
 3. **Needs and live approval**, with the "Why?" panel; no villagers using things yet. *Done for Monteforchetta: see
    `docs/STATUS.md`.*
-4. **Villagers using your builds** (and their puzzled stares), and liveliness.
+4. **Villagers using your builds** (and their puzzled stares), and liveliness. *Done for Monteforchetta, apart from the
+   market day and the evening music: see `docs/STATUS.md`.*
 5. **The inauguration.**
 6. **Requests rebuilt as commissions** (Monteforchetta's playthrough scripts are rewritten here).
 7. **Tools and materials.**

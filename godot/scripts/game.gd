@@ -39,6 +39,7 @@ var piece_nodes: Dictionary = {}
 var mech: Dictionary = {"powered": {}, "watered": {}, "pumps": {}, "sources": {}, "fed": {}, "lamps": {}, "fountains": {}}
 var interactables: Array = []
 var village_score: Dictionary = {}
+var visit_opts: Array = []
 var reach_cache: Dictionary = {}
 var need_root: Node3D
 var target = null
@@ -463,6 +464,9 @@ func refresh_village(ev: Dictionary = {}) -> void:
 	village_score = Needs.village(hs, state.placements, reach_cache, mech.lamps)
 	var now_met := Needs.met_keys(village_score)
 	Needs.know(state, now_met.keys())
+	visit_opts = Visits.options(hs, state.placements, reach_cache, mech.lamps)
+	for a in npcs.values():
+		if a.visiting() and not visit_opts.any(func(o): return int(o.uid) == int(a.visit.uid) and bool(o.use) == bool(a.visit.use)): a.end_visit()
 	var r := Needs.settle(state, int(village_score.points))
 	if not quiet: _village_toasts(before, village_score, hs)
 	for u in r.unlocks: story.apply_unlock(u)
@@ -487,6 +491,43 @@ func _village_toasts(before: Dictionary, after: Dictionary, hs: Array) -> void:
 	if parts.is_empty() or delta == 0: return
 	toast("%s  %s%d 💖" % [" · ".join(parts), "+" if delta > 0 else "", delta], "good" if delta > 0 else "warn", 3.0)
 	if delta > 0: sfx("unlock")
+
+func _update_visits(dt: float) -> void:
+	if visit_opts.is_empty() or mode in ["title", "creator", "cutscene"]: return
+	var hs := Needs.hangouts()
+	var cfg: Dictionary = Data.needs.get("visits", {})
+	var dusk := WorkDay.held(state.time, WorkDay.def(Data.island))
+	var rate := float(shot_cfg.get("visit_rate", 1.0))
+	var taken := {}
+	for a in npcs.values():
+		if a.visiting() and a.visit.use: taken[int(a.visit.uid)] = true
+	for a in npcs.values():
+		if not a.present or a.talking or a.visiting() or a.activity == "sleep" or a.riding: continue
+		a.visit_t -= dt * rate
+		if a.visit_t > 0.0: continue
+		var every: Array = cfg.get("every", [60, 150])
+		a.visit_t = lerpf(float(every[0]), float(every[1]), randf())
+		var v := Visits.pick(visit_opts, String(a.def.id), hs, village_score, taken, randf(), dusk)
+		if v.is_empty(): continue
+		var h := Needs.hangout(hs, String(v.hangout))
+		var from: Vector2 = a.node_pos(Schedule.nearest_node(float(h.x), float(h.z), state.flags))
+		v["path"] = Visits.path(reach_cache.get(String(v.hangout), []), h, from, v.spot.approach)
+		if v.path.is_empty(): continue
+		var gathering: bool = dusk and String(v.hangout) == "piazza" and Visits.level(village_score, "piazza") >= 3
+		var stay: Array = cfg.get("dusk_stay" if gathering else "stay", [18, 35])
+		v["left"] = lerpf(float(stay[0]), float(stay[1]), randf())
+		v["look"] = Visits.center(_find_pl(int(v.uid)))
+		if v.use: taken[int(v.uid)] = true
+		a.start_visit(v, h)
+		emit_event("visit", {"npc": String(a.def.id), "hangout": String(v.hangout), "kind": String(v.kind), "use": bool(v.use)})
+
+func visit_arrived(a) -> void:
+	emit_event("visit_arrived", {"npc": String(a.def.id), "hangout": String(a.visit.hangout), "use": bool(a.visit.use)})
+	if not a.visit.use: return
+	var id := String(a.def.id)
+	if int(state.relationships.get(id, {}).get("used_day", 0)) == int(state.time.day): return
+	story.add_hearts(id, 1)
+	state.relationships[id]["used_day"] = int(state.time.day)
 
 func render_needs() -> void:
 	if need_root == null:
@@ -985,6 +1026,7 @@ func _process(dt: float) -> void:
 			if mode == "minigame": minigame.update(dt)
 			if mode == "menu": panels.update(dt)
 	update_bike(dt)
+	_update_visits(dt)
 	for a in npcs.values(): a.update(dt)
 	actions.update(dt)
 	cam.update(dt, player.pos)

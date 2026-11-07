@@ -821,6 +821,8 @@ func refresh_hangouts() -> void:
 		for ch in v.get("charm", []):
 			if ch.hangout == hid: charm = int(ch.points)
 		if charm > 0: parts.append("★".repeat(charm))
+		var lively := Visits.level(v, hid)
+		if lively > 0: parts.append("lively %d/3" % lively)
 		var r := float(h.get("r", 3.0))
 		var lines := SurfaceTool.new(); lines.begin(Mesh.PRIMITIVE_LINES)
 		var seg := 48
