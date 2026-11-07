@@ -104,7 +104,8 @@ Each stage is playable and tested before the next.
    rules. *Done: see `docs/STATUS.md`.*
 2. **The work day**: dusk holds, sleeping (on a bench until you have a bed) ends the day, overnight regrowth, the
    morning paper, naps within a day. *Done for Monteforchetta: see `docs/STATUS.md`.*
-3. **Needs and live approval**, with the "Why?" panel; no villagers using things yet.
+3. **Needs and live approval**, with the "Why?" panel; no villagers using things yet. *Done for Monteforchetta: see
+   `docs/STATUS.md`.*
 4. **Villagers using your builds** (and their puzzled stares), and liveliness.
 5. **The inauguration.**
 6. **Requests rebuilt as commissions** (Monteforchetta's playthrough scripts are rewritten here).

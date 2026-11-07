@@ -24,7 +24,10 @@ var spot_queue: Array = []
 var spot_center := Vector2i(1 << 20, 1 << 20)
 var spot_dirty := false
 var grid_fills: Array = []
-const SPOT_RADIUS := 8
+var hangout_root := Node3D.new()
+var hangout_labels: Array = []
+var show_keys := false
+const SPOT_RADIUS := 6
 const SPOT_BUDGET_USEC := 4000
 var moving := {}                 # {pl, from, r}
 var history := History.new()
@@ -49,10 +52,11 @@ func setup(g) -> void:
 	game.add_child(grid_root); game.add_child(plan_root)
 	draft_root.name = "Drafts"; game.add_child(draft_root)
 	spots_root.name = "BuildSpots"; game.add_child(spots_root)
-	var spot_mat := Palette.glow_mat(Color("5dff9a"), 0.5)
+	var spot_mat := Palette.glow_mat(Color("5dff9a"), 0.34)
 	spot_mat.cull_mode = BaseMaterial3D.CULL_DISABLED
 	spot_mesh.material_override = spot_mat; spot_mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	spots_root.add_child(spot_mesh); spots_root.visible = false
+	hangout_root.name = "Hangouts"; hangout_root.visible = false; game.add_child(hangout_root)
 	sel_box = MeshInstance3D.new(); sel_box.visible = false
 	var bm := BoxMesh.new(); sel_box.mesh = bm
 	var sm := Palette.glow_mat(Color("a07cff"), 0.25); sel_box.material_override = sm
@@ -88,8 +92,9 @@ func open(zone_id: String = "") -> bool:
 	jump_to(zone)
 	if zone.get("open", false) and BuildGrid.zone_contains(zone, floor(p.x), floor(p.z), LocationMeter.progress(state(), Data.island)):
 		focus = p   # an open area (the village streets): build right where you are
-	rebuild_grid(); refresh_plan()
+	rebuild_grid(); refresh_plan(); refresh_hangouts()
 	grid_root.visible = true
+	hangout_root.visible = true
 	game.cam.set_mode("build")
 	game.player_char.play("build", true); game.player_char.show_staff(true)
 	# with a plan to follow here, its next piece is already in your hand, turned the way its outline is
@@ -107,6 +112,7 @@ func close() -> void:
 	active = false; item_id = ""; selected = -1; selected_draft = -1
 	_clear_ghost(); sel_box.visible = false; grid_root.visible = false
 	spots_root.visible = false; spot_key = ""; _show_fills(true)
+	hangout_root.visible = false
 	game.cam.set_mode("explore")
 	game.player_char.stop_hold()
 	if ui: ui.queue_free(); ui = null
@@ -248,11 +254,13 @@ func _first_time_here() -> void:
 	var seen: Array = state().get("build_help", [])
 	if seen.has(Data.island): return
 	seen.append(Data.island); state()["build_help"] = seen
-	if "build" in state().get("tutorial", {}).get("seen", []): show_help()   # (otherwise the guide shows it now: Guide.tip)
+	if "build" in state().get("tutorial", {}).get("seen", []): game.hud.clear_tips(); game.hud.show_tip(Data.tutorial.tips.build)   # (otherwise the guide shows it now: Guide.tip)
 
 func show_help() -> void:
+	show_keys = not show_keys
 	game.hud.clear_tips()
-	game.hud.show_tip(Data.tutorial.tips.build)
+	if show_keys: game.hud.show_tip(Data.tutorial.tips.build)
+	_build_ui()
 
 # ---- Raycast cursor (maths against the heightfield and piece boxes; no physics needed)
 func pick(screen: Vector2) -> Dictionary:
@@ -423,6 +431,7 @@ func update(dt: float) -> void:
 		if not check.is_empty(): check = {}; ghost_key = ""; _render_status()   # (so coming back to the same cell checks it again)
 	var center := Vector2(hover.point.x, hover.point.z) if not hover.is_empty() else Vector2(focus.x, focus.z)
 	_update_spots(center)
+	_near_labels()
 	var sm: Node3D = game.piece_nodes.get(selected)
 	var spl: Dictionary = _find(selected) if sm != null else Drafts.find(Drafts.of(state()), selected_draft)
 	sel_box.visible = not spl.is_empty() and moving.is_empty()
@@ -787,6 +796,55 @@ func draft_plan() -> void:
 	game.toast(msg, "good", 4.0)
 	ghost_key = ""; _build_ui()
 
+func draft_gain() -> int:
+	var hs := Needs.hangouts()
+	if hs.is_empty() or Drafts.of(state()).is_empty(): return 0
+	var v := Needs.village(hs, Drafts.design(state().placements, Drafts.of(state())), game.reach_cache, game.mech.lamps)
+	return int(v.points) - int(game.village_score.get("points", 0))
+
+func refresh_hangouts() -> void:
+	for c in hangout_root.get_children(): hangout_root.remove_child(c); c.queue_free()
+	hangout_labels.clear()
+	var hs := Needs.hangouts()
+	var v: Dictionary = game.village_score
+	var known: Array = Needs.of(state()).noticed
+	for h in hs:
+		var hid := String(h.id)
+		var parts: Array = []
+		var wanting := false
+		for n in v.get("needs", []):
+			if n.hangout != hid: continue
+			var icon := String(Needs.kind_def(String(n.kind)).get("icon", ""))
+			if n.met: parts.append(icon + "✔")
+			elif known.has(n.key): parts.append(icon + "○"); wanting = true
+		var charm := 0
+		for ch in v.get("charm", []):
+			if ch.hangout == hid: charm = int(ch.points)
+		if charm > 0: parts.append("★".repeat(charm))
+		var r := float(h.get("r", 3.0))
+		var lines := SurfaceTool.new(); lines.begin(Mesh.PRIMITIVE_LINES)
+		var seg := 48
+		for i in seg:
+			var a0 := TAU * i / seg; var a1 := TAU * (i + 1) / seg
+			if i % 2 == 1: continue
+			for a in [a0, a1]:
+				var x := float(h.x) + cos(a) * r; var z := float(h.z) + sin(a) * r
+				lines.add_vertex(Vector3(x, maxf(Heightfield.height(x, z), Heightfield.WATER_Y) + 0.1, z))
+		var ring := MeshInstance3D.new(); ring.mesh = lines.commit(); ring.name = "ring_" + hid
+		ring.material_override = Palette.glow_mat(Color("ffb93b") if wanting else Color("8fe3b0"), 0.9)
+		ring.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		hangout_root.add_child(ring)
+		var l := Label3D.new(); l.text = String(h.name) + ("\n" + "  ".join(parts) if not parts.is_empty() else ""); l.font = UiTheme.main_font(); l.font_size = 32; l.pixel_size = 0.006
+		l.billboard = BaseMaterial3D.BILLBOARD_ENABLED; l.modulate = Color("5a3f6e"); l.outline_modulate = Color.WHITE; l.outline_size = 14; l.no_depth_test = true; l.name = "hangout_" + hid
+		l.position = Vector3(float(h.x), maxf(Heightfield.height(float(h.x), float(h.z)), 0.0) + 1.6, float(h.z))
+		hangout_root.add_child(l)
+		hangout_labels.append(l)
+	_near_labels()
+
+func _near_labels() -> void:
+	for l in hangout_labels:
+		if is_instance_valid(l): l.visible = Vector2(l.position.x - focus.x, l.position.z - focus.z).length() < 14.0
+
 func toggle_draft_only() -> void:
 	draft_only = not draft_only
 	game.toast("Draft only: pieces go into your draft, nothing is spent" if draft_only else "Draft only is off: pieces you can afford are built straight away")
@@ -859,10 +917,10 @@ func _build_ui() -> void:
 	tb.add_child(UiTheme.button("◀", func(): cycle_zone(-1)))
 	tb.add_child(UiTheme.label(current_zone.get("name", "No area"), 16, Color("7a5cc9")))
 	tb.add_child(UiTheme.button("▶", func(): cycle_zone(1)))
-	var ub := UiTheme.button("↶ Undo", undo); ub.disabled = not history.can_undo(); tb.add_child(ub)
-	var rb := UiTheme.button("↷ Redo", redo); rb.disabled = not history.can_redo(); tb.add_child(rb)
-	var dob := UiTheme.button("Draft only: %s" % ("on" if draft_only else "off"), toggle_draft_only, draft_only); dob.name = "draft_only"; tb.add_child(dob)
-	var hb := UiTheme.button("❓ How to build", show_help); hb.name = "build_help"; tb.add_child(hb)
+	var ub := UiTheme.button("↶", undo); ub.disabled = not history.can_undo(); ub.tooltip_text = "Undo (Ctrl+Z)"; tb.add_child(ub)
+	var rb := UiTheme.button("↷", redo); rb.disabled = not history.can_redo(); rb.tooltip_text = "Redo (Ctrl+Y)"; tb.add_child(rb)
+	var dob := UiTheme.button("Draft only", toggle_draft_only, draft_only); dob.name = "draft_only"; dob.tooltip_text = "Draft pieces without building them (%s)" % Controls.key_label("draft_only"); tb.add_child(dob)
+	var hb := UiTheme.button("❓", show_help); hb.name = "build_help"; hb.tooltip_text = "How to build, and the keys"; tb.add_child(hb)
 	tb.add_child(UiTheme.button("Done", close, true))
 	var top_c := CenterContainer.new(); top_c.anchor_right = 1; top_c.offset_top = 64; top_c.offset_bottom = 110; top_c.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	top_c.add_child(top); ui.add_child(top_c)
@@ -881,16 +939,16 @@ func _build_ui() -> void:
 		("Left click — build, draft or select\nRight click — cancel · right-drag — turn view\n%s rotate · %s colour · %s move\n%s remove · Ctrl+Z undo · Ctrl+Y redo\nWASD pan · wheel zoom · %s draft only\n%s / %s leave build mode\nThe clock waits while you build" % keys), 12, UiTheme.INK2)
 	help.add_child(hl); help.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	# Right column: goals or the selected piece, then the controls (the left side holds the guide and tip cards)
-	var right := VBoxContainer.new(); right.anchor_left = 1; right.anchor_right = 1; right.offset_left = -290; right.offset_right = -14; right.offset_top = 160
+	var right := VBoxContainer.new(); right.anchor_left = 1; right.anchor_right = 1; right.offset_left = -268; right.offset_right = -14; right.offset_top = 160
 	right.add_theme_constant_override("separation", 10); right.mouse_filter = Control.MOUSE_FILTER_IGNORE; ui.add_child(right)
 	if not goals.is_empty() and selected == -1 and moving.is_empty():
 		var gp := UiTheme.panel(Color("fffce6"), UiTheme.GOLD)
 		var gv := VBoxContainer.new(); gp.add_child(gv)
 		gv.add_child(UiTheme.label("📜 " + goals.title, 14))
-		if goals.has("hint"): var hh := UiTheme.label(goals.hint, 12, UiTheme.INK2); hh.autowrap_mode = TextServer.AUTOWRAP_WORD; hh.custom_minimum_size.x = 246; gv.add_child(hh)
+		if goals.has("hint"): var hh := UiTheme.label(goals.hint, 12, UiTheme.INK2); hh.autowrap_mode = TextServer.AUTOWRAP_WORD; hh.custom_minimum_size.x = 226; gv.add_child(hh)
 		for it in goals.items:
 			var gl := UiTheme.label(("" if it.get("later", false) else ("✔ " if it.ok else "○ ")) + it.label, 13, Color("2f8a52") if it.ok else (UiTheme.INK2 if it.get("later", false) else UiTheme.INK))
-			gl.autowrap_mode = TextServer.AUTOWRAP_WORD; gl.custom_minimum_size.x = 246; gv.add_child(gl)
+			gl.autowrap_mode = TextServer.AUTOWRAP_WORD; gl.custom_minimum_size.x = 226; gv.add_child(gl)
 		right.add_child(gp)
 	if selected == -1 and selected_draft == -1 and moving.is_empty(): _plan_panel(right)
 	if selected_draft != -1: _selected_draft_panel(right)
@@ -901,7 +959,7 @@ func _build_ui() -> void:
 			var p := UiTheme.panel(Color(UiTheme.CREAM, 0.97), UiTheme.LILAC)
 			var v := VBoxContainer.new(); p.add_child(v)
 			v.add_child(UiTheme.label("%s %s" % [d.icon, d.name], 16))
-			var desc := UiTheme.label(d.desc, 12, UiTheme.INK2); desc.autowrap_mode = TextServer.AUTOWRAP_WORD; desc.custom_minimum_size.x = 240; v.add_child(desc)
+			var desc := UiTheme.label(d.desc, 12, UiTheme.INK2); desc.autowrap_mode = TextServer.AUTOWRAP_WORD; desc.custom_minimum_size.x = 220; v.add_child(desc)
 			if moving.is_empty():
 				var row := HBoxContainer.new(); v.add_child(row)
 				row.add_child(UiTheme.button("✋ Move", func(): start_move(pl.uid)))
@@ -912,7 +970,7 @@ func _build_ui() -> void:
 				v.add_child(UiTheme.label("Removing refunds " + _cost_text(d.cost), 12, UiTheme.INK2))
 			else: v.add_child(UiTheme.label("Click to put it down · R rotate · right click to cancel", 12, UiTheme.INK2))
 			right.add_child(p)
-	if right.get_node_or_null("plan_panel") == null: right.add_child(help)   # (with a plan, the panel and the ❓ card say how)
+	if show_keys: right.add_child(help)   # (with a plan, the panel and the ❓ card say how)
 	# Catalog
 	var cat := UiTheme.panel(Color(UiTheme.CREAM, 0.97), UiTheme.LILAC, 24)
 	cat.anchor_top = 1; cat.anchor_bottom = 1; cat.anchor_left = 0.5; cat.anchor_right = 0.5
@@ -942,14 +1000,14 @@ func _build_ui() -> void:
 		var pid: String = p.id
 		var ruled: String = String(Data.layout.get("noBuild", {}).get(pid, ""))   # not here, whatever you have
 		var btn := Button.new(); btn.name = "piece_" + pid
-		btn.custom_minimum_size = Vector2(80, 80)
+		btn.custom_minimum_size = Vector2(68, 68)
 		btn.tooltip_text = ruled if ruled != "" else (("%s: %s" % [p.name, p.desc]) if unlocked else "Locked: " + game.blueprint_hint(pid))
 		var on := item_id == pid
 		var sb := UiTheme.box(Color("f6f0ff") if on else Color.WHITE, Color("a07cff") if on else Color("eadcff"), 16, 3, 4, false)
 		btn.add_theme_stylebox_override("normal", sb); btn.add_theme_stylebox_override("hover", UiTheme.box(Color("fbf8ff"), Color("c9a8ff"), 16, 3, 4, false))
 		var vb := VBoxContainer.new(); vb.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT); vb.alignment = BoxContainer.ALIGNMENT_CENTER; vb.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		vb.add_theme_constant_override("separation", 0)
-		var icon := UiTheme.label(p.icon if unlocked else "🔒", 24); icon.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var icon := UiTheme.label(p.icon if unlocked else "🔒", 20); icon.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		var nm := UiTheme.label(p.name, 11); nm.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; nm.autowrap_mode = TextServer.AUTOWRAP_WORD; nm.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		var ct := UiTheme.label("not here" if ruled != "" else (_cost_text(p.cost, "\n") if unlocked else "locked"), 10, Color("d55555") if poor or ruled != "" else UiTheme.INK2); ct.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; ct.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		if state().new_blueprints.has(pid): var nw := UiTheme.label("✦ new", 10, UiTheme.PINK_DARK); nw.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; nw.mouse_filter = Control.MOUSE_FILTER_IGNORE; vb.add_child(nw)
@@ -982,13 +1040,13 @@ func _plan_panel(col: VBoxContainer) -> void:
 		if not short.is_empty():
 			lines.append("You need %s more for it." % ", ".join(short.map(func(m): return Money.lire(int(m.need)) if m.id == "coins" else "%d %s" % [int(m.need), String(Data.resources[m.id].name).to_lower()])))
 	for t in lines:
-		var l := UiTheme.label(t, 12, UiTheme.INK); l.autowrap_mode = TextServer.AUTOWRAP_WORD; l.custom_minimum_size.x = 246; pv.add_child(l)
+		var l := UiTheme.label(t, 12, UiTheme.INK); l.autowrap_mode = TextServer.AUTOWRAP_WORD; l.custom_minimum_size.x = 226; pv.add_child(l)
 	if not nx.is_empty() and item_id != String(nx.id):
 		var b := UiTheme.button("📐 Pick the next piece  (%s)" % Controls.key_label("plan_next"), func(): follow_plan(true)); b.name = "plan_pick"
-		b.add_theme_font_size_override("font_size", 14); pv.add_child(b)
+		b.add_theme_font_size_override("font_size", UiTheme.px(14)); pv.add_child(b)
 	if not nx.is_empty():
 		var db := UiTheme.button("Put the whole plan in your draft", draft_plan); db.name = "plan_draft"
-		db.add_theme_font_size_override("font_size", 13); pv.add_child(db)
+		db.add_theme_font_size_override("font_size", UiTheme.px(13)); pv.add_child(db)
 	col.add_child(pp)
 
 func _draft_bar() -> void:
@@ -998,6 +1056,8 @@ func _draft_bar() -> void:
 	var p := UiTheme.panel(Color("eef8ff"), Color("4fb3ff"), 999); p.name = "draft_panel"
 	var row := HBoxContainer.new(); row.add_theme_constant_override("separation", 8); p.add_child(row)
 	var need := ("gather %s" % Drafts.items_text(short)) if not short.is_empty() else "ready to build"
+	var gain := draft_gain()
+	if gain != 0: need += "  %s%d 💖" % ["+" if gain > 0 else "", gain]
 	var l := UiTheme.label("📐 Draft: %d piece%s, %s" % [drafts.size(), "" if drafts.size() == 1 else "s", need], 13, Color("2f6f9e"))
 	l.size_flags_vertical = Control.SIZE_SHRINK_CENTER; row.add_child(l)
 	var bb := UiTheme.button("Build the draft", build_drafts, short.is_empty()); bb.name = "draft_build"; row.add_child(bb)
@@ -1014,7 +1074,7 @@ func _selected_draft_panel(col: VBoxContainer) -> void:
 	v.add_child(UiTheme.label("%s %s (drafted)" % [d.icon, d.name], 16))
 	var short := Inventory.missing(state().inventory, d.cost)
 	var l := UiTheme.label(("It needs %s." % _cost_text(d.cost)) + ((" You need %s more." % Drafts.items_text(short)) if not short.is_empty() else ""), 12, UiTheme.INK2)
-	l.autowrap_mode = TextServer.AUTOWRAP_WORD; l.custom_minimum_size.x = 240; v.add_child(l)
+	l.autowrap_mode = TextServer.AUTOWRAP_WORD; l.custom_minimum_size.x = 220; v.add_child(l)
 	var row := HBoxContainer.new(); v.add_child(row)
 	var bb := UiTheme.button("Build it", build_selected_draft, short.is_empty())
 	bb.name = "draft_build_one"; row.add_child(bb)
