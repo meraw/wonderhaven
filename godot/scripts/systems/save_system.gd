@@ -45,6 +45,8 @@ static func deserialize(text: String) -> Dictionary:
 	if not Data.has_island(str(s.get("island", "hearthglow"))): s.island = "hearthglow"
 	s.next_uid = maxi(int(raw.get("next_uid", 1)), Travel.max_uid(s) + 1)
 	s.harmony = int(s.harmony)
+	s.village_points = int(s.get("village_points", 0))
+	s.approval_best = maxi(int(s.get("approval_best", 0)), s.harmony)
 	for k in s.meters: s.meters[k] = int(s.meters[k])
 	for k in s.inventory: s.inventory[k] = int(s.inventory[k])
 	s.time = {"day": int(s.time.get("day", 1)), "minute": float(s.time.get("minute", 480)), "total": float(s.time.get("total", 0))}

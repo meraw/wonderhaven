@@ -32,7 +32,7 @@ func setup(g) -> void:
 	clock_label = UiTheme.label("", 14, UiTheme.INK2); tr.add_child(clock_label)
 	var tc := CenterContainer.new(); tc.anchor_right = 1; tc.offset_top = 14; tc.offset_bottom = 54; tc.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	tc.add_child(top); add_child(tc)
-	tracker = VBoxContainer.new(); tracker.anchor_left = 1; tracker.anchor_right = 1; tracker.offset_left = -304; tracker.offset_right = -14; tracker.offset_top = 14
+	tracker = VBoxContainer.new(); tracker.anchor_left = 1; tracker.anchor_right = 1; tracker.offset_left = -278; tracker.offset_right = -14; tracker.offset_top = 14
 	tracker.mouse_filter = Control.MOUSE_FILTER_IGNORE; add_child(tracker)
 	compass = UiTheme.label("➤", 30, UiTheme.PINK_DARK); compass.pivot_offset = Vector2(15, 20); add_child(compass)
 	_build_guide()
@@ -43,21 +43,21 @@ func _build_guide() -> void:
 	left_stack.add_theme_constant_override("separation", 10); left_stack.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(left_stack)
 	guide_card = UiTheme.panel(Color("fffaf0"), UiTheme.PINK, 20); guide_card.name = "guide_card"
-	guide_card.custom_minimum_size.x = 340
+	guide_card.custom_minimum_size.x = 300
 	var v := VBoxContainer.new(); v.add_theme_constant_override("separation", 4); guide_card.add_child(v)
 	var head := HBoxContainer.new(); v.add_child(head)
 	var t := UiTheme.label("🧭 Getting started", 14, UiTheme.PINK_DARK); t.size_flags_horizontal = Control.SIZE_EXPAND_FILL; head.add_child(t)
 	guide_count = UiTheme.label("", 13, UiTheme.INK2); head.add_child(guide_count)
-	var skip := LinkButton.new(); skip.text = "skip"; skip.name = "guide_skip"; skip.add_theme_color_override("font_color", UiTheme.INK2); skip.add_theme_font_size_override("font_size", 13)
+	var skip := LinkButton.new(); skip.text = "skip"; skip.name = "guide_skip"; skip.add_theme_color_override("font_color", UiTheme.INK2); skip.add_theme_font_size_override("font_size", UiTheme.px(13))
 	skip.pressed.connect(func(): game.guide.skip()); head.add_child(skip)
 	guide_text = RichTextLabel.new(); guide_text.bbcode_enabled = true; guide_text.fit_content = true; guide_text.scroll_active = false
-	guide_text.custom_minimum_size = Vector2(340, 0); guide_text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART; guide_text.name = "guide_text"
-	guide_text.add_theme_font_size_override("normal_font_size", 16); guide_text.add_theme_font_size_override("bold_font_size", 16)
+	guide_text.custom_minimum_size = Vector2(300, 0); guide_text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART; guide_text.name = "guide_text"
+	guide_text.add_theme_font_size_override("normal_font_size", UiTheme.px(16)); guide_text.add_theme_font_size_override("bold_font_size", UiTheme.px(16))
 	guide_text.add_theme_color_override("default_color", UiTheme.INK); guide_text.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	v.add_child(guide_text)
 	guide_card.visible = false; left_stack.add_child(guide_card)
 	tip_card = UiTheme.panel(Color("fffdf3"), UiTheme.GOLD, 22); tip_card.name = "tip_card"
-	tip_card.custom_minimum_size.x = 340; tip_card.visible = false
+	tip_card.custom_minimum_size.x = 300; tip_card.visible = false
 	tip_card.mouse_filter = Control.MOUSE_FILTER_IGNORE   # clicks go through to the world (building), except on "Got it"
 	left_stack.add_child(tip_card)
 
@@ -104,9 +104,9 @@ func _next_tip() -> void:
 	var v := VBoxContainer.new(); v.add_theme_constant_override("separation", 6); v.mouse_filter = Control.MOUSE_FILTER_IGNORE; tip_card.add_child(v)
 	v.add_child(UiTheme.label(String(tip.get("icon", "💡")) + " " + String(tip.title), 20, UiTheme.INK))
 	for line in tip.lines:
-		var l := RichTextLabel.new(); l.bbcode_enabled = true; l.fit_content = true; l.scroll_active = false; l.custom_minimum_size.x = 340
+		var l := RichTextLabel.new(); l.bbcode_enabled = true; l.fit_content = true; l.scroll_active = false; l.custom_minimum_size.x = 300
 		l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART; l.text = Tutorial.fill(line, _key); l.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		l.add_theme_font_size_override("normal_font_size", 15); l.add_theme_font_size_override("bold_font_size", 15); l.add_theme_color_override("default_color", UiTheme.INK2)
+		l.add_theme_font_size_override("normal_font_size", UiTheme.px(15)); l.add_theme_font_size_override("bold_font_size", UiTheme.px(15)); l.add_theme_color_override("default_color", UiTheme.INK2)
 		v.add_child(l)
 	var row := HBoxContainer.new(); row.alignment = BoxContainer.ALIGNMENT_END; row.mouse_filter = Control.MOUSE_FILTER_IGNORE; v.add_child(row)
 	var ok := UiTheme.button("Got it", _next_tip, true); ok.name = "tip_ok"; row.add_child(ok)
@@ -147,7 +147,7 @@ func render_harmony() -> void:
 		return
 	harmony_title.text = "💖 Approval"
 	var h := int(game.state.harmony)
-	var nx := Harmony.next_unlock(h)
+	var nx := Harmony.next_unlock(maxi(h, int(game.state.get("approval_best", h))))
 	harmony_bar.max_value = nx.at if not nx.is_empty() else maxf(h, 1)
 	harmony_bar.value = h
 	harmony_label.text = ("%d / %d" % [h, int(nx.at)]) if not nx.is_empty() else str(h)
@@ -156,6 +156,7 @@ func render_tracker() -> void:
 	for c in tracker.get_children(): tracker.remove_child(c); c.queue_free()
 	if not Tutorial.revealed(game.state.get("tutorial", {}), "quests"): return
 	_draft_needs()
+	_village_needs()
 	var e: QuestEngine = game.story.engine
 	if not e.tracked_valid(): e.retrack()
 	var act := e.active().filter(func(q): return e.here(q.id))   # requests on this island
@@ -174,7 +175,7 @@ func render_tracker() -> void:
 		var v := VBoxContainer.new(); p.add_child(v)
 		var mark := "📍 " if game.state.tracked == "lead:" + lq.id else "★ "
 		v.add_child(UiTheme.label(mark + "Next in the story", 15))
-		var l := UiTheme.label("Talk to %s — look for the ! over %s head" % [Data.npc(lq.giver).name, Data.pron(lq.giver, "their")], 13, UiTheme.INK2); l.autowrap_mode = TextServer.AUTOWRAP_WORD; l.custom_minimum_size.x = 260
+		var l := UiTheme.label("Talk to %s — look for the ! over %s head" % [Data.npc(lq.giver).name, Data.pron(lq.giver, "their")], 13, UiTheme.INK2); l.autowrap_mode = TextServer.AUTOWRAP_WORD; l.custom_minimum_size.x = 236
 		v.add_child(l)
 		tracker.add_child(p)
 	for q in show:
@@ -192,14 +193,27 @@ func render_tracker() -> void:
 			var txt: String = ("✔ " if st.done else "○ ") + o.text + ("  🕒 " + Clock.hours_text(o.hours) if o.has("hours") and not st.done else "")
 			if st.need > 1 and not st.done: txt += " (%d/%d)" % [int(game.state.harmony) if o.kind == "harmony" else st.have, st.need]
 			if o.kind == "gather" and not st.done and game.actions.all_picked(String(o.get("item", ""))): txt += "  🌙 all picked for today: they grow back overnight"
-			var l := UiTheme.label(txt, 13, Color("59a86f") if st.done else UiTheme.INK2); l.autowrap_mode = TextServer.AUTOWRAP_WORD; l.custom_minimum_size.x = 260
+			var l := UiTheme.label(txt, 13, Color("59a86f") if st.done else UiTheme.INK2); l.autowrap_mode = TextServer.AUTOWRAP_WORD; l.custom_minimum_size.x = 236
 			v.add_child(l)
 			# a building step: say how (the site's glowing grid, build mode, and the plan to follow if there is one)
 			if q == tracked and not st.done and o.kind in ["build", "room", "pieces"] and e.is_current(q.id, o):
 				var how := UiTheme.label(("📐 At the site press %s, then follow the glowing plan" if o.has("plan") else "📐 At the site press %s and build it your way") % Controls.key_label("build"), 12, Color("7a5cc9"))
-				how.autowrap_mode = TextServer.AUTOWRAP_WORD; how.custom_minimum_size.x = 260; how.name = "build_how"
+				how.autowrap_mode = TextServer.AUTOWRAP_WORD; how.custom_minimum_size.x = 236; how.name = "build_how"
 				v.add_child(how)
 		tracker.add_child(p)
+
+func _village_needs() -> void:
+	var open := Needs.open_keys(game.state, Needs.met_keys(game.village_score))
+	if open.is_empty(): return
+	var hs := Needs.hangouts()
+	var p := UiTheme.panel(Color("fff4f7"), UiTheme.PINK, 18); p.mouse_filter = Control.MOUSE_FILTER_IGNORE; p.name = "village_needs"
+	var v := VBoxContainer.new(); p.add_child(v)
+	v.add_child(UiTheme.label("📈 The village could use", 15))
+	for k in open:
+		var kd := Needs.kind_def(String(k).get_slice(":", 1))
+		var l := UiTheme.label("%s %s · %s" % [String(kd.get("icon", "")), String(Needs.hangout(hs, String(k).get_slice(":", 0)).get("name", "")), String(kd.get("name", ""))], 13, UiTheme.INK2)
+		l.autowrap_mode = TextServer.AUTOWRAP_WORD; l.custom_minimum_size.x = 236; v.add_child(l)
+	tracker.add_child(p)
 
 func _draft_needs() -> void:
 	var drafts := Drafts.of(game.state)
@@ -209,7 +223,7 @@ func _draft_needs() -> void:
 	var v := VBoxContainer.new(); p.add_child(v)
 	v.add_child(UiTheme.label("📐 Your draft: %d piece%s" % [drafts.size(), "" if drafts.size() == 1 else "s"], 15))
 	var text := ("Still to gather: %s" % Drafts.items_text(short)) if not short.is_empty() else ("You have everything for it: press %s there and build the draft" % Controls.key_label("build"))
-	var l := UiTheme.label(text, 13, UiTheme.INK2); l.autowrap_mode = TextServer.AUTOWRAP_WORD; l.custom_minimum_size.x = 260
+	var l := UiTheme.label(text, 13, UiTheme.INK2); l.autowrap_mode = TextServer.AUTOWRAP_WORD; l.custom_minimum_size.x = 236
 	v.add_child(l)
 	tracker.add_child(p)
 

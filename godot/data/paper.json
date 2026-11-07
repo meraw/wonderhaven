@@ -15,6 +15,7 @@
     "Nothing built yesterday. The Sindaco suspects a plot",
     "Slow news day: the fountain is still a fountain"
   ],
+  "noticed": "Noticed: {line}",
   "approval": "The Sindaco's approval rating stands at {n} ({change} yesterday).",
   "lead": "{name} is asking after the Geometra.",
   "draft": "The Geometra's draft is still short of {items}.",

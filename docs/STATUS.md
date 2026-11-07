@@ -8,7 +8,85 @@ Working title: **Wonderhaven** (to be renamed). The game is moving to a comic, l
 ## The redesign (07/11)
 After a review of how the game plays, the user agreed a new design: building is the core, the game values what you build
 whether or not anyone asked for it, requests become briefs with checks, and the day becomes a work day you end
-yourself. All of it, and the order it's built in, is in `docs/DESIGN.md`. Stages 1 and 2 are done; the rest is still to do.
+yourself. All of it, and the order it's built in, is in `docs/DESIGN.md`. Stages 1 to 3 are done; the rest is still to do.
+
+### Less text on screen (07/11)
+The user found too much text everywhere. Changes, all shared:
+- **Smaller text:** all of it is 12% smaller (`UiTheme.TEXT_SCALE`, `UiTheme.px`), and panels are padded a little
+  less.
+- **Fewer toasts:** at most three at once, and a build that meets a need gives one toast ("✔ Something green outside
+  the bakery · charm ★ +6 💖") instead of three.
+- **Build mode:**
+  - undo, redo and help are icons with tooltips, and draft only is a toggle button;
+  - the key list only shows when you press ❓;
+  - the catalogue's buttons are smaller;
+  - hangout names only show for the places within 14 m of the view;
+  - the glowing spots are fainter and reach 6 m.
+- **Narrower cards:** the guide and tip cards, the tracker and build mode's right column are narrower.
+- **Shorter lines:** the tracker lists open needs as "The bakery door · somewhere to sit", and the paper says
+  "Noticed:" once.
+- **Checked:** all of Monteforchetta's playthroughs pass (`play_all.sh`, 18 runs), and the HUD, the morning paper and
+  build mode were compared in screenshots before and after.
+
+### Stage 3: needs and live approval (Monteforchetta)
+- **Hangouts**: six spots in Monteforchetta's layout (`hangouts`) where people want things:
+  - the piazza (green, light, a stall);
+  - the bakery door (a seat, green);
+  - the church steps (light, a seat);
+  - Gigia's gate (green, a seat);
+  - the castle steps (light, green);
+  - the bus stop on the belvedere (a seat, light, shelter).
+
+  Each has a name, a phrase for lines ("outside the bakery"), a radius and, for later, the villager who goes there.
+- **Pieces say what they provide** (`provides` in `pieces.json`):
+  - seat: bench, chair, sofa;
+  - shelter: roof;
+  - light: lamp, street light, rail lantern, and an electric lamp while it's lit;
+  - green: flower bed, hedge, tree;
+  - stall: counter.
+- **A need is met** while such a piece stands in the hangout and someone can walk up to it. For a seat or counter that
+  means at its height; for shelter, standing under it. The walk-up check floods out from the middle of the hangout over
+  the same `WalkWorld` the player walks on, at villager size, so a chair on top of a stack of blocks, or a bench walled
+  in, doesn't count. Rules in `Needs` (`scripts/systems/needs.gd`), numbers in `data/needs.json`.
+- **Approval is what the village has now.** Each met need is worth 5. Each hangout adds up to 5 for charm: the first
+  of each kind of piece there counts 1, the second half, then nothing, plus half a point per colour you've painted.
+  Building raises approval and removing lowers it, recounted on every change, with a toast ("✔ Somewhere to sit outside
+  the bakery: +5 approval"). Requests and first-of-a-kind pieces still give permanent points. Milestones go by the best
+  approval ever reached, so they're never taken back or given twice, and the home plot's size goes by it too
+  (`state.village_points`, `state.approval_best`).
+- **Noticed needs.** Each morning, once the guided day is over, the village notices needs, three open at a time and
+  only for pieces you can already build. The paper leads with them ("Noticed: Nowhere to sit outside the bakery."), an
+  icon floats over the place, and the request tracker lists them under "The village could use". Leaving one costs
+  nothing. A need you meet before anyone mentions it still counts.
+- **"Why?"** The approval screen (P) splits the rating into requests and firsts versus the village now, then lists each
+  hangout: its charm stars, the needs met (+5 each), the ones wanted, and a hint when something hasn't been mentioned
+  yet.
+- **In build mode** each hangout's area shows as a dashed ring (gold while something is wanted there), with its name
+  and its needs (✔ met, ○ wanted) and charm. The draft bar shows how much approval the draft would add ("+6 💖").
+- **Checked:**
+  - **Tested** (`godot/run_tests.sh`, 283 passed). `test_needs` covers: the hangouts' data (buildable from the start,
+    walkable, every need met by some piece); a bench you can walk to counts and a chair on a stack doesn't; a roof on a
+    pillar is shelter; a lamp is light, and an electric lamp only when lit; charm's repeats, colours and cap; three
+    needs noticed at a time, only buildable ones, the same for the same morning; approval going down and up again
+    without a milestone twice; the plot not shrinking; the paper leading with what was noticed.
+  - **Played** (`play_needs`, 9 checks, now in `play_all.sh`):
+    - a night on a bench brings three noticed needs in the paper, with icons over the places and the tracker list;
+    - build mode shows each place's ring, name and needs;
+    - building the right piece there meets the need and raises approval;
+    - the approval screen explains it;
+    - removing it takes the village's points back but keeps the best approval;
+    - drafting it previews the approval, and building the draft meets it again.
+
+    The needs are picked at random each morning, so different runs build at different places: the runs here built a
+    hedge at Gigia's gate and a lamp on the church steps.
+  - **All of Monteforchetta's playthroughs pass** (`play_all.sh`: 18 runs).
+  - **Seen** in the playthroughs' screenshots: the paper with needs, build mode's labels, the "Why?" panel.
+  - **Bug the playthrough found**: the village wasn't counted when a new game began, only once something was built.
+    It's now counted when play begins and when a save loads.
+  - **Not checked:**
+    - How the numbers feel over a whole game (5 a need, up to 5 charm a place, about 100 in all).
+    - Whether the six spots are the right ones.
+    - Whether the rings read well from every camera angle (in the screenshot the camera was over a roof).
 
 ### Stage 2: the work day (Monteforchetta)
 - **A place opts in** with a `day` block in its map entry (`islands.json`: Monteforchetta has `{"holdAt": 20.5, "regrow":
@@ -63,7 +141,7 @@ yourself. All of it, and the order it's built in, is in `docs/DESIGN.md`. Stages
 
 ### Stage 1: building you can understand (shared)
 - **The spots where the piece in your hand can go glow green** (for walls, fences and railings, the edges), within
-  8 m of the cursor, filled in a few cells a frame. With a plank in hand you see how far it reaches from a bank or a
+  6 m of the cursor, filled in a few cells a frame. With a plank in hand you see how far it reaches from a bank or a
   post. The check is the real one (`BuildGrid.spot`): a cached support check (`support_cache`, `supported_with`) gives
   exactly the same answer as the full one, which a test compares on random sites.
 - **Drafts.** A piece you can't build yet goes into your draft instead of being refused: when you're short of

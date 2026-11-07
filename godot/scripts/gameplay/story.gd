@@ -278,11 +278,10 @@ func unlock_clothes(ids: Array, quiet: bool = false) -> void:
 
 func add_harmony(n: int) -> void:
 	var s: Dictionary = game.state
-	var before := int(s.harmony)
-	s.harmony = before + n
+	var due := Needs.raise(s, n)
 	game.hud.render_harmony()
 	if n > 0: game.emit_event("harmony", {"n": n})
-	for u in Harmony.between(before, s.harmony): apply_unlock(u)
+	for u in due: apply_unlock(u)
 	handle(engine.refresh())
 
 ## Points on a location's own meter (LocationMeter), and the milestones they reach. A milestone that waits for
@@ -317,7 +316,7 @@ func first_of_kind(id: String) -> void:
 	if types.has(id): return
 	types.append(id)
 	add_harmony(1)
-	game.toast("First %s! +1 💖 approval" % Data.piece(id).name, "", 2.0)
+	game.toast("First %s! +1 💖" % Data.piece(id).name, "", 2.0)
 
 ## The build-mode checklist for a zone: the active request that builds here, its current step's items, and what
 ## is still to do before its building step (materials first) if that hasn't come up yet.
