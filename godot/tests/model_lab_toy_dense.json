@@ -1,0 +1,128 @@
+{
+ "_comment": "Look-dev only (docs/MODELS.md): the paintover-style houses attached along a paved lane. --labtex=cc0|blender, --labwet=0..1 override the look. --labnpcs keeps the villagers.",
+ "look": {
+  "textures": "cc0",
+  "wet": 1.0,
+  "ssr": true,
+  "characters": true,
+  "hide_npcs": true
+ },
+ "hide": [
+  "bakery",
+  "workshop"
+ ],
+ "models": [
+  {
+   "glb": "res://assets/models/lab/toy_lane.glb",
+   "x": -22.0,
+   "z": 3.3
+  },
+  {
+   "glb": "res://assets/models/lab/toy_oxblood.glb",
+   "x": -31.2,
+   "z": -3.5
+  },
+  {
+   "glb": "res://assets/models/lab/toy_orange.glb",
+   "x": -24.7,
+   "z": -3.6
+  },
+  {
+   "glb": "res://assets/models/lab/toy_ochre.glb",
+   "x": -18.5,
+   "z": -3.5
+  },
+  {
+   "glb": "res://assets/models/lab/toy_red.glb",
+   "x": -13.0,
+   "z": -3.6
+  },
+  {
+   "glb": "res://assets/models/lab/toy_yellow.glb",
+   "x": -31.2,
+   "z": 10.1,
+   "yaw": 3.14159
+  },
+  {
+   "glb": "res://assets/models/lab/toy_red.glb",
+   "x": -25.4,
+   "z": 10.2,
+   "yaw": 3.14159,
+   "recolor": {
+    "b5352c": "d9692f"
+   }
+  },
+  {
+   "glb": "res://assets/models/lab/toy_oxblood.glb",
+   "x": -19.6,
+   "z": 10.1,
+   "yaw": 3.14159,
+   "recolor": {
+    "8c2e2b": "c4472f"
+   }
+  },
+  {
+   "glb": "res://assets/models/lab/toy_ochre.glb",
+   "x": -14.3,
+   "z": 10.0,
+   "yaw": 3.14159,
+   "recolor": {
+    "dca23a": "e3b53c"
+   }
+  },
+  {
+   "glb": "res://assets/models/lab/cafe_set.glb",
+   "x": -32.4,
+   "z": 5.4
+  },
+  {
+   "glb": "res://assets/models/lab/cafe_set.glb",
+   "x": -30.2,
+   "z": 5.7,
+   "yaw": 0.6
+  },
+  {
+   "glb": "res://assets/models/lab/cafe_set.glb",
+   "x": -26.6,
+   "z": 0.3,
+   "yaw": 0.3
+  },
+  {
+   "glb": "res://assets/models/lab/cafe_set.glb",
+   "x": -23.0,
+   "z": 0.4,
+   "yaw": 1.1
+  },
+  {
+   "glb": "res://assets/models/lab/lamp_double.glb",
+   "x": -27.8,
+   "z": 6.4
+  },
+  {
+   "glb": "res://assets/models/lab/lamp_double.glb",
+   "x": -16.0,
+   "z": 0.2
+  },
+  {
+   "glb": "res://assets/models/lab/lamp_double.glb",
+   "x": -20.2,
+   "z": 6.5
+  },
+  {
+   "prop": "bike",
+   "color": "2f5aa8",
+   "x": -29.3,
+   "z": -0.2,
+   "yaw": 1.5708,
+   "roll": 0.12
+  },
+  {
+   "prop": "bike",
+   "color": "c0392b",
+   "x": -17.2,
+   "z": 6.7,
+   "yaw": 1.5708,
+   "roll": -0.12
+  }
+ ]
+}

@@ -48,6 +48,9 @@ class House:
         self.fy = -d / 2.0                                # the front wall's plane (front faces -Y)
         self.oh = 0.6                                     # eaves overhang, front and back
         self.rise = (d / 2.0) * math.tan(PITCH)
+        self.trim_kind = "stone" if opts.get("trim") else "plaster"
+        self.trim_col = opts.get("trim", FRAME)
+        self.stone = opts.get("footing", STONE)
 
     # ---- walls --------------------------------------------------------------------------------------------------
     def walls(self):
@@ -61,8 +64,10 @@ class House:
             self.brick_patch()
         for f in range(1, self.floors):            # a plaster band at each floor (marcapiano), a shade lighter
             z = self.gf + self.fh * (f - 1)
-            self.fine.box((0, self.fy - 0.03, z - 0.08), (w + 0.04, 0.07, 0.16), "plaster", FRAME, tint=(0.97, 0.97, 0.97))
-        self.fine.box((0, self.fy - 0.06, H - 0.12), (w + 0.04, 0.13, 0.22), "plaster", FRAME)   # cornice under the eaves
+            self.fine.box((0, self.fy - 0.03, z - 0.08), (w + 0.04, 0.07, 0.16), self.trim_kind, self.trim_col, tint=(0.97, 0.97, 0.97))
+        self.fine.box((0, self.fy - 0.06, H - 0.12), (w + 0.04, 0.13, 0.22), self.trim_kind, self.trim_col)   # cornice under the eaves
+        if self.opts.get("quoins"):
+            self.quoins(self.opts["quoins"])
 
     def footing(self):
         """A band of layered sandstone at the foot of the walls, slabs of random length, each a little proud."""
@@ -89,13 +94,13 @@ class House:
                         mid, size = (a + c) / 2, c - a - 0.014
                         tint = b.vary(0.1, 0.05)
                         if side == "front":
-                            b.box((mid, -d / 2 - depth / 2 + 0.015, z + h / 2), (size, depth + 0.03, h - 0.014), "stone", STONE, tint=tint)
+                            b.box((mid, -d / 2 - depth / 2 + 0.015, z + h / 2), (size, depth + 0.03, h - 0.014), "stone", self.stone, tint=tint)
                         elif side == "back":
-                            b.box((mid, d / 2 + depth / 2 - 0.015, z + h / 2), (size, depth + 0.03, h - 0.014), "stone", STONE, tint=tint)
+                            b.box((mid, d / 2 + depth / 2 - 0.015, z + h / 2), (size, depth + 0.03, h - 0.014), "stone", self.stone, tint=tint)
                         elif side == "left":
-                            b.box((-w / 2 - depth / 2 + 0.015, mid, z + h / 2), (depth + 0.03, size, h - 0.014), "stone", STONE, tint=tint)
+                            b.box((-w / 2 - depth / 2 + 0.015, mid, z + h / 2), (depth + 0.03, size, h - 0.014), "stone", self.stone, tint=tint)
                         else:
-                            b.box((w / 2 + depth / 2 - 0.015, mid, z + h / 2), (depth + 0.03, size, h - 0.014), "stone", STONE, tint=tint)
+                            b.box((w / 2 + depth / 2 - 0.015, mid, z + h / 2), (depth + 0.03, size, h - 0.014), "stone", self.stone, tint=tint)
                     s += L
                 z += h
 
@@ -122,10 +127,10 @@ class House:
     def window(self, cx, zb, ww, wh, state=None, grate=False):
         b, fy = self.fine, self.fy
         b.box((cx, fy - 0.015, zb + wh / 2), (ww, 0.04, wh), "glass", GLASS)
-        b.box((cx, fy - 0.05, zb + wh + 0.06), (ww + 0.22, 0.09, 0.12), "plaster", FRAME)           # lintel
+        b.box((cx, fy - 0.05, zb + wh + 0.06), (ww + 0.22, 0.09, 0.12), self.trim_kind, self.trim_col)           # lintel
         b.box((cx, fy - 0.09, zb - 0.04), (ww + 0.3, 0.18, 0.08), "stone", "cfc6b4")                 # sill
         for s in (-1, 1):
-            b.box((cx + s * (ww / 2 + 0.05), fy - 0.04, zb + wh / 2), (0.1, 0.07, wh), "plaster", FRAME)
+            b.box((cx + s * (ww / 2 + 0.05), fy - 0.04, zb + wh / 2), (0.1, 0.07, wh), self.trim_kind, self.trim_col)
         b.box((cx, fy - 0.045, zb + wh / 2), (0.045, 0.03, wh), "wood", WINDOW)                      # frames
         b.box((cx, fy - 0.045, zb + wh * 0.62), (ww, 0.03, 0.045), "wood", WINDOW)
         if grate:
@@ -133,7 +138,7 @@ class House:
                 b.box((cx - ww / 2 + ww * (i + 0.5) / 5, fy - 0.11, zb + wh / 2), (0.022, 0.022, wh), "iron", IRON)
             for zz in (zb + 0.12, zb + wh - 0.12):
                 b.box((cx, fy - 0.11, zz), (ww, 0.022, 0.022), "iron", IRON)
-        state = state or self.rng.choice(["open", "open", "open", "shut", "ajar", "half"])
+        state = state or self.opts.get("shutters") or self.rng.choice(["open", "open", "open", "shut", "ajar", "half"])
         angles = {"open": (178, 178), "shut": (0, 0), "ajar": (110, 135), "half": (178, 0)}[state]
         for side, ang in zip((-1, 1), angles):
             self.shutter_leaf(cx + side * ww / 2, zb, ww / 2, wh, side, ang)
@@ -159,6 +164,37 @@ class House:
                         self.window(x, gf + fh * (f - 1) + 0.75, 0.8, 1.25, state=state)
             b.turn(since, angle)
             self.fy = fy
+
+    def quoins(self, col):
+        w, d, H = self.w, self.d, self.H
+        b = self.fine
+        z, k = 0.78, 0
+        while z < H - 0.3:
+            h = 0.34
+            long_front = k % 2 == 0
+            fx, fz = (0.56, 0.3) if long_front else (0.3, 0.56)
+            for sx in (-1, 1):
+                for sy in (-1, 1):
+                    b.box((sx * (w / 2 - fx / 2 + 0.04), sy * (d / 2 - fz / 2 + 0.04), z + h / 2), (fx, fz, h),
+                          "stone", col, tint=b.vary(0.07, 0.03))
+            z += h + 0.03
+            k += 1
+
+    def portico(self, n):
+        w, gf, fy = self.w, self.gf, self.fy
+        b = self.fine
+        depth = 1.75
+        y = fy - depth
+        for i in range(n):
+            x = -w / 2 + 0.3 + i * (w - 0.6) / (n - 1)
+            b.box((x, y, (gf - 0.32) / 2 + 0.1), (0.36, 0.36, gf - 0.52), "stone", self.trim_col, tint=b.vary(0.05))
+            b.box((x, y, 0.08), (0.5, 0.5, 0.16), "stone", self.trim_col, tint=b.vary(0.05))
+            b.box((x, y, gf - 0.36), (0.5, 0.5, 0.14), "stone", self.trim_col, tint=b.vary(0.05))
+        b.box((0, y, gf - 0.12), (w + 0.12, 0.46, 0.34), "stone", self.trim_col, tint=b.vary(0.04))
+        for sx in (-1, 1):
+            b.box((sx * (w / 2 - 0.3 + 0.06), fy - depth / 2, gf - 0.12), (0.4, depth, 0.34), "stone", self.trim_col)
+        b.box((0, fy - depth / 2, gf + 0.08), (w + 0.12, depth + 0.1, 0.1), "stone", self.trim_col)
+        b.box((0, fy - depth / 2, 0.025), (w + 0.1, depth + 0.3, 0.05), "stone", "cfc6b4", tint=b.vary(0.04))
 
     def shutter_leaf(self, hinge_x, zb, lw, lh, side, angle_deg):
         """A louvred shutter leaf hinged at hinge_x: 0 degrees shut over the window, 180 folded back against the wall."""
@@ -234,11 +270,11 @@ class House:
         stripes = 9
         aw = ws + 0.2
         for i in range(stripes):
-            col = "ece3d0" if i % 2 == 0 else "b5452f"
+            col = "ece3d0" if i % 2 == 0 else self.opts.get("awning", "b5452f")
             b.box((cx - aw / 2 + aw * (i + 0.5) / stripes, fy - 0.45, 2.22), (aw / stripes, 0.95, 0.03), "paint", col,
                   rot=(math.radians(-24), 0, 0))
         for i in range(stripes):   # a scalloped valance along the front edge
-            col = "ece3d0" if i % 2 == 0 else "b5452f"
+            col = "ece3d0" if i % 2 == 0 else self.opts.get("awning", "b5452f")
             b.box((cx - aw / 2 + aw * (i + 0.5) / stripes, fy - 0.89, 1.96), (aw / stripes, 0.025, 0.16), "paint", col)
 
     def tabacchi_sign(self, x, z):
@@ -436,6 +472,8 @@ class House:
         slots = max(1, round((w - 0.6) / 1.75))
         xs = [-w / 2 + w * (i + 0.5) / slots for i in range(slots)]
         door_i = o.get("door_slot", slots // 2)
+        gwin = o.get("gwin", (0.85, 1.2))
+        uwin = o.get("win", (0.85, 1.3))
         if o.get("shop"):
             self.skip.append((-(w - 1.4) / 2 - 0.1, (w - 1.4) / 2 + 0.1))
         else:
@@ -452,7 +490,7 @@ class House:
                 if i == door_i:
                     (self.door_arched if o.get("arch", True) else self.door_plain)(x)
                 else:
-                    self.window(x, 0.95, 0.85, 1.2, grate=True)
+                    self.window(x, 0.95, gwin[0], gwin[1], grate=o.get("grates", True))
         # upper floors
         for f in range(1, self.floors):
             z = gf + fh * (f - 1)
@@ -460,7 +498,7 @@ class House:
                 if f == 1 and o.get("balcony") and i == door_i:
                     self.balcony(x, z)
                 else:
-                    self.window(x, z + 0.75, 0.85, 1.3)
+                    self.window(x, z + 0.7, uwin[0], uwin[1])
         if self.attic:
             z = self.H - 0.62
             for x in xs:
@@ -481,6 +519,8 @@ class House:
                 if k != door_i:
                     self.fine.cylinder((x + 0.55, self.fy - 0.35, 0.15), 0.17, 0.3, "brick", POT, radius2=0.13, tint=self.fine.vary(0.06))
                     self.flowers(x + 0.55, self.fy - 0.35, 0.36)
+        if o.get("portico"):
+            self.portico(o["portico"])
         self.other_faces(xs)
         self.roof_tiles()
         self.chimney(o.get("chimney_x", w * 0.22), self.d * 0.18)
@@ -523,4 +563,5 @@ def main():
             kit.save_blend(os.path.join(a["blend"], name + ".blend"))
 
 
-main()
+if __name__ == "__main__":
+    main()

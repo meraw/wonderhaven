@@ -101,6 +101,93 @@ What it would take, beyond the lab:
 - **Camera:** buildings stop the camera through `Props.camera_blockers`; check the taller houses are covered.
 - **Speed:** measure a full street on a low-end machine before converting a whole location.
 
+## Look tests from the paintover
+**Status: look-dev only, nothing in the game changed.** Another agent is improving the game's graphics at the same
+time, so converting the game to this look needs a fresh analysis of its state first. The tests answer four
+questions raised by the paintover the user liked most (cute proportions, materials as real as possible, houses in
+saturated stucco with cream stone trim, no ink outlines, a wet piazza).
+
+What was added for them:
+- **Paintover-style houses** (`tools/blender/toy_village.py`, reusing the house generator): chunky two-storey houses
+  in oxblood, orange, ochre, red and yellow, with cream stone corner blocks, bands, window surrounds and a portico,
+  big white windows and dark green shutters. Also a double lamp post, a café table with chairs, and flagstone
+  pavings for a lane and a piazza. Two layouts of the same houses: attached along a lane
+  (`tests/model_lab_toy_dense.json`), and standing apart on the grass round a piazza
+  (`tests/model_lab_toy_spaced.json`).
+- **Two texture sets** of the same nine materials (plaster, stone, flagstones, painted wood, clay, knit, denim,
+  leather, wool):
+  - **photo-scanned:** CC0 scans from Poly Haven (`tools/textures/fetch_polyhaven.py`);
+  - **generated:** made in Blender from procedural textures and rendered as seamless tiles
+    (`tools/blender/make_textures.py`).
+- **A physically based lab look** (`ModelKit`, a lab file's `"look"`):
+  - real roughness and surface relief, projected without UVs;
+  - wet flagstones with puddles that reflect, and screen-space reflections;
+  - the chibis' clothes swapped to knit, denim and leather and their hair to wool, by where each part sits on the
+    body.
+
+  The game's own materials and renderer settings are untouched.
+- **An eye size setting** for look-dev renders (`eye_scale` in the face shader, default 1, so the game is unchanged)
+  and a look-dev view comparing sizes (`./lookdev.sh out.png --view=eyesize --scales=1,1.25,1.45,1.65,2`).
+
+The generated textures and the new models are not in the repository (about 24 MB, only for evaluating):
+`tools/textures/fetch_polyhaven.py`, `tools/blender/make_textures.py` and `tools/blender/toy_village.py` rebuild
+them in a couple of minutes (see How to run it).
+
+### What the tests showed
+Seen in Forward+ screenshots on a software GPU. **Not checked:** frame rate. This look adds surface relief, real
+shine and screen-space reflections, which cost more than the current look, and the test machine can't measure that.
+
+![Photo-scanned and generated textures](models/look_textures.jpg)
+
+1. **Textures.**
+   - **Photo-scanned (CC0):** the more natural look. Irregular flagstones, stone that reads as stone, and the closest
+     to the paintover's realism. Plaster from a scan is subtle: on dark walls under cloud it almost disappears.
+   - **Generated in Blender:** crisper and more designed, and fully original. The flagstones' cells and grout read a
+     little computer-made, but the plaster blotches show more, and any material can be made on demand in the
+     game's colours.
+   - Both work with the same models and code. Mixing them works too, for example scans for stone and ground and
+     generated plaster and painted wood.
+
+![Outlines off and on](models/look_outlines.jpg)
+
+2. **Outlines.** With real materials, the ink lines make the frame read as an illustration again and add dark edges
+   on wet stone. Off matches the paintover. The chibis still read well without them.
+
+![Attached along a lane, and apart round a piazza](models/look_layout.jpg)
+
+3. **Layout.**
+   - **Attached along a lane:** reads as a real Langhe village street, enclosed and intimate, but hides the
+     landscape.
+   - **Apart round a piazza, as in the paintover:** open and airy, a toy village on a table, with more room for
+     building and an easier camera.
+   - Real Langhe villages do both: a dense core of attached houses along the lanes, opening onto a piazza, with
+     houses standing apart at the edge, where the village meets the fields.
+
+![Eye sizes](models/look_eyes.jpg)
+
+4. **Eyes.** Today's dots are 1×; the paintover's eyes are about 2×. Between them, 1.45× and 1.65× keep the face
+   cute without taking it over. Coloured irises read better from about 1.45× up.
+
+![Character materials](models/look_characters.jpg)
+
+5. **Characters.** Real fabrics on today's chibis make a small difference: a softer jacket, sheen on the boots and
+   hands. The chibis' shapes are smooth and simple, so the paintover's chunky knit and curly hair would also need
+   new shapes, not just materials.
+
+![Drizzle and sun](models/look_weather.jpg)
+
+6. **Weather.** Wet stone with puddles that really reflect gives the paintover's mood. In sun, the same street is
+   bright and cheerful. The look works in both.
+
+**Converting the game would mean:**
+- moving `Palette`'s materials and the terrain shaders to physically based shading;
+- a texture pipeline;
+- outlines off;
+- reflections in the game's environment;
+- the houses and layout above.
+
+Because another agent is changing the graphics now, that starts with a new analysis of the game's state.
+
 ## How to run it
 - **Get Blender:** the 4.2 LTS Linux build from download.blender.org (`Blender4.2/blender-4.2.3-linux-x64.tar.xz`),
   unpacked in a scratch folder outside the repo.
@@ -115,5 +202,16 @@ What it would take, beyond the lab:
   `./shot.sh out.png --skiptitle --nohud --models=res://tests/model_lab.json --pos=-31,3.8,1.57 --cam=-1.45,0.14,8 --time=10`.
   Add `res://tests/model_lab_sindaco.json` after a comma for the Sindacos. Use `RENDERER=forward_plus`. Leave
   `--models` out for the same view without the models.
+- **The look tests:**
+  - **models:** `blender -b --factory-startup -P tools/blender/toy_village.py -- --out godot/assets/models/lab`;
+  - **photo-scanned textures:** `python3 tools/textures/fetch_polyhaven.py` (needs Pillow; set `SSL_CERT_FILE` behind
+    a proxy);
+  - **generated textures:** `blender -b --factory-startup -P tools/blender/make_textures.py -- --out
+    godot/assets/textures/lab/blender`;
+  - **screenshots:** `--models=res://tests/model_lab_toy_dense.json` (or `_spaced`). `--labtex=cc0|blender` picks
+    the texture set, `--labwet=0` makes it dry, `--labnpcs` keeps the villagers in shot, and `--outline=0|1`
+    switches the ink lines. For example: `RENDERER=forward_plus ./shot.sh out.png --skiptitle --nohud --outline=0
+    --weather=drizzle --models=res://tests/model_lab_toy_dense.json --pos=-25,3.4,1.57 --cam=-1.45,0.12,6.5
+    --time=11`.
 - **Tests:** `tests/test_models.gd` checks every lab model loads with only `wh_` materials, stands on the ground,
   is centred on its footprint and fits its triangle budget, and that the Sindaco has his skeleton and animations.
