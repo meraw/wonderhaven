@@ -147,7 +147,7 @@ static var _vc_mat: StandardMaterial3D
 
 ## A façade material. opts: shutter, base, ground_h, floor_h, bay, style, seed, shops, base_y.
 static func facade(wall: Color, top_y: float, opts: Dictionary = {}) -> ShaderMaterial:
-	if _shader == null: _shader = Shader.new(); _shader.code = Palette.shader_code(FACADE_SHADER, 0.85)
+	if _shader == null: _shader = Shader.new(); _shader.code = Palette.shader_code(FACADE_SHADER, 0.85, Palette.ROUGH_SPECULAR, Palette.REAL_SHADER_ALBEDO)
 	var m := ShaderMaterial.new(); m.shader = _shader
 	m.set_shader_parameter("wall", wall)
 	m.set_shader_parameter("top_y", top_y)

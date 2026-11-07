@@ -26,7 +26,7 @@ const REAL_SPECULAR := {"smooth": 0.5}
 const ROUGH_SPECULAR := 0.25
 const REAL_AMBIENT := 1.35
 const REAL_AMBIENT_WARMTH := 0.3
-const REAL_TERRAIN_ALBEDO := 0.9
+const REAL_SHADER_ALBEDO := 0.9
 
 static func ambient_gain(night: float = 0.0) -> float:
 	return lerpf(REAL_AMBIENT, 1.0, clampf(night, 0.0, 1.0)) if real else 1.0

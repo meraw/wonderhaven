@@ -44,7 +44,8 @@ own cobble colours, and `views.sh` with `measure_views.py` for before-and-after 
      - fabric: generated knit.
 
      Plain colours keep their faint mottle.
-   - The roof, terrain and Toriano facade shaders switch to real specular.
+   - The roof and Toriano facade shaders switch to real specular. The terrain keeps its wrapped light until step two
+     (`docs/GRAPHICS.md`).
    - Foliage, water, the far hills, hair and faces keep their own shading, so plants stay stylised.
    - Outlines stay on.
    - `--look=painted` brings back the old materials, for comparisons.

@@ -81,8 +81,13 @@ things carried over from the painted look had to be handled:
   brightness and went grey, and the castle hall at dawn a third.
 - **Ambient light stands in for it.** By day, with realistic materials, the ambient is 1.35 times stronger and 30%
   of the way to the sun's colour, so the fill is warm as before. Both fade out at night, when the moon gave little
-  rim light (`Palette.ambient_gain`, `Palette.ambient_color`, applied in `game.gd`). The terrain never had the rim
-  fill, so its colour is 10% darker to stay as bright as it was. `--look=painted` keeps the old ambient.
+  rim light (`Palette.ambient_gain`, `Palette.ambient_color`, applied in `game.gd`). `--look=painted` keeps the old
+  ambient.
+- **Godot's wrapped light halves the sun at roughness 1.** Its Lambert wrap gives a face turned straight to the sun
+  only half the light, and gives the other half to the faces turned away. So realistic diffuse doubles the sun on
+  sunlit faces, which matters most on the ground. The terrain keeps its wrapped light until step two of the
+  conversion gives it textures and wet ground (`docs/CONVERSION.md`). The roof and Toriano facade shaders, which had
+  no rim fill, are 10% darker with realistic materials (`Palette.REAL_SHADER_ALBEDO`).
 - **Rough surfaces reflect less.** At the default specular, rough plaster, stone and fabric reflected the bluish sky
   and greyed warm colours (12 to 15% less saturation). They use 0.25; smooth ones 0.5.
 
