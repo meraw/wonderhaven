@@ -35,11 +35,12 @@ static func deserialize(text: String) -> Dictionary:
 	else:
 		s.tutorial = Tutorial.new_state(false, true)
 	s.placements = _placements(raw.get("placements", []))
+	s.drafts = _placements(raw.get("drafts", []))
 	# what you built on the other islands (see Travel)
 	var away := {}
 	if raw.get("away") is Dictionary:
 		for isl in raw.away:
-			if raw.away[isl] is Dictionary: away[str(isl)] = {"placements": _placements(raw.away[isl].get("placements", []))}
+			if raw.away[isl] is Dictionary: away[str(isl)] = {"placements": _placements(raw.away[isl].get("placements", [])), "drafts": _placements(raw.away[isl].get("drafts", []))}
 	s.away = away
 	if not Data.has_island(str(s.get("island", "hearthglow"))): s.island = "hearthglow"
 	s.next_uid = maxi(int(raw.get("next_uid", 1)), Travel.max_uid(s) + 1)

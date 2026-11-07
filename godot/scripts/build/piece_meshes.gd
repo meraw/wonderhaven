@@ -234,7 +234,7 @@ static func ghost(id: String, kind: String = "ok") -> Node3D:
 static func set_ghost(g: Node3D, kind: String) -> void:
 	if g.get_meta("ghost", "") == kind: return
 	if _ghost_mats.is_empty():
-		_ghost_mats = {"ok": P.glow_mat(Color("7dffb0"), 0.5), "bad": P.glow_mat(Color("ff7a7a"), 0.5), "plan": P.glow_mat(Color("b07cff"), 0.45)}
+		_ghost_mats = {"ok": P.glow_mat(Color("7dffb0"), 0.5), "bad": P.glow_mat(Color("ff7a7a"), 0.5), "plan": P.glow_mat(Color("b07cff"), 0.45), "draft": P.glow_mat(Color("4fb3ff"), 0.55)}
 		for k in _ghost_mats: _ghost_mats[k].no_depth_test = false
 	for m in g.find_children("*", "MeshInstance3D", true, false):
 		m.material_override = _ghost_mats[kind]; m.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF

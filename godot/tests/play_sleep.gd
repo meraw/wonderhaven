@@ -133,12 +133,12 @@ func play() -> void:
 	await open_build("plot")
 	await select_piece("bed")
 	var poor := await place_at(18, -34, 0.1, 0)
-	var refused: bool = not s.placements.any(func(p): return p.id == "bed")
+	var refused: bool = not s.placements.any(func(p): return p.id == "bed") and Drafts.of(s).any(func(p): return p.id == "bed")
 	await shot("bed-too-dear")
 	s.inventory.coins = 130; game.render_resources(); await frames(3)
 	await place_at(18, -34, 0.1, 0)
 	var bought: bool = s.placements.any(func(p): return p.id == "bed")
 	await shot("bed-bought")
-	check("b1", "A bed costs 120,000 lire as well as its wood and fabric: refused with 50,000, built with 130,000 (10,000 left)",
-		refused and "lire" in poor and bought and int(s.inventory.coins) == 10, "refused: %s; then bought=%s, %d coins left" % [poor, bought, int(s.inventory.get("coins", 0))])
+	check("b1", "A bed costs 120,000 lire as well as its wood and fabric: with 50,000 it goes into the draft, with 130,000 a click on the draft builds it (10,000 left)",
+		refused and "lire" in poor and bought and int(s.inventory.coins) == 10 and Drafts.of(s).is_empty(), "drafted: %s; then bought=%s, %d coins left, %d drafts" % [poor, bought, int(s.inventory.get("coins", 0)), Drafts.of(s).size()])
 	await leave_build()

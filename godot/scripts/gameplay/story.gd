@@ -348,10 +348,21 @@ func build_goals(z: Dictionary) -> Dictionary:
 
 func _zone_items(qid: String, o: Dictionary) -> Array:
 	var st := engine.objective(qid, o)
+	var drafts := Drafts.of(game.state)
 	match o.kind:
 		"room":
-			return Validate.room_checklist(Data.zone(o.zone), game.state.placements, o.needs).map(func(r): return {"label": r.label + ("" if r.ok or int(r.get("count", 1)) <= 1 else " (%d/%d)" % [r.have, int(r.count)]), "ok": r.ok or st.done})
-		"pieces": return [{"label": o.text + ("" if st.done else " (%d/%d)" % [st.have, st.need]), "ok": st.done}]
+			var rows := Validate.room_checklist(Data.zone(o.zone), game.state.placements, o.needs)
+			var planned := Validate.room_checklist(Data.zone(o.zone), Drafts.design(game.state.placements, drafts), o.needs)
+			var out: Array = []
+			for i in rows.size():
+				var r: Dictionary = rows[i]
+				var ok: bool = r.ok or st.done
+				var drafted: bool = not ok and i < planned.size() and planned[i].ok
+				out.append({"label": r.label + ("" if r.ok or int(r.get("count", 1)) <= 1 else " (%d/%d)" % [r.have, int(r.count)]) + (" (drafted)" if drafted else ""), "ok": ok})
+			return out
+		"pieces":
+			var in_draft := 0 if st.done else Validate.pieces_in_zone(Data.zone(o.zone), drafts).filter(func(pl): return o.any.has(pl.id)).size()
+			return [{"label": o.text + ("" if st.done else " (%d/%d)" % [st.have, st.need]) + ((" +%d drafted" % in_draft) if in_draft > 0 else ""), "ok": st.done}]
 		"build":
 			if o.check == "fountain":
 				var m: Dictionary = game.mech

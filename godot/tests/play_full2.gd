@@ -13,7 +13,7 @@ func play() -> void:
 	if game.mode != "explore": return
 	# Fountain: the mechanical puzzle
 	await talk("tilly")
-	await gather_until("clay", func(): return int(q("fountain").progress.get("clay", 0)) >= 6, [], 10)
+	await gather_until("clay", func(): return int(q("fountain").progress.get("clay", 0)) >= 6, [], 20)
 	await gather_until("mine", func(): return int(q("fountain").progress.get("metal", 0)) >= 3 and inv("metal") >= 3, ["rock5", "rock0", "rock1", "rock2", "rock3", "rock4"], 14)
 	await gather_until("chop", func(): return int(q("fountain").progress.get("wood", 0)) >= 6 and inv("wood") >= 6, [], 14)
 	print("   fountain materials: ", game.state.inventory)

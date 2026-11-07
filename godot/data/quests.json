@@ -182,7 +182,7 @@
      "count": 4,
      "stage": 2,
      "text": "Add 4 railings along the crossing, so nobody ends up in the stream",
-     "buildHint": "Railings sit on the edge of a tile; R turns them.",
+     "buildHint": "Point near the edge where a railing goes: it turns to face it.",
      "hint": {
       "x": 0,
       "z": -18

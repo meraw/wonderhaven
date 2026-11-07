@@ -19,7 +19,7 @@
 | Fullscreen | F11 or Alt+Enter (also in Settings) | — |
 | Build: place / select · cancel | Left click · right click | — |
 | Build: rotate · colour · move · remove | R · T · N · Delete | RB · — · — · LB |
-| Build: undo · redo · half-grid | Ctrl+Z · Ctrl+Y · G | — |
+| Build: undo · redo · draft only | Ctrl+Z · Ctrl+Y · G | — |
 | Build: pick the plan's next piece | V | — |
 
 All keys can be changed in **Menu → Settings & controls**. On a gamepad, build mode uses the right stick as a cursor, D-pad left/right to pick a piece, D-pad up/down to change category, A to place or select and B to cancel.

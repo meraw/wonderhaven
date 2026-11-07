@@ -228,6 +228,7 @@ func voice(pitch: float, syllables: int) -> void: if audio: audio.voice(pitch, s
 ## another row before they reach the panel at the top centre, so however much you carry they never run under it or
 ## under the request tracker on the right.
 func render_resources(pop: Array = []) -> void:
+	if not Drafts.of(state).is_empty() and hud: hud.render_tracker()
 	for c in hud_res.get_children(): hud_res.remove_child(c); c.queue_free()   # remove first so new chips keep their names
 	var max_w := resources_width()
 	var row: HBoxContainer = null
@@ -728,7 +729,9 @@ func on_build_changed(ev: Dictionary) -> void:
 	walk.surfaces = BuildGrid.surfaces_for(state.placements)
 	mech = Mechanics.solve(state.placements, machine_targets())
 	_refresh_piece_interactables()
+	build.version += 1
 	build.refresh_plan()
+	build.refresh_drafts()
 	emit_event("build", ev)
 	if ev.get("action", "") != "load": autosave("build")
 
@@ -958,7 +961,9 @@ var look_here: Dictionary = {}   # the look block of the place you're on (its ma
 var _look_island := ""
 func _update_world_time(dt: float) -> void:
 	var s := state
-	if mode != "menu": Clock.advance(s.time, dt); s.play_time += dt
+	if mode != "menu":
+		s.play_time += dt
+		if mode != "build": Clock.advance(s.time, dt)
 	var night := Clock.is_night(s.time)
 	if night != s.flags.get("night", false): s.flags["night"] = night
 	var h: float = s.time.minute / 60.0
