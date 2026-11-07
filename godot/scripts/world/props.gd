@@ -433,7 +433,7 @@ static func roof_material(color, fade: bool = false) -> ShaderMaterial:
 		# The fading copy dissolves with a fine dither instead of real transparency, so it never hides what's
 		# beneath it (transparent surfaces that write depth block the view of the room below).
 		var dither := "if (fract(52.9829189 * fract(dot(FRAGCOORD.xy, vec2(0.06711056, 0.00583715)))) >= alpha) discard;"
-		var sh := Shader.new(); sh.code = ROOF_SHADER.replace("#FADE", dither if fade else "")
+		var sh := Shader.new(); sh.code = P.shader_code(ROOF_SHADER.replace("#FADE", dither if fade else ""), 0.72, P.ROUGH_SPECULAR, P.REAL_SHADER_ALBEDO)
 		_roof_shaders[key] = sh
 	var m := ShaderMaterial.new(); m.shader = _roof_shaders[key]
 	m.set_shader_parameter("color", Color(color) if color is String else color)
