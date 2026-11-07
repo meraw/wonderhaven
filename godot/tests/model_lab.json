@@ -1,0 +1,66 @@
+{
+ "_comment": "Look-dev only (docs/MODELS.md): Blender models from tools/blender lining the road into Monteforchetta's piazza from the lay-by, the last one beside the procedural bakery. ./shot.sh out.png --skiptitle --nohud --models=res://tests/model_lab.json --pos=-26,3.5 --cam=...",
+ "hide": [],
+ "models": [
+  {
+   "glb": "res://assets/models/lab/via_selciato.glb",
+   "x": -25.25,
+   "z": 3.25,
+   "yaw": 0
+  },
+  {
+   "glb": "res://assets/models/lab/casa_ocra.glb",
+   "x": -33.5,
+   "z": -3.5,
+   "yaw": 0
+  },
+  {
+   "glb": "res://assets/models/lab/tabaccheria.glb",
+   "x": -27.8,
+   "z": -3.7,
+   "yaw": 0
+  },
+  {
+   "glb": "res://assets/models/lab/casa_crema.glb",
+   "x": -22.4,
+   "z": -3.5,
+   "yaw": 0
+  },
+  {
+   "glb": "res://assets/models/lab/casa_gialla.glb",
+   "x": -17.3,
+   "z": -3.6,
+   "yaw": 0
+  },
+  {
+   "glb": "res://assets/models/lab/casa_crema.glb",
+   "x": -33.7,
+   "z": 10.0,
+   "yaw": 3.14159,
+   "recolor": {
+    "e6d6b4": "e2b48c",
+    "6f8090": "4f6b43"
+   }
+  },
+  {
+   "glb": "res://assets/models/lab/casa_ocra.glb",
+   "x": -28.6,
+   "z": 10.0,
+   "yaw": 3.14159,
+   "recolor": {
+    "d8a557": "e6d6b4",
+    "4f6b43": "7a4b2e"
+   }
+  },
+  {
+   "glb": "res://assets/models/lab/casa_gialla.glb",
+   "x": -23.2,
+   "z": 10.1,
+   "yaw": 3.14159,
+   "recolor": {
+    "e2bd6e": "c98c6c",
+    "3f5a3a": "6f8090"
+   }
+  }
+ ]
+}

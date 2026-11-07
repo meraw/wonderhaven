@@ -1,0 +1,119 @@
+# Models made in Blender: experiments and how to plan around them
+
+**Status: look-dev only.** None of this is in the game yet. The model lab places the models in Monteforchetta for
+screenshots; you can walk straight through them. Made on 2026-11-07 to answer whether hand-built models are worth
+switching to, and what switching would involve.
+
+## What was made
+All built in Blender 4.2 LTS by Python scripts in `tools/blender/`, exported as glTF (`godot/assets/models/lab/`),
+and placed by the model lab along the road from the lay-by into the piazza.
+
+| Model | What it shows | Triangles | File |
+| --- | --- | --- | --- |
+| `casa_ocra` | Two storeys: arched door with fanlight, balcony with geraniums, house number, wall lamp, pots by the door | 27,920 | 2.0 MB |
+| `tabaccheria` | Three storeys: a tobacconist's front ("SALI E TABACCHI", the blue T sign, striped awning), a faded painted advert high on the side wall | 39,108 | 2.8 MB |
+| `casa_crema` | Two storeys: plain door, plaster fallen off in patches showing the brick, a bench | 23,372 | 1.4 MB |
+| `casa_gialla` | Three storeys with small attic windows, a painted sundial dated MCMXCIX, a balcony | 36,164 | 2.7 MB |
+| `via_selciato` | The street: river cobbles with two lines of stone slabs down the middle, as in Piedmont towns | 36,784 | 1.0 MB |
+| `sindaco` | The Sindaco rigged and animated: 12 bones; idle, walk (a waddle) and talk (an orator's raised hand) | 3,612 | 0.2 MB |
+
+Every house has a footing of layered sandstone, plaster walls that lean a little, curved coppi tiles laid one by one
+with a sagging ridge, wide eaves on rafter tails, a copper gutter and downpipe, a chimney with its own little roof,
+plaster bands between the floors, and louvred shutters left open, shut or ajar. The same houses are reused in other
+colours on the far side of the street (`recolor` in the lab file).
+
+![The road into the piazza, now and with the Blender models](models/street.jpg)
+
+![From the piazza: the current workshop and bakery in front, the Blender street behind](models/from_the_piazza.jpg)
+
+![From above](models/from_above.jpg)
+
+![Evening, looking toward the lay-by](models/evening.jpg)
+
+![The rigged Sindaco: four moments of one stride, next to the player](models/sindaco_walk.jpg)
+
+![Talking](models/sindaco_talk.jpg)
+
+## What the experiments showed
+Checked by eye in Forward+ screenshots (software Vulkan) and by `tests/test_models.gd`. **Not checked:** frame rate
+on a real graphics card, and how the street feels to walk down, since the models have no collision yet.
+
+1. **Local flair comes from details.** The walls are simple boxes. What makes the street read as Langhe and not
+   "cozy village" is the coppi, the shutters, the sandstone footing, the iron balconies with geraniums, the
+   tobacconist's T, the awning, the faded advert, the sundial, the slab tracks in the cobbles. Each is a small piece,
+   modelled once and reused.
+2. **Density matters as much as the models.** Attached houses of two and three storeys along a lane 7.5 m wide turn
+   cottages on a lawn into a village. Monteforchetta has 9 buildings, with lawns between them. Converting it means
+   relaying the village (layout data and the heightfield), not only swapping meshes.
+3. **The two styles don't mix.** Next to the Blender street, the procedural workshop and bakery look like
+   placeholders. Convert a whole location at a time: its buildings first, then the ground, then props.
+4. **The game's look carries over.** `ModelKit` swaps each `wh_<kind>_<hex>` material for the game's own (`Palette`),
+   so models get the same wrapped light, rim, painted detail, ink outlines, fog and grade as everything else. Ambient
+   occlusion baked into vertex colours grounds them: dark under the eaves and balconies, in the window reveals and
+   between the cobbles.
+5. **Making them is quick; the decisions are what take time.** All six models rebuild in about 20 seconds, identical byte
+   for byte each time. A new house is a line of parameters, plus code for any new kind of
+   detail.
+6. **They cost triangles and file size.** A house is 23,000 to 39,000 triangles and 1.4 to 2.8 MB. A village of 30
+   houses would be around a million triangles. That's fine for a desktop card, and has to be measured on a laptop
+   and a Steam Deck. Godot generates LODs for imported meshes by default, which should help; that wasn't measured.
+7. **The character pipeline works, but characters show the limits of scripted modelling.** The rig and three
+   animations go through glTF into Godot's `AnimationPlayer` and pose correctly, and the Sindaco's silhouette (round
+   belly, short legs, bald head, handlebar moustache, sash) is instantly his. But:
+   - each part follows one bone (rigid skinning), so the arms float at the shoulders;
+   - the face is modelled, so it can't blink, change mood or talk like the chibis' face shader;
+   - it doesn't use the wardrobe.
+
+   Organic shapes and faces are where a character artist makes the difference.
+
+## Decisions to make
+1. **Who makes what.** Scripted modelling, as here, suits architecture and props: straight lines, repetition,
+   regional details, palettes. Characters and a few hero props (the church, the castle, the fountain) gain most from
+   a human artist. A mix works because the `.blend` files are shared: `--blend <dir>` saves them, and an artist can
+   open any scripted model and carry on by hand.
+2. **Characters.** Three ways to go:
+   - **Keep the code-built chibis** and give villagers different bodies within that system: height, belly, leg
+     length, shoulders. Cheapest, keeps the wardrobe and the face shader. Recommended now: it fixes the silhouette
+     problem.
+   - **Bespoke Blender villagers**, keeping the code-built chibi for the player only, because of the wardrobe.
+   - **Everyone in Blender** on one shared skeleton, with clothes as swappable meshes and the face shader on a
+     textured head. The way most studio games do it, and the most work.
+3. **How buildings are stored.** Whole houses as `.glb` files are simple, but heavy: about 2 MB each, and a new copy
+   in the git history every time one is rebuilt. Better for the real thing: export a **kit of parts** from Blender
+   (window and shutter variants, doors, balconies, roof strips, chimneys, footing) and assemble each building in
+   Godot from layout data, the way the rest of the game is built. Files stay small, repeated parts render as
+   instances, and buildings stay data. If whole files are kept, use Git LFS.
+4. **Scope.** Do it as the vertical slice: Monteforchetta's village first (relayout, buildings, paving), judged in
+   play, before any other location gets models.
+
+## Putting a Blender building in the game for real
+What it would take, beyond the lab:
+- **Layout:** a `"model"` key on a building in `layout.json`; `Village.build` loads it with `ModelKit` instead of
+  `Props.cottage`. Collision and walking stay as they are, from the building's footprint in the layout (`WalkWorld`),
+  so the model must match its `x`, `z`, `w` and `d`, which a test can check.
+- **Rooms you can walk into:** the model's walls and doorway must match `Interiors` (wall thickness, door width and
+  height), and its roof must be a separate node so it can fade. The lab joins each house into one mesh, so this
+  needs a change in `kit.join`.
+- **Night:** the glass material should join the village's window materials, so windows light up after dark like the
+  current houses' do.
+- **Snow:** Blender roof tiles use the plain mottle material, so they don't take the `world_snow` dusting the roof
+  shader gives. They need a version of that shader without its painted tiles.
+- **Camera:** buildings stop the camera through `Props.camera_blockers`; check the taller houses are covered.
+- **Speed:** measure a full street on a low-end machine before converting a whole location.
+
+## How to run it
+- **Get Blender:** the 4.2 LTS Linux build from download.blender.org (`Blender4.2/blender-4.2.3-linux-x64.tar.xz`),
+  unpacked in a scratch folder outside the repo.
+- **Rebuild the models:** `BLENDER=/path/to/blender tools/blender/build_lab.sh` (add `--blend <dir>` to keep the
+  `.blend` files). Or run one script: `blender -b --factory-startup -P tools/blender/langhe_lane.py -- --out
+  godot/assets/models/lab --only casa_ocra`.
+- **Conventions** (`tools/blender/kit.py`):
+  - metres, Blender Z up, front facing Blender -Y (Godot +Z), origin in the middle of the footprint on the ground;
+  - materials named `wh_<kind>_<rrggbb>`;
+  - the colour attribute `Col` multiplies the colour (baked AO, colour variation, damp at the foot of the walls).
+- **Screenshots:** `--models` places the lab files' models, `--nohud` hides the interface:
+  `./shot.sh out.png --skiptitle --nohud --models=res://tests/model_lab.json --pos=-31,3.8,1.57 --cam=-1.45,0.14,8 --time=10`.
+  Add `res://tests/model_lab_sindaco.json` after a comma for the Sindacos. Use `RENDERER=forward_plus`. Leave
+  `--models` out for the same view without the models.
+- **Tests:** `tests/test_models.gd` checks every lab model loads with only `wh_` materials, stands on the ground,
+  is centred on its footprint and fits its triangle budget, and that the Sindaco has his skeleton and animations.
