@@ -210,6 +210,18 @@ func test_materials_are_physically_based_with_the_chosen_textures():
 	t.ok(Palette.mat("8a8a8a").normal_texture == null, "plain-colour parts stay untextured")
 	t.ok(Palette.shader_code("render_mode diffuse_lambert_wrap, specular_disabled;").contains("specular_schlick_ggx"), "custom shaders switch to real specular")
 
+func test_ground_has_real_specular_and_flagstones():
+	var code := TerrainBuilder.terrain_code()
+	t.ok(code.contains("specular_schlick_ggx") and code.contains("const bool REAL = true;"), "the ground has real specular, glossy where it is wet")
+	t.ok(code.contains("diffuse_lambert_wrap"), "the grass keeps its soft wrapped light")
+	t.ok(TerrainBuilder.TERRAIN_SHADER.contains("const bool REAL = false;"), "the painted ground is still there for --look=painted")
+	var hall := Palette.paving("d8d0c2")
+	t.ok(hall.albedo_texture == Palette.material_texture("paving_albedo"), "the castle hall is paved with the generated flagstones")
+	var we := TerrainBuilder.build_environment()
+	var compat := RenderingServer.get_current_rendering_method() == "gl_compatibility"
+	t.eq(we.environment.ssr_enabled, not compat, "wet ground reflects the village (screen-space reflections, Forward+ only)")
+	we.free()
+
 func test_realistic_materials_get_a_warm_ambient_fill():
 	t.ok(Palette.ambient_gain() > 1.0, "the ambient light is stronger with realistic materials")
 	var c := Palette.ambient_color(Color("c9dcf0"), Color("fff0d8"))

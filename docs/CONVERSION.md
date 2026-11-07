@@ -57,12 +57,27 @@ own cobble colours, and `views.sh` with `measure_views.py` for before-and-after 
 
      Result: contrast up in every view, colour about where it was, and the castle hall at dawn 11% darker than
      before. Before-and-after images: `docs/models/conversion_step1_a.jpg` and `conversion_step1_b.jpg`.
-2. **Ground and wet:**
-   - the terrain's cobbles and paths use the generated flagstones and cobbles (relief and roughness) instead of
-     painted ones;
-   - wet ground gets glossy, with puddles;
-   - screen-space reflections in Forward+;
-   - check the compatibility renderer.
+2. **Ground and wet.** Done in the second step (`docs/GRAPHICS.md`, "Ground and wet").
+   - The terrain gets real specular but keeps its wrapped light, and dry grass has no specular, so meadows look as
+     before.
+   - The squares are laid with the generated flagstones (relief and roughness), tinted with the layout's cobble
+     colours. The texture is calmed first (`tools/textures/game_paving.py`), and the castle hall's floor uses it too.
+     This reaches every place with a square: Monteforchetta, Boccapioppo, Casalrana and the Cove.
+   - Wet paving and paths turn glossy; puddles are mirrors, stronger than real water because the camera looks down
+     from high up; raindrop rings stay. Toriano's asphalt and setts, and every place's paved streets, get the same.
+   - Screen-space reflections in Forward+. In the compatibility renderer every shader compiles, but the puddles are
+     faint (no screen-space reflections, only a dim sky), and the morning piazza comes out 3% brighter than after
+     step one.
+   - A little ambient fill stays at night.
+   - Dirt paths keep their painted look: a generated cobble texture for them is still to do.
+   - **What it showed, measured against the fixed views** (step one's renders as the baseline):
+     - dry daytime views moved by 2% or less;
+     - rain gained contrast and its puddles now mirror the sky and the village;
+     - night is 8% brighter than in step one (8% darker than before the conversion);
+     - the castle hall at dawn did not improve. It stays about 20% darker than before the conversion: the old rim
+       light lit shaded rooms, and the rebuilt hall in step three should bring its own light (windows, lamps).
+
+     Before-and-after images: `docs/models/conversion_step2_a.jpg` and `conversion_step2_b.jpg`.
 3. **Buildings and the village:**
    - a building's `"model"` in the layout loads a Blender house in the real village. Collision stays the layout
      footprint; the roof must fade, windows light at night, roofs take snow (`docs/MODELS.md`);

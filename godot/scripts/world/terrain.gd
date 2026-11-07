@@ -47,8 +47,10 @@ static func build_terrain() -> MeshInstance3D:
 	st.generate_normals()
 	var m := MeshInstance3D.new()
 	m.mesh = st.commit()
-	var sh := Shader.new(); sh.code = TERRAIN_SHADER
+	var sh := Shader.new(); sh.code = terrain_code()
 	var mt := ShaderMaterial.new(); mt.shader = sh
+	if Palette.real:
+		for ch in ["albedo", "normal", "rough"]: mt.set_shader_parameter("paving_" + ch, Palette.material_texture("paving_" + ch))
 	var segs := PackedVector4Array()
 	for p in Data.layout.paths:
 		for n in range(p.size() - 1): segs.append(Vector4(p[n][0], p[n][1], p[n + 1][0], p[n + 1][1]))
@@ -78,6 +80,10 @@ static func build_terrain() -> MeshInstance3D:
 	m.set_meta("height_rect", Vector4(-size / 2.0, -size / 2.0, size, size))
 	m.name = "Terrain"
 	return m
+
+static func terrain_code() -> String:
+	if not Palette.real: return TERRAIN_SHADER
+	return TERRAIN_SHADER.replace(Palette.PAINTED_MODES + ";", "diffuse_lambert_wrap, specular_schlick_ggx;").replace("const bool REAL = false;", "const bool REAL = true;")
 
 const NOISE_LIB := """
 float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
@@ -137,6 +143,19 @@ uniform float frost = 0.0;         // hoarfrost (a location's look, by the hour:
 uniform bool has_ground = false;
 uniform sampler2D ground_map : filter_nearest, repeat_disable;
 uniform vec4 ground_rect = vec4(-62.0, -62.0, 124.0, 124.0);
+const bool REAL = false;
+uniform sampler2D paving_albedo : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
+uniform sampler2D paving_normal : hint_normal, filter_linear_mipmap_anisotropic, repeat_enable;
+uniform sampler2D paving_rough : hint_roughness_r, filter_linear_mipmap_anisotropic, repeat_enable;
+uniform float paving_tile = 5.0;
+uniform float paving_gain = 0.92;
+uniform float dry_specular = 0.25;
+uniform float wet_specular = 0.5;
+uniform float wet_roughness = 0.25;
+uniform float puddle_roughness = 0.03;
+uniform float puddle_mirror = 0.8;
+uniform float puddle_tint = 0.5;
+uniform float sky_fake = 0.15;
 // Shared world values (Atmosphere): sun direction, weather (x sunlit, y night, z wet, w clouds), sky colours (linear).
 global uniform vec3 world_sun_dir;
 global uniform vec4 world_weather;
@@ -169,7 +188,7 @@ float caustics(vec2 p, float t) {
 // Paving, painted rather than modelled: each stone a slightly different tone, thin grout, a lit edge toward the sun
 // and a shaded edge away from it. Fine detail fades with distance; rain darkens it and leaves puddles that mirror
 // the sky.
-vec3 paving(int kind, vec2 p, vec2 sp, vec2 sun2, float direct, float fine, float wet, float graze, vec3 sky_seen) {
+vec3 paving(int kind, vec2 p, vec2 sp, vec2 sun2, float direct, float fine, float wet, float graze, vec3 sky_seen, inout float pud) {
 	vec3 c;
 	float puddle_amt = 0.0;
 	if (kind == 1) {   // asphalt: warm mid grey, soft patches, fine grit and a few repaired squares
@@ -211,15 +230,24 @@ vec3 paving(int kind, vec2 p, vec2 sp, vec2 sun2, float direct, float fine, floa
 		puddle_amt = smoothstep(0.6, 0.66, fbm(p * 0.33 + 41.0));
 	}
 	c *= mix(vec3(1.0), mix(vec3(1.0), vec3(1.04, 1.03, 0.97), smoothstep(0.72, 0.79, noise(sp * vec2(2.6, 14.0)))), fine * 0.5);
-	c *= 1.0 - 0.3 * wet;
+	c *= 1.0 - (REAL ? 0.45 : 0.3) * wet;
 	float puddle = wet * puddle_amt;
-	c = mix(c, mix(c * 0.45, sky_seen, 0.35 + 0.5 * graze), puddle);
+	pud = puddle;
+	c = mix(c, mix(c * 0.45, sky_seen, (0.35 + 0.5 * graze) * (REAL ? sky_fake : 1.0)), puddle);
 	c += vec3(0.8, 0.88, 1.0) * drops(p * 2.2, TIME) * puddle * 0.3 * fine;
 	return c;
 }
 void vertex() {
 	wpos = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
 	wnrm = (MODEL_MATRIX * vec4(NORMAL, 0.0)).xyz;
+	TANGENT = normalize(vec3(1.0, 0.0, 0.0) - NORMAL * NORMAL.x + vec3(0.0, 0.0, 0.0001));
+	BINORMAL = normalize(cross(NORMAL, TANGENT));
+}
+float wet_rough(float dry, float wet, float puddle) {
+	return mix(mix(dry, wet_roughness, wet), puddle_roughness, puddle);
+}
+float wet_spec(float wet, float puddle) {
+	return mix(mix(dry_specular, wet_specular, wet), wet_specular, puddle);
 }
 void fragment() {
 	vec2 p = wpos.xz;
@@ -231,6 +259,21 @@ void fragment() {
 	float wet = world_weather.z;
 	float graze = pow(1.0 - clamp(normalize(CAMERA_POSITION_WORLD - wpos).y, 0.0, 1.0), 2.0);   // puddles mirror more at a low angle
 	vec3 sky_seen = mix(world_sky_horizon, world_sky_zenith, 0.45) * 0.85;
+	float fake = REAL ? sky_fake : 1.0;
+	float rough = 1.0;
+	float spec = REAL ? 0.35 * wet : 0.0;
+	float metal = 0.0;
+	float ring = 0.0;
+	vec3 nmap = vec3(0.5, 0.5, 1.0);
+	vec2 tuv = vec2(p.x, -p.y) / paving_tile;
+	vec3 flag = vec3(0.0);
+	vec3 flag_n = vec3(0.5, 0.5, 1.0);
+	float flag_r = 1.0;
+	if (REAL) {
+		flag = texture(paving_albedo, tuv).rgb / 0.635;
+		flag_n = texture(paving_normal, tuv).rgb;
+		flag_r = texture(paving_rough, tuv).r;
+	}
 	// (never below zero: with MSAA a pixel at a triangle's edge reads its colours from just outside it, and pow() of a
 	// negative number is NaN, which the glow spreads into a black square)
 	vec3 c0 = max(COLOR.rgb, vec3(0.0));
@@ -301,7 +344,16 @@ void fragment() {
 		vec2 jit = (vec2(noise(p * 1.7), noise(p * 1.7 + 5.3)) - 0.5) * 0.9;
 		int kj = int(texture(ground_map, guv + jit / ground_rect.zw).r * 255.0 + 0.5);
 		if ((kind == 0 || kind == 4) && (kj == 0 || kj == 4)) kind = kj;
-		if (kind > 0 && guv.x > 0.0 && guv.x < 1.0 && guv.y > 0.0 && guv.y < 1.0) col = mix(col, paving(kind, p, sp, sun2, direct, fine, wet, graze, sky_seen), 1.0 - under);
+		if (kind > 0 && guv.x > 0.0 && guv.x < 1.0 && guv.y > 0.0 && guv.y < 1.0) {
+			float pud = 0.0;
+			col = mix(col, paving(kind, p, sp, sun2, direct, fine, wet, graze, sky_seen, pud), 1.0 - under);
+			if (REAL) {
+				rough = mix(rough, wet_rough(1.0, wet, pud), 1.0 - under);
+				spec = mix(spec, wet_spec(wet, pud), 1.0 - under);
+				metal = mix(metal, pud * puddle_mirror, 1.0 - under);
+				ring = mix(ring, drops(p * 2.2, TIME) * pud * 0.3 * fine, 1.0 - under);
+			}
+		}
 	}
 	if (wpos.y > -0.25 && abs(p.x) < path_reach) {
 		float d = 1000.0;
@@ -323,14 +375,21 @@ void fragment() {
 			float shadow = is_peb * smoothstep(0.36, 0.28, pd) * smoothstep(0.2, 0.27, pd) * max(0.0, -dot(dir, sun2));
 			pc *= 1.0 - shadow * 0.3 * direct * fine;
 			pc *= mix(1.0, 0.88, smoothstep(w - 0.4, w, d));
-			pc *= 1.0 - 0.3 * wet;
+			pc *= 1.0 - (REAL ? 0.45 : 0.3) * wet;
 			float pm = fbm(p * 0.33 + 41.0);
 			float puddle = wet * smoothstep(0.6, 0.66, pm) * smoothstep(w - 0.15, w - 0.5, d);
 			pc *= 1.0 - 0.25 * wet * smoothstep(0.55, 0.6, pm) * (1.0 - puddle);   // damp ring round each puddle
-			pc = mix(pc, mix(pc * 0.4, sky_seen, 0.35 + 0.5 * graze), puddle);
+			pc = mix(pc, mix(pc * 0.4, sky_seen, (0.35 + 0.5 * graze) * fake), puddle);
 			pc += vec3(0.8, 0.88, 1.0) * drops(p * 2.2, TIME) * puddle * 0.3 * fine;
 			col *= 1.0 - 0.14 * smoothstep(w + 0.45, w + 0.05, d) * (1.0 - inside);
 			col = mix(col, pc, inside);
+			if (REAL) {
+				rough = mix(rough, wet_rough(1.0, wet * 0.7, puddle), inside);
+				spec = mix(spec, wet_spec(wet, puddle), inside);
+				metal = mix(metal, puddle * puddle_mirror, inside);
+				ring = mix(ring, drops(p * 2.2, TIME) * puddle * 0.3 * fine, inside);
+				nmap = mix(nmap, vec3(0.5, 0.5, 1.0), inside);
+			}
 		}
 	}
 	// Town square: domed cobblestones (lit edge toward the sun, shaded edge away), each a slightly different
@@ -347,6 +406,7 @@ void fragment() {
 		cc *= 0.97 + 0.06 * smoothstep(0.35, 0.0, vd);
 		vec2 dir = -v.xy / max(vd, 0.0001);
 		cc *= 1.0 + (1.0 - smoothstep(0.04, 0.17, v.z)) * smoothstep(0.02, 0.06, v.z) * dot(dir, sun2) * 0.14 * direct;
+		if (REAL) cc = flag * mix(cobble_a.rgb, cobble_b.rgb, 0.5) * paving_gain;
 		float a = atan(q.y, q.x);
 		float cells = floor(r * 6.2832 / 0.7);
 		float u = fract(a / 6.2832 * cells);
@@ -354,11 +414,20 @@ void fragment() {
 		vec3 curb = mix(cobble_b.rgb, cobble_a.rgb, hash(vec2(floor(a / 6.2832 * cells), 3.0))) * 0.95;
 		curb = mix(grout.rgb, curb, smoothstep(0.0, 0.06, u) * smoothstep(1.0, 0.94, u));
 		cc = mix(cc, curb, ringband);
-		cc *= 1.0 - 0.22 * wet;
+		cc *= 1.0 - (REAL ? 0.4 : 0.22) * wet;
 		float puddle = wet * smoothstep(0.64, 0.7, fbm(p * 0.4 + 7.0)) * (1.0 - ringband);
-		cc = mix(cc, mix(cc * 0.45, sky_seen, 0.35 + 0.5 * graze), puddle);
+		cc = mix(cc, mix(cc * 0.45, sky_seen, (0.35 + 0.5 * graze) * fake), puddle);
 		cc += vec3(0.8, 0.88, 1.0) * drops(p * 2.2 + 3.0, TIME) * puddle * 0.3 * fine;
-		col = mix(col, cc, smoothstep(r + 0.03, r - 0.03, ds));
+		float on_square = smoothstep(r + 0.03, r - 0.03, ds);
+		col = mix(col, cc, on_square);
+		if (REAL) {
+			float stone_r = mix(flag_r, 0.9, ringband);
+			rough = mix(rough, wet_rough(stone_r, wet, puddle), on_square);
+			spec = mix(spec, wet_spec(wet, puddle), on_square);
+			metal = mix(metal, puddle * puddle_mirror, on_square);
+			ring = mix(ring, drops(p * 2.2 + 3.0, TIME) * puddle * 0.3 * fine, on_square);
+			nmap = mix(nmap, mix(mix(flag_n, vec3(0.5, 0.5, 1.0), ringband), vec3(0.5, 0.5, 1.0), puddle), on_square);
+		}
 		col *= 1.0 - 0.12 * smoothstep(r + 0.3, r, ds) * step(r, ds);
 	}
 	// Snow (a request brings it): a light white dusting over everything, paving and paths too, patchy where it's
@@ -367,9 +436,16 @@ void fragment() {
 		float cover = smoothstep(0.42, 0.78, fbm(p * 0.35 + 9.0) * 0.55 + noise(p * 4.0) * 0.3 + world_snow * 0.38);
 		float sz = world_snow * cover * smoothstep(0.55, 0.1, slope) * (1.0 - under) * smoothstep(water_y + 0.02, water_y + 0.12, wpos.y);
 		col = mix(col, vec3(0.9, 0.93, 0.97) * (0.95 + 0.05 * noise(p * 11.0)), sz * 0.8);
+		rough = mix(rough, 1.0, sz * 0.8);
+		spec = mix(spec, 0.0, sz * 0.8);
+		metal = mix(metal, 0.0, sz * 0.8);
+		nmap = mix(nmap, vec3(0.5, 0.5, 1.0), sz * 0.8);
 	}
-	ALBEDO = col;
-	ROUGHNESS = 1.0;
+	ALBEDO = mix(col, vec3(puddle_tint), metal) + vec3(0.8, 0.88, 1.0) * ring * metal;
+	METALLIC = metal;
+	ROUGHNESS = rough;
+	SPECULAR = spec;
+	NORMAL_MAP = nmap;
 }
 """
 
@@ -866,6 +942,11 @@ static func build_environment() -> WorldEnvironment:
 	env.glow_bloom = 0.02
 	env.glow_hdr_threshold = 1.1
 	env.glow_blend_mode = Environment.GLOW_BLEND_MODE_SOFTLIGHT
+	env.ssr_enabled = Palette.real and not compat
+	env.ssr_max_steps = 64
+	env.ssr_fade_in = 0.15
+	env.ssr_fade_out = 2.0
+	env.ssr_depth_tolerance = 0.2
 	env.adjustment_enabled = true
 	env.adjustment_saturation = 1.12
 	env.adjustment_contrast = 1.06
