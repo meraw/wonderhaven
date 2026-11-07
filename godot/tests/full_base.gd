@@ -170,6 +170,10 @@ func gather_until(kind: String, test: Callable, only: Array = [], rounds: int = 
 		var p: Vector3 = game.player.pos
 		var ready: Array = Data.layout.nodes.filter(func(n): return n.kind == kind and (only.is_empty() or only.has(n.id)) and game.actions.ready(n) and not unreachable.has(n.id))
 		ready.sort_custom(func(a, b): return Vector2(a.x - p.x, a.z - p.z).length() < Vector2(b.x - p.x, b.z - p.z).length())
+		if ready.is_empty() and WorkDay.on(Data.island):
+			print("   everything picked for today: sleeping on a bench until tomorrow"); note("sleeping on a bench for %s to grow back" % kind)
+			await sleep_night()
+			continue
 		if ready.is_empty(): print("   waiting for ", kind, " to regrow"); note("waiting for %s to regrow" % kind); await wait(15.0); continue
 		note("gather %s (round %d) wood=%d metal=%d stone=%d crystal=%d" % [ready[0].id, r, inv("wood"), inv("metal"), inv("stone"), inv("crystal")])
 		if not await gather_node(ready[0].id): unreachable[ready[0].id] = true
@@ -256,6 +260,27 @@ func feature(id: String) -> Dictionary:
 	for f in Data.layout.features:
 		if f.id == id: return f
 	return {}
+
+func sleep_night() -> bool:
+	var p: Vector3 = game.player.pos
+	var benches: Array = Data.layout.features.filter(func(f): return f.kind == "bench")
+	benches.sort_custom(func(a, b): return Vector2(a.x - p.x, a.z - p.z).length() < Vector2(b.x - p.x, b.z - p.z).length())
+	var day: int = int(game.state.time.day)
+	for f in benches:
+		if not await walk_to(float(f.x), float(f.z) + 1.6, 0.8): continue
+		if not await face_and_press(String(f.id), float(f.x), float(f.z)): continue
+		await frames(6)
+		var b := game.panels.find_child("wake_tomorrow", true, false) as Button
+		if b == null: note("no wake_tomorrow at %s" % f.id); continue
+		await click(b.get_global_rect().get_center())
+		for n in 300:
+			await frames(2)
+			if game.mode == "explore" and int(game.state.time.day) > day: break
+		await frames(20)
+		note("slept on %s: %s" % [f.id, Clock.text(game.state.time)])
+		return int(game.state.time.day) > day
+	note("found no bench to sleep on")
+	return false
 
 ## Opens the sleep panel (walk up to it first) at a bed or bench and picks a wake-up time with a click.
 func sleep_at(id: String, hour: int) -> bool:

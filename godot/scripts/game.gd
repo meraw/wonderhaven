@@ -401,14 +401,16 @@ func rest(where: String = "bed", seat = null) -> void:
 
 ## On a bench (`seat`: the bench in the layout, or a bench or sofa you built) you wake up on it, and now and then
 ## to a joke (NapGags: the paper you slept under blows away, you're soaked, someone was staring).
-func sleep_until(hour: float, where: String = "bed", seat = null) -> void:
+func sleep_until(hour: float, where: String = "bed", seat = null, ends_day: bool = false) -> void:
 	panels.close()
 	set_mode("cutscene")
 	stand_up()
 	await _fade(true).finished
 	nap_gags.clear()
 	var t0: Dictionary = state.time.duplicate()
+	var yesterday: Dictionary = WorkDay.record(state).duplicate(true)
 	Clock.sleep_until(state.time, hour)
+	if ends_day: state["today"] = WorkDay.new_record(state)
 	send_villagers_home()
 	var gag := ""
 	var on_bench: bool = where == "bench" and seat is Dictionary
@@ -421,8 +423,23 @@ func sleep_until(hour: float, where: String = "bed", seat = null) -> void:
 	if not on_bench: banner(greet, sub)
 	sfx("morning")
 	autosave("rest", true)
-	emit_event("slept", {"hour": hour, "where": where, "gag": gag})
-	if on_bench: nap_gags.play(greet, sub)   # the greeting comes with the joke, if there is one
+	emit_event("slept", {"hour": hour, "where": where, "gag": gag, "ends_day": ends_day})
+	if on_bench: await nap_gags.play(greet, sub)   # the greeting comes with the joke, if there is one
+	if ends_day: morning_paper(yesterday)
+
+func morning_paper(yesterday: Dictionary) -> void:
+	var leads: Array = story.engine.story_leads()
+	var drafts := Drafts.of(state)
+	var short := Drafts.shortfall(drafts, state.inventory)
+	var ctx := {"paper": String(Data.naps_here().get("paper", "The paper")), "day": int(state.time.day), "harmony": int(state.harmony),
+		"lead": String(Data.npc(String(leads[0].giver)).get("name", "")) if not leads.is_empty() and story.engine.active().filter(func(q): return q.get("main", false)).is_empty() else "",
+		"draft": Drafts.items_text(short) if not drafts.is_empty() and not short.is_empty() else "",
+		"weather": Daylight.slot_weather(Daylight.slot_index({"day": state.time.day, "minute": 12 * 60.0}), Daylight.allowed_here())}
+	var p := MorningPaper.compose(yesterday, ctx, Data.paper, Data.quests, randf())
+	var lines: Array = ["[b]%s[/b]" % p.headline]
+	lines.append_array(p.notes)
+	hud.show_tip({"icon": "📰", "title": p.title, "lines": lines, "seconds": 30.0})
+	emit_event("paper", p)
 
 ## Ride from one stop to another on a line within this place (Travel.stops_on): the screen fades, the clock moves
 ## on by the ride's length, and you step off at the other stop.
@@ -431,7 +448,7 @@ func ride_to(from: Dictionary, to: Dictionary) -> void:
 	set_mode("cutscene")
 	stand_up()
 	await _fade(true).finished
-	Clock.advance(state.time, Travel.ride_minutes(from, to) / Clock.MINUTES_PER_SECOND)
+	WorkDay.advance(state.time, Travel.ride_minutes(from, to) / Clock.MINUTES_PER_SECOND, WorkDay.def(Data.island))
 	var spot := walk.free_spot(float(to.x), float(to.z), Rect2(), 6.0, WalkWorld.PLAYER_RADIUS, player.body)
 	if not spot.is_empty(): player.teleport(spot.x, spot.z)
 	cam.snap()
@@ -728,6 +745,7 @@ func machine_targets() -> Array:
 func on_build_changed(ev: Dictionary) -> void:
 	walk.surfaces = BuildGrid.surfaces_for(state.placements)
 	mech = Mechanics.solve(state.placements, machine_targets())
+	if ev.get("action", "") == "place": WorkDay.note(state, "built")
 	_refresh_piece_interactables()
 	build.version += 1
 	build.refresh_plan()
@@ -961,9 +979,11 @@ var look_here: Dictionary = {}   # the look block of the place you're on (its ma
 var _look_island := ""
 func _update_world_time(dt: float) -> void:
 	var s := state
+	var day_rules := WorkDay.def(Data.island)
 	if mode != "menu":
 		s.play_time += dt
-		if mode != "build": Clock.advance(s.time, dt)
+		if mode != "build": WorkDay.advance(s.time, dt, day_rules)
+	if mode == "explore" and WorkDay.held(s.time, day_rules): guide.tip("dusk")
 	var night := Clock.is_night(s.time)
 	if night != s.flags.get("night", false): s.flags["night"] = night
 	var h: float = s.time.minute / 60.0
@@ -1011,7 +1031,8 @@ func _update_world_time(dt: float) -> void:
 	snowfall.amount_ratio = clampf(float(weather_now.snow), 0.05, 1.0)
 	snowfall.position = camera.global_position + Vector3(0, 7, 0)
 	var icon: String = "🌙" if night else ({"rain": "🌧️", "drizzle": "🌦️", "cloudy": "☁️", "mist": "🌫️", "fair": "⛅", "snow": "🌨️"}.get(weather_now.type, "☀️"))
-	hud.clock_label.text = "%s %s%s" % [icon, Clock.text(s.time), ("  📟 " + ["beep", "beep beep", "BEEP BEEP BEEP"][actions.hum - 1]) if actions.hum > 0 else ""]
+	var when: String = ("Day %d · Dusk, the day waits for you" % int(s.time.day)) if WorkDay.held(s.time, WorkDay.def(Data.island)) else Clock.text(s.time)
+	hud.clock_label.text = "%s %s%s" % [icon, when, ("  📟 " + ["beep", "beep beep", "BEEP BEEP BEEP"][actions.hum - 1]) if actions.hum > 0 else ""]
 
 func _world_reactions(dt: float) -> void:
 	if Data.layout.has("fountain") and state.flags.get("fountainFlowing", false) != mech.fed.get("fountain", false): set_flag("fountainFlowing", mech.fed.get("fountain", false))

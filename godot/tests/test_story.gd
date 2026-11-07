@@ -287,8 +287,11 @@ func test_some_requests_keep_hours():
 	t.ok(Clock.in_hours([5, 10], 6 * 60.0) and not Clock.in_hours([5, 10], 11 * 60.0), "5 AM to 10 AM")
 	t.ok(Clock.in_hours([20, 4], 23 * 60.0) and Clock.in_hours([20, 4], 2 * 60.0) and not Clock.in_hours([20, 4], 12 * 60.0), "windows wrap past midnight")
 	var timed: Array = Data.quests.filter(func(q): return q.has("hours"))
-	t.ok(timed.size() >= 3 and timed.size() < Data.quests.size() / 2, "a few requests keep hours, not most (%d)" % timed.size())
+	t.ok(timed.size() >= 2 and timed.size() < Data.quests.size() / 2, "a few requests keep hours, not most (%d)" % timed.size())
 	t.ok(not timed.any(func(q): return q.get("main", false)), "story requests are never hidden by the clock")
+	t.ok(not timed.any(func(q): return Data.quest_island(q.id) == "hearthglow"), "and none in Monteforchetta, whose work day waits for you")
+	var boars := Data.quest("squirrels")
+	boars["hours"] = [6, 11]
 	var s := GameState.new_game()
 	for q in ["tool", "bridge"]: s.quests[q] = {"status": "done", "progress": {}}
 	var e := QuestEngine.new(s)
@@ -299,6 +302,9 @@ func test_some_requests_keep_hours():
 	t.ok(opts.any(func(o): return o.kind == "later" and o.id == "squirrels" and "6 AM" in o.label), "her conversation says when to come back")
 	s.time.minute = 7 * 60.0
 	t.ok(e.can_offer("squirrels") and e.later_for("mabel").is_empty(), "at 7 AM she asks")
+	boars.erase("hours")
+	s.time.minute = 14 * 60.0
+	t.ok(e.can_offer("squirrels"), "without hours (as in the game now) she asks at any time")
 
 func test_steps_with_hours_count_only_then():
 	var s := GameState.new_game()

@@ -102,7 +102,7 @@ func _next_tip() -> void:
 	if tip_queue.is_empty(): tip_card.visible = false; return
 	var tip: Dictionary = tip_queue.pop_front()
 	var v := VBoxContainer.new(); v.add_theme_constant_override("separation", 6); v.mouse_filter = Control.MOUSE_FILTER_IGNORE; tip_card.add_child(v)
-	v.add_child(UiTheme.label("💡 " + String(tip.title), 20, UiTheme.INK))
+	v.add_child(UiTheme.label(String(tip.get("icon", "💡")) + " " + String(tip.title), 20, UiTheme.INK))
 	for line in tip.lines:
 		var l := RichTextLabel.new(); l.bbcode_enabled = true; l.fit_content = true; l.scroll_active = false; l.custom_minimum_size.x = 340
 		l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART; l.text = Tutorial.fill(line, _key); l.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -191,6 +191,7 @@ func render_tracker() -> void:
 			if (q != tracked or QuestEngine.stage_of(o) < cur) and st.done and not o.get("final", false): continue
 			var txt: String = ("✔ " if st.done else "○ ") + o.text + ("  🕒 " + Clock.hours_text(o.hours) if o.has("hours") and not st.done else "")
 			if st.need > 1 and not st.done: txt += " (%d/%d)" % [int(game.state.harmony) if o.kind == "harmony" else st.have, st.need]
+			if o.kind == "gather" and not st.done and game.actions.all_picked(String(o.get("item", ""))): txt += "  🌙 all picked for today: they grow back overnight"
 			var l := UiTheme.label(txt, 13, Color("59a86f") if st.done else UiTheme.INK2); l.autowrap_mode = TextServer.AUTOWRAP_WORD; l.custom_minimum_size.x = 260
 			v.add_child(l)
 			# a building step: say how (the site's glowing grid, build mode, and the plan to follow if there is one)

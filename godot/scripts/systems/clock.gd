@@ -31,6 +31,8 @@ static func sleep_until_morning(t: Dictionary) -> void:
 ## "5 AM", "12 PM" for an hour of the day (0-24).
 static func hour_num(h: float) -> String:
 	var hh := int(h) % 24
+	var mm := int(round((h - floorf(h)) * 60.0))
+	if mm > 0: return "%d:%02d %s" % [((hh + 11) % 12) + 1, mm, "AM" if hh < 12 else "PM"]
 	return "%d %s" % [((hh + 11) % 12) + 1, "AM" if hh < 12 else "PM"]
 
 ## "5 AM", "8 PM", "noon", "midnight" for an hour of the day (0-24).

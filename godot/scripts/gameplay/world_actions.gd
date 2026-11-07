@@ -60,7 +60,8 @@ static func regrows(n: Dictionary) -> bool: return not (n.kind in ["chest", "dig
 
 func deplete(n: Dictionary) -> void:
 	if not regrows(n): state().nodes[n.id] = {"done": true}
-	else: state().nodes[n.id] = {"ready_at": now() + REGROW.get(n.kind, 300.0)}
+	else: state().nodes[n.id] = {"ready_at": WorkDay.regrow_at(state().time, WorkDay.def(Data.island), REGROW.get(n.kind, 300.0))}
+	WorkDay.note(state(), "gathered")
 	refresh_node(n)
 
 func _register_node(n: Dictionary) -> void:
@@ -75,7 +76,9 @@ func _register_node(n: Dictionary) -> void:
 
 func _register_feature(f: Dictionary) -> void:
 	match f.kind:
-		"rest": game.add_interactable({"id": f.id, "x": f.x, "z": f.z, "radius": 1.3, "label": func(): return "Sleep", "act": func(): game.rest("bed")})
+		"rest":
+			if f.has("refuse"): game.add_interactable({"id": f.id, "x": f.x, "z": f.z, "radius": 1.3, "label": func(): return String(f.get("label", "Look at the bed")), "act": func(): game.toast(String(f.refuse), "", 4.0)})
+			else: game.add_interactable({"id": f.id, "x": f.x, "z": f.z, "radius": 1.3, "label": func(): return "Sleep", "act": func(): game.rest("bed")})
 		"bench":
 			var r := int(f.get("r", 0))
 			var fp := BuildGrid.footprint(Data.piece("bench"), r)
@@ -271,6 +274,16 @@ func nearest_ready(item: String) -> Dictionary:
 		var d := Vector2(n.x - p.x, n.z - p.z).length()
 		if d < bd: bd = d; best = n
 	return best
+
+func all_picked(item: String) -> bool:
+	if not WorkDay.on(Data.island): return false
+	var kinds: Array = SOURCES.get(item, [])
+	var waiting := false
+	for n in Data.layout.nodes:
+		if not (n.kind in kinds and not n.has("gives") or n.get("gives", {}).has(item)) or not regrows(n): continue
+		if ready(n): return false
+		if float(node_state(n.id).get("ready_at", -1.0)) > now(): waiting = true
+	return waiting
 
 func refresh_node(n: Dictionary) -> void:
 	var o: Node3D = game.village.node_visuals.get(n.id)

@@ -20,7 +20,8 @@ static func rained(t0: Dictionary, t1: Dictionary, allowed: Array = [], forced: 
 static func pick(naps: Dictionary, ctx: Dictionary, roll: float, roll2: float) -> String:
 	if ctx.get("indoors", false): return ""
 	if ctx.get("rained", false): return "rain"
-	if roll >= float(naps.get("chance", 0.0)): return ""
+	var chance := float(naps.get("overnight", naps.get("chance", 0.0))) if ctx.get("overnight", false) else float(naps.get("chance", 0.0))
+	if roll >= chance: return ""
 	var pool: Array = []
 	var gags: Dictionary = naps.get("gags", {})
 	for id in gags:
