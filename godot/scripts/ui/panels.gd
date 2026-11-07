@@ -294,11 +294,39 @@ func progress() -> void:
 	body.add_child(UiTheme.label("Approval: %d%s" % [h, ("  ·  Next: %s at %d" % [nx.title, int(nx.at)]) if not nx.is_empty() else "  ·  Every milestone reached!"], 22))
 	var bar := ProgressBar.new(); bar.custom_minimum_size = Vector2(780, 20); bar.show_percentage = false; bar.max_value = nx.at if not nx.is_empty() else 1; bar.value = h if not nx.is_empty() else 1; body.add_child(bar)
 	body.add_child(_wrap("The Sindaco's approval rating grows when you help villagers, finish requests, build something new for the first time and fix up the village. He takes the credit; you get the rewards."))
+	_village_why(h)
+	var best := maxi(h, int(game.state.get("approval_best", h)))
 	for u in Data.harmony_unlocks:
-		var got: bool = h >= u.at
+		var got: bool = best >= u.at
 		var v := _card(Color("f3fff6") if got else Color.WHITE)
 		v.add_child(UiTheme.label(("🌟 " if got else "🔒 ") + u.title + ("   Unlocked" if got else "   at %d approval" % int(u.at)), 16))
 		v.add_child(_wrap(u.desc, 13))
+
+func _village_why(h: int) -> void:
+	var hs := Needs.hangouts()
+	if hs.is_empty(): return
+	var vp := int(game.state.get("village_points", 0))
+	var why := UiTheme.label("Why? %d from requests, firsts and friends, and %d from the village as it is now" % [h - vp, vp], 17, UiTheme.INK); why.name = "approval_why"
+	body.add_child(why)
+	var per := int(Data.needs.get("points", 5))
+	var known: Array = Needs.of(game.state).noticed
+	var v: Dictionary = game.village_score
+	for hg in hs:
+		var hid := String(hg.id)
+		var c := _card()
+		c.name = "why_" + hid
+		var charm := 0
+		for ch in v.get("charm", []):
+			if ch.hangout == hid: charm = int(ch.points)
+		c.add_child(UiTheme.label("%s   %s" % [String(hg.name), ("★".repeat(charm) + "  charm +%d" % charm) if charm > 0 else "no charm yet"], 16))
+		var hidden := 0
+		for n in v.get("needs", []):
+			if n.hangout != hid: continue
+			var kd := Needs.kind_def(String(n.kind))
+			if n.met: c.add_child(_wrap("%s ✔ %s  +%d" % [String(kd.get("icon", "")), String(kd.get("name", n.kind)), per], 13, Color("2f8a52")))
+			elif known.has(n.key): c.add_child(_wrap("%s ○ %s: wanted, not there yet" % [String(kd.get("icon", "")), String(kd.get("name", n.kind))], 13, UiTheme.INK))
+			else: hidden += 1
+		if hidden > 0: c.add_child(_wrap("… and maybe something nobody has mentioned yet.", 12))
 
 ## The progress screen for a location with its own meter (LocationMeter): its reading, what it's about, milestones.
 func _meter_progress(m: Dictionary) -> void:

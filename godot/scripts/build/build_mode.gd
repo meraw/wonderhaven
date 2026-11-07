@@ -24,6 +24,7 @@ var spot_queue: Array = []
 var spot_center := Vector2i(1 << 20, 1 << 20)
 var spot_dirty := false
 var grid_fills: Array = []
+var hangout_root := Node3D.new()
 const SPOT_RADIUS := 8
 const SPOT_BUDGET_USEC := 4000
 var moving := {}                 # {pl, from, r}
@@ -53,6 +54,7 @@ func setup(g) -> void:
 	spot_mat.cull_mode = BaseMaterial3D.CULL_DISABLED
 	spot_mesh.material_override = spot_mat; spot_mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	spots_root.add_child(spot_mesh); spots_root.visible = false
+	hangout_root.name = "Hangouts"; hangout_root.visible = false; game.add_child(hangout_root)
 	sel_box = MeshInstance3D.new(); sel_box.visible = false
 	var bm := BoxMesh.new(); sel_box.mesh = bm
 	var sm := Palette.glow_mat(Color("a07cff"), 0.25); sel_box.material_override = sm
@@ -88,8 +90,9 @@ func open(zone_id: String = "") -> bool:
 	jump_to(zone)
 	if zone.get("open", false) and BuildGrid.zone_contains(zone, floor(p.x), floor(p.z), LocationMeter.progress(state(), Data.island)):
 		focus = p   # an open area (the village streets): build right where you are
-	rebuild_grid(); refresh_plan()
+	rebuild_grid(); refresh_plan(); refresh_hangouts()
 	grid_root.visible = true
+	hangout_root.visible = true
 	game.cam.set_mode("build")
 	game.player_char.play("build", true); game.player_char.show_staff(true)
 	# with a plan to follow here, its next piece is already in your hand, turned the way its outline is
@@ -107,6 +110,7 @@ func close() -> void:
 	active = false; item_id = ""; selected = -1; selected_draft = -1
 	_clear_ghost(); sel_box.visible = false; grid_root.visible = false
 	spots_root.visible = false; spot_key = ""; _show_fills(true)
+	hangout_root.visible = false
 	game.cam.set_mode("explore")
 	game.player_char.stop_hold()
 	if ui: ui.queue_free(); ui = null
@@ -787,6 +791,48 @@ func draft_plan() -> void:
 	game.toast(msg, "good", 4.0)
 	ghost_key = ""; _build_ui()
 
+func draft_gain() -> int:
+	var hs := Needs.hangouts()
+	if hs.is_empty() or Drafts.of(state()).is_empty(): return 0
+	var v := Needs.village(hs, Drafts.design(state().placements, Drafts.of(state())), game.reach_cache, game.mech.lamps)
+	return int(v.points) - int(game.village_score.get("points", 0))
+
+func refresh_hangouts() -> void:
+	for c in hangout_root.get_children(): hangout_root.remove_child(c); c.queue_free()
+	var hs := Needs.hangouts()
+	var v: Dictionary = game.village_score
+	var known: Array = Needs.of(state()).noticed
+	for h in hs:
+		var hid := String(h.id)
+		var parts: Array = []
+		var wanting := false
+		for n in v.get("needs", []):
+			if n.hangout != hid: continue
+			var icon := String(Needs.kind_def(String(n.kind)).get("icon", ""))
+			if n.met: parts.append(icon + "✔")
+			elif known.has(n.key): parts.append(icon + "○"); wanting = true
+		var charm := 0
+		for ch in v.get("charm", []):
+			if ch.hangout == hid: charm = int(ch.points)
+		if charm > 0: parts.append("★".repeat(charm))
+		var r := float(h.get("r", 3.0))
+		var lines := SurfaceTool.new(); lines.begin(Mesh.PRIMITIVE_LINES)
+		var seg := 48
+		for i in seg:
+			var a0 := TAU * i / seg; var a1 := TAU * (i + 1) / seg
+			if i % 2 == 1: continue
+			for a in [a0, a1]:
+				var x := float(h.x) + cos(a) * r; var z := float(h.z) + sin(a) * r
+				lines.add_vertex(Vector3(x, maxf(Heightfield.height(x, z), Heightfield.WATER_Y) + 0.1, z))
+		var ring := MeshInstance3D.new(); ring.mesh = lines.commit(); ring.name = "ring_" + hid
+		ring.material_override = Palette.glow_mat(Color("ffb93b") if wanting else Color("8fe3b0"), 0.9)
+		ring.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		hangout_root.add_child(ring)
+		var l := Label3D.new(); l.text = String(h.name) + ("\n" + "  ".join(parts) if not parts.is_empty() else ""); l.font = UiTheme.main_font(); l.font_size = 40; l.pixel_size = 0.006
+		l.billboard = BaseMaterial3D.BILLBOARD_ENABLED; l.modulate = Color("5a3f6e"); l.outline_modulate = Color.WHITE; l.outline_size = 14; l.no_depth_test = true; l.name = "hangout_" + hid
+		l.position = Vector3(float(h.x), maxf(Heightfield.height(float(h.x), float(h.z)), 0.0) + 1.6, float(h.z))
+		hangout_root.add_child(l)
+
 func toggle_draft_only() -> void:
 	draft_only = not draft_only
 	game.toast("Draft only: pieces go into your draft, nothing is spent" if draft_only else "Draft only is off: pieces you can afford are built straight away")
@@ -998,6 +1044,8 @@ func _draft_bar() -> void:
 	var p := UiTheme.panel(Color("eef8ff"), Color("4fb3ff"), 999); p.name = "draft_panel"
 	var row := HBoxContainer.new(); row.add_theme_constant_override("separation", 8); p.add_child(row)
 	var need := ("gather %s" % Drafts.items_text(short)) if not short.is_empty() else "ready to build"
+	var gain := draft_gain()
+	if gain != 0: need += "  %s%d 💖" % ["+" if gain > 0 else "", gain]
 	var l := UiTheme.label("📐 Draft: %d piece%s, %s" % [drafts.size(), "" if drafts.size() == 1 else "s", need], 13, Color("2f6f9e"))
 	l.size_flags_vertical = Control.SIZE_SHRINK_CENTER; row.add_child(l)
 	var bb := UiTheme.button("Build the draft", build_drafts, short.is_empty()); bb.name = "draft_build"; row.add_child(bb)

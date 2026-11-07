@@ -1,0 +1,13 @@
+{
+  "_doc": "Needs at the hangouts (Needs, scripts/systems/needs.gd). A layout lists its hangouts: spots where people want something ({id, name, at, x, z, r, needs, who?}). A need is met while a piece that provides it (\"provides\" in pieces.json) stands inside the hangout and someone can walk up to it (or, for shelter, stand under it). Each met need adds `points` to the approval rating; charm adds up to charm.max more per hangout, for the variety of pieces and colours there, less for repeats (charm.repeat: what the first, second, ... piece of a kind is worth). Each morning up to `open_max` needs are noticed (only for pieces you can already build) and the paper says so. {place} is a hangout's `at`, {Place} the same with a capital.",
+  "points": 5,
+  "open_max": 3,
+  "kinds": {
+    "seat": {"icon": "🪑", "name": "somewhere to sit", "noticed": "Nowhere to sit {place}.", "met": "Somewhere to sit {place}"},
+    "shelter": {"icon": "🏠", "name": "shelter from the rain", "noticed": "Nowhere to keep dry {place} when it rains.", "met": "Shelter {place}"},
+    "light": {"icon": "💡", "name": "light after dusk", "noticed": "It's dark {place} after dusk.", "met": "A light {place}"},
+    "green": {"icon": "🌸", "name": "something green", "noticed": "Not a flower {place}. People have noticed.", "met": "Something green {place}"},
+    "stall": {"icon": "🛍", "name": "a counter to sell from", "noticed": "Nowhere to set out a stall {place}.", "met": "A counter {place}"}
+  },
+  "charm": {"max": 5, "repeat": [1.0, 0.5], "colour": 0.5}
+}

@@ -147,7 +147,7 @@ func render_harmony() -> void:
 		return
 	harmony_title.text = "💖 Approval"
 	var h := int(game.state.harmony)
-	var nx := Harmony.next_unlock(h)
+	var nx := Harmony.next_unlock(maxi(h, int(game.state.get("approval_best", h))))
 	harmony_bar.max_value = nx.at if not nx.is_empty() else maxf(h, 1)
 	harmony_bar.value = h
 	harmony_label.text = ("%d / %d" % [h, int(nx.at)]) if not nx.is_empty() else str(h)
@@ -156,6 +156,7 @@ func render_tracker() -> void:
 	for c in tracker.get_children(): tracker.remove_child(c); c.queue_free()
 	if not Tutorial.revealed(game.state.get("tutorial", {}), "quests"): return
 	_draft_needs()
+	_village_needs()
 	var e: QuestEngine = game.story.engine
 	if not e.tracked_valid(): e.retrack()
 	var act := e.active().filter(func(q): return e.here(q.id))   # requests on this island
@@ -200,6 +201,18 @@ func render_tracker() -> void:
 				how.autowrap_mode = TextServer.AUTOWRAP_WORD; how.custom_minimum_size.x = 260; how.name = "build_how"
 				v.add_child(how)
 		tracker.add_child(p)
+
+func _village_needs() -> void:
+	var open := Needs.open_keys(game.state, Needs.met_keys(game.village_score))
+	if open.is_empty(): return
+	var hs := Needs.hangouts()
+	var p := UiTheme.panel(Color("fff4f7"), UiTheme.PINK, 18); p.mouse_filter = Control.MOUSE_FILTER_IGNORE; p.name = "village_needs"
+	var v := VBoxContainer.new(); p.add_child(v)
+	v.add_child(UiTheme.label("📈 The village could use", 15))
+	for k in open:
+		var l := UiTheme.label("%s %s" % [String(Needs.kind_def(String(k).get_slice(":", 1)).get("icon", "")), Needs.line(hs, String(k))], 13, UiTheme.INK2)
+		l.autowrap_mode = TextServer.AUTOWRAP_WORD; l.custom_minimum_size.x = 260; v.add_child(l)
+	tracker.add_child(p)
 
 func _draft_needs() -> void:
 	var drafts := Drafts.of(game.state)

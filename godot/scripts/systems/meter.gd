@@ -39,7 +39,7 @@ static func between(m: Dictionary, before: int, after: int) -> Array:
 ## What a place's progress is measured in: its own meter's points where it has one, otherwise the approval rating
 ## (a zone's `expanded.harmony` is compared with this).
 static func progress(state: Dictionary, island: String) -> float:
-	return float(points(state, island)) if not def(island).is_empty() else float(state.get("harmony", 0))
+	return float(points(state, island)) if not def(island).is_empty() else maxf(float(state.get("harmony", 0)), float(state.get("approval_best", 0)))
 
 static func requirements_met(state: Dictionary, u: Dictionary) -> bool:
 	var r: Dictionary = u.get("requires", {})

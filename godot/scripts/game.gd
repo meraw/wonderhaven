@@ -38,6 +38,9 @@ var piece_root := Node3D.new()
 var piece_nodes: Dictionary = {}
 var mech: Dictionary = {"powered": {}, "watered": {}, "pumps": {}, "sources": {}, "fed": {}, "lamps": {}, "fountains": {}}
 var interactables: Array = []
+var village_score: Dictionary = {}
+var reach_cache: Dictionary = {}
+var need_root: Node3D
 var target = null
 var mode := "explore"
 var time := 0.0
@@ -425,21 +428,75 @@ func sleep_until(hour: float, where: String = "bed", seat = null, ends_day: bool
 	autosave("rest", true)
 	emit_event("slept", {"hour": hour, "where": where, "gag": gag, "ends_day": ends_day})
 	if on_bench: await nap_gags.play(greet, sub)   # the greeting comes with the joke, if there is one
-	if ends_day: morning_paper(yesterday)
+	var noticed: Array = []
+	if ends_day and Tutorial.current(state.get("tutorial", {})).is_empty():
+		noticed = Needs.notice(state, Needs.hangouts(), Needs.met_keys(village_score), randf())
+		render_needs(); hud.render_tracker()
+	if ends_day: morning_paper(yesterday, noticed)
 
-func morning_paper(yesterday: Dictionary) -> void:
+func morning_paper(yesterday: Dictionary, noticed: Array = []) -> void:
 	var leads: Array = story.engine.story_leads()
 	var drafts := Drafts.of(state)
 	var short := Drafts.shortfall(drafts, state.inventory)
 	var ctx := {"paper": String(Data.naps_here().get("paper", "The paper")), "day": int(state.time.day), "harmony": int(state.harmony),
 		"lead": String(Data.npc(String(leads[0].giver)).get("name", "")) if not leads.is_empty() and story.engine.active().filter(func(q): return q.get("main", false)).is_empty() else "",
 		"draft": Drafts.items_text(short) if not drafts.is_empty() and not short.is_empty() else "",
-		"weather": Daylight.slot_weather(Daylight.slot_index({"day": state.time.day, "minute": 12 * 60.0}), Daylight.allowed_here())}
+		"weather": Daylight.slot_weather(Daylight.slot_index({"day": state.time.day, "minute": 12 * 60.0}), Daylight.allowed_here()),
+		"noticed": noticed.map(func(k): return Needs.line(Needs.hangouts(), k))}
 	var p := MorningPaper.compose(yesterday, ctx, Data.paper, Data.quests, randf())
 	var lines: Array = ["[b]%s[/b]" % p.headline]
 	lines.append_array(p.notes)
 	hud.show_tip({"icon": "📰", "title": p.title, "lines": lines, "seconds": 30.0})
 	emit_event("paper", p)
+
+func refresh_village(ev: Dictionary = {}) -> void:
+	var hs := Needs.hangouts()
+	if hs.is_empty(): return
+	var action := String(ev.get("action", ""))
+	var quiet := action in ["load", ""] or village_score.is_empty()
+	var pl = ev.get("pl")
+	for h in hs:
+		var hid := String(h.id)
+		var stale: bool = quiet or action == "move" or not reach_cache.has(hid) or (pl is Dictionary and action in ["place", "remove"] and Needs.near(pl, h))
+		if stale: reach_cache[hid] = Needs.reach_cells(walk, h)
+	var before: Dictionary = village_score
+	village_score = Needs.village(hs, state.placements, reach_cache, mech.lamps)
+	var now_met := Needs.met_keys(village_score)
+	Needs.know(state, now_met.keys())
+	var r := Needs.settle(state, int(village_score.points))
+	if not quiet: _village_toasts(before, village_score, hs)
+	for u in r.unlocks: story.apply_unlock(u)
+	if r.delta != 0: story.handle(story.engine.refresh())
+	hud.render_harmony(); hud.render_tracker()
+	render_needs()
+	build.refresh_hangouts()
+
+func _village_toasts(before: Dictionary, after: Dictionary, hs: Array) -> void:
+	var per := int(Data.needs.get("points", 5))
+	var was := Needs.met_keys(before)
+	var now := Needs.met_keys(after)
+	for k in now:
+		if not was.has(k): toast("✔ %s: +%d approval" % [Needs.line(hs, k, "met"), per], "good", 3.0); sfx("unlock")
+	for k in was:
+		if not now.has(k): toast("%s is gone: -%d approval" % [Needs.line(hs, k, "met"), per], "warn", 3.0)
+	for i in after.get("charm", []).size():
+		var a: int = int(after.charm[i].points)
+		var b: int = int(before.get("charm", [])[i].points) if i < before.get("charm", []).size() else 0
+		if a != b: toast("%s: charm %s (%s%d approval)" % [String(Needs.hangout(hs, String(after.charm[i].hangout)).get("name", "")), "★".repeat(a) if a > 0 else "none", "+" if a > b else "", a - b], "good" if a > b else "", 2.6)
+
+func render_needs() -> void:
+	if need_root == null:
+		need_root = Node3D.new(); need_root.name = "Needs"; add_child(need_root)
+	for c in need_root.get_children(): need_root.remove_child(c); c.queue_free()
+	var hs := Needs.hangouts()
+	var open := Needs.open_keys(state, Needs.met_keys(village_score))
+	for h in hs:
+		var icons: Array = open.filter(func(k): return String(k).begins_with(String(h.id) + ":")).map(func(k): return String(Needs.kind_def(String(k).get_slice(":", 1)).get("icon", "?")))
+		if icons.is_empty(): continue
+		var l := Label3D.new(); l.text = " ".join(icons); l.font = UiTheme.main_font(); l.font_size = 72; l.pixel_size = 0.006
+		l.billboard = BaseMaterial3D.BILLBOARD_ENABLED; l.modulate = Color("e86f8f"); l.outline_modulate = Color.WHITE; l.outline_size = 22; l.no_depth_test = true
+		l.position = Vector3(float(h.x), maxf(Heightfield.height(float(h.x), float(h.z)), 0.0) + 2.6, float(h.z)); l.name = "need_" + String(h.id)
+		need_root.add_child(l)
 
 ## Ride from one stop to another on a line within this place (Travel.stops_on): the screen fades, the clock moves
 ## on by the ride's length, and you step off at the other stop.
@@ -590,6 +647,7 @@ func load_state(s: Dictionary) -> void:
 	send_villagers_home()
 	actions.refresh_all()
 	build.history.clear()
+	refresh_village()
 	render_resources(); hud.render_harmony(); hud.render_tracker()
 	guide.reset()
 
@@ -604,6 +662,7 @@ func begin_play() -> void:
 	started = true
 	hud.visible = true
 	refresh_bike()
+	refresh_village()
 	render_resources(); hud.render_harmony(); hud.render_tracker()
 	set_mode("explore")
 	guide.reset()
@@ -750,6 +809,7 @@ func on_build_changed(ev: Dictionary) -> void:
 	build.version += 1
 	build.refresh_plan()
 	build.refresh_drafts()
+	refresh_village(ev)
 	emit_event("build", ev)
 	if ev.get("action", "") != "load": autosave("build")
 

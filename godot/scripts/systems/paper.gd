@@ -19,6 +19,7 @@ static func headline(rec: Dictionary, data: Dictionary, quests: Array, roll: flo
 
 static func notes(rec: Dictionary, ctx: Dictionary, data: Dictionary) -> Array:
 	var out: Array = []
+	for n in ctx.get("noticed", []): out.append(String(data.get("noticed", "Noticed: {line}")).replace("{line}", String(n)))
 	var change := int(ctx.get("harmony", 0)) - int(rec.get("harmony", 0))
 	if change != 0:
 		out.append(String(data.get("approval", "")).replace("{n}", str(int(ctx.get("harmony", 0)))).replace("{change}", ("+%d" % change) if change > 0 else str(change)))
@@ -27,7 +28,7 @@ static func notes(rec: Dictionary, ctx: Dictionary, data: Dictionary) -> Array:
 	if int(rec.get("gathered", 0)) > 0: out.append(String(data.get("regrown", "")))
 	var w := String(data.get("weather", {}).get(String(ctx.get("weather", "")), ""))
 	if w != "": out.append(w)
-	return out.filter(func(s): return s != "").slice(0, 3)
+	return out.filter(func(s): return s != "").slice(0, maxi(3, ctx.get("noticed", []).size() + 1))
 
 static func compose(rec: Dictionary, ctx: Dictionary, data: Dictionary, quests: Array, roll: float) -> Dictionary:
 	return {"title": "%s · Day %d" % [String(ctx.get("paper", "The paper")), int(ctx.get("day", 1))], "headline": headline(rec, data, quests, roll), "notes": notes(rec, ctx, data)}

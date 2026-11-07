@@ -278,11 +278,10 @@ func unlock_clothes(ids: Array, quiet: bool = false) -> void:
 
 func add_harmony(n: int) -> void:
 	var s: Dictionary = game.state
-	var before := int(s.harmony)
-	s.harmony = before + n
+	var due := Needs.raise(s, n)
 	game.hud.render_harmony()
 	if n > 0: game.emit_event("harmony", {"n": n})
-	for u in Harmony.between(before, s.harmony): apply_unlock(u)
+	for u in due: apply_unlock(u)
 	handle(engine.refresh())
 
 ## Points on a location's own meter (LocationMeter), and the milestones they reach. A milestone that waits for

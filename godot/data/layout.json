@@ -570,6 +570,87 @@
   "minK": 7,
   "maxK": 12
  },
+ "hangouts": [
+  {
+   "id": "piazza",
+   "name": "The piazza",
+   "at": "in the piazza",
+   "x": 0.0,
+   "z": 2.0,
+   "r": 5.0,
+   "needs": [
+    "green",
+    "light",
+    "stall"
+   ],
+   "who": "tilly"
+  },
+  {
+   "id": "bakery",
+   "name": "The bakery door",
+   "at": "outside the bakery",
+   "x": -11.0,
+   "z": -2.0,
+   "r": 3.0,
+   "needs": [
+    "seat",
+    "green"
+   ],
+   "who": "mabel"
+  },
+  {
+   "id": "church",
+   "name": "The church steps",
+   "at": "on the church steps",
+   "x": -5.0,
+   "z": 12.2,
+   "r": 3.0,
+   "needs": [
+    "light",
+    "seat"
+   ]
+  },
+  {
+   "id": "gigia",
+   "name": "Gigia's gate",
+   "at": "at Gigia's gate",
+   "x": 10.0,
+   "z": -4.6,
+   "r": 3.0,
+   "needs": [
+    "green",
+    "seat"
+   ],
+   "who": "fern"
+  },
+  {
+   "id": "castle",
+   "name": "The castle steps",
+   "at": "on the castle steps",
+   "x": 22.5,
+   "z": -5.0,
+   "r": 3.0,
+   "needs": [
+    "light",
+    "green"
+   ],
+   "who": "percival"
+  },
+  {
+   "id": "belvedere",
+   "name": "The bus stop on the belvedere",
+   "at": "at the bus stop on the belvedere",
+   "x": 3.5,
+   "z": 36.5,
+   "r": 3.5,
+   "needs": [
+    "seat",
+    "light",
+    "shelter"
+   ],
+   "who": "captain"
+  }
+ ],
  "zones": [
   {
    "id": "plot",
