@@ -1111,6 +1111,9 @@ func _parse_args() -> void:
 	if shot_cfg.has("time"): state.time.minute = float(shot_cfg.time) * 60.0
 	if shot_cfg.has("flags"):   # look-dev: --flags=a,b sets story flags (a request's results, a lit landmark)
 		for f in String(shot_cfg.flags).split(","): state.flags[f] = true
+	if shot_cfg.has("models"):   # look-dev: Blender models (docs/MODELS.md), one or more lab files
+		for f in String(shot_cfg.models).split(","): ModelKit.place_lab(village, f)
+	if shot_cfg.has("nohud"): ui_root.visible = false   # look-dev: the world without the interface
 
 var _frames := 0
 func _tick_shot() -> void:

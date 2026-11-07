@@ -1,0 +1,11 @@
+{
+ "_comment": "Look-dev only (docs/MODELS.md): the rigged Sindaco from tools/blender/sindaco.py, walking (four moments of one stride), idle and talking, in the lab street. Use with model_lab.json: --models=res://tests/model_lab.json,res://tests/model_lab_sindaco.json",
+ "models": [
+  {"glb": "res://assets/models/lab/sindaco.glb", "x": -28.6, "z": 2.0, "yaw": 0.95, "anim": "walk", "seek": 0.0},
+  {"glb": "res://assets/models/lab/sindaco.glb", "x": -27.6, "z": 2.0, "yaw": 0.95, "anim": "walk", "seek": 0.25},
+  {"glb": "res://assets/models/lab/sindaco.glb", "x": -24.4, "z": 2.0, "yaw": 0.95, "anim": "walk", "seek": 0.5},
+  {"glb": "res://assets/models/lab/sindaco.glb", "x": -23.4, "z": 2.0, "yaw": 0.95, "anim": "walk", "seek": 0.75},
+  {"glb": "res://assets/models/lab/sindaco.glb", "x": -21.0, "z": 1.2, "yaw": -0.5, "anim": "talk", "seek": 0.6},
+  {"glb": "res://assets/models/lab/sindaco.glb", "x": -30.6, "z": 1.0, "yaw": 0.5, "anim": "idle", "seek": 0.4}
+ ]
+}
