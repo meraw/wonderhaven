@@ -1,0 +1,91 @@
+{
+ "_comment": "Look-dev only (docs/MODELS.md): the same houses standing apart on the grass round a wet piazza, as in the paintover. --labtex=cc0|blender, --labwet=0..1 override the look. --labnpcs keeps the villagers.",
+ "look": {
+  "textures": "cc0",
+  "wet": 1.0,
+  "ssr": true,
+  "characters": true,
+  "hide_npcs": true
+ },
+ "hide": [
+  "bakery",
+  "workshop"
+ ],
+ "models": [
+  {
+   "glb": "res://assets/models/lab/toy_piazza.glb",
+   "x": -20.5,
+   "z": 3.0
+  },
+  {
+   "glb": "res://assets/models/lab/toy_oxblood.glb",
+   "x": -33.0,
+   "z": -5.5
+  },
+  {
+   "glb": "res://assets/models/lab/toy_orange.glb",
+   "x": -23.0,
+   "z": -4.6
+  },
+  {
+   "glb": "res://assets/models/lab/toy_ochre.glb",
+   "x": -14.2,
+   "z": -5.0
+  },
+  {
+   "glb": "res://assets/models/lab/toy_yellow.glb",
+   "x": -29.5,
+   "z": 12.5,
+   "yaw": 3.14159
+  },
+  {
+   "glb": "res://assets/models/lab/toy_red.glb",
+   "x": -17.0,
+   "z": 12.0,
+   "yaw": 3.14159
+  },
+  {
+   "glb": "res://assets/models/lab/cafe_set.glb",
+   "x": -20.4,
+   "z": 0.6
+  },
+  {
+   "glb": "res://assets/models/lab/cafe_set.glb",
+   "x": -18.0,
+   "z": 1.2,
+   "yaw": 0.6
+  },
+  {
+   "glb": "res://assets/models/lab/cafe_set.glb",
+   "x": -15.8,
+   "z": 0.4,
+   "yaw": 1.2
+  },
+  {
+   "glb": "res://assets/models/lab/lamp_double.glb",
+   "x": -27.0,
+   "z": -1.0
+  },
+  {
+   "glb": "res://assets/models/lab/lamp_double.glb",
+   "x": -14.6,
+   "z": 7.6
+  },
+  {
+   "prop": "bike",
+   "color": "2f5aa8",
+   "x": -17.0,
+   "z": -2.2,
+   "yaw": 1.5708,
+   "roll": 0.12
+  },
+  {
+   "prop": "bike",
+   "color": "c0392b",
+   "x": -15.6,
+   "z": -2.3,
+   "yaw": 1.5708,
+   "roll": 0.12
+  }
+ ]
+}

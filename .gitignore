@@ -3,3 +3,7 @@ dist/
 e2e-output/
 .DS_Store
 __pycache__/
+godot/assets/textures/lab/
+godot/assets/models/lab/toy_*
+godot/assets/models/lab/lamp_double.*
+godot/assets/models/lab/cafe_set.*

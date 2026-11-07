@@ -28,6 +28,18 @@ func run(tree: SceneTree, args: Dictionary) -> void:
 			chars.append(c)
 		cam.fov = 24
 		cam.position = Vector3(0, 1.3, 9.6); cam.look_at(Vector3(0, 1.05, 5.0))
+	elif view == "eyesize":
+		var scales: Array = Array(String(args.get("scales", "1,1.25,1.45,1.65,2")).split(",")).map(func(v): return float(v))
+		for i in scales.size():
+			var a: Dictionary = cast[0].duplicate()
+			a["eyeShape"] = args.get("shape", "round")
+			if args.has("eyecolor"): a["eyeColor"] = "#" + String(args.eyecolor)
+			var c := Chibi.new(a); world.add_child(c)
+			c.position = Vector3(-0.4 * (scales.size() - 1) + i * 0.8, 0, 5.0)
+			c.face_mat.set_shader_parameter("eye_scale", scales[i])
+			chars.append(c)
+		cam.fov = 26
+		cam.position = Vector3(0, 1.25, 11.2); cam.look_at(Vector3(0, 0.98, 5.0))
 	elif view == "back":
 		for i in cast.size():
 			var c := Chibi.new(cast[i]); world.add_child(c)
