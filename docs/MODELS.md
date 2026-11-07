@@ -200,6 +200,10 @@ Because another agent is changing the graphics now, that starts with a new analy
 - **Eyes at 1.45× today's dots.** This is in the game now (`Chibi.EYE_SIZE`): every eye shape is between 1.45× and
   1.55×, because the wide eyes already were 1.55×.
 
+![The chosen look on a varied lane](models/look_chosen.jpg)
+
+![The cast with 1.45× eyes](models/look_eyes_cast.jpg)
+
 ## How to run it
 - **Get Blender:** the 4.2 LTS Linux build from download.blender.org (`Blender4.2/blender-4.2.3-linux-x64.tar.xz`),
   unpacked in a scratch folder outside the repo.
