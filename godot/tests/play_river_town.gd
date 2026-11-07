@@ -269,7 +269,7 @@ func talk(id: String, accept: bool = true) -> bool:
 				for i in ui.choices.size():
 					if ui.choices[i].kind == "bye": idx = i
 			print("   ", id, " › ", ui.choices[idx].label)
-			await tap(KEY_1 + idx)
+			await tap(game.dialogue.key_for(idx))
 		else: await tap(KEY_E)
 	return true
 
@@ -300,9 +300,9 @@ func choose(id: String, want: String) -> bool:
 		var ui: DialogueUI = game.dialogue
 		if ui.choices.is_empty(): await tap(KEY_E); continue
 		var kinds: Array = ui.choices.map(func(c): return c.kind)
-		if kinds.has(want): await tap(KEY_1 + kinds.find(want)); return true
+		if kinds.has(want): await tap(game.dialogue.key_for(kinds.find(want))); return true
 		var idx: int = kinds.find("yes") if kinds.has("yes") else (kinds.find("pay") if kinds.has("pay") else kinds.find("bye"))
-		await tap(KEY_1 + idx)
+		await tap(game.dialogue.key_for(idx))
 	return false
 
 ## Places a piece with its corner cell at (i, k), clicking the middle of its whole footprint (for a piece two cells
@@ -457,11 +457,11 @@ func sec_welcome() -> void:
 	await talk(P + "ermes")
 	var accepted: bool = qs("welcome") == "active" and s.flags.get("hasTool", false)
 	await gather_item(P + "sand", 5)
-	await talk(P + "ermes")   # the sand for the patch
-	await talk(P + "rina")    # coffee
-	await talk(P + "ermes")   # tell him you've found your way
-	check("s1", "Straight to Work: sand from the sandbank for Ermes's patch, coffee at Rina's, and the gauge comes down a metre",
-		accepted and qs("welcome") == "done" and pts() == 100 and reading() == "6.40 m" and flag("welcomed"), "%s, gauge %s" % [qs("welcome"), reading()])
+	var at_breach: bool = Vector2(game.npcs[P + "ermes"].pos.x - Data.layout.nav_nodes.stormA[0], game.npcs[P + "ermes"].pos.z - Data.layout.nav_nodes.stormA[1]).length() < 4.0
+	await talk(P + "ermes")   # the sand for the patch, at the breach
+	await talk(P + "rina")    # coffee, and where you're sleeping: the request ends there, no walk back to Ermes
+	check("s1", "Straight to Work: sand from the sandbank for Ermes at the breach, coffee at Rina's to finish, and the gauge comes down a metre",
+		accepted and at_breach and qs("welcome") == "done" and pts() == 100 and reading() == "6.40 m" and flag("welcomed"), "%s, gauge %s, Ermes at the breach %s" % [qs("welcome"), reading(), at_breach])
 	await shot("welcome-done")
 
 func sec_bike() -> void:

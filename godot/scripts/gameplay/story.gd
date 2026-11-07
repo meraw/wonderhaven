@@ -193,6 +193,7 @@ func accept(qid: String, agent = null) -> void:
 	game.sfx("accept")
 	if agent: agent.character.play("clap")
 	handle(engine.refresh())
+	game.render_resources()   # what this request has you collect gets a chip
 	if qid == "tool":
 		game.player_char.show_staff(true)
 		game.toast("You opened your Geometra's kit! Press %s to build." % Controls.key_label("build"), "good", 4.0)
@@ -231,6 +232,7 @@ func complete_quest(qid: String, agent) -> void:
 	if r.get("meter", 0) > 0 or not LocationMeter.waiting(game.state, where).is_empty(): add_meter(where, int(r.get("meter", 0)))
 	game.on_quest_completed(qid)
 	handle(engine.refresh())
+	game.render_resources()
 	game.autosave("quest", true)
 
 func give_gifts(agent) -> void:

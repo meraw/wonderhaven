@@ -100,9 +100,10 @@ func _crow() -> Node3D:
 	var body := P.mi(P.sphere(0.12, 8, 6), black, Vector3(0, 0.16, 0)); body.scale = Vector3(0.85, 0.9, 1.5); c.add_child(body)
 	c.add_child(P.mi(P.sphere(0.075, 8, 6), black, Vector3(0, 0.27, 0.15)))
 	var beak := P.mi(P.cone(0.03, 0.09, 5), P.mat("3b3d44"), Vector3(0, 0.26, 0.25), false); beak.rotation.x = PI / 2; c.add_child(beak)
-	var tail := P.mi(P.box(0.1, 0.02, 0.16), black, Vector3(0, 0.17, -0.22), false); tail.rotation.x = 0.3; c.add_child(tail)
-	for s in [-1, 1]:
-		var wing := P.mi(P.box(0.22, 0.02, 0.14), black, Vector3(s * 0.08, 0.2, -0.02), false); wing.name = "wing%d" % (s + 1); c.add_child(wing)
+	var tail := P.mi(P.sphere(1.0, 12, 6), black, Vector3(0, 0.17, -0.22), false); tail.scale = Vector3(0.06, 0.012, 0.1); tail.rotation.x = 0.3; c.add_child(tail)
+	for s in [-1, 1]:   # rounded wings (flat boxes read as square slabs)
+		var wing := Node3D.new(); wing.name = "wing%d" % (s + 1); wing.position = Vector3(s * 0.05, 0.2, -0.02); c.add_child(wing)
+		var wm := P.mi(P.sphere(1.0, 12, 6), black, Vector3(s * 0.07, 0, 0), false); wm.scale = Vector3(0.11, 0.012, 0.07); wing.add_child(wm)
 		c.add_child(P.mi(P.cyl(0.008, 0.008, 0.1, 4), P.mat("3b3d44"), Vector3(s * 0.04, 0.05, 0), false))
 	return c
 
@@ -221,5 +222,5 @@ func _process_wildlife(dt: float) -> void:
 			var p: Vector3 = c.from.lerp(c.to, f) + Vector3(0, sin(f * PI) * 6.0, 0)
 			var d: Vector3 = c.to - c.from
 			c.obj.position = p; c.obj.rotation = Vector3(0, atan2(d.x, d.z), 0)
-			c.obj.get_node("wing0").rotation.z = sin(t * 22.0) * 0.9; c.obj.get_node("wing2").rotation.z = -sin(t * 22.0) * 0.9
+			c.obj.get_node("wing0").rotation.z = sin(t * 15.0) * 0.7; c.obj.get_node("wing2").rotation.z = -sin(t * 15.0) * 0.7
 			if c.fly >= 1.0: c.fly = -1.0; c.yaw = atan2(d.x, d.z)

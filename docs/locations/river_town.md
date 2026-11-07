@@ -437,6 +437,24 @@ bicycles (4b), and the music, sounds and outfits (4c).
   yellow with her old leather post bag. Three of these are Boccapioppo's own clothes (`appearance.json`): Ermes, Ines
   and Pierina give you one each when you become good friends (6 hearts).
 
+**Playtest fixes (second playtest, 06/11–07/11)** (see `docs/STATUS.md` for the shared parts):
+- **Straight to Work:** Ermes moves from the bus stop to the breach once you take his shovel (`river_town_shovel`,
+  a `when` day of his), takes the sand there, and the request ends over coffee at Rina's (her lines are its
+  `complete` lines): no walk back to Ermes.
+- **Ghost plans for every building step**, from the playthrough's builds: five pontoons from the ferry landing and a
+  railing on four of them; a waterwheel at (27, 5) and four shafts to the pumping house's drive; the dance hall's
+  floor, stage, bar, two lamps and three chairs (one green); a stone block and one or two sandbags in each of the
+  breach's six gap cells (exactly the 12 stone, 20 sand and 10 fabric the finale gathers); two planks for the
+  slipway; a rug, table, chair and lamp in the cabin. The pontoon bridge asks for 19 wood and the dance hall for 17
+  wood and a stone, what their plans cost.
+- **Ermes's house** opens north onto the lane (`ermesDoor` at the door, `ermesYard` where the old door spot was, on
+  the levee path).
+- **Look:** the Roman bridge's walls are continuous meshes with arch rings and its deck is paving
+  (`BRIDGE_DECK`); the kingfishers sit on willow branches rooted in the bank; the geese walk without shaking and have
+  rounded wings; the shack's and pumping house's tide lines are bands; the houseboat's hull stops at her floor.
+- **Lost things** look like what they are: the cuckoo clock, the gnome, the trophy, the photo, the Walkman, the oar,
+  and Ines's logs as logs.
+
 ## Checks for every stage
 `godot/run_tests.sh`, `npm test` and `npm run build`; screenshots of Boccapioppo in both renderers
 (`--island=river_town`); from stage 3, the scripted playthrough of its requests. Each pull request says what was

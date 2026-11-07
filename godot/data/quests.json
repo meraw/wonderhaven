@@ -107,9 +107,9 @@
      "id": "wood",
      "kind": "gather",
      "item": "wood",
-     "count": 10,
+     "count": 14,
      "stage": 0,
-     "text": "Gather 10 more wood (trees with a pink ribbon)"
+     "text": "Have 14 wood for the crossing (trees with a pink ribbon)"
     },
     {
      "id": "build",

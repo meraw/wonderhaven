@@ -37,3 +37,13 @@ static func current(engine: QuestEngine) -> Array:
 			var zone := Data.zone(String(o.get("zone", "")))
 			out.append({"quest": q.id, "objective": o.id, "zone": zone, "pieces": lay_out(o.plan, zone, engine.state.get("placements", []))})
 	return out
+
+## The next piece to build: the first of a plan's laid-out pieces (in plan order) that isn't built yet, or {}.
+static func next_piece(pieces: Array, placements: Array) -> Dictionary:
+	for pl in pieces:
+		if not built(pl, placements): return pl
+	return {}
+
+## How many of a plan's pieces are built.
+static func built_count(pieces: Array, placements: Array) -> int:
+	return pieces.filter(func(pl): return built(pl, placements)).size()

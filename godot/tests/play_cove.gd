@@ -19,7 +19,7 @@ func buy_at(id: String, item: String, done: Callable) -> void:
 		if game.mode == "dialogue" and not ui.choices.is_empty():
 			var i: int = ui.choices.map(func(o): return o.get("kind", "")).find("shop")
 			if i < 0: i = ui.choices.map(func(o): return o.get("kind", "")).find("no")
-			await tap(KEY_1 + maxi(0, i))
+			await tap(game.dialogue.key_for(maxi(0, i)))
 		elif game.mode == "dialogue": await tap(KEY_E)
 	note("shop open: %s" % (game.panels.current == "shop"))
 	var lines: Array = Shop.stock(game.state, id).filter(func(e): return e.kind == "items" and e.items.has(item))

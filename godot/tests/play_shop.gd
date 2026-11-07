@@ -15,7 +15,7 @@ func choices_up(id: String) -> void:
 func pick(kind: String) -> bool:
 	var i: int = game.dialogue.choices.map(func(o): return o.get("kind", "")).find(kind)
 	if i < 0: return false
-	await tap(KEY_1 + i)
+	await tap(game.dialogue.key_for(i))
 	return true
 
 func press(name: String) -> bool:

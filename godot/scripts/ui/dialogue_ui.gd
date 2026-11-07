@@ -1,6 +1,8 @@
 class_name DialogueUI
 extends Control
 ## Dialogue box: name plate, live 3D portrait, typewriter text and choices (mouse, keys 1-9, arrows + E, gamepad).
+## Leaving is always the same key: Goodbye (and the "not now" answer to an offer, or "Never mind") is always 0, and
+## Esc, wherever it sits in the list; the other choices are numbered 1 to 9 in order (see key_for).
 
 signal lines_finished
 signal chose(option: Dictionary)
@@ -114,7 +116,7 @@ func choose(options: Array) -> Dictionary:
 	var wide := options.size() <= 3
 	for n in options.size():
 		var o: Dictionary = options[n]
-		var b := Button.new(); b.text = "%d. %s" % [n + 1, o.label]; b.alignment = HORIZONTAL_ALIGNMENT_LEFT; b.name = "choice_%d" % n
+		var b := Button.new(); b.text = "%s. %s" % [_number(n), o.label]; b.alignment = HORIZONTAL_ALIGNMENT_LEFT; b.name = "choice_%d" % n
 		b.add_theme_font_size_override("font_size", 16 if wide else 15)
 		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		b.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS; b.custom_minimum_size.x = 0 if wide else 300
@@ -125,7 +127,7 @@ func choose(options: Array) -> Dictionary:
 		b.pressed.connect(func(): pick(idx))
 		choice_box.add_child(b)
 	var esc := _esc_choice()
-	esc_label.text = ("Esc — %s" % choices[esc].label) if esc >= 0 else ""
+	esc_label.text = ("0 or Esc — %s" % choices[esc].label) if esc >= 0 else ""
 	_highlight()
 	var res = await chose
 	return res
@@ -168,7 +170,27 @@ func update(dt: float) -> void:
 ## The choice Esc picks: "Goodbye!" in the main menu, or the "not now" answer to a quest offer.
 func _esc_choice() -> int:
 	for i in choices.size():
-		if choices[i].get("kind", "") in ["bye", "no"]: return i
+		if is_leave(choices[i]): return i
+	return -1
+
+## Goodbye, "not now", "never mind": the way out of a conversation or a question.
+static func is_leave(o: Dictionary) -> bool: return String(o.get("kind", "")) in ["bye", "no"]
+
+## The number shown on choice n: 0 for the way out, else its place among the others (1, 2, 3...).
+func _number(n: int) -> String:
+	if is_leave(choices[n]): return "0"
+	var k := 1
+	for i in n:
+		if not is_leave(choices[i]): k += 1
+	return str(k)
+
+## The key that picks choice n (for scripted playthroughs): KEY_0 for the way out, else KEY_1, KEY_2...
+func key_for(n: int) -> int: return int(KEY_0) + int(_number(n))
+
+## Which choice a number key picks (0: the way out), or -1.
+func _choice_for_digit(d: int) -> int:
+	for i in choices.size():
+		if _number(i) == str(d): return i
 	return -1
 
 func _input(event: InputEvent) -> void:
@@ -179,8 +201,11 @@ func _input(event: InputEvent) -> void:
 		return
 	if event is InputEventKey and event.pressed and not event.echo:
 		var code: int = event.physical_keycode if event.physical_keycode != 0 else event.keycode
-		var n := code - KEY_1
-		if n >= 0 and n < mini(9, choices.size()):
+		var d: int = code - int(KEY_0)
+		if code >= int(KEY_KP_0) and code <= int(KEY_KP_9): d = code - int(KEY_KP_0)   # the number pad too
+		if d < 0 or d > 9: return
+		var n := _choice_for_digit(d)
+		if n >= 0:
 			get_viewport().set_input_as_handled()
 			pick(n)
 

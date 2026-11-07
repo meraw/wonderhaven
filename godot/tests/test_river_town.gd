@@ -183,6 +183,8 @@ func test_people_and_their_days():
 		# whoever a step at a set hour needs is up and about, where the story says
 		var at := func(npc: String, hour: float, flags: Dictionary) -> Dictionary: return Schedule.activity_at(Data.npc(npc), hour * 60.0, flags)
 		var w := {"river_town_welcomed": true}
+		t.eq(at.call("river_town_ermes", 23.0, {}).node, "ermesWait", "Ermes meets the bus with his shovel, at any hour")
+		t.eq(at.call("river_town_ermes", 14.0, {"river_town_shovel": true}).node, "stormA", "once you've taken it, he waits at the breach for the sand")
 		t.eq(at.call("river_town_ermes", 6.0, w).node, "gauge", "Ermes reads his gauge at dawn (the houseboat's launch)")
 		var ready := {"river_town_welcomed": true, "river_town_bridge_open": true, "river_town_hall_ready": true}
 		t.eq(at.call("river_town_wanda", 21.0, ready).node, "river_town_dance_hall:spot", "Wanda is in her hall in the evening once it's fitted out")
@@ -199,7 +201,7 @@ func test_people_and_their_days():
 		for n in Data.layout.nav_nodes:
 			if String(n).begins_with("storm") or String(n).begins_with("hall"): t.ok(not Schedule.find_path("busStop", n, {}).is_empty(), "villagers can walk to %s" % n)
 		# no two villagers stand (or sleep) on the same spot at the same hour, at any point of the story
-		for flags in [{}, w, {"river_town_welcomed": true, "river_town_bridge_open": true}, ready, wall, storm, after]:
+		for flags in [{}, {"river_town_shovel": true}, w, {"river_town_welcomed": true, "river_town_bridge_open": true}, ready, wall, storm, after]:
 			for h in 24:
 				var taken := {}
 				for n in people:
@@ -370,6 +372,30 @@ func test_the_animals_live_where_they_should():
 		t.ok(cats.size() >= 3 and cats.all(func(c): return not Heightfield.is_water(c[0], c[1])), "cats sit about on dry ground, one by Gildo's shack waiting for the catch")
 		var a = A.make()
 		t.ok(a.coypus.size() == cs.size() and a.cormorants.size() == A.SNAGS.size() and a.geese.size() == 5 and a.kingfishers.size() == 2, "they're all built")
+		a.free())
+
+## The geese used to shake: they set off and stopped every other frame, and their walking bob switched on and off
+## with it. Now each one stands and pecks, then walks somewhere, and its waddle eases in and out.
+func test_the_geese_walk_smoothly():
+	_on(func():
+		var A := preload("res://scripts/locations/river_town/animals.gd")
+		var a = A.make()
+		var far := Vector2(200.0, 200.0)   # nobody about
+		var going: Array = a.geese.map(func(q): return q.going)
+		var bob: Array = a.geese.map(func(q): return -1.0)
+		var flips := 0; var jump := 0.0; var walked := 0
+		for f in 1200:   # 20 seconds at 60 frames a second
+			a.t += 1.0 / 60.0
+			a._geese(1.0 / 60.0, far, false)
+			for k in a.geese.size():
+				var q: Dictionary = a.geese[k]
+				if q.going != going[k]: flips += 1; going[k] = q.going; walked += 1 if q.going else 0
+				var b: float = (q.obj as Node3D).position.y - Heightfield.height(q.pos.x, q.pos.y)
+				if bob[k] >= 0.0: jump = maxf(jump, absf(b - bob[k]))
+				bob[k] = b
+		t.ok(walked >= 5, "the geese walk about (%d walks in 20 s)" % walked)
+		t.ok(flips <= 60, "each goose sets off and stops now and then, not every frame (%d starts and stops in 20 s)" % flips)
+		t.ok(jump < 0.006, "no goose jolts up and down from one frame to the next (%.3f m)" % jump)
 		a.free())
 
 ## Stage 4c: the dance-hall music. Every part of the day has a tune of Boccapioppo's own: thin while the hall is

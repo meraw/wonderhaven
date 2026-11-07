@@ -26,16 +26,7 @@ func build(decor: Dictionary) -> void:
 	pack = Data.location_script(Data.island)
 	pack_fns = pack.get_script_method_list().map(func(m): return m.name) if pack else []
 	for b in Data.layout.buildings:
-		var o: Node3D = pack.building(b) if pack_fns.has("building") else null
-		if o == null:
-			match b.kind:
-				"workshop": o = Props.workshop(b)
-				"castle": o = Props.castle(b)
-				"caravan": o = Props.caravan(b)
-				"lighthouse": o = Props.lighthouse(b)
-				"clocktower": o = Props.clocktower(b)
-				"church": o = Props.church(b)
-				_: o = Props.cottage(b)
+		var o: Node3D = building_model(b, pack, pack_fns)
 		# "y": a building standing on a raised floor (a flat off an upstairs balcony)
 		o.position = Vector3(b.x, float(b.y) if b.has("y") else (Heightfield.CASTLE_MOUND.y if b.kind == "castle" else maxf(0.0, H.call(b.x, b.z))), b.z)
 		o.name = b.id; add_child(o); objects[b.id] = o
@@ -111,6 +102,19 @@ func _build_vineyards() -> void:
 			var ja: float = j * 1.05 + float(it.k)
 			blooms.append({"p": Vector3(it.x + cos(ja) * 0.32, Heightfield.height(it.x, it.z) + 0.45 + 0.12 * sin(j * 2.0), it.z + sin(ja) * 0.32), "c": rose_cols[(j + int(it.k)) % rose_cols.size()]})
 	_multimesh(Foliage.flower_head(), Foliage.plant_material(0.02, -1.0, false, true), blooms, func(b): return [Transform3D(Basis.IDENTITY.scaled(Vector3.ONE * 1.6), b.p), b.c], false)
+
+## The model of a building from the layout: the location's own kind if its script builds one, else a shared one.
+static func building_model(b: Dictionary, loc: Script = null, loc_fns: Array = []) -> Node3D:
+	var o: Node3D = loc.building(b) if loc != null and loc_fns.has("building") else null
+	if o != null: return o
+	match b.kind:
+		"workshop": return Props.workshop(b)
+		"castle": return Props.castle(b)
+		"caravan": return Props.caravan(b)
+		"lighthouse": return Props.lighthouse(b)
+		"clocktower": return Props.clocktower(b)
+		"church": return Props.church(b)
+	return Props.cottage(b)
 
 ## Scenery from the layout: props [{kind, x, z, r?, ...}] with kind lamp_post, fence (n), crate, barrel, gear,
 ## piece (any build piece model, id), pier (w, d), market_stall, rock, bus (length, color, sign), bus_stop, ruin_wall
@@ -260,7 +264,7 @@ func _build_nodes() -> void:
 					Props.add_fruit(o).visible = false
 				"dig": o = Props.dig_spot()
 				"chest": o = Props.chest()
-				"fragment": o = Props.fragment()
+				"fragment": o = Props.lost_thing(WorldActions.lost_look(n))   # what it is: glasses, a gnome, a log...
 				"bin": o = Props.garbage_bin()
 				"forage": o = Props.porcini()
 				_: o = Node3D.new()

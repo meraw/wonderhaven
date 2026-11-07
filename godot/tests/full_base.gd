@@ -120,7 +120,7 @@ func talk(id: String, accept: bool = true) -> bool:
 				for i in ui.choices.size():
 					if ui.choices[i].kind == "bye": idx = i
 			print("   ", id, " › ", ui.choices[idx].label)
-			await tap(KEY_1 + idx)
+			await tap(game.dialogue.key_for(idx))
 		else: await tap(KEY_E)
 	return true
 

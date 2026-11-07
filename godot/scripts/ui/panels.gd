@@ -200,18 +200,24 @@ func _shop_sell(npc_id: String, item: String, n: int) -> void:
 	game.autosave("shop")
 	shop(npc_id, "sell")
 
+## The journal shows the place you're in: its requests, its side requests and what you've finished there. Requests
+## left going in other places wait in their own tab ("Other places"), so they don't crowd the one you're in.
 func journal(tab: String = "active") -> void:
 	open_panel("journal", "📜 Quest Journal")
 	var e: QuestEngine = game.story.engine
+	var away: Array = e.active().filter(func(q): return not e.here(q.id))
 	var tabs := HBoxContainer.new(); body.add_child(tabs)
-	for pair in [["active", "Active"], ["optional", "Available side quests"], ["done", "Completed"]]:
+	var tab_list := [["active", "Active"], ["optional", "Available side quests"], ["done", "Completed"]]
+	if not away.is_empty(): tab_list.append(["elsewhere", "Other places (%d)" % away.size()])
+	for pair in tab_list:
 		var t: String = pair[0]
 		var b := UiTheme.button(pair[1], func(): journal(t), tab == t); b.name = "tab_" + t; tabs.add_child(b)
+	if tab == "elsewhere": _journal_elsewhere(away); return
 	var qs: Array = []
 	match tab:
-		"active": qs = e.active()
+		"active": qs = e.active().filter(func(q): return e.here(q.id))
 		"optional": qs = Data.quests.filter(func(q): return not q.get("main", false) and (e.can_offer(q.id) or e.later_for(q.giver).has(q)) and e.here(q.id))
-		"done": qs = e.done()
+		"done": qs = e.done().filter(func(q): return e.here(q.id))
 	if tab == "active":
 		for lq in e.story_leads():
 			var lv := _card(Color("fff8e6"))
@@ -222,7 +228,7 @@ func journal(tab: String = "active") -> void:
 			var tb := UiTheme.button("📍 Tracking" if game.state.tracked == lid else "📍 Track", func(): game.state.tracked = lid; game.hud.render_tracker(); close(); game.toast("Heading for %s" % Data.npc(lq.giver).name), game.state.tracked == lid)
 			tb.name = "track_" + lid; lv.add_child(tb)
 	if qs.is_empty() and not (tab == "active" and not e.story_leads().is_empty()):
-		body.add_child(_wrap({"active": "No active quests. Look for villagers with a ! over their heads.", "optional": "No new side quests right now — keep exploring!", "done": "Nothing completed yet. Every journey starts with a single plank."}[tab], 15))
+		body.add_child(_wrap({"active": "No active quests. Look for villagers with a ! over their heads.", "optional": "No new side quests right now — keep exploring!", "done": "Nothing completed here yet. Every journey starts with a single plank."}[tab], 15))
 	for q in qs:
 		var v := _card(Color("f6fff8") if tab == "done" else Color.WHITE)
 		v.add_child(UiTheme.label(("★ Main story · " if q.get("main", false) else "") + "From " + Data.npc(q.giver).name, 12, Color("b34a6a")))
@@ -230,24 +236,50 @@ func journal(tab: String = "active") -> void:
 		v.add_child(_wrap(q.description))
 		if tab == "optional" and q.has("hours"): v.add_child(UiTheme.label("🕒 %s asks about this %s" % [Data.npc(q.giver).name, Clock.hours_text(q.hours)], 13, UiTheme.INK))
 		if tab == "active":
-			var shown := e.shown_objectives(q.id)
-			var n_st := e.stages(q.id).size()
-			if n_st > 1: v.add_child(UiTheme.label("Step %d of %d" % [e.stage_index(q.id), n_st], 13, Color("b34a6a")))
-			for o in shown.objectives:
-				var st := e.objective(q.id, o)
-				var txt: String = ("✔ " if st.done else "○ ") + o.text + ("  🕒 " + Clock.hours_text(o.hours) if o.has("hours") and not st.done else "")
-				if not st.done and st.need > 1: txt += " (%d/%d)" % [int(game.state.harmony) if o.kind == "harmony" else st.have, st.need]
-				v.add_child(UiTheme.label(txt, 14, Color("59a86f") if st.done else UiTheme.INK))
-			if shown.later > 0: v.add_child(UiTheme.label("🔒 More to do once this step is done", 13, UiTheme.INK2))
+			_journal_steps(v, q)
 			var qid: String = q.id
 			v.add_child(UiTheme.button("📍 Tracking" if game.state.tracked == qid else "📍 Track", func(): game.state.tracked = qid; game.hud.render_tracker(); close(); game.toast("Tracking “%s”" % q.title), game.state.tracked == qid))
 		if tab == "optional": v.add_child(UiTheme.label("Talk to %s to start." % Data.npc(q.giver).name, 13, Color("b34a6a")))
-		v.add_child(UiTheme.label(_rewards_text(q.get("rewards", {})), 13, Color("a07a20")))
+		v.add_child(UiTheme.label(_rewards_text(q.get("rewards", {}), Data.quest_island(q.id)), 13, Color("a07a20")))
+	if tab == "active" and not away.is_empty():
+		body.add_child(_wrap("Also unfinished in other places: %s. They wait for you there (see “Other places”)." % ", ".join(_places_of(away)), 13))
 
-func _rewards_text(r: Dictionary) -> String:
+func _journal_steps(v: VBoxContainer, q: Dictionary) -> void:
+	var e: QuestEngine = game.story.engine
+	var shown := e.shown_objectives(q.id)
+	var n_st := e.stages(q.id).size()
+	if n_st > 1: v.add_child(UiTheme.label("Step %d of %d" % [e.stage_index(q.id), n_st], 13, Color("b34a6a")))
+	for o in shown.objectives:
+		var st := e.objective(q.id, o)
+		var txt: String = ("✔ " if st.done else "○ ") + o.text + ("  🕒 " + Clock.hours_text(o.hours) if o.has("hours") and not st.done else "")
+		if not st.done and st.need > 1: txt += " (%d/%d)" % [int(game.state.harmony) if o.kind == "harmony" else st.have, st.need]
+		v.add_child(UiTheme.label(txt, 14, Color("59a86f") if st.done else UiTheme.INK))
+	if shown.later > 0: v.add_child(UiTheme.label("🔒 More to do once this step is done", 13, UiTheme.INK2))
+
+## Names of the places these requests belong to, in the order of the map.
+func _places_of(qs: Array) -> Array:
+	var out: Array = []
+	for isl in Data.islands:
+		if qs.any(func(q): return Data.quest_island(q.id) == isl.id): out.append(String(isl.get("name", isl.id)))
+	return out
+
+## Requests still going in other places, by place: where you left them, to pick up when you go back.
+func _journal_elsewhere(away: Array) -> void:
+	body.add_child(_wrap("Requests you started in other places. They keep their progress and wait for you; the compass only points at them once you're there.", 14))
+	for isl in Data.islands:
+		var mine: Array = away.filter(func(q): return Data.quest_island(q.id) == isl.id)
+		if mine.is_empty(): continue
+		body.add_child(UiTheme.label("📍 " + String(isl.get("name", isl.id)), 18, UiTheme.PINK_DARK))
+		for q in mine:
+			var v := _card(Color("f7f4ee"))
+			v.add_child(UiTheme.label(("★ Main story · " if q.get("main", false) else "") + "From " + Data.npc(q.giver).name, 12, Color("b34a6a")))
+			v.add_child(UiTheme.label(q.title, 17))
+			_journal_steps(v, q)
+
+func _rewards_text(r: Dictionary, island: String = "") -> String:
 	var parts: Array = []
 	if r.get("harmony", 0) > 0: parts.append("💖 %d" % int(r.harmony))
-	if r.get("meter", 0) > 0: parts.append(LocationMeter.reward_text(LocationMeter.def(Data.island), int(r.meter)))
+	if r.get("meter", 0) > 0: parts.append(LocationMeter.reward_text(LocationMeter.def(island if island != "" else Data.island), int(r.meter)))
 	for k in r.get("items", {}): parts.append(Money.amount(k, int(r.items[k])) if k == "coins" else "%s %d" % [Data.resources[k].icon, int(r.items[k])])
 	for b in r.get("blueprints", []): parts.append("📐 " + Data.piece(b).name)
 	for c in r.get("clothes", []): parts.append("👗 " + Data.appearance.labels.get(c, c))
@@ -286,8 +318,8 @@ func _meter_progress(m: Dictionary) -> void:
 func notice_board() -> void:
 	open_panel("board", "📌 Village Notice Board")
 	var e: QuestEngine = game.story.engine
-	var offers := Data.quests.filter(func(q): return e.can_offer(q.id))
-	if offers.is_empty(): body.add_child(_wrap("No new requests posted. Monteforchetta is having a quiet day.", 15, UiTheme.INK))
+	var offers := Data.quests.filter(func(q): return e.can_offer(q.id) and e.here(q.id))   # this place's board
+	if offers.is_empty(): body.add_child(_wrap("No new requests posted. %s is having a quiet day." % String(Data.island_def(Data.island).get("name", "The village")), 15, UiTheme.INK))
 	for q in offers:
 		var v := _card()
 		v.add_child(UiTheme.label("Posted by " + Data.npc(q.giver).name, 12, Color("b34a6a"))); v.add_child(UiTheme.label(q.title, 17)); v.add_child(_wrap(q.description))

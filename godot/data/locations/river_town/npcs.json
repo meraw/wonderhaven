@@ -237,6 +237,17 @@
        "idle"
       ]
      ]
+    },
+    {
+     "flag": "river_town_shovel",
+     "schedule": [
+      [
+       0,
+       24,
+       "stormA",
+       "idle"
+      ]
+     ]
     }
    ],
    "greetings": [
@@ -253,6 +264,13 @@
       "Three hundred and forty centimetres at eight o'clock. Going down. Slowly. Like my patience.",
       "Morning, Geometra. The river's still sulking. So am I. We understand each other.",
       "Don't stand on the levee in your nice shoes. Actually, you haven't got nice shoes. Carry on."
+     ]
+    },
+    {
+     "flag": "river_town_shovel",
+     "lines": [
+      "Sand. Sandbank. Here. In that order.",
+      "The patch is sulking. Sand cheers it up. Not much, but some."
      ]
     },
     {

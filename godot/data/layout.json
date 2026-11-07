@@ -960,54 +960,63 @@
   {
    "id": "frag1",
    "kind": "fragment",
+   "after": "tool",
    "x": -2,
    "z": 24.5
   },
   {
    "id": "frag2",
    "kind": "fragment",
+   "after": "tool",
    "x": 18,
    "z": -5.5
   },
   {
    "id": "frag3",
    "kind": "fragment",
+   "after": "tool",
    "x": -22,
    "z": -13
   },
   {
    "id": "frag4",
    "kind": "fragment",
+   "after": "tool",
    "x": 35,
    "z": 3
   },
   {
    "id": "frag5",
    "kind": "fragment",
+   "after": "tool",
    "x": 0,
    "z": -43
   },
   {
    "id": "frag6",
    "kind": "fragment",
+   "after": "tool",
    "x": -12,
    "z": 31
   },
   {
    "id": "frag7",
    "kind": "fragment",
+   "after": "tool",
    "x": 27,
    "z": 25
   },
   {
    "id": "frag8",
    "kind": "fragment",
+   "after": "tool",
    "x": -44,
    "z": 9
   },
   {
    "id": "frag9",
    "kind": "fragment",
+   "after": "tool",
    "x": 11,
    "z": 6.5
   },

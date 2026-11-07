@@ -10,6 +10,7 @@ var clock_label: Label
 var tracker: VBoxContainer
 var compass: Label
 var harmony_box: HBoxContainer
+var top_panel: PanelContainer   # the approval rating (or the place's meter) and the clock, top centre
 var guide_card: PanelContainer
 var guide_text: RichTextLabel
 var guide_count: Label
@@ -21,7 +22,7 @@ var tip_t := 0.0
 func setup(g) -> void:
 	game = g
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT); mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var top := UiTheme.panel(); top.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var top := UiTheme.panel(); top.mouse_filter = Control.MOUSE_FILTER_IGNORE; top_panel = top
 	var tr := HBoxContainer.new(); tr.add_theme_constant_override("separation", 10); top.add_child(tr)
 	harmony_box = HBoxContainer.new(); harmony_box.add_theme_constant_override("separation", 10); tr.add_child(harmony_box)
 	harmony_title = UiTheme.label("💖 Approval", 15); harmony_box.add_child(harmony_title)
@@ -57,6 +58,7 @@ func _build_guide() -> void:
 	guide_card.visible = false; left_stack.add_child(guide_card)
 	tip_card = UiTheme.panel(Color("fffdf3"), UiTheme.GOLD, 22); tip_card.name = "tip_card"
 	tip_card.custom_minimum_size.x = 340; tip_card.visible = false
+	tip_card.mouse_filter = Control.MOUSE_FILTER_IGNORE   # clicks go through to the world (building), except on "Got it"
 	left_stack.add_child(tip_card)
 
 func _key(action: String) -> String: return "[b][color=#e86f8f]%s[/color][/b]" % Controls.key_label(action)
@@ -99,16 +101,16 @@ func _next_tip() -> void:
 	for c in tip_card.get_children(): c.queue_free()
 	if tip_queue.is_empty(): tip_card.visible = false; return
 	var tip: Dictionary = tip_queue.pop_front()
-	var v := VBoxContainer.new(); v.add_theme_constant_override("separation", 6); tip_card.add_child(v)
+	var v := VBoxContainer.new(); v.add_theme_constant_override("separation", 6); v.mouse_filter = Control.MOUSE_FILTER_IGNORE; tip_card.add_child(v)
 	v.add_child(UiTheme.label("💡 " + String(tip.title), 20, UiTheme.INK))
 	for line in tip.lines:
 		var l := RichTextLabel.new(); l.bbcode_enabled = true; l.fit_content = true; l.scroll_active = false; l.custom_minimum_size.x = 340
 		l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART; l.text = Tutorial.fill(line, _key); l.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		l.add_theme_font_size_override("normal_font_size", 15); l.add_theme_font_size_override("bold_font_size", 15); l.add_theme_color_override("default_color", UiTheme.INK2)
 		v.add_child(l)
-	var row := HBoxContainer.new(); row.alignment = BoxContainer.ALIGNMENT_END; v.add_child(row)
+	var row := HBoxContainer.new(); row.alignment = BoxContainer.ALIGNMENT_END; row.mouse_filter = Control.MOUSE_FILTER_IGNORE; v.add_child(row)
 	var ok := UiTheme.button("Got it", _next_tip, true); ok.name = "tip_ok"; row.add_child(ok)
-	tip_card.visible = true; tip_t = 18.0
+	tip_card.visible = true; tip_t = float(tip.get("seconds", 18.0))   # (a longer card can stay up longer)
 	tip_card.modulate.a = 0.0
 	var tw := tip_card.create_tween(); tw.tween_property(tip_card, "modulate:a", 1.0, 0.25)
 	game.sfx("blip")
@@ -116,7 +118,15 @@ func _next_tip() -> void:
 ## Per frame: guide card only in free play, tip cards fade out on their own after a while.
 func tick(dt: float) -> void:
 	tracker.visible = game.mode != "build" and game.mode != "dialogue"   # build mode shows its own checklist
-	left_stack.position.y = 160.0 if game.mode == "build" else 70.0          # below the build toolbar and status line
+	# The resource chips sit top left, or in build mode in the left column below its tool bar and status line; the
+	# guide and tip cards go below them (the chips wrap onto more rows when you carry a lot).
+	var building: bool = game.mode == "build"
+	var below := 160.0 if building else 70.0
+	var rp: Control = game.hud_res.get_parent() if game.hud_res else null
+	if rp:
+		rp.position.y = 160.0 if building else 14.0
+		if rp.visible: below = maxf(below, rp.position.y + rp.size.y + 10.0)
+	left_stack.position.y = below
 	guide_card.visible = Tutorial.current(game.state.get("tutorial", {})).size() > 0 and game.mode in ["explore", "build"]
 	if guide_card.visible and Engine.get_process_frames() % 20 == 0: render_guide()
 	if game.mode in ["title", "creator"] and tip_card.visible: clear_tips()
@@ -181,6 +191,11 @@ func render_tracker() -> void:
 			if st.need > 1 and not st.done: txt += " (%d/%d)" % [int(game.state.harmony) if o.kind == "harmony" else st.have, st.need]
 			var l := UiTheme.label(txt, 13, Color("59a86f") if st.done else UiTheme.INK2); l.autowrap_mode = TextServer.AUTOWRAP_WORD; l.custom_minimum_size.x = 260
 			v.add_child(l)
+			# a building step: say how (the site's glowing grid, build mode, and the plan to follow if there is one)
+			if q == tracked and not st.done and o.kind in ["build", "room", "pieces"] and e.is_current(q.id, o):
+				var how := UiTheme.label(("📐 At the site press %s, then follow the glowing plan" if o.has("plan") else "📐 At the site press %s and build it your way") % Controls.key_label("build"), 12, Color("7a5cc9"))
+				how.autowrap_mode = TextServer.AUTOWRAP_WORD; how.custom_minimum_size.x = 260; how.name = "build_how"
+				v.add_child(how)
 		tracker.add_child(p)
 
 func update_compass(target: Dictionary) -> void:

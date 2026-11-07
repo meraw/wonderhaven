@@ -113,7 +113,7 @@
    "lines": [
     "Click an answer, or press its number.",
     "Gold answers start a request.",
-    "Esc says goodbye."
+    "Goodbye is always 0 (or Esc)."
    ]
   },
   "chop": {
@@ -138,11 +138,14 @@
    ]
   },
   "build": {
-   "title": "Building",
+   "title": "How building works",
+   "seconds": 45,
    "lines": [
-    "Pick a piece at the bottom, then click to place it. {rotate} turns it.",
-    "Green means it fits; red tells you why it doesn't.",
-    "Click a placed piece to move, recolour or remove it. Ctrl+Z undoes. Esc leaves."
+    "Each building site is a glowing grid. Go there and press {build}.",
+    "Pick a piece in the catalogue at the bottom: it follows your pointer. Green means it fits; red says why not, just above the grid. Click to build it; {rotate} turns it first.",
+    "The see-through purple plan is one way to finish the step: put the same piece on each outline. ⬇ marks the next one, and {plan_next} puts it in your hand.",
+    "The list on the right ticks off what the request needs. A piece costs what's written under it; {remove} takes one back and gives you its materials.",
+    "Right-click or Esc lets go of a piece, Ctrl+Z undoes, and {build} or Done leaves. ❓ How to build shows this again."
    ]
   },
   "harmony": {

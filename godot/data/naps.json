@@ -1,5 +1,5 @@
 {
-  "_doc": "Waking up from a nap on a bench in the open (BenchNap, world/nap_gags.gd). If it rained while you slept you wake up soaked; otherwise `chance` of the time one of the other gags happens, weighted, never the same one twice in a row. {name} is the villager caught staring, {paper} the local paper. A layout can override any key with its own \"naps\" block (a city's paper, its own odds).",
+  "_doc": "Waking up from a nap on a bench in the open (BenchNap, world/nap_gags.gd). If it rained while you slept you wake up soaked; otherwise `chance` of the time one of the other gags happens, weighted, never the same one twice in a row. {name} is the villager caught staring, {paper} the local paper. A gag with \"visual\": true is a sight gag and has no lines: it plays out first, with nothing on screen explaining it, and only then comes the usual greeting. A layout can override any key with its own \"naps\" block (a city's paper, its own odds).",
   "chance": 0.35,
   "paper": "Eco del Colle",
   "gags": {
@@ -21,18 +21,10 @@
     },
     "stared": {
       "weight": 3,
-      "lines": [
-        "{name} was standing over you, staring, and has just remembered somewhere else to be.",
-        "You open your eyes. {name} is right there, watching you, and is suddenly very interested in the sky.",
-        "{name} was waiting for you to wake up. Or wasn't, and is leaving now, briskly."
-      ]
+      "visual": true
     },
     "rain": {
-      "lines": [
-        "It rained while you slept. You are mostly puddle now.",
-        "You slept through the rain. Your shoes didn't.",
-        "It rained in the night. The bench stayed dry underneath you. Only underneath you."
-      ]
+      "visual": true
     }
   }
 }

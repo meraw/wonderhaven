@@ -60,6 +60,12 @@ static func _plinth_and_tide(g: Node3D, b: Dictionary, tide_y: float = 0.62) -> 
 		_add(g, P.box(0.1, 0.34, b.d + 0.16), stone, Vector3(xs * (b.w / 2.0 + 0.03), 0.12, 0))
 		_add(g, P.box(0.04, 0.07, b.d + 0.04), tide, Vector3(xs * (b.w / 2.0 + 0.01), tide_y, 0), Vector3.ZERO, Vector3.ONE, false)
 
+## The flood's tide line: a thin dark band round the outside of the walls at height y.
+static func _tide_band(g: Node3D, b: Dictionary, y: float) -> void:
+	var tide := P.mat(TIDE)
+	for zs in [-1, 1]: _add(g, P.box(b.w + 0.04, 0.07, 0.04), tide, Vector3(0, y, zs * (b.d / 2.0 + 0.01)), Vector3.ZERO, Vector3.ONE, false)
+	for xs in [-1, 1]: _add(g, P.box(0.04, 0.07, b.d + 0.04), tide, Vector3(xs * (b.w / 2.0 + 0.01), y, 0), Vector3.ZERO, Vector3.ONE, false)
+
 ## An upper storey above the ground floor, with a string course between. Returns its node (it fades with the roof).
 static func _upper(g: Node3D, b: Dictionary, wall: Material, extra_x: float = 0.0, shift_x: float = 0.0) -> Node3D:
 	var n := Node3D.new(); n.name = "upper"; g.add_child(n)
@@ -352,8 +358,19 @@ static func houseboat(b: Dictionary) -> Node3D:
 	var trim := P.mat("8fc0dc")
 	_ground_floor(g, b, white, "#b98d5e")
 	var hull := P.mat(b.roof)
-	_add(g, P.rbox(b.w + 1.2, 0.9, b.d + 0.7, 0.25), hull, Vector3(-0.2, -0.2, 0))
-	_add(g, P.box(b.w + 1.22, 0.08, b.d + 0.72), P.mat("f4f1ea"), Vector3(-0.2, 0.12, 0))
+	# The hull comes up to the cabin's floor and no higher inside it (it used to fill the cabin to 25 cm above the
+	# floorboards, so whoever stood inside was up to their shins in it); round the cabin, its bulwarks rise to the
+	# gunwale, capped in white, with a gap at the door.
+	_add(g, P.rbox(b.w + 1.2, 0.65, b.d + 0.7, 0.2), hull, Vector3(-0.2, -0.33, 0))
+	var white_cap := P.mat("f4f1ea")
+	var bw := [[Vector3(-0.2, 0.0, -(b.d / 2.0 + 0.175)), Vector3(b.w + 1.2, 0.0, 0.35)], [Vector3(-0.2, 0.0, b.d / 2.0 + 0.175), Vector3(b.w + 1.2, 0.0, 0.35)],
+		[Vector3(-b.w / 2.0 - 0.4, 0.0, 0.0), Vector3(0.8, 0.0, b.d)]]
+	var gap := Interiors.DOOR_W / 2.0 + 0.1
+	for zs in [-1, 1]: bw.append([Vector3(b.w / 2.0 + 0.2, 0.0, zs * (gap + (b.d / 2.0 - gap) / 2.0)), Vector3(0.4, 0.0, b.d / 2.0 - gap)])
+	for piece in bw:
+		var at: Vector3 = piece[0]; var sz: Vector3 = piece[1]
+		_add(g, P.box(sz.x, 0.25, sz.z), hull, at + Vector3(0, 0.125, 0))
+		_add(g, P.box(sz.x + 0.02, 0.05, sz.z + 0.02), white_cap, at + Vector3(0, 0.27, 0))
 	if not b.get("afloat", false): _add(g, P.box(b.w + 1.24, 0.22, b.d + 0.74), P.mat("6b5a42"), Vector3(-0.2, -0.45, 0))   # mud to the waterline
 	var bow := MeshInstance3D.new(); bow.mesh = P.sphere(1.0, 12, 8); bow.material_override = hull
 	bow.position = Vector3(-b.w / 2.0 - 0.75, -0.2, 0); bow.scale = Vector3(0.9, 0.45, (b.d + 0.7) / 2.0); g.add_child(bow)
@@ -388,7 +405,7 @@ static func shack(b: Dictionary) -> Node3D:
 	_ground_floor(g, b, tar, "#8a6a50")
 	for k in 6:   # plank seams
 		for s in [-1, 1]: _add(g, P.box(b.w + 0.02, 0.03, 0.02), P.mat("3a2f26"), Vector3(0, 0.35 + k * 0.38, s * (b.d / 2.0 + 0.01)), Vector3.ZERO, Vector3.ONE, false)
-	_add(g, P.box(b.w + 0.04, 0.07, b.d + 0.04), P.mat(TIDE), Vector3(0, 0.75, 0), Vector3.ZERO, Vector3.ONE, false)
+	_tide_band(g, b, 0.75)   # (a band round the outside: it used to be a slab right across the room, at knee height)
 	var roof := Node3D.new(); roof.name = "roof"; g.add_child(roof)
 	var tin := P.mat(b.roof)
 	for k in 9:
@@ -488,7 +505,7 @@ static func pumphouse(b: Dictionary) -> Node3D:
 	_add(g, P.rbox(b.w, h, b.d, 0.04), brick, Vector3(0, h / 2.0, 0))
 	for zs in [-1, 1]: _add(g, P.box(b.w + 0.12, 0.2, 0.12), P.stone(STONE), Vector3(0, h - 0.1, zs * (b.d / 2.0 + 0.02)))
 	_add(g, P.box(b.w + 0.12, 0.3, b.d + 0.12), P.stone(STONE), Vector3(0, 0.15, 0))
-	_add(g, P.box(b.w + 0.04, 0.07, b.d + 0.04), P.mat(TIDE), Vector3(0, 1.1, 0), Vector3.ZERO, Vector3.ONE, false)
+	_tide_band(g, b, 1.1)
 	var roof := Props._gable_roof(g, b.w + 0.3, b.d + 0.3, h, brick, P.mat("8a8f8f"), Color("6f7474"))
 	roof.scale.y = 0.6
 	# the arched window and the door on the quay side, a sign above

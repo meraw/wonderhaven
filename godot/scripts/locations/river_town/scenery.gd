@@ -136,32 +136,47 @@ static func _chop_trees(village: Node3D) -> void:
 # ---- landmarks -----------------------------------------------------------------------------------------------------
 
 ## The Roman bridge: three stone arches springing from piers with pointed cutwaters, a hump-backed deck over the
-## walkway the ground script shapes, low parapets with cap stones. Its arches open onto dark shadow.
+## walkway the ground script shapes, parapets with cap stones, and a ring of dressed stones round each arch. Its
+## arches open onto dark shadow. Each wall is one continuous mesh (it used to be 64 thin slices, each restarting the
+## stone texture and stepping its top, which read as a fuzzy, ribbed mess).
 static func _roman_bridge(village: Node3D, rt) -> void:
 	var z0: float = rt.ROMAN_Z; var half: float = rt.ROMAN_HALF
 	var ac: float = rt.alpine_center(z0)
-	var stone := P.stone("cbbfa8"); var cap := P.stone("ddd2bd"); var shadow := P.mat("2e3330")
+	var stone := _two_sided(P.stone("cbbfa8")); var cap := _two_sided(P.stone("ddd2bd")); var ring := _two_sided(P.stone("e2d8c4"))
+	var shadow := _two_sided(P.mat("2e3330"))
 	var x0 := ac - 8.0; var x1 := ac + 8.0
 	var spans := [[ac - 5.1, ac - 1.75], [ac - 1.65, ac + 1.65], [ac + 1.75, ac + 5.1]]
-	var step := 0.25
+	var arch := func(x: float) -> float:   # the underside of the arches at x (-1.0: solid down into the riverbed)
+		for sp in spans:
+			if x > sp[0] - 0.001 and x < sp[1] + 0.001:
+				var r: float = (sp[1] - sp[0]) / 2.0
+				var u: float = clampf((x - (sp[0] + sp[1]) / 2.0) / r, -1.0, 1.0)
+				return -0.35 + r * 0.95 * sqrt(maxf(0.0, 1.0 - u * u))
+		return -1.0
+	# samples along the bridge, with each arch's springing doubled so the pier faces drop straight down
+	var xs: Array = []; var lo: Array = []; var top: Array = []
 	var x := x0
-	while x < x1 - 0.001:
-		var xc := x + step / 2.0
-		var top := H(xc, z0)
-		var bottom := -1.0
-		for s in spans:
-			if xc > s[0] and xc < s[1]:
-				var r: float = (s[1] - s[0]) / 2.0
-				var m: float = (s[0] + s[1]) / 2.0
-				var u := (xc - m) / r
-				bottom = -0.35 + r * 0.95 * sqrt(maxf(0.0, 1.0 - u * u))
-				village.add_child(P.mi(P.box(step, bottom + 0.4, 0.04), shadow, Vector3(xc, (bottom - 0.4) / 2.0, z0 - half + 0.12)))
-				village.add_child(P.mi(P.box(step, bottom + 0.4, 0.04), shadow, Vector3(xc, (bottom - 0.4) / 2.0, z0 + half - 0.12)))
-		for zs in [-1.0, 1.0]:
-			village.add_child(P.mi(P.box(step + 0.01, top - bottom, 0.3), stone, Vector3(xc, (top + bottom) / 2.0, z0 + zs * (half + 0.05))))
-			village.add_child(P.mi(P.box(step + 0.01, 0.5, 0.26), stone, Vector3(xc, top + 0.25, z0 + zs * (half + 0.08))))
-			village.add_child(P.mi(P.box(step + 0.02, 0.08, 0.34), cap, Vector3(xc, top + 0.52, z0 + zs * (half + 0.08))))
-		x += step
+	while x < x1 + 0.001:
+		xs.append(x); lo.append(arch.call(x)); top.append(H(x, z0))
+		x += 0.2
+	for sp in spans:
+		for e in [sp[0], sp[1]]:
+			var at := 0
+			while at < xs.size() and xs[at] < e: at += 1
+			var inner: float = arch.call(e)
+			var outer := -1.0
+			var first: bool = e == sp[0]
+			xs.insert(at, e); lo.insert(at, outer if first else inner); top.insert(at, H(e, z0))
+			xs.insert(at + 1, e); lo.insert(at + 1, inner if first else outer); top.insert(at + 1, H(e, z0))
+	for zs in [-1.0, 1.0]:
+		var zc: float = z0 + zs * (half + 0.08)
+		var wall_top: Array = top.map(func(h): return h + 0.5)
+		village.add_child(_slab(xs, lo, wall_top, zc, 0.3, stone))   # spandrel and parapet in one
+		village.add_child(_slab(xs, wall_top, wall_top.map(func(h): return h + 0.08), zc, 0.38, cap))   # cap stones
+		var face: float = zc + zs * 0.16
+		for sp in spans:   # a ring of dressed stones round each arch, and the shadow under it
+			village.add_child(_arch_band(sp, face, zs, 0.2, ring))
+			village.add_child(_arch_fill(sp, z0 + zs * (half - 0.12), zs, shadow))
 	for px in [ac - 1.7, ac + 1.7]:   # cutwaters against the current, upstream (north) and down
 		for zs in [-1.0, 1.0]:
 			var cw := P.mi(P.box(0.9, 1.6, 0.9), stone, Vector3(px, -0.2, z0 + zs * (half + 0.45)))
@@ -171,6 +186,62 @@ static func _roman_bridge(village: Node3D, rt) -> void:
 	for k in 6:
 		var b := P.mi(P.cyl(0.08, 0.12, 2.4 + k * 0.3, 6), wood, Vector3(ac - 2.2 + k * 0.9, -0.3 + 0.08 * (k % 2), z0 - half - 0.9 - 0.2 * (k % 3)))
 		b.rotation = Vector3(PI / 2 + 0.2 * (k % 2), 0.4 * (k - 3), 0.1 * k); village.add_child(b)
+
+## A copy of a shared material drawn from both sides (the meshes below are built by hand).
+static func _two_sided(m: StandardMaterial3D) -> StandardMaterial3D:
+	var d: StandardMaterial3D = m.duplicate(); d.cull_mode = BaseMaterial3D.CULL_DISABLED
+	return d
+
+## A continuous slab along x, from lo[i] to hi[i] at xs[i], centred on zc and `thick` deep: one mesh in world space,
+## so its triplanar texture runs on across it and its top is a smooth slope, not a staircase.
+static func _slab(xs: Array, lo: Array, hi: Array, zc: float, thick: float, mat: Material) -> MeshInstance3D:
+	var st := SurfaceTool.new(); st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var za := zc - thick / 2.0; var zb := zc + thick / 2.0
+	for i in xs.size() - 1:
+		var xa: float = xs[i]; var xb: float = xs[i + 1]
+		var la: float = lo[i]; var lb: float = lo[i + 1]; var ha: float = hi[i]; var hb: float = hi[i + 1]
+		_quad(st, Vector3(xa, la, za), Vector3(xb, lb, za), Vector3(xb, hb, za), Vector3(xa, ha, za), Vector3(0, 0, -1))
+		_quad(st, Vector3(xa, la, zb), Vector3(xb, lb, zb), Vector3(xb, hb, zb), Vector3(xa, ha, zb), Vector3(0, 0, 1))
+		_quad(st, Vector3(xa, ha, za), Vector3(xb, hb, za), Vector3(xb, hb, zb), Vector3(xa, ha, zb), Vector3(-(hb - ha), xb - xa, 0.0).normalized())
+		_quad(st, Vector3(xa, la, za), Vector3(xb, lb, za), Vector3(xb, lb, zb), Vector3(xa, la, zb), Vector3(lb - la, -(xb - xa), 0.0).normalized())
+	for e in [0, xs.size() - 1]:   # the two ends
+		var xe: float = xs[e]
+		_quad(st, Vector3(xe, lo[e], za), Vector3(xe, lo[e], zb), Vector3(xe, hi[e], zb), Vector3(xe, hi[e], za), Vector3(-1.0 if e == 0 else 1.0, 0, 0))
+	return P.mi(st.commit(), mat)
+
+## The ring of stones round an arch: a band `w` wide following the arch's curve, on the wall's face at z (facing
+## out towards zs: -1 upstream, 1 down).
+static func _arch_band(sp: Array, z: float, zs: float, w: float, mat: Material) -> MeshInstance3D:
+	var st := SurfaceTool.new(); st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var r: float = (sp[1] - sp[0]) / 2.0; var m: float = (sp[0] + sp[1]) / 2.0
+	var n := Vector3(0, 0, zs)
+	var pts: Array = []
+	for k in 25:
+		var a := PI * k / 24.0
+		var dir := Vector2(cos(a), sin(a) * 0.95)
+		pts.append([Vector3(m + dir.x * r, -0.35 + dir.y * r, z), Vector3(m + dir.x * (r + w), -0.35 + dir.y * (r + w), z)])
+	for k in 24: _quad(st, pts[k][0], pts[k + 1][0], pts[k + 1][1], pts[k][1], n)
+	return P.mi(st.commit(), mat, Vector3.ZERO, false)
+
+## The deep shadow under an arch: its opening filled from the water up to the curve, set back inside the wall.
+static func _arch_fill(sp: Array, z: float, zs: float, mat: Material) -> MeshInstance3D:
+	var st := SurfaceTool.new(); st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var r: float = (sp[1] - sp[0]) / 2.0; var m: float = (sp[0] + sp[1]) / 2.0
+	for k in 24:
+		var a0 := PI * k / 24.0; var a1 := PI * (k + 1) / 24.0
+		var p0 := Vector3(m + cos(a0) * r, -0.35 + sin(a0) * r * 0.95, z); var p1 := Vector3(m + cos(a1) * r, -0.35 + sin(a1) * r * 0.95, z)
+		_quad(st, Vector3(p0.x, -0.6, z), Vector3(p1.x, -0.6, z), p1, p0, Vector3(0, 0, zs))
+	return P.mi(st.commit(), mat, Vector3.ZERO, false)
+
+static func _quad(st: SurfaceTool, a: Vector3, b: Vector3, c: Vector3, d: Vector3, n: Vector3) -> void:
+	_tri(st, a, b, c, n); _tri(st, a, c, d, n)
+
+## One triangle facing n (wound clockwise seen from that side, as Godot draws front faces); none if it's flat.
+static func _tri(st: SurfaceTool, a: Vector3, b: Vector3, c: Vector3, n: Vector3) -> void:
+	var cr := (b - a).cross(c - a)
+	if cr.length_squared() < 1e-10 or n.length_squared() < 1e-6: return
+	if cr.dot(n) > 0.0: var tmp := b; b = c; c = tmp
+	for v in [a, b, c]: st.set_normal(n); st.add_vertex(v)
 
 ## The sawmill's open shed: a sloping roof on timber posts over the saw bench, log piles and stacked planks.
 static func _shed(village: Node3D) -> void:

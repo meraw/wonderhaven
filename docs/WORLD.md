@@ -42,6 +42,24 @@ Shared rules for everyone building a location, people and Claude sessions alike,
   to be (`lost`); a gathering spot can carry its own `gives`, `label`, `hours` and lines; and a
   request can check for a walkable path across any build zone (`path:<zone>`), up stairs as well as over water.
   See `godot/data/locations/README.md`.
+- **Requests the way players expect them** (from playtests, 06/11 and 07/11):
+  - **Gathering counts what's in the bag.** Wood chopped last week counts towards a request that asks for wood; only
+    a hunt for fresh finds (`"fresh": true`, lost things in a new place) or one tied to `hours` counts just what turns
+    up while the step is going. So ask for the total a request needs (gifts on accepting are in the bag), and keep
+    the special things (a tyre, a runaway log) for the places and moments only the request opens.
+  - **Every building step has a ghost plan** (`plan`: one way to build it that works, see `Plans`): a player who has
+    never built anything follows it piece by piece (build mode puts the next piece in their hand, `V` picks it up, an
+    arrow marks where it goes), and the request's gathering pays for it (`test_plans`). Monteforchetta's and
+    Boccapioppo's steps all have one; add yours, and `test_plans` checks them once your place is in its `PLACES`.
+  - **Don't send the player back just to report.** End a request where its last real step happens (Boccapioppo's
+    first request ends over coffee at Rina's), or move the giver to where the work is (Ermes waits at the breach for
+    his sand), rather than "go and tell them you did it".
+  - **Lost things look like what they are:** a fragment node's `name` ("Pierina's cuckoo clock") picks its model
+    (`Props.lost_thing`; `"look"` on the node overrides), and an unnamed one gets its own name from the place's list
+    by its place in the layout, so it looks the same before you pick it up as it's called after.
+  - **Goodbye is always 0** (and Esc) in a conversation, as is the "not now" answer to an offer.
+  - **Sight gags aren't explained:** a nap gag with `"visual": true` (the villager caught staring, waking up soaked)
+    plays with no line on screen.
 - **Benches and beds:** napping on benches is part of the game. You wake up on the bench, sometimes to a joke
   (the paper you slept under blows away, a stranger's wet umbrella, a villager caught staring, the rain), and a bed
   costs 120,000 lire, so people sleep on benches until they've saved up. Give your location benches (features of
