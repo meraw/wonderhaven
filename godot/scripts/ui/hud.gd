@@ -102,7 +102,7 @@ func _next_tip() -> void:
 	if tip_queue.is_empty(): tip_card.visible = false; return
 	var tip: Dictionary = tip_queue.pop_front()
 	var v := VBoxContainer.new(); v.add_theme_constant_override("separation", 6); v.mouse_filter = Control.MOUSE_FILTER_IGNORE; tip_card.add_child(v)
-	v.add_child(UiTheme.label("💡 " + String(tip.title), 20, UiTheme.INK))
+	v.add_child(UiTheme.label(String(tip.get("icon", "💡")) + " " + String(tip.title), 20, UiTheme.INK))
 	for line in tip.lines:
 		var l := RichTextLabel.new(); l.bbcode_enabled = true; l.fit_content = true; l.scroll_active = false; l.custom_minimum_size.x = 340
 		l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART; l.text = Tutorial.fill(line, _key); l.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -155,6 +155,7 @@ func render_harmony() -> void:
 func render_tracker() -> void:
 	for c in tracker.get_children(): tracker.remove_child(c); c.queue_free()
 	if not Tutorial.revealed(game.state.get("tutorial", {}), "quests"): return
+	_draft_needs()
 	var e: QuestEngine = game.story.engine
 	if not e.tracked_valid(): e.retrack()
 	var act := e.active().filter(func(q): return e.here(q.id))   # requests on this island
@@ -190,6 +191,7 @@ func render_tracker() -> void:
 			if (q != tracked or QuestEngine.stage_of(o) < cur) and st.done and not o.get("final", false): continue
 			var txt: String = ("✔ " if st.done else "○ ") + o.text + ("  🕒 " + Clock.hours_text(o.hours) if o.has("hours") and not st.done else "")
 			if st.need > 1 and not st.done: txt += " (%d/%d)" % [int(game.state.harmony) if o.kind == "harmony" else st.have, st.need]
+			if o.kind == "gather" and not st.done and game.actions.all_picked(String(o.get("item", ""))): txt += "  🌙 all picked for today: they grow back overnight"
 			var l := UiTheme.label(txt, 13, Color("59a86f") if st.done else UiTheme.INK2); l.autowrap_mode = TextServer.AUTOWRAP_WORD; l.custom_minimum_size.x = 260
 			v.add_child(l)
 			# a building step: say how (the site's glowing grid, build mode, and the plan to follow if there is one)
@@ -198,6 +200,18 @@ func render_tracker() -> void:
 				how.autowrap_mode = TextServer.AUTOWRAP_WORD; how.custom_minimum_size.x = 260; how.name = "build_how"
 				v.add_child(how)
 		tracker.add_child(p)
+
+func _draft_needs() -> void:
+	var drafts := Drafts.of(game.state)
+	if drafts.is_empty(): return
+	var short := Drafts.shortfall(drafts, game.state.inventory)
+	var p := UiTheme.panel(Color("eef8ff"), Color("8fd3ff"), 18); p.mouse_filter = Control.MOUSE_FILTER_IGNORE; p.name = "draft_needs"
+	var v := VBoxContainer.new(); p.add_child(v)
+	v.add_child(UiTheme.label("📐 Your draft: %d piece%s" % [drafts.size(), "" if drafts.size() == 1 else "s"], 15))
+	var text := ("Still to gather: %s" % Drafts.items_text(short)) if not short.is_empty() else ("You have everything for it: press %s there and build the draft" % Controls.key_label("build"))
+	var l := UiTheme.label(text, 13, UiTheme.INK2); l.autowrap_mode = TextServer.AUTOWRAP_WORD; l.custom_minimum_size.x = 260
+	v.add_child(l)
+	tracker.add_child(p)
 
 func update_compass(target: Dictionary) -> void:
 	if target.is_empty() or game.mode != "explore": compass.visible = false; return

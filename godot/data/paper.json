@@ -1,0 +1,30 @@
+{
+  "_doc": "The morning paper (MorningPaper, scripts/systems/paper.gd), shown when you wake after ending a day. {title} is a request's title, {n} a number of pieces, {name} a villager, {items} a shopping list. A request can have its own \"headline\" in quests.json. The paper's name comes from naps.json (\"paper\"), so a place can have its own.",
+  "done": [
+    "{title}: job done, and the Sindaco was there for the photo",
+    "{title} finished; Sindaco calls it 'a personal triumph'",
+    "New Geometra completes {title}. Nobody fell in"
+  ],
+  "built": [
+    "Geometra puts up {n} new pieces; Sindaco says he supervised",
+    "{n} new pieces around the village overnight. Pigeons cautiously approve",
+    "Building spree: {n} new pieces, and not one of them on fire"
+  ],
+  "quiet": [
+    "Quiet day in the village. A pumpkin was admired",
+    "Nothing built yesterday. The Sindaco suspects a plot",
+    "Slow news day: the fountain is still a fountain"
+  ],
+  "approval": "The Sindaco's approval rating stands at {n} ({change} yesterday).",
+  "lead": "{name} is asking after the Geometra.",
+  "draft": "The Geometra's draft is still short of {items}.",
+  "regrown": "Overnight the ribboned trees and the quarry grew back.",
+  "weather": {
+    "rain": "Rain on the way today. Benches will be damp.",
+    "drizzle": "Drizzle expected. Pack a hood.",
+    "mist": "Morning mist in the valley; it clears by lunch.",
+    "clear": "Sunshine all day.",
+    "fair": "A fair day ahead.",
+    "cloudy": "Grey skies today."
+  }
+}

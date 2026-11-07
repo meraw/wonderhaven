@@ -9,8 +9,23 @@ var category := "structure"
 var item_id := ""
 var rotation := 0
 var color := ""
-var half := false
 var selected := -1
+var selected_draft := -1
+var draft_only := false
+var version := 0
+var draft_root := Node3D.new()
+var draft_nodes := {}
+var spots_root := Node3D.new()
+var spot_mesh := MeshInstance3D.new()
+var spot_key := ""
+var spot_ctx := {}
+var spot_results := {}
+var spot_queue: Array = []
+var spot_center := Vector2i(1 << 20, 1 << 20)
+var spot_dirty := false
+var grid_fills: Array = []
+const SPOT_RADIUS := 8
+const SPOT_BUDGET_USEC := 4000
 var moving := {}                 # {pl, from, r}
 var history := History.new()
 var focus := Vector3.ZERO
@@ -32,6 +47,12 @@ func setup(g) -> void:
 	game = g
 	grid_root.name = "BuildGrid"; grid_root.visible = false
 	game.add_child(grid_root); game.add_child(plan_root)
+	draft_root.name = "Drafts"; game.add_child(draft_root)
+	spots_root.name = "BuildSpots"; game.add_child(spots_root)
+	var spot_mat := Palette.glow_mat(Color("5dff9a"), 0.5)
+	spot_mat.cull_mode = BaseMaterial3D.CULL_DISABLED
+	spot_mesh.material_override = spot_mat; spot_mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	spots_root.add_child(spot_mesh); spots_root.visible = false
 	sel_box = MeshInstance3D.new(); sel_box.visible = false
 	var bm := BoxMesh.new(); sel_box.mesh = bm
 	var sm := Palette.glow_mat(Color("a07cff"), 0.25); sel_box.material_override = sm
@@ -83,8 +104,9 @@ func open(zone_id: String = "") -> bool:
 func close() -> void:
 	if not moving.is_empty(): cancel_move()
 	var zone_was: Dictionary = current_zone
-	active = false; item_id = ""; selected = -1
+	active = false; item_id = ""; selected = -1; selected_draft = -1
 	_clear_ghost(); sel_box.visible = false; grid_root.visible = false
+	spots_root.visible = false; spot_key = ""; _show_fills(true)
 	game.cam.set_mode("explore")
 	game.player_char.stop_hold()
 	if ui: ui.queue_free(); ui = null
@@ -142,6 +164,7 @@ func _cell_y(zone: Dictionary, i: int, k: int) -> float:
 
 func rebuild_grid() -> void:
 	for c in grid_root.get_children(): c.queue_free()
+	grid_fills.clear()
 	for zone in Data.layout.zones:
 		var unlocked: bool = game.zone_unlocked(zone)
 		var b := BuildGrid.zone_bounds(zone, LocationMeter.progress(state(), Data.island))
@@ -161,6 +184,7 @@ func rebuild_grid() -> void:
 		fm.material_override = f_mat
 		lm.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF; fm.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		grid_root.add_child(lm); grid_root.add_child(fm)
+		grid_fills.append(fm)
 
 ## The ghost plans of the steps you're on (Plans), and any older zone blueprint whose request is active: see-through
 ## pieces on the site, gone as you build each one. A piece a plan uses that you haven't unlocked is unlocked.
@@ -242,6 +266,10 @@ func pick(screen: Vector2) -> Dictionary:
 		var b := BuildGrid.bounds(pl)
 		var r := _ray_box(o, d, Vector3(b.minX, b.bottom, b.minZ), Vector3(b.maxX, b.top, b.maxZ))
 		if not r.is_empty() and r.t < best_t: best_t = r.t; hit = {"point": o + d * r.t, "normal": r.n, "uid": pl.uid}
+	for dr in Drafts.of(state()):
+		var b := BuildGrid.bounds(dr)
+		var r := _ray_box(o, d, Vector3(b.minX, b.bottom, b.minZ), Vector3(b.maxX, b.top, b.maxZ))
+		if not r.is_empty() and r.t < best_t: best_t = r.t; hit = {"point": o + d * r.t, "normal": r.n, "uid": int(dr.uid), "draft": true}
 	for s in WorldStatics.floors():   # raised floors you can build on (a flat upstairs, a roof terrace): their tops
 		if not s.walkable or s.has("ramp"): continue
 		var r := _ray_box(o, d, Vector3(s.minX, s.bottom, s.minZ), Vector3(s.maxX, s.top, s.maxZ))
@@ -268,7 +296,7 @@ func pick(screen: Vector2) -> Dictionary:
 		if t2 > 0: point = o + d * t2
 		hit_y = 0.2
 	if hit.uid != -1 and hit.normal.y < 0.6: point += hit.normal * 0.35
-	return {"point": point, "uid": hit.uid, "hit_y": hit_y}
+	return {"point": point, "uid": hit.uid, "hit_y": hit_y, "draft": hit.get("draft", false)}
 
 func _ray_box(o: Vector3, d: Vector3, mn: Vector3, mx: Vector3) -> Dictionary:
 	var tmin := -INF; var tmax := INF; var n := Vector3.ZERO
@@ -287,7 +315,6 @@ func _ray_box(o: Vector3, d: Vector3, mn: Vector3, mx: Vector3) -> Dictionary:
 
 func _cell_for(d: Dictionary, r: int, p: Vector3) -> Vector2:
 	var fp := BuildGrid.footprint(d, r)
-	if half: return Vector2(floor((p.x - fp.x / 2.0 + 0.25) * 2.0) / 2.0, floor((p.z - fp.y / 2.0 + 0.25) * 2.0) / 2.0)
 	return Vector2(floor(p.x - fp.x / 2.0 + 0.5), floor(p.z - fp.y / 2.0 + 0.5))
 
 func candidate() -> Dictionary:
@@ -301,32 +328,51 @@ func candidate() -> Dictionary:
 				return {"id": id, "i": q.i, "k": q.k, "r": int(q.r), "y": q.y + 0.9}
 		var c := _cell_for(d, r, hover.point)
 		return {"id": id, "i": c.x, "k": c.y, "r": r, "y": hover.point.y, "no_wall": true}
+	if moving.is_empty() and hover.get("draft", false):
+		var under := Drafts.find(Drafts.of(state()), int(hover.uid))
+		if not under.is_empty() and String(under.id) == id: return {"id": id, "i": float(under.i), "k": float(under.k), "r": int(under.r), "y": float(under.y)}
 	var cell := _cell_for(d, r, hover.point)
+	if d.get("edge", false):
+		r = BuildGrid.edge_rotation(d, cell.x, cell.y, hover.point, r)
+		cell = _cell_for(d, r, hover.point)
 	var zone := BuildGrid.zone_at(Data.layout.zones, cell.x, cell.y, LocationMeter.progress(state(), Data.island))
-	var others := _others()
-	return {"id": id, "i": cell.x, "k": cell.y, "r": r, "y": BuildGrid.suggest_bottom(id, cell.x, cell.y, r, hover.hit_y, others, zone)}
+	var below := Drafts.design(state().placements, Drafts.of(state()), _moving_uid())
+	return {"id": id, "i": cell.x, "k": cell.y, "r": r, "y": BuildGrid.suggest_bottom(id, cell.x, cell.y, r, hover.hit_y, below, zone)}
 
 func _others() -> Array:
 	return state().placements.filter(func(p): return moving.is_empty() or p.uid != moving.pl.uid)
 
+func _moving_uid() -> int: return int(moving.pl.uid) if not moving.is_empty() else -1
+
+func _design_ctx(skip_uid: int) -> Dictionary:
+	var ctx: Dictionary = game.placement_ctx(Drafts.design(state().placements, Drafts.of(state()), skip_uid))
+	ctx["bodies"] = []
+	return ctx
+
+func _draft_reason(real_reason: String) -> String:
+	return real_reason.to_lower() if real_reason.contains("standing there") else "it rests on drafted pieces"
+
 func evaluate(c: Dictionary) -> Dictionary:
-	var pl := {"uid": moving.pl.uid if not moving.is_empty() else -1, "id": c.id, "i": c.i, "k": c.k, "r": c.r, "y": c.y}
+	var pl := {"uid": _moving_uid(), "id": c.id, "i": c.i, "k": c.k, "r": c.r, "y": c.y}
 	if not moving.is_empty():
 		if moving.pl.has("color"): pl["color"] = moving.pl.color
 		if moving.pl.has("state"): pl["state"] = moving.pl.state
-	if c.get("no_wall", false): return {"pl": pl, "ok": false, "reason": "Point at a wall to hang this"}
-	var v := BuildGrid.validate_placement(pl, game.placement_ctx(_others()))
-	if not v.ok: v["pl"] = pl; return v
-	var cost: Dictionary = Data.piece(c.id).cost
-	if moving.is_empty() and not Inventory.can_afford(state().inventory, cost):
-		var parts: Array = []
-		var short_of_money := false
-		for m in Inventory.missing(state().inventory, cost):
-			if m.id == "coins": short_of_money = true; parts.append("%s more" % Money.lire(int(m.need)))
-			else: parts.append("%d more %s %s" % [m.need, Data.resources[m.id].icon, String(Data.resources[m.id].name).to_lower()])
-		var what := "lire" if short_of_money and parts.size() == 1 else "materials"
-		return {"pl": pl, "ok": false, "reason": "Not enough %s — need %s" % [what, ", ".join(parts)]}
-	return {"pl": pl, "ok": true, "zone": v.zone}
+	if c.get("no_wall", false): return {"pl": pl, "ok": false, "kind": "bad", "reason": "Point at a wall to hang this"}
+	var same: Dictionary = {} if not moving.is_empty() else Drafts.find_same(Drafts.of(state()), pl)
+	var design := BuildGrid.validate_placement(pl, _design_ctx(int(same.uid) if not same.is_empty() else _moving_uid()))
+	if not design.ok: design["pl"] = pl; design["kind"] = "bad"; return design
+	var real := BuildGrid.validate_placement(pl, game.placement_ctx(_others()))
+	if not moving.is_empty():
+		real["pl"] = pl; real["kind"] = "move" if real.ok else "bad"
+		return real
+	var short := Inventory.missing(state().inventory, Data.piece(c.id).cost)
+	var why := ""
+	if draft_only: why = "draft only is on"
+	elif not real.ok: why = _draft_reason(String(real.reason))
+	elif not short.is_empty(): why = "you need %s more" % Drafts.items_text(short)
+	if why == "": return {"pl": pl, "ok": true, "kind": "build_draft" if not same.is_empty() else "build", "zone": real.zone, "draft_uid": int(same.get("uid", -1))}
+	if not same.is_empty(): return {"pl": pl, "ok": false, "kind": "drafted", "reason": "Already in your draft: %s" % why}
+	return {"pl": pl, "ok": true, "kind": "draft", "why": why, "zone": design.zone}
 
 func _clear_ghost() -> void:
 	if ghost: ghost.queue_free(); ghost = null; ghost_key = ""
@@ -345,11 +391,11 @@ func update(dt: float) -> void:
 	game.cam.focus = Vector3(focus.x, maxf(Heightfield.height(focus.x, focus.z), focus.y) + 0.5, focus.z)
 	if Input.is_action_just_pressed("pause"):
 		if not moving.is_empty(): cancel_move()
-		elif item_id != "" or selected != -1: item_id = ""; selected = -1; _build_ui()
+		elif item_id != "" or selected != -1 or selected_draft != -1: _let_go()
 		else: close(); return
 	if Input.is_action_just_pressed("build"): close(); return
 	if Input.is_action_just_pressed("rotate"): rotate_piece()
-	if Input.is_action_just_pressed("half_grid"): half = not half; game.toast("Half-grid snapping on" if half else "Half-grid snapping off"); _build_ui()
+	if Input.is_action_just_pressed("draft_only"): toggle_draft_only()
 	if Input.is_action_just_pressed("recolor"): cycle_color()
 	if Input.is_action_just_pressed("remove"): remove_target()
 	if Input.is_action_just_pressed("move_piece") and selected != -1 and moving.is_empty(): start_move(selected)
@@ -360,7 +406,7 @@ func update(dt: float) -> void:
 	hover = {} if over_ui else pick(mouse)
 	var c := candidate()
 	if not c.is_empty():
-		var key := "%s|%s|%s|%d|%.2f|%d|%s" % [c.id, c.i, c.k, c.r, c.y, state().placements.size(), str(state().inventory)]
+		var key := "%s|%s|%s|%d|%.2f|%d|%s|%d|%s" % [c.id, c.i, c.k, c.r, c.y, state().placements.size(), str(state().inventory), version, draft_only]
 		if key != ghost_key or ghost == null or ghost.get_meta("id") != c.id:
 			check = evaluate(c)
 			if ghost == null or ghost.get_meta("id") != c.id:
@@ -368,21 +414,93 @@ func update(dt: float) -> void:
 			var fp := BuildGrid.footprint(Data.piece(c.id), c.r)
 			ghost.position = Vector3(c.i + fp.x / 2.0, c.y + 0.005, c.k + fp.y / 2.0)
 			ghost.rotation.y = -c.r * PI / 2.0
-			PieceMeshes.set_ghost(ghost, "ok" if check.ok else "bad")
+			PieceMeshes.set_ghost(ghost, "draft" if check.get("kind", "") in ["draft", "drafted"] else ("ok" if check.ok else "bad"))
 			ghost_key = key
 			_render_status()
 		ghost.visible = true
 	else:
 		if ghost: ghost.visible = false
 		if not check.is_empty(): check = {}; ghost_key = ""; _render_status()   # (so coming back to the same cell checks it again)
+	var center := Vector2(hover.point.x, hover.point.z) if not hover.is_empty() else Vector2(focus.x, focus.z)
+	_update_spots(center)
 	var sm: Node3D = game.piece_nodes.get(selected)
-	sel_box.visible = sm != null and moving.is_empty()
-	if sm:
-		var pl := _find(selected)
-		if not pl.is_empty():
-			var b := BuildGrid.bounds(pl)
-			sel_box.position = Vector3((b.minX + b.maxX) / 2.0, (b.bottom + b.top) / 2.0, (b.minZ + b.maxZ) / 2.0)
-			sel_box.scale = Vector3(b.maxX - b.minX + 0.1, b.top - b.bottom + 0.1, b.maxZ - b.minZ + 0.1)
+	var spl: Dictionary = _find(selected) if sm != null else Drafts.find(Drafts.of(state()), selected_draft)
+	sel_box.visible = not spl.is_empty() and moving.is_empty()
+	if sel_box.visible:
+		var b := BuildGrid.bounds(spl)
+		sel_box.position = Vector3((b.minX + b.maxX) / 2.0, (b.bottom + b.top) / 2.0, (b.minZ + b.maxZ) / 2.0)
+		sel_box.scale = Vector3(b.maxX - b.minX + 0.1, b.top - b.bottom + 0.1, b.maxZ - b.minZ + 0.1)
+
+func _spot_piece() -> Dictionary:
+	if not moving.is_empty(): return {"id": String(moving.pl.id), "r": int(moving.r), "uid": int(moving.pl.uid)}
+	if item_id == "": return {}
+	return {"id": item_id, "r": rotation, "uid": -1}
+
+func _update_spots(center: Vector2) -> void:
+	var sp := _spot_piece()
+	var d: Dictionary = Data.piece(String(sp.get("id", "")))
+	if sp.is_empty() or d.is_empty() or d.get("attach", "") == "wall":
+		if spots_root.visible: _show_fills(true)
+		spots_root.visible = false; spot_key = ""; return
+	var edge: bool = d.get("edge", false)
+	var key := "%s|%d|%d|%d|%d|%s|%s" % [sp.id, -1 if edge else int(sp.r), int(sp.uid), version, Drafts.of(state()).size(), str(LocationMeter.progress(state(), Data.island)), str(unlocked_zones().size())]
+	if key != spot_key:
+		spot_key = key; spot_results.clear(); spot_center = Vector2i(1 << 20, 1 << 20)
+		spot_ctx = _design_ctx(int(sp.uid)); spot_ctx["support_memo"] = {}; spot_ctx["uid"] = int(sp.uid)
+	var c := Vector2i(floori(center.x), floori(center.y))
+	if c != spot_center:
+		spot_center = c
+		spot_queue = _spot_cells(c)
+		spot_dirty = true
+	var t0 := Time.get_ticks_usec()
+	while not spot_queue.is_empty() and Time.get_ticks_usec() - t0 < SPOT_BUDGET_USEC:
+		var cell: Vector2i = spot_queue.pop_front()
+		if spot_results.has(cell): continue
+		spot_results[cell] = _scan_cell(sp, d, cell)
+		spot_dirty = true
+	if spot_dirty: _draw_spots(d); spot_dirty = false
+	if not spots_root.visible: _show_fills(false)
+	spots_root.visible = true
+
+func _show_fills(on: bool) -> void:
+	for f in grid_fills:
+		if is_instance_valid(f): f.visible = on
+
+func _spot_cells(c: Vector2i) -> Array:
+	var zones: Array = spot_ctx.get("zones", [])
+	var prog: float = spot_ctx.get("harmony", 0.0)
+	var out: Array = []
+	for di in range(-SPOT_RADIUS, SPOT_RADIUS + 1):
+		for dk in range(-SPOT_RADIUS, SPOT_RADIUS + 1):
+			if di * di + dk * dk > SPOT_RADIUS * SPOT_RADIUS: continue
+			var cell := Vector2i(c.x + di, c.y + dk)
+			if spot_results.has(cell) or BuildGrid.zone_at(zones, cell.x, cell.y, prog).is_empty(): continue
+			out.append(cell)
+	out.sort_custom(func(a, b): return (a - c).length_squared() < (b - c).length_squared())
+	return out
+
+func _scan_cell(sp: Dictionary, d: Dictionary, cell: Vector2i) -> Array:
+	var found: Array = []
+	var turns: Array = [0, 1, 2, 3] if d.get("edge", false) else [int(sp.r)]
+	for r in turns:
+		var v := BuildGrid.spot(String(sp.id), float(cell.x), float(cell.y), r, spot_ctx)
+		if v.ok: found.append({"r": r, "y": float(v.pl.y)})
+	return found
+
+func _draw_spots(d: Dictionary) -> void:
+	var st := SurfaceTool.new(); st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var n := 0
+	var edge: bool = d.get("edge", false)
+	var box: Array = [0.04, 0.0, 0.96, 0.22] if edge else [0.08, 0.08, float(d.size[0]) - 0.08, float(d.size[1]) - 0.08]
+	for cell in spot_results:
+		if (cell - spot_center).length_squared() > SPOT_RADIUS * SPOT_RADIUS: continue
+		for e in spot_results[cell]:
+			var rc := BuildGrid.rect_of(d, {"i": float(cell.x), "k": float(cell.y), "r": int(e.r)}, box)
+			var y: float = float(e.y) + 0.06
+			var q := [Vector3(rc.minX, y, rc.minZ), Vector3(rc.maxX, y, rc.minZ), Vector3(rc.maxX, y, rc.maxZ), Vector3(rc.minX, y, rc.maxZ)]
+			for idx in [0, 1, 2, 0, 2, 3]: st.add_vertex(q[idx])
+			n += 1
+	spot_mesh.mesh = st.commit() if n > 0 else null
 
 ## Gamepad: right stick moves a build cursor, A places / selects, B cancels (left stick still pans the view).
 func _gamepad_cursor(dt: float) -> void:
@@ -415,7 +533,7 @@ func _gamepad_cursor(dt: float) -> void:
 	if Input.is_joy_button_pressed(0, JOY_BUTTON_B) and not get_meta("pad_b", false):
 		set_meta("pad_b", true)
 		if not moving.is_empty(): cancel_move()
-		elif item_id != "" or selected != -1: item_id = ""; selected = -1; _build_ui()
+		elif item_id != "" or selected != -1 or selected_draft != -1: _let_go()
 		else: close()
 	elif not Input.is_joy_button_pressed(0, JOY_BUTTON_B): set_meta("pad_b", false)
 
@@ -428,13 +546,19 @@ func handle_input(event: InputEvent) -> void:
 		if event.button_index == MOUSE_BUTTON_LEFT and not game.drag_moved: click()
 		if event.button_index == MOUSE_BUTTON_RIGHT and not game.drag_moved:
 			if not moving.is_empty(): cancel_move()
-			elif item_id != "" or selected != -1: item_id = ""; selected = -1; _build_ui()
+			elif item_id != "" or selected != -1 or selected_draft != -1: _let_go()
+
+func _let_go() -> void:
+	item_id = ""; selected = -1; selected_draft = -1; _build_ui()
 
 func click() -> void:
 	if not moving.is_empty(): drop_move(); return
 	if item_id != "": place(); return
-	if not hover.is_empty() and hover.uid >= 0: selected = hover.uid; game.sfx("select"); _build_ui()
-	elif selected != -1: selected = -1; _build_ui()
+	if not hover.is_empty() and hover.uid >= 0:
+		if hover.get("draft", false): selected_draft = int(hover.uid); selected = -1
+		else: selected = hover.uid; selected_draft = -1
+		game.sfx("select"); _build_ui()
+	elif selected != -1 or selected_draft != -1: selected = -1; selected_draft = -1; _build_ui()
 
 func _find(uid: int) -> Dictionary:
 	for p in state().placements:
@@ -442,15 +566,33 @@ func _find(uid: int) -> Dictionary:
 	return {}
 
 # ---- Commands
-func place() -> void:
-	if check.is_empty(): return
-	if not check.ok: game.toast(check.reason, "warn"); game.sfx("error"); return
-	var pl: Dictionary = check.pl.duplicate(true)
+func _new_piece(from: Dictionary) -> Dictionary:
+	var pl: Dictionary = from.duplicate(true)
 	pl.uid = int(state().next_uid); state().next_uid = pl.uid + 1
 	var d := Data.piece(pl.id)
 	if color != "" and d.get("colorable", false): pl["color"] = color
 	if d.get("mech", {}).get("switch", false): pl["state"] = {"on": true}
 	if d.get("door", false): pl["state"] = {"open": false}
+	return pl
+
+func place() -> void:
+	if check.is_empty(): return
+	if check.get("kind", "") == "drafted": game.toast(check.reason); return
+	if not check.ok: game.toast(check.reason, "warn"); game.sfx("error"); return
+	if check.get("kind", "") == "draft":
+		var dpl := _new_piece(check.pl)
+		_add_drafts([dpl])
+		history.push({"type": "drafts_add", "pls": [dpl.duplicate(true)]}); ghost_key = ""
+		game.sfx("select")
+		_build_ui(); return
+	if check.get("kind", "") == "build_draft":
+		var dr := Drafts.find(Drafts.of(state()), int(check.draft_uid))
+		if dr.is_empty(): return
+		var built := _build_one(dr)
+		if built.ok: history.push({"type": "drafts_build", "pls": [dr.duplicate(true)]}); ghost_key = ""
+		else: game.toast(built.reason, "warn")
+		_build_ui(); return
+	var pl := _new_piece(check.pl)
 	var planned := next_plan_piece()
 	var r: Dictionary = game.commit_place(pl, true)
 	if r.ok:
@@ -461,6 +603,13 @@ func place() -> void:
 		_build_ui()
 
 func remove_target() -> void:
+	var draft_uid: int = selected_draft if selected_draft != -1 else (int(hover.uid) if selected == -1 and not hover.is_empty() and hover.get("draft", false) else -1)
+	if draft_uid != -1:
+		var dr := Drafts.find(Drafts.of(state()), draft_uid)
+		if not dr.is_empty():
+			_remove_drafts([draft_uid]); history.push({"type": "drafts_remove", "pls": [dr.duplicate(true)]})
+			game.sfx("remove")
+		selected_draft = -1; _build_ui(); return
 	var uid: int = selected if selected != -1 else (hover.get("uid", -1) if not hover.is_empty() else -1)
 	if uid < 0: game.toast("Point at a piece to remove it"); return   # (not a raised floor, -2)
 	var pl := _find(uid).duplicate(true)
@@ -471,6 +620,7 @@ func remove_target() -> void:
 func rotate_piece() -> void:
 	if not moving.is_empty(): moving.r = (moving.r + 1) % 4; ghost_key = ""; return
 	if item_id != "": rotation = (rotation + 1) % 4; ghost_key = ""; game.sfx("tick"); return
+	if selected_draft != -1: game.toast("Remove it from the draft and draft it again the other way round"); return
 	if selected != -1:
 		var pl := _find(selected)
 		var from := {"i": pl.i, "k": pl.k, "r": int(pl.r), "y": pl.y}
@@ -536,11 +686,126 @@ func apply_cmd(cmd: Dictionary, dir: String) -> Dictionary:
 		"remove": return game.commit_place(cmd.pl.duplicate(true), true) if dir == "undo" else game.commit_remove(cmd.pl.uid)
 		"move": return game.commit_move(cmd.uid, cmd.from if dir == "undo" else cmd.to)
 		"recolor": return game.commit_recolor(cmd.uid, cmd.from if dir == "undo" else cmd.to)
+		"drafts_add":
+			if dir == "undo": _remove_drafts(cmd.pls.map(func(p): return int(p.uid)))
+			else: _add_drafts(cmd.pls.map(func(p): return p.duplicate(true)))
+			return {"ok": true}
+		"drafts_remove":
+			if dir == "undo": _add_drafts(cmd.pls.map(func(p): return p.duplicate(true)))
+			else: _remove_drafts(cmd.pls.map(func(p): return int(p.uid)))
+			return {"ok": true}
+		"drafts_build":
+			if dir == "undo":
+				var back: Array = cmd.pls.duplicate()
+				back.reverse()
+				for p in back:
+					var r: Dictionary = game.commit_remove(int(p.uid))
+					if not r.ok: return r
+					_add_drafts([p.duplicate(true)])
+				return {"ok": true}
+			for p in cmd.pls:
+				var dr := Drafts.find(Drafts.of(state()), int(p.uid))
+				if dr.is_empty(): return {"ok": false, "reason": "That draft is gone"}
+				var r := _build_one(dr)
+				if not r.ok: return r
+			return {"ok": true}
 	return {"ok": false, "reason": "Unknown action"}
+
+func _add_drafts(pls: Array) -> void:
+	var drafts := Drafts.of(state())
+	for p in pls:
+		if Drafts.find(drafts, int(p.uid)).is_empty(): drafts.append(p)
+	state().next_uid = maxi(int(state().next_uid), Travel.max_uid(state()) + 1)
+	_drafts_changed()
+
+func _remove_drafts(uids: Array) -> void:
+	state()["drafts"] = Drafts.of(state()).filter(func(p): return not uids.has(int(p.uid)))
+	if uids.has(selected_draft): selected_draft = -1
+	_drafts_changed()
+
+func _drafts_changed() -> void:
+	version += 1
+	refresh_drafts()
+	game.emit_event("draft", {"n": Drafts.of(state()).size()})
+
+func _build_one(dr: Dictionary) -> Dictionary:
+	var uid := int(dr.uid)
+	var keep: Array = Drafts.of(state()).duplicate()
+	state()["drafts"] = keep.filter(func(p): return int(p.uid) != uid)
+	var r: Dictionary = game.commit_place(dr.duplicate(true), true)
+	if not r.ok: state()["drafts"] = keep
+	if uid == selected_draft and r.ok: selected_draft = -1
+	_drafts_changed()
+	return r
+
+func build_drafts() -> void:
+	var built: Array = []
+	var why := ""
+	var progress := true
+	while progress:
+		progress = false
+		for dr in Drafts.build_order(Drafts.of(state())):
+			if not Inventory.can_afford(state().inventory, Data.piece(String(dr.id)).cost): continue
+			var r := _build_one(dr)
+			if r.ok: built.append(dr.duplicate(true)); progress = true
+			else: why = String(r.reason)
+	if not built.is_empty(): history.push({"type": "drafts_build", "pls": built})
+	var left := Drafts.of(state())
+	var short := Drafts.shortfall(left, state().inventory)
+	var msg := ""
+	if left.is_empty(): msg = "Built the whole draft: %d piece%s." % [built.size(), "" if built.size() == 1 else "s"]
+	elif not built.is_empty(): msg = "Built %d. Still drafted: %d%s" % [built.size(), left.size(), (" (you need %s more)" % Drafts.items_text(short)) if not short.is_empty() else (". " + why if why != "" else ".")]
+	elif not short.is_empty(): msg = "You need %s more to build the draft." % Drafts.items_text(short)
+	else: msg = why if why != "" else "Nothing in the draft can be built yet."
+	game.toast(msg, "good" if not built.is_empty() else "warn", 3.5)
+	ghost_key = ""; _build_ui()
+
+func clear_drafts() -> void:
+	var all: Array = Drafts.of(state()).map(func(p): return p.duplicate(true))
+	if all.is_empty(): return
+	_remove_drafts(all.map(func(p): return int(p.uid)))
+	history.push({"type": "drafts_remove", "pls": all})
+	game.toast("Draft cleared. %s undoes it." % "Ctrl+Z"); _build_ui()
+
+func draft_plan() -> void:
+	var sp := site_plan()
+	if sp.is_empty(): return
+	var added: Array = []
+	var blocked := 0
+	for pc in sp.pieces:
+		if Plans.built(pc, state().placements): continue
+		var pl := {"uid": -1, "id": String(pc.id), "i": float(pc.i), "k": float(pc.k), "r": int(pc.r), "y": float(pc.y)}
+		if not Drafts.find_same(Drafts.of(state()), pl).is_empty(): continue
+		if not BuildGrid.validate_placement(pl, _design_ctx(-1)).ok: blocked += 1; continue
+		var dpl := _new_piece(pl)
+		_add_drafts([dpl]); added.append(dpl.duplicate(true))
+	if not added.is_empty(): history.push({"type": "drafts_add", "pls": added})
+	var short := Drafts.shortfall(Drafts.of(state()), state().inventory)
+	var msg := "The plan is in your draft (%d piece%s)." % [added.size(), "" if added.size() == 1 else "s"] if not added.is_empty() else "Everything in the plan is already built or drafted."
+	if blocked > 0: msg += " %d spot%s %s blocked." % [blocked, "" if blocked == 1 else "s", "is" if blocked == 1 else "are"]
+	msg += (" You need %s more to build it." % Drafts.items_text(short)) if not short.is_empty() else " You have everything: build the draft."
+	game.toast(msg, "good", 4.0)
+	ghost_key = ""; _build_ui()
+
+func toggle_draft_only() -> void:
+	draft_only = not draft_only
+	game.toast("Draft only: pieces go into your draft, nothing is spent" if draft_only else "Draft only is off: pieces you can afford are built straight away")
+	ghost_key = ""; _build_ui()
+
+func refresh_drafts() -> void:
+	for c in draft_root.get_children(): c.queue_free()
+	draft_nodes.clear()
+	for dr in Drafts.of(state()):
+		var g := PieceMeshes.ghost(String(dr.id), "draft")
+		var fp := BuildGrid.footprint(Data.piece(String(dr.id)), int(dr.r))
+		g.position = Vector3(float(dr.i) + fp.x / 2.0, float(dr.y) + 0.005, float(dr.k) + fp.y / 2.0); g.rotation.y = -int(dr.r) * PI / 2.0
+		draft_root.add_child(g); draft_nodes[int(dr.uid)] = g
+	if game.hud: game.hud.render_tracker()
 
 func select_item(id: String) -> void:
 	if not state().blueprints.has(id): game.toast("Locked — " + game.blueprint_hint(id), "warn"); return
 	if not moving.is_empty(): cancel_move()
+	selected_draft = -1
 	item_id = id   # (clicking the piece already in your hand keeps it: build mode may have picked it for you from a plan; right-click or Esc lets go)
 	selected = -1; ghost_key = ""
 	state().new_blueprints.erase(id)
@@ -551,18 +816,25 @@ func select_item(id: String) -> void:
 func _status_text() -> String:
 	if not moving.is_empty():
 		return ("Click to put it here" if check.ok else check.reason) if not check.is_empty() else "Carrying a piece — point where it should go"
-	if item_id == "": return "Piece selected" if selected != -1 else "Pick a piece from the catalog, or click a placed piece to edit it"
+	if item_id == "":
+		if selected_draft != -1: return "A drafted piece: build it, or remove it from the draft"
+		return "Piece selected" if selected != -1 else "Pick a piece from the catalog, or click a placed piece to edit it"
 	var d := Data.piece(item_id)
-	if check.is_empty(): return "%s — point at the glowing grid" % d.name
-	return ("Click to place %s (%s)" % [d.name, _cost_text(d.cost)]) if check.ok else check.reason
+	if check.is_empty(): return "%s: it can go on the glowing spots" % d.name
+	if not check.ok: return check.reason
+	match check.get("kind", ""):
+		"draft": return "Click to draft the %s: %s" % [String(d.name).to_lower(), check.why]
+		"build_draft": return "Click to build the drafted %s (%s)" % [String(d.name).to_lower(), _cost_text(d.cost)]
+	return "Click to build the %s (%s)" % [String(d.name).to_lower(), _cost_text(d.cost)]
 
 func _render_status() -> void:
 	if status_label == null: return
 	status_label.text = _status_text()
-	var bad: bool = not check.is_empty() and not check.ok
+	var drafting: bool = not check.is_empty() and check.get("kind", "") in ["draft", "drafted"]
+	var bad: bool = not check.is_empty() and not check.ok and not drafting
 	var sp: PanelContainer = status_label.get_parent()
-	sp.add_theme_stylebox_override("panel", UiTheme.box(Color("fff3f3") if bad else Color.WHITE, Color("ffb3b3") if bad else Color("cfe8d4"), 999, 3, 6, false))
-	status_label.add_theme_color_override("font_color", Color("b34a4a") if bad else Color("2f8a52"))
+	sp.add_theme_stylebox_override("panel", UiTheme.box(Color("fff3f3") if bad else (Color("eef8ff") if drafting else Color.WHITE), Color("ffb3b3") if bad else (Color("8fd3ff") if drafting else Color("cfe8d4")), 999, 3, 6, false))
+	status_label.add_theme_color_override("font_color", Color("b34a4a") if bad else (Color("2f6f9e") if drafting else Color("2f8a52")))
 
 ## "🪵3 🧵2 💰120,000" (money in lire); `money_sep` goes before the money (a new line in the catalog's small cells).
 static func _cost_text(cost: Dictionary, money_sep: String = " ") -> String:
@@ -589,7 +861,7 @@ func _build_ui() -> void:
 	tb.add_child(UiTheme.button("▶", func(): cycle_zone(1)))
 	var ub := UiTheme.button("↶ Undo", undo); ub.disabled = not history.can_undo(); tb.add_child(ub)
 	var rb := UiTheme.button("↷ Redo", redo); rb.disabled = not history.can_redo(); tb.add_child(rb)
-	tb.add_child(UiTheme.button("½ grid: %s" % ("on" if half else "off"), func(): half = not half; _build_ui()))
+	var dob := UiTheme.button("Draft only: %s" % ("on" if draft_only else "off"), toggle_draft_only, draft_only); dob.name = "draft_only"; tb.add_child(dob)
 	var hb := UiTheme.button("❓ How to build", show_help); hb.name = "build_help"; tb.add_child(hb)
 	tb.add_child(UiTheme.button("Done", close, true))
 	var top_c := CenterContainer.new(); top_c.anchor_right = 1; top_c.offset_top = 64; top_c.offset_bottom = 110; top_c.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -599,13 +871,14 @@ func _build_ui() -> void:
 	var st_c := CenterContainer.new(); st_c.anchor_right = 1; st_c.offset_top = 118; st_c.offset_bottom = 150; st_c.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	st_c.add_child(sp); ui.add_child(st_c)
 	_render_status()
+	_draft_bar()
 	# Help
 	var help := UiTheme.panel()
 	var goals: Dictionary = game.build_goals(current_zone)
-	var keys := [Controls.key_label("rotate"), Controls.key_label("recolor"), Controls.key_label("move_piece"), Controls.key_label("remove"), Controls.key_label("half_grid"), Controls.key_label("pause"), Controls.key_label("build")]
+	var keys := [Controls.key_label("rotate"), Controls.key_label("recolor"), Controls.key_label("move_piece"), Controls.key_label("remove"), Controls.key_label("draft_only"), Controls.key_label("pause"), Controls.key_label("build")]
 	# with a request checklist above it, the controls shrink to two lines so the column stays clear of the catalog
-	var hl := UiTheme.label(("%s rotate · %s colour · %s move · %s remove\nCtrl+Z undo · %s half-grid · %s leave" % [keys[0], keys[1], keys[2], keys[3], keys[4], keys[5]]) if not goals.is_empty() else
-		("Left click — place / select\nRight click — cancel · right-drag — turn view\n%s rotate · %s colour · %s move\n%s remove · Ctrl+Z undo · Ctrl+Y redo\nWASD pan · wheel zoom · %s half-grid\n%s / %s leave build mode" % keys), 12, UiTheme.INK2)
+	var hl := UiTheme.label(("%s rotate · %s colour · %s move · %s remove\nCtrl+Z undo · %s draft only · %s leave" % [keys[0], keys[1], keys[2], keys[3], keys[4], keys[5]]) if not goals.is_empty() else
+		("Left click — build, draft or select\nRight click — cancel · right-drag — turn view\n%s rotate · %s colour · %s move\n%s remove · Ctrl+Z undo · Ctrl+Y redo\nWASD pan · wheel zoom · %s draft only\n%s / %s leave build mode\nThe clock waits while you build" % keys), 12, UiTheme.INK2)
 	help.add_child(hl); help.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	# Right column: goals or the selected piece, then the controls (the left side holds the guide and tip cards)
 	var right := VBoxContainer.new(); right.anchor_left = 1; right.anchor_right = 1; right.offset_left = -290; right.offset_right = -14; right.offset_top = 160
@@ -619,7 +892,8 @@ func _build_ui() -> void:
 			var gl := UiTheme.label(("" if it.get("later", false) else ("✔ " if it.ok else "○ ")) + it.label, 13, Color("2f8a52") if it.ok else (UiTheme.INK2 if it.get("later", false) else UiTheme.INK))
 			gl.autowrap_mode = TextServer.AUTOWRAP_WORD; gl.custom_minimum_size.x = 246; gv.add_child(gl)
 		right.add_child(gp)
-	if selected == -1 and moving.is_empty(): _plan_panel(right)
+	if selected == -1 and selected_draft == -1 and moving.is_empty(): _plan_panel(right)
+	if selected_draft != -1: _selected_draft_panel(right)
 	if selected != -1 or not moving.is_empty():
 		var pl: Dictionary = moving.pl if not moving.is_empty() else _find(selected)
 		if not pl.is_empty():
@@ -712,7 +986,48 @@ func _plan_panel(col: VBoxContainer) -> void:
 	if not nx.is_empty() and item_id != String(nx.id):
 		var b := UiTheme.button("📐 Pick the next piece  (%s)" % Controls.key_label("plan_next"), func(): follow_plan(true)); b.name = "plan_pick"
 		b.add_theme_font_size_override("font_size", 14); pv.add_child(b)
+	if not nx.is_empty():
+		var db := UiTheme.button("Put the whole plan in your draft", draft_plan); db.name = "plan_draft"
+		db.add_theme_font_size_override("font_size", 13); pv.add_child(db)
 	col.add_child(pp)
+
+func _draft_bar() -> void:
+	var drafts := Drafts.of(state())
+	if drafts.is_empty(): return
+	var short := Drafts.shortfall(drafts, state().inventory)
+	var p := UiTheme.panel(Color("eef8ff"), Color("4fb3ff"), 999); p.name = "draft_panel"
+	var row := HBoxContainer.new(); row.add_theme_constant_override("separation", 8); p.add_child(row)
+	var need := ("gather %s" % Drafts.items_text(short)) if not short.is_empty() else "ready to build"
+	var l := UiTheme.label("📐 Draft: %d piece%s, %s" % [drafts.size(), "" if drafts.size() == 1 else "s", need], 13, Color("2f6f9e"))
+	l.size_flags_vertical = Control.SIZE_SHRINK_CENTER; row.add_child(l)
+	var bb := UiTheme.button("Build the draft", build_drafts, short.is_empty()); bb.name = "draft_build"; row.add_child(bb)
+	var cb := UiTheme.button("Clear", clear_drafts); cb.name = "draft_clear"; row.add_child(cb)
+	var c := CenterContainer.new(); c.anchor_right = 1; c.offset_top = 156; c.offset_bottom = 198; c.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	c.add_child(p); ui.add_child(c)
+
+func _selected_draft_panel(col: VBoxContainer) -> void:
+	var dr := Drafts.find(Drafts.of(state()), selected_draft)
+	if dr.is_empty(): return
+	var d := Data.piece(String(dr.id))
+	var p := UiTheme.panel(Color("eef8ff"), Color("8fd3ff")); p.name = "draft_selected"
+	var v := VBoxContainer.new(); p.add_child(v)
+	v.add_child(UiTheme.label("%s %s (drafted)" % [d.icon, d.name], 16))
+	var short := Inventory.missing(state().inventory, d.cost)
+	var l := UiTheme.label(("It needs %s." % _cost_text(d.cost)) + ((" You need %s more." % Drafts.items_text(short)) if not short.is_empty() else ""), 12, UiTheme.INK2)
+	l.autowrap_mode = TextServer.AUTOWRAP_WORD; l.custom_minimum_size.x = 240; v.add_child(l)
+	var row := HBoxContainer.new(); v.add_child(row)
+	var bb := UiTheme.button("Build it", build_selected_draft, short.is_empty())
+	bb.name = "draft_build_one"; row.add_child(bb)
+	row.add_child(UiTheme.button("🗑", remove_target))
+	col.add_child(p)
+
+func build_selected_draft() -> void:
+	var dr := Drafts.find(Drafts.of(state()), selected_draft)
+	if dr.is_empty(): return
+	var r := _build_one(dr)
+	if r.ok: history.push({"type": "drafts_build", "pls": [dr.duplicate(true)]})
+	else: game.toast(r.reason, "warn")
+	_build_ui()
 
 ## Does which way a piece faces change it (a long piece, a railing on one edge, a machine's axle, a chair)?
 static func _turn_matters(d: Dictionary) -> bool:

@@ -351,6 +351,18 @@ func sleep(where: String, seat = null) -> void:
 	var now: float = game.state.time.minute
 	body.add_child(_wrap(("Take a nap here until…" if where == "bench" else "Sleep until…") + "   (it's %s now)" % Clock.text(game.state.time).get_slice("· ", 1), 16, UiTheme.INK))
 	var v := VBoxContainer.new(); v.custom_minimum_size.x = 420; v.size_flags_horizontal = Control.SIZE_SHRINK_CENTER; v.add_theme_constant_override("separation", 8); body.add_child(v)
+	var day_rules := WorkDay.def(Data.island)
+	if not day_rules.is_empty():
+		for o in WorkDay.sleep_options(now, day_rules):
+			var opt: Dictionary = o
+			var mins: float = WorkDay.next_morning(game.state.time) - float(game.state.time.total) if opt.ends_day else float(opt.hour) * 60.0 - now
+			var text := "%s  %s · %s   (in %dh %02dm)" % [opt.icon, opt.label, Clock.hour_num(opt.hour), int(mins / 60.0), int(fmod(mins, 60.0))]
+			if opt.ends_day: text = "%s  Sleep until tomorrow morning · ends the day" % opt.icon
+			var ob := UiTheme.button(text, func(): game.sleep_until(opt.hour, where, seat, opt.ends_day), opt.ends_day)
+			ob.name = String(opt.id); ob.alignment = HORIZONTAL_ALIGNMENT_LEFT; v.add_child(ob)
+		if where == "bench" and seat != null:
+			var sit := UiTheme.button("🪑  Just sit a while", func(): close(); game.sit_on(seat)); sit.name = "just_sit"; v.add_child(sit)
+		return
 	for w in WAKE_TIMES:
 		var mins := fposmod(float(w[2]) * 60.0 - now, 1440.0)
 		if mins < 1.0: mins = 1440.0

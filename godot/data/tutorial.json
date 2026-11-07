@@ -87,13 +87,13 @@
   },
   {
    "id": "bridge",
-   "text": "Lay planks from bank to bank. A plank must be within 2 tiles of a bank or a post.",
+   "text": "Lay planks from bank to bank: the green spots show how far a plank reaches.",
    "done": "stage:bridge:2",
    "target": "zone:bridge"
   },
   {
    "id": "rails",
-   "text": "Aldo asked for railings: place 4 along the sides of the crossing. A railing sits on a tile's edge; {rotate} turns it.",
+   "text": "Aldo asked for railings: place 4 along the sides of the crossing. Point near the edge of a plank where a railing should go and it turns to face that way.",
    "done": "ready:bridge",
    "target": "zone:bridge"
   },
@@ -141,9 +141,16 @@
    "title": "How building works",
    "seconds": 40,
    "lines": [
-    "Pick a piece below and click to build; {rotate} turns it. Red says why it won't fit.",
-    "Purple outlines are a plan: put the same piece on each. {plan_next} picks up the next one.",
+    "Green spots show where the piece in your hand fits. Click to build; {rotate} turns it.",
+    "Short of materials? It goes into your blue draft, to build once you have them.",
     "Ctrl+Z undoes. Esc leaves."
+   ]
+  },
+  "dusk": {
+   "title": "Dusk: the day waits for you",
+   "lines": [
+    "The clock stops at dusk until you end the day. Take your time.",
+    "To end it, sleep on a bench (or in your own bed, once you have one). Overnight the trees and the quarry grow back, and the paper comes in the morning."
    ]
   },
   "harmony": {
