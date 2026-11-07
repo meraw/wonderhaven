@@ -44,23 +44,36 @@ static func build() -> Theme:
 
 static var _font: Font
 static var _title: Font
-static var _emoji: SystemFont
+static var _icons: Array[Font] = []
 
-static func _emoji_font() -> SystemFont:
-	if _emoji == null:
-		_emoji = SystemFont.new()
-		_emoji.font_names = PackedStringArray(["Noto Color Emoji", "Segoe UI Emoji", "Apple Color Emoji", "Twemoji Mozilla"])
-	return _emoji
+## The interface's icons (the emoji and symbols in labels, buttons and data) come from bundled fonts, not the
+## computer's: one-colour Noto Emoji, which takes the text's colour so icons match the ink and pink of the theme and
+## look the same on Windows, macOS, Linux and the Steam Deck, then arrows, stars and dingbats from subsets of Noto Sans
+## Symbols 2 and Noto Sans Math (all SIL Open Font License, see assets/fonts/Noto-OFL.txt). test_ui_icons checks
+## every symbol the game uses is in one of them.
+const ICON_FONTS := ["res://assets/fonts/NotoEmoji-UI.ttf", "res://assets/fonts/NotoSansSymbols2-UI.ttf", "res://assets/fonts/NotoSansMath-UI.ttf"]
+const ICON_WEIGHT := 600   # Noto Emoji is a variable font (300 to 700); 600 sits with Nunito 750 and Fredoka 600
+
+static func icon_fonts() -> Array[Font]:
+	if _icons.is_empty():
+		for path in ICON_FONTS:
+			var f: FontFile = load(path)
+			if path.ends_with("NotoEmoji-UI.ttf"):
+				var fv := FontVariation.new(); fv.base_font = f
+				fv.variation_opentype = {TextServerManager.get_primary_interface().name_to_tag("wght"): ICON_WEIGHT}
+				_icons.append(fv)
+			else: _icons.append(f)
+	return _icons
 
 static func _variant(path: String, weight: int) -> Font:
 	var fv := FontVariation.new()
 	fv.base_font = load(path)
 	var ts := TextServerManager.get_primary_interface()
 	fv.variation_opentype = {ts.name_to_tag("wght"): weight}
-	fv.fallbacks = [_emoji_font()]
+	fv.fallbacks = icon_fonts()
 	return fv
 
-## Body text: Nunito (bundled, SIL Open Font License), rounded and easy to read, with colour-emoji fallback.
+## Body text: Nunito (bundled, SIL Open Font License), rounded and easy to read, with the icon fonts as fallback.
 static func main_font() -> Font:
 	if _font == null: _font = _variant("res://assets/fonts/Nunito.ttf", 750)
 	return _font
