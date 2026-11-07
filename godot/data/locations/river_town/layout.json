@@ -88,55 +88,55 @@
    "d": 4,
    "wall": "#7a2e2a",
    "roof": "#b5653a",
-   "door": "S",
+   "door": "N",
    "navDoor": "ermesDoor",
    "interior": {
     "items": [
      [
       "desk",
       -1.2,
-      -1.2,
-      0
+      1.2,
+      2
      ],
      [
       "chair",
       -1.2,
-      -0.3,
-      2
+      0.3,
+      0
      ],
      [
       "bookshelf",
       1.8,
-      -1.3,
-      0
+      1.3,
+      2
      ],
      [
       "bed",
       1.7,
-      0.65,
-      0
+      -0.65,
+      2
      ],
      [
       "oven",
       -1.85,
-      1.3,
-      0
+      -1.3,
+      2
      ],
      [
       "lamp",
       0.2,
-      -1.4,
-      0
+      1.4,
+      2
      ]
     ],
     "route": [
      [
       0.0,
-      1.3
+      -1.3
      ],
      [
       -0.6,
-      0.3
+      -0.3
      ]
     ]
    }
@@ -1638,9 +1638,13 @@
    -32,
    22
   ],
-  "ermesDoor": [
+  "ermesYard": [
    -16,
    17.2
+  ],
+  "ermesDoor": [
+   -16,
+   11.2
   ],
   "leveeMid": [
    -6,
@@ -1954,10 +1958,10 @@
   ],
   [
    "leveeWest",
-   "ermesDoor"
+   "ermesYard"
   ],
   [
-   "ermesDoor",
+   "ermesYard",
    "leveeMid"
   ],
   [
@@ -2035,6 +2039,14 @@
   [
    "laneS3",
    "house1Door"
+  ],
+  [
+   "laneS3",
+   "ermesDoor"
+  ],
+  [
+   "ermesDoor",
+   "laneS2"
   ],
   [
    "laneS3",

@@ -113,7 +113,7 @@
    "lines": [
     "Click an answer, or press its number.",
     "Gold answers start a request.",
-    "Esc says goodbye."
+    "Goodbye is always 0 (or Esc)."
    ]
   },
   "chop": {
@@ -138,11 +138,12 @@
    ]
   },
   "build": {
-   "title": "Building",
+   "title": "How building works",
+   "seconds": 40,
    "lines": [
-    "Pick a piece at the bottom, then click to place it. {rotate} turns it.",
-    "Green means it fits; red tells you why it doesn't.",
-    "Click a placed piece to move, recolour or remove it. Ctrl+Z undoes. Esc leaves."
+    "Pick a piece below and click to build; {rotate} turns it. Red says why it won't fit.",
+    "Purple outlines are a plan: put the same piece on each. {plan_next} picks up the next one.",
+    "Ctrl+Z undoes. Esc leaves."
    ]
   },
   "harmony": {

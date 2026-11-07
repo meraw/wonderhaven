@@ -19,7 +19,7 @@ var env: WorldEnvironment
 var ui_root: Control
 var hud: Hud
 var toasts: VBoxContainer
-var hud_res: HBoxContainer
+var hud_res: VBoxContainer   # the lire and material chips, in rows (render_resources)
 var prompt_panel: PanelContainer
 var prompt_label: Label
 var hotkeys: Label
@@ -161,7 +161,8 @@ func _build_ui() -> void:
 	layer.add_child(ui_root)
 	hud = Hud.new(); hud.name = "Hud"; ui_root.add_child(hud); hud.setup(self)
 	var rp := UiTheme.panel(); rp.position = Vector2(14, 14); rp.mouse_filter = Control.MOUSE_FILTER_IGNORE; hud.add_child(rp)
-	hud_res = HBoxContainer.new(); hud_res.add_theme_constant_override("separation", 8); rp.add_child(hud_res)
+	hud_res = VBoxContainer.new(); hud_res.add_theme_constant_override("separation", 6); rp.add_child(hud_res)
+	get_viewport().size_changed.connect(func(): if state: render_resources())
 	prompt_panel = UiTheme.panel(UiTheme.CREAM, UiTheme.LINE, 999); prompt_label = UiTheme.label("", 18); prompt_panel.add_child(prompt_label)
 	var pc := CenterContainer.new(); pc.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	pc.anchor_right = 1; pc.anchor_top = 1; pc.anchor_bottom = 1; pc.offset_top = -150; pc.offset_bottom = -100
@@ -222,19 +223,51 @@ func emit_event(type: String, data: Dictionary = {}) -> void: game_event.emit(ty
 func sfx(name: String) -> void: if audio: audio.sfx(name)
 func voice(pitch: float, syllables: int) -> void: if audio: audio.voice(pitch, syllables)
 
+## The chips at the top left: lire, building materials, and whatever a request here has you collect (sand, runaway
+## logs). Everything else you carry (treats, letters, lost things, river junk) is in the bag. The chips wrap onto
+## another row before they reach the panel at the top centre, so however much you carry they never run under it or
+## under the request tracker on the right.
 func render_resources(pop: Array = []) -> void:
 	for c in hud_res.get_children(): hud_res.remove_child(c); c.queue_free()   # remove first so new chips keep their names
-	for id in Data.resource_order:
+	var max_w := resources_width()
+	var row: HBoxContainer = null
+	var row_w := 0.0
+	for id in hud_items():
 		var n: int = int(state.inventory.get(id, 0))
 		var money: bool = id == "coins"   # always shown, in gold
-		if not money and n <= 0: continue
+		var text: String = ("%s %s" % [Data.resources[id].icon, Money.lire(n)]) if money else ("%s %d" % [Data.resources[id].icon, n])
+		var w: float = UiTheme.main_font().get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 15).x + 34.0   # text, padding and border
+		if row == null or (row_w > 0.0 and row_w + w > max_w):
+			row = HBoxContainer.new(); row.add_theme_constant_override("separation", 8); row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			hud_res.add_child(row); row_w = 0.0
 		var chip := UiTheme.panel(Color("fff7cf") if money else Color.WHITE, UiTheme.GOLD if money else Color("f3dfc0"), 999)
 		chip.name = "res_" + id
-		chip.add_child(UiTheme.label(("%s %s" % [Data.resources[id].icon, Money.lire(n)]) if money else ("%s %d" % [Data.resources[id].icon, n]), 15))
-		hud_res.add_child(chip)
+		chip.add_child(UiTheme.label(text, 15))
+		row.add_child(chip); row_w += w + 8.0
 		if pop.has(id):
 			chip.pivot_offset = Vector2(30, 14)
 			var tw := chip.create_tween(); tw.tween_property(chip, "scale", Vector2(1.3, 1.3), 0.12); tw.tween_property(chip, "scale", Vector2.ONE, 0.25)
+
+## Which items get a chip: lire always; building materials (anything a piece costs) and what a request here gathers
+## or hands over, when you have some.
+func hud_items() -> Array:
+	var want := {"coins": true}
+	for p in Data.pieces:
+		for k in p.get("cost", {}): want[k] = true
+	if story:
+		for q in story.engine.active():
+			if not story.engine.here(q.id): continue
+			for o in q.objectives:
+				if o.kind == "gather": want[o.item] = true
+				if o.kind == "pay":
+					for k in o.items: want[k] = true
+	return Data.resource_order.filter(func(id): return want.has(id) and Data.resources.has(id) and (id == "coins" or int(state.inventory.get(id, 0)) > 0))
+
+## How wide a row of chips may be: up to the panel at the top centre (the approval rating and clock).
+func resources_width() -> float:
+	var vw: float = get_viewport().get_visible_rect().size.x
+	var mid: float = hud.top_panel.size.x if hud and hud.top_panel and hud.top_panel.size.x > 0.0 else 520.0
+	return clampf(vw / 2.0 - mid / 2.0 - 14.0 - 28.0 - 16.0, 150.0, 560.0)   # left margin, the panel's own padding, a gap
 
 func give(items: Dictionary, source = null, quiet: bool = false) -> void:
 	Inventory.add(state.inventory, items)

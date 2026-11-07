@@ -120,7 +120,7 @@ func talk(id: String, accept: bool = true) -> bool:
 				for i in ui.choices.size():
 					if ui.choices[i].kind == "bye": idx = i
 			print("   ", id, " › ", ui.choices[idx].label)
-			await tap(KEY_1 + idx)
+			await tap(game.dialogue.key_for(idx))
 		else: await tap(KEY_E)
 	return true
 
@@ -195,6 +195,19 @@ func open_build(zone_id: String) -> void:
 		game.build.cycle_zone(1); await frames(2)
 	game.cam.yaw = 0.35; game.cam.pitch = 1.05; game.cam.dist = 15
 	await frames(6)
+
+## Boxes on screen in build mode that overlap each other: the guide and tip cards and build mode's own panels
+## (its tool bar, status line, checklist, plan panel and catalogue).
+func build_ui_clashes() -> Array:
+	var panels: Array = [game.hud.guide_card, game.hud.tip_card]
+	if game.build.ui: panels.append_array(game.build.ui.find_children("*", "PanelContainer", true, false))
+	var out: Array = []
+	for i in panels.size():
+		for j in range(i + 1, panels.size()):
+			var a: Control = panels[i]; var b: Control = panels[j]
+			if a.is_ancestor_of(b) or b.is_ancestor_of(a) or not a.is_visible_in_tree() or not b.is_visible_in_tree(): continue
+			if a.get_global_rect().grow(-2).intersects(b.get_global_rect().grow(-2)): out.append("%s × %s" % [a.name, b.name])
+	return out
 
 func select_piece(id: String) -> void:
 	var cat: String = Data.piece(id).cat

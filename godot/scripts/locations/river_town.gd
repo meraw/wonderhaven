@@ -186,6 +186,7 @@ const PEBBLES_DARK := Color("bdb5a4")
 const SAND := Color("e0cf9f")         # the Po's pale sandbank
 const STUBBLE := [Color("bfa766"), Color("a99258")]   # harvested maize
 const BALLAST := Color("8a8276")
+const BRIDGE_DECK := Color("b0a289")   # the Roman bridge's worn paving
 const PO_BED := Color("6e5d48")
 const ALPINE_BED := Color("aaa392")
 const TIDE_H := 1.25                  # how high the flood came up the levee
@@ -211,6 +212,9 @@ static func paint(x: float, z: float) -> Color:
 	var da := absf(x - ac)
 	var pb := po_bank(x)
 	var sb := Vector2((x - SANDBANK.x) / SANDBANK_HALF.x, (z - SANDBANK.z) / SANDBANK_HALF.y).length()
+	# the Roman bridge's deck: worn paving stones, no grass growing on it (it used to take the paint of the riverbed
+	# and banks below: pebbles in the middle, grass tufts up the ramps)
+	if absf(z - ROMAN_Z) < ROMAN_HALF + 0.3 and da < 8.3: return _bare(BRIDGE_DECK.lerp(BRIDGE_DECK.darkened(0.14), n))
 	# riverbeds, seen through the water: pebbles under the clear Alpine river, mud under the Po and the backwater
 	if h < Heightfield.WALKABLE_MIN:
 		if da < ALPINE_HALF + 1.0 and z < pb - 1.0: return _bare(ALPINE_BED.lerp(PEBBLES_DARK, n * 0.5))

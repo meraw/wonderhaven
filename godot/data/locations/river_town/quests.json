@@ -8,7 +8,7 @@
    "main": true,
    "type": "request",
    "chapter": 1,
-   "description": "The levee warden meets your bus with a shovel. Fill sandbags at the sandbank for the patch in the breach, have a coffee at Rina's, and find the houseboat you'll sleep in.",
+   "description": "The levee warden meets your bus with a shovel. Dig sand at the sandbank for the patch in the breach, then go up to Rina's for a coffee: she'll tell you where you're sleeping.",
    "requires": {},
    "objectives": [
     {
@@ -27,13 +27,14 @@
      "id": "patch",
      "kind": "pay",
      "stage": 1,
-     "text": "Bring Ermes the sand for the patch",
+     "text": "Bring the sand to Ermes at the breach",
      "npc": "river_town_ermes",
      "items": {
       "river_town_sand": 5
      },
      "lines": [
-      "Good. That'll hold the breach till Tuesday. Maybe Wednesday."
+      "Good. Into the patch it goes. That'll hold the breach till Tuesday. Maybe Wednesday.",
+      "Three hundred and forty centimetres at eight o'clock, and going down. You've earned a coffee. Rina's bar, up on the piazza. She'll tell you where you're sleeping."
      ]
     },
     {
@@ -42,18 +43,6 @@
      "stage": 2,
      "text": "Have a coffee at Rina's bar on the piazza",
      "npc": "river_town_rina",
-     "lines": [
-      "So you're the Geometra. Sit. No, stand, the chairs are wet. Coffee.",
-      "Everyone's staring because you're new and dry. It'll pass. The dry part, anyway.",
-      "Your houseboat's down on the floodplain, past the levee. The flood left it on the mud. It's dry inside. Mostly."
-     ]
-    },
-    {
-     "id": "settled",
-     "kind": "talk",
-     "stage": 3,
-     "text": "Tell Ermes you've found your way around",
-     "npc": "river_town_ermes",
      "final": true
     }
    ],
@@ -75,23 +64,26 @@
     "acceptLabel": "Take the shovel",
     "declineLabel": "Let me put my suitcase down first",
     "accept": [
-     "The sandbank's down past the levee, where the Po makes a beach. Dig. Bring it to me.",
+     "The sandbank's down past the levee, where the Po makes a beach. Dig. I'll be at the breach, minding the patch. Bring it there.",
      "On the way you'll see the piazza. It's still a pond. Don't fall in, it's mostly coffee."
     ],
     "decline": [
      "Suitcase. Fine. The river doesn't wait, but I can. For a minute."
     ],
     "progress": [
-     "Sand first. Then me. Then coffee at Rina's. Then you'll know everything I know, minus forty years."
+     "Sand first. Then me, here at the breach. Then a coffee at Rina's. Then you'll know everything I know, minus forty years."
     ],
     "complete": [
-     "Three hundred and forty centimetres at eight o'clock, and going down. Now you've got a job, a boat and Rina's opinion of you.",
-     "Welcome to Boccapioppo, Geometra. Mind the river. It's watching."
+     "So you're the Geometra. Sit. No, stand, the chairs are wet. Coffee.",
+     "Ermes sent you up here with sand in your shoes. That means he likes you. He'll never say so.",
+     "Your houseboat's down on the floodplain, past the levee, by the backwater. The flood left her on the mud. She's dry inside. Mostly.",
+     "Welcome to Boccapioppo. The coffee's on the house. The house is on the mud."
     ]
    },
    "onAccept": {
     "flags": [
-     "hasTool"
+     "hasTool",
+     "river_town_shovel"
     ],
     "items": {
      "coins": 5
@@ -116,9 +108,9 @@
      "id": "wood",
      "kind": "gather",
      "stage": 0,
-     "text": "Gather 16 wood (poplars on the east bank, over the Roman bridge)",
+     "text": "Gather 19 wood (poplars on the east bank, over the Roman bridge)",
      "item": "wood",
-     "count": 16,
+     "count": 19,
      "hint": {
       "x": 46,
       "z": -30
@@ -177,7 +169,39 @@
      "hint": {
       "x": 31,
       "z": 13
-     }
+     },
+     "plan": [
+      [
+       27,
+       13,
+       "pontoon",
+       1
+      ],
+      [
+       29,
+       13,
+       "pontoon",
+       1
+      ],
+      [
+       31,
+       13,
+       "pontoon",
+       1
+      ],
+      [
+       33,
+       13,
+       "pontoon",
+       1
+      ],
+      [
+       35,
+       13,
+       "pontoon",
+       1
+      ]
+     ]
     },
     {
      "id": "rails",
@@ -193,7 +217,33 @@
      "hint": {
       "x": 31,
       "z": 13
-     }
+     },
+     "plan": [
+      [
+       28,
+       13,
+       "railing",
+       0
+      ],
+      [
+       30,
+       13,
+       "railing",
+       0
+      ],
+      [
+       32,
+       13,
+       "railing",
+       0
+      ],
+      [
+       34,
+       13,
+       "railing",
+       0
+      ]
+     ]
     },
     {
      "id": "tell",
@@ -314,7 +364,39 @@
      "hint": {
       "x": 25,
       "z": 5.5
-     }
+     },
+     "plan": [
+      [
+       27,
+       5,
+       "waterwheel",
+       1
+      ],
+      [
+       26,
+       5,
+       "shaft",
+       1
+      ],
+      [
+       25,
+       5,
+       "shaft",
+       1
+      ],
+      [
+       24,
+       5,
+       "shaft",
+       1
+      ],
+      [
+       23,
+       5,
+       "shaft",
+       1
+      ]
+     ]
     },
     {
      "id": "tell",
@@ -388,9 +470,9 @@
      "id": "wood",
      "kind": "gather",
      "stage": 0,
-     "text": "Gather 15 wood",
+     "text": "Gather 17 wood",
      "item": "wood",
-     "count": 15,
+     "count": 17,
      "hint": {
       "x": 46,
       "z": -18
@@ -405,6 +487,18 @@
      "count": 2,
      "hint": {
       "x": 7,
+      "z": -11
+     }
+    },
+    {
+     "id": "stone",
+     "kind": "gather",
+     "stage": 0,
+     "text": "Mine 1 stone for the top of the bar counter (boulders on the gravel bar)",
+     "item": "stone",
+     "count": 1,
+     "hint": {
+      "x": 34,
       "z": -11
      }
     },
@@ -465,7 +559,82 @@
       "flags": [
        "river_town_hall_ready"
       ]
-     }
+     },
+     "plan": [
+      [
+       14,
+       31,
+       "floor"
+      ],
+      [
+       15,
+       31,
+       "floor"
+      ],
+      [
+       16,
+       31,
+       "floor"
+      ],
+      [
+       17,
+       31,
+       "floor"
+      ],
+      [
+       18,
+       31,
+       "floor"
+      ],
+      [
+       19,
+       31,
+       "floor"
+      ],
+      [
+       18,
+       29,
+       "platform",
+       0
+      ],
+      [
+       14,
+       29,
+       "counter",
+       0
+      ],
+      [
+       12,
+       29,
+       "lamp",
+       0
+      ],
+      [
+       12,
+       33,
+       "lamp",
+       0
+      ],
+      [
+       15,
+       33,
+       "chair",
+       0,
+       "#7bd389"
+      ],
+      [
+       16,
+       33,
+       "chair",
+       0
+      ],
+      [
+       17,
+       33,
+       "chair",
+       0
+      ]
+     ]
     },
     {
      "id": "word",
@@ -622,7 +791,89 @@
       "flags": [
        "river_town_wall_built"
       ]
-     }
+     },
+     "plan": [
+      [
+       2,
+       21,
+       "stoneBlock"
+      ],
+      [
+       2,
+       21,
+       "sandbags"
+      ],
+      [
+       3,
+       21,
+       "stoneBlock"
+      ],
+      [
+       3,
+       21,
+       "sandbags"
+      ],
+      [
+       3,
+       21,
+       "sandbags"
+      ],
+      [
+       4,
+       21,
+       "stoneBlock"
+      ],
+      [
+       4,
+       21,
+       "sandbags"
+      ],
+      [
+       4,
+       21,
+       "sandbags"
+      ],
+      [
+       5,
+       21,
+       "stoneBlock"
+      ],
+      [
+       5,
+       21,
+       "sandbags"
+      ],
+      [
+       5,
+       21,
+       "sandbags"
+      ],
+      [
+       6,
+       21,
+       "stoneBlock"
+      ],
+      [
+       6,
+       21,
+       "sandbags"
+      ],
+      [
+       6,
+       21,
+       "sandbags"
+      ],
+      [
+       7,
+       21,
+       "stoneBlock"
+      ],
+      [
+       7,
+       21,
+       "sandbags"
+      ]
+     ]
     },
     {
      "id": "storm",
@@ -786,7 +1037,19 @@
      "hint": {
       "x": -24,
       "z": 32
-     }
+     },
+     "plan": [
+      [
+       -24,
+       32,
+       "bridgeDeck"
+      ],
+      [
+       -24,
+       33,
+       "bridgeDeck"
+      ]
+     ]
     },
     {
      "id": "launch",
@@ -852,6 +1115,33 @@
        "recolored": true,
        "label": "A splash of colour (T)"
       }
+     ],
+     "plan": [
+      [
+       -24,
+       35,
+       "rug",
+       0
+      ],
+      [
+       -24,
+       35,
+       "table",
+       0,
+       "#ffd166"
+      ],
+      [
+       -23,
+       35,
+       "chair",
+       3
+      ],
+      [
+       -25,
+       35,
+       "lamp",
+       0
+      ]
      ]
     },
     {

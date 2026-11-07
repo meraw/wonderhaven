@@ -759,6 +759,7 @@
      "kind": "gather",
      "item": "fragment",
      "count": 5,
+     "fresh": true,
      "stage": 0,
      "text": "Find 5 lost things dropped in the fog (they glint on the pavement)",
      "hint": {

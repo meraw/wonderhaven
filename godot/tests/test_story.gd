@@ -36,7 +36,7 @@ func test_quest_flow():
 	e.on_gain({"wood": 6})
 	t.eq(e.current_stage("bridge"), 0, "still gathering")
 	t.eq(e.next_step("bridge").objective.id, "wood", "next: more wood")
-	e.on_gain({"wood": 4})
+	e.on_gain({"wood": 8})
 	t.eq(e.current_stage("bridge"), 1, "materials done: now build")
 	t.ok(e.shown_objectives("bridge").later == 1, "the railings step stays hidden until then")
 	built[0] = true
@@ -64,6 +64,29 @@ func test_stages_gate_gathering_and_talks():
 	t.eq(e.current_stage("workshop"), 2, "then furnish")
 	e.on_gain({"wood": 50})
 	t.eq(int(s.quests.workshop.progress.wood), 12, "gathering after its step doesn't keep counting")
+
+func test_gathering_in_advance_counts():
+	# Wood chopped before anyone asked for it counts: a gather step is done as soon as it comes up if your bag has
+	# enough, and stays done when you then build with it.
+	var s := GameState.new_game()
+	s.quests["tool"] = {"status": "done", "progress": {}}
+	s.inventory["wood"] = 14
+	var built := [false]
+	var e := QuestEngine.new(s, {"bridge": func(): return built[0]})
+	e.accept("bridge")
+	var ev := e.refresh()
+	t.eq(e.current_stage("bridge"), 1, "enough wood already in the bag: straight on to building")
+	t.ok(ev.any(func(x): return x.has("objective") and x.objective.id == "wood"), "the gathering step is reported done")
+	s.inventory["wood"] = 0   # spent on the crossing
+	e.refresh()
+	t.eq(e.current_stage("bridge"), 1, "spending the wood doesn't undo the gathering step")
+	# ...but a hunt for lost things in a new place counts only what you find there (fresh)
+	var o := {"id": "lost", "kind": "gather", "item": "fragment", "count": 5, "fresh": true}
+	t.ok(QuestEngine.counts_bag({"kind": "gather", "item": "wood", "count": 3}) and not QuestEngine.counts_bag(o), "fresh finds don't count the bag")
+	t.ok(not QuestEngine.counts_bag({"kind": "gather", "item": "page", "count": 3, "hours": [20, 6]}), "nor do finds tied to hours")
+	for q in Data.quests:
+		for ob in q.objectives:
+			if ob.kind == "gather" and ob.item == "fragment" and int(ob.count) > 1: t.ok(ob.get("fresh", false), "%s: a hunt for several lost things counts fresh finds" % q.id)
 
 func test_pay_for_the_deed():
 	var s := GameState.new_game()
@@ -93,6 +116,24 @@ func test_conversation():
 	t.ok(c.options.any(func(o): return o.kind == "offer" and o.id == "stones"), "side quest choice")
 	t.eq(c.options.back().kind, "bye")
 	t.ok(not "{name}" in c.greeting)
+
+func test_goodbye_is_always_zero():
+	# Leaving a conversation is the same key every time: Goodbye is 0 (and Esc), however many choices come first.
+	var ui := DialogueUI.new()
+	for n in [1, 3, 6]:
+		var opts: Array = []
+		for i in n: opts.append({"label": "Topic %d" % i, "kind": "topic"})
+		opts.append({"label": "Goodbye!", "kind": "bye"})
+		ui.choices = opts
+		t.eq(ui.key_for(n), KEY_0, "with %d choices before it, Goodbye is 0" % n)
+		t.eq(ui.key_for(0), KEY_1, "the first choice is 1")
+		t.eq(ui._choice_for_digit(0), n, "0 picks Goodbye")
+	ui.choices = [{"label": "Take the shovel", "kind": "yes"}, {"label": "Not now", "kind": "no"}]
+	t.eq([ui.key_for(0), ui.key_for(1)], [KEY_1, KEY_0], "turning down an offer is 0 too")
+	var s := GameState.new_game()
+	var c := Conversation.build(Data.npc("percival"), QuestEngine.new(s), s.flags, "Pip")
+	t.eq(c.options.filter(func(o): return DialogueUI.is_leave(o)).size(), 1, "a conversation has one way out")
+	ui.free()
 
 func test_first_meeting():
 	var s := GameState.new_game()
@@ -232,7 +273,7 @@ func test_live_checks_are_cached_until_something_changes():
 		return false
 	var e := QuestEngine.new(s, {"bridge": check})
 	e.accept("bridge")
-	e.on_gain({"wood": 10})
+	e.on_gain({"wood": 14})   # the wood step done, so the building step's live check is the current one
 	calls[0] = 0
 	for i in 20:
 		e.next_step("bridge"); e.is_ready("bridge"); e.current_stage("bridge"); e.shown_objectives("bridge")

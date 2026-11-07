@@ -43,7 +43,7 @@ func talk_for(id: String, want: String = "") -> bool:
 			for i in ui.choices.size():
 				if ui.choices[i].kind == "bye": idx = i
 		note("   %s > %s" % [id, ui.choices[idx].label])
-		await tap(KEY_1 + idx)
+		await tap(game.dialogue.key_for(idx))
 	return true
 
 func talk(id: String, accept: bool = true) -> bool: return await talk_for(id, "" if accept else "-")
@@ -95,7 +95,7 @@ func buy(npc: String, item: String, times: int = 1) -> bool:
 		if ui.choices.is_empty(): await tap(KEY_E); continue
 		var i: int = ui.choices.map(func(o): return o.get("kind", "")).find("shop")
 		if i < 0: i = ui.choices.map(func(o): return o.get("kind", "")).find("bye")
-		await tap(KEY_1 + i)
+		await tap(game.dialogue.key_for(i))
 		break
 	for n in 80:
 		await frames(4)

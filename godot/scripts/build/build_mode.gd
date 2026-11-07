@@ -41,6 +41,8 @@ func state() -> Dictionary: return game.state
 func unlocked_zones() -> Array: return Data.layout.zones.filter(func(z): return game.zone_unlocked(z))
 
 var opened_at := Vector3.INF   # where the player stood when build mode opened
+var plan_now: Array = []        # the ghost plans of the steps you're on here (Plans.current)
+var plan_marker: Node3D         # a bobbing arrow over the plan's next piece
 
 func open(zone_id: String = "") -> bool:
 	if not state().flags.get("hasTool", false):
@@ -69,7 +71,12 @@ func open(zone_id: String = "") -> bool:
 	grid_root.visible = true
 	game.cam.set_mode("build")
 	game.player_char.play("build", true); game.player_char.show_staff(true)
+	# with a plan to follow here, its next piece is already in your hand, turned the way its outline is
+	var nx := next_plan_piece()
+	if item_id == "" and selected == -1 and not nx.is_empty() and state().blueprints.has(nx.id):
+		item_id = nx.id; rotation = int(nx.r); category = String(Data.piece(nx.id).cat)
 	_build_ui()
+	_first_time_here()
 	game.emit_event("buildmode", {"open": true})
 	return true
 
@@ -163,6 +170,7 @@ func refresh_plan() -> void:
 	for p in Plans.current(game.story.engine): shown.append_array(p.pieces)
 	for zone in Data.layout.zones:
 		if zone.has("blueprint") and game.zone_plan_visible(zone): shown.append_array(Plans.lay_out(zone.blueprint, zone, state().placements))
+	plan_now = Plans.current(game.story.engine)
 	var missing: Array = []
 	for pl in shown:
 		if not state().blueprints.has(pl.id) and not missing.has(pl.id): missing.append(pl.id)
@@ -172,6 +180,55 @@ func refresh_plan() -> void:
 		g.position = Vector3(pl.i + fp.x / 2.0, float(pl.y) + 0.01, pl.k + fp.y / 2.0); g.rotation.y = -int(pl.r) * PI / 2.0
 		plan_root.add_child(g)
 	if not missing.is_empty(): game.story.unlock_blueprints(missing)
+	# an arrow over the next piece to build, bobbing, so you know where to start (and where you've got to)
+	plan_marker = null
+	var nx := next_plan_piece()
+	if not nx.is_empty():
+		var fp := BuildGrid.footprint(Data.piece(nx.id), int(nx.r))
+		plan_marker = Node3D.new(); plan_marker.name = "plan_next"
+		var arrow_mat := Palette.glow_mat(Color("8a5cff"), 0.9)
+		var tip := Palette.mi(Palette.cone(0.22, 0.4, 14), arrow_mat, Vector3(0, 0.2, 0), false); tip.rotation.x = PI; plan_marker.add_child(tip)   # pointing down
+		var stem := Palette.mi(Palette.cyl(0.08, 0.08, 0.35, 10), arrow_mat, Vector3(0, 0.55, 0), false); plan_marker.add_child(stem)
+		plan_marker.position = Vector3(nx.i + fp.x / 2.0, float(nx.y) + float(Data.piece(nx.id).h) + 0.35, nx.k + fp.y / 2.0)
+		plan_marker.set_meta("y0", plan_marker.position.y)
+		plan_root.add_child(plan_marker)
+
+## The plan for the site you're building on (the current zone's, else the first current one), or {}.
+func site_plan() -> Dictionary:
+	for p in plan_now:
+		if String(p.zone.get("id", "")) == String(current_zone.get("id", "")): return p
+	return plan_now[0] if not plan_now.is_empty() else {}
+
+## The next piece of that plan to build, laid out where it goes ({id, i, k, r, y}), or {}.
+func next_plan_piece() -> Dictionary:
+	var p := site_plan()
+	return {} if p.is_empty() else Plans.next_piece(p.pieces, state().placements)
+
+## Puts the plan's next piece in your hand, turned the way its outline is, and (move_view) brings it into view.
+func follow_plan(move_view: bool = true) -> void:
+	var nx := next_plan_piece()
+	if nx.is_empty():
+		game.toast("No plan to follow here. Build it your own way: the list on the right says what it needs." if site_plan().is_empty() else "Everything in the plan is built.")
+		return
+	if not moving.is_empty(): cancel_move()
+	category = String(Data.piece(nx.id).cat)
+	item_id = String(nx.id); rotation = int(nx.r); selected = -1; ghost_key = ""
+	state().new_blueprints.erase(item_id)
+	game.sfx("select")
+	if move_view: focus = Vector3(float(nx.i) + 0.5, focus.y, float(nx.k) + 0.5)
+	_build_ui()
+
+## The first time you build in a place, the "how building works" card (the shared tip card) comes up, even if you
+## saw it somewhere else; it's always there again under ❓ How to build.
+func _first_time_here() -> void:
+	var seen: Array = state().get("build_help", [])
+	if seen.has(Data.island): return
+	seen.append(Data.island); state()["build_help"] = seen
+	if "build" in state().get("tutorial", {}).get("seen", []): show_help()   # (otherwise the guide shows it now: Guide.tip)
+
+func show_help() -> void:
+	game.hud.clear_tips()
+	game.hud.show_tip(Data.tutorial.tips.build)
 
 # ---- Raycast cursor (maths against the heightfield and piece boxes; no physics needed)
 func pick(screen: Vector2) -> Dictionary:
@@ -296,6 +353,8 @@ func update(dt: float) -> void:
 	if Input.is_action_just_pressed("recolor"): cycle_color()
 	if Input.is_action_just_pressed("remove"): remove_target()
 	if Input.is_action_just_pressed("move_piece") and selected != -1 and moving.is_empty(): start_move(selected)
+	if Input.is_action_just_pressed("plan_next"): follow_plan(true)
+	if is_instance_valid(plan_marker): plan_marker.position.y = float(plan_marker.get_meta("y0")) + 0.12 * sin(game.time * 4.0)
 	_gamepad_cursor(dt)
 	var over_ui := _over_ui(mouse)
 	hover = {} if over_ui else pick(mouse)
@@ -392,8 +451,14 @@ func place() -> void:
 	if color != "" and d.get("colorable", false): pl["color"] = color
 	if d.get("mech", {}).get("switch", false): pl["state"] = {"on": true}
 	if d.get("door", false): pl["state"] = {"open": false}
+	var planned := next_plan_piece()
 	var r: Dictionary = game.commit_place(pl, true)
-	if r.ok: history.push({"type": "place", "pl": pl.duplicate(true)}); ghost_key = ""; _build_ui()
+	if r.ok:
+		history.push({"type": "place", "pl": pl.duplicate(true)}); ghost_key = ""
+		# you built the plan's next piece: if the one after is the same kind, it comes turned the way its outline is
+		var nx := next_plan_piece()
+		if not planned.is_empty() and Plans.built(planned, state().placements) and not nx.is_empty() and String(nx.id) == item_id: rotation = int(nx.r)
+		_build_ui()
 
 func remove_target() -> void:
 	var uid: int = selected if selected != -1 else (hover.get("uid", -1) if not hover.is_empty() else -1)
@@ -476,7 +541,7 @@ func apply_cmd(cmd: Dictionary, dir: String) -> Dictionary:
 func select_item(id: String) -> void:
 	if not state().blueprints.has(id): game.toast("Locked — " + game.blueprint_hint(id), "warn"); return
 	if not moving.is_empty(): cancel_move()
-	item_id = "" if item_id == id else id
+	item_id = id   # (clicking the piece already in your hand keeps it: build mode may have picked it for you from a plan; right-click or Esc lets go)
 	selected = -1; ghost_key = ""
 	state().new_blueprints.erase(id)
 	game.sfx("select")
@@ -525,6 +590,7 @@ func _build_ui() -> void:
 	var ub := UiTheme.button("↶ Undo", undo); ub.disabled = not history.can_undo(); tb.add_child(ub)
 	var rb := UiTheme.button("↷ Redo", redo); rb.disabled = not history.can_redo(); tb.add_child(rb)
 	tb.add_child(UiTheme.button("½ grid: %s" % ("on" if half else "off"), func(): half = not half; _build_ui()))
+	var hb := UiTheme.button("❓ How to build", show_help); hb.name = "build_help"; tb.add_child(hb)
 	tb.add_child(UiTheme.button("Done", close, true))
 	var top_c := CenterContainer.new(); top_c.anchor_right = 1; top_c.offset_top = 64; top_c.offset_bottom = 110; top_c.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	top_c.add_child(top); ui.add_child(top_c)
@@ -553,6 +619,7 @@ func _build_ui() -> void:
 			var gl := UiTheme.label(("" if it.get("later", false) else ("✔ " if it.ok else "○ ")) + it.label, 13, Color("2f8a52") if it.ok else (UiTheme.INK2 if it.get("later", false) else UiTheme.INK))
 			gl.autowrap_mode = TextServer.AUTOWRAP_WORD; gl.custom_minimum_size.x = 246; gv.add_child(gl)
 		right.add_child(gp)
+	if selected == -1 and moving.is_empty(): _plan_panel(right)
 	if selected != -1 or not moving.is_empty():
 		var pl: Dictionary = moving.pl if not moving.is_empty() else _find(selected)
 		if not pl.is_empty():
@@ -571,7 +638,7 @@ func _build_ui() -> void:
 				v.add_child(UiTheme.label("Removing refunds " + _cost_text(d.cost), 12, UiTheme.INK2))
 			else: v.add_child(UiTheme.label("Click to put it down · R rotate · right click to cancel", 12, UiTheme.INK2))
 			right.add_child(p)
-	right.add_child(help)
+	if right.get_node_or_null("plan_panel") == null: right.add_child(help)   # (with a plan, the panel and the ❓ card say how)
 	# Catalog
 	var cat := UiTheme.panel(Color(UiTheme.CREAM, 0.97), UiTheme.LILAC, 24)
 	cat.anchor_top = 1; cat.anchor_bottom = 1; cat.anchor_left = 0.5; cat.anchor_right = 0.5
@@ -583,8 +650,14 @@ func _build_ui() -> void:
 		var b := UiTheme.button("%s %s" % [c.icon, c.name], func(): category = cid; _build_ui(), category == cid)
 		b.name = "tab_" + cid
 		tabs.add_child(b)
+	# what you have, beside what the pieces cost (the HUD's chips step aside in build mode); it fills the space
+	# between the tabs and the colour swatches, and wraps rather than pushing them off the panel
+	var have: Array = game.hud_items().map(func(id): return ("%s %s" % [Data.resources[id].icon, Money.lire(int(state().inventory.get(id, 0)))]) if id == "coins" else ("%s %d" % [Data.resources[id].icon, int(state().inventory.get(id, 0))]))
+	var hv := UiTheme.label("You have  " + "   ".join(have), 13, UiTheme.INK2); hv.name = "build_have"
+	hv.size_flags_horizontal = Control.SIZE_EXPAND_FILL; hv.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	hv.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT; hv.autowrap_mode = TextServer.AUTOWRAP_WORD; hv.custom_minimum_size.x = 180
+	tabs.add_child(hv)
 	if item_id != "" and Data.piece(item_id).get("colorable", false):
-		var spacer := Control.new(); spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL; tabs.add_child(spacer)
 		tabs.add_child(_swatches(color if color != "" else Data.piece(item_id).color, set_color))
 	# Every piece stays visible: the catalog wraps onto a second row instead of scrolling sideways.
 	var items := HFlowContainer.new(); items.add_theme_constant_override("h_separation", 6); items.add_theme_constant_override("v_separation", 6); cv.add_child(items)
@@ -612,6 +685,39 @@ func _build_ui() -> void:
 		btn.pressed.connect(func(): select_item(pid))
 		items.add_child(btn)
 	ui.add_child(cat)
+
+## The plan you can follow on this site: how far along it is, what the next piece is and where it goes, what you
+## still need for it, and a button (or V) that puts it in your hand.
+func _plan_panel(col: VBoxContainer) -> void:
+	var sp := site_plan()
+	if sp.is_empty(): return
+	var nx := next_plan_piece()
+	var pp := UiTheme.panel(Color("f6f0ff"), UiTheme.LILAC); pp.name = "plan_panel"
+	var pv := VBoxContainer.new(); pv.add_theme_constant_override("separation", 4); pp.add_child(pv)
+	pv.add_child(UiTheme.label("📐 Follow the glowing plan   %d / %d" % [Plans.built_count(sp.pieces, state().placements), sp.pieces.size()], 14, Color("7a5cc9")))
+	var any := UiTheme.label("(or build it your own way)", 11, UiTheme.INK2); pv.add_child(any)
+	var lines: Array = []
+	if nx.is_empty(): lines.append("Every piece of the plan is built.")
+	else:
+		var d := Data.piece(String(nx.id))
+		lines.append("Next: %s %s, on the outline under the purple arrow." % [d.icon, d.name])
+		if item_id == String(nx.id):   # in your hand (otherwise the button below picks it up)
+			if rotation != int(nx.r) and _turn_matters(d): lines.append("Press %s to turn it until it matches the outline." % Controls.key_label("rotate"))
+			else: lines.append("Point at the outline: green means it fits. Click to build it.")
+		var short := Inventory.missing(state().inventory, d.get("cost", {}))
+		if not short.is_empty():
+			lines.append("You need %s more for it." % ", ".join(short.map(func(m): return Money.lire(int(m.need)) if m.id == "coins" else "%d %s" % [int(m.need), String(Data.resources[m.id].name).to_lower()])))
+	for t in lines:
+		var l := UiTheme.label(t, 12, UiTheme.INK); l.autowrap_mode = TextServer.AUTOWRAP_WORD; l.custom_minimum_size.x = 246; pv.add_child(l)
+	if not nx.is_empty() and item_id != String(nx.id):
+		var b := UiTheme.button("📐 Pick the next piece  (%s)" % Controls.key_label("plan_next"), func(): follow_plan(true)); b.name = "plan_pick"
+		b.add_theme_font_size_override("font_size", 14); pv.add_child(b)
+	col.add_child(pp)
+
+## Does which way a piece faces change it (a long piece, a railing on one edge, a machine's axle, a chair)?
+static func _turn_matters(d: Dictionary) -> bool:
+	var sz: Array = d.get("size", [1, 1])
+	return int(sz[0]) != int(sz[1]) or d.get("edge", false) or d.has("mech") or d.has("box") or d.get("attach", "") == "wall"
 
 func _swatches(current: String, cb: Callable) -> HBoxContainer:
 	var row := HBoxContainer.new(); row.add_theme_constant_override("separation", 4)

@@ -2,7 +2,11 @@ class_name QuestEngine
 extends RefCounted
 ## Quests: offering, accepting, tracking objectives from events and live checks, turning in.
 ## Objective kinds:
-##   gather {item, count, stat?}   items gained while the objective is current (stat: lifetime count instead)
+##   gather {item, count, stat?}   have this many: what's in your bag counts, so you can stock up on wood or stone
+##                                 before anyone asks. `fresh: true` (a hunt for lost things in this place) or
+##                                 `hours` (gather at night) count only what you gain while the step is current;
+##                                 `stat` counts a lifetime total instead. A finished gather step stays finished
+##                                 when you then spend the items on building.
 ##   event  {event, count}         game events (fish, plant, feed, ...) while current
 ##   build  {check}                a live check from `checks` (bridge walkable, fountain fed, ...)
 ##   room   {zone, needs}          a room checklist in a build zone: needs = [{any: [piece ids], count?, label} | {recolored: true, label}]
@@ -14,7 +18,7 @@ extends RefCounted
 ## Time of day: a request with `hours: [from, to]` is only offered between those hours; a step with `hours` only
 ## counts then (talking, gathering, events, paying). Windows can wrap past midnight.
 ## Stages: an objective may have a `stage` (0 by default). Only the lowest stage with something unfinished is
-## current: gathering and events only count for current objectives, and the journal and tracker show the request
+## current: events (and fresh gathering) only count for current objectives, and the journal and tracker show the request
 ## step by step. onDone {flags, items, blueprints} on an objective is applied when it completes. Live checks latch.
 
 var state: Dictionary
@@ -136,6 +140,7 @@ func _objective(qid: String, o: Dictionary) -> Dictionary:
 		"gather", "event":
 			# a `stat` objective also counts finds made before accepting (chests don't come back)
 			var before: int = int(state.get("stats", {}).get(o.stat, 0)) if o.has("stat") else 0
+			if o.kind == "gather" and counts_bag(o): before = maxi(before, int(state.get("inventory", {}).get(o.item, 0)))
 			var have := mini(need, maxi(int(p.get(o.id, 0)), before))
 			return {"done": have >= need, "have": have, "need": need}
 		"harmony": return {"done": p.get(o.id, 0) == 1 or state.harmony >= o.value, "have": mini(int(state.harmony), int(o.value)), "need": int(o.value)}
@@ -162,6 +167,10 @@ func _objective(qid: String, o: Dictionary) -> Dictionary:
 			return {"done": n >= need, "have": mini(n, need), "need": need}
 	return {"done": false, "have": 0, "need": need}
 
+## A gather step counts what you're carrying (wood chopped last week counts), unless it's a hunt for fresh finds
+## (`fresh`) or tied to hours (`hours`: gather at night), which count only what turns up while the step is current.
+static func counts_bag(o: Dictionary) -> bool: return not o.get("fresh", false) and not o.has("hours") and not o.has("stat")
+
 func is_ready(qid: String) -> bool:
 	if status(qid) != "active": return false
 	for o in Data.quest(qid).objectives:
@@ -186,6 +195,7 @@ func refresh() -> Array:
 				if o.get("final", false) or stage_of(o) > cur: continue
 				var st := objective(q.id, o)
 				if st.done and o.kind in ["harmony", "meter", "build", "flag", "room", "pieces"]: r.progress[o.id] = 1
+				if st.done and o.kind == "gather": r.progress[o.id] = st.need   # stays done when you build with it
 				if st.done and not r.done.has(o.id): r.done[o.id] = true; newly.append({"quest": q, "objective": o}); any = true
 			if not any or current_stage(q.id) == cur: break
 		if is_ready(q.id) and not r.get("ready", false): r["ready"] = true; newly.append({"quest": q, "ready": true})

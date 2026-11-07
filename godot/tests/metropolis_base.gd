@@ -151,7 +151,7 @@ func converse(id: String, accept: bool) -> bool:
 			if idx < 0:
 				for i in ui.choices.size():
 					if ui.choices[i].kind == "bye": idx = i
-			await tap(KEY_1 + idx)
+			await tap(game.dialogue.key_for(idx))
 		else: await tap(KEY_E)
 	return true
 

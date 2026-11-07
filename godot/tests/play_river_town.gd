@@ -269,7 +269,7 @@ func talk(id: String, accept: bool = true) -> bool:
 				for i in ui.choices.size():
 					if ui.choices[i].kind == "bye": idx = i
 			print("   ", id, " › ", ui.choices[idx].label)
-			await tap(KEY_1 + idx)
+			await tap(game.dialogue.key_for(idx))
 		else: await tap(KEY_E)
 	return true
 
@@ -300,9 +300,9 @@ func choose(id: String, want: String) -> bool:
 		var ui: DialogueUI = game.dialogue
 		if ui.choices.is_empty(): await tap(KEY_E); continue
 		var kinds: Array = ui.choices.map(func(c): return c.kind)
-		if kinds.has(want): await tap(KEY_1 + kinds.find(want)); return true
+		if kinds.has(want): await tap(game.dialogue.key_for(kinds.find(want))); return true
 		var idx: int = kinds.find("yes") if kinds.has("yes") else (kinds.find("pay") if kinds.has("pay") else kinds.find("bye"))
-		await tap(KEY_1 + idx)
+		await tap(game.dialogue.key_for(idx))
 	return false
 
 ## Places a piece with its corner cell at (i, k), clicking the middle of its whole footprint (for a piece two cells
@@ -457,11 +457,11 @@ func sec_welcome() -> void:
 	await talk(P + "ermes")
 	var accepted: bool = qs("welcome") == "active" and s.flags.get("hasTool", false)
 	await gather_item(P + "sand", 5)
-	await talk(P + "ermes")   # the sand for the patch
-	await talk(P + "rina")    # coffee
-	await talk(P + "ermes")   # tell him you've found your way
-	check("s1", "Straight to Work: sand from the sandbank for Ermes's patch, coffee at Rina's, and the gauge comes down a metre",
-		accepted and qs("welcome") == "done" and pts() == 100 and reading() == "6.40 m" and flag("welcomed"), "%s, gauge %s" % [qs("welcome"), reading()])
+	var at_breach: bool = Vector2(game.npcs[P + "ermes"].pos.x - Data.layout.nav_nodes.stormA[0], game.npcs[P + "ermes"].pos.z - Data.layout.nav_nodes.stormA[1]).length() < 4.0
+	await talk(P + "ermes")   # the sand for the patch, at the breach
+	await talk(P + "rina")    # coffee, and where you're sleeping: the request ends there, no walk back to Ermes
+	check("s1", "Straight to Work: sand from the sandbank for Ermes at the breach, coffee at Rina's to finish, and the gauge comes down a metre",
+		accepted and at_breach and qs("welcome") == "done" and pts() == 100 and reading() == "6.40 m" and flag("welcomed"), "%s, gauge %s, Ermes at the breach %s" % [qs("welcome"), reading(), at_breach])
 	await shot("welcome-done")
 
 func sec_bike() -> void:
@@ -497,10 +497,11 @@ func sec_bike() -> void:
 		await tap(KEY_H); await frames(4)
 		bell_ok = game.player.riding and game.hotkeys.text.contains("Bell")
 	if not game.player.riding: await tap(KEY_F); await frames(4)
-	await walk_direct(-16.0, 19.5, 0.6, 30.0)
-	await walk_direct(-16.0, 15.0, 0.5, 20.0)   # in through Ermes's door
+	var door: Array = Data.layout.nav_nodes.ermesDoor   # on the lane, north of his house
+	await walk_to(door[0], door[1], 0.6)
+	await walk_direct(-16.0, 14.0, 0.5, 20.0)   # in through Ermes's door
 	var off_indoors: bool = not game.player.riding
-	await walk_direct(-16.0, 19.5, 0.6, 20.0)
+	await walk_direct(door[0], door[1], 0.5, 20.0)
 	await tap(KEY_F); await frames(4)
 	var remounted: bool = game.player.riding
 	await talk(P + "primo")   # tell him how it rides: you hop off to talk
@@ -538,7 +539,10 @@ func sec_bridge() -> void:
 	await select_piece("pontoon")
 	for i in [27, 29, 31, 33, 35]: await place_piece("pontoon", i, 13, 0.1, 1)
 	var path_done: bool = stage("bridge") >= 3
+	await frames(4)
+	var clash: Array = build_ui_clashes()   # the first build here: the how-to card is up beside the plan panel
 	await shot("pontoons")
+	check("u1", "Building the bridge: the how-to card, the checklist, the plan panel and the catalogue don't overlap", clash.is_empty(), ", ".join(clash))
 	await select_piece("railing")
 	for i in [28, 30, 32, 34]: print("   railing: ", await place_at(i, 13, -0.05, 0))
 	if not game.story.engine.is_ready(P + "bridge"):   # railings that won't sit on a pontoon go on planks laid across it
@@ -619,7 +623,9 @@ func sec_dancehall() -> void:
 			await ui_click("sw_7bd389")
 			break
 	var fitted: bool = stage("dancehall") >= 2
+	var clash: Array = build_ui_clashes()
 	await shot("dance-hall-fitted")
+	check("u2", "Fitting out the dance hall: its long checklist and the catalogue don't overlap", clash.is_empty(), ", ".join(clash))
 	await leave_build()
 	await talk(P + "pierina")   # spread the word
 	await nap_until(21)

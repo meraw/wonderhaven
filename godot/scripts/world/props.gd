@@ -185,6 +185,136 @@ static func fragment() -> Node3D:
 	g.scale = Vector3.ONE * 1.6
 	return g
 
+## What a lost thing looks like, lying where it was dropped (WorldActions.lost_look picks the look from the node or
+## its name): keys, glasses, ball, glove, ticket, card, cassette, walkman, umbrella, hat, scarf, earmuffs, briefcase,
+## newspaper, clock (a cuckoo clock), gnome, trophy, photo, oar, log, page. Anything else is a bunch of keys.
+const LOST_LOOKS := ["keys", "glasses", "ball", "glove", "ticket", "card", "cassette", "walkman", "umbrella", "hat", "scarf",
+	"earmuffs", "briefcase", "newspaper", "clock", "gnome", "trophy", "photo", "oar", "log", "page"]
+
+static func lost_thing(look: String) -> Node3D:
+	var g := Node3D.new(); g.name = "lost_" + look
+	var gold := P.unique_mat("e0b94a"); gold.metallic = 0.6; gold.roughness = 0.35
+	var paper := P.mat("f2ede0"); var ink := P.mat("4a4a4a")
+	match look:
+		"glasses":   # reading glasses, folded, lying on the ground
+			var frame := P.mat("2a2420"); var lens := P.unique_mat("cfe8f2"); lens.metallic = 0.3; lens.roughness = 0.1
+			for s in [-1, 1]:
+				_add(g, P.torus(0.055, 0.009, 16), frame, Vector3(s * 0.065, 0.012, 0), Vector3.ZERO, Vector3.ONE, false)
+				_add(g, P.cyl(0.05, 0.05, 0.004, 16), lens, Vector3(s * 0.065, 0.012, 0), Vector3.ZERO, Vector3.ONE, false)
+				_add(g, P.box(0.012, 0.01, 0.13), frame, Vector3(s * 0.11, 0.012, -0.07), Vector3(0, -s * 0.25, 0), Vector3.ONE, false)
+			_add(g, P.box(0.03, 0.01, 0.01), frame, Vector3(0, 0.02, 0), Vector3.ZERO, Vector3.ONE, false)
+			g.scale = Vector3.ONE * 1.7
+		"ball":   # a dog's ball, chewed
+			_add(g, P.sphere(0.1, 16, 12), P.mat("e2493c"), Vector3(0, 0.1, 0))
+			_add(g, P.torus(0.098, 0.012, 20), P.mat("f4f1ea"), Vector3(0, 0.1, 0), Vector3(0.6, 0, 0.3), Vector3.ONE, false)
+		"glove":   # a single leather glove, flat on the ground
+			var leather := P.mat("6b4630")
+			_add(g, P.rbox(0.13, 0.035, 0.14, 0.015), leather, Vector3(0, 0.018, 0), Vector3.ZERO, Vector3.ONE, false)
+			for k in 4: _add(g, P.capsule(0.016, 0.07, 8, 2), leather, Vector3(-0.045 + k * 0.03, 0.02, -0.11 - (0.01 if k in [1, 2] else 0.0)), Vector3(PI / 2, 0, 0), Vector3.ONE, false)
+			_add(g, P.capsule(0.017, 0.06, 8, 2), leather, Vector3(0.085, 0.02, -0.02), Vector3(PI / 2, 0, -0.9), Vector3.ONE, false)
+			_add(g, P.box(0.14, 0.04, 0.05), P.mat("8a6040"), Vector3(0, 0.02, 0.09), Vector3.ZERO, Vector3.ONE, false)   # the cuff
+			g.scale = Vector3.ONE * 1.5
+		"ticket":   # a paper ticket, stamped
+			_add(g, P.box(0.16, 0.004, 0.08), paper, Vector3(0, 0.004, 0), Vector3.ZERO, Vector3.ONE, false)
+			_add(g, P.box(0.16, 0.005, 0.018), P.mat("d24a3a"), Vector3(0, 0.005, -0.025), Vector3.ZERO, Vector3.ONE, false)
+			for k in 3: _add(g, P.box(0.09, 0.005, 0.006), ink, Vector3(-0.02, 0.006, 0.0 + k * 0.014), Vector3.ZERO, Vector3.ONE, false)
+			g.scale = Vector3.ONE * 1.8
+		"card":   # a phone card
+			_add(g, P.rbox(0.086, 0.006, 0.054, 0.003), P.mat("f4f1ea"), Vector3(0, 0.004, 0), Vector3.ZERO, Vector3.ONE, false)
+			_add(g, P.box(0.086, 0.007, 0.022), P.mat("2f6fb5"), Vector3(0, 0.005, -0.012), Vector3.ZERO, Vector3.ONE, false)
+			_add(g, P.box(0.014, 0.008, 0.012), gold, Vector3(0.025, 0.006, 0.012), Vector3.ZERO, Vector3.ONE, false)
+			g.scale = Vector3.ONE * 2.2
+		"cassette", "walkman":
+			if look == "walkman":   # a cassette player with its headphones
+				_add(g, P.rbox(0.12, 0.035, 0.09, 0.008), P.mat("3d6fae"), Vector3(0, 0.018, 0))
+				_add(g, P.box(0.08, 0.005, 0.05), P.mat("cfd3d8"), Vector3(0, 0.037, 0), Vector3.ZERO, Vector3.ONE, false)
+				_add(g, P.torus(0.08, 0.008, 18), P.mat("2a2a2a"), Vector3(0.05, 0.01, 0.14), Vector3(PI / 2, 0, 0), Vector3(1, 1, 0.55), false)
+				for s in [-1, 1]: _add(g, P.cyl(0.03, 0.03, 0.025, 12), P.mat("e8742a"), Vector3(0.05 + s * 0.075, 0.015, 0.14), Vector3(0, 0, PI / 2), Vector3.ONE, false)
+			else:   # a cassette tape
+				_add(g, P.rbox(0.1, 0.016, 0.064, 0.004), P.mat("2a2a2a"), Vector3(0, 0.008, 0), Vector3.ZERO, Vector3.ONE, false)
+				_add(g, P.box(0.08, 0.017, 0.03), P.mat("f2d27a"), Vector3(0, 0.009, -0.008), Vector3.ZERO, Vector3.ONE, false)
+				for s in [-1, 1]: _add(g, P.cyl(0.011, 0.011, 0.018, 10), P.mat("f4f1ea"), Vector3(s * 0.022, 0.01, -0.008), Vector3.ZERO, Vector3.ONE, false)
+			g.scale = Vector3.ONE * 1.6
+		"umbrella":   # a closed umbrella lying in the grass, crook handle and all
+			var cloth := P.mat("2f4a6a")
+			_add(g, P.cyl(0.012, 0.055, 0.62, 10), cloth, Vector3(0, 0.05, 0), Vector3(0, 0, PI / 2))
+			_add(g, P.cyl(0.01, 0.01, 0.2, 6), P.mat("8a6a50"), Vector3(-0.4, 0.05, 0), Vector3(0, 0, PI / 2), Vector3.ONE, false)
+			_add(g, P.torus(0.045, 0.01, 12), P.mat("8a6a50"), Vector3(-0.5, 0.05, 0.04), Vector3(PI / 2, 0, 0), Vector3.ONE, false)
+			_add(g, P.cone(0.01, 0.05, 6), P.mat("c9ccd0"), Vector3(0.34, 0.05, 0), Vector3(0, 0, -PI / 2), Vector3.ONE, false)
+		"hat":   # a felt hat, a bit flattened
+			var felt := P.fabric("6a5a4a")
+			_add(g, P.cyl(0.17, 0.17, 0.012, 20), felt, Vector3(0, 0.008, 0))
+			_add(g, P.cyl(0.095, 0.105, 0.09, 18), felt, Vector3(0, 0.055, 0), Vector3.ZERO, Vector3(1, 1, 0.9))
+			_add(g, P.cyl(0.107, 0.107, 0.02, 18), P.mat("2a2420"), Vector3(0, 0.025, 0), Vector3.ZERO, Vector3(1, 1, 0.9), false)
+		"scarf":   # a striped wool scarf in a heap
+			for k in 5:
+				_add(g, P.rbox(0.13, 0.03, 0.1, 0.012), P.fabric(["b8323a", "f4f1ea"][k % 2]), Vector3(-0.2 + k * 0.1, 0.016 + 0.01 * (k % 2), 0.04 * sin(k * 1.7)), Vector3(0, k * 0.4, 0), Vector3.ONE, false)
+		"earmuffs":
+			_add(g, P.torus(0.09, 0.01, 16), P.mat("4a4a52"), Vector3(0, 0.07, 0), Vector3(PI / 2, 0, 0), Vector3(1, 1, 1), false)
+			for s in [-1, 1]: _add(g, P.sphere(0.055, 12, 8), P.fabric("e8dccb"), Vector3(s * 0.09, 0.05, 0))
+		"briefcase":   # a briefcase full of crosswords
+			_add(g, P.rbox(0.42, 0.11, 0.3, 0.02), P.mat("6b4630"), Vector3(0, 0.055, 0))
+			_add(g, P.torus(0.05, 0.012, 12), P.mat("4a2e1e"), Vector3(0, 0.055, -0.17), Vector3(0, 0, 0), Vector3(1, 1, 0.6), false)
+			for s in [-1, 1]: _add(g, P.box(0.03, 0.02, 0.02), gold, Vector3(s * 0.12, 0.112, -0.13), Vector3.ZERO, Vector3.ONE, false)
+		"newspaper":   # yesterday's paper, folded
+			_add(g, P.box(0.3, 0.012, 0.22), paper, Vector3(0, 0.007, 0), Vector3(0, 0.2, 0), Vector3.ONE, false)
+			_add(g, P.box(0.26, 0.013, 0.03), P.mat("2a2a2a"), Vector3(0, 0.008, -0.07), Vector3(0, 0.2, 0), Vector3.ONE, false)
+			for k in 4: _add(g, P.box(0.24, 0.013, 0.008), P.mat("9a9a9a"), Vector3(0.01, 0.008, -0.02 + k * 0.03), Vector3(0, 0.2, 0), Vector3.ONE, false)
+		"clock":   # a cuckoo clock, carved roof, dial, pine-cone weights on their chains
+			var wood := P.wood("6b4630")
+			var c := Node3D.new(); c.rotation = Vector3(-0.25, 0.0, 0.18); g.add_child(c)   # fallen over a little
+			_add(c, P.box(0.26, 0.3, 0.12), wood, Vector3(0, 0.17, 0))
+			for s in [-1, 1]: _add(c, P.box(0.2, 0.025, 0.16), P.wood("4a2e1e"), Vector3(s * 0.08, 0.36, 0), Vector3(0, 0, s * -0.6))
+			_add(c, P.cyl(0.075, 0.075, 0.01, 18), P.mat("f4f1ea"), Vector3(0, 0.16, 0.062), Vector3(PI / 2, 0, 0), Vector3.ONE, false)
+			_add(c, P.box(0.006, 0.05, 0.004), P.mat("1d1414"), Vector3(0, 0.18, 0.068), Vector3.ZERO, Vector3.ONE, false)
+			_add(c, P.box(0.04, 0.005, 0.004), P.mat("1d1414"), Vector3(0.015, 0.16, 0.068), Vector3.ZERO, Vector3.ONE, false)
+			_add(c, P.box(0.05, 0.05, 0.01), P.mat("2a1a12"), Vector3(0, 0.28, 0.062), Vector3.ZERO, Vector3.ONE, false)   # the cuckoo's door
+			for s in [-1, 1]:
+				_add(c, P.cyl(0.003, 0.003, 0.2, 4), P.mat("8a8a8a"), Vector3(s * 0.05, -0.08, 0.02), Vector3.ZERO, Vector3.ONE, false)
+				_add(c, P.capsule(0.022, 0.05, 8, 2), gold, Vector3(s * 0.05, -0.2, 0.02), Vector3.ZERO, Vector3.ONE, false)
+		"gnome":   # a garden gnome: red hat, white beard, blue coat
+			var n := Node3D.new(); n.rotation = Vector3(0.0, 0.0, 0.3); g.add_child(n)   # leaning where the water left him
+			_add(n, P.cyl(0.07, 0.1, 0.16, 14), P.mat("3d6fae"), Vector3(0, 0.08, 0))
+			_add(n, P.sphere(0.06, 12, 8), P.mat("f0c8a8"), Vector3(0, 0.2, 0.01))
+			_add(n, P.cone(0.06, 0.12, 12), P.mat("f4f1ea"), Vector3(0, 0.15, 0.05), Vector3(PI, 0, 0), Vector3(1, 1, 0.5), false)
+			_add(n, P.cone(0.07, 0.17, 14), P.mat("d8333a"), Vector3(0, 0.31, -0.01), Vector3(-0.15, 0, 0))
+			_add(n, P.sphere(0.018, 8, 6), P.mat("e8908a"), Vector3(0, 0.2, 0.07), Vector3.ZERO, Vector3.ONE, false)
+			g.scale = Vector3.ONE * 1.3
+		"trophy":   # a dance trophy: two little gold dancers on a cup, on a wooden base, tipped over in the mud
+			var tr := Node3D.new(); tr.rotation = Vector3(0, 0, 1.3); tr.position = Vector3(0, 0.07, 0); g.add_child(tr)
+			_add(tr, P.box(0.12, 0.05, 0.12), P.wood("3a2a1e"), Vector3(0, 0.025, 0))
+			_add(tr, P.cyl(0.02, 0.035, 0.07, 10), gold, Vector3(0, 0.085, 0))
+			_add(tr, P.cyl(0.06, 0.035, 0.08, 14), gold, Vector3(0, 0.16, 0))
+			for s in [-1, 1]:
+				_add(tr, P.capsule(0.012, 0.07, 6, 2), gold, Vector3(s * 0.018, 0.25, 0), Vector3(0, 0, s * 0.2), Vector3.ONE, false)
+				_add(tr, P.sphere(0.013, 8, 6), gold, Vector3(s * 0.026, 0.3, 0), Vector3.ZERO, Vector3.ONE, false)
+			_add(g, P.cyl(0.18, 0.2, 0.02, 14), P.mat("6b5a42"), Vector3(0, 0.005, 0), Vector3.ZERO, Vector3.ONE, false)   # the mud it lies in
+		"photo":   # a framed photograph, face up
+			_add(g, P.box(0.24, 0.025, 0.19), P.wood("4a2e1e"), Vector3(0, 0.013, 0))
+			_add(g, P.box(0.19, 0.027, 0.14), P.mat("c9b48a"), Vector3(0, 0.014, 0), Vector3.ZERO, Vector3.ONE, false)
+			_add(g, P.box(0.05, 0.028, 0.08), P.mat("6b5a42"), Vector3(-0.02, 0.015, 0.0), Vector3.ZERO, Vector3.ONE, false)   # a rider on a bicycle, more or less
+			_add(g, P.torus(0.025, 0.004, 10), P.mat("4a3a2a"), Vector3(0.05, 0.03, 0.03), Vector3.ZERO, Vector3.ONE, false)
+			_add(g, P.torus(0.025, 0.004, 10), P.mat("4a3a2a"), Vector3(0.05, 0.03, -0.03), Vector3.ZERO, Vector3.ONE, false)
+			g.scale = Vector3.ONE * 1.5
+		"oar":   # a long wooden oar
+			var ash := P.wood("b8925a")
+			_add(g, P.cyl(0.028, 0.028, 1.5, 8), ash, Vector3(-0.2, 0.03, 0), Vector3(0, 0, PI / 2))
+			_add(g, P.rbox(0.55, 0.025, 0.16, 0.01), ash, Vector3(0.75, 0.02, 0))
+			_add(g, P.cyl(0.03, 0.03, 0.12, 8), P.mat("4a2e1e"), Vector3(-0.92, 0.03, 0), Vector3(0, 0, PI / 2), Vector3.ONE, false)   # the grip
+		"log":   # a runaway poplar log, bark on, saw-cut ends
+			var bark := P.wood("a59c8c"); var cut := P.wood("e8d3a3")
+			_add(g, P.cyl(0.19, 0.19, 1.7, 12), bark, Vector3(0, 0.18, 0), Vector3(0, 0, PI / 2))
+			for s in [-1, 1]: _add(g, P.cyl(0.175, 0.175, 0.02, 12), cut, Vector3(s * 0.855, 0.18, 0), Vector3(0, 0, PI / 2), Vector3.ONE, false)
+			_add(g, P.cyl(0.04, 0.05, 0.3, 6), bark, Vector3(0.3, 0.32, 0.08), Vector3(0.5, 0, 0.6), Vector3.ONE, false)   # a snapped-off branch
+		"page":   # a loose page
+			_add(g, P.box(0.21, 0.004, 0.29), paper, Vector3(0, 0.004, 0), Vector3(0, 0.3, 0.02), Vector3.ONE, false)
+			for k in 5: _add(g, P.box(0.17, 0.005, 0.006), ink, Vector3(0, 0.005, -0.1 + k * 0.045), Vector3(0, 0.3, 0.02), Vector3.ONE, false)
+			g.scale = Vector3.ONE * 1.4
+		_:
+			var keys := fragment(); keys.name = "lost_keys"
+			return keys
+	return g
+
 ## A big green street garbage bin on wheels, the kind every Italian village has. Copper wire hides inside.
 static func garbage_bin() -> Node3D:
 	var g := Node3D.new()

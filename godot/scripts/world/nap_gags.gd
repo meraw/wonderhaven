@@ -63,7 +63,9 @@ func wake(seat: Dictionary, t0: Dictionary) -> String:
 	return gag
 
 ## Once the screen has faded back in: a beat, then the joke with the greeting and a line about it as a banner, then
-## you're sitting up on the bench (move to get up). A quiet nap just shows the greeting.
+## you're sitting up on the bench (move to get up). A quiet nap just shows the greeting. A sight gag (the villager
+## caught staring, waking up soaked: "visual" in naps.json) has no line: it plays out with nothing on screen
+## explaining it, and the plain greeting only comes once it has.
 func play(greet: String, sub: String) -> void:
 	if gag == "":
 		game.banner(greet, sub)
@@ -72,7 +74,8 @@ func play(greet: String, sub: String) -> void:
 		return
 	game.set_mode("cutscene")
 	await _wait(0.7)
-	game.banner(greet, line, [], 4.5)
+	var sight := line == ""
+	if not sight: game.banner(greet, line, [], 4.5)
 	game.player_char.play("sit", true)
 	match gag:
 		"newspaper":
@@ -91,6 +94,7 @@ func play(greet: String, sub: String) -> void:
 			watcher.hurry_t = 6.0; watcher.plan_route(watcher.goal, _dash_from_bench())
 	game.emit_event("napgag", {"id": gag})
 	await _wait(1.0)
+	if sight: game.banner(greet, sub)   # the joke has landed on its own; now just the time of day
 	if game.mode == "cutscene": game.set_mode("explore")
 
 func _wait(seconds: float) -> void: await get_tree().create_timer(seconds).timeout

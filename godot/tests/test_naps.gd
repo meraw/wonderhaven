@@ -42,14 +42,16 @@ func test_which_gag():
 func test_lines():
 	var naps: Dictionary = Data.naps
 	t.ok(float(naps.chance) > 0.0 and float(naps.chance) < 1.0, "a gag some of the time, not every time")
-	for id in ["newspaper", "umbrella", "stared", "rain"]:
+	for id in ["newspaper", "umbrella"]:
 		var lines: Array = naps.gags.get(id, {}).get("lines", [])
 		t.ok(lines.size() >= 2, "%s has a few lines to vary" % id)
 		for i in lines.size():
 			var l := BenchNap.line(naps, id, (i + 0.5) / lines.size(), "Gigia")
 			t.ok(l != "" and not l.contains("{") and not l.contains("}"), "every blank filled: %s" % l)
-	t.ok(BenchNap.line(naps, "stared", 0.0, "Gigia").contains("Gigia"), "the villager caught staring is named")
 	t.ok(BenchNap.line(naps, "newspaper", 0.0).contains(String(naps.paper)), "the local paper is named")
+	# sight gags aren't explained: the villager caught staring and waking up soaked play out with no line
+	for id in ["stared", "rain"]:
+		t.ok(naps.gags[id].get("visual", false) and BenchNap.line(naps, id, 0.0, "Gigia") == "", "%s is a sight gag, with nothing on screen explaining it" % id)
 
 func test_a_place_can_have_its_own_paper():
 	var saved: Dictionary = Data.layout

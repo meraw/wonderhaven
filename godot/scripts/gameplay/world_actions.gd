@@ -9,8 +9,8 @@ const P := preload("res://scripts/world/palette.gd")
 const REGROW := {"chop": 180.0, "mine": 240.0, "clay": 150.0, "flowers": 180.0, "shake": 90.0, "fruit": 240.0, "fragment": 1440.0, "bin": 300.0, "forage": 300.0}
 const SQUIRREL_SPOTS := [[-8.4, -3.2], [-13.7, -3.3], [-7.2, -6.6]]
 const LABELS := {"chop": "Chop tree", "mine": "Mine rock", "clay": "Dig clay", "fish": "Fish here", "flowers": "Pick flowers", "shake": "Shake the chestnut tree", "fruit": "Pick hazelnuts", "chest": "Open chest", "fragment": "Pick up the lost thing", "bin": "Dig through the bin", "forage": "Pick the porcini"}
-## What the lost things turn out to be; the first one is always the Sindaco's reading glasses. A layout's `lost` list
-## replaces it there. A gathering node may also carry its own `label`, `hours` when it's out (a page blown about at
+## What the lost things turn out to be (lost_name gives each unnamed one its own); in Monteforchetta the first is
+## the Sindaco's reading glasses. A layout's `lost` list replaces it there. A gathering node may also carry its own `label`, `hours` when it's out (a page blown about at
 ## night), `gives` (see gives: a bin's or a dig spot's finds too), `lines` (a bin) and `text` (a dig spot).
 const LOST := ["the Sindaco's reading glasses", "a bunch of keys", "a dog's ball", "a single glove", "a lottery ticket (not a winner)", "a cassette of love songs", "a phone card with 200 lire left on it"]
 ## Copper wire from the bins, and what else comes up with it.
@@ -49,6 +49,9 @@ func ready(n: Dictionary) -> bool:
 	if n.kind == "fruit" and not state().flags.get("orchardOpen", false): return false
 	# Lost things only turn up once the Sindaco has welcomed you, so new players don't pick up his glasses by accident.
 	if n.kind == "fragment" and not state().flags.get("hasTool", false): return false
+	# "after": a request that has to be done first (Monteforchetta's other lost things wait until you've found the
+	# Sindaco's glasses, so the first thing you find is the one he asked for)
+	if n.has("after") and String(state().quests.get(n.after, {}).get("status", "")) != "done": return false
 	return not (s.get("ready_at", -1.0) > now())
 
 ## Chests, metal-detector spots and nodes marked "once" (a particular lost thing) are gone for good once taken;
@@ -148,12 +151,45 @@ static func gives(n: Dictionary, fallback: Dictionary) -> Dictionary:
 	for k in n.gives: out[k] = int(n.gives[k])
 	return out
 
+## Who lost what: a node's own "name", else one of what the place's lost things turn out to be (its layout's "lost",
+## or LOST), by the node's place among the unnamed ones. So a lost thing is the same thing before you pick it up (its
+## model, see lost_look) as after (its name). Monteforchetta's first is the Sindaco's reading glasses.
+static func lost_name(n: Dictionary) -> String:
+	if n.has("name"): return String(n.name)
+	var i := 0
+	for x in Data.layout.nodes:
+		if x.id == n.id: break
+		if x.kind == "fragment" and not x.has("name"): i += 1
+	var here: Array = Data.layout.get("lost", [])
+	if not here.is_empty(): return String(here[i % here.size()])
+	if Data.island == "hearthglow": return LOST[0] if i == 0 else LOST[1 + (i - 1) % (LOST.size() - 1)]
+	return LOST[1 + i % (LOST.size() - 1)]   # (the Sindaco's glasses are only ever lost in Monteforchetta)
+
+## What a lost thing looks like lying there (Props.lost_thing): the node's own "look", else what its name says
+## ("Pierina's cuckoo clock" is a clock, "one of Ines's runaway logs" a log), else a bunch of keys.
+static func lost_look(n: Dictionary) -> String:
+	if n.has("look"): return String(n.look)
+	return look_for(lost_name(n))
+
+const LOOK_WORDS := [[["walkman"], "walkman"], [["glasses", "spectacles"], "glasses"], [["keys", "key"], "keys"], [["ball"], "ball"],
+	[["glove", "gloves", "mitten"], "glove"], [["card"], "card"], [["ticket"], "ticket"], [["cassette", "tape"], "cassette"],
+	[["umbrella"], "umbrella"], [["hat", "cap", "beret"], "hat"], [["scarf"], "scarf"], [["earmuffs"], "earmuffs"],
+	[["briefcase", "suitcase"], "briefcase"], [["newspaper", "paper"], "newspaper"], [["clock"], "clock"], [["gnome"], "gnome"],
+	[["trophy", "cup"], "trophy"], [["photo", "photograph", "picture"], "photo"], [["oar"], "oar"], [["log", "logs"], "log"],
+	[["page", "score"], "page"]]
+
+static func look_for(name: String) -> String:
+	var words := {}
+	var re := RegEx.create_from_string("[a-z]+")
+	for m in re.search_all(name.to_lower()): words[m.get_string()] = true
+	for pair in LOOK_WORDS:
+		for w in pair[0]:
+			if words.has(w): return pair[1]
+	return "keys"
+
 func catch_fragment(n: Dictionary) -> void:
 	var p := _src(n, 0.2)
-	var found := int(state().stats.fragments)
-	var here: Array = Data.layout.get("lost", [])   # what the lost things turn out to be in this place
-	var what: String = here[found % here.size()] if not here.is_empty() else (LOST[0] if found == 0 else LOST[1 + found % (LOST.size() - 1)])
-	if n.has("name"): what = String(n.name)   # a particular lost thing, named in the layout
+	var what := lost_name(n)
 	var got := gives(n, {"fragment": 1})
 	game.give(got, null, true)
 	game.toast("You found %s!" % what, "good", 2.5)

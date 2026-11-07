@@ -84,21 +84,29 @@ static func _cormorant() -> Node3D:
 	var beak := P.mi(P.cone(0.02, 0.13, 5), P.mat("4a4640"), Vector3(0, 0.68, 0.16), false); beak.rotation.x = PI / 2; o.add_child(beak)
 	for s in [-1, 1]:   # wings held open to dry, as cormorants do
 		var w := Node3D.new(); w.name = "wing%d" % (s + 1); w.position = Vector3(s * 0.1, 0.42, -0.02); o.add_child(w)
-		var wm := P.mi(P.box(0.42, 0.03, 0.22), sheen, Vector3(s * 0.22, 0, 0), false); w.add_child(wm)
+		var wm := P.mi(P.sphere(1.0, 16, 8), sheen, Vector3(s * 0.21, 0, 0), false); wm.scale = Vector3(0.22, 0.018, 0.12); w.add_child(wm)   # a rounded wing, not a slab
 	return o
 
+## A farmyard goose: a round white body with a tail tip, folded wings lying along its sides (rounded, not slabs),
+## a long neck, an orange beak and orange webbed feet. Smooth spheres throughout, so it reads as a bird up close.
 static func _goose() -> Node3D:
 	var o := Node3D.new()
-	var white := P.mat("f4f1ea"); var orange := P.mat("f08a24")
-	var body := P.mi(P.sphere(0.2, 10, 8), white, Vector3(0, 0.3, 0)); body.scale = Vector3(0.85, 0.8, 1.35); o.add_child(body)
-	var neck := Node3D.new(); neck.name = "neck"; neck.position = Vector3(0, 0.38, 0.18); o.add_child(neck)
-	neck.add_child(P.mi(P.cyl(0.045, 0.05, 0.3, 6), white, Vector3(0, 0.15, 0)))
-	neck.add_child(P.mi(P.sphere(0.075, 8, 6), white, Vector3(0, 0.32, 0.03)))
-	var beak := P.mi(P.cone(0.032, 0.1, 5), orange, Vector3(0, 0.31, 0.12), false); beak.rotation.x = PI / 2; neck.add_child(beak)
+	var white := P.mat("f4f1ea"); var shade := P.mat("e4ded2"); var orange := P.mat("f08a24")
+	var body_pivot := Node3D.new(); body_pivot.name = "body"; o.add_child(body_pivot)   # waddles (rolls) as it walks
+	var body := P.mi(P.sphere(0.2, 18, 12), white, Vector3(0, 0.32, 0)); body.scale = Vector3(0.9, 0.78, 1.45); body.rotation.x = -0.12; body_pivot.add_child(body)
+	var tail := P.mi(P.sphere(0.1, 12, 8), white, Vector3(0, 0.38, -0.27), false); tail.scale = Vector3(0.75, 0.55, 1.0); tail.rotation.x = 0.5; body_pivot.add_child(tail)
+	for s in [-1, 1]:   # folded wings: long, thin rounded shapes along the flanks, pivoting at the shoulder
+		var w := Node3D.new(); w.name = "wing%d" % (s + 1); w.position = Vector3(s * 0.13, 0.4, 0.1); body_pivot.add_child(w)
+		var wm := P.mi(P.sphere(1.0, 16, 10), shade, Vector3(s * 0.03, -0.02, -0.15), false); wm.scale = Vector3(0.05, 0.11, 0.27); wm.rotation.x = 0.15; w.add_child(wm)
+	var neck := Node3D.new(); neck.name = "neck"; neck.position = Vector3(0, 0.4, 0.2); body_pivot.add_child(neck)
+	var nk := P.mi(P.capsule(0.048, 0.34, 12, 4), white, Vector3(0, 0.15, 0.0)); nk.rotation.x = 0.12; neck.add_child(nk)
+	var head := P.mi(P.sphere(0.072, 14, 10), white, Vector3(0, 0.32, 0.04)); head.scale = Vector3(0.9, 0.9, 1.2); neck.add_child(head)
+	var beak := P.mi(P.cone(0.03, 0.11, 10), orange, Vector3(0, 0.305, 0.14), false); beak.rotation.x = PI / 2; neck.add_child(beak)
+	neck.add_child(P.mi(P.sphere(0.026, 10, 6), orange, Vector3(0, 0.33, 0.1), false))   # the knob at the top of the beak
 	for s in [-1, 1]:
-		neck.add_child(P.mi(P.sphere(0.014, 6, 4), P.mat("1d1414"), Vector3(s * 0.05, 0.34, 0.06), false))
-		var w := P.mi(P.box(0.06, 0.12, 0.3), white, Vector3(s * 0.15, 0.32, -0.02), false); w.name = "wing%d" % (s + 1); o.add_child(w)
-		o.add_child(P.mi(P.cyl(0.015, 0.015, 0.16, 4), orange, Vector3(s * 0.07, 0.08, 0), false))
+		neck.add_child(P.mi(P.sphere(0.013, 8, 6), P.mat("1d1414"), Vector3(s * 0.05, 0.34, 0.07), false))
+		o.add_child(P.mi(P.cyl(0.014, 0.016, 0.18, 8), orange, Vector3(s * 0.07, 0.09, 0.0), false))
+		var foot := P.mi(P.sphere(1.0, 10, 6), orange, Vector3(s * 0.07, 0.008, 0.04), false); foot.scale = Vector3(0.045, 0.01, 0.06); o.add_child(foot)
 	return o
 
 static func _kingfisher() -> Node3D:
@@ -109,6 +117,29 @@ static func _kingfisher() -> Node3D:
 	o.add_child(P.mi(P.sphere(0.04, 8, 6), blue, Vector3(0, 0.11, 0.05), false))
 	var beak := P.mi(P.cone(0.012, 0.07, 4), P.mat("1d1414"), Vector3(0, 0.11, 0.11), false); beak.rotation.x = PI / 2; o.add_child(beak)
 	return o
+
+## A low willow branch that grows out of the bank and reaches out over the water to the kingfisher's perch, with a
+## few sprigs of leaves (the twig used to hang in the air on its own).
+static func _perch_branch(perch: Vector3) -> Node3D:
+	var o := Node3D.new()
+	var bark := P.mat("6a5c4c"); var leaf := P.mat("a8b48a")
+	var base := Vector3(perch.x - 1.7, 0.0, perch.z + 0.35)
+	base.y = Heightfield.height(base.x, base.z) - 0.1   # rooted in the bank
+	var tip := perch + Vector3(0.25, -0.04, -0.03)
+	var knee := base.lerp(tip, 0.45) + Vector3(0, 0.35, 0)   # up out of the bank, then out over the river
+	o.add_child(_limb(base, knee, 0.07, 0.05, bark))
+	o.add_child(_limb(knee, tip, 0.05, 0.022, bark))
+	o.add_child(_limb(knee, knee + Vector3(0.3, 0.55, 0.4), 0.035, 0.015, bark))   # a twig up, for the leaves
+	for k in 4:
+		var at: Vector3 = knee.lerp(tip, 0.25 + k * 0.2) + Vector3(0, -0.08 - 0.05 * (k % 2), 0.06 * (k % 2 * 2 - 1))
+		var sprig := P.mi(P.sphere(1.0, 10, 6), leaf, at, false); sprig.scale = Vector3(0.09, 0.22, 0.09); o.add_child(sprig)
+	return o
+
+## A tapering piece of branch from a to b.
+static func _limb(a: Vector3, b: Vector3, r0: float, r1: float, mat: Material) -> MeshInstance3D:
+	var m := P.mi(P.cyl(r1, r0, a.distance_to(b), 7), mat, (a + b) / 2.0)
+	m.basis = Basis(Quaternion(Vector3.UP, (b - a).normalized()))
+	return m
 
 static func _snag() -> Node3D:
 	var o := Node3D.new()
@@ -133,10 +164,10 @@ func _build() -> void:
 	for n in 5:
 		var o := _goose(); add_child(o)
 		var home := GEESE_HOME + Vector2(cos(n * 1.3) * 1.6, sin(n * 1.9) * 1.4)
-		geese.append({"obj": o, "home": home, "pos": home, "yaw": n * 1.2, "ph": n * 1.1})
+		geese.append({"obj": o, "home": home, "pos": home, "goal": home, "yaw": n * 1.2, "ph": n * 1.1, "wait": 1.0 + n * 0.9, "walk": 0.0, "step": 0.0, "going": false})
 	var ps := perches()
 	for n in 2:
-		var tw := P.mi(P.cyl(0.015, 0.03, 1.4, 5), P.mat("6a5c4c"), ps[n] + Vector3(-0.5, -0.03, 0)); tw.rotation.z = PI / 2 - 0.08; add_child(tw)   # a willow twig
+		add_child(_perch_branch(ps[n]))   # a willow branch growing out of the bank, reaching over the water
 		var o := _kingfisher(); add_child(o)
 		o.position = ps[n]; o.scale = Vector3.ONE * 2.2
 		kingfishers.append({"obj": o, "at": n, "wait": 4.0 + n * 3.0, "fly": -1.0})
@@ -211,6 +242,9 @@ func _cormorants(dt: float, p2: Vector2, day: bool) -> void:
 
 ## The geese peck about outside the farm gate, but ride past on a bike and they come after you with their necks out,
 ## until they're too far from home: then they waddle back, very pleased with themselves.
+## Each goose either stands and pecks or walks to a new spot: it sets off only when its goal is a good way off and
+## stops once it's there (not every other frame, which made them shake), and its waddle and bob grow and fade with
+## its pace instead of switching on and off.
 func _geese(dt: float, p2: Vector2, riding: bool) -> void:
 	calm = maxf(0.0, calm - dt)
 	var from_home := p2.distance_to(GEESE_HOME)
@@ -218,29 +252,43 @@ func _geese(dt: float, p2: Vector2, riding: bool) -> void:
 		chase = 0.01; honk = true
 	elif chase > 0.0:
 		chase += dt
-		if chase > 6.0 or from_home > GEESE_GIVE_UP: chase = 0.0; calm = 20.0
+		if chase > 6.0 or from_home > GEESE_GIVE_UP:
+			chase = 0.0; calm = 20.0
+			for k in geese.size(): geese[k].going = false; geese[k].wait = 0.6 + k * 0.3   # a moment's triumph, then home
 	for k in geese.size():
 		var q: Dictionary = geese[k]
 		var o: Node3D = q.obj
-		var goal: Vector2
-		var speed := 0.4
-		if chase > 0.0:
-			goal = p2 + Vector2(cos(k * 1.3), sin(k * 1.7)) * 1.2
-			speed = 3.0
+		var speed := 0.35 if q.pos.distance_to(q.home) < 2.5 else 0.9   # back home from a chase at a brisk waddle
+		if chase > 0.0:   # after you, a little behind and to the side, each its own way
+			q.goal = p2 + Vector2(cos(k * 1.3), sin(k * 1.7)) * 1.4
+			speed = 2.6
 		else:
-			goal = q.home + Vector2(sin(t * 0.21 + q.ph), cos(t * 0.17 + q.ph * 1.3)) * 0.9
-		var d: Vector2 = goal - q.pos
-		var moving := d.length() > 0.08
-		if moving:
-			q.pos = q.pos + d.normalized() * minf(d.length(), speed * dt)
-			q.yaw = lerp_angle(q.yaw, atan2(d.x, d.y), 1.0 - exp(-8.0 * dt))
-		o.position = Vector3(q.pos.x, Heightfield.height(q.pos.x, q.pos.y), q.pos.y)
+			if not q.going: q.wait -= dt   # (it pecks a while once it gets there)
+			if not q.going and q.wait <= 0.0:   # done pecking here: somewhere else on the patch of grass
+				var a: float = q.ph + t * 0.37 + k * 2.1
+				q.goal = q.home + Vector2(cos(a), sin(a * 1.3)) * (0.5 + 0.9 * absf(sin(a * 0.7)))
+				q.wait = 2.5 + fmod(q.ph * 3.7 + t, 3.0)
+		var d: Vector2 = q.goal - q.pos
+		var dist := d.length()
+		if not q.going and dist > (0.6 if chase > 0.0 else 0.25): q.going = true   # set off only for a real distance...
+		elif q.going and dist < 0.08: q.going = false   # ...and stop once there
+		if q.going:
+			q.pos = q.pos + d / dist * minf(dist, speed * dt)
+			q.yaw = lerp_angle(q.yaw, atan2(d.x, d.y), 1.0 - exp(-6.0 * dt))
+		q.walk = move_toward(q.walk, (speed if q.going else 0.0), dt * 3.0)   # pace, eased
+		q.step += minf(q.walk, 1.1) * dt * 11.0   # quick little steps when they run, but not a blur
+		var body: Node3D = o.get_node("body")
+		var sway: float = minf(1.0, q.walk / 0.35)
+		body.rotation.z = sin(q.step) * 0.09 * sway   # the waddle
+		o.position = Vector3(q.pos.x, Heightfield.height(q.pos.x, q.pos.y) + absf(sin(q.step)) * 0.018 * sway, q.pos.y)
 		o.rotation.y = q.yaw
-		var neck: Node3D = o.get_node("neck")
-		neck.rotation.x = 0.9 if chase > 0.0 else (0.6 + 0.3 * sin(t * 6.0 + q.ph) if fmod(t + q.ph, 5.0) < 1.5 else 0.0)
-		var wing := 0.5 + 0.3 * sin(t * 18.0) if chase > 0.0 else 0.0
-		o.get_node("wing0").rotation.z = -wing; o.get_node("wing2").rotation.z = wing
-		o.position.y += absf(sin(t * (12.0 if chase > 0.0 else 5.0) + q.ph)) * (0.04 if moving else 0.0)
+		var neck: Node3D = body.get_node("neck")
+		var pecking: bool = not q.going and chase <= 0.0 and fmod(t + q.ph, 4.0) < 1.6
+		var want_neck := 0.95 if chase > 0.0 else (0.75 + 0.12 * sin(t * 7.0 + q.ph) if pecking else 0.05 * sin(t * 0.8 + q.ph))
+		neck.rotation.x = lerpf(neck.rotation.x, want_neck, 1.0 - exp(-10.0 * dt))
+		var wing := (0.55 + 0.2 * sin(t * 9.0 + k)) if chase > 0.0 else 0.0   # wings out when they charge
+		var w0: Node3D = body.get_node("wing0"); var w2: Node3D = body.get_node("wing2")
+		w0.rotation.z = lerpf(w0.rotation.z, -wing, 1.0 - exp(-12.0 * dt)); w2.rotation.z = -w0.rotation.z
 
 ## Each kingfisher sits on its perch a while, then darts low along the river to the other perch in a blue flash.
 func _kingfishers(dt: float, day: bool) -> void:
