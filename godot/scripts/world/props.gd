@@ -313,7 +313,12 @@ static func lost_thing(look: String) -> Node3D:
 		_:
 			var keys := fragment(); keys.name = "lost_keys"
 			return keys
+	# small things are drawn larger than life, as the keys always were, so you can tell what they are from where the
+	# camera is (a trophy or a cassette at its real size is a speck)
+	if look in SMALL_LOST: g.scale *= 1.8
 	return g
+
+const SMALL_LOST := ["glasses", "ball", "glove", "ticket", "card", "cassette", "walkman", "hat", "scarf", "earmuffs", "newspaper", "trophy", "photo", "page"]
 
 ## A big green street garbage bin on wheels, the kind every Italian village has. Copper wire hides inside.
 static func garbage_bin() -> Node3D:

@@ -57,6 +57,9 @@ static func build_terrain() -> MeshInstance3D:
 	mt.set_shader_parameter("seg_count", segs.size())
 	var sq: Dictionary = Data.layout.get("square", {"x": 0.0, "z": 0.0, "r": 0.0})
 	mt.set_shader_parameter("square", Vector3(sq.x, sq.z, sq.r))
+	# a layout's "cobbleColors": [light, dark] sets the square's cobblestones (a local stone instead of pale granite)
+	var cc: Array = Data.layout.get("cobbleColors", [])
+	if cc.size() >= 2: mt.set_shader_parameter("cobble_a", Color(cc[0])); mt.set_shader_parameter("cobble_b", Color(cc[1]))
 	mt.set_shader_parameter("water_y", Heightfield.WATER_Y)
 	mt.set_shader_parameter("water_r", water_radius())
 	mt.set_shader_parameter("path_reach", size / 2.0 - 2.0)
@@ -833,8 +836,12 @@ static func build_environment() -> WorldEnvironment:
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	env.ambient_light_color = Color("c9dcf0")
 	env.ambient_light_energy = 0.45
-	env.tonemap_mode = Environment.TONE_MAPPER_LINEAR
-	env.tonemap_exposure = 1.0
+	# ACES with a white point of 4: highlights roll off instead of clipping (the linear tonemapper clipped a sunset's
+	# sky to flat white), which lets the sun be strong enough to shape things (Daylight.KEYS). AgX was tried and kept
+	# too little colour for this style: lamps, lit windows and golden hour went pale. See docs/GRAPHICS.md.
+	env.tonemap_mode = Environment.TONE_MAPPER_ACES
+	env.tonemap_exposure = 0.92
+	env.tonemap_white = 4.0
 	var compat := RenderingServer.get_current_rendering_method() == "gl_compatibility"
 	# Contact shadows under eaves, trees and furniture (Forward+ / Mobile only).
 	env.ssao_enabled = not compat
@@ -864,7 +871,7 @@ static func build_environment() -> WorldEnvironment:
 	env.adjustment_contrast = 1.06
 	if compat:
 		# The compatibility renderer has no SSAO and lights a little hotter: tone it down to match.
-		env.tonemap_exposure = 0.85
+		env.tonemap_exposure = 0.78
 		env.adjustment_saturation = 1.0
 	var we := WorldEnvironment.new(); we.environment = env; we.name = "Environment"
 	return we

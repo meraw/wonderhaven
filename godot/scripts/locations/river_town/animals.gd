@@ -130,9 +130,9 @@ static func _perch_branch(perch: Vector3) -> Node3D:
 	o.add_child(_limb(base, knee, 0.07, 0.05, bark))
 	o.add_child(_limb(knee, tip, 0.05, 0.022, bark))
 	o.add_child(_limb(knee, knee + Vector3(0.3, 0.55, 0.4), 0.035, 0.015, bark))   # a twig up, for the leaves
-	for k in 4:
-		var at: Vector3 = knee.lerp(tip, 0.25 + k * 0.2) + Vector3(0, -0.08 - 0.05 * (k % 2), 0.06 * (k % 2 * 2 - 1))
-		var sprig := P.mi(P.sphere(1.0, 10, 6), leaf, at, false); sprig.scale = Vector3(0.09, 0.22, 0.09); o.add_child(sprig)
+	for k in 7:   # thin hanging sprigs of willow leaves
+		var at: Vector3 = knee.lerp(tip, 0.1 + k * 0.11) + Vector3(0, -0.12 - 0.04 * (k % 3), 0.07 * (k % 2 * 2 - 1))
+		var sprig := P.mi(P.sphere(1.0, 8, 6), leaf, at, false); sprig.scale = Vector3(0.035, 0.14, 0.035); sprig.rotation.z = 0.25 * (k % 3 - 1); o.add_child(sprig)
 	return o
 
 ## A tapering piece of branch from a to b.
