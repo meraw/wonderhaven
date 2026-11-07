@@ -20,6 +20,7 @@ uniform bool sparkle = false;
 uniform int eye_style = 0;      // dot eyes: 0 round dots, 1 sparkly, 2 big & shiny
 uniform float brow_raise = 0.0;
 uniform float highlight = 0.0;  // interaction highlight glow
+uniform float eye_scale = 1.0;
 varying vec3 op;
 
 float ellipse(vec2 p, vec2 r) { return (length(p / r) - 1.0) * min(r.x, r.y); }
@@ -42,7 +43,7 @@ void fragment() {
 		for (int s = -1; s <= 1; s += 2) {
 			float sx = float(s);
 			vec2 e = p - vec2(sx * 0.34, -0.04);
-			vec2 r = style == 0 ? vec2(0.12, 0.165) : vec2(0.07, 0.095);
+			vec2 r = (style == 0 ? vec2(0.12, 0.165) : vec2(0.07, 0.095)) * eye_scale;
 			if (eye_mode == 3) r *= 1.15;
 			float open = 1.0 - blink;
 			if (eye_mode == 4) open = min(open, 0.5);

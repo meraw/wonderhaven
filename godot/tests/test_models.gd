@@ -5,7 +5,7 @@ extends RefCounted
 var t
 
 const LAB := "res://assets/models/lab/"
-const BUDGET := {"via_selciato": 45000, "sindaco": 8000}   # anything else is a house
+const BUDGET := {"via_selciato": 45000, "sindaco": 8000, "toy_lane": 6000, "toy_piazza": 6000, "lamp_double": 2000, "cafe_set": 2000}
 const HOUSE_BUDGET := 45000
 
 func _models() -> Array:
@@ -76,3 +76,13 @@ func test_lab_files_name_real_models():
 		var spec: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(f))
 		for m: Dictionary in spec.models:
 			t.ok(ResourceLoader.exists(m.glb), "%s: %s exists" % [f.get_file(), m.glb])
+
+func test_lab_look_materials():
+	ModelKit.look = {}
+	var plain := ModelKit.pbr_material("iron", Color("26282a"), "")
+	t.ok(plain.roughness < 0.6 and plain.metallic > 0.0, "iron without textures is a plain, slightly metallic material")
+	var tex_ok := FileAccess.file_exists("res://assets/textures/lab/cc0/plaster_albedo.jpg")
+	if tex_ok:
+		var m := ModelKit.pbr_material("plaster", Color("d9692f"), "cc0")
+		t.ok(m.albedo_texture != null and m.normal_enabled and m.uv1_triplanar, "plaster gets the stucco maps, projected without UVs")
+	t.ok(ModelKit.material_for("wh_plaster_d8a557") is StandardMaterial3D, "without a lab look, models keep the game's own materials")
