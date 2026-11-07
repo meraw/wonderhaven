@@ -22,14 +22,16 @@ const REAL_TEX := {"plaster": ["plaster", 1.4, 2.0], "wood": ["wood", 1.2, 0.8],
 	"fabric": ["knit", 0.12, 1.4]}
 const REAL_ROUGHNESS := {"mottle": 0.8, "smooth": 0.5}
 const TEX_GAIN := 1.2
+const REAL_SPECULAR := {"smooth": 0.5}
+const ROUGH_SPECULAR := 0.25
 
 static func _static_init() -> void:
 	real = not OS.get_cmdline_user_args().has("--look=painted")
 
-static func shader_code(code: String, roughness: float = -1.0) -> String:
+static func shader_code(code: String, roughness: float = -1.0, specular: float = ROUGH_SPECULAR) -> String:
 	if not real: return code
 	var c := code.replace(PAINTED_MODES, REAL_MODES)
-	if roughness >= 0.0: c = c.replace("ROUGHNESS = 1.0;", "ROUGHNESS = %.2f;" % roughness)
+	if roughness >= 0.0: c = c.replace("ROUGHNESS = 1.0;", "ROUGHNESS = %.2f;\n\tSPECULAR = %.2f;" % [roughness, specular])
 	return c
 
 static func material_texture(name: String) -> Texture2D:
@@ -62,6 +64,7 @@ static var _detail_tex: Dictionary = {}
 static func texturize(m: StandardMaterial3D, kind: String) -> StandardMaterial3D:
 	if real:
 		m.roughness = float(REAL_ROUGHNESS.get(kind, 0.8))
+		m.metallic_specular = float(REAL_SPECULAR.get(kind, ROUGH_SPECULAR))
 		if REAL_TEX.has(kind): return _real_texturize(m, REAL_TEX[kind])
 	if kind == "smooth" or not DETAIL_SCALE.has(kind): return m
 	m.albedo_texture = detail_texture(kind)
@@ -125,6 +128,7 @@ static func unique_mat(color, emissive = null, energy: float = 0.0) -> StandardM
 		m.diffuse_mode = BaseMaterial3D.DIFFUSE_BURLEY
 		m.specular_mode = BaseMaterial3D.SPECULAR_SCHLICK_GGX
 		m.roughness = 0.8
+		m.metallic_specular = ROUGH_SPECULAR
 	else:
 		# Soft wrapped light and a faint rim: rounded, painterly shading instead of a hard toon terminator.
 		m.diffuse_mode = BaseMaterial3D.DIFFUSE_LAMBERT_WRAP

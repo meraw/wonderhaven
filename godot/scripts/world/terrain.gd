@@ -47,7 +47,7 @@ static func build_terrain() -> MeshInstance3D:
 	st.generate_normals()
 	var m := MeshInstance3D.new()
 	m.mesh = st.commit()
-	var sh := Shader.new(); sh.code = Palette.shader_code(TERRAIN_SHADER)
+	var sh := Shader.new(); sh.code = Palette.shader_code(TERRAIN_SHADER, 1.0, 0.2)
 	var mt := ShaderMaterial.new(); mt.shader = sh
 	var segs := PackedVector4Array()
 	for p in Data.layout.paths:
