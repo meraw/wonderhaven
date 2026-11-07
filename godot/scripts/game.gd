@@ -979,8 +979,8 @@ func _update_world_time(dt: float) -> void:
 	var ld := Daylight.light_dir(h)
 	sun.global_transform.basis = Basis.looking_at(-ld, Vector3.UP if absf(ld.y) < 0.99 else Vector3.FORWARD)
 	var e: Environment = env.environment
-	e.ambient_light_energy = look.ambient_energy * lerpf(1.0, 0.92, grey) * Palette.ambient_gain()
-	e.ambient_light_color = Palette.ambient_color(look.ambient, look.sun_color).lerp(Color("c4cad0"), grey * 0.5)
+	e.ambient_light_energy = look.ambient_energy * lerpf(1.0, 0.92, grey) * Palette.ambient_gain(nt)
+	e.ambient_light_color = Palette.ambient_color(look.ambient, look.sun_color, nt).lerp(Color("c4cad0"), grey * 0.5)
 	var sky_mat: ShaderMaterial = e.sky.sky_material
 	var top: Color = look.zenith.lerp(Color("8f9cab"), grey)
 	var bottom: Color = look.horizon.lerp(Color("c3cbd3"), grey)

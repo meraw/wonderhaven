@@ -79,9 +79,10 @@ things carried over from the painted look had to be handled:
   whichever way it faced. Shaded sides and interiors stayed warm and bright because of it, and the day's sun and
   ambient balance (above) was tuned with it in place. Without it, a facade facing away from the sun lost half its
   brightness and went grey, and the castle hall at dawn a third.
-- **Ambient light stands in for it.** With realistic materials the ambient is 1.45 times stronger and 40% of the
-  way to the sun's colour (`Palette.ambient_gain`, `Palette.ambient_color`, applied in `game.gd`), so the fill is
-  warm as before. `--look=painted` keeps the old ambient.
+- **Ambient light stands in for it.** By day, with realistic materials, the ambient is 1.35 times stronger and 30%
+  of the way to the sun's colour, so the fill is warm as before. Both fade out at night, when the moon gave little
+  rim light (`Palette.ambient_gain`, `Palette.ambient_color`, applied in `game.gd`). The terrain never had the rim
+  fill, so its colour is 10% darker to stay as bright as it was. `--look=painted` keeps the old ambient.
 - **Rough surfaces reflect less.** At the default specular, rough plaster, stone and fabric reflected the bluish sky
   and greyed warm colours (12 to 15% less saturation). They use 0.25; smooth ones 0.5.
 

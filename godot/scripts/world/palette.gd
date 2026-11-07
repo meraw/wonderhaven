@@ -24,22 +24,23 @@ const REAL_ROUGHNESS := {"mottle": 0.85, "smooth": 0.5}
 const TEX_GAIN := 1.2
 const REAL_SPECULAR := {"smooth": 0.5}
 const ROUGH_SPECULAR := 0.25
-const REAL_AMBIENT := 1.45
-const REAL_AMBIENT_WARMTH := 0.4
+const REAL_AMBIENT := 1.35
+const REAL_AMBIENT_WARMTH := 0.3
+const REAL_TERRAIN_ALBEDO := 0.9
 
-static func ambient_gain() -> float:
-	return REAL_AMBIENT if real else 1.0
+static func ambient_gain(night: float = 0.0) -> float:
+	return lerpf(REAL_AMBIENT, 1.0, clampf(night, 0.0, 1.0)) if real else 1.0
 
-static func ambient_color(ambient: Color, sun: Color) -> Color:
-	return ambient.lerp(sun, REAL_AMBIENT_WARMTH) if real else ambient
+static func ambient_color(ambient: Color, sun: Color, night: float = 0.0) -> Color:
+	return ambient.lerp(sun, REAL_AMBIENT_WARMTH * (1.0 - clampf(night, 0.0, 1.0))) if real else ambient
 
 static func _static_init() -> void:
 	real = not OS.get_cmdline_user_args().has("--look=painted")
 
-static func shader_code(code: String, roughness: float = -1.0, specular: float = ROUGH_SPECULAR) -> String:
+static func shader_code(code: String, roughness: float = -1.0, specular: float = ROUGH_SPECULAR, albedo: float = 1.0) -> String:
 	if not real: return code
 	var c := code.replace(PAINTED_MODES, REAL_MODES)
-	if roughness >= 0.0: c = c.replace("ROUGHNESS = 1.0;", "ROUGHNESS = %.2f;\n\tSPECULAR = %.2f;" % [roughness, specular])
+	if roughness >= 0.0: c = c.replace("ROUGHNESS = 1.0;", "ROUGHNESS = %.2f;\n\tSPECULAR = %.2f;\n\tALBEDO *= %.2f;" % [roughness, specular, albedo])
 	return c
 
 static func material_texture(name: String) -> Texture2D:
