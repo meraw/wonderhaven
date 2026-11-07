@@ -543,7 +543,7 @@ func apply_cmd(cmd: Dictionary, dir: String) -> Dictionary:
 func select_item(id: String) -> void:
 	if not state().blueprints.has(id): game.toast("Locked — " + game.blueprint_hint(id), "warn"); return
 	if not moving.is_empty(): cancel_move()
-	item_id = "" if item_id == id else id
+	item_id = id   # (clicking the piece already in your hand keeps it: build mode may have picked it for you from a plan; right-click or Esc lets go)
 	selected = -1; ghost_key = ""
 	state().new_blueprints.erase(id)
 	game.sfx("select")
