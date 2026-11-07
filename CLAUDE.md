@@ -16,3 +16,10 @@ The game is the Godot 4 project in `godot/` (see `godot/README.md`). The origina
 - A later location's playthrough starts as if the player had reached it, with realistic stats, and plays only that location: start it with `--island=<id>` and call `arrive_as_if_played([earlier places])` (`tests/autoplay_base.gd`, using `Progress.as_if_played`): the earlier places' main stories done, with the approval, lire, plans and clothes they gave..
 - Never force-push or rewrite pushed history. Distinguish features verified in play from features only unit-tested.
 - Characters, names, story, models and music are original. Keep it that way.
+
+# ENFORCEMENT: ZERO-COMMENT RULE
+- You are strictly FORBIDDEN from writing any code comments, inline remarks, or placeholders.
+- Do NOT use `--`, `/* */`, `//`, or `#` inside the generated code block.
+- You must write out ALL logic, queries, and loops in full. 
+- Do NOT abbreviate code blocks, use ellipses (...), or leave "TODO" comments.
+- If you cannot complete the code without using a comment or placeholder, fail the request and state why.
