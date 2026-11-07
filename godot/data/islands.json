@@ -9,6 +9,10 @@
    "color": "#c9b26a",
    "desc": "A hilltop village among the vineyards, with a castle for a town hall, a dry fountain and a mayor who would like to be re-elected.",
    "built": true,
+   "day": {
+    "holdAt": 20.5,
+    "regrow": "overnight"
+   },
    "look": {
     "shade": [
      0.008,

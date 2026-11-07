@@ -1097,7 +1097,8 @@
    "kind": "rest",
    "x": 34.6,
    "z": -7.1,
-   "label": "Sleep in the guest room"
+   "label": "Look at the Sindaco's camp bed",
+   "refuse": "A note on the pillow: RESERVED FOR VISITING DIGNITARIES. Geometri, see the public benches. Signed, the Sindaco. Twice."
   },
   {
    "id": "welcomeSign",

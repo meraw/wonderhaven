@@ -228,6 +228,7 @@ func complete_quest(qid: String, agent) -> void:
 	if r.has("clothes"): unlock_clothes(r.clothes, true)
 	for f in r.get("flags", []): game.set_flag(f)
 	add_hearts(q.giver, 2)
+	WorkDay.note(game.state, "quests", String(q.id))
 	if r.get("harmony", 0) > 0: add_harmony(int(r.harmony))
 	if r.get("meter", 0) > 0 or not LocationMeter.waiting(game.state, where).is_empty(): add_meter(where, int(r.get("meter", 0)))
 	game.on_quest_completed(qid)

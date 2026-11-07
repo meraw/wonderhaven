@@ -41,7 +41,7 @@ func wake(seat: Dictionary, t0: Dictionary) -> String:
 	var naps: Dictionary = Data.naps_here()
 	var watchers := _watchers(spot)
 	var raining: bool = game.settings.get("weather", true) and BenchNap.rained(t0, s.time, Daylight.allowed_here(), s.get("forced_weather", {}))
-	var ctx := {"indoors": _indoors(spot), "rained": raining, "watchers": watchers.map(func(a): return a.def.name), "last": String(s.get("naps", {}).get("last", ""))}
+	var ctx := {"indoors": _indoors(spot), "rained": raining, "watchers": watchers.map(func(a): return a.def.name), "last": String(s.get("naps", {}).get("last", "")), "overnight": int(s.time.day) > int(t0.get("day", s.time.day))}
 	# Test-only: --napgag=<id> (or shot_cfg) picks the joke; "auto" lets the rules decide. A scripted playthrough naps
 	# quietly unless it asks, so jokes at random can't upset what it's checking.
 	var forced: String = String(game.shot_cfg.get("napgag", "" if game.shot_cfg.has("autoplay") else "auto"))

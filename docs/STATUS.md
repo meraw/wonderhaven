@@ -8,7 +8,58 @@ Working title: **Wonderhaven** (to be renamed). The game is moving to a comic, l
 ## The redesign (07/11)
 After a review of how the game plays, the user agreed a new design: building is the core, the game values what you build
 whether or not anyone asked for it, requests become briefs with checks, and the day becomes a work day you end
-yourself. All of it, and the order it's built in, is in `docs/DESIGN.md`. Stage 1 is done; the rest is still to do.
+yourself. All of it, and the order it's built in, is in `docs/DESIGN.md`. Stages 1 and 2 are done; the rest is still to do.
+
+### Stage 2: the work day (Monteforchetta)
+- **A place opts in** with a `day` block in its map entry (`islands.json`: Monteforchetta has `{"holdAt": 20.5, "regrow":
+  "overnight"}`); the rules are in `WorkDay` (`scripts/systems/work_day.gd`). Boccapioppo, Casalrana, Toriano and the
+  Cove keep the clock they had, because some of their requests happen at night; their owners can switch them over.
+- **The day waits at dusk.** The clock runs from 7 AM and stops at 8:30 PM (lamps on, the evening music), about 13 real
+  minutes of daylight, and it still stops in build mode. The HUD says "Dusk, the day waits for you", and a tip card the
+  first time explains how to end the day. Riding a line can't carry you past dusk either.
+- **You end the day by sleeping, on a bench until you have a bed.** A bed or bench now offers: sleep until tomorrow
+  morning (which ends the day), or a nap until noon, the afternoon or dusk if they're still to come. The Sindaco's camp
+  bed in the castle has a note sending you to the public benches (a `refuse` line on the layout's `rest` feature), and
+  his lines about the guest room say so. A bed you build ends the day too, quietly.
+- **A night on a bench always ends with a joke** (`overnight` in `naps.json`, 1.0), where a daytime nap is still only
+  sometimes funny. Nobody has written more gags yet, so the same few come round often.
+- **Overnight, gathering spots grow back**: trees, rocks, clay, flowers, hazelnuts, chestnuts, porcini, the street bins
+  and lost things come back the next morning instead of minutes later, so each day has its own share. When all the
+  spots for something a request needs are picked, the tracker says they grow back overnight.
+- **Nothing in Monteforchetta depends on the hour**: Ornella's boars and Fede's metal detector can be taken on at any
+  time. The rule for requests that keep hours stays for the places that use it.
+- **The morning paper.** Waking after a night, the *Eco del Colle* (the paper from `naps.json`) comes up as a card:
+  - a headline about yesterday: a finished request (a request can have its own `headline`), else how many pieces you
+    built, else a quiet-day line;
+  - up to three notes: the approval rating and how much it moved, who is asking for you, what your draft still needs,
+    that the trees and quarry grew back, and the day's weather.
+
+  The day so far is kept in `state.today` (pieces built, spots gathered, requests finished, approval at the start).
+  Lines are data (`data/paper.json`, `MorningPaper`).
+- **Checked:**
+  - **Tested** (`godot/run_tests.sh`, 276 passed). `test_work_day` covers: the clock holding at dusk (and not elsewhere);
+    the sleep options at different hours; spots growing back the next morning and not after a nap; a night on a bench
+    always ending with a joke; the castle bed's note; no hours on Monteforchetta's requests; the day record and its save;
+    the paper's headlines and notes. The shared rule for requests that keep hours is still tested in `test_story`.
+  - **Played** (`play_sleep`, rewritten, 19 checks):
+    - a bench at 3 PM offers dusk or tomorrow;
+    - a nap until dusk lands at 8:30 PM the same day, and the clock then waits, saying so, with its tip card;
+    - a tree cut earlier hasn't grown back by dusk, and has by morning;
+    - Ornella's request is offered at dusk;
+    - the camp bed sends you to the benches;
+    - a night on the bench ends the day at 7 AM with a joke, and the paper comes;
+    - the four gags, through naps within the day and a rainy night;
+    - the bed's price and the draft;
+    - your own bed ending the day quietly, with the paper.
+  - **All of Monteforchetta's playthroughs pass** (`play_all.sh`: 17 runs). Part two of the full story now boards the
+    city bus from beside Aldo when he's in front of it. His routine keeps him at the stop from 6 AM to 10 PM, and with
+    the clock waiting at dusk he's always there. A real player could meet this during the day before too.
+  - **Seen** in the playthroughs' screenshots (compatibility renderer): the bench panel, dusk, the morning on the bench,
+    the paper.
+  - **Not checked:**
+    - A whole day at a real computer's speed.
+    - The gathering helper's bench sleep in the full playthrough: the story never ran out of trees there.
+    - How the other places feel: they don't use the work day yet.
 
 ### Stage 1: building you can understand (shared)
 - **The spots where the piece in your hand can go glow green** (for walls, fences and railings, the edges), within
@@ -175,8 +226,8 @@ Internal ids are the old ones (`fern` is Gigia, `bram` Elio, `tilly` Fede, `mabe
 - **Story start:** an arrival card sets the scene (the new Geometra, appointed by the province, steps off Aldo's stranded bus at the lay-by by the village gate). The Sindaco runs the town hall from the castle.
 - **Guided first day:** a skippable walkthrough led by the Sindaco, one step at a time (walk, look, talk, chop, bag, lost thing, return, journal, meet Aldo, gather for the crossing, build it, add railings). HUD parts appear as they're introduced; one-time tip cards explain talking, chopping, mining, fishing, building, the approval rating, the journal and the map (`godot/data/tutorial.json`).
 - **Requests that take a while:** requests come in steps (stages): gather materials first, then build, then finishing touches; the tracker and journal show "Step 2 of 3" and only the current step. Step types: gather, events, live build checks, room checklists, piece counts in a zone, paying a villager, talking to someone mid-request. Examples: the washed-out road (10 wood, build the crossing, 4 railings), Elio's shop (wood, metal and copper wire, hear his plan, then two seats, two lamps, two shelves, a workbench and a splash of colour), your own home (pay the Sindaco 100,000 lire for the deed, rebuild the farmhouse, make it cosy), the fountain and the city bus turnaround (materials first). 12 requests, 6 of them main story.
-- **Time of day matters:** a few requests are only offered at certain hours (Ornella's boars in the morning, Fede's metal detector in the afternoon and evening, Hazel's forge in the morning); outside those hours the villager says when to come back, and the journal lists the hours. The lighthouse ends by watching its first night beam with Juniper after 8 PM.
-- **Sleep or nap until you choose:** beds (the castle's guest bed, the Cove's guest house, your own house) and benches (five in Monteforchetta, four on the Cove, plus any bench or sofa you build) open a small panel: dawn, morning, noon, evening or night. A bench can also just be sat on. **Bench naps:** you wake up on the bench (a step gets you up), and about a third of the time to a joke: the local paper (the *Eco del Colle*) you slept under blows away, a stranger's wet umbrella was left open to dry beside you, or a villager caught staring hurries off; if it rained while you slept, you're always soaked (drips, a puddle, a wet-dog shake). Odds and lines are data (`godot/data/naps.json`); never the same joke twice running. **Beds are dear:** a bed costs 120,000 lire as well as its wood and fabric (more than the farmhouse deed), so you save up for the one your home needs, and nap on benches meanwhile. Villagers wake up where their routine puts them; if that's right where you are (or where a loaded save put you), you step aside instead of being stuck inside them.
+- **Time of day matters (outside Monteforchetta):** a few requests are only offered at certain hours (Hazel's forge in the morning on the Cove, and some in the later places); outside those hours the villager says when to come back, and the journal lists the hours. Monteforchetta's work day has none (stage 2 above). The lighthouse ends by watching its first night beam with Juniper after 8 PM.
+- **Sleep or nap until you choose:** beds (the Cove's guest house, your own house; the castle's camp bed no longer, see stage 2) and benches (five in Monteforchetta, four on the Cove, plus any bench or sofa you build) open a small panel: in Monteforchetta, sleep until tomorrow or a nap within the day; elsewhere dawn, morning, noon, evening or night. A bench can also just be sat on. **Bench naps:** you wake up on the bench (a step gets you up), and about a third of the time to a joke: the local paper (the *Eco del Colle*) you slept under blows away, a stranger's wet umbrella was left open to dry beside you, or a villager caught staring hurries off; if it rained while you slept, you're always soaked (drips, a puddle, a wet-dog shake). Odds and lines are data (`godot/data/naps.json`); never the same joke twice running. **Beds are dear:** a bed costs 120,000 lire as well as its wood and fabric (more than the farmhouse deed), so you save up for the one your home needs, and nap on benches meanwhile. Villagers wake up where their routine puts them; if that's right where you are (or where a loaded save put you), you step aside instead of being stuck inside them.
 - **Minigames in the world:** chopping, mining and fishing play in a small panel at the bottom right while the camera watches your character work from the side; the tree or rock shakes and chips fly with each hit.
 - **Coins, shops and gifts:** coins come from requests, chests, digging and selling. Elio, Gigia, Fede, Ornella and Aldo run shops (choose "🛍" in conversation): sell them what they want, buy materials, blueprints and Ornella's treats (`godot/data/shops.json`). Give any villager one gift a day; things they love and treats raise friendship more, and friendship unlocks their own gifts.
 - **Following the story:** the next main-story request is always shown, so side requests never hide it; the compass points at the next step (the nearest place to gather an item, or the person to talk to or pay).

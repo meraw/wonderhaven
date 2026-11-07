@@ -146,6 +146,13 @@
     "Ctrl+Z undoes. Esc leaves."
    ]
   },
+  "dusk": {
+   "title": "Dusk: the day waits for you",
+   "lines": [
+    "The clock stops at dusk until you end the day. Take your time.",
+    "To end it, sleep on a bench (or in your own bed, once you have one). Overnight the trees and the quarry grow back, and the paper comes in the morning."
+   ]
+  },
   "harmony": {
    "title": "The Sindaco's approval rating",
    "lines": [

@@ -56,7 +56,7 @@
     "offer": [
      "Ah! You must be the Geometra the province promised us! Welcome, welcome. I am Commendator Gustavo Dalmasso, Sindaco of Monteforchetta. The mayor. Of here.",
      "Aldo left you at the washout? Of course he did. The storm took the crossing over the stream, half the road, and my nerves. You are the answer to my prayers. And to my campaign.",
-     "You'll stay in the town hall's guest room, in the blue house south-east of the piazza. Small, but historic. Like me.",
+     "The town hall's guest room is full of my campaign posters, alas. But our public benches are the finest in the province. Free, too. Like the air.",
      "Now. A tour! The village has wood, stone, people and problems. I will show you all of them, in order of importance. Starting with me.",
      "First, a demonstration. See the trees with pink ribbons on the slope past this gate? They're ready for cutting. Chop a little wood. And if you see my reading glasses on the ground anywhere, I would be grateful. Discreetly grateful."
     ],
@@ -887,12 +887,12 @@
    },
    "dialogue": {
     "offer": [
-     "Geometra! A professional like you should not sleep in a guest room under a portrait of my grandfather forever.",
+     "Geometra! A professional like you should not sleep on a public bench forever. People are starting to leave you coins.",
      "The ruined farmhouse across the stream, where the vines meet the woods, could be yours. For a symbolic price: one hundred thousand lire. The town hall has upkeep, you know. Battlements don't polish themselves.",
      "Sell your spare goods at the village shops, then bring me the money."
     ],
     "acceptLabel": "A home of my own!",
-    "declineLabel": "The guest room suits me",
+    "declineLabel": "The benches suit me",
     "accept": [
      "Splendid! Come back with one hundred thousand lire and the deed is yours. I'll have it stamped. Twice."
     ],
@@ -1200,10 +1200,6 @@
      "bridge"
     ]
    },
-   "hours": [
-    6,
-    11
-   ],
    "objectives": [
     {
      "id": "acorns",
@@ -1446,10 +1442,6 @@
      "bridge"
     ]
    },
-   "hours": [
-    14,
-    20
-   ],
    "objectives": [
     {
      "id": "find",

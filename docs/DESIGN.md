@@ -74,12 +74,16 @@ The rule now: fewer rules, and the ones left are shown before you click.
   can be copied into your draft in one go.
 
 ## 4. The work day
-- **The day runs from 7 AM to dusk**, about 12 real minutes of daylight. The clock stops in build mode, and nothing
+- **The day runs from 7 AM to dusk**, about 13 real minutes of daylight. The clock stops in build mode, and nothing
   important depends on the hour.
-- **At about 8 PM the clock holds** at dusk, lamps on, villagers heading home or to the piazza, until you end the day.
+- **At 8:30 PM the clock holds** at dusk, lamps on, until you end the day.
+- **A place opts in** with a `day` block in its map entry (`{"holdAt": 20.5, "regrow": "overnight"}`, `WorkDay`).
+  Monteforchetta has one; Boccapioppo, Casalrana and Toriano keep the clock they had until their owners convert them,
+  because some of their requests happen at night.
 - **You end the day by sleeping, and until you own a bed that means a bench.** Sleeping on a bench is the way every
   day ends until you've saved for a bed (beds cost 120,000 lire), so the nap gags are the everyday humiliation of a
-  Geometra the village hasn't housed yet, not a joke you might never see. Naps during the day still skip ahead, but only
+  Geometra the village hasn't housed yet, not a joke you might never see: a night on a bench always ends with one.
+  The Sindaco's camp bed in the castle sends you to the public benches. Naps during the day still skip ahead, but only
   within the same day.
 - **Evening: the inauguration** of what you finished that day. Villagers gather at it, the Sindaco makes a speech taking
   the credit, people react to it, approval is counted. It is short, always skippable, happens only when something new
@@ -99,7 +103,7 @@ Each stage is playable and tested before the next.
 1. **Building you can understand**: glowing spots, drafts with a shopping list, the clock stopping in build mode, fewer
    rules. *Done: see `docs/STATUS.md`.*
 2. **The work day**: dusk holds, sleeping (on a bench until you have a bed) ends the day, overnight regrowth, the
-   morning paper, naps within a day.
+   morning paper, naps within a day. *Done for Monteforchetta: see `docs/STATUS.md`.*
 3. **Needs and live approval**, with the "Why?" panel; no villagers using things yet.
 4. **Villagers using your builds** (and their puzzled stares), and liveliness.
 5. **The inauguration.**

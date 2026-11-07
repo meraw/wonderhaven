@@ -80,6 +80,12 @@ func play() -> void:
 		if f.id == "boat": bus = f
 	await walk_to(stop[0], stop[1] - 1.0, 0.8); await walk_direct(stop[0], stop[1], 0.5)
 	await face_and_press("boat", bus.x, bus.z); await frames(10)
+	if game.panels.current != "map":
+		if game.mode != "explore": await tap(KEY_ESCAPE); await frames(6)
+		await walk_direct(stop[0] + 3.0, stop[1], 0.5)
+		game.player.yaw = atan2(0.0, 1.0); game.player.sync(); await frames(4)
+		note("second try at %s, target %s" % [game.player.pos, game.target.id if game.target else "none"])
+		if game.target != null and game.target.id == "boat": await tap(KEY_E); await frames(10)
 	await shot("world-map")
 	var mv: Control = game.panels.find_child("map_view", true, false)
 	var on_map: Array = mv.call("_shown").map(func(i): return i.id) if mv != null else []
