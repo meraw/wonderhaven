@@ -209,6 +209,7 @@ static func _finish_look(village: Village) -> void:
 		for n in village.get_tree().root.find_children("*", "Node3D", true, false):
 			if n is Chibi and n != player:
 				for mi: MeshInstance3D in n.find_children("*", "MeshInstance3D", true, false): mi.visible = false
+				for l: Label3D in n.find_children("*", "Label3D", true, false): l.text = ""
 	if not look.get("characters", false) or not look.has("textures"): return
 	var by_mat := {}
 	for key in Palette._cache: by_mat[Palette._cache[key]] = String(key)
