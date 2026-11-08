@@ -79,10 +79,12 @@ own cobble colours, and `views.sh` with `measure_views.py` for before-and-after 
 
      Before-and-after images: `docs/models/conversion_step2_a.jpg` and `conversion_step2_b.jpg`.
 3. **Buildings and the village:**
-   - a building's `"model"` in the layout loads a Blender house in the real village. Collision stays the layout
-     footprint; the roof must fade, windows light at night, roofs take snow (`docs/MODELS.md`);
-   - Monteforchetta relaid as a dense, varied core;
-   - the code-built church, castle and shops replaced or restyled.
+   - **done:** Monteforchetta's houses and shops are assembled from a Blender kit of parts, from layout data
+     (`docs/MODELS.md`, "The house kit"). Collision stays the footprint, upper floors and roofs fade while you're
+     inside, windows light at night, and the coppi take snow. Before and after: `docs/models/conversion_step3_a.jpg`;
+   - Monteforchetta's core made denser and varied: attached rows of different heights, colours and setbacks, as
+     decided in the look tests;
+   - the code-built church, castle and workshop restyled.
 4. **Characters:**
    - fabric chosen per garment (knit, denim, leather) instead of knit for everything;
    - hair material;
