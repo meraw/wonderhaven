@@ -601,10 +601,10 @@ The user asked for Toriano's graphics, requests and systems to work like the oth
   their walls and doorways, with fading kit windows above; shared walls stay blank; landmarks and the backdrop ring
   unchanged; a build for every villager. Before and after: `docs/models/conversion_toriano.jpg`.
 - **The side playthrough's first check** (loading the main story's save from the title screen) missed every time it
-  ran straight after the story in `play_all.sh`, and passed when run again on the same saves: it looked for the title's
-  Load button and slot 3's button a fixed number of frames after start, and loading a save made elsewhere reloads the
-  scene. It now waits for each button to be on screen, then for the game to be playing in Toriano (following the new
-  scene), and notes what it found. Its walk home to your flat (`[home:spot]`, which also failed on main) planned its
+  ran in `play_all.sh`, and passed when started by hand: its run line lacked the `Run:` label `play_all.sh` reads, so it
+  was started without `--title`, its frame limit or its timeout, in Monteforchetta. The label is back, and the script
+  now also waits for the title's buttons to be on screen and then for the game to be playing in Toriano (following the
+  reloaded scene), noting what it found. Its walk home to your flat (`[home:spot]`, which also failed on main) planned its
   route over the flat path graph and ended up in the courtyard under the balcony: going to a room upstairs now climbs
   the stair and follows the balcony's own path nodes to the door (`metropolis_base.gd`, `go`, `nav_path`).
 - **Checked:** **tested** (379 passed): Toriano's systems (`test_alive`), its work day (`test_work_day`), every brief

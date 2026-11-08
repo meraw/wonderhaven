@@ -6,7 +6,7 @@ extends "res://tests/metropolis_base.gd"
 ## tree and Franco's bicycles. Then the evening paper's last milestones: the radio and the front page in your flat.
 ## Gathering is real; materials for building beyond what a request asks you to gather are topped up, and noted.
 ## Run play_metropolis_story.gd first, then:
-## TIMEOUT=4200 ./play.sh res://tests/play_metropolis_side.gd /tmp/out --island=metropolis --title --limit=4000
+## Run: TIMEOUT=4200 ./play.sh res://tests/play_metropolis_side.gd /tmp/out --island=metropolis --title --limit=4000
 
 ## Talks to a villager and picks a choice of one kind ("shop", "offer"...), then lets the conversation end.
 func chat_choose(npc: String, kind: String) -> bool:
