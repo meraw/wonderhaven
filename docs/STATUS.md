@@ -114,7 +114,7 @@ The user found too much text everywhere. Changes, all shared:
     pillar is shelter; a lamp is light, and an electric lamp only when lit; charm's repeats, colours and cap; three
     needs noticed at a time, only buildable ones, the same for the same morning; approval going down and up again
     without a milestone twice; the plot not shrinking; the paper leading with what was noticed.
-  - **Played** (`play_needs`, 9 checks, now in `play_all.sh`):
+  - **Played** (`play_needs`, 19 checks, in `play_all.sh`):
     - a night on a bench brings three noticed needs in the paper, with icons over the places and the tracker list;
     - build mode shows each place's ring, name and needs;
     - building the right piece there meets the need and raises approval;
@@ -122,8 +122,18 @@ The user found too much text everywhere. Changes, all shared:
     - removing it takes the village's points back but keeps the best approval;
     - drafting it previews the approval, and building the draft meets it again.
 
-    The needs are picked at random each morning, so different runs build at different places: the runs here built a
-    hedge at Gigia's gate and a lamp on the church steps.
+    The morning's needs are picked at random, so v2 and v3 check only that three are noticed and shown. After that the
+    playthrough doesn't rely on the roll: for each kind it builds (seat, green, light) it takes the first place in
+    the layout that wants that kind and has room, makes the village notice it if the morning didn't, and plays the
+    build, remove, draft and rebuild steps there (v5 to v9, once per kind: a bench at the bakery door, a hedge and a
+    lamp in the piazza). Five runs in a row passed all 19 checks.
+  - **Why it used to fail about one run in four** (only when the roll picked a seat): the playthrough aimed its
+    clicks at the middle of the bench's first cell, but build mode centres a piece on the cursor, so for a piece two
+    cells wide that point is exactly on the line between two cells, and the bench landed one cell over. The test then
+    couldn't find its bench at the planned spot and never removed it (v7), and the draft (v8) went next to a bench
+    that already met the need, so it previewed no approval. The game was right; the test was wrong. The new
+    `place_anchored` helper (`tests/full_base.gd`) aims at the middle of the piece's footprint, and v5 now checks that
+    the piece landed where it was aimed.
   - **All of Monteforchetta's playthroughs pass** (`play_all.sh`: 18 runs).
   - **Seen** in the playthroughs' screenshots: the paper with needs, build mode's labels, the "Why?" panel.
   - **Bug the playthrough found**: the village wasn't counted when a new game began, only once something was built.
