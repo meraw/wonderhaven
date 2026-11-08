@@ -6,6 +6,7 @@
  "color": "#c9a46a",
  "desc": "The big city: a marble cathedral bristling with spires, a glass-roofed arcade, old orange trams and canals full of bars, all in the fog.",
  "reveal": "rice_village_trainStops",
+ "day": {"holdAt": 20.5, "regrow": "overnight", "hold": false},
  "look": {
   "shade": [
    0.0,

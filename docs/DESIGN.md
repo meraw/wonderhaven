@@ -78,15 +78,17 @@ The rule now: fewer rules, and the ones left are shown before you click.
 ## 4. The work day
 - **The day runs from 7 AM to dusk**, about 13 real minutes of daylight. The clock stops in build mode, and nothing
   important depends on the hour.
-- **At 8:30 PM the clock holds** at dusk, lamps on, until you end the day.
+- **At 8:30 PM the clock holds** at dusk, lamps on, until you end the day. *Changed 08/11: the clock never holds,
+  in any location (`docs/WORLD.md`); Monteforchetta's hold goes when its owner changes it.*
 - **A place opts in** with a `day` block in its map entry (`{"holdAt": 20.5, "regrow": "overnight"}`, `WorkDay`).
-  Monteforchetta has one. Boccapioppo and Casalrana have one that doesn't hold the clock (`"hold": false`), because
-  Boccapioppo's storm, first dance and catfish and Casalrana's night express and living nativity happen at night:
-  things regrow overnight, a sleep into the next day ends the day (the paper, the inauguration), and their beds keep
-  their wake times. Toriano keeps the clock it had until it's converted.
+  Monteforchetta has one. Boccapioppo, Casalrana and Toriano have one that doesn't hold the clock (`"hold": false`),
+  because Boccapioppo's storm, first dance and catfish, Casalrana's night express and living nativity, and Gino's score
+  pages and Christmas Eve in Toriano happen at night: things regrow overnight, a sleep into the next day ends the day
+  (the paper, the inauguration), and their beds keep their wake times.
 - **You end the day by sleeping, and until you own a bed that means a bench.** Sleeping on a bench is the way every
   day ends until you've saved for a bed (beds cost 120,000 lire), so the nap gags are the everyday humiliation of a
-  Geometra the village hasn't housed yet, not a joke you might never see: a night on a bench always ends with one.
+  Geometra the village hasn't housed yet, not a joke you might never see: a night on a bench ends with one about half
+  the time (08/11: always was too often).
   The Sindaco's camp bed in the castle sends you to the public benches. Naps during the day still skip ahead, but only
   within the same day.
 - **Evening: the inauguration** of what you finished that day. Villagers gather at it, the Sindaco makes a speech taking
@@ -114,7 +116,7 @@ Each stage is playable and tested before the next.
    market day and the evening music: see `docs/STATUS.md`.*
 5. **The inauguration.** *Done for Monteforchetta: see `docs/STATUS.md`.*
 6. **Requests rebuilt as commissions** (Monteforchetta's playthrough scripts are rewritten here). *Done for
-   Monteforchetta: see `docs/STATUS.md`.*
+   Monteforchetta, Boccapioppo and Toriano: see `docs/STATUS.md`.*
 7. **Tools and materials.** *Done: see `docs/STATUS.md`.*
 
 ## Kept from before

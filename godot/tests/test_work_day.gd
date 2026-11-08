@@ -9,12 +9,10 @@ func _clock(day: int, hour: float) -> Dictionary:
 func test_monteforchetta_has_a_work_day_and_the_others_keep_their_clock():
 	var d := WorkDay.def("hearthglow")
 	t.ok(not d.is_empty() and absf(WorkDay.hold_minute(d) - 20.5 * 60.0) < 0.01 and String(d.get("regrow", "")) == "overnight", "Monteforchetta holds at 8:30 PM and regrows overnight: %s" % str(d))
-	for id in ["metropolis", "clockwork"]:
-		t.ok(not WorkDay.on(id), "%s keeps the clock it had" % id)
-	var b := WorkDay.def("river_town")
-	t.ok(WorkDay.on("river_town") and not WorkDay.holds(b) and String(b.get("regrow", "")) == "overnight", "Boccapioppo has a work day that regrows overnight but doesn't hold the clock: its storm and its catfish are at night")
-	var c := WorkDay.def("rice_village")
-	t.ok(WorkDay.on("rice_village") and not WorkDay.holds(c) and String(c.get("regrow", "")) == "overnight", "so has Casalrana: the night express and the nativity are in the evening")
+	t.ok(not WorkDay.on("clockwork"), "clockwork keeps the clock it had")
+	for id in ["river_town", "rice_village", "metropolis"]:
+		var dd := WorkDay.def(id)
+		t.ok(WorkDay.on(id) and not WorkDay.holds(dd) and String(dd.get("regrow", "")) == "overnight", "%s has a work day that regrows overnight but doesn't hold the clock: its night scenes need it" % id)
 
 func test_a_day_that_doesnt_hold_runs_on_through_the_night():
 	var free := {"holdAt": 20.5, "regrow": "overnight", "hold": false}

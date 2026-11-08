@@ -144,3 +144,23 @@ func test_casalrana_has_its_own_day_tastes_paper_and_ceremony():
 	var said := JSON.stringify(Inauguration.cfg().open + Inauguration.cfg().body.values() + Inauguration.cfg().close)
 	t.ok(not said.contains("election") and not said.contains("levee") and said.contains("Casalrana"), "in his own words")
 	Data.use_island("hearthglow")
+
+func test_toriano_has_the_redesigns_systems():
+	Data.use_island("metropolis")
+	var people: Array = Data.npcs_here().map(func(n): return String(n.id))
+	t.ok(people.size() == 13 and people.all(func(id): return Tastes.here().has(String(id))), "every one of Toriano's villagers has tastes (%d of %d)" % [Tastes.here().size(), people.size()])
+	for id in people:
+		var tt := Tastes.of(String(id))
+		t.ok(Tastes.near_pos(String(id)) != Vector2.INF, "%s has a spot" % id)
+		for p in tt.get("pieces", []): t.ok(not Data.piece(String(p)).is_empty(), "%s likes a real piece (%s)" % [id, p])
+		for c in tt.get("colours", []): t.ok(Data.palette.has(String(c)), "%s likes a colour you can paint (%s)" % [id, c])
+		t.ok(String(tt.get("line", "")).contains("{piece}") and String(tt.get("gossip", "")).begins_with("Overheard"), "%s has a line and a bit of gossip" % id)
+	var lines := Data.paper_here().duplicate(true)
+	lines.erase("_doc")
+	var all := JSON.stringify(lines) + JSON.stringify(Inauguration.cfg())
+	t.ok(String(Data.naps_here().get("paper", "")) == "La Sera di Toriano" and not all.contains("Sindaco") and not all.contains("Eco") and not all.contains("approval rating"), "its own paper, La Sera di Toriano, with no Sindaco, Eco or approval rating")
+	t.ok(Inauguration.on() and Inauguration.speaker() == "metropolis_annoni" and people.has(Inauguration.speaker()), "Architetto Annoni opens what you build")
+	var day := WorkDay.def("metropolis")
+	t.ok(not day.is_empty() and not WorkDay.holds(day) and String(day.get("regrow", "")) == "overnight", "a work day that regrows overnight and doesn't hold the clock, for Gino's score at night and Christmas Eve")
+	t.ok(not Market.here(), "Monteforchetta's market day doesn't come to Toriano")
+	Data.use_island("hearthglow")

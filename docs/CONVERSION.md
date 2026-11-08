@@ -114,7 +114,8 @@ own cobble colours, and `views.sh` with `measure_views.py` for before-and-after 
 
      Before and after: `docs/models/conversion_step4_6.jpg`.
 5. **Other locations.** Boccapioppo, Toriano and Casalrana get the new materials through `Palette` automatically.
-   Boccapioppo and Casalrana are now converted the way Monteforchetta was (08/11); Toriano is not yet.
+   Boccapioppo and Casalrana are now converted the way Monteforchetta was (08/11), and Toriano too, in a city's way
+   (see "Toriano" below).
    - **Houses from the kit:** both places opt in with `"kit": true` in their `houseStyle`, and each house says
      `"kit": true` in the layout, whatever its kind. The location's own script still draws it, so a kit house keeps
      what the place adds on top:
@@ -148,6 +149,17 @@ own cobble colours, and `views.sh` with `measure_views.py` for before-and-after 
      manager, a small 81-year-old nonna, a ten-year-old trainspotter and a tall railway inspector.
    - Before and after: `docs/models/conversion_step5_a.jpg` (Boccapioppo), `conversion_step5_b.jpg` (Casalrana) and
      `conversion_step5_c.jpg` (both casts).
+   - **Toriano** (08/11) opts in with `"kit": true` in its `houseStyle`. A city block is not a village house, so it
+     isn't assembled by `HouseKit`: Toriano's own kit (`scripts/locations/metropolis/kit.gd`) keeps each block's
+     shape, cornice, hipped roof, balconies and awnings, and `metropolis/facades.gd` dresses it with the house kit's
+     parts in place of the painted façade: plaster walls, a window per bay on every storey with shutters in the
+     city's colours (open, ajar or shut), shop windows and doors on the ground floor with a granite base, and
+     grilled windows under the flats at number 14. A bay whose outside is another building gets no window, so
+     shared walls stay blank. Rooms you walk into (Franco's bar, the Works office, the lodge, the flats) keep their
+     walls and doorways, with kit windows on the storeys above that fade while you're inside. Number 14's wings have
+     3.2 m storeys (`"storey"` in the layout). The far backdrop ring and the landmarks (the Duomo, the Galleria's
+     arcades, the Teatro, the castle, the station, the tram depot) keep their own styles. Every villager has a build
+     of their own. Before and after: `docs/models/conversion_toriano.jpg`.
 6. **Performance.** Done as far as it can be from here:
    - **a quality setting:** Settings has "Simpler graphics, for slower computers". It turns off screen-space
      reflections, contact shadows (SSAO) and multisample anti-aliasing, and gives the sun two shadow cascades out to
