@@ -518,16 +518,26 @@ func sec_bike() -> void:
 
 func sec_round() -> void:
 	var s: Dictionary = game.state
-	# ---- Pierina's Round: five letters and a parcel, by bike
 	await talk(P + "pierina")
-	var got: bool = qs("round") == "active" and inv(P + "letter") == 5 and inv(P + "parcel") == 1
-	for who in ["rina", "ermes", "tullio", "gildo", "wanda", "ines"]:
+	var got: bool = qs("round") == "active" and inv(P + "letter") == 5
+	var posted := 0
+	var far := 0.0
+	var last: Vector3 = game.player.pos
+	for id in ["farm", "station", "shack", "sawmill", "poplars"]:
+		var f := feature(P + "box_" + id)
 		if not game.player.riding and not Bicycle.indoors(game.player.pos): await tap(KEY_F); await frames(4)
-		await talk(P + who)
+		await walk_to(float(f.x) + 1.1, float(f.z) + 0.4, 0.8)
+		far += Vector2(game.player.pos.x - last.x, game.player.pos.z - last.z).length()
+		last = game.player.pos
+		var before := inv(P + "letter")
+		if await face_and_press(P + "box_" + id, float(f.x), float(f.z)):
+			await frames(6)
+			if inv(P + "letter") == before - 1: posted += 1
+		note("posted at %s: %d so far" % [id, posted])
 	await talk(P + "pierina")
-	check("b3", "Pierina's Round: five letters and a tuba-shaped parcel delivered round town by bike",
-		got and qs("round") == "done" and inv(P + "letter") == 0 and inv(P + "parcel") == 0 and pts() == expected_pts(),
-		"%s, letters left %d, parcel %d, gauge %s" % [qs("round"), inv(P + "letter"), inv(P + "parcel"), reading()])
+	check("b3", "Pierina's Far Round: five letters posted by bike in letterboxes the length of the map, two of them over the river",
+		got and posted == 5 and qs("round") == "done" and inv(P + "letter") == 0 and far > 150.0 and pts() == expected_pts(),
+		"%s, posted %d, ridden %.0f m, gauge %s" % [qs("round"), posted, far, reading()])
 
 func sec_bridge() -> void:
 	var s: Dictionary = game.state
@@ -641,6 +651,12 @@ func sec_dancehall() -> void:
 		dancers = game.npcs.values().filter(func(a): return a.present and hall.has_point(Vector2(a.pos.x, a.pos.z))).size()
 		if dancers >= 7: break
 		await wait(1.0)
+	var dancing := 0
+	for k in 20:
+		dancing = game.npcs.values().filter(func(a): return a.present and hall.has_point(Vector2(a.pos.x, a.pos.z)) and a.character.hold == "dance").size()
+		if dancing >= 6: break
+		await wait(1.0)
+	check("s5b", "And in the hall they dance, not just stand about", dancing >= 6, "%d dancing" % dancing)
 	await walk_to(12.8, 31.5, 0.6)
 	await shot("first-dance")
 	await talk(P + "wanda")
@@ -716,12 +732,15 @@ func sec_catfish() -> void:
 	await talk(P + "gildo")
 	var cf_ok: bool = qs("catfish") == "active"
 	await talk(P + "primo")   # a stronger line
+	var leaps: Array = []
+	game.game_event.connect(func(type, data): if type == "leap": leaps.append(data))
 	await nap_until(21)
 	await gather_node(P + "fish4")
 	for k in 3:
 		if inv(P + "whisker") > 0: break
 		await gather_node(P + "fish4")
 	var hooked: bool = inv(P + "whisker") > 0
+	check("s8b", "When it bites, the monster leaps out of the Po, stares at you and crashes back in", hooked and leaps.size() == 1 and float(leaps[0].height) > 3.0, str(leaps))
 	await shot("monster")
 	await talk(P + "mattia")   # wherever he is tonight: show him the whisker, for the photo
 	await talk(P + "gildo")
@@ -786,6 +805,18 @@ func sec_levee() -> void:
 		lv_ok and sealed and storm and risen and raining and crest >= 8 and flag("storm"), "sealed=%s storm=%s risen=%s raining=%s on the crest %d" % [sealed, storm, risen, raining, crest])
 	var t_wait := Time.get_ticks_msec()
 	while hour() >= 1.0 and Time.get_ticks_msec() - t_wait < 5400000: await wait(1.0)   # keep watch until midnight
+	await frames(10)
+	var fl: Node = game.village.find_child("river_town_flood", true, false)
+	var level: float = float(fl.call("level")) if fl != null else -9.0
+	var under: bool = RiverTown.FLOODPLAIN_SPOTS.all(func(p): return Heightfield.height(p.x, p.y) < level)
+	var town_dry := true
+	if fl != null:
+		for c in fl.get_children():
+			var half: Vector2 = ((c as MeshInstance3D).mesh as PlaneMesh).size / 2.0
+			if absf(5.0 - c.position.x) < half.x and absf(0.0 - c.position.z) < half.y: town_dry = false
+	check("s11b", "Keeping watch till midnight, the Po spreads over the floodplain to the foot of the levee; the town behind it stays dry", fl != null and level > RiverTown.FLOOD_H + 0.15 and under and town_dry,
+		"flood at %.2f m, floodplain under %s, town dry %s" % [level, under, town_dry])
+	await shot("flood-at-midnight")
 	await talk(P + "ermes")   # the peak, and it holds
 	var over := await await_rebuild()
 	await shot("after-the-storm")

@@ -9,12 +9,10 @@ func _clock(day: int, hour: float) -> Dictionary:
 func test_monteforchetta_has_a_work_day_and_the_others_keep_their_clock():
 	var d := WorkDay.def("hearthglow")
 	t.ok(not d.is_empty() and absf(WorkDay.hold_minute(d) - 20.5 * 60.0) < 0.01 and String(d.get("regrow", "")) == "overnight", "Monteforchetta holds at 8:30 PM and regrows overnight: %s" % str(d))
-	for id in ["rice_village", "clockwork"]:
-		t.ok(not WorkDay.on(id), "%s keeps the clock it had (its night requests need it)" % id)
-	var b := WorkDay.def("river_town")
-	t.ok(WorkDay.on("river_town") and not WorkDay.holds(b) and String(b.get("regrow", "")) == "overnight", "Boccapioppo has a work day that regrows overnight but doesn't hold the clock: its storm and its catfish are at night")
-	var m := WorkDay.def("metropolis")
-	t.ok(WorkDay.on("metropolis") and not WorkDay.holds(m) and String(m.get("regrow", "")) == "overnight", "so does Toriano: Gino's score pages and Christmas Eve are at night")
+	t.ok(not WorkDay.on("clockwork"), "clockwork keeps the clock it had")
+	for id in ["river_town", "rice_village", "metropolis"]:
+		var dd := WorkDay.def(id)
+		t.ok(WorkDay.on(id) and not WorkDay.holds(dd) and String(dd.get("regrow", "")) == "overnight", "%s has a work day that regrows overnight but doesn't hold the clock: its night scenes need it" % id)
 
 func test_a_day_that_doesnt_hold_runs_on_through_the_night():
 	var free := {"holdAt": 20.5, "regrow": "overnight", "hold": false}
@@ -75,13 +73,16 @@ func test_spots_grow_back_overnight_in_a_work_day():
 	Clock.sleep_until(napped, 20.5)
 	t.ok(napped.total < WorkDay.regrow_at(c, DAY, 180.0), "a nap until dusk doesn't")
 
-func test_a_night_on_a_bench_always_ends_with_a_joke():
+func test_a_night_on_a_bench_sometimes_ends_with_a_joke():
 	var naps: Dictionary = Data.naps.duplicate(true)
-	t.ok(float(naps.get("overnight", 0.0)) >= 1.0, "naps.json: a night on a bench always ends with something")
 	var quiet := 0
+	var kinds := {}
 	for i in 40:
-		if BenchNap.pick(naps, {"overnight": true, "watchers": ["Gigia"], "last": ""}, float(i) / 40.0, 0.5) == "": quiet += 1
-	t.eq(quiet, 0, "every overnight roll gives a gag")
+		var g := BenchNap.pick(naps, {"overnight": true, "watchers": ["Gigia"], "last": ""}, float(i) / 40.0, float(i % 8) / 8.0 + 0.06)
+		if g == "": quiet += 1
+		else: kinds[g] = true
+	t.ok(quiet >= 10 and quiet <= 30, "some nights on a bench are quiet, some end in a joke (%d of 40 quiet)" % quiet)
+	t.ok(kinds.size() >= 3, "and the jokes vary: %s" % str(kinds.keys()))
 	t.eq(BenchNap.pick(naps, {"overnight": false, "watchers": []}, 0.9, 0.5), "", "a daytime nap is still mostly quiet")
 	t.eq(BenchNap.pick(naps, {"overnight": true, "indoors": true}, 0.0, 0.5), "", "your own sofa indoors stays quiet")
 

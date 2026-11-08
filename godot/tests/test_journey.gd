@@ -25,3 +25,7 @@ func test_the_road_goes_through_monteforchetta():
 	t.ok(v.trip_point(r, 0.0).distance_to(r[0]) < 0.01 and v.trip_point(r, 1.0).distance_to(r[2]) < 0.01, "and runs from one end to the other")
 	t.ok(v._shown().any(func(i): return i.id == "rice_village"), "the place you're going to is on the map")
 	v.free()
+
+func test_the_village_map_names_the_places_that_matter():
+	t.ok(VillageMap.named("Rina's bar", "bar") and VillageMap.named("The church", "church"), "named places get a label")
+	t.ok(not VillageMap.named("A house", "house") and not VillageMap.named("House on the south lane", "house") and not VillageMap.named("", "house"), "plain houses don't, so the map stays readable")

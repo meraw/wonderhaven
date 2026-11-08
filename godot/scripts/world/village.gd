@@ -289,6 +289,7 @@ func _build_features() -> void:
 		match f.kind:
 			"sign", "stop": o = Props.sign_post()
 			"board": o = Props.notice_board()
+			"letterbox": o = Props.letterbox(String(f.get("color", "c0392b")))
 			"wardrobe": o = Props.wardrobe()
 			"boat":   # how you travel on: a ferry, or a bus ("model": "bus")
 				o = Props.bus(float(f.get("length", 8.6)), String(f.get("color", "e8822e")), String(f.get("sign", "CITY"))) if f.get("model", "boat") == "bus" else Props.boat()

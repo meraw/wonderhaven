@@ -476,7 +476,7 @@ func refresh_village(ev: Dictionary = {}) -> void:
 	visit_opts = Visits.options(hs, state.placements, reach_cache, mech.lamps)
 	for a in npcs.values():
 		if a.visiting() and not visit_opts.any(func(o): return int(o.uid) == int(a.visit.uid) and bool(o.use) == bool(a.visit.use)): a.end_visit()
-	var r := Needs.settle(state, int(village_score.points))
+	var r: Dictionary = Needs.settle(state, int(village_score.points)) if Needs.approval_here() else {"delta": 0, "unlocks": []}
 	if not quiet: _village_toasts(before, village_score, hs)
 	if not r.unlocks.is_empty(): story.announce_approval()
 	if r.delta != 0: story.handle(story.engine.refresh())
@@ -605,7 +605,7 @@ func render_needs() -> void:
 		need_root = Node3D.new(); need_root.name = "Needs"; add_child(need_root)
 	for c in need_root.get_children(): need_root.remove_child(c); c.queue_free()
 	var hs := Needs.hangouts()
-	var open := Needs.open_keys(state, Needs.met_keys(village_score))
+	var open := Needs.open_here(state, hs, Needs.met_keys(village_score))
 	for h in hs:
 		var icons: Array = open.filter(func(k): return String(k).begins_with(String(h.id) + ":")).map(func(k): return String(Needs.kind_def(String(k).get_slice(":", 1)).get("icon", "?")))
 		if icons.is_empty(): continue

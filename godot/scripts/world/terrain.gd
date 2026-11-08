@@ -520,6 +520,7 @@ uniform float ice = 0.0;            // thin ice on shallow water (a location's l
 uniform float foam_amount = 1.0;    // shore foam (a location's look: still paddy water has next to none)
 uniform sampler2D tints : source_color, filter_linear, repeat_disable;   // a location's water colours (Heightfield.water_tint)
 uniform bool has_tints = false;
+uniform float opaque = 0.0;
 // Shared world values (Atmosphere); colours are linear.
 global uniform vec3 world_sun_dir;
 global uniform vec3 world_sun_color;
@@ -603,7 +604,7 @@ void fragment() {
 	float g = pow(max(dot(reflect(-v, nrm), normalize(world_sun_dir)), 0.0), 380.0);
 	float lightness = world_weather.x + 0.35 * world_weather.y * (1.0 - world_weather.w);
 	EMISSION = world_sun_color * g * 7.0 * lightness * (1.0 - foam) * (1.0 - 0.6 * wet) * (1.0 - ic);
-	ALPHA = clamp(mix(0.5, 0.94, smoothstep(0.0, 1.0, depth)) + fr * 0.25 + foam * 0.5 + ic * 0.6, 0.0, 1.0);
+	ALPHA = max(clamp(mix(0.5, 0.94, smoothstep(0.0, 1.0, depth)) + fr * 0.25 + foam * 0.5 + ic * 0.6, 0.0, 1.0), opaque);
 	ALPHA = mix(ALPHA, 0.96, murk * 0.85);
 }
 """

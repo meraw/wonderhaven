@@ -122,6 +122,29 @@ func test_tastes_the_market_and_the_paper_belong_to_their_place():
 	t.ok(Tastes.here().has("fern") and not Tastes.here().has("river_town_rina"), "and back in Monteforchetta, only its villagers")
 	t.ok(Market.here() and String(Data.naps_here().get("paper", "")) == "Eco del Colle", "with its market and its Eco del Colle")
 
+func test_casalrana_has_its_own_day_tastes_paper_and_ceremony():
+	Data.use_island("rice_village")
+	t.ok(WorkDay.on("rice_village") and not WorkDay.holds(WorkDay.def("rice_village")) and String(WorkDay.def("rice_village").get("regrow", "")) == "overnight", "Casalrana's work day regrows overnight and lets the clock run on for the night trains")
+	var villagers: Array = Data.npcs_here().filter(func(n): return not n.get("visitor", false)).map(func(n): return String(n.id))
+	t.ok(villagers.size() == 6 and villagers.all(func(id): return Tastes.here().has(id)), "every villager has tastes (%d)" % villagers.size())
+	t.ok(not Tastes.here().has("rice_village_carlo"), "the railway's inspector is only visiting")
+	for id in villagers:
+		var tt := Tastes.of(String(id))
+		var near := Tastes.near_pos(String(id))
+		t.ok(near != Vector2.INF and Data.layout.zones.any(func(z): return Vector2(clampf(near.x, float(z.minI), float(z.maxI) + 1.0), clampf(near.y, float(z.minK), float(z.maxK) + 1.0)).distance_to(near) < float(Data.tastes.get("radius", 8.0))), "%s's spot is in reach of somewhere you can build" % id)
+		for p in tt.get("pieces", []): t.ok(not Data.piece(String(p)).is_empty(), "%s likes a real piece (%s)" % [id, p])
+		for c in tt.get("colours", []): t.ok(Data.palette.has(String(c)), "%s likes a colour you can paint (%s)" % [id, c])
+		t.ok(String(tt.get("line", "")).contains("{piece}") and String(tt.get("gossip", "")) != "", "%s has a line and a bit of gossip" % id)
+	t.ok(not Market.here(), "no market day in Casalrana")
+	var lines := Data.paper_here().duplicate(true)
+	lines.erase("_doc")
+	var all := JSON.stringify(lines)
+	t.ok(String(Data.naps_here().get("paper", "")) == "La Gazzetta del Binario Morto" and not all.contains("Sindaco") and not all.contains("Eco") and not all.contains("warden"), "its own paper, with nobody else's people in it")
+	t.ok(Inauguration.on() and Inauguration.speaker() == "rice_village_ernesto", "Paletta opens what you build there")
+	var said := JSON.stringify(Inauguration.cfg().open + Inauguration.cfg().body.values() + Inauguration.cfg().close)
+	t.ok(not said.contains("election") and not said.contains("levee") and said.contains("Casalrana"), "in his own words")
+	Data.use_island("hearthglow")
+
 func test_toriano_has_the_redesigns_systems():
 	Data.use_island("metropolis")
 	var people: Array = Data.npcs_here().map(func(n): return String(n.id))

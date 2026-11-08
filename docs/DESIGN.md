@@ -28,8 +28,9 @@ Days, gathering, money and requests serve that loop.
 - **Pieces carry tags** for what they provide (a bench, chair or sofa is a seat; a roof is shelter; a lit lamp is light;
   a flower bed, hedge or tree is green; a counter is a stall). A need is met when a tagged piece stands in the hangout
   and you can walk to it (the same `WalkWorld` check as bridges).
-- **At most three needs open at a time**, only for pieces you can already build, and nothing bad happens if you leave
-  one.
+- **At most three needs open at a time** in each place, only for pieces you can already build, and nothing bad happens
+  if you leave one. Each place has its own hangouts and lists only its own needs; in a place with its own meter (a
+  flood gauge, a petition) met needs bring villagers and hearts but don't move Monteforchetta's approval.
 - **Villagers use what you build** in their free time: they sit on your bench, stand under your roof, set out wares on
   your counter. A villager who can't use something (a seat with no clear front, a bench on a roof) stops and gives it
   a puzzled stare instead. That changes nothing in the rules; it makes the wonky builds read as jokes.
@@ -80,13 +81,14 @@ The rule now: fewer rules, and the ones left are shown before you click.
 - **At 8:30 PM the clock holds** at dusk, lamps on, until you end the day. *Changed 08/11: the clock never holds,
   in any location (`docs/WORLD.md`); Monteforchetta's hold goes when its owner changes it.*
 - **A place opts in** with a `day` block in its map entry (`{"holdAt": 20.5, "regrow": "overnight"}`, `WorkDay`).
-  Monteforchetta has one. Boccapioppo has one that doesn't hold the clock (`"hold": false`), because its storm, its
-  first dance and its catfish happen at night: things regrow overnight, a sleep into the next day ends the day (the
-  paper, the inauguration), and its beds keep their wake times. Toriano has the same, for Gino's score pages at night
-  and Christmas Eve. Casalrana keeps the clock it had until its owner converts it.
+  Monteforchetta has one. Boccapioppo, Casalrana and Toriano have one that doesn't hold the clock (`"hold": false`),
+  because Boccapioppo's storm, first dance and catfish, Casalrana's night express and living nativity, and Gino's score
+  pages and Christmas Eve in Toriano happen at night: things regrow overnight, a sleep into the next day ends the day
+  (the paper, the inauguration), and their beds keep their wake times.
 - **You end the day by sleeping, and until you own a bed that means a bench.** Sleeping on a bench is the way every
   day ends until you've saved for a bed (beds cost 120,000 lire), so the nap gags are the everyday humiliation of a
-  Geometra the village hasn't housed yet, not a joke you might never see: a night on a bench always ends with one.
+  Geometra the village hasn't housed yet, not a joke you might never see: a night on a bench ends with one about half
+  the time (08/11: always was too often).
   The Sindaco's camp bed in the castle sends you to the public benches. Naps during the day still skip ahead, but only
   within the same day.
 - **Evening: the inauguration** of what you finished that day. Villagers gather at it, the Sindaco makes a speech taking

@@ -88,7 +88,7 @@ func play() -> void:
 	await frames(20)
 	await shot("morning-paper")
 	var paper: Dictionary = papers[-1] if not papers.is_empty() else {}
-	check("s5", "A night on the bench ends the day: 7 AM on day 2, still on the bench, waking to a joke", woke and int(s.time.day) == 2 and absf(s.time.minute - 7 * 60.0) < 15.0 and overnight_gag != "",
+	check("s5", "A night on the bench ends the day: 7 AM on day 2, still on the bench, with or without a joke", woke and int(s.time.day) == 2 and absf(s.time.minute - 7 * 60.0) < 15.0,
 		"%s, gag '%s'" % [Clock.text(s.time), overnight_gag])
 	check("s6", "The morning paper reports on day 2", String(paper.get("title", "")).contains("Day 2") and game.hud.tip_card.visible and String(paper.get("headline", "")) != "", str(paper))
 	check("s7", "The tree grew back overnight", game.actions.ready(tree), tree.get("id", ""))

@@ -181,23 +181,20 @@
     },
     {
      "id": "furnish",
-     "kind": "room",
-     "zone": "rice_village_flat",
+     "kind": "commission",
      "stage": 2,
-     "text": "Furnish the flat: a bed, a table, a chair and a lamp",
-     "buildHint": "Your flat is upstairs: build from inside it.",
-     "hint": {
-      "x": 22,
-      "z": -38
-     },
-     "needs": [
+     "text": "Furnish the flat: a bed, a table and somewhere to sit",
+     "zone": "rice_village_flat",
+     "musts": [
       {
+       "check": "pieces",
        "any": [
         "bed"
        ],
        "label": "A bed"
       },
       {
+       "check": "pieces",
        "any": [
         "table",
         "desk",
@@ -206,23 +203,32 @@
        "label": "A table"
       },
       {
+       "check": "provides",
+       "kind": "seat",
+       "label": "Somewhere to sit"
+      }
+     ],
+     "wishes": [
+      {
+       "check": "pieces",
        "any": [
-        "chair",
-        "sofa",
-        "bench"
+        "rug"
        ],
-       "label": "A chair"
+       "who": "rice_village_pierina",
+       "label": "A rug: it's cold up there in November"
       },
       {
-       "any": [
-        "lamp",
-        "streetlight",
-        "railLantern",
-        "poweredLamp"
-       ],
-       "label": "A lamp"
+       "check": "provides",
+       "kind": "light",
+       "who": "rice_village_ernesto",
+       "label": "A lamp in the window, so the trains see someone lives here"
       }
-     ]
+     ],
+     "buildHint": "Your flat is upstairs: build from inside it.",
+     "hint": {
+      "x": 22,
+      "z": -38
+     }
     },
     {
      "id": "show",
@@ -300,12 +306,32 @@
     },
     {
      "id": "climb",
-     "kind": "build",
-     "check": "path:rice_village_tower",
-     "zone": "rice_village_tower",
+     "kind": "commission",
      "stage": 1,
      "text": "Build a climb inside the bell tower, from its floor up to the ringing floor",
-     "goal": "A climb you can walk up, from the tower floor to the ringing floor",
+     "zone": "rice_village_tower",
+     "musts": [
+      {
+       "check": "path",
+       "label": "A climb you can walk up, from the tower floor to the ringing floor"
+      }
+     ],
+     "wishes": [
+      {
+       "check": "provides",
+       "kind": "light",
+       "who": "rice_village_remo",
+       "label": "A lamp for the dark mornings"
+      },
+      {
+       "check": "pieces",
+       "any": [
+        "railing"
+       ],
+       "who": "rice_village_silvia",
+       "label": "Something to hold on to"
+      }
+     ],
      "buildHint": "Stairs rise one step per tile. Stand them on blocks to go higher.",
      "hint": {
       "x": -14,
@@ -412,22 +438,13 @@
     },
     {
      "id": "stable",
-     "kind": "room",
-     "zone": "rice_village_churchyard",
+     "kind": "commission",
      "stage": 1,
      "text": "Build the stable in the churchyard: posts or walls, a roof and two lamps",
-     "buildHint": "A roof needs something under it: posts, pillars or walls.",
-     "hint": {
-      "x": -15,
-      "z": 0.5
-     },
-     "onDone": {
-      "flags": [
-       "rice_village_stableBuilt"
-      ]
-     },
-     "needs": [
+     "zone": "rice_village_churchyard",
+     "musts": [
       {
+       "check": "pieces",
        "any": [
         "pillar",
         "woodWall",
@@ -440,12 +457,14 @@
        "label": "Posts or walls (2)"
       },
       {
+       "check": "pieces",
        "any": [
         "roof"
        ],
        "label": "A roof"
       },
       {
+       "check": "pieces",
        "any": [
         "lamp",
         "streetlight",
@@ -455,7 +474,34 @@
        "count": 2,
        "label": "Two lamps"
       }
-     ]
+     ],
+     "wishes": [
+      {
+       "check": "pieces",
+       "any": [
+        "fence"
+       ],
+       "count": 2,
+       "who": "rice_village_battista",
+       "label": "A fence, so the ox stays in the play"
+      },
+      {
+       "check": "provides",
+       "kind": "seat",
+       "who": "rice_village_pierina",
+       "label": "Somewhere for Nonna to sit and sing"
+      }
+     ],
+     "buildHint": "A roof needs something under it: posts, pillars or walls.",
+     "hint": {
+      "x": -15,
+      "z": 0.5
+     },
+     "onDone": {
+      "flags": [
+       "rice_village_stableBuilt"
+      ]
+     }
     },
     {
      "id": "straw2",
@@ -576,12 +622,35 @@
     },
     {
      "id": "platform",
-     "kind": "build",
-     "check": "path:rice_village_platform",
-     "zone": "rice_village_platform",
+     "kind": "commission",
      "stage": 1,
      "text": "Rebuild the platform: one walkable platform from the station door to the far end",
-     "goal": "A continuous walkable platform from end to end",
+     "zone": "rice_village_platform",
+     "musts": [
+      {
+       "check": "path",
+       "label": "One walkable platform from end to end"
+      }
+     ],
+     "wishes": [
+      {
+       "check": "pieces",
+       "any": [
+        "flowerBed"
+       ],
+       "count": 2,
+       "who": "rice_village_ernesto",
+       "label": "Flower beds on the platform, like in 1993"
+      },
+      {
+       "check": "pieces",
+       "any": [
+        "railLantern"
+       ],
+       "who": "rice_village_matteo",
+       "label": "A railway lantern"
+      }
+     ],
      "buildHint": "Planks reach 2 tiles over a hole from the edge or from a post.",
      "hint": {
       "x": 16,
@@ -590,31 +659,25 @@
     },
     {
      "id": "shelter",
-     "kind": "room",
-     "zone": "rice_village_platform",
+     "kind": "commission",
      "stage": 2,
      "text": "Build a shelter on the platform: a roof, a bench, two lamps and a sign",
-     "buildHint": "A roof needs posts or walls under it.",
-     "hint": {
-      "x": 16,
-      "z": -42.5
-     },
-     "needs": [
+     "zone": "rice_village_platform",
+     "musts": [
       {
+       "check": "pieces",
        "any": [
         "roof"
        ],
        "label": "A roof"
       },
       {
-       "any": [
-        "bench",
-        "chair",
-        "sofa"
-       ],
+       "check": "provides",
+       "kind": "seat",
        "label": "A bench"
       },
       {
+       "check": "pieces",
        "any": [
         "lamp",
         "streetlight",
@@ -625,13 +688,34 @@
        "label": "Two lamps"
       },
       {
+       "check": "pieces",
        "any": [
         "enamelSign",
         "signpost"
        ],
        "label": "A sign"
       }
-     ]
+     ],
+     "wishes": [
+      {
+       "check": "pieces",
+       "any": [
+        "enamelSign"
+       ],
+       "who": "rice_village_ernesto",
+       "label": "An enamel sign with the station's name"
+      },
+      {
+       "check": "recolored",
+       "who": "rice_village_pierina",
+       "label": "A bit of colour, not all railway grey"
+      }
+     ],
+     "buildHint": "A roof needs posts or walls under it.",
+     "hint": {
+      "x": 16,
+      "z": -42.5
+     }
     },
     {
      "id": "petition",
@@ -755,17 +839,13 @@
     },
     {
      "id": "sluice",
-     "kind": "room",
-     "zone": "rice_village_sluice",
+     "kind": "commission",
      "stage": 1,
      "text": "Rebuild the sluice: two stone pillars and a gate lever",
-     "buildHint": "The sluice stands across the canal, by the old ruins.",
-     "hint": {
-      "x": -36.5,
-      "z": -28.5
-     },
-     "needs": [
+     "zone": "rice_village_sluice",
+     "musts": [
       {
+       "check": "pieces",
        "any": [
         "pillar",
         "stoneBlock"
@@ -774,21 +854,65 @@
        "label": "Two stone pillars"
       },
       {
+       "check": "pieces",
        "any": [
         "lever"
        ],
        "label": "A gate lever"
       }
-     ]
+     ],
+     "wishes": [
+      {
+       "check": "pieces",
+       "any": [
+        "fence"
+       ],
+       "count": 2,
+       "who": "rice_village_battista",
+       "label": "A fence on the bank, for the cows"
+      },
+      {
+       "check": "provides",
+       "kind": "light",
+       "who": "rice_village_silvia",
+       "label": "A lamp to check the gate by"
+      }
+     ],
+     "buildHint": "The sluice stands across the canal, by the old ruins.",
+     "hint": {
+      "x": -36.5,
+      "z": -28.5
+     }
     },
     {
      "id": "walk",
-     "kind": "build",
-     "check": "path:rice_village_sluice",
-     "zone": "rice_village_sluice",
+     "kind": "commission",
      "stage": 1,
      "text": "Build a walkway across the canal at the sluice",
-     "goal": "A walkway across the canal, bank to bank",
+     "zone": "rice_village_sluice",
+     "musts": [
+      {
+       "check": "path",
+       "label": "A walkway across the canal, bank to bank"
+      }
+     ],
+     "wishes": [
+      {
+       "check": "pieces",
+       "any": [
+        "railing"
+       ],
+       "count": 2,
+       "who": "rice_village_matteo",
+       "label": "Railings, for riding across on his BMX"
+      },
+      {
+       "check": "provides",
+       "kind": "seat",
+       "who": "rice_village_remo",
+       "label": "A bench on the bank for his rounds"
+      }
+     ],
      "buildHint": "Planks reach 2 tiles from a bank or from a post.",
      "hint": {
       "x": -36.5,
@@ -802,12 +926,35 @@
     },
     {
      "id": "paddy",
-     "kind": "build",
-     "check": "fed:rice_village_paddy",
-     "zone": "rice_village_paddy",
+     "kind": "commission",
      "stage": 2,
      "text": "Flood the winter paddy: a waterwheel in the canal drives a pump, and pipes carry water to the paddy's inlet",
-     "goal": "Water reaches the paddy's inlet",
+     "zone": "rice_village_paddy",
+     "musts": [
+      {
+       "check": "fed",
+       "target": "rice_village_paddy",
+       "label": "Water reaches the paddy's inlet"
+      }
+     ],
+     "wishes": [
+      {
+       "check": "pieces",
+       "any": [
+        "lever"
+       ],
+       "who": "rice_village_battista",
+       "label": "A lever to shut the water off"
+      },
+      {
+       "check": "pieces",
+       "any": [
+        "flowerBed"
+       ],
+       "who": "rice_village_pierina",
+       "label": "A flower bed by the inlet"
+      }
+     ],
      "buildHint": "A waterwheel turns in the canal; a pump beside the water needs its power; pipes run from the pump.",
      "hint": {
       "x": -36,
@@ -900,12 +1047,33 @@
     },
     {
      "id": "drive",
-     "kind": "build",
-     "check": "fed:rice_village_mill",
-     "zone": "rice_village_mill",
+     "kind": "commission",
      "stage": 1,
      "text": "Drive the old mill: a waterwheel in the canal and shafts to the mill's west wall",
-     "goal": "Power reaches the mill's drive shaft",
+     "zone": "rice_village_mill",
+     "musts": [
+      {
+       "check": "fed",
+       "target": "rice_village_mill",
+       "label": "Power reaches the mill's drive shaft"
+      }
+     ],
+     "wishes": [
+      {
+       "check": "provides",
+       "kind": "light",
+       "who": "rice_village_silvia",
+       "label": "A lamp, to work late"
+      },
+      {
+       "check": "pieces",
+       "any": [
+        "workbench"
+       ],
+       "who": "rice_village_battista",
+       "label": "A workbench for repairs"
+      }
+     ],
      "buildHint": "A waterwheel turns in the canal. Shafts carry power in a line; gears turn corners.",
      "hint": {
       "x": -36,
@@ -978,28 +1146,47 @@
    "objectives": [
     {
      "id": "build",
-     "kind": "room",
-     "zone": "rice_village_bench",
+     "kind": "commission",
      "stage": 0,
      "text": "Build a bench and a flower bed at the edge of Nonna's paddy, by the poplars",
-     "hint": {
-      "x": 10,
-      "z": 35
-     },
-     "needs": [
+     "zone": "rice_village_bench",
+     "musts": [
       {
+       "check": "pieces",
        "any": [
         "bench"
        ],
        "label": "A bench"
       },
       {
+       "check": "pieces",
        "any": [
         "flowerBed"
        ],
        "label": "A flower bed"
       }
      ],
+     "wishes": [
+      {
+       "check": "pieces",
+       "any": [
+        "flowerBed"
+       ],
+       "count": 2,
+       "who": "rice_village_pierina",
+       "label": "Flowers on both sides"
+      },
+      {
+       "check": "provides",
+       "kind": "light",
+       "who": "rice_village_matteo",
+       "label": "A lamp, so Nonna finds her way home at dusk"
+      }
+     ],
+     "hint": {
+      "x": 10,
+      "z": 35
+     },
      "onDone": {
       "flags": [
        "rice_village_benchBuilt"
