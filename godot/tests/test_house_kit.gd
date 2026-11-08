@@ -166,6 +166,27 @@ func _coppi(g: Node) -> int:
 		if (mmi as MultiMeshInstance3D).material_override is ShaderMaterial: n += (mmi as MultiMeshInstance3D).multimesh.instance_count
 	return n
 
+func _slates(g: Node) -> int:
+	var n := 0
+	for mmi in g.find_children("*", "MultiMeshInstance3D", true, false):
+		var m := mmi as MultiMeshInstance3D
+		if m.material_override is ShaderMaterial and m.multimesh.mesh == HouseKit.unit_box(): n += m.multimesh.instance_count
+	return n
+
+func test_a_slate_roof_when_a_place_asks():
+	var b := {"id": "slate_test", "kind": "cottage", "x": 0.0, "z": 0.0, "w": 6.0, "d": 5.0, "wall": "#e9b9a6", "roof": "#7e8189", "door": "S", "floors": 3, "kit": true}
+	t.ok(not HouseKit.slate(b), "a kit house has coppi unless its place or the house asks for slate")
+	var tiles := HouseKit.build(b)
+	t.ok(_coppi(tiles) > 100 and _slates(tiles) == 0, "so it keeps its coppi (%d)" % _coppi(tiles))
+	tiles.free()
+	var s := b.duplicate()
+	s["roofTiles"] = "slate"
+	t.ok(HouseKit.slate(s), "roofTiles: slate asks for slate")
+	var slates := HouseKit.build(s)
+	t.ok(_slates(slates) > 100, "flat slates in staggered rows (%d)" % _slates(slates))
+	t.eq(_coppi(slates), _slates(slates), "and not a single coppo")
+	slates.free()
+
 func test_landmarks_are_restyled_with_the_kit():
 	t.ok(HouseKit.kit_style(), "Monteforchetta builds with the kit")
 	var ws := _building("workshop")

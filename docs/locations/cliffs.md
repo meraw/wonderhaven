@@ -101,7 +101,7 @@ terraces climb from about 14 m to about 30 m, about 2 m a step; the sanctuary is
   further down the line; the exact spot is placed once Tonnarella's entry exists. Serenza's finale sets
   `olive_village_revealed`, the flag Liolivato's map entry reveals on (agreed with that session).
 - **The departure points:**
-  - **The station platform**, from the start: a feature of kind `boat` (`cliffs_station`), with `depart_label`
+  - **The station platform**, from the start: a feature of kind `boat` (`cliffs_train`), with `depart_label`
     "Take the train", as `docs/WORLD.md` asks.
   - **The ferry landing**, after the finale: a second `boat` feature at the end of the breakwater (`cliffs_ferry`,
     `depart_label` "Take the ferry") that waits for `olive_village_revealed` (the shared `flag` on a departure

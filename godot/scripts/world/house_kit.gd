@@ -42,6 +42,9 @@ static var _box: BoxMesh
 static func kit_style() -> bool:
 	return bool(Data.layout.get("houseStyle", {}).get("kit", false))
 
+static func slate(b: Dictionary) -> bool:
+	return String(b.get("roofTiles", Data.layout.get("houseStyle", {}).get("roofTiles", "coppi"))) == "slate"
+
 static func uses(b: Dictionary) -> bool:
 	return kit_style() and (KINDS.has(String(b.get("kind", ""))) or bool(b.get("kit", false))) and not b.has("model")
 
@@ -158,6 +161,7 @@ class Parts:
 	var glass_mat: Material
 	var glasses: Array = []
 	var high_nodes: Array = []
+	var slate := false
 
 	func _init(p: Node3D) -> void:
 		parent = p
@@ -266,11 +270,12 @@ class Parts:
 			var down := Vector3(0.0, -sp, sgn * cp)
 			var nrm := Vector3(0.0, cp, sgn * sp)
 			add(P.box(RW, 0.06, slope), wood, ridge + down * slope / 2.0 - nrm * 0.03, Vector3(sgn * HouseKit.PITCH, 0, 0), high)
+			if slate: lay_slates(RW, cx, ridge, down, nrm, slope, rng, high, tmat)
 			var pitch_x := 0.34
 			var cols := int(RW / pitch_x)
 			var x0 := cx - cols * pitch_x / 2.0
 			var rows := int(slope / 0.36) + 1
-			for c in cols * 2 + 1:
+			for c in (0 if slate else cols * 2 + 1):
 				var is_cap := c % 2 == 1
 				var u := x0 + c * pitch_x / 2.0
 				var lift := sag * (1.0 - sin(PI * clampf((u - x0) / (cols * pitch_x), 0.0, 1.0)))
@@ -299,6 +304,9 @@ class Parts:
 			for s in [-1.0, 1.0]:
 				if not (barge_right if s > 0.0 else barge_left): continue
 				add(P.box(0.05, 0.2, slope), wood, ridge + down * slope / 2.0 + Vector3(s * RW / 2.0, -0.02, 0), Vector3(sgn * HouseKit.PITCH, 0, 0), high)
+		if slate:
+			add(P.box(RW + 0.04, 0.09, 0.44), tmat, Vector3(cx, H + rise + 0.05, 0), Vector3.ZERO, high)
+			return rise
 		add(P.box(RW, 0.08, 0.22), P.plaster("d8cdb8"), Vector3(cx, H + rise + 0.02, 0), Vector3.ZERO, high)
 		var n := int(RW / 0.38) + 1
 		var rb := Basis(Vector3(0, 0, 1), Vector3.UP, Vector3(-1, 0, 0)) * Basis.from_scale(Vector3(1.3, 1.0, 0.95))
@@ -307,6 +315,30 @@ class Parts:
 			var t := rng.randf_range(0.9, 1.08)
 			put(cap, Transform3D(rb, Vector3(x, H + rise + 0.06, 0)), high, tmat, Color(t, t, t))
 		return rise
+
+	func lay_slates(RW: float, cx: float, ridge: Vector3, down: Vector3, nrm: Vector3, slope: float, rng: RandomNumberGenerator, high: bool, tmat: Material) -> void:
+		var box := HouseKit.unit_box()
+		var sw := 0.44
+		var gap := 0.24
+		var basis := Basis(Vector3(-signf(down.z), 0, 0), nrm, -down)
+		var a0 := cx - RW / 2.0
+		var k := 0
+		while true:
+			var y := slope - 0.22 - k * gap
+			var last := y <= 0.21
+			if last: y = 0.21
+			var x := a0 - (sw / 2.0 if k % 2 == 1 else 0.0)
+			while x < a0 + RW:
+				var a := maxf(x, a0)
+				var e := minf(x + sw, a0 + RW)
+				if e - a > 0.06:
+					var t := rng.randf_range(0.84, 1.12)
+					var tint := Color(t, t * rng.randf_range(0.98, 1.02), t * rng.randf_range(1.0, 1.06))
+					var origin := ridge + Vector3((a + e) / 2.0 - cx, 0, 0) + down * y + nrm * (0.035 + k * 0.004)
+					put(box, Transform3D(basis * Basis.from_scale(Vector3(e - a - 0.018, 0.022, 0.42)), origin), high, tmat, tint)
+				x += sw
+			if last: break
+			k += 1
 
 	func flush() -> void:
 		for key in batches:
@@ -611,6 +643,7 @@ class _House:
 	func roof() -> void:
 		var left := 0.02 if party.has("left") else HouseKit.SIDE_OVERHANG
 		var right := 0.02 if party.has("right") else HouseKit.SIDE_OVERHANG
+		parts.slate = HouseKit.slate(b)
 		parts.roof(W, D, H, Color(b.roof), rng, left, right, float(b.get("sag", 0.04)), true, not party.has("left"), not party.has("right"))
 
 	func chimney() -> void:
