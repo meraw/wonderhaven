@@ -339,8 +339,9 @@ func test_the_flat_upstairs():
 			_pl(3, "chair", 17, -38, 2, BuildGrid.suggest_bottom("chair", 17, -38, 2, 3.6, [])), _pl(4, "lamp", 20, -40, 0, BuildGrid.suggest_bottom("lamp", 20, -40, 0, 3.6, []))]
 		t.ok(pls.all(func(p): return absf(p.y - 3.5) < 0.01), "pieces rest on the flat's floor")
 		t.eq(_place_all(pls, ["rice_village_flat"]), [], "a bed, a table, a chair and a lamp fit in the flat")
-		var needs: Array = Data.quest("rice_village_flat").objectives.filter(func(o): return o.id == "furnish")[0].needs
-		t.ok(Validate.room_checklist(Data.zone("rice_village_flat"), pls, needs).all(func(r): return r.ok), "and they furnish it"))
+		var brief: Dictionary = Data.quest("rice_village_flat").objectives.filter(func(o): return o.id == "furnish")[0]
+		var r := Commission.evaluate(brief, {"placements": pls})
+		t.ok(r.done and r.wishes.any(func(w): return w.ok), "and they furnish it, the lamp in the window for Paletta too"))
 
 func test_the_climb_up_the_bell_tower():
 	_here(func():

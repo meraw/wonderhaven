@@ -640,6 +640,15 @@ func animate(dt: float, speed: float = 0.0, airborne: bool = false) -> void:
 		"garden": body.rotation.x = 0.3; arm_l.rotation.x = -0.9 + sin(t * 4.0) * 0.2; arm_r.rotation.x = arm_l.rotation.x
 		"read": arm_l.rotation.x = -1.1; arm_r.rotation.x = -1.1; arm_l.rotation.z = 0.35; arm_r.rotation.z = -0.35; head.rotation.x = 0.25
 		"talk": arm_r.rotation.x = -0.4 + sin(t * 3.0) * 0.3; arm_r.rotation.z = 0.35; head.rotation.y = sin(t * 1.3) * 0.12
+		"dance":
+			var step := t * 5.9
+			body.rotation.y = sin(t * 0.9) * 1.4
+			body.position.y = absf(sin(step)) * 0.06
+			body.rotation.z = sin(step * 0.5) * 0.1
+			leg_l.rotation.x = sin(step) * 0.35; leg_r.rotation.x = -sin(step) * 0.35
+			arm_l.rotation.z = -1.9 + sin(step * 0.5) * 0.15; arm_l.rotation.x = -0.2
+			arm_r.rotation.x = -1.1; arm_r.rotation.z = 0.5 + sin(step * 0.5) * 0.1
+			head.rotation.z = sin(step * 0.5) * 0.14; head.rotation.x = -0.08
 	if hold != "" and hold != "talk": squash = 0.0
 	if action != "":
 		action_t += dt

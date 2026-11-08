@@ -18,6 +18,14 @@ func test_rain_while_you_napped():
 	t.ok(not BenchNap.rained(_at(wet - 1), _at(wet + 1), ["clear"]), "nor anywhere that only allows clear weather")
 	t.ok(BenchNap.rained(_at(dry), _at(dry + 1), [], {"type": "rain", "until": _at(dry).total + 60.0}), "a storm a request brought counts too")
 	t.ok(not BenchNap.rained(_at(dry), _at(dry + 1), [], {"type": "rain", "until": _at(dry).total - 1.0}), "...but not one that was over before you lay down")
+	var early := -1
+	for slot in range(12, 400):
+		if BenchNap.RAINY.has(Daylight.slot_weather(slot)) and not BenchNap.RAINY.has(Daylight.slot_weather(slot + 1)) and not BenchNap.RAINY.has(Daylight.slot_weather(slot + 2)):
+			early = slot
+			break
+	t.ok(early > 0 and not BenchNap.rained(_at(early), _at(early + 2, 200.0)), "rain early in the night that stopped hours before you woke leaves you dry")
+	t.ok(BenchNap.rained(_at(early), _at(early + 1, 100.0)), "rain that stopped just before you woke doesn't")
+	t.ok(float(Data.naps.get("overnight", 1.0)) < 1.0, "and a night on a bench doesn't always end in a joke")
 
 func test_which_gag():
 	var naps := {"chance": 0.5, "gags": {"newspaper": {"weight": 3}, "umbrella": {"weight": 1}, "stared": {"weight": 2}, "rain": {}}}
