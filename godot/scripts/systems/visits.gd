@@ -32,13 +32,26 @@ static func near_cell(cells: Array, p: Vector2, max_d: float, y: float = INF, dy
 
 static func _face(from: Dictionary, to: Vector2) -> float: return atan2(to.x - float(from.x), to.y - float(from.z))
 
-static func use_spot(pl: Dictionary, kind: String, cells: Array) -> Dictionary:
+static func sat_at(placements: Array, p: Vector2, bottom: float) -> bool:
+	for q in placements:
+		if not Data.piece(String(q.id)).get("sitAt", false): continue
+		var qb := BuildGrid.bounds(q)
+		if p.x > qb.minX and p.x < qb.maxX and p.y > qb.minZ and p.y < qb.maxZ and absf(float(qb.bottom) - bottom) < 0.3: return true
+	return false
+
+static func use_spot(pl: Dictionary, kind: String, cells: Array, placements: Array = []) -> Dictionary:
 	var b := BuildGrid.bounds(pl)
 	var c := center(pl)
 	var spot := {}
 	match kind:
 		"seat":
-			var cell := near_cell(cells, c + forward(pl) * 0.85, 0.55, float(b.bottom))
+			var f := forward(pl)
+			var cell := near_cell(cells, c + f * 0.85, 0.55, float(b.bottom))
+			if cell.is_empty() and sat_at(placements, c + f * 0.85, float(b.bottom)):
+				var side: Vector2 = Vector2(f.y, f.x) * ((b.maxX - b.minX) * absf(f.y) + (b.maxZ - b.minZ) * absf(f.x)) / 2.0
+				var reach: Vector2 = side + side.normalized() * 0.45
+				cell = near_cell(cells, c + reach, 0.55, float(b.bottom))
+				if cell.is_empty(): cell = near_cell(cells, c - reach, 0.55, float(b.bottom))
 			if not cell.is_empty():
 				var at := NapGags.seat_spot(pl)
 				spot = {"approach": Vector2(cell.x, cell.z), "at": Vector2(at.x, at.z), "y": at.y, "yaw": -int(pl.r) * PI / 2.0, "pose": "sit"}
@@ -70,7 +83,7 @@ static func options(hs: Array, placements: Array, cells_by: Dictionary, lit: Dic
 		for kind in h.get("needs", []):
 			for p in here:
 				if not Needs.gives(p, String(kind), lit): continue
-				var spot := use_spot(p, String(kind), cells)
+				var spot := use_spot(p, String(kind), cells, placements)
 				if spot.get("ok", false) or spot.get("stare", false):
 					out.append({"hangout": hid, "uid": int(p.uid), "kind": String(kind), "use": spot.get("ok", false), "spot": spot})
 	return out

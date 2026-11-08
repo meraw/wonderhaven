@@ -1431,7 +1431,8 @@
    "x": -26.5,
    "z": -44.0,
    "flag": "rice_village_lostThings",
-   "name": "a felt hat, a bit flattened"
+   "name": "a felt hat, a bit flattened",
+   "once": true
   },
   {
    "id": "rice_village_lost1",
@@ -1439,7 +1440,8 @@
    "x": -6.0,
    "z": -43.9,
    "flag": "rice_village_lostThings",
-   "name": "yesterday's newspaper, forecasting fog"
+   "name": "yesterday's newspaper, forecasting fog",
+   "once": true
   },
   {
    "id": "rice_village_lost2",
@@ -1447,7 +1449,8 @@
    "x": 37.0,
    "z": -43.6,
    "flag": "rice_village_lostThings",
-   "name": "a single leather glove, left hand"
+   "name": "a single leather glove, left hand",
+   "once": true
   },
   {
    "id": "rice_village_lost3",
@@ -1455,7 +1458,8 @@
    "x": -12.0,
    "z": -51.0,
    "flag": "rice_village_lostThings",
-   "name": "a cassette: Songs for the Journey, Volume Two"
+   "name": "a cassette: Songs for the Journey, Volume Two",
+   "once": true
   },
   {
    "id": "rice_village_lost4",
@@ -1463,7 +1467,8 @@
    "x": 14.5,
    "z": -51.0,
    "flag": "rice_village_lostThings",
-   "name": "an umbrella, in a week without a drop of rain"
+   "name": "an umbrella, in a week without a drop of rain",
+   "once": true
   },
   {
    "id": "rice_village_find0",

@@ -1522,6 +1522,11 @@
      "bridge"
     ]
    },
+   "onAccept": {
+    "flags": [
+     "metalDetector"
+    ]
+   },
    "objectives": [
     {
      "id": "find",

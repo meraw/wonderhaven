@@ -73,6 +73,7 @@ func open(zone_id: String = "") -> bool:
 	if not state().flags.get("hasTool", false):
 		game.toast("You need your Geometra's kit first. The Sindaco is holding it for you.", "warn"); return false
 	active = true
+	history.clear()
 	opened_at = game.player.pos
 	var zones := unlocked_zones()
 	var p: Vector3 = game.player.pos
@@ -118,6 +119,7 @@ func close() -> void:
 	if ui: ui.queue_free(); ui = null
 	if pad_cursor: pad_cursor.visible = false
 	game.emit_event("buildmode", {"open": false})
+	if game.hud: game.hud.render_tracker()
 	step_out_of(zone_was)
 
 ## Leaving build mode while standing on the site (or boxed in by what you built): step to the nearest free spot
@@ -153,6 +155,7 @@ func _zdist(z: Dictionary, p: Vector3) -> float: return Vector2((z.minI + z.maxI
 
 func jump_to(zone: Dictionary) -> void:
 	current_zone = zone
+	if active and game.hud: game.hud.render_tracker()
 	if zone.is_empty(): focus = game.player.pos; return
 	var b := BuildGrid.zone_bounds(zone, LocationMeter.progress(state(), Data.island))
 	focus = Vector3((b.minI + b.maxI + 1) / 2.0, maxf(0.0, zone.get("floorY", zone.get("spanY", 0.0))), (b.minK + b.maxK + 1) / 2.0)
@@ -227,7 +230,17 @@ func refresh_plan() -> void:
 func site_plan() -> Dictionary:
 	for p in plan_now:
 		if String(p.zone.get("id", "")) == String(current_zone.get("id", "")): return p
-	return plan_now[0] if not plan_now.is_empty() else {}
+	return {}
+
+func site_quest() -> String:
+	var zid := String(current_zone.get("id", ""))
+	if zid == "": return ""
+	var e: QuestEngine = game.story.engine
+	for q in e.active():
+		if not e.here(q.id): continue
+		for o in q.objectives:
+			if String(o.get("zone", "")) == zid and e.is_current(q.id, o) and not e.objective(q.id, o).done: return String(q.id)
+	return ""
 
 ## The next piece of that plan to build, laid out where it goes ({id, i, k, r, y}), or {}.
 func next_plan_piece() -> Dictionary:
@@ -387,6 +400,16 @@ func _clear_ghost() -> void:
 
 ## How far the build view can move from the middle of the map, each way: over the whole map, 55 m in a village.
 static func view_limit() -> float: return Data.map_size() / 2.0 - 7.0
+
+func pan_by(rel: Vector2) -> void:
+	var yaw: float = game.cam.move_yaw()
+	var fx := -sin(yaw); var fz := -cos(yaw)
+	var s: float = game.cam.dist * 0.0016
+	var lim := view_limit()
+	focus.x = clampf(focus.x + (fz * rel.x + fx * rel.y) * s, -lim, lim)
+	focus.z = clampf(focus.z + (-fx * rel.x + fz * rel.y) * s, -lim, lim)
+
+func turn_view(dir: int) -> void: game.cam.yaw += dir * PI / 4.0
 
 func update(dt: float) -> void:
 	var mv: Vector2 = game.move_vector()
@@ -919,6 +942,8 @@ func _build_ui() -> void:
 	tb.add_child(UiTheme.button("◀", func(): cycle_zone(-1)))
 	tb.add_child(UiTheme.label(current_zone.get("name", "No area"), 16, Color("7a5cc9")))
 	tb.add_child(UiTheme.button("▶", func(): cycle_zone(1)))
+	var vl := UiTheme.button("⟲", func(): turn_view(1)); vl.name = "view_left"; vl.tooltip_text = "Turn the view (%s, or drag with the right mouse button)" % Controls.key_label("cam_left"); tb.add_child(vl)
+	var vr := UiTheme.button("⟳", func(): turn_view(-1)); vr.name = "view_right"; vr.tooltip_text = "Turn the view (%s, or drag with the right mouse button)" % Controls.key_label("cam_right"); tb.add_child(vr)
 	var ub := UiTheme.button("↶", undo); ub.disabled = not history.can_undo(); ub.tooltip_text = "Undo (Ctrl+Z)"; tb.add_child(ub)
 	var rb := UiTheme.button("↷", redo); rb.disabled = not history.can_redo(); rb.tooltip_text = "Redo (Ctrl+Y)"; tb.add_child(rb)
 	var dob := UiTheme.button("Draft only", toggle_draft_only, draft_only); dob.name = "draft_only"; dob.tooltip_text = "Draft pieces without building them (%s)" % Controls.key_label("draft_only"); tb.add_child(dob)
@@ -1024,6 +1049,9 @@ func _build_ui() -> void:
 		if not unlocked or ruled != "": btn.modulate = Color(1, 1, 1, 0.55)
 		btn.pressed.connect(func(): select_item(pid))
 		items.add_child(btn)
+	var vh := UiTheme.label("🎥  Move the view: %s%s%s%s or drag with the middle button   ·   Turn it: %s %s, ⟲ ⟳ or drag with the right button   ·   Zoom: wheel" % [Controls.key_label("move_forward"), Controls.key_label("move_left"), Controls.key_label("move_back"), Controls.key_label("move_right"), Controls.key_label("cam_left"), Controls.key_label("cam_right")], 12, UiTheme.INK2)
+	vh.name = "view_hint"; vh.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	cv.add_child(vh)
 	ui.add_child(cat)
 
 ## The plan you can follow on this site: how far along it is, what the next piece is and where it goes, what you
