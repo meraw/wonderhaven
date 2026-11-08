@@ -59,6 +59,7 @@ var roof_alpha := 1.0   # the workshop's roof (kept for tests)
 var roof_fade: Dictionary = {}   # building id -> roof opacity
 var guide: Guide
 var nap_gags: NapGags
+var ceremony: InaugurationScene
 var sight_walls: Array = []   # building walls you can't talk through (WorldStatics.sight_walls)
 var outline: MeshInstance3D
 var outline_override := ""   # look-dev renders force outlines on or off without touching saved settings
@@ -96,6 +97,7 @@ func _ready() -> void:
 	village = Village.new(); village.name = "Village"; add_child(village); village.build(decor)
 	effects = Effects.new(); add_child(effects)
 	nap_gags = NapGags.new(); nap_gags.name = "NapGags"; add_child(nap_gags); nap_gags.setup(self)
+	ceremony = InaugurationScene.new(); ceremony.name = "Inauguration"; add_child(ceremony); ceremony.setup(self)
 	player_char = Chibi.new(state.appearance); player_char.name = "Player"; player_char.vis_layer = 2; add_child(player_char); player_char.apply_layer()
 	var sp: Dictionary = Data.layout.spawn
 	player = PlayerController.new(player_char, walk, sp.x, sp.z, sp.yaw)
@@ -410,6 +412,7 @@ func sleep_until(hour: float, where: String = "bed", seat = null, ends_day: bool
 	set_mode("cutscene")
 	stand_up()
 	await _fade(true).finished
+	if ends_day: await ceremony.run()
 	nap_gags.clear()
 	var t0: Dictionary = state.time.duplicate()
 	var yesterday: Dictionary = WorkDay.record(state).duplicate(true)
@@ -849,7 +852,10 @@ func machine_targets() -> Array:
 func on_build_changed(ev: Dictionary) -> void:
 	walk.surfaces = BuildGrid.surfaces_for(state.placements)
 	mech = Mechanics.solve(state.placements, machine_targets())
-	if ev.get("action", "") == "place": WorkDay.note(state, "built")
+	if ev.get("action", "") == "place":
+		WorkDay.note(state, "built")
+		Inauguration.placed(state, int(ev.pl.uid))
+	if ev.get("action", "") == "remove": Inauguration.removed(state, int(ev.pl.uid))
 	_refresh_piece_interactables()
 	build.version += 1
 	build.refresh_plan()

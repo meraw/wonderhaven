@@ -8,7 +8,69 @@ Working title: **Wonderhaven** (to be renamed). The game is moving to a comic, l
 ## The redesign (07/11)
 After a review of how the game plays, the user agreed a new design: building is the core, the game values what you build
 whether or not anyone asked for it, requests become briefs with checks, and the day becomes a work day you end
-yourself. All of it, and the order it's built in, is in `docs/DESIGN.md`. Stages 1 to 4 are done; the rest is still to do.
+yourself. All of it, and the order it's built in, is in `docs/DESIGN.md`. Stages 1 to 5 are done; the rest is still to do.
+
+### Stage 5: the inauguration (Monteforchetta)
+- **When you end the day** (sleep until tomorrow morning) after putting up pieces that are still standing, the
+  Sindaco opens them first. The clock goes to dusk (8:30 PM). The camera cuts to the build, and everyone is placed
+  round it rather than walking there: the Sindaco on one side of a red ribbon, you on the other, the villagers on
+  either side. Then you go to sleep as before. A day with nothing new has no ceremony.
+- **What is opened**: the biggest group of the day's pieces. Pieces within 3 m of each other form a group, and a
+  need met counts extra. Pieces put up and taken away again the same day don't count. Other groups that day are left
+  out.
+- **The speech** is three lines from `data/inauguration.json`:
+  - what and where ("Citizens! Tonight I give you a bench and a flower bed outside the bakery.");
+  - one line that fits the build: the complaint it answers from the paper, the Sindaco's own castle steps, "art"
+    for something nobody can use, something perched high, a painted piece, a spree of pieces, a single piece;
+  - him taking the credit ("My vision, of course. The Geometra held the ladder.").
+- **The ribbon and the crowd**: he cuts the ribbon (confetti, fanfare) and the crowd reacts. If people can use the
+  build they clap and cheer, and the villager whose spot it is thanks you and gains a heart (Ornella at the bakery,
+  Gigia at her gate, and so on). If nobody can use it (a chair on two blocks) everyone shrugs under a question mark,
+  to crickets, even when it counts for the need. One or two villagers say a word in a bubble.
+- **Approval is counted**: a small card gives the day's approval change and a mark out of ten, in halves (Italian
+  school marks, up to "10 e lode"). The mark goes up for each need met, each different kind of piece, someone being
+  able to use it, and a painted piece; wonkiness costs nothing.
+- **The next morning's Eco del Colle** leads with the opening ("Sindaco opens a bench and a flower bed outside the
+  bakery; calls it 'my vision'") and gives the mark. A request finished that day still takes the headline.
+- **Always skippable**: a Skip button or Esc ends it at once, and its results (the heart, the paper) still count.
+  "Evening inaugurations" in the settings turns it off; the paper still reports the build.
+- Where: `Inauguration` (`scripts/systems/inauguration.gd`) holds the rules: today's pieces, the groups, the facts,
+  the speech, the mark, the reactions, and where everyone stands. `InaugurationScene`
+  (`scripts/world/inauguration_scene.gd`) is the scene, run by `game.sleep_until` while the screen is faded. A place
+  turns it on with a work day and a `speaker` in its layout's `inauguration` block (Monteforchetta:
+  `"speaker": "percival"`). Scripted playthroughs skip the scene unless they ask for it (`inauguration=play`), the
+  way they skip the nap jokes.
+- **Checked:**
+  - **Tested** (`godot/run_tests.sh`, 304 passed). `test_inauguration` covers:
+    - naming what was built;
+    - today's pieces remembered across a save, and pieces taken away dropped;
+    - the bakery bench opened with the right place, complaint and credit, and Ornella's heart;
+    - a chair on a stack called art, with the crowd shrugging and no hearts;
+    - the Sindaco's own steps;
+    - the marks;
+    - everyone given a free spot to stand, clear of the pieces and of each other;
+    - the paper's headline and mark.
+  - **Played** (`play_inauguration`, 11 checks, in `play_all.sh`; the pieces are placed by the script, and you
+    sleep on a public bench each night):
+    - a day with nothing built has no ceremony;
+    - a bench and a flower bed at the bakery are opened at 8:30 PM, with all five villagers gathered round;
+    - the speech names them, quotes "Nowhere to sit outside the bakery." and takes the credit;
+    - the ribbon is cut, Ornella thanks you ("Just what we needed!" in this run) and gains a heart, and the card
+      shows "Voto 9/10, +16 today";
+    - the next paper leads with the opening and gives the mark;
+    - a stone block put up across the village the same day is left out;
+    - a chair on two blocks on the church steps gets a ceremony with the whole crowd shrugging and no hearts;
+    - Esc ends a ceremony within a fifth of a second and the paper still reports it;
+    - with the setting off there is no ceremony and the build is still reported.
+  - **Monteforchetta's other playthroughs pass** (`play_all.sh`: 20 runs).
+  - **Seen** in screenshots: the speech with the bench, the flower bed and the ribbon between the Sindaco and you;
+    the cut ribbon and the cheering; the mark; the puzzled crowd at the church.
+  - **Not checked:** the ceremony on the tutorial's first night (the guided day's playthrough skips it); builds
+    indoors or in tight spots, where there may be no room to gather (then it is skipped and only reported); a
+    camera view blocked from every side (the camera then moves in until the view is clear); how it feels to see one
+    every evening.
+- **Not built yet:** the ceremony changing with the villagers' tastes (stage 1's "tastes" are still to do), music at
+  the ceremony, and a record of past openings to look back on.
 
 ### Stage 4: villagers use what you build (Monteforchetta)
 - **Visits.** Now and then a villager takes a break from their routine and goes to one of the village's spots to use

@@ -444,7 +444,7 @@ func settings() -> void:
 		var key: String = pair[1]
 		sl.value_changed.connect(func(v): st[key] = v; game.apply_settings())
 		row.add_child(sl)
-	var toggles := [["↕️ Invert camera Y", "invert_y"], ["🌦️ Weather effects", "weather"]]
+	var toggles := [["↕️ Invert camera Y", "invert_y"], ["🌦️ Weather effects", "weather"], ["★ Evening inaugurations", "inaugurations"]]
 	if Outline.supported(): toggles.append(["✏️ Ink outlines", "outlines"])
 	toggles.append(["🖥️ Fullscreen (F11)", "fullscreen"])
 	for pair in toggles:
