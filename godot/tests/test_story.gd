@@ -118,19 +118,21 @@ func test_conversation():
 	t.eq(c.options.back().kind, "bye")
 	t.ok(not "{name}" in c.greeting)
 
-func test_goodbye_is_always_zero():
-	# Leaving a conversation is the same key every time: Goodbye is 0 (and Esc), however many choices come first.
+func test_goodbye_is_always_one():
 	var ui := DialogueUI.new()
 	for n in [1, 3, 6]:
 		var opts: Array = []
 		for i in n: opts.append({"label": "Topic %d" % i, "kind": "topic"})
 		opts.append({"label": "Goodbye!", "kind": "bye"})
 		ui.choices = opts
-		t.eq(ui.key_for(n), KEY_0, "with %d choices before it, Goodbye is 0" % n)
-		t.eq(ui.key_for(0), KEY_1, "the first choice is 1")
-		t.eq(ui._choice_for_digit(0), n, "0 picks Goodbye")
+		t.eq(ui.key_for(n), KEY_1, "with %d choices before it, Goodbye is 1" % n)
+		t.eq(ui.key_for(0), KEY_2, "the first topic is 2")
+		t.eq(ui._choice_for_digit(1), n, "1 picks Goodbye")
+		t.eq(DialogueUI.ordered(opts)[0].kind, "bye", "and it's listed first")
+		ui.choices = DialogueUI.ordered(opts)
+		t.eq([ui.key_for(0), ui.key_for(1)], [KEY_1, KEY_2], "listed first, it's still 1 and the topics follow from 2")
 	ui.choices = [{"label": "Take the shovel", "kind": "yes"}, {"label": "Not now", "kind": "no"}]
-	t.eq([ui.key_for(0), ui.key_for(1)], [KEY_1, KEY_0], "turning down an offer is 0 too")
+	t.eq([ui.key_for(0), ui.key_for(1)], [KEY_2, KEY_1], "turning down an offer is 1 too")
 	var s := GameState.new_game()
 	var c := Conversation.build(Data.npc("percival"), QuestEngine.new(s), s.flags, "Pip")
 	t.eq(c.options.filter(func(o): return DialogueUI.is_leave(o)).size(), 1, "a conversation has one way out")

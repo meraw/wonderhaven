@@ -168,7 +168,7 @@ func gather_until(kind: String, test: Callable, only: Array = [], rounds: int = 
 	for r in rounds:
 		if test.call(): return true
 		var p: Vector3 = game.player.pos
-		var ready: Array = Data.layout.nodes.filter(func(n): return n.kind == kind and (only.is_empty() or only.has(n.id)) and game.actions.ready(n) and not unreachable.has(n.id))
+		var ready: Array = Data.layout.nodes.filter(func(n): return n.kind == kind and (only.is_empty() or only.has(n.id)) and game.actions.ready(n) and Tools.fells(game.state, n) and not unreachable.has(n.id))
 		ready.sort_custom(func(a, b): return Vector2(a.x - p.x, a.z - p.z).length() < Vector2(b.x - p.x, b.z - p.z).length())
 		if ready.is_empty() and WorkDay.on(Data.island):
 			print("   everything picked for today: sleeping on a bench until tomorrow"); note("sleeping on a bench for %s to grow back" % kind)
@@ -275,6 +275,7 @@ func sleep_night() -> bool:
 		if not await face_and_press(String(f.id), float(f.x), float(f.z)): continue
 		await frames(6)
 		var b := game.panels.find_child("wake_tomorrow", true, false) as Button
+		if b == null: b = game.panels.find_child("wake_9", true, false) as Button
 		if b == null: note("no wake_tomorrow at %s" % f.id); continue
 		await click(b.get_global_rect().get_center())
 		for n in 300:
@@ -291,6 +292,11 @@ func sleep_at(id: String, hour: int) -> bool:
 	var f := feature(id)
 	if not await face_and_press(id, f.x, f.z): return false
 	await frames(6)
+	if game.panels.current == "":
+		note("the sleep panel didn't open at %s (mode %s): pressing again" % [id, game.mode])
+		await frames(4)
+		if not await face_and_press(id, f.x, f.z): return false
+		await frames(6)
 	var b := game.panels.find_child("wake_%d" % hour, true, false) as Button
 	if b == null: note("no wake button in panel '%s'" % game.panels.current); return false
 	await click(b.get_global_rect().get_center())

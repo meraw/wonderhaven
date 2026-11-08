@@ -1,6 +1,6 @@
 class_name Commission
 
-const KINDS := ["pieces", "provides", "path", "fed", "lit", "recolored", "material", "kinds", "count", "taller"]
+const KINDS := ["pieces", "provides", "path", "fed", "lit", "recolored", "material", "kinds", "count", "taller", "sealed"]
 const BASIC := ["pieces"]
 
 static func cfg() -> Dictionary: return Data.commissions
@@ -110,6 +110,12 @@ static func check(c: Dictionary, o: Dictionary, pieces: Array, ctx: Dictionary) 
 			var cells := {}
 			for cell in r.get("path", []): cells[Vector2i(int(cell.x), int(cell.y))] = true
 			hit = pieces.filter(func(p): return BuildGrid.cells(p).any(func(cc): return cells.has(Vector2i(int(cc.x), int(cc.y)))))
+		"sealed":
+			need = 1
+			var wall := Data.zone(String(c.get("zone", o.get("zone", ""))))
+			ok = not wall.is_empty() and Validate.sealed(wall, ctx.get("placements", [])).sealed
+			have = 1 if ok else 0
+			hit = pieces.duplicate() if ok else []
 		"fed":
 			need = 1
 			ok = ctx.get("fed", {}).get(String(c.get("target", "")), false)

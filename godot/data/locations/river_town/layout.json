@@ -41,6 +41,76 @@
   "cornice": "eee2c8",
   "shutters": "3f5a3a"
  },
+ "naps": {
+  "paper": "La Voce dell'Argine"
+ },
+ "paper": {
+  "done": [
+   "{title}: done, and the warden measured it twice",
+   "{title} finished; Ermes calls it 'acceptable, to the centimetre'",
+   "Geometra completes {title}. The Po was unavailable for comment"
+  ],
+  "built": [
+   "{n} new pieces in town overnight; the warden has measured every one",
+   "Geometra puts up {n} pieces. The bicycles have somewhere new to lean",
+   "{n} new pieces, and the river hasn't taken a single one"
+  ],
+  "opened": [
+   "Warden opens {what} {place}, to the nearest centimetre",
+   "Ribbon cut on {what} {place}. Ermes wrote the date in his notebook",
+   "{What} {place}: the warden nods, which is a lot for him"
+  ],
+  "quiet": [
+   "Quiet day on the levee. The river went down a millimetre",
+   "Nothing built yesterday. Rina blames the card tables",
+   "Slow news day: the catfish was not seen, again"
+  ],
+  "approval": "",
+  "regrown": "Overnight the poplars and the silt banks filled out again."
+ },
+ "inauguration": {
+  "speaker": "river_town_ermes",
+  "place": "in town",
+  "open": [
+   "Boccapioppo! Tonight, {what} {place}. I measured it.",
+   "Listen, all of you: {what} {place}. Built to outlast the next flood.",
+   "Gather round. {What} {place}, as of half past eight."
+  ],
+  "body": {
+   "need": [
+    "You kept telling me: “{noticed}” Now hush."
+   ],
+   "own": [
+    "Right by my levee. Good."
+   ],
+   "art": [
+    "What's it for? The river won't ask, and neither will I.",
+    "It holds no water and stops no flood. Wanda says it has soul."
+   ],
+   "tall": [
+    "Taller than the flood of 1951. Just."
+   ],
+   "colour": [
+    "A colour. The province will want to know why.",
+    "Bright enough to find in a flood. Not that we'll have another."
+   ],
+   "many": [
+    "{n} pieces in a day. The Po took weeks to knock them down."
+   ],
+   "single": [
+    "One {piece}. Small, but it's above the waterline."
+   ],
+   "plain": [
+    "It stands. That's more than the old one did.",
+    "Solid work. I tapped it with my boot."
+   ]
+  },
+  "close": [
+   "The Geometra did the work. I did the measuring. Scissors!",
+   "Write the date down. Then go home before the river rises.",
+   "To the centimetre. Cut the ribbon."
+  ]
+ },
  "decor": {
   "radius": 56,
   "trees": 0
@@ -2655,6 +2725,34 @@
   ]
  ],
  "props": [
+  {
+   "kind": "river_town_parapet",
+   "x": 22.72,
+   "z": -45.38,
+   "w": 2.8,
+   "d": 0.3
+  },
+  {
+   "kind": "river_town_parapet",
+   "x": 22.72,
+   "z": -42.62,
+   "w": 2.8,
+   "d": 0.3
+  },
+  {
+   "kind": "river_town_parapet",
+   "x": 34.32,
+   "z": -45.38,
+   "w": 2.8,
+   "d": 0.3
+  },
+  {
+   "kind": "river_town_parapet",
+   "x": 34.32,
+   "z": -42.62,
+   "w": 2.8,
+   "d": 0.3
+  },
   {
    "kind": "river_town_column",
    "x": -2.4,

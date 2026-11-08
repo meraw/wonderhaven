@@ -520,6 +520,43 @@ Checked by the headless tests (`test_animation.gd`: stopping eases, the stride s
 - **Standing still is alive:** breathing, a slow shift of weight, and now and then a glance to one side.
 - **Actions have anticipation and follow-through:** chopping and mining wind the tool back over the shoulder, strike fast and jolt on impact; hammering and digging do the same; the wave overshoots and lowers; celebrating crouches before the jumps and squashes on each landing; surprise squashes before it jumps.
 
+## Playtest fixes: Boccapioppo catches up, and travel (08/11)
+- **Leaving a conversation is 1** (shared): the way out ("Goodbye", "Not now") is listed first and numbered 1, so it's
+  next to the other choices on the keyboard instead of 0 at the far end; the other choices follow from 2. Esc still
+  leaves, and E still picks the first real choice, so tapping through a conversation never leaves it by accident.
+- **The Roman bridge's ends** (Boccapioppo): where the walkway rises above the banks you could step off either side and
+  drop up to 1.5 m, through the parapets, which were only drawn. They are solid there now (invisible `river_town_parapet`
+  boxes in the layout); over the water the river already stops you, and the last stretch onto each bank, where the drop
+  is under 30 cm, stays open so villagers' routes still reach the bridge.
+- **Travel has a journey** (shared): taking the bus to another place fades to the travel map, where a little bus drives
+  along the road from where you are to where you're going (by Monteforchetta when neither end is, where the roads meet),
+  with the trip's names over it, before the new place fades in. Any key skips it (`Journey`, `scripts/ui/journey.gd`;
+  the map's `MapView` draws the trip).
+- **Boccapioppo gets the redesign's systems**, the way Monteforchetta has them:
+  - **A work day that doesn't hold the clock** (`"hold": false` in its `day`): trees, rocks and the rest grow back the
+    next morning instead of three hours later (the east bank's poplars reset at 7 PM before), but the clock runs on
+    through the night for the storm, the first dance and the catfish, and beds and benches keep their wake times. A
+    sleep that carries into the next day ends the day: the evening opening and the morning paper.
+  - **Its own paper**, *La Voce dell'Argine*, with headlines about the warden and the river instead of the Sindaco
+    (a layout's `paper` block now overrides the shared lines, the way `naps` names the paper).
+  - **Ermes opens what you build** at the end of the day, in his own words (a layout `inauguration` block with
+    Boccapioppo's lines: "Boccapioppo! Tonight, a bench and two lamps in town. I measured it.").
+  - **Tastes** for all nine villagers (a heart and a remark for a liked piece or colour near their spot, gossip in the
+    paper): Ermes likes sandbags, stone and streetlights in dark slate, Wanda lamps and flowers in pink or lilac, and so
+    on. Tastes, gossip and Monteforchetta's market day now only count the villagers of the place you're in.
+  - **The building requests are briefs with wishes**: the pontoon bridge (walkable, four railings; wishes: railings on
+    both sides for Ermes, a lamp for Primo), pumping out the piazza (power to the pump; a lamp on the quay for Rina, a
+    bench to watch the wheel for Tullio), the dance hall (a dance floor, a stage, three seats; two lamps for Wanda, a bar
+    counter for Rina, something bright for Pierina), closing the breach (sealed, a new kind of check; a lamp for Tullio,
+    a bench on the levee for Gildo), the houseboat's slipway (a path over the water; a railing for Ermes, a lamp for
+    Gildo) and her cabin (a table, a seat, a lamp; a rug for Ermes, a splash of colour for Wanda). The ticks, the permit
+    stamp and the hearts work as in Monteforchetta; a wish met there adds no Monteforchetta approval, since Boccapioppo
+    keeps its flood gauge.
+- **The game looking different after talking to Gildo:** not found. Handing in his catfish request is the one
+  conversation with him that changes the town (Mattia's photo goes up in the bar), which rebuilds the world where you
+  stand; rebuilt at night, by day and inside his shack, it looks the same before and after. Needs a screenshot or a
+  description of what changed to go further.
+
 ## Ornella's boars can always be finished (08/11)
 - **A missing boar** (Monteforchetta, playtest): her request needs three boars fed, but it only counted a feed made on the "Offer a chestnut to each boar" step, while a bakery boar takes a chestnut any time the request is on. Feed one while you're still on the chestnut step (say, with a chestnut left over after feeding the woods boars) and it trotted off to the woods for good, uncounted: two boars left for a step that needs three, and no way to finish. A save stuck like that had all three boars fed and only two counted.
 - **The fix:** the step counts the bakery boars that are fed, from their own flags (`WorldActions.count_boars`, the request's `stat` `bakeryBoars`), whenever they were fed. Loading a stuck save counts them, so the request moves on to Ornella's hazelnuts.

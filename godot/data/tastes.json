@@ -13,6 +13,24 @@
     "mabel": {"near": "bakery", "pieces": ["bench", "table", "flowerBed", "counter"], "colours": ["#ff8fab"],
       "line": "A {piece}! My customers will love it.", "gossip": "Overheard: Ornella wants benches and tables everywhere people might eat bread. Which is everywhere. And she adores pink."},
     "captain": {"near": "belvedere", "pieces": ["bench", "roof", "signpost", "streetlight"], "colours": ["#6cc4ff"],
-      "line": "A {piece}, at my stop! Now that's a service.", "gossip": "Overheard: Aldo would like a bench and a roof at every bus stop in the province. Painted bus blue, ideally."}
+      "line": "A {piece}, at my stop! Now that's a service.", "gossip": "Overheard: Aldo would like a bench and a roof at every bus stop in the province. Painted bus blue, ideally."},
+    "river_town_ermes": {"near": [-16.0, 11.5], "pieces": ["sandbags", "stoneBlock", "railing", "streetlight"], "colours": ["#4a4a6a"],
+      "line": "A {piece}. Sensible. The river respects sensible.", "gossip": "Overheard: Ermes trusts anything that could stop a flood: sandbags, stone, railings, a good streetlight. Dark slate is the only honest colour, he says."},
+    "river_town_tullio": {"near": [24.5, 12.5], "pieces": ["pontoon", "bench", "bridgeDeck"], "colours": ["#3fb5a3"],
+      "line": "A {piece}. Good.", "gossip": "Overheard: in forty years Tullio has said more about pontoons and benches by the water than about anything else. He likes teal, like the river."},
+    "river_town_primo": {"near": [7.0, -12.2], "pieces": ["streetlight", "lamp", "signpost", "railing"], "colours": ["#7bd389"],
+      "line": "A {piece}! Now that's something a cyclist can use.", "gossip": "Overheard: Primo says a town is only as good as its streetlights and signposts for cyclists. And everything should be racing green."},
+    "river_town_gildo": {"near": [-38.4, 32.5], "pieces": ["bench", "bridgeDeck", "railLantern"], "colours": ["#c98a55"],
+      "line": "A {piece}, right where I can watch for him.", "gossip": "Overheard: Gildo wants a bench and a lantern by the water, to watch for the monster. Brown, like an old boat."},
+    "river_town_mattia": {"near": [-34.0, 20.5], "pieces": ["poweredLamp", "windmill", "enamelSign"], "colours": ["#6cc4ff"],
+      "line": "A {piece}. Okay, that's actually cool.", "gossip": "Overheard: Mattia pretends not to care, but he stops for anything electric: lamps, windmills, signs. Light blue, if you ask."},
+    "river_town_wanda": {"near": [10.4, 31.5], "pieces": ["lamp", "flowerBed", "platform", "sofa"], "colours": ["#ff8fab", "#b59cff"],
+      "line": "A {piece}! Darling, it's divine.", "gossip": "Overheard: Wanda says every dance hall needs lamps, flowers and somewhere to swoon. Pink or lilac, never beige."},
+    "river_town_rina": {"near": [6.0, -1.8], "pieces": ["table", "chair", "bench", "counter"], "colours": ["#5cb85c"],
+      "line": "A {piece}. More customers, more card games. Good.", "gossip": "Overheard: Rina could always use more tables and chairs for the card players. Green, like the bar's awning."},
+    "river_town_ines": {"near": [46.4, 21.0], "pieces": ["fence", "woodWall", "table", "oakBeam"], "colours": ["#c98a55"],
+      "line": "A {piece}. Poplar, I hope, and not a scrap wasted.", "gossip": "Overheard: Ines likes honest woodwork: fences, wooden walls, tables, beams. Plain wood brown, of course."},
+    "river_town_pierina": {"near": [-13.0, -7.1], "pieces": ["flowerBed", "bench", "signpost"], "colours": ["#ffd166"],
+      "line": "A {piece}! A nice spot to stop for coffee.", "gossip": "Overheard: Pierina stops at every bench and flower bed on her round. Yellow, like her jacket."}
   }
 }

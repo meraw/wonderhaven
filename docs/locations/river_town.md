@@ -466,6 +466,11 @@ bicycles (4b), and the music, sounds and outfits (4c).
   two pairs along the lanes under the levee and in the west, a pair and a single behind the north row, three alone.
 - **Builds:** each villager has a body of their own (`npcs.json`), from round old Gildo to lanky Mattia.
 
+**The redesign's systems** (08/11, see `docs/STATUS.md`): a work day that regrows overnight but keeps the clock running
+for the night scenes (`"hold": false`), its own paper (*La Voce dell'Argine*), Ermes opening the day's builds, tastes
+for every villager, and every building request as a brief with musts and wishes from the townspeople. Closing the
+breach brought a new kind of check, `sealed`. The Roman bridge's parapets are solid where the walkway is above the banks.
+
 ## Checks for every stage
 `godot/run_tests.sh`, `npm test` and `npm run build`; screenshots of Boccapioppo in both renderers
 (`--island=river_town`); from stage 3, the scripted playthrough of its requests. Each pull request says what was

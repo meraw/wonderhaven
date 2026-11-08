@@ -166,3 +166,89 @@ func test_anywhere_means_anywhere_but_together():
 	var together := Commission.evaluate(o, {"placements": [counter] + moved + [{"uid": 9, "id": "stoneBlock", "i": -20.0, "k": 0.0, "r": 0, "y": 0.0}]})
 	t.ok(together.done and together.uids.size() == 3 and not together.uids.has(9), "put together, anywhere, they are; a block across the village isn't part of it")
 	t.eq(Commission.site_text(o), "anywhere in the village", "and it says so")
+
+const BOCCAPIOPPO := {"river_town_bridge": "build", "river_town_piazza": "power", "river_town_dancehall": "hall", "river_town_levee": "wall", "river_town_houseboat": "slipway", "river_town_houseboat/cosy": "cosy"}
+const WISHED := {
+	"build": [[28, 13, "railing", 2], [30, 13, "railing", 2], [32, 13, "railing", 2], [34, 13, "railing", 2], [25, 13, "lamp", 0]],
+	"power": [[24, 3, "lamp", 0], [24, 7, "bench", 0]],
+	"hall": [],
+	"wall": [[1, 22, "lamp", 0], [1, 23, "bench", 0]],
+	"slipway": [[-24, 32, "railing", 1], [-24, 33, "railing", 1], [-25, 32, "lamp", 0]],
+	"cosy": []}
+
+func _step(qid: String, oid: String) -> Dictionary:
+	for o in Data.quest(qid).objectives:
+		if String(o.id) == oid: return o
+	return {}
+
+func _built(o: Dictionary, entries: Array, placements: Array, here: Array) -> String:
+	var zone := Data.zone(String(o.get("zone", "")))
+	for pl in Plans.lay_out(entries, zone, placements):
+		pl.y = BuildGrid.suggest_bottom(pl.id, pl.i, pl.k, int(pl.r), 10.0, placements, zone)
+		pl.uid = placements.size() + 1
+		var v := BuildGrid.validate_placement(pl, {"placements": placements, "zones": Data.layout.zones, "statics": here, "bodies": [], "flags": {}})
+		if not v.ok: return "%s at (%d, %d): %s" % [pl.id, pl.i, pl.k, v.reason]
+		placements.append(pl)
+	return ""
+
+func _here_world(placements: Array, here: Array) -> Dictionary:
+	var m := Mechanics.solve(placements, Data.layout.get("machines", []))
+	var path := func(zone_id: String) -> Dictionary:
+		var w := WalkWorld.new(here, func(_f): return false)
+		w.floors = WorldStatics.floors()
+		w.surfaces = BuildGrid.surfaces_for(placements)
+		return Validate.path_across(Data.zone(zone_id), w)
+	return {"placements": placements, "lamps": m.lamps, "fed": m.fed, "mech": m, "path": path}
+
+func test_every_boccapioppo_building_request_is_a_brief():
+	var mine: Array = Data.quests.filter(func(q): return Data.quest_island(String(q.id)) == "river_town")
+	t.ok(not mine.any(func(q): return q.objectives.any(func(o): return String(o.get("kind", "")) in ["build", "room", "pieces"])), "no old-style building steps left in Boccapioppo")
+	var people: Array = Data.npcs.filter(func(n): return n.get("island", "") == "river_town").map(func(n): return String(n.id))
+	for key in BOCCAPIOPPO:
+		var o := _step(String(key).get_slice("/", 0), String(BOCCAPIOPPO[key]))
+		t.ok(String(o.get("kind", "")) == "commission", "%s is a brief" % key)
+		t.ok(o.musts.size() >= 1 and o.musts.size() <= 3 and o.get("wishes", []).size() <= 3, "%s: %d musts and %d wishes, three at most" % [key, o.musts.size(), o.get("wishes", []).size()])
+		for c in o.musts + o.get("wishes", []):
+			t.ok(Commission.KINDS.has(String(c.check)) and String(c.get("label", "")) != "", "%s: \"%s\" is a known check with a label" % [key, c.get("label", "")])
+		t.ok(o.get("wishes", []).size() >= 2, "%s: someone in town wants something of it" % key)
+		for c in o.get("wishes", []):
+			t.ok(people.has(String(c.get("who", ""))), "%s: \"%s\" is wished by someone who lives in Boccapioppo" % [key, c.label])
+		var before: Array = []
+		for q in Data.quests.filter(func(x): return Data.quest_island(String(x.id)) == "hearthglow" and x.get("main", false)):
+			for oo in q.objectives:
+				if String(oo.get("kind", "")) == "commission": before.append_array(Commission.kinds_of(oo) + Commission.kinds_of(oo, "wishes"))
+		for a in _ancestors(String(key).get_slice("/", 0)):
+			for oo in Data.quest(a).objectives:
+				if String(oo.get("kind", "")) == "commission": before.append_array(Commission.kinds_of(oo) + Commission.kinds_of(oo, "wishes"))
+		var fresh: Array = (Commission.kinds_of(o) + Commission.kinds_of(o, "wishes")).filter(func(k): return not before.has(k) and not Commission.BASIC.has(k))
+		var unique := {}
+		for k in fresh: unique[k] = true
+		t.ok(unique.size() <= 1, "%s brings in at most one new kind of check (%s)" % [key, str(unique.keys())])
+
+func test_boccapioppos_plans_meet_the_musts_and_every_wish_can_be_met():
+	Data.use_island("river_town")
+	for key in BOCCAPIOPPO:
+		var o := _step(String(key).get_slice("/", 0), String(BOCCAPIOPPO[key]))
+		Data.apply_world_flags({"river_town_launched": true} if String(o.id) == "cosy" else {})
+		var here := WorldStatics.build_statics(WorldStatics.generate_decor())
+		var placements: Array = []
+		var problem := _built(o, o.plan, placements, here)
+		t.eq(problem, "", "%s: its example plan can be built" % key)
+		var r := Commission.evaluate(o, _here_world(placements, here))
+		t.ok(r.done, "%s: its example plan meets every must: %s" % [key, str(r.musts.map(func(m): return "%s %s" % [m.label, m.ok]))])
+		problem = _built(o, WISHED[String(o.id)], placements, here)
+		t.eq(problem, "", "%s: the pieces for its wishes can be built too" % key)
+		r = Commission.evaluate(o, _here_world(placements, here))
+		t.ok(r.done and r.wishes.all(func(w): return w.ok), "%s: every wish met together: %s" % [key, str(r.wishes.map(func(w): return "%s %s" % [w.label, w.ok]))])
+	Data.apply_world_flags({})
+	Data.use_island("hearthglow")
+
+func test_a_sealed_check_wants_the_breach_closed():
+	Data.use_island("river_town")
+	var o := _step("river_town_levee", "wall")
+	var empty := Commission.evaluate(o, {"placements": []})
+	t.ok(not empty.done and not empty.musts[0].ok, "an open breach isn't sealed")
+	var placements: Array = []
+	_built(o, o.plan, placements, WorldStatics.build_statics(WorldStatics.generate_decor()))
+	t.ok(Commission.evaluate(o, {"placements": placements}).done, "the wall across it is")
+	Data.use_island("hearthglow")
