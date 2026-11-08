@@ -546,6 +546,17 @@ Casalrana gets the redesign's systems, as Boccapioppo did:
     Matteo).
   - The shelter keeps the inspector's four conditions as its four musts (roof, bench, two lamps, a sign).
   - A wish met there adds hearts but no Monteforchetta approval, since Casalrana keeps its petition.
+- **Checked:** **tested** (377 passed): every Casalrana building step is a brief whose wishes come from its own
+  villagers and use only checks met before; each step's playthrough build meets its musts, the pieces for every wish
+  can be built alongside it, and you hold the plans for all of them; Casalrana's day, paper, ceremony and tastes are
+  its own (`test_commission`, `test_alive`, `test_work_day`). **Played:** all three of Casalrana's playthroughs pass
+  with the briefs (`play_rice_village` 30 checks, `play_rice_village2` 48, `play_rice_village3` 40): the flat, the
+  sluice and its walkway, the paddy, Nonna's bench, the tower climb, the mill, the stable, the platform and the shelter
+  all tick off from the same builds as before. A separate check built a bench and two flower beds at Nonna's corner:
+  Nonna gave a heart, her wish for flowers on both sides was met, and sleeping into the next day Paletta opened them
+  ("Ladies and gentlemen, now arriving: two flower beds and a bench in Casalrana."), Nonna cheered, and the morning
+  *Gazzetta del Binario Morto* led with it ("Ribbon cut on two flower beds and a bench in Casalrana. The 8.12 regional
+  went straight past"), with Barba Tista's gossip. **Not checked:** most wishes met in play (only Nonna's).
 
 ## Playtest fixes: Boccapioppo catches up, and travel (08/11)
 - **Leaving a conversation is 1** (shared): the way out ("Goodbye", "Not now") is listed first and numbered 1, so it's
