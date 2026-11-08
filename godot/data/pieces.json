@@ -436,6 +436,7 @@
    "name": "Table",
    "icon": "🍽️",
    "cat": "furniture",
+   "sitAt": true,
    "size": [
     1,
     1
@@ -561,6 +562,7 @@
    "name": "Desk",
    "icon": "🖋️",
    "cat": "furniture",
+   "sitAt": true,
    "size": [
     2,
     1
@@ -731,6 +733,7 @@
    "name": "Counter",
    "icon": "🧁",
    "cat": "furniture",
+   "sitAt": true,
    "provides": [
     "stall"
    ],

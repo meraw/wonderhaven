@@ -120,3 +120,33 @@ func test_visit_settings():
 	var v: Dictionary = Data.needs.get("visits", {})
 	for k in ["every", "stay", "dusk_stay", "first"]: t.ok(v.has(k) and float(v[k][0]) < float(v[k][1]), "visits.%s is a range" % k)
 	t.eq(Data.needs.get("liveliness", []).size(), 3, "three steps of liveliness")
+
+func test_a_chair_pulled_up_to_a_table_is_sat_on_from_the_side():
+	var h := Needs.hangout(Needs.hangouts(), "bakery")
+	var c := Vector2(float(h.x), float(h.z))
+	var cands: Array = []
+	for di in range(-3, 4):
+		for dk in range(-3, 4): cands.append(Vector2(floor(c.x) + di, floor(c.y) + dk))
+	cands.sort_custom(func(a, b): return a.distance_to(c) < b.distance_to(c))
+	var list: Array = []
+	var chair := {}
+	for cand in cands:
+		var trial: Array = []
+		var ch := _put(trial, "chair", cand.x, cand.y, 0)
+		if ch.is_empty() or not Needs.inside(ch, h): continue
+		var f := Visits.forward(ch)
+		var tb := _put(trial, "table", cand.x + roundf(f.x), cand.y + roundf(f.y), 0)
+		if tb.is_empty(): continue
+		var side_room := _cells(trial, h).any(func(p): return Vector2(p.x, p.z).distance_to(Visits.center(ch) + Vector2(f.y, f.x) * 0.85) < 0.5 or Vector2(p.x, p.z).distance_to(Visits.center(ch) - Vector2(f.y, f.x) * 0.85) < 0.5)
+		if not side_room: continue
+		list = trial; chair = ch
+		break
+	t.ok(not chair.is_empty(), "a chair with a table in front of it at the bakery")
+	if chair.is_empty(): return
+	var cells := _cells(list, h)
+	var spot := Visits.use_spot(chair, "seat", cells, list)
+	t.ok(spot.get("ok", false), "someone can sit on it")
+	if spot.get("ok", false):
+		t.ok(spot.approach.distance_to(Visits.center(chair)) < 1.3 and spot.approach.distance_to(Visits.center(chair) + Visits.forward(chair) * 0.85) > 0.4, "stepping in from beside it, not through the table (%s)" % spot.approach)
+	var opts := Visits.options(Needs.hangouts(), list, {"bakery": cells}, {})
+	t.ok(opts.any(func(o): return int(o.uid) == int(chair.uid) and o.use), "so villagers come to sit there, not to stare")

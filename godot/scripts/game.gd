@@ -48,6 +48,8 @@ var time := 0.0
 var started := false
 var sitting := {}
 var dragging := false
+var panning := false
+const WHEEL_TURN := 0.12
 var drag_moved := false
 var _drag_dist := 0.0
 var rain: GPUParticles3D
@@ -1038,20 +1040,34 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo and (event.physical_keycode == KEY_F11 or (event.physical_keycode == KEY_ENTER and event.alt_pressed)):
 		toggle_fullscreen(); get_viewport().set_input_as_handled(); return
 	if event is InputEventMouseButton:
-		var rot_button: bool = event.button_index in [MOUSE_BUTTON_RIGHT, MOUSE_BUTTON_MIDDLE] or (event.button_index == MOUSE_BUTTON_LEFT and mode == "explore")
+		var pan_button: bool = event.button_index == MOUSE_BUTTON_MIDDLE and mode == "build"
+		var rot_button: bool = (event.button_index in [MOUSE_BUTTON_RIGHT, MOUSE_BUTTON_MIDDLE] and not pan_button) or (event.button_index == MOUSE_BUTTON_LEFT and mode == "explore")
 		if event.pressed and event.button_index in [MOUSE_BUTTON_LEFT, MOUSE_BUTTON_RIGHT, MOUSE_BUTTON_MIDDLE]:
 			_drag_dist = 0.0; drag_moved = false   # every new press starts fresh, so a click after a camera drag still counts
-			dragging = rot_button
-		if event.pressed and event.button_index == MOUSE_BUTTON_WHEEL_UP and mode in ["explore", "build"]: cam.zoom(-1)
-		if event.pressed and event.button_index == MOUSE_BUTTON_WHEEL_DOWN and mode in ["explore", "build"]: cam.zoom(1)
+			dragging = rot_button; panning = pan_button
+		var turn_wheel: bool = mode == "build" and event.shift_pressed
+		if event.pressed and event.button_index == MOUSE_BUTTON_WHEEL_UP and mode in ["explore", "build"]:
+			if turn_wheel: cam.yaw += WHEEL_TURN
+			else: cam.zoom(-1)
+		if event.pressed and event.button_index == MOUSE_BUTTON_WHEEL_DOWN and mode in ["explore", "build"]:
+			if turn_wheel: cam.yaw -= WHEEL_TURN
+			else: cam.zoom(1)
+		if event.pressed and event.button_index == MOUSE_BUTTON_WHEEL_LEFT and mode in ["explore", "build"]: cam.yaw += WHEEL_TURN
+		if event.pressed and event.button_index == MOUSE_BUTTON_WHEEL_RIGHT and mode in ["explore", "build"]: cam.yaw -= WHEEL_TURN
 	if event is InputEventMouseMotion and dragging and mode in ["explore", "build"]:
 		_drag_dist += event.relative.length()
 		if _drag_dist > 6.0: drag_moved = true
 		var sens: float = 0.0055 * settings.sensitivity
 		if drag_moved: cam.rotate_by(event.relative.x * sens, event.relative.y * sens * (-1.0 if settings.invert_y else 1.0))
+	if event is InputEventMouseMotion and panning and mode == "build":
+		_drag_dist += event.relative.length()
+		if _drag_dist > 6.0: drag_moved = true
+		if drag_moved: build.pan_by(event.relative)
+	if event is InputEventPanGesture and mode == "build": build.pan_by(-event.delta * 14.0)
+	if event is InputEventMagnifyGesture and mode in ["explore", "build"]: cam.zoom((1.0 - event.factor) * 8.0)
 	if mode == "build": build.handle_input(event)
 	if event is InputEventMouseButton and not event.pressed and event.button_index in [MOUSE_BUTTON_LEFT, MOUSE_BUTTON_RIGHT, MOUSE_BUTTON_MIDDLE]:
-		dragging = false
+		dragging = false; panning = false
 
 func move_vector() -> Vector2: return Input.get_vector("move_left", "move_right", "move_back", "move_forward")
 

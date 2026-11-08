@@ -1198,7 +1198,8 @@
    "id": "frag0",
    "kind": "fragment",
    "x": -35.5,
-   "z": 6
+   "z": 6,
+   "once": true
   },
   {
    "id": "frag1",

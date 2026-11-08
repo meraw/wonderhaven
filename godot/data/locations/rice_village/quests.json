@@ -1269,7 +1269,8 @@
    },
    "onAccept": {
     "flags": [
-     "rice_village_museum"
+     "rice_village_museum",
+     "metalDetector"
     ]
    },
    "objectives": [
