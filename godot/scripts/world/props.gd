@@ -476,12 +476,17 @@ static func roof_rise(w: float, d: float) -> float: return clampf(minf(w, d) * 0
 static func fade_parts(nodes: Array) -> Array:
 	var parts: Array = []
 	for nd in nodes:
-		var meshes: Array = nd.find_children("*", "MeshInstance3D", true, false)
-		if nd is MeshInstance3D: meshes.append(nd)
+		var meshes: Array = nd.find_children("*", "MeshInstance3D", true, false) + nd.find_children("*", "MultiMeshInstance3D", true, false)
+		if nd is MeshInstance3D or nd is MultiMeshInstance3D: meshes.append(nd)
 		for m in meshes:
 			var solid: Material = m.material_override
 			var faded: Material
-			if solid is ShaderMaterial:
+			if solid == null:
+				var mesh: Mesh = m.multimesh.mesh if m is MultiMeshInstance3D else m.mesh
+				var first: Material = mesh.surface_get_material(0) if mesh and mesh.get_surface_count() > 0 else null
+				faded = roof_material((first as StandardMaterial3D).albedo_color if first is StandardMaterial3D else Color.WHITE, true)
+				(faded as ShaderMaterial).set_shader_parameter("plain", true)
+			elif solid is ShaderMaterial:
 				var c = (solid as ShaderMaterial).get_shader_parameter("color")
 				faded = roof_material(c if c != null else Color.WHITE, true)
 			elif solid is StandardMaterial3D:
@@ -531,6 +536,7 @@ static func camera_blockers() -> Array:
 				out.append(AABB(Vector3(r.minX - pad, -1.0, r.minZ - pad), Vector3(r.maxX - r.minX + pad * 2.0, float(r.top) + 2.0, r.maxZ - r.minZ + pad * 2.0)))
 			continue
 		var top: float = 6.5 if b.kind == "castle" else (3.0 if b.kind == "caravan" else (9.0 if b.kind in ["lighthouse", "clocktower"] else 2.6 + roof_rise(b.w, b.d) + 0.3))
+		if HouseKit.uses(b): top = HouseKit.height(b)
 		if b.has("h"): top = float(b.get("y", 0.0)) + float(b.h)   # a building that says how tall it is (a city block, a cathedral)
 		out.append(AABB(Vector3(b.x - b.w / 2.0 - pad, -1.0, b.z - b.d / 2.0 - pad), Vector3(b.w + pad * 2.0, top + 1.0, b.d + pad * 2.0)))
 	return out

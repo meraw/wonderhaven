@@ -119,6 +119,16 @@ func inventory() -> void:
 		for l in [UiTheme.label(r.icon, 30), UiTheme.label(str(int(game.state.inventory.get(id, 0))), 22), UiTheme.label(r.name, 12, UiTheme.INK2)]:
 			l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(l)
 		grid.add_child(p)
+	if game.state.flags.get("hasTool", false):
+		body.add_child(UiTheme.label("Tools", 18, UiTheme.INK2))
+		for tid in Tools.defs():
+			var lv := Tools.stats(game.state, String(tid))
+			var nx := Tools.next(game.state, String(tid))
+			var seller := String(Data.npc(String(Data.tools.get("seller", ""))).get("name", "")).get_slice(" ", 0)
+			var line := "%s  (%d/%d)  %s" % [Tools.label(game.state, String(tid)), int(lv.level), Tools.def(String(tid)).get("levels", []).size(), String(lv.get("does", ""))]
+			if not nx.is_empty(): line += "\n      Next: %s at %s's, %s" % [String(nx.get("name", "")), seller, Tools.cost_text(nx)]
+			var tl := _wrap(line, 14, UiTheme.INK); tl.name = "tool_" + String(tid)
+			body.add_child(tl)
 	var st: Dictionary = game.state.stats
 	var owned := 0
 	for c in Data.appearance.locked:
@@ -149,7 +159,7 @@ func shop(npc_id: String, tab: String = "buy") -> void:
 			var i: int = e.i
 			var b := UiTheme.button("Owned" if e.owned else "Buy", func(): _shop_buy(npc_id, i), not e.owned and e.afford)
 			b.name = "buy_%d" % i; b.disabled = e.owned or not e.afford; b.custom_minimum_size.x = 96
-			if not e.owned and not e.afford: b.tooltip_text = "You need %s more" % Money.lire(e.price - Shop.coins(s))
+			if not e.owned and not e.afford: b.tooltip_text = ("You need %s more" % Money.lire(e.price - Shop.coins(s))) if Shop.coins(s) < e.price else "You're short of materials for it"
 			row.add_child(b)
 	else:
 		var list := Shop.sellable(s, npc_id)
@@ -179,8 +189,13 @@ func _shop_row(icon: String, text: String, price: String) -> HBoxContainer:
 func _shop_buy(npc_id: String, i: int) -> void:
 	var r := Shop.buy(game.state, npc_id, i)
 	if not r.ok:
-		game.toast("You need %s more." % Money.lire(int(r.get("need", 0))) if r.reason == "coins" else "You can't buy that.", "warn"); return
+		game.toast("You need %s more." % Money.lire(int(r.get("need", 0))) if r.reason == "coins" else ("You're short of materials for it." if r.reason == "items" else "You can't buy that."), "warn"); return
 	game.sfx("unlock")
+	if r.has("tool"):
+		game.render_resources()
+		if not r.unlocks.is_empty(): game.story.unlock_blueprints(r.unlocks, String(r.name))
+		game.banner(Tools.label(game.state, String(r.tool)), String(Tools.stats(game.state, String(r.tool)).get("does", "")), [], 3.6)
+		game.emit_event("tool", {"tool": String(r.tool), "level": int(r.level)})
 	if r.has("items"): game.render_resources(r.items.keys()); game.emit_event("gain", {"items": r.items})
 	if r.has("blueprint"): game.story.unlock_blueprints([r.blueprint])
 	if r.has("clothes"): game.story.unlock_clothes([r.clothes])
@@ -444,7 +459,7 @@ func settings() -> void:
 		var key: String = pair[1]
 		sl.value_changed.connect(func(v): st[key] = v; game.apply_settings())
 		row.add_child(sl)
-	var toggles := [["↕️ Invert camera Y", "invert_y"], ["🌦️ Weather effects", "weather"]]
+	var toggles := [["↕️ Invert camera Y", "invert_y"], ["🌦️ Weather effects", "weather"], ["★ Evening inaugurations", "inaugurations"]]
 	if Outline.supported(): toggles.append(["✏️ Ink outlines", "outlines"])
 	toggles.append(["🖥️ Fullscreen (F11)", "fullscreen"])
 	for pair in toggles:

@@ -148,11 +148,11 @@ func play() -> void:
 	game.player.teleport(spot.x, spot.z); game.cam.snap(); await frames(10)
 	await open_build("plot")
 	await select_piece("bed")
-	var poor := await place_at(18, -34, 0.1, 0)
+	var poor := await place_anchored(18, -35, 0)
 	var refused: bool = not s.placements.any(func(p): return p.id == "bed") and Drafts.of(s).any(func(p): return p.id == "bed")
 	await shot("bed-too-dear")
 	s.inventory.coins = 130; game.render_resources(); await frames(3)
-	await place_at(18, -34, 0.1, 0)
+	await place_anchored(18, -35, 0)
 	var own: Array = s.placements.filter(func(p): return p.id == "bed")
 	await shot("bed-bought")
 	check("b1", "A bed costs 120,000 lire as well as its wood and fabric: with 50,000 it goes into the draft, with 130,000 a click on the draft builds it (10,000 left)",

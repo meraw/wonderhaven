@@ -107,6 +107,7 @@ func _build_vineyards() -> void:
 static func building_model(b: Dictionary, loc: Script = null, loc_fns: Array = []) -> Node3D:
 	var o: Node3D = loc.building(b) if loc != null and loc_fns.has("building") else null
 	if o != null: return o
+	if HouseKit.uses(b): return HouseKit.build(b)
 	match b.kind:
 		"workshop": return Props.workshop(b)
 		"castle": return Props.castle(b)
@@ -253,7 +254,9 @@ func _build_nodes() -> void:
 		var o: Node3D = pack.node(n) if pack_fns.has("node") else null
 		if o == null:
 			match n.kind:
-				"chop": o = Props.round_tree(1.05, fmod(n.x * 7.3, 1.0) if n.x > 0 else fmod(-n.x * 7.3, 1.0)); Props.add_ribbon(o)
+				"chop":
+					o = Props.round_tree(1.7 if n.get("big", false) else 1.05, fmod(n.x * 7.3, 1.0) if n.x > 0 else fmod(-n.x * 7.3, 1.0))
+					Props.add_ribbon(o)
 				"mine": o = Props.rock(n.get("rich", false), String(Data.layout.get("richRock", "metal")))
 				"clay": o = Props.clay_mound()
 				"fish": o = Props.fishing_spot()
@@ -277,6 +280,7 @@ func _build_nodes() -> void:
 		if n.kind in ["chop", "fruit", "shake"]: occluders.append([o.position + Vector3(0, 2.0 * o.scale.y, 0), 1.15 * o.scale.y])
 		if n.kind == "chop":
 			var st := P.mi(P.cyl(0.24, 0.28, 0.3, 8), P.mat(P.TRUNK), Vector3(n.x, y + 0.15, n.z)); st.visible = false; add_child(st)
+			if n.get("big", false): st.scale = Vector3(1.7, 1.4, 1.7)
 			o.set_meta("stump", st)
 
 func _build_features() -> void:

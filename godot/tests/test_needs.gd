@@ -101,6 +101,39 @@ func test_shelter_light_and_charm():
 	t.eq(Needs.charm_points(varied), int(Data.needs.charm.max), "variety fills the charm, up to its most")
 	t.eq(Needs.charm_points([{"id": "bench", "color": "#ff7aa8"}, {"id": "chair", "color": "#6cc4ff"}]), 3, "a splash of colour adds to it")
 
+func _meets(id: String, h: Dictionary, kind: String) -> bool:
+	var reach := int(float(h.r)) + 1
+	for rot in 4:
+		for di in range(-reach, reach + 1):
+			for dk in range(-reach, reach + 1):
+				var i := floorf(float(h.x)) + di
+				var k := floorf(float(h.z)) + dk
+				if not Needs.inside({"uid": -1, "id": id, "i": i, "k": k, "r": rot, "y": 0.0}, h): continue
+				var list: Array = []
+				if kind == "shelter":
+					var pillar := _put(list, "pillar", i, k, 0)
+					if pillar.is_empty(): continue
+					var roof := {}
+					for d in [[0, 0], [-1, 0], [0, -1], [-1, -1]]:
+						roof = _put(list, id, i + d[0], k + d[1], rot, 10.0)
+						if not roof.is_empty(): break
+					if roof.is_empty(): continue
+				elif _put(list, id, i, k, rot).is_empty(): continue
+				var lit := {}
+				for pl in list: lit[pl.uid] = true
+				if _met(_score(list, lit), Needs.key(h, kind)): return true
+	return false
+
+func test_every_need_can_be_met_by_every_piece_that_provides_it():
+	var pairs := 0
+	for h in Needs.hangouts():
+		for kind in h.needs:
+			var by: Array = Data.pieces.filter(func(p): return p.get("provides", []).has(kind))
+			for p in by:
+				pairs += 1
+				t.ok(_meets(String(p.id), h, String(kind)), "%s: a %s there, someone can walk up to it, is %s" % [h.id, p.id, Needs.kind_def(kind).get("name", kind)])
+	t.ok(pairs >= Needs.hangouts().size() * 2, "%d place, need and piece combinations checked" % pairs)
+
 func test_needs_are_noticed_a_few_at_a_time():
 	var s := GameState.new_game("Tester")
 	var hs := Needs.hangouts()

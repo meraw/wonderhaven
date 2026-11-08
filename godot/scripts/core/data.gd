@@ -22,6 +22,9 @@ var shops: Dictionary      # Godot-only: what villagers buy and sell, gift lines
 var naps: Dictionary       # waking up from a nap on a bench: odds and lines of the gags (data/naps.json, BenchNap)
 var paper: Dictionary
 var needs: Dictionary
+var inauguration: Dictionary
+var commissions: Dictionary
+var tools: Dictionary
 ## The island you're on. `layout` is that island's layout (data/layout.json for Hearthglow, layout_<id>.json or a
 ## location pack's layout for the others); Heightfield follows it. Sailing reloads the scene with the new island.
 var island := "hearthglow"
@@ -56,6 +59,9 @@ func load_all() -> void:
 	naps = _read("naps")
 	paper = _read("paper")
 	needs = _read("needs")
+	inauguration = _read("inauguration")
+	commissions = _read("commissions")
+	tools = _read("tools")
 	var lists := {"islands": islands, "npcs": npcs, "quests": quests, "shops": shops.get("shops", {}), "resources": resources, "order": resource_order, "appearance": appearance}
 	for id in location_ids():
 		var dir := "%s/%s/" % [LOCATIONS, id]

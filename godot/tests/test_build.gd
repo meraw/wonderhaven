@@ -165,9 +165,8 @@ func test_bus_turnaround():
 	t.ok(sign.ok, sign.get("reason", ""))
 	var q := Data.quest("dock")
 	for o in q.objectives:
-		if o.kind != "pieces": continue
-		var n := Validate.pieces_in_zone(z, list).filter(func(pl): return o.any.has(pl.id)).size()
-		t.ok(n >= int(o.get("count", 1)), "%s (%d placed)" % [o.text, n])
+		if o.kind != "commission": continue
+		for r in Commission.evaluate(o, {"placements": list}).musts: t.ok(r.ok, "%s (%d of %d)" % [r.label, r.have, r.need])
 	var walk := WalkWorld.new(statics)
 	walk.surfaces = BuildGrid.surfaces_for(list)
 	t.ok(walk.surface_at(float(z.minI) + 2.5, float(z.minK) + 1.5).walkable, "you can walk on the paving")

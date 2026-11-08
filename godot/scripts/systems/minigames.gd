@@ -15,12 +15,26 @@ class Chop:
 	var phase := 0.0
 	var last := ""
 	var hit_at := -1.0   # where the needle was on the last swing; shown until the next round starts
+	var base_speed := 1.1
+	var rest := 0.6
+	var extra := 0
+	var perfect_bonus := 0
+	var big := false
+	var tool := {}
 	const GRACE := 0.012  # half the drawn needle's width: a needle touching the zone counts
-	func _init(r: Rng = null) -> void:
+	func _init(r: Rng = null, p_tool: Dictionary = {}, p_big: bool = false) -> void:
 		rng = r if r else Rng.new(Time.get_ticks_usec() & 0xffff)
+		tool = p_tool
+		big = p_big
+		width = float(p_tool.get("width", width))
+		base_speed = float(p_tool.get("speed", base_speed))
+		rounds = int(p_tool.get("rounds", rounds))
+		rest = float(p_tool.get("pause", rest))
+		extra = int(p_tool.get("yield", 0))
+		perfect_bonus = int(p_tool.get("perfect_bonus", 0))
 		new_round()
 	func new_round() -> void:
-		center = 0.3 + rng.next() * 0.4; speed = 1.1 + round * 0.25; phase = rng.next() * TAU
+		center = 0.3 + rng.next() * 0.4; speed = base_speed + round * 0.25; phase = rng.next() * TAU
 	func needle() -> float: return 0.5 + 0.5 * sin(phase)
 	## Judges a press against the needle as it was last drawn, then moves it on. The zone and needle stay put
 	## during the pause so the player sees exactly where the swing landed.
@@ -36,13 +50,17 @@ class Chop:
 		if press:
 			var d := absf(needle() - center)
 			last = "perfect" if d <= perfect / 2.0 + GRACE / 2.0 else ("good" if d <= width / 2.0 + GRACE else "miss")
-			results.append(last); round += 1; pause = 0.6; hit_at = needle()
+			results.append(last); round += 1; pause = rest; hit_at = needle()
 			return
 		phase += dt * speed * PI
+	func perfect_run() -> bool: return results.size() >= rounds and results.all(func(r): return r == "perfect")
 	func reward() -> Dictionary:
 		var good := results.filter(func(r): return r != "miss").size()
 		var perf := results.filter(func(r): return r == "perfect").size()
-		return {"wood": 1 + good + perf / 2}
+		var out := {"wood": 1 + good + perf / 2 + (extra if good > 0 else 0)}
+		if perfect_run(): out.wood += perfect_bonus
+		if big and good > 0: out["beam"] = 1 + perf / 2 + maxi(extra - 1, 0) + (1 if perfect_run() else 0)
+		return out
 
 class Mine:
 	var rng: Rng
@@ -56,10 +74,25 @@ class Mine:
 	var target := [0.32, 0.46]
 	var last := ""
 	var bonus := "metal"   # what a rich rock is rich in (a layout's richRock): iron-red metal, or glowing crystal
-	func _init(p_rich: bool = false, rr: Rng = null, p_bonus: String = "metal") -> void:
-		rich = p_rich; bonus = p_bonus; rng = rr if rr else Rng.new(Time.get_ticks_usec() & 0xffff); reset()
+	var base_speed := 0.55
+	var rest := 0.6
+	var extra := 0
+	var perfect_bonus := 0
+	var dresses := false
+	var tool := {}
+	func _init(p_rich: bool = false, rr: Rng = null, p_bonus: String = "metal", p_tool: Dictionary = {}) -> void:
+		rich = p_rich; bonus = p_bonus; rng = rr if rr else Rng.new(Time.get_ticks_usec() & 0xffff)
+		tool = p_tool
+		strikes = int(p_tool.get("strikes", strikes))
+		target = p_tool.get("zone", target)
+		base_speed = float(p_tool.get("speed", base_speed))
+		rest = float(p_tool.get("pause", rest))
+		extra = int(p_tool.get("yield", 0))
+		perfect_bonus = int(p_tool.get("perfect_bonus", 0))
+		dresses = bool(p_tool.get("dresses", false))
+		reset()
 	const GRACE := 0.02   # half the drawn ring's thickness
-	func reset() -> void: r = 1.0; speed = 0.55 + results.size() * 0.12
+	func reset() -> void: r = 1.0; speed = base_speed + results.size() * 0.12
 	## Judges a press against the ring as it was last drawn, then shrinks it. The ring stays where it was struck
 	## during the pause.
 	func step(dt: float, press: bool, _hold: bool = false) -> void:
@@ -74,21 +107,25 @@ class Mine:
 			var mid: float = (target[0] + target[1]) / 2.0
 			var inside: bool = r >= target[0] - GRACE and r <= target[1] + GRACE
 			last = ("perfect" if absf(r - mid) < 0.03 + GRACE / 2.0 else "good") if inside else "miss"
-			results.append(last); pause = 0.6
+			results.append(last); pause = rest
 			return
 		r -= dt * speed
-		if r < 0.05: results.append("miss"); last = "miss"; pause = 0.6
+		if r < 0.05: results.append("miss"); last = "miss"; pause = rest
+	func perfect_run() -> bool: return results.size() >= strikes and results.all(func(x): return x == "perfect")
 	func reward() -> Dictionary:
 		var hits := results.filter(func(x): return x != "miss").size()
 		var perf := results.filter(func(x): return x == "perfect").size()
-		var out := {"stone": 1 + hits + (1 if perf >= 2 else 0)}
+		var all_hit := hits >= strikes
+		var out := {"stone": 1 + hits + (1 if perf >= 2 else 0) + (extra if hits > 0 else 0)}
 		if bonus == "metal":   # the rusty-red rocks are iron-rich: they give more metal
-			if rich and hits >= 1: out["metal"] = 2 if hits >= 3 else 1
+			if rich and hits >= 1: out["metal"] = 2 if all_hit else 1
 			elif hits >= 2: out["metal"] = 1
 		else:   # rich in something else (the cove's glowing crystals); two perfect strikes find a little anywhere
 			if hits >= 2 or (rich and hits >= 1): out["metal"] = 1
-			if rich and hits >= 1: out[bonus] = 2 if hits >= 3 else 1
+			if rich and hits >= 1: out[bonus] = 2 if all_hit else 1
 			elif perf >= 2: out[bonus] = 1
+		if perfect_run(): out.stone += perfect_bonus
+		if dresses and perf > 0: out["cutstone"] = perf + (1 if perfect_run() else 0)
 		return out
 
 const FISH := [{"id": "minnow", "name": "Minnow", "weight": 5.0, "pull": 0.5}, {"id": "trout", "name": "Brown Trout", "weight": 3.0, "pull": 0.8},

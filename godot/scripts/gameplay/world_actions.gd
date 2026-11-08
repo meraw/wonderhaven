@@ -71,39 +71,60 @@ func _register_node(n: Dictionary) -> void:
 		base.merge({"radius": 0.9, "object": null, "available": func(): return ready(nd) and state().flags.get("hasTool", false),
 			"label": func(): return "Dig here, the metal detector is going wild!", "act": func(): dig(nd)}, true)
 		game.add_interactable(base); return
-	base.merge({"radius": 2.0 if n.kind == "mine" else (1.3 if n.kind == "fish" else 1.7), "label": func(): return String(nd.get("label", LABELS[nd.kind])), "act": func(): act(nd)}, true)
+	base.merge({"radius": 2.0 if n.kind == "mine" else (1.3 if n.kind == "fish" else (2.2 if n.get("big", false) else 1.7)), "label": func(): return node_label(nd), "act": func(): act(nd)}, true)
 	game.add_interactable(base)
+
+static func feature_y(f: Dictionary):
+	if f.has("y"): return float(f.y)
+	if f.kind == "boat": return null
+	return Heightfield.height(f.x, f.z)
+
+func _add_feature(f: Dictionary, rec: Dictionary) -> void:
+	var y = feature_y(f)
+	if y != null: rec["y"] = y
+	game.add_interactable(rec)
+
+func node_label(n: Dictionary) -> String:
+	if n.get("big", false):
+		return "Fell the big oak" if Tools.fells(state(), n) else "A big oak: too much for your %s" % String(Tools.stats(state(), "axe").get("name", "axe")).to_lower()
+	return String(n.get("label", LABELS[n.kind]))
 
 func _register_feature(f: Dictionary) -> void:
 	match f.kind:
 		"rest":
-			if f.has("refuse"): game.add_interactable({"id": f.id, "x": f.x, "z": f.z, "radius": 1.3, "label": func(): return String(f.get("label", "Look at the bed")), "act": func(): game.toast(String(f.refuse), "", 4.0)})
-			else: game.add_interactable({"id": f.id, "x": f.x, "z": f.z, "radius": 1.3, "label": func(): return "Sleep", "act": func(): game.rest("bed")})
+			if f.has("refuse"): _add_feature(f, {"id": f.id, "x": f.x, "z": f.z, "radius": 1.3, "label": func(): return String(f.get("label", "Look at the bed")), "act": func(): game.toast(String(f.refuse), "", 4.0)})
+			else: _add_feature(f, {"id": f.id, "x": f.x, "z": f.z, "radius": 1.3, "label": func(): return "Sleep", "act": func(): game.rest("bed")})
 		"bench":
 			var r := int(f.get("r", 0))
 			var fp := BuildGrid.footprint(Data.piece("bench"), r)
 			var seat := {"id": "bench", "i": f.x - fp.x / 2.0, "k": f.z - fp.y / 2.0, "r": r, "y": Heightfield.height(f.x, f.z)}
-			game.add_interactable({"id": f.id, "x": f.x, "z": f.z, "radius": 1.5, "object": game.village.objects.get(f.id), "label": func(): return "Sit or nap on the bench", "act": func(): game.rest("bench", seat)})
+			_add_feature(f, {"id": f.id, "x": f.x, "z": f.z, "radius": 1.5, "object": game.village.objects.get(f.id), "label": func(): return "Sit or nap on the bench", "act": func(): game.rest("bench", seat)})
 		# a wardrobe with a flag is yours once that's set (in a flat you rent, say)
-		"wardrobe": game.add_interactable({"id": f.id, "x": f.x, "z": f.z, "object": game.village.objects[f.id], "available": func(): return not f.has("flag") or state().flags.get(f.flag, false),
+		"wardrobe": _add_feature(f, {"id": f.id, "x": f.x, "z": f.z, "object": game.village.objects[f.id], "available": func(): return not f.has("flag") or state().flags.get(f.flag, false),
 			"label": func(): return "Change outfit", "act": func(): game.open_wardrobe()})
-		"board": game.add_interactable({"id": f.id, "x": f.x, "z": f.z, "object": game.village.objects[f.id], "label": func(): return "Read the notice board", "act": func(): game.panels.notice_board()})
+		"board": _add_feature(f, {"id": f.id, "x": f.x, "z": f.z, "object": game.village.objects[f.id], "label": func(): return "Read the notice board", "act": func(): game.panels.notice_board()})
 		# a stop on a line within this place (a tram, a funicular): ride to another stop on it (Travel.stops_on)
-		"stop": game.add_interactable({"id": f.id, "x": f.x, "z": f.z, "radius": 2.2, "object": game.village.objects.get(f.id), "label": func(): return String(f.get("ride_label", "Take a ride")), "act": func(): game.panels.stops(f)})
+		"stop": _add_feature(f, {"id": f.id, "x": f.x, "z": f.z, "radius": 2.2, "object": game.village.objects.get(f.id), "label": func(): return String(f.get("ride_label", "Take a ride")), "act": func(): game.panels.stops(f)})
 		# the departure point (any id; "depart_label" names how you leave, a train from a city station, say; "flag",
 		# if any, is the story flag it waits for: a station where the trains only stop again after a request)
 		"boat":   # a bus can be boarded anywhere along its side, not just by its middle
 			var reach: float = float(f.get("length", 8.6)) / 2.0 + 0.6 if f.get("model", "boat") == "bus" else 2.6
 			var fl := String(f.get("flag", ""))
-			game.add_interactable({"id": f.id, "x": f.x, "z": f.z, "radius": reach, "object": game.village.objects.get(f.id), "available": func(): return state().flags.get("boatReady", false) and (fl == "" or state().flags.get(fl, false)), "label": func(): return String(f.get("depart_label", "Catch the bus")), "act": func(): game.panels.map(true)})
+			_add_feature(f, {"id": f.id, "x": f.x, "z": f.z, "radius": reach, "object": game.village.objects.get(f.id), "available": func(): return state().flags.get("boatReady", false) and (fl == "" or state().flags.get(fl, false)), "label": func(): return String(f.get("depart_label", "Catch the bus")), "act": func(): game.panels.map(true)})
 
 func _src(n: Dictionary, up: float = 1.0) -> Vector3: return Vector3(n.x, Heightfield.height(n.x, n.z) + up, n.z)
 
 func act(n: Dictionary) -> void:
 	game.player.yaw = atan2(n.x - game.player.pos.x, n.z - game.player.pos.z); game.player.sync()
 	match n.kind:
-		"chop": pending_node = n; game.start_minigame("chop", Minigames.Chop.new(), _src(n, 0.0))
-		"mine": pending_node = n; game.start_minigame("mine", Minigames.Mine.new(n.get("rich", false), null, String(Data.layout.get("richRock", "metal"))), _src(n, 0.0))
+		"chop":
+			if not Tools.fells(state(), n):
+				var nx := Tools.level_def("axe", 2)
+				game.toast("Too big for your %s. %s sells a %s." % [String(Tools.stats(state(), "axe").get("name", "axe")).to_lower(), String(Data.npc(String(Data.tools.get("seller", ""))).get("name", "")).get_slice(" ", 0), String(nx.get("name", "bigger axe")).to_lower()], "warn", 3.2)
+				game.emit_event("too_big", {"node": String(n.id)})
+				return
+			pending_node = n; game.start_minigame("chop", Minigames.Chop.new(null, Tools.for_node(state(), "chop"), bool(n.get("big", false))), _src(n, 0.0))
+		"mine": pending_node = n; game.start_minigame("mine", Minigames.Mine.new(n.get("rich", false), null, String(Data.layout.get("richRock", "metal")), Tools.for_node(state(), "mine")), _src(n, 0.0))
 		"fish": start_fishing(n)
 		"clay":
 			game.player_char.play("dig"); game.sfx("dig")
@@ -139,7 +160,12 @@ func minigame_done(kind: String, mg) -> void:
 	var n := pending_node; pending_node = {}
 	if kind == "fish": _fishing_done(mg); return
 	if mg == null or n.is_empty(): return
-	game.give(mg.reward(), _src(n))
+	var got: Dictionary = mg.reward()
+	game.give(got, _src(n))
+	if mg.perfect_run():
+		var bonus := int(mg.perfect_bonus)
+		game.toast("✨ Perfect run!%s" % ((" +%d %s" % [bonus, String(Data.resources["wood" if kind == "chop" else "stone"].name).to_lower()]) if bonus > 0 else ""), "good", 2.6)
+		game.emit_event("perfect_run", {"kind": kind, "reward": got})
 	if kind == "chop": state().stats.chopped += 1; game.effects.poof(_src(n), Color("9fdc7a"))
 	else: state().stats.mined += 1
 	game.story.event(kind)   # "chop" or "mine", for requests that count trees pruned or rocks cut

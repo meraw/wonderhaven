@@ -59,6 +59,7 @@ var roof_alpha := 1.0   # the workshop's roof (kept for tests)
 var roof_fade: Dictionary = {}   # building id -> roof opacity
 var guide: Guide
 var nap_gags: NapGags
+var ceremony: InaugurationScene
 var sight_walls: Array = []   # building walls you can't talk through (WorldStatics.sight_walls)
 var outline: MeshInstance3D
 var outline_override := ""   # look-dev renders force outlines on or off without touching saved settings
@@ -96,6 +97,7 @@ func _ready() -> void:
 	village = Village.new(); village.name = "Village"; add_child(village); village.build(decor)
 	effects = Effects.new(); add_child(effects)
 	nap_gags = NapGags.new(); nap_gags.name = "NapGags"; add_child(nap_gags); nap_gags.setup(self)
+	ceremony = InaugurationScene.new(); ceremony.name = "Inauguration"; add_child(ceremony); ceremony.setup(self)
 	player_char = Chibi.new(state.appearance); player_char.name = "Player"; player_char.vis_layer = 2; add_child(player_char); player_char.apply_layer()
 	var sp: Dictionary = Data.layout.spawn
 	player = PlayerController.new(player_char, walk, sp.x, sp.z, sp.yaw)
@@ -118,7 +120,7 @@ func _ready() -> void:
 		var a := NpcAgent.new(self, d)
 		npcs[d.id] = a
 		var ag := a
-		add_interactable({"id": "npc:" + d.id, "x": func(): return ag.pos.x, "z": func(): return ag.pos.z, "radius": 1.9, "priority": 0.6, "object": null, "sight": true,
+		add_interactable({"id": "npc:" + d.id, "x": func(): return ag.pos.x, "z": func(): return ag.pos.z, "y": func(): return ag.pos.y, "radius": 1.9, "priority": 0.6, "object": null, "sight": true,
 			"available": func(): return ag.present, "label": func(): return "Talk to " + ag.def.name, "act": func(): story.talk(ag)})
 	for f in Data.layout.features:
 		if f.kind == "sign":
@@ -207,11 +209,11 @@ func banner(title: String, sub: String = "", rewards: Array = [], seconds: float
 	banner_box.add_child(t)
 	if sub != "":
 		var sl := UiTheme.label(sub, 20); sp_wrap(sl)
-		var sp := UiTheme.panel(UiTheme.CREAM, UiTheme.LINE, 999 if sub.length() <= 70 else 24); sp.add_child(sl)
-		var cc := CenterContainer.new(); cc.add_child(sp); banner_box.add_child(cc)
+		var sp := UiTheme.panel(UiTheme.CREAM, UiTheme.LINE, 999 if sub.length() <= 70 else 24); sp.add_child(sl); sp.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var cc := CenterContainer.new(); cc.add_child(sp); cc.mouse_filter = Control.MOUSE_FILTER_IGNORE; banner_box.add_child(cc)
 	if not rewards.is_empty():
-		var row := HBoxContainer.new(); row.alignment = BoxContainer.ALIGNMENT_CENTER
-		for r in rewards: var rp := UiTheme.panel(Color("fff7cf"), UiTheme.GOLD, 999); rp.add_child(UiTheme.label(r, 13)); row.add_child(rp)
+		var row := HBoxContainer.new(); row.alignment = BoxContainer.ALIGNMENT_CENTER; row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		for r in rewards: var rp := UiTheme.panel(Color("fff7cf"), UiTheme.GOLD, 999); rp.add_child(UiTheme.label(r, 13)); rp.mouse_filter = Control.MOUSE_FILTER_IGNORE; row.add_child(rp)
 		banner_box.add_child(row)
 	banner_box.scale = Vector2(0.3, 0.3); banner_box.pivot_offset = Vector2(get_viewport().get_visible_rect().size.x / 2.0, 40)
 	var tw := banner_box.create_tween(); tw.tween_property(banner_box, "scale", Vector2.ONE, 0.45).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
@@ -410,6 +412,7 @@ func sleep_until(hour: float, where: String = "bed", seat = null, ends_day: bool
 	set_mode("cutscene")
 	stand_up()
 	await _fade(true).finished
+	if ends_day: await ceremony.run()
 	nap_gags.clear()
 	var t0: Dictionary = state.time.duplicate()
 	var yesterday: Dictionary = WorkDay.record(state).duplicate(true)
@@ -849,7 +852,10 @@ func machine_targets() -> Array:
 func on_build_changed(ev: Dictionary) -> void:
 	walk.surfaces = BuildGrid.surfaces_for(state.placements)
 	mech = Mechanics.solve(state.placements, machine_targets())
-	if ev.get("action", "") == "place": WorkDay.note(state, "built")
+	if ev.get("action", "") == "place":
+		WorkDay.note(state, "built")
+		Inauguration.placed(state, int(ev.pl.uid))
+	if ev.get("action", "") == "remove": Inauguration.removed(state, int(ev.pl.uid))
 	_refresh_piece_interactables()
 	build.version += 1
 	build.refresh_plan()
@@ -922,7 +928,7 @@ func find_target():
 		var dz := _pos_of(it, "z") - p.z
 		var d := sqrt(dx * dx + dz * dz)
 		if d > it.radius + 0.6: continue
-		if it.has("y") and absf(float(it.y) - p.y) > 1.6: continue   # on another storey (a bed in the flat upstairs)
+		if it.has("y") and absf(_pos_of(it, "y") - p.y) > 1.6: continue   # on another storey (a bed in the flat upstairs)
 		var facing := (dx * fwd.x + dz * fwd.y) / d if d > 0.01 else 1.0
 		if d > 1.0 and facing < 0.1: continue
 		if it.get("sight", false) and not WalkWorld.sight_clear(Vector2(p.x, p.z), Vector2(p.x + dx, p.z + dz), sight_walls): continue   # not through a wall
@@ -1163,7 +1169,7 @@ func _world_reactions(dt: float) -> void:
 		if a1 == a0 and (a1 == 1.0 or a1 < 0.001): continue
 		var fading := a1 < 0.99
 		for part in o.get_meta("fade_parts"):
-			var mi: MeshInstance3D = part[0]
+			var mi: GeometryInstance3D = part[0]
 			var m: Material = part[2] if fading else part[1]
 			if mi.material_override != m: mi.material_override = m
 			if not fading: continue

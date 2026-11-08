@@ -8,7 +8,160 @@ Working title: **Wonderhaven** (to be renamed). The game is moving to a comic, l
 ## The redesign (07/11)
 After a review of how the game plays, the user agreed a new design: building is the core, the game values what you build
 whether or not anyone asked for it, requests become briefs with checks, and the day becomes a work day you end
-yourself. All of it, and the order it's built in, is in `docs/DESIGN.md`. Stages 1 to 4 are done; the rest is still to do.
+yourself. All of it, and the order it's built in, is in `docs/DESIGN.md`. All seven stages are done for Monteforchetta.
+
+### Stage 7: tools and materials (shared; content for Monteforchetta)
+- **Tools have levels.** You start with an old hatchet and an old pick; Elio's shop sells the next one, for lire and
+  metal, one level at a time:
+  - **Steel axe** (after the crossing): fells the **big oaks** for **oak beams**, and gets a little more wood from
+    every tree. Then the **woodcutter's axe** (50 approval): two swings a tree, and more from each.
+  - **Pick and chisel** (after Elio's shop): every perfect strike also dresses a block of **cut stone**. Then the
+    **mason's pick** (80 approval): two strikes a rock, and more stone.
+  - A better tool makes its minigame quicker and easier: a wider green or ring, a slower needle, less wait between
+    swings, one swing fewer at the top level, and a bigger yield.
+- **A perfect run pays**: when every swing is gold, you get 2 more wood or stone, a "Perfect run!" in the panel and a
+  toast.
+- **Big oaks**: two of them stand in the woods west of the village (`bigoak0`, `bigoak1`), larger than the ribboned
+  trees. The old hatchet can't fell them: the prompt says so, and a toast says Elio sells a steel axe. They grow back
+  overnight like the others.
+- **New materials make new building**:
+  - an **oak beam** (from beams) is a deck that reaches four tiles out over water, twice as far as a plank. Oak beams
+    cross Aldo's washout from both banks without a single post;
+  - a **stone arch** (cut stone) reaches three tiles, with an arch underneath;
+  - a **stone column** (cut stone) stands in a river bed like a post and holds up a deck.
+  The tool upgrades bring their plans; Elio sells the plans too.
+- **Lire can buy materials**: Elio sells beams and cut stone (and the plans), so a player who only wants to build
+  can buy instead of chopping. Wood, stone, metal, clay, copper wire and fabric were already for sale.
+- **What you see**: the minigame panel names your tool and shows as many dots as it takes swings; the bag lists your
+  tools, what each does and what the next one costs; the shop lists only the next upgrade of each tool. The
+  chopping and mining tips mention gold swings and the new tools. Gigia's "all in wood" wish on the crossing counts
+  oak beams as wood.
+- Where: `Tools` (`scripts/systems/tools.gd`) and `data/tools.json` (levels, prices, what each level does to the
+  minigame); `Minigames.Chop` and `Mine` take a tool's stats; each span piece has its own `reach` in `pieces.json`
+  (`BuildGrid.reach`); shop lines `{tool, level}`; new resources `beam` and `cutstone` with watercolour icons (drawn in
+  `tools/icons/icons.cjs`), and rendered pictures for the three new pieces.
+- **Checked:**
+  - **Tested** (`godot/run_tests.sh`). `test_tools` covers: better tools make the minigame quicker and the yield
+    bigger; a perfect run's bonus; big oaks need the steel axe and give beams, small trees don't; the chisel's cut
+    stone; buying upgrades at Elio's (lire and materials spent, one level at a time, waiting on the request or the
+    approval it needs, saved); beams and cut stone for sale; oak beams reach four tiles and cross the washout with
+    no post, arches three; a column holds up a plank.
+  - **Played** (`play_tools`, 10 checks, in `play_all.sh`): the old hatchet refused at a big oak; the steel axe bought
+    at Elio's; the oak felled for beams with "Steel axe" in the panel; the pick and chisel bought; a perfect run at
+    the quarry gives the bonus and 4 cut stone; beams and cut stone bought with lire; an oak beam crossing and a stone
+    arch crossing with a column built over the washout; the bag lists the tools; you walk across on the beams. For
+    the perfect run the script puts the shrinking ring on the mark just before each press (at ten frames a second a
+    scripted press can't hit the gold reliably); the game's own judging, bonus and cut stone do the rest.
+  - **Seen** in screenshots: the two crossings side by side, the tool name in the minigame panel, the perfect run,
+    Elio's shop, the bag.
+  - **Not checked:** the woodcutter's axe and the mason's pick in play (only in tests); how the prices feel over a
+    whole game.
+
+### Stage 6: requests as commissions (Monteforchetta)
+- **A request's building step is now a brief**: a site, two or three **musts** that check what it does, and up to
+  three **wishes** from people who have a say. Anything that meets the musts passes, however it looks.
+  - The crossing (Aldo): walkable from bank to bank; railings along it. Wishes: all in wood (Gigia); eight railings
+    (the Sindaco).
+  - Elio's shop: a workbench, two places to sit, two lamps. Wishes: two shelves or cabinets; one thing painted bright
+    (both Elio's).
+  - The fountain (Fede): water flows into it. Wishes: two flower beds by it (Fede); a bench to admire it from (the
+    Sindaco).
+  - The farmhouse: four walls with a door, a roof, a bed. Wishes: a table (Ornella), something growing (Gigia), two
+    cosy touches (the Sindaco). These replace the old "make it cosy" step.
+  - The bus stop (Aldo): twelve paving stones, somewhere to wait, a sign. Wishes: a roof for rainy days (Aldo); a
+    light at night (the Sindaco).
+  - The electric lamp (Fede): one lit by a waterwheel you built. Wish: two lit.
+  - The labels are kept to a few words so the list fits beside the plan in build mode.
+- **Checks tick live** in build mode's list on the right: ○ / ✔ for each must, with a count, and ☆ / ★ for each
+  wish with who wants it. When one ticks, the pieces that meet it sparkle (green for a must, gold for a wish) and a
+  short toast names it. For the fountain the list also shows the two steps on the way (a wheel turning, a pump
+  powered). The request tracker says to build it your way and that the musts tick off as you go.
+- **Handing it in stamps the permit**: "Approvato" for the musts alone, "Approvato con plauso" with some wishes,
+  "Approvato con lode" with all of them. Each wish met adds 5 approval and a heart with whoever wished it. The stamp
+  is shown on the request-complete banner and kept with the request (`stamp`).
+- **Teaching**: each brief brings in at most one new kind of check after the ones before it (a test checks this
+  along the order requests unlock): the crossing a path and counting pieces; the shop and the farmhouse what pieces
+  give (seats, light, shelter); the fountain water arriving; the lamp a lamp lit. The example plans are still there
+  to follow or copy into a draft, and each one meets every must.
+- **The guided first day** waits on the crossing's first must (walkable) before asking for the railings, with a new
+  `must:Q:O:N` step condition (`data/tutorial.json`).
+- Where: `Commission` (`scripts/systems/commission.gd`) holds the checks, the stamp and the bonus; settings and the
+  check list are in `data/commissions.json`. `QuestEngine` has the new `commission` step (done when every must is
+  met, and it stays done); `Story` supplies what the checks look at and does the ticks and the stamp. Other places'
+  requests keep their old `build`, `room` and `pieces` steps until their owners convert them.
+- **Checked:**
+  - **Tested** (`godot/run_tests.sh`, 310 passed). `test_commission` covers: every brief has at most three musts and
+    three wishes, known checks, villagers wishing, and at most one new kind of check; each example plan meets every
+    must; each kind of check; a brief done when its musts are met, staying done, with the wishes left for later and
+    the guided day able to wait on one must; the stamps and the wish bonus. `test_story`, `test_plans` and
+    `test_build` were updated for the new steps.
+  - **Played**: see below.
+  - **Not checked:** the farmhouse, bus stop and lamp briefs played through to their stamp (the main playthroughs
+    build them, but only the crossing's and the shop's stamps are checked); a brief "anywhere in the village" (none
+    of Monteforchetta's requests uses one yet).
+
+### Stage 5: the inauguration (Monteforchetta)
+- **When you end the day** (sleep until tomorrow morning) after putting up pieces that are still standing, the
+  Sindaco opens them first. The clock goes to dusk (8:30 PM). The camera cuts to the build, and everyone is placed
+  round it rather than walking there: the Sindaco on one side of a red ribbon, you on the other, the villagers on
+  either side. Then you go to sleep as before. A day with nothing new has no ceremony.
+- **What is opened**: the biggest group of the day's pieces. Pieces within 3 m of each other form a group, and a
+  need met counts extra. Pieces put up and taken away again the same day don't count. Other groups that day are left
+  out.
+- **The speech** is three lines from `data/inauguration.json`:
+  - what and where ("Citizens! Tonight I give you a bench and a flower bed outside the bakery.");
+  - one line that fits the build: the complaint it answers from the paper, the Sindaco's own castle steps, "art"
+    for something nobody can use, something perched high, a painted piece, a spree of pieces, a single piece;
+  - him taking the credit ("My vision, of course. The Geometra held the ladder.").
+- **The ribbon and the crowd**: he cuts the ribbon (confetti, fanfare) and the crowd reacts. If people can use the
+  build they clap and cheer, and the villager whose spot it is thanks you and gains a heart (Ornella at the bakery,
+  Gigia at her gate, and so on). If nobody can use it (a chair on two blocks) everyone shrugs under a question mark,
+  to crickets, even when it counts for the need. One or two villagers say a word in a bubble.
+- **Approval is counted**: a small card gives the day's approval change and a mark out of ten, in halves (Italian
+  school marks, up to "10 e lode"). The mark goes up for each need met, each different kind of piece, someone being
+  able to use it, and a painted piece; wonkiness costs nothing.
+- **The next morning's Eco del Colle** leads with the opening ("Sindaco opens a bench and a flower bed outside the
+  bakery; calls it 'my vision'") and gives the mark. A request finished that day still takes the headline.
+- **Always skippable**: a Skip button or Esc ends it at once, and its results (the heart, the paper) still count.
+  "Evening inaugurations" in the settings turns it off; the paper still reports the build.
+- Where: `Inauguration` (`scripts/systems/inauguration.gd`) holds the rules: today's pieces, the groups, the facts,
+  the speech, the mark, the reactions, and where everyone stands. `InaugurationScene`
+  (`scripts/world/inauguration_scene.gd`) is the scene, run by `game.sleep_until` while the screen is faded. A place
+  turns it on with a work day and a `speaker` in its layout's `inauguration` block (Monteforchetta:
+  `"speaker": "percival"`). Scripted playthroughs skip the scene unless they ask for it (`inauguration=play`), the
+  way they skip the nap jokes.
+- **Checked:**
+  - **Tested** (`godot/run_tests.sh`, 305 passed after merging main). `test_inauguration` covers:
+    - naming what was built;
+    - today's pieces remembered across a save, and pieces taken away dropped;
+    - the bakery bench opened with the right place, complaint and credit, and Ornella's heart;
+    - a chair on a stack called art, with the crowd shrugging and no hearts;
+    - the Sindaco's own steps;
+    - the marks;
+    - everyone given a free spot to stand, clear of the pieces and of each other;
+    - the paper's headline and mark.
+  - **Played** (`play_inauguration`, 11 checks, in `play_all.sh`; the pieces are placed by the script, and you
+    sleep on a public bench each night):
+    - a day with nothing built has no ceremony;
+    - a bench and a flower bed at the bakery are opened at 8:30 PM, with all five villagers gathered round;
+    - the speech names them, quotes "Nowhere to sit outside the bakery." and takes the credit;
+    - the ribbon is cut, Ornella thanks you ("Just what we needed!" in this run) and gains a heart, and the card
+      shows "Voto 9/10, +16 today";
+    - the next paper leads with the opening and gives the mark;
+    - a stone block put up across the village the same day is left out;
+    - a chair on two blocks on the church steps gets a ceremony with the whole crowd shrugging and no hearts;
+    - Esc ends a ceremony within a fifth of a second and the paper still reports it;
+    - with the setting off there is no ceremony and the build is still reported.
+  - **Monteforchetta's other playthroughs passed** before main was merged in (`play_all.sh`), apart from
+    `play_needs`, which main has since fixed. They were not run again after the merge.
+  - **Seen** in screenshots: the speech with the bench, the flower bed and the ribbon between the Sindaco and you;
+    the cut ribbon and the cheering; the mark; the puzzled crowd at the church.
+  - **Not checked:** the ceremony on the tutorial's first night (the guided day's playthrough skips it); builds
+    indoors or in tight spots, where there may be no room to gather (then it is skipped and only reported); a
+    camera view blocked from every side (the camera then moves in until the view is clear); how it feels to see one
+    every evening.
+- **Not built yet:** the ceremony changing with the villagers' tastes (stage 1's "tastes" are still to do), music at
+  the ceremony, and a record of past openings to look back on.
 
 ### Stage 4: villagers use what you build (Monteforchetta)
 - **Visits.** Now and then a villager takes a break from their routine and goes to one of the village's spots to use
@@ -253,6 +406,7 @@ Each fix is the general version, for every place. What was checked how is at the
 ## Converting to the chosen look (07/11)
 - **Step one, physically based materials** (tested, played, seen in the ten fixed views before and after): everything built in code, in every location, now has real roughness and specular. Plaster, stone, wood and fabric have the chosen texture mix. By day the ambient light is stronger and warmer, to make up for the fill the old rim light gave. The terrain keeps its old light until step two, and the outlines stay. Against main, brightness is within -2% to +9% in most fixed views, with richer golden hours. Night is 13% darker, and the castle hall at dawn 17% darker. `--look=painted` shows the old materials. Plan and results: `docs/CONVERSION.md`. Not checked: frame rate and texture memory on real graphics cards.
 - **Step two, ground and wet** (tested, played, seen in the fixed views before and after, and in three views in the compatibility renderer): the squares are laid with the generated flagstones, tinted with each layout's cobble colours, and so is the castle hall's floor. Grass looks as before. In the rain, paving and paths turn glossy and puddles mirror the sky and, in Forward+, the village around them (screen-space reflections). A little ambient light stays at night. Dry daytime views moved by 2% or less; night is 8% brighter than after step one. The castle hall at dawn is still about 20% darker than before the conversion, to be fixed with the hall's rebuild in step three. Dirt paths keep their painted look. Plan and results: `docs/CONVERSION.md`. Not checked: frame rate with the reflections on real graphics cards.
+- **Step three, part one: houses from a Blender kit** (tested, played, seen in the fixed views and in close-ups by day, at night, inside and in snow): Monteforchetta's bakery, newsstand, Ghisolfi house, Cauda farm, gatehouse and Aldo's cottage are Langhe houses assembled from a 233 KB kit of Blender parts (`HouseKit`). Each has two storeys (Aldo's one), shutters in random positions, coppi laid tile by tile, a sandstone footing, and a balcony, shopfront, sign or awning where the layout asks. Rooms you walk into keep their walls and doorway, and the upper floor and roof fade while you're inside; windows light at night. Still to do in step three: the denser village core, and the church, castle and workshop. Not checked: frame rate on real graphics cards (a house is 20 to 27 draw batches, up to 24,000 triangles).
 
 ## Icons and Blender models (07/11)
 - **Bigger eyes** (tested, played, seen in look-dev renders of the cast and in the character creator): the villagers' and the player's eyes are 1.45× the old dots, after the look tests (`docs/MODELS.md`). Every eye shape lands between 1.45× and 1.55×: the wide eyes were already 1.55×, so they keep their size (`Chibi.EYE_SIZE`, `test_faces`).
@@ -285,6 +439,13 @@ Checked by the headless tests (`test_animation.gd`: stopping eases, the stride s
 - **Everyone moves with more weight** (the player, the villagers, Toriano's passers-by, all through `Chibi.animate`): walking eases in and out instead of snapping, the stride follows the distance walked, each step squashes and stretches a little, the body leans into the walk and tips forward when it stops, banks into turns while the head leads, and landing from a jump squashes and springs back.
 - **Standing still is alive:** breathing, a slow shift of weight, and now and then a glance to one side.
 - **Actions have anticipation and follow-through:** chopping and mining wind the tool back over the shoulder, strike fast and jolt on impact; hammering and digging do the same; the wave overshoots and lowers; celebrating crouches before the jumps and squashes on each landing; surprise squashes before it jumps.
+
+## Prompts and villagers on the right storey (08/11)
+Casalrana's second playthrough had stopped at the flat: the roof could not be patched, so the flat never opened for building and everything after it fell short of signatures.
+- **A villager spawned under a raised floor stood on top of it** (shared): Matteo's morning spot is the waiting room, right under the flat, and he appeared upstairs in the empty flat, where "Talk to Matteo Mosso" took the roof's prompt. A villager placed at a room's spot (at start, after a time skip, or getting up from a seat) now stands on that room's storey (its `y`); spots outside a room with its own storey are placed as before.
+- **Prompts stay on their storey** (shared): villagers and layout features (benches, beds, wardrobes, boards, stops) now carry their height, so from the flat you no longer get the waiting room's bench or a villager on the floor below. A feature with no `y` is on the ground, like its model; the departure point is unchanged.
+- **Banners no longer swallow clicks** (shared): the subtitle and reward chips of a banner ("Approval milestone!", "Quest Complete!") caught the mouse, so a build click under one was lost. They let clicks through, like toasts.
+- **Checked:** **played**: `play_rice_village2` (48 checks), `play_rice_village3` from its save (40) and `play_rice_village` (30), all passing; before the fix, `play_rice_village2` failed the same 6 checks on main. **Tested**: 320 headless tests, among them `test_storeys` (every feature in every place can be reached from a surface beside it, every room spot puts a villager on that room's storey, and the waiting room's bench and spot are a storey below the flat). **Not run**: the other places' playthroughs (Metropolis has rooms on upper storeys; the headless test covers its spots). **Noticed, not fixed**: placing the first bed in Casalrana shows all five of Monteforchetta's approval milestones as banners at once, and `unlocks_seen` then lists them twice.
 
 ## Build-piece icons (08/11)
 Seen in the game (the build bar in play_build_clarity's screenshots) and checked by the headless tests (`test_icons.gd`: every piece has its picture) and every playthrough (nothing in play broke).
