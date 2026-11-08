@@ -538,3 +538,14 @@ func test_pierinas_far_round_takes_you_the_length_of_the_map():
 		t.ok(near < 5.0, "%s is by a path (%.1f m)" % [a.id, near])
 		for b in boxes: widest = maxf(widest, Vector2(float(a.x) - float(b.x), float(a.z) - float(b.z)).length())
 	t.ok(widest > 70.0, "they're the length of the map apart (%.0f m)" % widest)
+	var spots := {}
+	for n in Data.npcs.filter(func(x): return x.get("island", "") == "river_town"):
+		var scheds: Array = [n.get("schedule", [])]
+		for w in n.get("when", []): scheds.append(w.get("schedule", []))
+		for sc in scheds:
+			for e in sc:
+				if L.nav_nodes.has(String(e[2])): spots[String(e[2])] = String(n.id)
+	for a in boxes:
+		for k in spots:
+			var p: Array = L.nav_nodes[k]
+			t.ok(Vector2(float(p[0]) - float(a.x), float(p[1]) - float(a.z)).length() > 2.5, "%s isn't where %s stands about (%s), so you can reach it" % [a.id, spots[k], k])

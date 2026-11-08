@@ -2,13 +2,14 @@ extends RefCounted
 var t
 
 const DAY := {"holdAt": 20.5, "regrow": "overnight"}
+const HOLDING := {"holdAt": 20.5, "regrow": "overnight", "hold": true}
 
 func _clock(day: int, hour: float) -> Dictionary:
 	return {"day": day, "minute": hour * 60.0, "total": (day - 1) * 1440.0 + hour * 60.0}
 
 func test_monteforchetta_has_a_work_day_and_the_others_keep_their_clock():
 	var d := WorkDay.def("hearthglow")
-	t.ok(not d.is_empty() and absf(WorkDay.hold_minute(d) - 20.5 * 60.0) < 0.01 and String(d.get("regrow", "")) == "overnight", "Monteforchetta holds at 8:30 PM and regrows overnight: %s" % str(d))
+	t.ok(not d.is_empty() and not WorkDay.holds(d) and String(d.get("regrow", "")) == "overnight", "Monteforchetta's day regrows overnight and no longer holds the clock at dusk: %s" % str(d))
 	t.ok(not WorkDay.on("clockwork"), "clockwork keeps the clock it had")
 	for id in ["river_town", "rice_village", "metropolis"]:
 		var dd := WorkDay.def(id)
@@ -33,21 +34,27 @@ func test_a_day_that_doesnt_hold_runs_on_through_the_night():
 	WorkDay.to_dusk(night, free)
 	t.ok(absf(float(night.minute) - 23.0 * 60.0) < 0.01, "and leaves it alone when dusk has gone")
 
-func test_the_clock_holds_at_dusk_until_you_end_the_day():
+func test_a_day_that_asks_to_hold_still_holds_at_dusk():
 	var c := _clock(1, 20.0)
-	WorkDay.advance(c, 20.0, DAY)
+	WorkDay.advance(c, 20.0, HOLDING)
 	t.ok(absf(c.minute - 1220.0) < 0.01, "twenty minutes on from 8 PM is 8:20 PM")
-	WorkDay.advance(c, 600.0, DAY)
+	WorkDay.advance(c, 600.0, HOLDING)
 	t.ok(absf(c.minute - 1230.0) < 0.01 and int(c.day) == 1, "ten more hours later it is still 8:30 PM on day 1")
 	t.ok(absf(c.total - 1230.0) < 0.01, "and no time passes for anything that grows (total %.1f)" % c.total)
-	t.ok(WorkDay.held(c, DAY), "the day is waiting")
-	t.ok(not WorkDay.held(_clock(1, 19.0), DAY), "it isn't at 7 PM")
+	t.ok(WorkDay.held(c, HOLDING), "the day is waiting")
+	t.ok(not WorkDay.held(_clock(1, 19.0), HOLDING), "it isn't at 7 PM")
 	var free := _clock(1, 20.0)
 	WorkDay.advance(free, 600.0, {})
 	t.ok(int(free.day) == 2 and absf(free.minute - 360.0) < 0.01, "without a work day the night comes as before (%s)" % Clock.text(free))
 	var late := _clock(1, 23.0)
-	WorkDay.advance(late, 60.0, DAY)
+	WorkDay.advance(late, 60.0, HOLDING)
 	t.ok(absf(late.minute - 1380.0) < 0.01, "arriving after dusk (from a place without one), the clock waits where it is")
+
+func test_no_place_holds_the_clock_unless_it_asks():
+	var c := _clock(1, 20.0)
+	WorkDay.advance(c, 600.0, DAY)
+	t.ok(not WorkDay.holds(DAY) and int(c.day) == 2, "a work day without \"hold\" runs on through the night (%s)" % Clock.text(c))
+	t.ok(WorkDay.dusk(_clock(1, 20.5), DAY) and WorkDay.dusk(_clock(1, 21.5), DAY) and not WorkDay.dusk(_clock(1, 17.0), DAY) and not WorkDay.dusk(_clock(1, 23.0), DAY), "dusk is the evening around 8:30 PM, for the piazza's gathering and the lamps tip")
 
 func test_sleep_ends_the_day_or_naps_within_it():
 	var morning: Array = WorkDay.sleep_options(9.0 * 60.0, DAY).map(func(o): return o.id)

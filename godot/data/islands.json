@@ -11,7 +11,8 @@
    "built": true,
    "day": {
     "holdAt": 20.5,
-    "regrow": "overnight"
+    "regrow": "overnight",
+    "hold": false
    },
    "look": {
     "shade": [

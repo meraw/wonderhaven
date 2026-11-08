@@ -78,13 +78,14 @@ The rule now: fewer rules, and the ones left are shown before you click.
 ## 4. The work day
 - **The day runs from 7 AM to dusk**, about 13 real minutes of daylight. The clock stops in build mode, and nothing
   important depends on the hour.
-- **At 8:30 PM the clock holds** at dusk, lamps on, until you end the day. *Changed 08/11: the clock never holds,
-  in any location (`docs/WORLD.md`); Monteforchetta's hold goes when its owner changes it.*
+- **The clock never holds** (08/11, in every location, `docs/WORLD.md`): dusk comes at 8:30 PM, the lamps come on and
+  the evening runs on into the night, so night lighting and night scenes are seen in play. "Dusk" is the evening
+  around 8:30 (`WorkDay.dusk`): the piazza's gathering and the lamps tip. A `day` block can still ask for a hold
+  (`"hold": true`); none does.
 - **A place opts in** with a `day` block in its map entry (`{"holdAt": 20.5, "regrow": "overnight"}`, `WorkDay`).
-  Monteforchetta has one. Boccapioppo, Casalrana and Toriano have one that doesn't hold the clock (`"hold": false`),
-  because Boccapioppo's storm, first dance and catfish, Casalrana's night express and living nativity, and Gino's score
-  pages and Christmas Eve in Toriano happen at night: things regrow overnight, a sleep into the next day ends the day
-  (the paper, the inauguration), and their beds keep their wake times.
+  Monteforchetta, Boccapioppo, Casalrana and Toriano have one: things regrow overnight, a sleep into the next day ends
+  the day (the paper, the inauguration), and beds and benches offer "tomorrow morning" (which ends the day) and set
+  wake times.
 - **You end the day by sleeping, and until you own a bed that means a bench.** Sleeping on a bench is the way every
   day ends until you've saved for a bed (beds cost 120,000 lire), so the nap gags are the everyday humiliation of a
   Geometra the village hasn't housed yet, not a joke you might never see: a night on a bench ends with one about half

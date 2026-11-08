@@ -441,6 +441,10 @@ func sleep(where: String, seat = null) -> void:
 		if where == "bench" and seat != null:
 			var sit := UiTheme.button("🪑  Just sit a while", func(): close(); game.sit_on(seat)); sit.name = "just_sit"; v.add_child(sit)
 		return
+	if not day_rules.is_empty():
+		var ends_m := WorkDay.ends_day(game.state.time, int(WorkDay.record(game.state).day), WorkDay.MORNING, day_rules)
+		var tb := UiTheme.button("🌅  Sleep until tomorrow morning%s" % (" · ends the day" if ends_m else ""), func(): game.sleep_until(WorkDay.MORNING, where, seat, ends_m), true)
+		tb.name = "wake_tomorrow"; tb.alignment = HORIZONTAL_ALIGNMENT_LEFT; v.add_child(tb)
 	for w in WAKE_TIMES:
 		var mins := fposmod(float(w[2]) * 60.0 - now, 1440.0)
 		if mins < 1.0: mins = 1440.0
