@@ -8,6 +8,76 @@
   "square": {"x": 0.0, "z": 0.0, "r": -1.0},
   "safeSpot": "metropolis_station",
   "safeText": "Back at Toriano Centrale.",
+  "houseStyle": {"kit": true},
+  "naps": {"paper": "La Sera di Toriano"},
+  "paper": {
+    "done": [
+      "{title}: done, and Vale Meroni was there with her notebook",
+      "Geometra finishes {title}; the city is, for once, impressed",
+      "{title} completed. The Cathedral Works calls it 'quick, by our standards'"
+    ],
+    "built": [
+      "{n} new pieces in the city overnight; the pigeons have already inspected them",
+      "Geometra puts up {n} pieces while Toriano was stuck in traffic",
+      "{n} new pieces. Nobody noticed in the fog until the trams went round them"
+    ],
+    "opened": [
+      "Architetto Annoni opens {what} {place}: 'a promising start, give it four hundred years'",
+      "Ribbon cut on {what} {place}. The Cathedral Works took the measurements home",
+      "{What} {place}: the Architetto approves, in principle, for now"
+    ],
+    "quiet": [
+      "Quiet day in Toriano. The fog came and went, mostly came",
+      "Nothing built yesterday. The trams ran on time, which is news enough",
+      "Slow news day: a pigeon stole a sandwich in the Galleria"
+    ],
+    "approval": "",
+    "verdict": "La Sera's verdict on the new build: {grade}.",
+    "regrown": "Overnight the park's plane trees, the works yard's offcuts and the skips filled up again."
+  },
+  "inauguration": {
+    "speaker": "metropolis_annoni",
+    "place": "in the city",
+    "open": [
+      "Citizens of Toriano! Tonight, {what} {place}. Finished, which is unusual for us.",
+      "Gather round, before the fog does. {What} {place}, opened in our lifetime.",
+      "The Cathedral Works has the honour to open {what} {place}. We started this morning, which for us is unheard of."
+    ],
+    "body": {
+      "need": [
+        "The paper said: “{noticed}” The paper was right, for once."
+      ],
+      "own": [
+        "Right here, where the city needed it."
+      ],
+      "art": [
+        "Nobody can use it. The cathedral has three thousand statues like that, and we love them all.",
+        "What is it for? In six hundred years someone will write a thesis on it."
+      ],
+      "tall": [
+        "Tall. Not the spire, but tall. I approve."
+      ],
+      "colour": [
+        "A colour. Toriano is grey from November to March, so: thank you.",
+        "Bright enough to find in the fog. That is a public service."
+      ],
+      "many": [
+        "{n} pieces in a day. We take a year to choose a marble."
+      ],
+      "single": [
+        "One {piece}. The cathedral began with one stone, too."
+      ],
+      "plain": [
+        "It stands, it is level, and nothing has fallen off yet.",
+        "Sound work. I knocked on it, the way we test marble."
+      ]
+    },
+    "close": [
+      "The Geometra did the work. The Cathedral Works did the waiting. Scissors!",
+      "Write the date down: it will be in the archive by 2130.",
+      "Well built, and on time, which in this city is a miracle. Cut the ribbon."
+    ]
+  },
   "decor": {"radius": 400, "trees": 30, "bushes": 24, "flowers": 160, "grass": 700, "area": [-152, -152, -88, -98]},
   "ground": [
     {"kind": "asphalt", "rect": [-186.0, -186.0, 186.0, 186.0]},
@@ -124,22 +194,22 @@
     {"id": "metropolis_castello", "kind": "castello", "name": "Castello Rosso", "x": -118.0, "z": -71.0, "w": 44, "d": 46, "h": 12.0, "wall": "#b5553f"},
     {"id": "metropolis_centrale", "kind": "centrale", "name": "Toriano Centrale", "x": 120.0, "z": -155.0, "w": 70, "d": 30, "h": 20.0, "wall": "#c9c3b8"},
     {"id": "metropolis_depot", "kind": "depot", "name": "Tram depot", "x": 136.0, "z": -88.0, "w": 28, "d": 16, "h": 8.0, "wall": "#bdb5a8"},
-    {"id": "metropolis_ten_nw", "kind": "city_block", "name": "Number 14", "x": -52.0, "z": 99.0, "w": 8, "d": 10, "h": 9.6, "wall": "#d9a85b", "shops": 0.0},
-    {"id": "metropolis_ten_n_back", "kind": "city_block", "name": "Number 14", "x": -44.0, "z": 96.0, "w": 8, "d": 4, "h": 9.6, "wall": "#d9a85b", "shops": 0.0, "flat": true},
-    {"id": "metropolis_elvira", "kind": "tenement", "name": "Signora Elvira's flat", "x": -44.0, "z": 101.0, "w": 8, "d": 6, "h": 6.4, "wall": "#d9a85b", "y": 3.5, "door": "S", "doorOffset": 2.0, "navDoor": "metropolis_bal_n_elvira", "interior": {"items": [["bed", -2.6, -1.5, 0], ["table", 1.4, -1.2, 0], ["chair", 1.4, -0.3, 2], ["cabinet", 3.0, 1.8, 3], ["rug", -0.5, 0.6, 0, "#7a5aa0"], ["painting", 0.0, -2.8, 0]], "route": [[2.0, 2.2], [0.4, 0.0]]}},
-    {"id": "metropolis_ten_gate_above", "kind": "tenement", "name": "Number 14", "x": -38.0, "z": 99.0, "w": 4, "d": 10, "h": 6.4, "wall": "#d9a85b", "y": 3.5, "solid": false, "flat": true},
-    {"id": "metropolis_ten_n_lodge_back", "kind": "city_block", "name": "Number 14", "x": -32.5, "z": 95.5, "w": 7, "d": 3, "h": 9.6, "wall": "#d9a85b", "shops": 0.0, "flat": true},
-    {"id": "metropolis_lodge", "kind": "tenement", "name": "Augusto's lodge", "x": -32.5, "z": 100.5, "w": 7, "d": 7, "h": 9.6, "wall": "#d9a85b", "y": 0.3, "door": "W", "doorOffset": 0.0, "navDoor": "metropolis_passage", "interior": {"items": [["counter", 1.6, -0.6, 1], ["chair", 2.6, -0.6, 3], ["cabinet", 2.4, 2.6, 2], ["bed", -1.6, -2.4, 0], ["lamp", 2.8, -2.8, 0], ["painting", 0.0, 3.2, 2]], "route": [[-2.6, 0.0], [0.2, 1.0]]}, "flat": true},
-    {"id": "metropolis_ten_ne", "kind": "city_block", "name": "Number 14", "x": -24.5, "z": 99.0, "w": 9, "d": 10, "h": 9.6, "wall": "#d9a85b", "shops": 0.0},
-    {"id": "metropolis_ten_w_n", "kind": "city_block", "name": "Number 14", "x": -51.0, "z": 106.0, "w": 10, "d": 4, "h": 9.6, "wall": "#d9a85b", "shops": 0.0, "flat": true},
-    {"id": "metropolis_sala", "kind": "tenement", "name": "Ragioniere Sala's office", "x": -51.0, "z": 112.0, "w": 10, "d": 8, "h": 9.6, "wall": "#d9a85b", "y": 0.3, "door": "E", "doorOffset": 0.0, "navDoor": "metropolis_sala_door", "interior": {"items": [["desk", -1.6, -2.2, 0], ["chair", -1.6, -1.3, 2], ["cabinet", -4.2, 2.4, 0], ["bookshelf", -4.4, -2.6, 1], ["lamp", 0.6, 3.0, 0], ["table", 1.4, 1.2, 0]], "route": [[4.2, 0.0], [-1.6, -0.6]]}, "flat": true},
-    {"id": "metropolis_ten_w_s", "kind": "city_block", "name": "Number 14", "x": -51.0, "z": 118.0, "w": 10, "d": 4, "h": 9.6, "wall": "#d9a85b", "shops": 0.0, "flat": true},
-    {"id": "metropolis_ten_e_n", "kind": "city_block", "name": "Number 14", "x": -25.0, "z": 105.5, "w": 10, "d": 3, "h": 9.6, "wall": "#d9a85b", "shops": 0.0, "flat": true},
-    {"id": "metropolis_ten_e_back", "kind": "city_block", "name": "Number 14", "x": -21.5, "z": 113.5, "w": 3, "d": 13, "h": 9.6, "wall": "#d9a85b", "shops": 0.0, "flat": true},
-    {"id": "metropolis_home", "kind": "tenement", "name": "Your flat", "x": -26.5, "z": 110.0, "w": 7, "d": 6, "h": 6.4, "wall": "#d9a85b", "y": 3.5, "door": "W", "doorOffset": 0.0, "navDoor": "metropolis_bal_e_home", "interior": {"empty": true, "route": [[-2.6, 0.0], [0.6, 0.6]]}},
-    {"id": "metropolis_simone", "kind": "tenement", "name": "Simone's flat", "x": -26.5, "z": 115.5, "w": 7, "d": 5, "h": 6.4, "wall": "#d9a85b", "y": 3.5, "door": "W", "doorOffset": 0.0, "navDoor": "metropolis_bal_e_simone", "interior": {"items": [["desk", 1.8, -1.2, 1], ["chair", 0.9, -1.2, 1], ["bed", 1.8, 1.3, 0], ["bookshelf", -0.6, 2.1, 2], ["crate", -2.4, 1.9, 0, "#d9c9a0"]], "route": [[-2.6, 0.0], [0.2, 0.0]]}},
-    {"id": "metropolis_ten_wc", "kind": "tenement", "name": "The shared WC", "x": -26.5, "z": 119.0, "w": 7, "d": 2, "h": 6.4, "wall": "#d9a85b", "y": 3.5, "flat": true, "shops": 0.0},
-    {"id": "metropolis_ten_s", "kind": "tenement_low", "name": "Number 14", "x": -38.0, "z": 124.0, "w": 36, "d": 8, "h": 3.2, "wall": "#d9a85b", "roof_walk": true, "shops": 0.0, "flat": true},
+    {"id": "metropolis_ten_nw", "kind": "city_block", "name": "Number 14", "x": -52.0, "z": 99.0, "w": 8, "d": 10, "storey": 3.2, "h": 9.6, "wall": "#d9a85b", "shops": 0.0},
+    {"id": "metropolis_ten_n_back", "kind": "city_block", "name": "Number 14", "x": -44.0, "z": 96.0, "w": 8, "d": 4, "storey": 3.2, "h": 9.6, "wall": "#d9a85b", "shops": 0.0, "flat": true},
+    {"id": "metropolis_elvira", "kind": "tenement", "name": "Signora Elvira's flat", "x": -44.0, "z": 101.0, "w": 8, "d": 6, "storey": 3.2, "h": 6.4, "wall": "#d9a85b", "y": 3.5, "door": "S", "doorOffset": 2.0, "navDoor": "metropolis_bal_n_elvira", "interior": {"items": [["bed", -2.6, -1.5, 0], ["table", 1.4, -1.2, 0], ["chair", 1.4, -0.3, 2], ["cabinet", 3.0, 1.8, 3], ["rug", -0.5, 0.6, 0, "#7a5aa0"], ["painting", 0.0, -2.8, 0]], "route": [[2.0, 2.2], [0.4, 0.0]]}},
+    {"id": "metropolis_ten_gate_above", "kind": "tenement", "name": "Number 14", "x": -38.0, "z": 99.0, "w": 4, "d": 10, "storey": 3.2, "h": 6.4, "wall": "#d9a85b", "y": 3.5, "solid": false, "flat": true},
+    {"id": "metropolis_ten_n_lodge_back", "kind": "city_block", "name": "Number 14", "x": -32.5, "z": 95.5, "w": 7, "d": 3, "storey": 3.2, "h": 9.6, "wall": "#d9a85b", "shops": 0.0, "flat": true},
+    {"id": "metropolis_lodge", "kind": "tenement", "name": "Augusto's lodge", "x": -32.5, "z": 100.5, "w": 7, "d": 7, "storey": 3.2, "h": 9.6, "wall": "#d9a85b", "y": 0.3, "door": "W", "doorOffset": 0.0, "navDoor": "metropolis_passage", "interior": {"items": [["counter", 1.6, -0.6, 1], ["chair", 2.6, -0.6, 3], ["cabinet", 2.4, 2.6, 2], ["bed", -1.6, -2.4, 0], ["lamp", 2.8, -2.8, 0], ["painting", 0.0, 3.2, 2]], "route": [[-2.6, 0.0], [0.2, 1.0]]}, "flat": true},
+    {"id": "metropolis_ten_ne", "kind": "city_block", "name": "Number 14", "x": -24.5, "z": 99.0, "w": 9, "d": 10, "storey": 3.2, "h": 9.6, "wall": "#d9a85b", "shops": 0.0},
+    {"id": "metropolis_ten_w_n", "kind": "city_block", "name": "Number 14", "x": -51.0, "z": 106.0, "w": 10, "d": 4, "storey": 3.2, "h": 9.6, "wall": "#d9a85b", "shops": 0.0, "flat": true},
+    {"id": "metropolis_sala", "kind": "tenement", "name": "Ragioniere Sala's office", "x": -51.0, "z": 112.0, "w": 10, "d": 8, "storey": 3.2, "h": 9.6, "wall": "#d9a85b", "y": 0.3, "door": "E", "doorOffset": 0.0, "navDoor": "metropolis_sala_door", "interior": {"items": [["desk", -1.6, -2.2, 0], ["chair", -1.6, -1.3, 2], ["cabinet", -4.2, 2.4, 0], ["bookshelf", -4.4, -2.6, 1], ["lamp", 0.6, 3.0, 0], ["table", 1.4, 1.2, 0]], "route": [[4.2, 0.0], [-1.6, -0.6]]}, "flat": true},
+    {"id": "metropolis_ten_w_s", "kind": "city_block", "name": "Number 14", "x": -51.0, "z": 118.0, "w": 10, "d": 4, "storey": 3.2, "h": 9.6, "wall": "#d9a85b", "shops": 0.0, "flat": true},
+    {"id": "metropolis_ten_e_n", "kind": "city_block", "name": "Number 14", "x": -25.0, "z": 105.5, "w": 10, "d": 3, "storey": 3.2, "h": 9.6, "wall": "#d9a85b", "shops": 0.0, "flat": true},
+    {"id": "metropolis_ten_e_back", "kind": "city_block", "name": "Number 14", "x": -21.5, "z": 113.5, "w": 3, "d": 13, "storey": 3.2, "h": 9.6, "wall": "#d9a85b", "shops": 0.0, "flat": true},
+    {"id": "metropolis_home", "kind": "tenement", "name": "Your flat", "x": -26.5, "z": 110.0, "w": 7, "d": 6, "storey": 3.2, "h": 6.4, "wall": "#d9a85b", "y": 3.5, "door": "W", "doorOffset": 0.0, "navDoor": "metropolis_bal_e_home", "interior": {"empty": true, "route": [[-2.6, 0.0], [0.6, 0.6]]}},
+    {"id": "metropolis_simone", "kind": "tenement", "name": "Simone's flat", "x": -26.5, "z": 115.5, "w": 7, "d": 5, "storey": 3.2, "h": 6.4, "wall": "#d9a85b", "y": 3.5, "door": "W", "doorOffset": 0.0, "navDoor": "metropolis_bal_e_simone", "interior": {"items": [["desk", 1.8, -1.2, 1], ["chair", 0.9, -1.2, 1], ["bed", 1.8, 1.3, 0], ["bookshelf", -0.6, 2.1, 2], ["crate", -2.4, 1.9, 0, "#d9c9a0"]], "route": [[-2.6, 0.0], [0.2, 0.0]]}},
+    {"id": "metropolis_ten_wc", "kind": "tenement", "name": "The shared WC", "x": -26.5, "z": 119.0, "w": 7, "d": 2, "storey": 3.2, "h": 6.4, "wall": "#d9a85b", "y": 3.5, "flat": true, "shops": 0.0},
+    {"id": "metropolis_ten_s", "kind": "tenement_low", "name": "Number 14", "x": -38.0, "z": 124.0, "w": 36, "d": 8, "storey": 3.2, "h": 3.2, "wall": "#d9a85b", "roof_walk": true, "shops": 0.0, "flat": true},
     {"id": "metropolis_ten_16", "kind": "city_block", "name": "Number 16", "x": -38.0, "z": 144.0, "w": 36, "d": 20, "h": 12, "wall": "#d9a85b"},
     {"id": "metropolis_bars_w", "kind": "city_block", "name": "Bars on the west bank", "x": -141.0, "z": 140.0, "w": 18, "d": 32, "h": 10.0, "wall": "#d9a090"},
     {"id": "metropolis_bars_s", "kind": "city_block", "name": "Bars on the west bank", "x": -127.0, "z": 144.5, "w": 10, "d": 23, "h": 10.0, "wall": "#e0b07a"},

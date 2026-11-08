@@ -6,6 +6,7 @@ extends RefCounted
 
 const P := preload("res://scripts/world/palette.gd")
 const Props := preload("res://scripts/world/props.gd")
+const Facades := preload("res://scripts/locations/metropolis/facades.gd")
 
 ## Façade styles (the shader's `style`).
 const PLAIN := 0      # shuttered windows, shopfronts on the ground floor
@@ -285,12 +286,15 @@ static func block(b: Dictionary, style: int = PLAIN) -> Node3D:
 	var wall := Color(String(b.get("wall", "#d9a85b")))
 	var seed := absf(float(b.x) * 0.37 + float(b.z) * 0.71)
 	var hsh := func(k: float) -> float: return fposmod(sin(seed * 12.9898 + k * 78.233) * 43758.5453, 1.0)
-	var shutter := Color(SHUTTERS[int(hsh.call(1.0) * SHUTTERS.size()) % SHUTTERS.size()])
+	var shutter_key: String = SHUTTERS[int(hsh.call(1.0) * SHUTTERS.size()) % SHUTTERS.size()]
+	var shutter := Color(shutter_key)
 	var y0 := float(b.get("y", STREET))   # a block can stand on a raised floor; its windows still line up with the street's
+	var kit := Facades.on() and style == PLAIN
 	var body := MeshInstance3D.new(); body.name = "walls"
 	var bm := BoxMesh.new(); bm.size = Vector3(w, h, d); body.mesh = bm
 	body.position.y = h / 2.0
-	body.material_override = facade(wall, y0 + h, {"shutter": shutter, "style": style, "seed": seed, "shops": float(b.get("shops", 1.0)) if y0 < STREET + 0.5 else 0.0,
+	if kit: body.material_override = Facades.wall_material(wall)
+	else: body.material_override = facade(wall, y0 + h, {"shutter": shutter, "style": style, "seed": seed, "shops": float(b.get("shops", 1.0)) if y0 < STREET + 0.5 else 0.0,
 		"bay": float(b.get("bay", 3.0 + hsh.call(2.0) * 0.6))})
 	g.add_child(body)
 	var parts := Merge.new()
@@ -324,6 +328,7 @@ static func block(b: Dictionary, style: int = PLAIN) -> Node3D:
 		roof.material_override = Props.roof_material(Color(String(b.get("roof", TERRACOTTA))))
 		roof.position.y = h + 0.4
 		g.add_child(roof)
+	if kit: Facades.finish(g, Facades.dress(g, b, shutter_key, Facades.street_block(b, h)))
 	return g
 
 ## [mesh, solid material, see-through copy] for each mesh under `nodes`, for game.gd's fading roofs: façades fade
@@ -355,7 +360,8 @@ static func room(b: Dictionary, style: int = PLAIN) -> Node3D:
 	var y0 := float(b.get("y", STREET))
 	var wall := Color(String(b.get("wall", "#d9a85b")))
 	var seed := absf(float(b.x) * 0.37 + float(b.z) * 0.71)
-	var mat := facade(wall, y0 + h, {"style": style, "seed": seed, "shops": 0.0})
+	var kit := Facades.on() and style == PLAIN
+	var mat: Material = Facades.wall_material(wall) if kit else facade(wall, y0 + h, {"style": style, "seed": seed, "shops": 0.0})
 	var storey := minf(3.2, h)
 	if y0 > STREET + 0.5:   # the cellar storey beneath an upstairs flat
 		var below := MeshInstance3D.new(); var bm := BoxMesh.new(); bm.size = Vector3(w, y0 - STREET, d); below.mesh = bm
@@ -388,7 +394,13 @@ static func room(b: Dictionary, style: int = PLAIN) -> Node3D:
 		roof.mesh = hip_roof(w + 0.3, d + 0.3, clampf(minf(w, d) * 0.12, 1.2, 3.0), 0.2)
 		roof.material_override = Props.roof_material(Color(String(b.get("roof", TERRACOTTA))))
 		roof.position.y = h + 0.4; g.add_child(roof); over.append(roof)
-	g.set_meta("fade_parts", fade_parts(over))
+	var fades := fade_parts(over)
+	if kit:
+		var shutter_key: String = SHUTTERS[int(fposmod(sin(seed * 12.9898 + 78.233) * 43758.5453, 1.0) * SHUTTERS.size()) % SHUTTERS.size()]
+		var fp := Facades.dress(g, b, shutter_key, Facades.room_block(b, h, storey))
+		Facades.finish(g, fp)
+		fades.append_array(Props.fade_parts(fp.high_nodes))
+	g.set_meta("fade_parts", fades)
 	return g
 
 ## The stone cornice round the top of a building's walls, and on a flat roof the roof itself: grey tar paper with a

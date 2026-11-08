@@ -44,11 +44,61 @@ func node(id: String) -> Vector2:
 	return Vector2(a[0], a[1])
 
 ## Walks along the nav graph to a named spot with real keys, then checks you got there.
+func nav_path(from: String, to: String) -> Array:
+	var prev := {from: ""}
+	var queue: Array = [from]
+	while not queue.is_empty():
+		var cur: String = queue.pop_front()
+		if cur == to: break
+		for e in Data.layout.nav_edges:
+			var nxt := ""
+			if String(e[0]) == cur: nxt = String(e[1])
+			elif String(e[1]) == cur: nxt = String(e[0])
+			if nxt != "" and not prev.has(nxt):
+				prev[nxt] = cur
+				queue.append(nxt)
+	if not prev.has(to): return []
+	var out: Array = []
+	var c := to
+	while c != "":
+		out.push_front(c)
+		c = String(prev[c])
+	return out
+
 func go(id: String, label: String) -> bool:
 	var to := node(id)
 	var t0 := Time.get_ticks_msec()
-	await walk_to(to.x, to.y, 1.5)
+	var storey := NpcAgent.node_storey(P + id)
+	if storey != INF and storey > 2.0:
+		note("%s: setting off from %s" % [id, game.player.pos])
+		for attempt in 3:
+			if game.player.pos.y < 2.0: await storey_to(true)
+			if game.player.pos.y < 2.0:
+				note("%s: not up the stair yet, at %s" % [id, game.player.pos])
+				continue
+			var path := nav_path(P + "terrace_w", P + id)
+			var start := 0
+			var best := INF
+			for i in path.size():
+				var q: Array = Data.layout.nav_nodes[path[i]]
+				var dd := Vector2(float(q[0]) - game.player.pos.x, float(q[1]) - game.player.pos.z).length()
+				if dd < best: best = dd; start = i
+			var fell := false
+			for i in range(start, path.size()):
+				var a: Array = Data.layout.nav_nodes[path[i]]
+				await walk_direct(float(a[0]), float(a[1]), 0.6)
+				if game.player.pos.y < 2.0: fell = true; break
+			if not fell: break
+			note("%s: came off the balcony at %s" % [id, game.player.pos])
 	var d := Vector2(game.player.pos.x, game.player.pos.z).distance_to(to)
+	for attempt in 3:
+		if d < 2.5: break
+		await walk_to(to.x, to.y, 1.5)
+		d = Vector2(game.player.pos.x, game.player.pos.z).distance_to(to)
+		if d < 2.5: break
+		var near: Array = game.npcs.values().filter(func(a): return Vector2(a.pos.x - game.player.pos.x, a.pos.z - game.player.pos.z).length() < 2.5).map(func(a): return "%s at %s" % [a.def.id, a.pos])
+		note("%s: stopped %.1f m short at %s, next to %s; waiting a moment" % [id, d, game.player.pos, near])
+		await wait(2.0)
 	check(id, label, d < 2.5, "%.1f m away after %.0f s" % [d, (Time.get_ticks_msec() - t0) / 1000.0])
 	return d < 2.5
 

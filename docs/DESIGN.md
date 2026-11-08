@@ -82,8 +82,8 @@ The rule now: fewer rules, and the ones left are shown before you click.
 - **A place opts in** with a `day` block in its map entry (`{"holdAt": 20.5, "regrow": "overnight"}`, `WorkDay`).
   Monteforchetta has one. Boccapioppo has one that doesn't hold the clock (`"hold": false`), because its storm, its
   first dance and its catfish happen at night: things regrow overnight, a sleep into the next day ends the day (the
-  paper, the inauguration), and its beds keep their wake times. Casalrana and Toriano keep the clock they had until
-  their owners convert them.
+  paper, the inauguration), and its beds keep their wake times. Toriano has the same, for Gino's score pages at night
+  and Christmas Eve. Casalrana keeps the clock it had until its owner converts it.
 - **You end the day by sleeping, and until you own a bed that means a bench.** Sleeping on a bench is the way every
   day ends until you've saved for a bed (beds cost 120,000 lire), so the nap gags are the everyday humiliation of a
   Geometra the village hasn't housed yet, not a joke you might never see: a night on a bench always ends with one.
@@ -114,7 +114,7 @@ Each stage is playable and tested before the next.
    market day and the evening music: see `docs/STATUS.md`.*
 5. **The inauguration.** *Done for Monteforchetta: see `docs/STATUS.md`.*
 6. **Requests rebuilt as commissions** (Monteforchetta's playthrough scripts are rewritten here). *Done for
-   Monteforchetta: see `docs/STATUS.md`.*
+   Monteforchetta, Boccapioppo and Toriano: see `docs/STATUS.md`.*
 7. **Tools and materials.** *Done: see `docs/STATUS.md`.*
 
 ## Kept from before

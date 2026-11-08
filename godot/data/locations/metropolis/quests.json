@@ -178,47 +178,95 @@
     },
     {
      "id": "furnish",
-     "kind": "room",
+     "kind": "commission",
+     "stage": 1,
+     "text": "Furnish your flat: a bed, a table and a chair, and a lamp",
      "zone": "metropolis_flat",
-     "needs": [
+     "musts": [
       {
+       "check": "pieces",
        "any": [
         "bed"
        ],
        "label": "A bed"
       },
       {
+       "check": "pieces",
        "any": [
         "table",
         "desk",
-        "counter"
-       ],
-       "label": "A table or desk"
-      },
-      {
-       "any": [
         "chair",
         "sofa",
         "bench"
        ],
-       "label": "A chair"
+       "count": 2,
+       "with": [
+        "table",
+        "desk"
+       ],
+       "label": "A table and a chair"
       },
       {
-       "any": [
-        "lamp",
-        "streetlight",
-        "poweredLamp"
-       ],
+       "check": "provides",
+       "kind": "light",
        "label": "A lamp"
       }
      ],
-     "stage": 1,
-     "text": "Furnish your flat: a bed, a table, a chair and a lamp",
+     "wishes": [
+      {
+       "check": "pieces",
+       "any": [
+        "rug"
+       ],
+       "who": "metropolis_augusto",
+       "label": "A rug, for the floorboards"
+      },
+      {
+       "check": "pieces",
+       "any": [
+        "bookshelf",
+        "cabinet"
+       ],
+       "who": "metropolis_sala",
+       "label": "Somewhere to file things"
+      },
+      {
+       "check": "recolored",
+       "who": "metropolis_elvira",
+       "label": "Something cheerful (T)"
+      }
+     ],
      "hint": {
       "x": -26.5,
       "z": 110
      },
-     "buildHint": "Your flat is up the courtyard stair and round the balcony, the door past Signora Elvira's. Build inside it."
+     "buildHint": "Your flat is up the courtyard stair and round the balcony, the door past Signora Elvira's. Build inside it.",
+     "plan": [
+      [
+       -25,
+       108,
+       "bed",
+       0
+      ],
+      [
+       -27,
+       108,
+       "table",
+       0
+      ],
+      [
+       -28,
+       108,
+       "chair",
+       1
+      ],
+      [
+       -27,
+       111,
+       "lamp",
+       0
+      ]
+     ]
     },
     {
      "id": "show",
@@ -305,17 +353,54 @@
     },
     {
      "id": "crane",
-     "kind": "build",
-     "check": "fed:metropolis_crane",
-     "zone": "metropolis_crane",
+     "kind": "commission",
      "stage": 1,
      "text": "Drive the old crane with a waterwheel in the canal",
-     "goal": "Power reaches the crane's drive on the quay",
+     "zone": "metropolis_crane",
+     "musts": [
+      {
+       "check": "fed",
+       "target": "metropolis_crane",
+       "label": "Power reaches the crane's drive"
+      }
+     ],
+     "wishes": [
+      {
+       "check": "pieces",
+       "any": [
+        "railing",
+        "fence"
+       ],
+       "count": 2,
+       "who": "metropolis_rocco",
+       "label": "A railing at the water's edge"
+      },
+      {
+       "check": "provides",
+       "kind": "light",
+       "who": "metropolis_annoni",
+       "label": "A lamp for the night barges"
+      }
+     ],
      "buildHint": "Waterwheels turn in flowing water and push power out north and south. The crane's drive is the quay cell right by it, at the canal's edge. Shafts carry power in a line; gear boxes turn corners.",
      "hint": {
       "x": -145,
       "z": 99
-     }
+     },
+     "plan": [
+      [
+       -145,
+       100,
+       "waterwheel",
+       0
+      ],
+      [
+       -145,
+       99,
+       "shaft",
+       0
+      ]
+     ]
     },
     {
      "id": "barge",
@@ -400,9 +485,9 @@
      "id": "wood",
      "kind": "gather",
      "item": "wood",
-     "count": 14,
+     "count": 24,
      "stage": 0,
-     "text": "Gather 14 wood for the deck and posts",
+     "text": "Gather 24 wood for the deck, the posts and the railings",
      "hint": {
       "x": -120,
       "z": -112
@@ -410,33 +495,176 @@
     },
     {
      "id": "bridge",
-     "kind": "build",
-     "check": "path:metropolis_footbridge",
-     "zone": "metropolis_footbridge",
+     "kind": "commission",
      "stage": 1,
-     "text": "Build a footbridge across the Naviglio, from quay to quay",
-     "goal": "A walkable way from the west quay to the east quay",
+     "text": "Build a footbridge across the Naviglio, from quay to quay, with railings",
+     "zone": "metropolis_footbridge",
+     "musts": [
+      {
+       "check": "path",
+       "label": "Walkable from quay to quay"
+      },
+      {
+       "check": "pieces",
+       "any": [
+        "railing",
+        "fence"
+       ],
+       "count": 6,
+       "label": "Railings along it"
+      }
+     ],
+     "wishes": [
+      {
+       "check": "provides",
+       "kind": "light",
+       "who": "metropolis_franco",
+       "label": "A lamp, for my regulars going home"
+      },
+      {
+       "check": "pieces",
+       "any": [
+        "railing",
+        "fence"
+       ],
+       "count": 10,
+       "who": "metropolis_rocco",
+       "label": "Railings the whole way"
+      }
+     ],
      "buildHint": "Start the planks a tile back on each quay, past the lip of the quay wall. Planks reach 2 tiles from a support: stand bridge posts in the canal bed. Any continuous, supported path counts.",
      "hint": {
       "x": -107,
       "z": 136
-     }
-    },
-    {
-     "id": "rails",
-     "kind": "pieces",
-     "zone": "metropolis_footbridge",
-     "any": [
-      "railing",
-      "fence"
-     ],
-     "count": 6,
-     "stage": 2,
-     "text": "Add railings along the footbridge (6), so nobody ends up in the Naviglio",
-     "hint": {
-      "x": -107,
-      "z": 136
-     }
+     },
+     "plan": [
+      [
+       -113,
+       135,
+       "bridgeDeck",
+       0
+      ],
+      [
+       -110,
+       135,
+       "bridgePost",
+       0
+      ],
+      [
+       -110,
+       135,
+       "bridgeDeck",
+       0
+      ],
+      [
+       -111,
+       135,
+       "bridgeDeck",
+       0
+      ],
+      [
+       -112,
+       135,
+       "bridgeDeck",
+       0
+      ],
+      [
+       -109,
+       135,
+       "bridgeDeck",
+       0
+      ],
+      [
+       -107,
+       135,
+       "bridgePost",
+       0
+      ],
+      [
+       -107,
+       135,
+       "bridgeDeck",
+       0
+      ],
+      [
+       -108,
+       135,
+       "bridgeDeck",
+       0
+      ],
+      [
+       -106,
+       135,
+       "bridgeDeck",
+       0
+      ],
+      [
+       -104,
+       135,
+       "bridgePost",
+       0
+      ],
+      [
+       -104,
+       135,
+       "bridgeDeck",
+       0
+      ],
+      [
+       -105,
+       135,
+       "bridgeDeck",
+       0
+      ],
+      [
+       -103,
+       135,
+       "bridgeDeck",
+       0
+      ],
+      [
+       -102,
+       135,
+       "bridgeDeck",
+       0
+      ],
+      [
+       -111,
+       135,
+       "railing",
+       0
+      ],
+      [
+       -111,
+       135,
+       "railing",
+       2
+      ],
+      [
+       -108,
+       135,
+       "railing",
+       0
+      ],
+      [
+       -108,
+       135,
+       "railing",
+       2
+      ],
+      [
+       -105,
+       135,
+       "railing",
+       0
+      ],
+      [
+       -105,
+       135,
+       "railing",
+       2
+      ]
+     ]
     },
     {
      "id": "tell",
@@ -521,9 +749,9 @@
      "id": "stone",
      "kind": "gather",
      "item": "stone",
-     "count": 16,
+     "count": 30,
      "stage": 0,
-     "text": "Cut 16 stone from the marble offcuts in the works yard (or buy it from the Works)",
+     "text": "Cut 30 stone from the marble offcuts in the works yard (or buy it from the Works)",
      "hint": {
       "x": 86,
       "z": -2
@@ -531,17 +759,163 @@
     },
     {
      "id": "climb",
-     "kind": "build",
-     "check": "path:metropolis_scaffold",
-     "zone": "metropolis_scaffold",
+     "kind": "commission",
      "stage": 1,
      "text": "Build a walkable climb from the works yard up to the roof terrace",
-     "goal": "A way up from the yard onto the terrace through the parapet's gap",
+     "zone": "metropolis_scaffold",
+     "musts": [
+      {
+       "check": "path",
+       "label": "A walkable climb up to the terrace"
+      }
+     ],
+     "wishes": [
+      {
+       "check": "provides",
+       "kind": "light",
+       "who": "metropolis_annoni",
+       "label": "A lamp at the foot of it"
+      },
+      {
+       "check": "provides",
+       "kind": "seat",
+       "who": "metropolis_simone",
+       "label": "A bench to sketch the spire from"
+      }
+     ],
      "buildHint": "Stairs rise one metre over one tile. Stand each stair on a stack of stone blocks one higher than the last (or on platforms). The terrace is exactly six stairs up; the gap in the parapet is at the west end of the site. A stair two tiles wide is easier to keep your feet on.",
      "hint": {
       "x": 73,
       "z": 10
-     }
+     },
+     "plan": [
+      [
+       75,
+       10,
+       "stairs",
+       3
+      ],
+      [
+       74,
+       10,
+       "stoneBlock",
+       0
+      ],
+      [
+       73,
+       10,
+       "stoneBlock",
+       0
+      ],
+      [
+       72,
+       10,
+       "stoneBlock",
+       0
+      ],
+      [
+       71,
+       10,
+       "stoneBlock",
+       0
+      ],
+      [
+       70,
+       10,
+       "stoneBlock",
+       0
+      ],
+      [
+       74,
+       10,
+       "stairs",
+       3
+      ],
+      [
+       73,
+       10,
+       "stoneBlock",
+       0
+      ],
+      [
+       72,
+       10,
+       "stoneBlock",
+       0
+      ],
+      [
+       71,
+       10,
+       "stoneBlock",
+       0
+      ],
+      [
+       70,
+       10,
+       "stoneBlock",
+       0
+      ],
+      [
+       73,
+       10,
+       "stairs",
+       3
+      ],
+      [
+       72,
+       10,
+       "stoneBlock",
+       0
+      ],
+      [
+       71,
+       10,
+       "stoneBlock",
+       0
+      ],
+      [
+       70,
+       10,
+       "stoneBlock",
+       0
+      ],
+      [
+       72,
+       10,
+       "stairs",
+       3
+      ],
+      [
+       71,
+       10,
+       "stoneBlock",
+       0
+      ],
+      [
+       70,
+       10,
+       "stoneBlock",
+       0
+      ],
+      [
+       71,
+       10,
+       "stairs",
+       3
+      ],
+      [
+       70,
+       10,
+       "stoneBlock",
+       0
+      ],
+      [
+       70,
+       10,
+       "stairs",
+       3
+      ]
+     ]
     },
     {
      "id": "roof",
@@ -654,12 +1028,31 @@
     },
     {
      "id": "light",
-     "kind": "build",
-     "check": "fed:metropolis_angel",
-     "zone": "metropolis_terrace",
+     "kind": "commission",
      "stage": 1,
      "text": "Up on the roof terrace, carry wind power to the Golden Angel's drive",
-     "goal": "Power reaches the floodlight drive in the nave wall",
+     "zone": "metropolis_terrace",
+     "musts": [
+      {
+       "check": "fed",
+       "target": "metropolis_angel",
+       "label": "Wind power reaches the Angel's drive"
+      }
+     ],
+     "wishes": [
+      {
+       "check": "provides",
+       "kind": "light",
+       "who": "metropolis_vale",
+       "label": "A lamp for the night photo"
+      },
+      {
+       "check": "provides",
+       "kind": "seat",
+       "who": "metropolis_annoni",
+       "label": "A bench to think in centuries on"
+      }
+     ],
      "buildHint": "Windmills push power out of their south side. Shafts carry it in a line, gear boxes turn corners. The drive is the terrace cell against the nave wall, halfway along.",
      "hint": {
       "x": 52,
@@ -669,7 +1062,21 @@
       "flags": [
        "metropolis_christmas_eve"
       ]
-     }
+     },
+     "plan": [
+      [
+       52,
+       9,
+       "windmill",
+       2
+      ],
+      [
+       52,
+       8,
+       "shaft",
+       0
+      ]
+     ]
     },
     {
      "id": "eve",
@@ -954,35 +1361,74 @@
     },
     {
      "id": "fit",
-     "kind": "room",
+     "kind": "commission",
+     "stage": 1,
+     "text": "Fit a toilet, a washbasin and a bathtub in your flat",
      "zone": "metropolis_flat",
-     "needs": [
+     "musts": [
       {
+       "check": "pieces",
        "any": [
         "toilet"
        ],
        "label": "A toilet"
       },
       {
+       "check": "pieces",
        "any": [
         "washbasin"
        ],
        "label": "A washbasin"
       },
       {
+       "check": "pieces",
        "any": [
         "bathtub"
        ],
        "label": "A bathtub"
       }
      ],
-     "stage": 1,
-     "text": "Fit a toilet, a washbasin and a bathtub in your flat",
+     "wishes": [
+      {
+       "check": "pieces",
+       "any": [
+        "rug"
+       ],
+       "who": "metropolis_augusto",
+       "label": "A bath mat (a rug)"
+      },
+      {
+       "check": "provides",
+       "kind": "light",
+       "who": "metropolis_sala",
+       "label": "A light to shave by"
+      }
+     ],
      "hint": {
       "x": -26.5,
       "z": 110
      },
-     "buildHint": "Build them inside your flat. The bathtub is two tiles long."
+     "buildHint": "Build them inside your flat. The bathtub is two tiles long.",
+     "plan": [
+      [
+       -26,
+       110,
+       "bathtub",
+       0
+      ],
+      [
+       -25,
+       111,
+       "toilet",
+       0
+      ],
+      [
+       -25,
+       110,
+       "washbasin",
+       0
+      ]
+     ]
     },
     {
      "id": "tell",
@@ -1056,35 +1502,67 @@
     },
     {
      "id": "stop",
-     "kind": "room",
+     "kind": "commission",
+     "stage": 1,
+     "text": "Rebuild the Duomo stop's shelter: a bench, a streetlight and a sign",
      "zone": "metropolis_shelter",
-     "needs": [
+     "musts": [
       {
-       "any": [
-        "bench"
-       ],
+       "check": "provides",
+       "kind": "seat",
        "label": "A bench to wait on"
       },
       {
-       "any": [
-        "streetlight",
-        "poweredLamp"
-       ],
-       "label": "A streetlight"
+       "check": "provides",
+       "kind": "light",
+       "label": "A light in the fog"
       },
       {
+       "check": "pieces",
        "any": [
-        "signpost"
+        "signpost",
+        "enamelSign"
        ],
        "label": "A sign for the stop"
       }
      ],
-     "stage": 1,
-     "text": "Rebuild the Duomo stop's shelter: a bench, a streetlight and a sign",
+     "wishes": [
+      {
+       "check": "provides",
+       "kind": "shelter",
+       "who": "metropolis_ambrogio",
+       "label": "A roof for the fog"
+      },
+      {
+       "check": "recolored",
+       "who": "metropolis_vale",
+       "label": "Something bright for the photo (T)"
+      }
+     ],
      "hint": {
       "x": -1,
       "z": 28
-     }
+     },
+     "plan": [
+      [
+       -2,
+       28,
+       "bench",
+       0
+      ],
+      [
+       1,
+       28,
+       "streetlight",
+       0
+      ],
+      [
+       2,
+       27,
+       "signpost",
+       0
+      ]
+     ]
     },
     {
      "id": "tell",
@@ -1188,48 +1666,73 @@
     },
     {
      "id": "window",
-     "kind": "room",
+     "kind": "commission",
+     "stage": 2,
+     "text": "Fit out Chiara's shop window: a counter, two lamps and a splash of colour",
      "zone": "metropolis_window",
-     "needs": [
+     "musts": [
       {
+       "check": "pieces",
        "any": [
         "counter"
        ],
        "label": "A counter"
       },
       {
-       "any": [
-        "lamp",
-        "streetlight",
-        "poweredLamp"
-       ],
-       "label": "Two lamps",
-       "count": 2
+       "check": "provides",
+       "kind": "light",
+       "count": 2,
+       "label": "Two lamps"
       },
       {
+       "check": "recolored",
+       "label": "A splash of colour (T)"
+      }
+     ],
+     "wishes": [
+      {
+       "check": "pieces",
        "any": [
         "rug"
        ],
-       "label": "A rug"
+       "who": "metropolis_chiara",
+       "label": "A rug for the models"
       },
       {
+       "check": "pieces",
        "any": [
         "painting"
        ],
-       "label": "A painting"
-      },
-      {
-       "recolored": true,
-       "label": "A splash of colour (repaint something)"
+       "who": "metropolis_gino",
+       "label": "A painting on the wall"
       }
      ],
-     "stage": 2,
-     "text": "Fit out Chiara's shop window: a counter, two lamps, a rug, a painting and a splash of colour",
      "hint": {
       "x": -7,
       "z": -77
      },
-     "buildHint": "Build the display in front of her workshop. Hang the painting on a wall piece; repaint any piece (T) for the splash of colour."
+     "buildHint": "Build the display in front of her workshop. Hang the painting on a wall piece; repaint any piece (T) for the splash of colour.",
+     "plan": [
+      [
+       -9,
+       -79,
+       "counter",
+       0,
+       "#b59cff"
+      ],
+      [
+       -7,
+       -79,
+       "lamp",
+       0
+      ],
+      [
+       -6,
+       -76,
+       "lamp",
+       0
+      ]
+     ]
     },
     {
      "id": "tell",
@@ -1380,32 +1883,79 @@
     },
     {
      "id": "house",
-     "kind": "room",
+     "kind": "commission",
+     "stage": 1,
+     "text": "Build a duck house out on the pond: a platform over the water with a roof",
      "zone": "metropolis_ducks",
-     "needs": [
+     "musts": [
       {
+       "check": "pieces",
        "any": [
         "bridgeDeck",
-        "floor",
-        "platform"
+        "oakBeam",
+        "stoneArch",
+        "pontoon"
        ],
-       "label": "A platform over the water (2 planks)",
-       "count": 2
+       "count": 2,
+       "label": "A platform over the water"
       },
       {
-       "any": [
-        "roof"
-       ],
+       "check": "provides",
+       "kind": "shelter",
        "label": "A roof over it"
       }
      ],
-     "stage": 1,
-     "text": "Build a duck house out on the pond: a platform over the water with a roof",
+     "wishes": [
+      {
+       "check": "provides",
+       "kind": "green",
+       "who": "metropolis_ottavio",
+       "label": "Flowers on the bank"
+      },
+      {
+       "check": "provides",
+       "kind": "seat",
+       "who": "metropolis_elvira",
+       "label": "A bench to feed them from"
+      }
+     ],
      "hint": {
       "x": -106.5,
       "z": -124
      },
-     "buildHint": "Planks reach out over the water from the bank. A roof needs something to rest on: a pillar on the planks."
+     "buildHint": "Planks reach out over the water from the bank. A roof needs something to rest on: a pillar on the planks.",
+     "plan": [
+      [
+       -108,
+       -126,
+       "bridgeDeck",
+       0
+      ],
+      [
+       -109,
+       -126,
+       "bridgeDeck",
+       0
+      ],
+      [
+       -110,
+       -126,
+       "bridgeDeck",
+       0
+      ],
+      [
+       -110,
+       -126,
+       "pillar",
+       0
+      ],
+      [
+       -111,
+       -127,
+       "roof",
+       0
+      ]
+     ]
     },
     {
      "id": "tell",
@@ -1471,37 +2021,81 @@
    "objectives": [
     {
      "id": "stall",
-     "kind": "room",
+     "kind": "commission",
+     "stage": 0,
+     "text": "Build Gennaro a chestnut stall at the castle gate: a counter, a roof and a lamp",
      "zone": "metropolis_cart",
-     "needs": [
+     "musts": [
       {
-       "any": [
-        "counter"
-       ],
+       "check": "provides",
+       "kind": "stall",
        "label": "A counter"
       },
       {
-       "any": [
-        "roof"
-       ],
+       "check": "provides",
+       "kind": "shelter",
        "label": "A roof over it"
       },
       {
-       "any": [
-        "lamp",
-        "streetlight",
-        "poweredLamp"
-       ],
+       "check": "provides",
+       "kind": "light",
        "label": "A lamp"
       }
      ],
-     "stage": 0,
-     "text": "Build Gennaro a chestnut stall at the castle gate: a counter, a roof and a lamp",
+     "wishes": [
+      {
+       "check": "provides",
+       "kind": "seat",
+       "who": "metropolis_gennaro",
+       "label": "A bench to eat chestnuts on"
+      },
+      {
+       "check": "pieces",
+       "any": [
+        "signpost",
+        "enamelSign"
+       ],
+       "who": "metropolis_vale",
+       "label": "A sign, for the photo"
+      }
+     ],
      "hint": {
       "x": -92,
       "z": -85
      },
-     "buildHint": "A roof needs something to rest on, like pillars at its corners."
+     "buildHint": "A roof needs something to rest on, like pillars at its corners.",
+     "plan": [
+      [
+       -94,
+       -84,
+       "counter",
+       0
+      ],
+      [
+       -94,
+       -86,
+       "pillar",
+       0
+      ],
+      [
+       -93,
+       -86,
+       "pillar",
+       0
+      ],
+      [
+       -94,
+       -86,
+       "roof",
+       0
+      ],
+      [
+       -91,
+       -84,
+       "lamp",
+       0
+      ]
+     ]
     },
     {
      "id": "tell",
@@ -1567,31 +2161,64 @@
    "objectives": [
     {
      "id": "platform",
-     "kind": "room",
+     "kind": "commission",
+     "stage": 0,
+     "text": "Build Rocco a raised platform in his corner of the square, with a streetlight",
      "zone": "metropolis_fog_light",
-     "needs": [
+     "musts": [
       {
+       "check": "pieces",
        "any": [
         "platform",
         "stoneBlock",
         "foundation"
        ],
-       "label": "A raised platform to stand on"
+       "label": "A raised platform"
       },
       {
-       "any": [
-        "streetlight",
-        "poweredLamp"
-       ],
+       "check": "provides",
+       "kind": "light",
        "label": "A streetlight beside it"
       }
      ],
-     "stage": 0,
-     "text": "Build Rocco a raised platform in his corner of the square, with a streetlight",
+     "wishes": [
+      {
+       "check": "pieces",
+       "any": [
+        "railing",
+        "fence"
+       ],
+       "who": "metropolis_rocco",
+       "label": "A railing to lean on"
+      },
+      {
+       "check": "pieces",
+       "any": [
+        "signpost",
+        "enamelSign"
+       ],
+       "who": "metropolis_ambrogio",
+       "label": "A sign so the trams see him"
+      }
+     ],
      "hint": {
       "x": -27,
       "z": 9
-     }
+     },
+     "plan": [
+      [
+       -28,
+       8,
+       "platform",
+       0
+      ],
+      [
+       -25,
+       8,
+       "streetlight",
+       0
+      ]
+     ]
     },
     {
      "id": "tell",
@@ -1720,37 +2347,95 @@
    "objectives": [
     {
      "id": "pergola",
-     "kind": "room",
+     "kind": "commission",
+     "stage": 0,
+     "text": "Build Simone's pergola in the courtyard: four pillars, a roof and two benches",
      "zone": "metropolis_courtyard",
-     "needs": [
+     "musts": [
       {
+       "check": "pieces",
        "any": [
-        "pillar"
+        "pillar",
+        "column"
        ],
-       "label": "Four pillars",
-       "count": 4
+       "count": 4,
+       "label": "Four pillars"
       },
       {
-       "any": [
-        "roof"
-       ],
+       "check": "provides",
+       "kind": "shelter",
        "label": "A roof on them"
       },
       {
-       "any": [
-        "bench"
-       ],
-       "label": "Two benches",
-       "count": 2
+       "check": "provides",
+       "kind": "seat",
+       "count": 2,
+       "label": "Two benches"
       }
      ],
-     "stage": 0,
-     "text": "Build Simone's pergola in the courtyard: four pillars, a roof and two benches",
+     "wishes": [
+      {
+       "check": "provides",
+       "kind": "green",
+       "who": "metropolis_elvira",
+       "label": "Something growing"
+      },
+      {
+       "check": "provides",
+       "kind": "light",
+       "who": "metropolis_augusto",
+       "label": "A lamp, for the evenings"
+      }
+     ],
      "hint": {
       "x": -38,
       "z": 112
      },
-     "buildHint": "Stand four pillars at the corners of a 2×2 square, then rest a roof on them."
+     "buildHint": "Stand four pillars at the corners of a 2×2 square, then rest a roof on them.",
+     "plan": [
+      [
+       -35,
+       113,
+       "pillar",
+       0
+      ],
+      [
+       -34,
+       113,
+       "pillar",
+       0
+      ],
+      [
+       -35,
+       114,
+       "pillar",
+       0
+      ],
+      [
+       -34,
+       114,
+       "pillar",
+       0
+      ],
+      [
+       -35,
+       113,
+       "roof",
+       0
+      ],
+      [
+       -36,
+       116,
+       "bench",
+       0
+      ],
+      [
+       -36,
+       110,
+       "bench",
+       0
+      ]
+     ]
     },
     {
      "id": "tell",
@@ -1814,38 +2499,82 @@
    "objectives": [
     {
      "id": "tree",
-     "kind": "room",
+     "kind": "commission",
+     "stage": 0,
+     "text": "Plant a tree in the courtyard with two flower beds and two lamps around it",
      "zone": "metropolis_courtyard",
-     "needs": [
+     "musts": [
       {
+       "check": "pieces",
        "any": [
         "tree"
        ],
        "label": "A young tree"
       },
       {
+       "check": "pieces",
        "any": [
         "flowerBed"
        ],
-       "label": "Two flower beds",
-       "count": 2
+       "count": 2,
+       "label": "Two flower beds"
       },
       {
-       "any": [
-        "lamp",
-        "streetlight",
-        "poweredLamp"
-       ],
-       "label": "Two lamps",
-       "count": 2
+       "check": "provides",
+       "kind": "light",
+       "count": 2,
+       "label": "Two lamps"
       }
      ],
-     "stage": 0,
-     "text": "Plant a tree in the courtyard with two flower beds and two lamps around it",
+     "wishes": [
+      {
+       "check": "provides",
+       "kind": "seat",
+       "who": "metropolis_elvira",
+       "label": "A bench in the sun"
+      },
+      {
+       "check": "recolored",
+       "who": "metropolis_simone",
+       "label": "Something painted (T)"
+      }
+     ],
      "hint": {
       "x": -38,
       "z": 112
-     }
+     },
+     "plan": [
+      [
+       -41,
+       116,
+       "tree",
+       0
+      ],
+      [
+       -42,
+       116,
+       "flowerBed",
+       0
+      ],
+      [
+       -40,
+       116,
+       "flowerBed",
+       0
+      ],
+      [
+       -41,
+       114,
+       "lamp",
+       0
+      ],
+      [
+       -41,
+       118,
+       "lamp",
+       0
+      ]
+     ]
     },
     {
      "id": "tell",
