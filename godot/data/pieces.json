@@ -44,6 +44,71 @@
    "desc": "Stands on the river bed and holds up planks above the water."
   },
   {
+   "id": "oakBeam",
+   "name": "Oak Beam",
+   "icon": "🪚",
+   "cat": "structure",
+   "size": [
+    1,
+    1
+   ],
+   "h": 0.2,
+   "walkable": true,
+   "span": true,
+   "reach": 4,
+   "cost": {
+    "beam": 1
+   },
+   "color": "#8a5a32",
+   "colorable": true,
+   "desc": "A squared oak beam. Reaches out over water four tiles from a support, twice as far as a plank."
+  },
+  {
+   "id": "stoneArch",
+   "name": "Stone Arch",
+   "icon": "🌉",
+   "cat": "structure",
+   "size": [
+    1,
+    1
+   ],
+   "h": 0.3,
+   "walkable": true,
+   "span": true,
+   "reach": 3,
+   "cost": {
+    "cutstone": 2
+   },
+   "color": "#d8cfbf",
+   "colorable": true,
+   "desc": "A dressed-stone arch. Reaches three tiles out over water, and looks as if it had always been there."
+  },
+  {
+   "id": "column",
+   "name": "Stone Column",
+   "icon": "🏛",
+   "cat": "structure",
+   "size": [
+    1,
+    1
+   ],
+   "h": 1.4,
+   "walkable": true,
+   "post": true,
+   "box": [
+    0.18,
+    0.18,
+    0.82,
+    0.82
+   ],
+   "cost": {
+    "cutstone": 2
+   },
+   "color": "#e6dfd2",
+   "colorable": true,
+   "desc": "A dressed-stone column. Stands in a river bed like a post and holds up a deck; on dry land it's simply handsome."
+  },
+  {
    "id": "pontoon",
    "name": "Pontoon",
    "icon": "🛶",

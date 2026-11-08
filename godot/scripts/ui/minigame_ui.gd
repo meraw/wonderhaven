@@ -38,17 +38,22 @@ func start(kind: String, mg) -> void:
 			if ev.pressed: mouse_press = true)
 	var v := VBoxContainer.new(); v.alignment = BoxContainer.ALIGNMENT_CENTER; p.add_child(v)
 	title = UiTheme.label(TITLES[kind], 18); title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(title)
+	if kind != "fish" and not mg.tool.is_empty():
+		var tl := UiTheme.label("%s %s" % [String(Tools.def(String(mg.tool.get("id", ""))).get("icon", "")), String(mg.tool.get("name", ""))], 13, UiTheme.INK2)
+		tl.name = "tool_name"; tl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(tl)
 	body = Control.new(); body.custom_minimum_size = Vector2(300, 120); v.add_child(body)
 	var b := body
 	body.draw.connect(func(): _draw_body(b))
 	dots = HBoxContainer.new(); dots.alignment = BoxContainer.ALIGNMENT_CENTER; v.add_child(dots)
 	if kind != "fish":
-		for n in 3: var d := UiTheme.label("●", 18, Color("ecd2a8")); dots.add_child(d)
+		for n in goes(mg): var d := UiTheme.label("●", 18, Color("ecd2a8")); dots.add_child(d)
 	hint = UiTheme.label(Tutorial.fill(HINTS[kind], func(a): return Controls.key_label(a)), 13, UiTheme.INK2); hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; hint.autowrap_mode = TextServer.AUTOWRAP_WORD; hint.custom_minimum_size.x = 300; v.add_child(hint)
 	result = UiTheme.label("", 20, UiTheme.PINK_DARK); result.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(result)
 	v.add_child(UiTheme.label("Esc to stop", 11, UiTheme.INK2))
 	add_child(p)
 	visible = true
+
+func goes(mg) -> int: return int(mg.rounds) if active.get("kind", "") == "chop" or mg is Minigames.Chop else int(mg.strikes)
 
 func update(dt: float) -> void:
 	if active.is_empty(): return
@@ -74,7 +79,7 @@ func update(dt: float) -> void:
 func _render() -> void:
 	var mg = active.mg
 	if active.kind != "fish":
-		for n in 3:
+		for n in dots.get_child_count():
 			var d: Label = dots.get_child(n)
 			var r: String = mg.results[n] if n < mg.results.size() else ""
 			d.add_theme_color_override("font_color", {"miss": Color("ffb3b3"), "perfect": Color("ffcf5c"), "good": Color("8fe0b0")}.get(r, Color("ecd2a8")))
@@ -87,7 +92,7 @@ func _render() -> void:
 			result.text = {"caught": "Caught %s! 🐟" % Minigames.a_name(mg.fish.name), "snap": "Snap! Too much tension.", "missed": "It got away… press quicker next time!", "early": "Too soon! The fish swam off.", "escaped": "It wriggled free!"}.get(mg.result, "")
 		else:
 			var hits: int = mg.results.filter(func(r): return r != "miss").size()
-			result.text = "%d / 3 hits%s" % [hits, " ✨" if mg.results.has("perfect") else ""]
+			result.text = "Perfect run! ✨" if mg.perfect_run() else "%d / %d hits%s" % [hits, goes(mg), " ✨" if mg.results.has("perfect") else ""]
 	body.queue_redraw()
 
 func _draw_body(body: Control) -> void:

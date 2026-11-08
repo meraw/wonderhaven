@@ -962,6 +962,20 @@
    "z": 27
   },
   {
+   "id": "bigoak0",
+   "kind": "chop",
+   "big": true,
+   "x": -32.5,
+   "z": 18.5
+  },
+  {
+   "id": "bigoak1",
+   "kind": "chop",
+   "big": true,
+   "x": -30,
+   "z": 25.5
+  },
+  {
    "id": "rock0",
    "kind": "mine",
    "x": -31,

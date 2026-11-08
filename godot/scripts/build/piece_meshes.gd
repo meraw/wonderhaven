@@ -16,7 +16,7 @@ static func make(id: String, color: String = "") -> Node3D:
 	var g := Node3D.new()
 	var t := P.unique_mat(color if color != "" else d.color)
 	var cost: Dictionary = d.get("cost", {})
-	P.texturize(t, "stone" if cost.has("stone") else ("wood" if cost.has("wood") else ("fabric" if cost.has("fabric") else "mottle")))
+	P.texturize(t, "stone" if cost.has("stone") or cost.has("cutstone") else ("wood" if cost.has("wood") or cost.has("beam") else ("fabric" if cost.has("fabric") else "mottle")))
 	var dark := P.wood(P.WOOD_DARK)
 	match id:
 		"bridgeDeck":
@@ -24,6 +24,20 @@ static func make(id: String, color: String = "") -> Node3D:
 			_b(g, P.box(1, 0.04, 0.12), dark, 0, 0.02, 0.3); _b(g, P.box(1, 0.04, 0.12), dark, 0, 0.02, -0.3)
 		"bridgePost":
 			_b(g, P.cyl(0.26, 0.3, 1.4, 10), t, 0, 0.7, 0); _b(g, P.cyl(0.32, 0.32, 0.1, 10), dark, 0, 1.35, 0); _b(g, P.box(1.0, 0.1, 0.16), dark, 0, 1.33, 0)
+		"oakBeam":
+			_b(g, P.rbox(0.86, 0.2, 0.995, 0.03), t, 0, 0.1, 0)
+			for z in [-0.34, 0.34]: _b(g, P.box(0.98, 0.06, 0.14), dark, 0, 0.03, z)
+			for x in [-0.22, 0.0, 0.22]: _b(g, P.box(0.012, 0.012, 0.96), dark, x, 0.201, 0)
+		"stoneArch":
+			_b(g, P.rbox(0.99, 0.18, 0.99, 0.03), t, 0, 0.21, 0)
+			for n in 7:
+				var a := PI * (n + 0.5) / 7.0
+				_b(g, P.rbox(0.9, 0.12, 0.21, 0.02), t, 0, -0.3 + sin(a) * 0.42, cos(a) * 0.42, Vector3(-(a - PI / 2.0), 0, 0))
+			for z in [-0.42, 0.42]: _b(g, P.box(0.9, 0.42, 0.14), t, 0, -0.09, z)
+		"column":
+			_b(g, P.box(0.62, 0.14, 0.62), t, 0, 0.07, 0)
+			_b(g, P.cyl(0.21, 0.24, 1.14, 14), t, 0, 0.7, 0)
+			_b(g, P.box(0.64, 0.14, 0.64), t, 0, 1.33, 0)
 		"railing":   # hugs the outer 0.1 m of its edge, so a one-tile bridge with railings both sides still fits a walker
 			var rn := -0.5 + 0.05
 			for x in [-0.42, 0.0, 0.42]: _b(g, P.box(0.09, 0.7, 0.09), t, x, 0.35, rn)

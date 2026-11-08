@@ -72,6 +72,71 @@
        "workshop"
       ]
      }
+    },
+    {
+     "tool": "axe",
+     "level": 2
+    },
+    {
+     "tool": "axe",
+     "level": 3
+    },
+    {
+     "tool": "pick",
+     "level": 2
+    },
+    {
+     "tool": "pick",
+     "level": 3
+    },
+    {
+     "items": {
+      "beam": 2
+     },
+     "price": 40,
+     "requires": {
+      "quests": [
+       "workshop"
+      ]
+     }
+    },
+    {
+     "items": {
+      "cutstone": 2
+     },
+     "price": 36,
+     "requires": {
+      "quests": [
+       "workshop"
+      ]
+     }
+    },
+    {
+     "blueprint": "oakBeam",
+     "price": 40,
+     "requires": {
+      "quests": [
+       "workshop"
+      ]
+     }
+    },
+    {
+     "blueprint": "stoneArch",
+     "price": 45,
+     "requires": {
+      "quests": [
+       "workshop"
+      ]
+     }
+    },
+    {
+     "blueprint": "column",
+     "price": 30,
+     "requires": {
+      "quests": [
+       "workshop"
+      ]
+     }
     }
    ]
   },

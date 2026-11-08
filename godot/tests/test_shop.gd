@@ -15,7 +15,9 @@ func test_shop_data_is_valid():
 		for q in d.get("requires", {}).get("quests", []): t.ok(not Data.quest(q).is_empty(), "shop %s waits on a real request (%s)" % [sid, q])
 		for id in d.buys: t.ok(Data.resources.has(id) and int(d.buys[id]) > 0, "%s buys %s, a real item, for coins" % [sid, id])
 		for line in d.stock:
-			t.ok(int(line.get("price", 0)) > 0, "every line in %s has a price" % sid)
+			var price := int(Tools.level_def(String(line.tool), int(line.get("level", 2))).get("price", 0)) if line.has("tool") else int(line.get("price", 0))
+			t.ok(price > 0, "every line in %s has a price" % sid)
+			if line.has("tool"): t.ok(not Tools.level_def(String(line.tool), int(line.get("level", 2))).is_empty(), "%s sells a real tool upgrade (%s %d)" % [sid, line.tool, int(line.get("level", 2))])
 			if line.has("blueprint"): t.ok(not Data.piece(line.blueprint).is_empty(), "%s sells a real blueprint (%s)" % [sid, line.blueprint])
 			if line.has("items"):
 				for k in line.items: t.ok(Data.resources.has(k), "%s sells a real item (%s)" % [sid, k])

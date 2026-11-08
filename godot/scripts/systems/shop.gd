@@ -29,7 +29,7 @@ static func stock(state: Dictionary, npc_id: String) -> Array:
 	for i in lines.size():
 		var s: Dictionary = lines[i]
 		if not meets(state, s.get("requires", {})): continue
-		var e := {"i": i, "price": int(s.price), "owned": false}
+		var e := {"i": i, "price": int(s.get("price", 0)), "owned": false}
 		if s.has("items"):
 			var parts: Array = []
 			for k in s.items: parts.append("%d %s" % [int(s.items[k]), Data.resources[k].name])
@@ -37,11 +37,20 @@ static func stock(state: Dictionary, npc_id: String) -> Array:
 		elif s.has("blueprint"):
 			e.merge({"kind": "blueprint", "id": s.blueprint, "label": "%s blueprint" % Data.piece(s.blueprint).get("name", s.blueprint), "icon": "📐",
 				"owned": state.blueprints.has(s.blueprint)}, true)
+		elif s.has("tool"):
+			var tid := String(s.tool)
+			var n := int(s.get("level", 2))
+			var lv := Tools.level_def(tid, n)
+			if lv.is_empty() or n != Tools.level(state, tid) + 1 or not meets(state, lv.get("requires", {})): continue
+			var cost: Dictionary = lv.get("items", {})
+			e.merge({"kind": "tool", "id": tid, "level": n, "price": int(lv.get("price", s.get("price", 0))), "items": cost,
+				"label": "%s: %s" % [String(lv.get("name", "")), String(lv.get("does", ""))] + ((" (+ %s)" % ", ".join(cost.keys().map(func(k): return "%d %s" % [int(cost[k]), String(Data.resources[k].name).to_lower()]))) if not cost.is_empty() else ""),
+				"icon": String(Tools.def(tid).get("icon", "🔨")), "owned": n <= Tools.level(state, tid)}, true)
 		elif s.has("clothes"):
 			e.merge({"kind": "clothes", "id": s.clothes, "label": Data.appearance.labels.get(s.clothes, s.clothes), "icon": "👗",
 				"owned": state.clothes_owned.has(s.clothes)}, true)
 		else: continue
-		e["afford"] = coins(state) >= e.price
+		e["afford"] = coins(state) >= e.price and Inventory.can_afford(state.inventory, e.get("items", {}) if e.kind == "tool" else {})
 		out.append(e)
 	return out
 
@@ -54,7 +63,11 @@ static func buy(state: Dictionary, npc_id: String, i: int) -> Dictionary:
 		if e.i == i: line = e
 	if line.is_empty(): return {"ok": false, "reason": "unknown"}
 	if line.owned: return {"ok": false, "reason": "owned"}
-	if not line.afford: return {"ok": false, "reason": "coins", "need": line.price - coins(state)}
+	if not line.afford: return {"ok": false, "reason": "coins" if coins(state) < line.price else "items", "need": maxi(line.price - coins(state), 0)}
+	if line.kind == "tool":
+		var up := Tools.upgrade(state, String(line.id))
+		if not up.ok: return {"ok": false, "reason": String(up.get("reason", "unknown"))}
+		return {"ok": true, "tool": String(line.id), "level": int(up.level), "name": String(up.name), "unlocks": up.unlocks, "price": line.price}
 	state.inventory[COIN] = coins(state) - line.price
 	match line.kind:
 		"items":

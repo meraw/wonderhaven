@@ -135,7 +135,8 @@
       {
        "check": "material",
        "of": [
-        "wood"
+        "wood",
+        "beam"
        ],
        "who": "fern",
        "label": "All in wood"
