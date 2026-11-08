@@ -71,6 +71,39 @@ func test_shared_walls_have_no_windows():
 	t.ok(seen > 4, "the front and back still have windows (%d)" % seen)
 	g.free()
 
+func _boxes(g: Node3D) -> int:
+	var n := 0
+	for mmi in g.find_children("*", "MultiMeshInstance3D", true, false):
+		if (mmi as MultiMeshInstance3D).multimesh.mesh == HouseKit.unit_box(): n += (mmi as MultiMeshInstance3D).multimesh.instance_count
+	return n
+
+func test_a_shut_house_stays_dark_and_a_gallery_has_its_stair():
+	var b := {"id": "shut_test", "kind": "cottage", "x": 0.0, "z": 0.0, "w": 8.0, "d": 5.0, "wall": "#e0c9a0",
+		"roof": "#c46a3e", "door": "S", "floors": 2, "shut": true, "chimney": false, "gallery": true, "galleryStair": "left"}
+	var g := HouseKit.build(b)
+	var glass := HouseKit.part_mesh("window", {}, true)
+	var open_leaves: Array = []
+	var colours: Array = HouseKit.SHUTTERS.duplicate()
+	colours.append(String(Data.layout.get("houseStyle", {}).get("shutters", HouseKit.SHUTTER_KEY)))
+	for c in colours:
+		for angle in [110, 135, 178]:
+			for mirror in [false, true]: open_leaves.append(HouseKit.part_mesh("shutter_%d" % angle, {HouseKit.SHUTTER_KEY: c}, false, mirror))
+	var panes := 0
+	var open := 0
+	for mmi in g.find_children("*", "MultiMeshInstance3D", true, false):
+		var mm: MultiMesh = (mmi as MultiMeshInstance3D).multimesh
+		if mm.mesh == glass: panes += mm.instance_count
+		if open_leaves.has(mm.mesh): open += mm.instance_count
+	t.eq(panes, 0, "a shut house shows no window glass to light at night")
+	t.eq(open, 0, "every shutter of a shut house is closed")
+	t.ok(not g.has_meta("chimney"), "a house without a chimney gives no smoke")
+	var plain := b.duplicate()
+	plain.erase("gallery")
+	var h := HouseKit.build(plain)
+	t.ok(_boxes(g) - _boxes(h) > 25, "the gallery adds its deck, rails, struts and stair (%d pieces)" % (_boxes(g) - _boxes(h)))
+	g.free()
+	h.free()
+
 func test_mirrored_shutters_keep_their_shape():
 	var a := HouseKit.part_mesh("shutter_0")
 	var m := HouseKit.part_mesh("shutter_0", {}, false, true)
@@ -96,15 +129,15 @@ func _touches(b: Dictionary, side: String) -> bool:
 			"N": if absf((b.z - b.d / 2.0) - (o.z + o.d / 2.0)) < 0.05 and ox > 1.0: return true
 	return false
 
-func test_the_village_core_is_dense_and_clear():
+func _dense_and_clear(place: String, at_least: int, rows_at_least: int) -> void:
 	var kit := _kit_buildings()
-	t.ok(kit.size() >= 16, "Monteforchetta has a village core of kit houses (%d)" % kit.size())
+	t.ok(kit.size() >= at_least, "%s has a core of kit houses (%d)" % [place, kit.size()])
 	var rows := kit.filter(func(b): return b.has("party"))
-	t.ok(rows.size() >= 4, "some houses stand in attached rows (%d)" % rows.size())
+	t.ok(rows.size() >= rows_at_least, "some of %s's houses stand in attached rows (%d)" % [place, rows.size()])
 	for b in rows:
 		for s in b.party: t.ok(_touches(b, String(s)), "%s shares its %s wall with a neighbour" % [b.id, s])
 	var sq: Dictionary = Data.layout.square
-	for b in kit.filter(func(b): return not Interiors.enterable(b)):
+	for b in kit.filter(func(b): return not Interiors.enterable(b) and not b.has("navDoor")):
 		var near_path := INF
 		var near_node := INF
 		var near_square := INF
@@ -117,7 +150,10 @@ func test_the_village_core_is_dense_and_clear():
 				for n in Data.layout.nodes: near_node = minf(near_node, Vector2(x - n.x, z - n.z).length())
 		t.ok(near_path > 1.3, "%s keeps off the lanes (%.2f m)" % [b.id, near_path])
 		t.ok(near_node > 1.4, "%s leaves every resource spot reachable (%.2f m)" % [b.id, near_node])
-		t.ok(near_square > 0.0, "%s stands round the piazza, not on it" % b.id)
+		t.ok(near_square > 0.0, "%s stands round the square, not on it" % b.id)
+
+func test_the_village_core_is_dense_and_clear():
+	_dense_and_clear("Monteforchetta", 16, 4)
 
 func _building(id: String) -> Dictionary:
 	for b in Data.layout.buildings:
@@ -155,3 +191,79 @@ func test_landmarks_are_restyled_with_the_kit():
 	t.ok(not c.get_meta("fade_parts", []).is_empty(), "the keep's roof still fades while you're inside")
 	t.ok(not c.get_meta("glasses", []).is_empty(), "the keep's windows and lamps glow at night")
 	c.free()
+
+const PLACES := {"river_town": {"name": "Boccapioppo", "kit": 20, "rows": 6}, "rice_village": {"name": "Casalrana", "kit": 10, "rows": 5}}
+
+func _model(b: Dictionary, place: String) -> Node3D:
+	var loc: Script = load("res://scripts/locations/%s.gd" % place)
+	var fns: Array = loc.get_script_method_list().map(func(m): return m.name)
+	return Village.building_model(b, loc, fns)
+
+func _bodies(place: String) -> Array:
+	return Data.npcs.filter(func(n): return n.get("island", "") == place and n.has("appearance"))
+
+func test_the_other_villages_build_with_the_kit():
+	for place in PLACES:
+		Data.use_island(place)
+		var name: String = PLACES[place].name
+		t.ok(HouseKit.kit_style(), "%s builds with the kit" % name)
+		var kit := _kit_buildings()
+		for b in kit:
+			var g := HouseKit.build(b)
+			var box := _bounds(g)
+			var reach := HouseKit.OVERHANG + 0.5
+			t.ok(box.position.x > -b.w / 2.0 - reach and box.end.x < b.w / 2.0 + reach, "%s stays on its footprint east to west" % b.id)
+			t.ok(box.position.z > -b.d / 2.0 - reach and box.end.z < b.d / 2.0 + reach, "%s stays on its footprint north to south" % b.id)
+			t.ok(box.end.y <= HouseKit.height(b) + 0.01, "%s is no taller than the camera thinks (%.2f)" % [b.id, box.end.y])
+			t.ok(not g.get_meta("glasses", []).is_empty(), "%s has windows that light up at night" % b.id)
+			t.eq(g.has_meta("chimney"), bool(b.get("chimney", true)), "%s smokes only if it has a chimney" % b.id)
+			if Interiors.enterable(b):
+				t.ok((g.get_meta("fade_parts", []) as Array).any(func(p): return p[0] is MultiMeshInstance3D), "%s fades its coppi while you're inside" % b.id)
+			g.free()
+			var m := _model(b, place)
+			t.ok(_coppi(m) > 100, "%s draws its kit house in %s (%d coppi)" % [b.id, name, _coppi(m)])
+			m.free()
+		var blockers := Props.camera_blockers()
+		for b in kit:
+			t.ok(blockers.any(func(box: AABB): return box.has_point(Vector3(b.x, HouseKit.height(b) - 0.2, b.z))), "the camera stops at the top of %s" % b.id)
+		_dense_and_clear(name, PLACES[place].kit, PLACES[place].rows)
+	Data.use_island("hearthglow")
+
+func test_their_landmarks_have_coppi_roofs():
+	var expect := {"river_town": ["river_town_church", "river_town_arcade", "river_town_farm"],
+		"rice_village": ["rice_village_station", "rice_village_church", "rice_village_mill", "rice_village_shed", "rice_village_workers", "rice_village_barn", "rice_village_cowshed"]}
+	for place in expect:
+		Data.use_island(place)
+		for id in expect[place]:
+			var m := _model(_building(id), place)
+			t.ok(_coppi(m) > 100, "%s has a coppi roof (%d tiles)" % [id, _coppi(m)])
+			m.free()
+		Data.use_island("hearthglow")
+	Data.use_island("river_town")
+	var church := _model(_building("river_town_church"), "river_town")
+	t.ok(church.get_meta("glasses", []).size() >= 2, "Boccapioppo's rose window and side windows glow at night")
+	church.free()
+	var bar := _model(_building("river_town_bar"), "river_town")
+	t.ok(bar.find_children("*", "Label3D", true, false).any(func(l): return (l as Label3D).text == "BAR"), "Rina's bar has its sign over the shopfront")
+	bar.free()
+	Data.use_island("rice_village")
+	var row := _model(_building("rice_village_workers"), "rice_village")
+	t.ok(row.get_meta("glasses", []).is_empty(), "the farm workers' houses stay shut up and dark")
+	row.free()
+	var station := _model(_building("rice_village_station"), "rice_village")
+	t.ok(not station.get_meta("upstairs_fade", []).is_empty(), "the station's roof and chimneys still fade over your flat")
+	t.ok(station.has_meta("chimney"), "the station's chimneys smoke")
+	station.free()
+	var farm := _building("rice_village_farmhouse")
+	t.ok(bool(farm.get("gallery", false)), "Cascina Grande has its long wooden gallery")
+	Data.use_island("hearthglow")
+
+func test_their_villagers_have_builds_of_their_own():
+	for place in PLACES:
+		var people := _bodies(place)
+		t.ok(people.all(func(n): return n.appearance.has("body")), "everyone in %s has a build" % PLACES[place].name)
+		var shapes := {}
+		for n in people:
+			var bd: Dictionary = Chibi.sanitize(n.appearance).body
+			shapes["%.2f|%.2f|%.2f" % [bd.height, bd.width, bd.belly]] = true
+		t.ok(shapes.size() >= people.size() - 1, "%s's villagers come in different builds (%d)" % [PLACES[place].name, shapes.size()])

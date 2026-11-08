@@ -18,10 +18,10 @@ const IRON := Color("3e4743")
 const WOOD := Color("8a6a50")
 
 static func make(b: Dictionary) -> Node3D:
+	if HouseKit.uses(b): return HouseKit.build(b)
 	match String(b.kind):
 		"rice_village_station": return station(b)
 		"rice_village_upstairs": return upstairs(b)
-		"rice_village_house": return house(b)
 		"rice_village_church": return church(b)
 		"rice_village_tower": return tower(b)
 		"rice_village_mill": return mill(b)
@@ -90,43 +90,85 @@ static func _body(g: Node3D, b: Dictionary, h: float, mat: Material, over: Array
 		for xs in [-1, 1]: over.append(_add(g, P.box(t, bh, b.d - t * 2.0), mat, Vector3(xs * (b.w / 2.0 - t / 2.0), wh + bh / 2.0, 0)))
 		over.append(_add(g, P.box(b.w - t * 2.0, 0.12, b.d - t * 2.0), P.wood("8a6a50"), Vector3(0, wh + 0.06, 0)))
 
-## A window on one side: frame, glass (glows at night), shutters. Windows above the room's walls go in `over`.
+static func _parts(g: Node3D) -> HouseKit.Parts:
+	if g.has_meta("kit_parts"): return g.get_meta("kit_parts")
+	var parts := HouseKit.Parts.new(g)
+	parts.glass_mat = Landmarks.glass_material()
+	g.set_meta("kit_parts", parts)
+	return parts
+
+static func _flush(g: Node3D, glasses: Array, over: Array) -> void:
+	if not g.has_meta("kit_parts"): return
+	var parts: HouseKit.Parts = g.get_meta("kit_parts")
+	parts.flush()
+	glasses.append_array(parts.glasses)
+	over.append_array(parts.high_nodes)
+	g.remove_meta("kit_parts")
+
+static func _along(side: String, off: float) -> float:
+	return off if side in ["S", "W"] else -off
+
+static func _door_u(b: Dictionary) -> float:
+	var fx := Landmarks.facade(b.w, b.d, String(b.get("door", "S")))
+	var di := Interiors.door_info(b)
+	var c: Vector2 = di.c - Vector2(b.x, b.z)
+	return (fx.basis.inverse() * Vector3(c.x, 0.0, c.y)).x
+
+static func _state(b: Dictionary, side: String, y: float, off: float) -> String:
+	var r := float(absi(hash("%s|%s|%.1f|%.1f" % [b.get("id", ""), side, y, off])) % 1000) / 1000.0
+	return "open" if r < 0.6 else ("shut" if r < 0.75 else ("ajar" if r < 0.9 else "half"))
+
 static func _win(g: Node3D, b: Dictionary, side: String, y: float, off: float, shutter, glasses: Array, over: Array, shut: bool = false) -> void:
-	var w := Props._window(shutter)
-	Props._on_side(w, b, side, y, off)
-	g.add_child(w)
-	if shut:   # closed shutters: the farm workers' houses have been empty for years
-		var sh := _add(w, P.rbox(0.9, 0.92, 0.05, 0.03), P.mat(Color(shutter if shutter != null else SHUTTER).darkened(0.08)), Vector3(0, 0, 0.1))
-		for yy in [-0.25, 0.0, 0.25]: _add(sh, P.box(0.8, 0.03, 0.02), P.mat(Color(shutter if shutter != null else SHUTTER).darkened(0.25)), Vector3(0, yy, 0.03))
-	else:
-		glasses.append(w.get_node("glass"))
-	if y > Interiors.WALL_H - 0.6 and Interiors.enterable(b): over.append(w)
+	var high: bool = y > Interiors.WALL_H - 0.6 and Interiors.enterable(b)
+	var col: String = (Color(shutter) if shutter != null else SHUTTER).to_html(false)
+	var xf := Landmarks.facade(b.w, b.d, side) * Transform3D(Basis.IDENTITY, Vector3(_along(side, off), y - 0.6, 0.0))
+	_parts(g).window(xf, 0.95, 1.2, col, "shut" if shut else _state(b, side, y, off), false, high, not shut)
+
+static func _door(g: Node3D, b: Dictionary, color: String, scale: float = 1.0) -> void:
+	var fx := Landmarks.facade(b.w, b.d, String(b.get("door", "S")))
+	_parts(g).door(fx * Transform3D(Basis.from_scale(Vector3.ONE * scale), Vector3(_door_u(b), 0.0, 0.0)), color, Interiors.enterable(b))
 
 static func _roof(g: Node3D, b: Dictionary, h: float, wall_mat: Material, over: Array) -> Node3D:
-	var roof := Props._gable_roof(g, b.w, b.d, h, wall_mat, Props.roof_material(b.roof), Color(b.roof).darkened(0.25))
+	var roof := Landmarks.kit_roof(g, maxf(b.w, b.d), minf(b.w, b.d), h, b.d > b.w, Color(b.roof), wall_mat, Landmarks.seeded(b))
 	over.append(roof)
 	return roof
 
-static func _chimney(g: Node3D, x: float, z: float, top: float, over: Array) -> void:
-	over.append(_add(g, P.rbox(0.5, 1.4, 0.5, 0.04), Tex.brick(BRICK), Vector3(x, top - 0.7, z)))
-	over.append(_add(g, P.box(0.66, 0.12, 0.66), P.stone(STONE), Vector3(x, top + 0.04, z)))
+static func _chimney(g: Node3D, b: Dictionary, x: float, z: float, h: float, over: Array) -> Node3D:
+	var span := minf(b.w, b.d)
+	var rise := span / 2.0 * tan(HouseKit.PITCH)
+	var off := absf(z) if b.w >= b.d else absf(x)
+	var holder := Node3D.new(); holder.name = "chimney"; g.add_child(holder)
+	var parts := HouseKit.Parts.new(holder)
+	var top := parts.chimney(x, z, h + rise - off * tan(HouseKit.PITCH) - 0.3, h + rise + 0.9)
+	parts.flush()
+	if not g.has_meta("chimney"): g.set_meta("chimney", top)
+	over.append(holder)
+	return holder
 
 static func _finish(g: Node3D, b: Dictionary, glasses: Array, over: Array) -> Node3D:
+	_flush(g, glasses, over)
 	g.set_meta("glasses", glasses)
 	if Interiors.enterable(b): g.set_meta("fade_parts", Props.fade_parts(over))
 	return g
 
-## A plinth along the walls' foot (split round the doorway of a room you can walk into).
-static func _plinth(g: Node3D, b: Dictionary, color: Color, ht: float = 0.45) -> void:
-	var m := P.plaster(color)
-	if Interiors.enterable(b):
-		for r in Interiors.walls(b):
-			var out := Vector2(signf(((r.minX + r.maxX) / 2.0) - b.x), signf(((r.minZ + r.maxZ) / 2.0) - b.z))
-			var horiz: bool = (r.maxX - r.minX) > (r.maxZ - r.minZ)
-			var pos := Vector3((r.minX + r.maxX) / 2.0 - b.x + (0.0 if horiz else out.x * 0.03), ht / 2.0, (r.minZ + r.maxZ) / 2.0 - b.z + (out.y * 0.03 if horiz else 0.0))
-			_add(g, P.box(r.maxX - r.minX + (0.06 if horiz else 0.0), ht, r.maxZ - r.minZ + (0.0 if horiz else 0.06)), m, pos)
-	else:
-		_add(g, P.box(b.w + 0.06, ht, b.d + 0.06), m, Vector3(0, ht / 2.0, 0))
+static func _plinth(g: Node3D, b: Dictionary, color: Color, ht: float = 0.45, doors: Array = []) -> void:
+	var mat := HouseKit.tinted(P.stone(color.lerp(Color(HouseKit.FOOTING_STONE), 0.5)))
+	var parts := _parts(g)
+	var rng := Landmarks.seeded(b)
+	var gaps := doors.duplicate()
+	if gaps.is_empty() and b.has("door"): gaps.append([String(b.door), _door_u(b)])
+	for side in ["N", "S", "E", "W"]:
+		var length: float = b.w if side in ["N", "S"] else b.d
+		var fx := Landmarks.facade(b.w, b.d, side)
+		var cuts: Array = []
+		for gp in gaps:
+			if gp[0] == side: cuts.append(float(gp[1]))
+		cuts.sort()
+		var start := -length / 2.0
+		for u in cuts + [length / 2.0 + 0.95]:
+			var stop: float = minf(u - 0.95, length / 2.0)
+			if stop - start > 0.1: parts.stones(stop - start, ht, fx * Transform3D(Basis.IDENTITY, Vector3((start + stop) / 2.0, 0.0, 0.0)), mat, rng)
+			start = u + 0.95
 
 ## A sign board with lettering, facing out of one side.
 static func _board(g: Node3D, b: Dictionary, side: String, y: float, text: String, width: float, over: Array = []) -> void:
@@ -179,13 +221,11 @@ static func station(b: Dictionary) -> Node3D:
 		_win(g, b, "S", fy + 1.05, off, SHUTTER, glasses, over)
 		_win(g, b, "N", fy + 1.05, off, SHUTTER, glasses, over)
 	_win(g, b, "W", fy + 1.05, 0.0, SHUTTER, glasses, over)
-	Props._door(g, b, "5a3a2a", null)
-	# the platform door (shut: you go through the waiting room)
-	var pd := Node3D.new(); Props._on_side(pd, b, "N", 0.95, -2.9, 0.02); g.add_child(pd)
-	_add(pd, P.rbox(1.1, 1.9, 0.08, 0.03), P.wood("5a3a2a"), Vector3.ZERO)
+	_door(g, b, "5a3a2a")
+	_parts(g).door(Landmarks.facade(b.w, b.d, "N") * Transform3D(Basis.IDENTITY, Vector3(_along("N", -2.9), 0.0, 0.0)), "5a3a2a", false, false)
 	var roof := _roof(g, b, h, mat, over); up.append(roof)
-	_chimney(g, -b.w * 0.3, -0.6, h + 2.2, over); up.append(over[-1]); up.append(over[-2])
-	_chimney(g, b.w * 0.3, 0.6, h + 2.2, over); up.append(over[-1]); up.append(over[-2])
+	up.append(_chimney(g, b, -b.w * 0.3, -0.6, h, over))
+	up.append(_chimney(g, b, b.w * 0.3, 0.6, h, over))
 	_board(g, b, "N", 2.95, "CASALRANA", 3.6)
 	_board(g, b, "S", 2.95, "CASALRANA", 3.6, over)
 	# the clock over the platform, stopped at the time of the last train that stopped
@@ -248,71 +288,33 @@ static func _outside_stair(g: Node3D, b: Dictionary, fy: float) -> void:
 static func upstairs(_b: Dictionary) -> Node3D: return Node3D.new()
 
 # ---- Houses -----------------------------------------------------------------------------------------------------
-## Plaster houses: the crossing keeper's cottage, the farmhouse, the farm office, the presbytery. Two storeys when
-## their eaves are tall; "balcony": true adds the wooden balcony along the upper floor on the door side.
-static func house(b: Dictionary) -> Node3D:
-	var g := Node3D.new(); var h := _eaves(b)
-	var mat := _wall_mat(b); var over: Array = []; var glasses: Array = []
-	var shutter := Color(b.get("shutter", SHUTTER.to_html()))
-	_body(g, b, h, mat, over)
-	_plinth(g, b, Color(b.wall).darkened(0.25), 0.4)
-	var two := h > 3.6
-	var door_off := float(b.get("doorOffset", 0.0))
-	for s in ["N", "S", "E", "W"]:
-		var long: float = b.w if s in ["N", "S"] else b.d
-		var n := maxi(1, int(long / 2.6))
-		for k in n:
-			var off := -long / 2.0 + long * (k + 0.5) / n
-			if s == b.get("door", "S") and absf(off - door_off) < 1.1:
-				if two: _win(g, b, s, 3.85, off, shutter, glasses, over)
-				continue
-			_win(g, b, s, 1.35, off, shutter, glasses, over)
-			if two: _win(g, b, s, 3.85, off, shutter, glasses, over)
-	if two: over.append(_add(g, P.box(b.w + 0.08, 0.12, b.d + 0.08), P.plaster(Color(b.wall).darkened(0.12)), Vector3(0, Interiors.WALL_H + 0.3, 0)))
-	if b.has("door"): Props._door(g, b, "6a4a34", null)
-	if b.get("balcony", false) and two:
-		var bal := Node3D.new(); Props._on_side(bal, b, b.door, 3.0, 0.0, 0.0); g.add_child(bal); over.append(bal)
-		var blen: float = b.w if b.door in ["N", "S"] else b.d
-		_add(bal, P.box(blen - 0.4, 0.1, 1.1), P.wood(WOOD), Vector3(0, 0, 0.55))
-		_add(bal, P.box(blen - 0.4, 0.06, 0.06), P.wood(WOOD), Vector3(0, 0.95, 1.05))
-		for x in range(int(-(blen - 0.6) / 2.0), int((blen - 0.6) / 2.0) + 1):
-			_add(bal, P.box(0.05, 0.95, 0.05), P.wood(WOOD), Vector3(x, 0.48, 1.05))
-		for x in [-(blen - 0.6) / 2.0, 0.0, (blen - 0.6) / 2.0]:
-			_add(bal, P.box(0.08, 0.08, 1.0), P.wood(WOOD), Vector3(x, -0.25, 0.5), Vector3(-0.5, 0, 0))
-	_roof(g, b, h, mat, over)
-	if b.get("chimney", true): _chimney(g, b.w * 0.25 if b.w >= b.d else 0.4, -0.4 if b.w >= b.d else b.d * 0.25, h + Props.roof_rise(b.w, b.d) + 0.4, over)
-	if b.has("board"): _board(g, b, b.door, 2.75, String(b.board), 2.6, over)
-	return _finish(g, b, glasses, over)
-
 ## The farm workers' houses: a long two-storey row with a door and a window above for each family, a wooden balcony
 ## along the upper floor reached by an outside stair, all shut up since machines replaced the workers.
 static func workers_row(b: Dictionary) -> Node3D:
 	var g := Node3D.new(); var h := _eaves(b)
 	var mat := P.plaster(b.wall); var over: Array = []; var glasses: Array = []
 	_add(g, P.box(b.w, h, b.d), mat, Vector3(0, h / 2.0, 0))
-	_plinth(g, b, Color(b.wall).darkened(0.3), 0.5)
 	var side: String = b.get("door", "E")
 	var long: float = b.d if side in ["E", "W"] else b.w
-	var n := int(long / 2.6)
-	for k in n:
-		var off := -long / 2.0 + long * (k + 0.5) / n
-		if k % 2 == 0:
-			var d := Node3D.new(); Props._on_side(d, b, side, 0.95, off, 0.02); g.add_child(d)
-			_add(d, P.rbox(1.0, 1.9, 0.08, 0.03), P.wood("5e4636"), Vector3.ZERO)
-		else:
-			_win(g, b, side, 1.35, off, SHUTTER, glasses, over, true)
-		_win(g, b, side, 3.7, off, SHUTTER, glasses, over, true)
+	var fx := Landmarks.facade(b.w, b.d, side)
 	var opp: String = {"E": "W", "W": "E", "N": "S", "S": "N"}[side]
-	for k in n: _win(g, b, opp, 3.7, -long / 2.0 + long * (k + 0.5) / n, SHUTTER, glasses, over, true)
-	var bal := Node3D.new(); Props._on_side(bal, b, side, 2.75, 0.0, 0.0); g.add_child(bal)
-	_add(bal, P.box(long - 0.2, 0.1, 1.0), P.wood(WOOD), Vector3(0, 0, 0.5))
-	_add(bal, P.box(long - 0.2, 0.06, 0.06), P.wood(WOOD), Vector3(0, 0.95, 0.98))
-	for x in range(int(-(long - 0.4) / 2.0), int((long - 0.4) / 2.0) + 1): _add(bal, P.box(0.05, 0.95, 0.05), P.wood(WOOD), Vector3(x, 0.48, 0.98))
-	# the outside stair up to the balcony, at the south end
-	for s in 8:
-		_add(bal, P.box(0.9, 0.08, 0.3), P.wood(WOOD), Vector3(long / 2.0 - 0.45 - s * 0.32, -0.33 * (8 - s) + 0.05, 0.5))
+	var parts := _parts(g)
+	var shutter := SHUTTER.to_html(false)
+	var n := int(long / 2.6)
+	var doors: Array = []
+	for k in n:
+		var u := _along(side, -long / 2.0 + long * (k + 0.5) / n)
+		if k % 2 == 0:
+			doors.append([side, u])
+			parts.door(fx * Transform3D(Basis.IDENTITY, Vector3(u, 0.0, 0.0)), "5e4636", false, false)
+		else:
+			parts.window(fx * Transform3D(Basis.IDENTITY, Vector3(u, 0.75, 0.0)), 0.95, 1.2, shutter, "shut", false, false, false)
+		parts.window(fx * Transform3D(Basis.IDENTITY, Vector3(u, 3.1, 0.0)), 0.95, 1.2, shutter, "shut", false, false, false)
+		parts.window(Landmarks.facade(b.w, b.d, opp) * Transform3D(Basis.IDENTITY, Vector3(u, 3.1, 0.0)), 0.95, 1.2, shutter, "shut", false, false, false)
+	_plinth(g, b, Color(b.wall).darkened(0.3), 0.5, doors)
+	parts.gallery(fx, long - 0.2, 2.75, -1.0)
 	_roof(g, b, h, mat, over)
-	for k in 3: _chimney(g, 0.4, -long / 2.0 + long * (k + 0.5) / 3.0 if side in ["E", "W"] else 0.0, h + Props.roof_rise(b.w, b.d) + 0.4, over)
+	for k in 3: _chimney(g, b, 0.4 if side in ["E", "W"] else -long / 2.0 + long * (k + 0.5) / 3.0, -long / 2.0 + long * (k + 0.5) / 3.0 if side in ["E", "W"] else 0.0, h, over)
 	return _finish(g, b, glasses, over)
 
 # ---- Church and tower -------------------------------------------------------------------------------------------
@@ -336,24 +338,17 @@ static func church(b: Dictionary) -> Node3D:
 	# tall arched windows down the sides, high up
 	for z in range(-int(b.d / 2.0) + 3, int(b.d / 2.0) - 1, 3):
 		for s in ["E", "W"]:
-			var w := Node3D.new(); Props._on_side(w, b, s, 3.9, z, 0.03); g.add_child(w); over.append(w)
-			_add(w, P.box(0.7, 1.9, 0.06), P.stone(STONE), Vector3.ZERO)
-			var gl := _add(w, P.box(0.5, 1.7, 0.04), P.unique_mat("8fb8cf", "ffcf6b", 0.0), Vector3(0, 0, 0.03)); glasses.append(gl)
-			_add(w, P.cyl(0.35, 0.35, 0.06, 12), P.stone(STONE), Vector3(0, 0.95, 0), Vector3(PI / 2, 0, 0), Vector3(1, 1, 1))
+			_parts(g).window(Landmarks.facade(b.w, b.d, s) * Transform3D(Basis.IDENTITY, Vector3(_along(s, z), 2.95, 0.0)), 0.7, 1.9, "", "open", false, Interiors.enterable(b))
 	# the round window over the portal
 	var rose := Node3D.new(); Props._on_side(rose, b, front, h + 0.6, 0.0, 0.08); g.add_child(rose); over.append(rose)
 	_add(rose, P.torus(0.75, 0.12, 24), P.stone(STONE), Vector3.ZERO, Vector3(PI / 2, 0, 0))
 	var rg := _add(rose, P.cyl(0.7, 0.7, 0.04, 24), P.unique_mat("7fa6c4", "ffcf6b", 0.0), Vector3(0, 0, -0.02), Vector3(PI / 2, 0, 0)); glasses.append(rg)
 	for a in 4: _add(rose, P.box(1.4, 0.06, 0.05), P.stone(STONE), Vector3.ZERO, Vector3(0, 0, a * PI / 4))
 	# the portal: a stone frame and a little gable over the door
-	var por := Node3D.new(); Props._on_side(por, b, front, 0.0, float(b.get("doorOffset", 0.0)), 0.06); g.add_child(por)
-	for x in [-0.85, 0.85]: _add(por, P.box(0.25, 2.5, 0.2), P.stone(STONE), Vector3(x, 1.25, 0))
-	_add(por, P.box(2.0, 0.25, 0.25), P.stone(STONE), Vector3(0, 2.55, 0))
-	_add(por, P.cyl(0.02, 1.15, 0.6, 3), P.stone(STONE), Vector3(0, 2.95, 0), Vector3(PI / 2, 0, 0), Vector3(1, 1, 0.4))
-	Props._door(g, b, "6b3f2a", null)
-	_roof(g, b, h, mat, over)
+	_door(g, b, "6b3f2a", 1.2)
+	var roof := _roof(g, b, h, mat, over)
 	# a stone cross on the front gable
-	var cross := Node3D.new(); Props._on_side(cross, b, front, h + Props.roof_rise(b.w, b.d) + 0.55, 0.0, -0.2); g.add_child(cross); over.append(cross)
+	var cross := Node3D.new(); Props._on_side(cross, b, front, h + float(roof.get_meta("rise")) + 0.55, 0.0, -0.2); g.add_child(cross); over.append(cross)
 	_add(cross, P.box(0.12, 0.8, 0.12), P.stone(STONE), Vector3.ZERO)
 	_add(cross, P.box(0.5, 0.12, 0.12), P.stone(STONE), Vector3(0, 0.14, 0))
 	return _finish(g, b, glasses, over)
@@ -397,11 +392,11 @@ static func tower(b: Dictionary) -> Node3D:
 	var bell := _add(g, P.cyl(0.18, 0.5, 0.75, 14), P.mat("8a6a2e"), Vector3(0, shaft + 1.6, 0))
 	bell.name = "bell"; over.append(bell)
 	over.append(_add(g, P.box(b.w + 0.3, 0.2, b.d + 0.3), P.stone(STONE), Vector3(0, h + 0.1, 0)))
-	var spire := _add(g, P.cyl(0.03, b.w * 0.6, 4.6, 8), P.mat(Color(b.roof)), Vector3(0, h + 2.5, 0))
+	var spire := _add(g, P.cyl(0.03, b.w * 0.6, 4.6, 8), HouseKit.tile_material(Color(b.roof)), Vector3(0, h + 2.5, 0))
 	spire.rotation.y = PI / 8; over.append(spire)
 	over.append(_add(g, P.box(0.1, 0.9, 0.1), P.mat(IRON), Vector3(0, h + 5.2, 0)))
 	over.append(_add(g, P.box(0.5, 0.1, 0.1), P.mat(IRON), Vector3(0, h + 5.35, 0)))
-	Props._door(g, b, "6b3f2a", null)
+	_door(g, b, "6b3f2a")
 	# inside: the ringing floor on its beams along the north wall, and the ropes hanging down to it
 	var rz: float = 7.5 - b.z; var ry := RING_UP
 	var iw: float = b.w - Interiors.WALL_T * 2.0
@@ -427,9 +422,9 @@ static func mill(b: Dictionary) -> Node3D:
 	_plinth(g, b, STONE.darkened(0.15), 0.6)
 	for s in ["E", "N"]: _win(g, b, s, 1.35, 0.0, Color("6a5a48"), glasses, over)
 	for s in ["S", "N", "E", "W"]: _win(g, b, s, 3.6, 0.0, Color("6a5a48"), glasses, over)
-	Props._door(g, b, "5e4636", null)
+	_door(g, b, "5e4636")
 	_roof(g, b, h, mat, over)
-	_chimney(g, 1.2, 1.0, h + Props.roof_rise(b.w, b.d) + 0.6, over)
+	_chimney(g, b, 1.2, 1.0, h, over)
 	# the old drive shaft through the west wall, and the broken wheel
 	var rust := P.mat("8a4e2e")
 	_add(g, P.cyl(0.12, 0.12, 1.4, 10), rust, Vector3(-b.w / 2.0 - 0.6, 1.0, 0.0), Vector3(0, 0, PI / 2))
@@ -470,7 +465,7 @@ static func barn(b: Dictionary) -> Node3D:
 	for e in [-1, 1]:
 		var p := Vector3(e * (long / 2.0 - 0.15), h / 2.0, 0) if along_x else Vector3(0, h / 2.0, e * (long / 2.0 - 0.15))
 		_add(g, P.box(0.3 if along_x else short, h, short if along_x else 0.3), lat, p)
-	Props._gable_roof(g, b.w, b.d, h, lat, Props.roof_material(b.roof), Color(b.roof).darkened(0.25))
+	Landmarks.kit_roof(g, maxf(b.w, b.d), minf(b.w, b.d), h, b.d > b.w, Color(b.roof), lat, Landmarks.seeded(b))
 	# straw inside: a stack of rectangular bales
 	for k in int(long / 1.6) - 1:
 		for lvl in 2 + (k % 2):
@@ -496,7 +491,7 @@ static func cowshed(b: Dictionary) -> Node3D:
 	var d := Node3D.new(); Props._on_side(d, b, side, 1.1, 0.0, 0.02); g.add_child(d)
 	_add(d, P.box(1.8, 2.2, 0.08), P.wood("5e4636"), Vector3.ZERO)
 	_add(d, P.box(0.08, 2.2, 0.1), P.wood("4a382a"), Vector3(0, 0, 0.02))
-	Props._gable_roof(g, b.w, b.d, h, lat, Props.roof_material(b.roof), Color(b.roof).darkened(0.25))
+	Landmarks.kit_roof(g, maxf(b.w, b.d), minf(b.w, b.d), h, b.d > b.w, Color(b.roof), lat, Landmarks.seeded(b))
 	return g
 
 ## The machine shed: brick, with big double doors (Barba Tista's shop is inside).
@@ -512,7 +507,7 @@ static func shed(b: Dictionary) -> Node3D:
 	var sd := Node3D.new(); Props._on_side(sd, b, side, 1.25, float(b.get("doorOffset", 0.0)) + 1.6, 0.08); g.add_child(sd)
 	_add(sd, P.box(1.9, 2.5, 0.08), P.wood("6f5038"), Vector3.ZERO)
 	for y in [-0.6, 0.6]: _add(sd, P.box(1.9, 0.08, 0.03), P.wood("5a4030"), Vector3(0, y, 0.05))
-	Props._door(g, b, "6f5038", null)
+	_door(g, b, "6f5038")
 	_roof(g, b, h, mat, over)
 	return _finish(g, b, glasses, over)
 

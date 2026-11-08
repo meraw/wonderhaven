@@ -17,6 +17,11 @@
  },
  "safeSpot": "square",
  "safeText": "Back at the crossroads.",
+ "houseStyle": {
+  "kit": true,
+  "cornice": "eadfc6",
+  "shutters": "6d8466"
+ },
  "decor": {
   "radius": 54,
   "trees": 0,
@@ -147,10 +152,10 @@
    "z": -39.5,
    "w": 5.5,
    "d": 4.5,
-   "h": 6.82,
-   "eaves": 4.6,
    "wall": "#d8ae68",
    "roof": "#9a4632",
+   "kit": true,
+   "floors": 2,
    "door": "E",
    "navDoor": "casello",
    "interior": {
@@ -367,11 +372,111 @@
    "z": 13.5,
    "w": 6,
    "d": 4,
-   "h": 5.64,
-   "eaves": 3.6,
    "wall": "#e9dcc0",
    "roof": "#a5503a",
+   "kit": true,
+   "floors": 2,
    "door": "E"
+  },
+  {
+   "id": "rice_village_rowCross1",
+   "kind": "rice_village_house",
+   "name": "A house",
+   "x": -16,
+   "z": -9.9,
+   "w": 5,
+   "d": 4.6,
+   "wall": "#e6cf9c",
+   "roof": "#a5503a",
+   "kit": true,
+   "floors": 2,
+   "party": [
+    "E"
+   ],
+   "door": "S"
+  },
+  {
+   "id": "rice_village_rowCross2",
+   "kind": "rice_village_house",
+   "name": "A house",
+   "x": -11,
+   "z": -9.9,
+   "w": 5,
+   "d": 4.6,
+   "wall": "#d8ae68",
+   "roof": "#9a4632",
+   "kit": true,
+   "floors": 3,
+   "party": [
+    "W",
+    "E"
+   ],
+   "door": "S"
+  },
+  {
+   "id": "rice_village_rowCross3",
+   "kind": "rice_village_house",
+   "name": "A house",
+   "x": -6.5,
+   "z": -9.9,
+   "w": 4,
+   "d": 4.6,
+   "wall": "#e9dcc0",
+   "roof": "#a5503a",
+   "kit": true,
+   "floors": 2,
+   "party": [
+    "W"
+   ],
+   "door": "S"
+  },
+  {
+   "id": "rice_village_railCottage",
+   "kind": "rice_village_house",
+   "name": "A house",
+   "x": -2,
+   "z": -34.5,
+   "w": 5,
+   "d": 5,
+   "wall": "#d8ae68",
+   "roof": "#9a4632",
+   "kit": true,
+   "floors": 2,
+   "door": "E"
+  },
+  {
+   "id": "rice_village_rowLane1",
+   "kind": "rice_village_house",
+   "name": "A house",
+   "x": 6,
+   "z": 3.5,
+   "w": 4,
+   "d": 5.5,
+   "wall": "#d9c49a",
+   "roof": "#a5503a",
+   "kit": true,
+   "floors": 2,
+   "party": [
+    "S"
+   ],
+   "door": "W"
+  },
+  {
+   "id": "rice_village_rowLane2",
+   "kind": "rice_village_house",
+   "name": "A house",
+   "x": 6,
+   "z": 9,
+   "w": 4,
+   "d": 5.5,
+   "wall": "#e6cf9c",
+   "roof": "#9a4632",
+   "kit": true,
+   "floors": 2,
+   "party": [
+    "N"
+   ],
+   "door": "W"
   },
   {
    "id": "rice_village_mill",
@@ -451,13 +556,14 @@
    "z": -18,
    "w": 12,
    "d": 6,
-   "h": 8.2,
-   "eaves": 5.6,
    "wall": "#e6cf9c",
    "roof": "#a5503a",
+   "kit": true,
+   "floors": 2,
+   "gallery": true,
+   "galleryStair": "left",
    "door": "S",
    "navDoor": "farmhouseDoor",
-   "balcony": true,
    "interior": {
     "shell": "house",
     "items": [
@@ -587,10 +693,10 @@
    "z": -18.5,
    "w": 6,
    "d": 5,
-   "h": 5.6,
-   "eaves": 3.2,
    "wall": "#e6cf9c",
    "roof": "#a5503a",
+   "kit": true,
+   "floors": 1,
    "door": "S",
    "navDoor": "officeDoor",
    "chimney": false,

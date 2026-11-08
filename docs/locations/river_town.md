@@ -455,6 +455,17 @@ bicycles (4b), and the music, sounds and outfits (4c).
 - **Lost things** look like what they are: the cuckoo clock, the gnome, the trophy, the photo, the Walkman, the oar,
   and Ines's logs as logs.
 
+**The chosen look** (08/11, the conversion in `docs/CONVERSION.md`, step five):
+- **Houses from the kit:** the nine houses, Rina's bar, Primo's workshop, Ermes's house, the station and the sawmill's
+  office are assembled from the shared house kit (`HouseKit`, `"kit": true` in the layout) and keep what
+  `river_town/models.gd` adds on top: the tide line above the stone footing, the bar's sign, awning, payphone and
+  catfish photo, the workshop's wheels, Ermes's plaque and pale quoins, the station's canopy, clock and boards.
+- **Landmarks restyled with kit parts:** the church and its bell tower, the arcade, the farm courtyard and the pumping
+  house (coppi roofs, kit windows and doors, footings, quoins). The houseboat, shack and dance hall are unchanged.
+- **Nine more houses** in town, without rooms, clear of every lane, route, resource spot, site, feature and tree:
+  two pairs along the lanes under the levee and in the west, a pair and a single behind the north row, three alone.
+- **Builds:** each villager has a body of their own (`npcs.json`), from round old Gildo to lanky Mattia.
+
 ## Checks for every stage
 `godot/run_tests.sh`, `npm test` and `npm run build`; screenshots of Boccapioppo in both renderers
 (`--island=river_town`); from stage 3, the scripted playthrough of its requests. Each pull request says what was

@@ -15,7 +15,9 @@ func run(tree: SceneTree, args: Dictionary) -> void:
 	if args.get("outline", "1") == "1" and Outline.supported():
 		var ol := Outline.create(); cam.add_child(ol); (ol.material_override as ShaderMaterial).set_shader_parameter("width", 1.2)
 	var cast: Array = [Data.appearance["default"]]
-	for n in Data.npcs: cast.append(n.appearance)
+	var only: String = args.get("island", "")
+	for n in Data.npcs:
+		if only == "" or n.get("island", "") == only: cast.append(n.appearance)
 	var chars: Array = []
 	var view: String = args.get("view", "lineup")
 	if view == "eyes" or view == "mouths":
@@ -58,10 +60,12 @@ func run(tree: SceneTree, args: Dictionary) -> void:
 	elif view == "lineup":
 		for i in cast.size():
 			var c := Chibi.new(cast[i]); world.add_child(c)
-			c.position = Vector3(-3.15 + i * 0.9, 0, 5.0); c.rotation.y = (i - 3.5) * -0.06
+			c.position = Vector3(-3.15 + i * 0.9, 0, 5.0) if only == "" else Vector3((i - (cast.size() - 1) / 2.0) * 0.78, 0, 5.0)
+			c.rotation.y = (i - 3.5) * -0.06
 			chars.append(c)
 		cam.fov = 34
-		cam.position = Vector3(0, 1.35, 11.6); cam.look_at(Vector3(0, 0.75, 5.0))
+		var back := 6.6 if only == "" else maxf(6.6, (cast.size() * 0.39 + 0.5) / 0.54)
+		cam.position = Vector3(0, 1.35, 5.0 + back); cam.look_at(Vector3(0, 0.75, 5.0))
 	else:
 		var moods := ["neutral", "blink", "happy", "surprised", "talk", "sad"]
 		for i in moods.size():

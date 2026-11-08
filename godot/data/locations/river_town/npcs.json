@@ -27,7 +27,12 @@
     "shoesColor": "#2a2a2a",
     "hat": "captain",
     "hatColor": "#2f3a34",
-    "accessory": "beard"
+    "accessory": "beard",
+    "body": {
+     "height": 1.0,
+     "width": 1.08,
+     "belly": 0.5
+    }
    },
    "home": "river_town_ermes_house:spot",
    "schedule": [
@@ -352,7 +357,11 @@
     "shoesColor": "#3a2a20",
     "hat": "beanie",
     "hatColor": "#3a3a4a",
-    "accessory": "beard"
+    "accessory": "beard",
+    "body": {
+     "height": 1.1,
+     "width": 0.92
+    }
    },
    "home": "river_town_house2:spot",
    "schedule": [
@@ -538,7 +547,11 @@
     "shoesColor": "#2a2a2a",
     "hat": "beret",
     "hatColor": "#6a4a30",
-    "accessory": "glasses"
+    "accessory": "glasses",
+    "body": {
+     "height": 1.0,
+     "width": 0.9
+    }
    },
    "home": "river_town_workshop:spot",
    "schedule": [
@@ -728,7 +741,12 @@
     "shoesColor": "#3a4a3a",
     "hat": "sunhat",
     "hatColor": "#b8a87a",
-    "accessory": "beard"
+    "accessory": "beard",
+    "body": {
+     "height": 0.93,
+     "width": 1.1,
+     "belly": 0.8
+    }
    },
    "home": "river_town_shack:spot",
    "schedule": [
@@ -935,7 +953,11 @@
     "shoesColor": "#f4f1ea",
     "hat": "beanie",
     "hatColor": "#e0b04a",
-    "accessory": "discman"
+    "accessory": "discman",
+    "body": {
+     "height": 1.06,
+     "width": 0.9
+    }
    },
    "home": "shackCorner",
    "schedule": [
@@ -1101,7 +1123,12 @@
     "shoesColor": "#c0392b",
     "hat": "bow",
     "hatColor": "#f2c53a",
-    "accessory": "none"
+    "accessory": "none",
+    "body": {
+     "height": 0.96,
+     "width": 1.04,
+     "belly": 0.3
+    }
    },
    "home": "river_town_house1:spot",
    "schedule": [
@@ -1275,7 +1302,11 @@
     "shoesColor": "#3a4a3a",
     "hat": "none",
     "hatColor": "#2a2a2a",
-    "accessory": "none"
+    "accessory": "none",
+    "body": {
+     "height": 0.98,
+     "width": 0.95
+    }
    },
    "home": "river_town_bar:spot",
    "schedule": [
@@ -1413,7 +1444,12 @@
     "shoesColor": "#5a4030",
     "hat": "none",
     "hatColor": "#2a2a2a",
-    "accessory": "river_town_sawApron"
+    "accessory": "river_town_sawApron",
+    "body": {
+     "height": 1.03,
+     "width": 1.08,
+     "belly": 0.2
+    }
    },
    "home": "river_town_house7:spot",
    "schedule": [
@@ -1615,7 +1651,12 @@
     "shoesColor": "#3a3a40",
     "hat": "drivercap",
     "hatColor": "#f2c53a",
-    "accessory": "river_town_postBag"
+    "accessory": "river_town_postBag",
+    "body": {
+     "height": 0.92,
+     "width": 1.08,
+     "belly": 0.5
+    }
    },
    "home": "river_town_pierina_house:spot",
    "schedule": [

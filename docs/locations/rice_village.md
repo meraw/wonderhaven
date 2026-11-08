@@ -428,6 +428,18 @@ One pull request per stage. Each keeps the game playable and the tests passing.
   look's sky, haze, water, frost and sun height, clothing variants, friendship gifts that give clothes, and a departure
   point that waits for a flag.
 
+**The chosen look** (08/11, the conversion in `docs/CONVERSION.md`, step five):
+- **Houses from the kit:** Paletta's cottage, the presbytery, the farm office and Cascina Grande are assembled from the
+  shared house kit (`"kit": true` in the layout); Cascina Grande has a long wooden gallery along its upper floor with
+  a stair at the west end.
+- **Every other building with a roof** (the station, church, bell tower, mill, machine shed, barn, cowshed and the farm
+  workers' houses) keeps its shape and gets coppi laid tile by tile, kit windows with faded green shutters, kit doors
+  and chimneys and a stone footing (`rice_village/buildings.gd`'s helpers). The farm workers' houses stay shut up and
+  dark. The rice dryer, walls, tracks and machines are unchanged.
+- **Six more houses** without rooms: a row of three framing the crossroads lane, an attached pair facing the lane south
+  of the square, and a railway cottage by the crossing.
+- **Builds:** each villager has a body of their own (`npcs.json`), from tiny Nonna and Matteo to the tall inspector.
+
 ## Checks for every stage
 `godot/run_tests.sh`, `npm test` and `npm run build`; screenshots of Casalrana in both renderers
 (`--island=rice_village`); from stage 3, the scripted playthrough of its requests. Each pull request says what was

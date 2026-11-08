@@ -43,7 +43,7 @@ static func kit_style() -> bool:
 	return bool(Data.layout.get("houseStyle", {}).get("kit", false))
 
 static func uses(b: Dictionary) -> bool:
-	return kit_style() and KINDS.has(String(b.get("kind", ""))) and not b.has("model")
+	return kit_style() and (KINDS.has(String(b.get("kind", ""))) or bool(b.get("kit", false))) and not b.has("model")
 
 static func floors_of(b: Dictionary) -> int:
 	return int(b.get("floors", 1 if b.get("kind", "") == "hut" else 2))
@@ -175,10 +175,10 @@ class Parts:
 		if high: high_nodes.append(mi)
 		return mi
 
-	func window(xf: Transform3D, ww: float, wh: float, shutter: String = "", state: String = "open", grate: bool = false, high: bool = false) -> void:
+	func window(xf: Transform3D, ww: float, wh: float, shutter: String = "", state: String = "open", grate: bool = false, high: bool = false, lit: bool = true) -> void:
 		var wx := xf * Transform3D(Basis.from_scale(Vector3(ww, wh / 1.4, 1.0)), Vector3.ZERO)
 		put(HouseKit.part_mesh("window"), wx, high)
-		put(HouseKit.part_mesh("window", {}, true), wx, high, glass_mat, Color.WHITE, false)
+		if lit: put(HouseKit.part_mesh("window", {}, true), wx, high, glass_mat, Color.WHITE, false)
 		if grate: put(HouseKit.part_mesh("grate"), wx, high)
 		if shutter == "": return
 		var angles: Array = {"open": [178, 178], "shut": [0, 0], "ajar": [110, 135], "half": [178, 0]}[state]
@@ -186,6 +186,46 @@ class Parts:
 		for k in 2:
 			var sgn := -1.0 if k == 0 else 1.0
 			put(HouseKit.part_mesh("shutter_%d" % angles[k], rc, false, k == 1), xf * Transform3D(Basis.from_scale(Vector3(ww, wh / 1.4, 1.0)), Vector3(sgn * ww / 2.0, 0.0, 0.0)), high)
+
+	func chimney(x: float, z: float, base: float, top: float, high: bool = false) -> Vector3:
+		put(HouseKit.part_mesh("chimney_stack"), Transform3D(Basis.from_scale(Vector3(1, top - base, 1)), Vector3(x, base, z)), high)
+		put(HouseKit.part_mesh("chimney_cap"), Transform3D(Basis.IDENTITY, Vector3(x, top, z)), high)
+		return Vector3(x, top + 0.6, z)
+
+	func door(xf: Transform3D, color: String, open: bool = false, arched: bool = true, high: bool = false) -> void:
+		var rc := {HouseKit.DOOR_KEYS[0]: color, HouseKit.DOOR_KEYS[1]: color}
+		var part := "doorway_arched" if open else ("door_arched" if arched else "door_plain")
+		put(HouseKit.part_mesh(part, rc), xf, high)
+		var pane := HouseKit.part_mesh(part, rc, true)
+		if pane != null and glass_mat != null: put(pane, xf, high, glass_mat, Color.WHITE, false)
+
+	func gallery(xf: Transform3D, length: float, y: float, stair: float = 0.0, high: bool = false) -> void:
+		var wood := HouseKit.tinted(P.wood("8a6a50"))
+		var box := HouseKit.unit_box()
+		var run := y if stair != 0.0 else 0.0
+		var a := -length / 2.0 + (run if stair < 0.0 else 0.0)
+		var c := length / 2.0 - (run if stair > 0.0 else 0.0)
+		var span := c - a
+		var mid := (a + c) / 2.0
+		put(box, xf * Transform3D(Basis.from_scale(Vector3(span, 0.1, 1.05)), Vector3(mid, y - 0.05, 0.53)), high, wood)
+		put(box, xf * Transform3D(Basis.from_scale(Vector3(span, 0.07, 0.07)), Vector3(mid, y + 0.95, 1.02)), high, wood)
+		put(box, xf * Transform3D(Basis.from_scale(Vector3(span, 0.05, 0.05)), Vector3(mid, y + 0.45, 1.02)), high, wood)
+		var n := maxi(1, int(span / 0.5))
+		for i in n + 1:
+			put(box, xf * Transform3D(Basis.from_scale(Vector3(0.045, 0.95, 0.045)), Vector3(a + 0.04 + (span - 0.08) * i / n, y + 0.475, 1.02)), high, wood)
+		var m := maxi(2, int(span / 2.4) + 1)
+		for i in m:
+			put(box, xf * Transform3D(Basis(Vector3.RIGHT, -0.62) * Basis.from_scale(Vector3(0.09, 0.09, 1.1)), Vector3(a + 0.2 + (span - 0.4) * i / (m - 1), y - 0.42, 0.45)), high, wood)
+		if run <= 0.0: return
+		var steps := maxi(4, int(y / 0.28))
+		for k in steps:
+			var f := (k + 0.5) / steps
+			put(box, xf * Transform3D(Basis.from_scale(Vector3(run / steps + 0.06, 0.06, 0.9)), Vector3(stair * (length / 2.0 - f * run), f * y - 0.03, 0.5)), high, wood)
+		var slope := sqrt(run * run + y * y)
+		var tilt := Basis(Vector3.BACK, stair * -atan2(y, run))
+		for zz in [0.07, 0.95]:
+			put(box, xf * Transform3D(tilt * Basis.from_scale(Vector3(slope, 0.18, 0.06)), Vector3(stair * (length / 2.0 - run / 2.0), y / 2.0 - 0.1, zz)), high, wood)
+		put(box, xf * Transform3D(tilt * Basis.from_scale(Vector3(slope, 0.05, 0.05)), Vector3(stair * (length / 2.0 - run / 2.0), y / 2.0 + 0.85, 0.95)), high, wood)
 
 	func stones(length: float, top: float, xf: Transform3D, mat: Material, rng: RandomNumberGenerator, skip_a: float = 1e9, skip_b: float = -1e9) -> void:
 		var box := HouseKit.unit_box()
@@ -374,13 +414,13 @@ class _House:
 		bands()
 		openings()
 		roof()
-		chimney()
+		if bool(b.get("chimney", true)): chimney()
 		downpipe()
 		parts.flush()
 		glasses.append_array(parts.glasses)
 		if enter: over.append_array(parts.high_nodes)
 		g.set_meta("glasses", glasses)
-		g.set_meta("chimney", chimney_top)
+		if bool(b.get("chimney", true)): g.set_meta("chimney", chimney_top)
 		if enter: g.set_meta("fade_parts", Props.fade_parts(over))
 		return g
 
@@ -466,7 +506,9 @@ class _House:
 		for x in xs:
 			if absf(x - door_u) > gap: window("front", x, 0.85, 1.0, 1.3)
 		var balcony_at := -1
-		var wants := rng.randf() < 0.5 and not is_shop
+		var gallery := floors >= 2 and bool(b.get("gallery", false))
+		if gallery: parts.gallery(facade("front"), W - 0.3, HouseKit.GROUND_FLOOR, {"left": -1.0, "right": 1.0}.get(String(b.get("galleryStair", "")), 0.0), enter)
+		var wants := rng.randf() < 0.5 and not is_shop and not gallery and not bool(b.get("shut", false))
 		if floors >= 2 and bool(b.get("balcony", wants)):
 			var best := 1e9
 			for i in xs.size():
@@ -488,7 +530,7 @@ class _House:
 			for u in spots:
 				if floors == 1: window(side, u, 0.85, 0.8, 1.15)
 				for fl in range(1, floors): window(side, u, HouseKit.GROUND_FLOOR + HouseKit.FLOOR * (fl - 1) + 0.75, 0.8, 1.25)
-		if not is_shop:
+		if not is_shop and not bool(b.get("shut", false)):
 			if rng.randf() < 0.6:
 				put(HouseKit.part_mesh("wall_lamp"), Transform3D(Basis.IDENTITY, Vector3(door_u - 0.95, 2.25, D / 2.0)), false)
 				put(HouseKit.part_mesh("wall_lamp", {}, true), Transform3D(Basis.IDENTITY, Vector3(door_u - 0.95, 2.25, D / 2.0)), false, glass_mat, Color.WHITE, false)
@@ -500,10 +542,11 @@ class _House:
 		var hi := high_at(zb)
 		var fx := facade(side)
 		var xf := fx * Transform3D(Basis.from_scale(Vector3(ww, wh / 1.4, 1.0)), Vector3(u, zb, 0.0))
+		var shut := bool(b.get("shut", false))
 		put(HouseKit.part_mesh("window"), xf, hi)
-		put(HouseKit.part_mesh("window", {}, true), xf, hi, glass_mat, Color.WHITE, false)
+		if not shut: put(HouseKit.part_mesh("window", {}, true), xf, hi, glass_mat, Color.WHITE, false)
 		if grate: put(HouseKit.part_mesh("grate"), xf, hi)
-		var st := state
+		var st := "shut" if shut else state
 		if st == "":
 			var r := rng.randf()
 			st = "open" if r < 0.6 else ("shut" if r < 0.75 else ("ajar" if r < 0.9 else "half"))
@@ -554,7 +597,7 @@ class _House:
 			lb.outline_size = 0
 			lb.shaded = true
 			lb.double_sided = false
-			lb.position = Vector3(door_u, 2.62, D / 2.0 + 0.1)
+			lb.position = Vector3(door_u, 2.62, D / 2.0 + (0.14 if floors == 1 else 0.1))
 			f.add_child(lb)
 		if b.has("awning"):
 			var aw := shop_w + 0.2
