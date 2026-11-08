@@ -520,6 +520,33 @@ Checked by the headless tests (`test_animation.gd`: stopping eases, the stride s
 - **Standing still is alive:** breathing, a slow shift of weight, and now and then a glance to one side.
 - **Actions have anticipation and follow-through:** chopping and mining wind the tool back over the shoulder, strike fast and jolt on impact; hammering and digging do the same; the wave overshoots and lowers; celebrating crouches before the jumps and squashes on each landing; surprise squashes before it jumps.
 
+## Casalrana catches up (08/11)
+Casalrana gets the redesign's systems, as Boccapioppo did:
+- **A work day that doesn't hold the clock** (`"hold": false` in its `day`): poplars, straw, cobbles and clay grow back
+  the next morning, the clock runs on through the night for the night express, the dawn inspection train and the
+  nativity, and a sleep into the next day ends the day.
+- **Its own paper**, *La Gazzetta del Binario Morto* (the dead-end siding's gazette), with headlines about Paletta,
+  the herons and the 8.12 that never stops.
+- **Paletta opens what you build** at dusk, in station-master's words ("Ladies and gentlemen, now arriving: two flower
+  beds and a bench in Casalrana.").
+- **Tastes** for the six villagers, each near the place they spend their days: Paletta likes railway lanterns, enamel
+  signs and flower beds in signal red and green on the platform, Barba Tista stone, fences, levers and pumps by the
+  sluice, Nonna flowers, trees and benches at her corner of the paddy, Silvia waterwheels and gears at the mill, Don
+  Remo lamps, pillars and statues in the churchyard, Matteo railway things by the crossing. The inspector is only
+  visiting.
+- **Every building request is a brief with wishes**:
+  - the flat (a bed, a table, somewhere to sit; a rug for Nonna, a lamp in the window for Paletta);
+  - the bell-tower climb (a lamp for Don Remo, something to hold on to for Silvia);
+  - the nativity stable (a fence for Barba Tista's ox, a seat for Nonna to sing from);
+  - the platform (flower beds for Paletta, a railway lantern for Matteo) and its shelter (an enamel sign for Paletta,
+    some colour for Nonna);
+  - the sluice (a fence for the cows, a lamp for Silvia), its walkway (railings for Matteo's BMX, a bench for Don
+    Remo), the winter paddy (a lever for Barba Tista, flowers for Nonna);
+  - the mill (a lamp for Silvia, a workbench for Barba Tista) and Nonna's bench (flowers on both sides, a lamp for
+    Matteo).
+  - The shelter keeps the inspector's four conditions as its four musts (roof, bench, two lamps, a sign).
+  - A wish met there adds hearts but no Monteforchetta approval, since Casalrana keeps its petition.
+
 ## Playtest fixes: Boccapioppo catches up, and travel (08/11)
 - **Leaving a conversation is 1** (shared): the way out ("Goodbye", "Not now") is listed first and numbered 1, so it's
   next to the other choices on the keyboard instead of 0 at the far end; the other choices follow from 2. Esc still

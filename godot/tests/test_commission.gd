@@ -252,3 +252,77 @@ func test_a_sealed_check_wants_the_breach_closed():
 	_built(o, o.plan, placements, WorldStatics.build_statics(WorldStatics.generate_decor()))
 	t.ok(Commission.evaluate(o, {"placements": placements}).done, "the wall across it is")
 	Data.use_island("hearthglow")
+
+const CASALRANA := ["rice_village_flat/furnish", "rice_village_stairs/climb", "rice_village_nativity/stable", "rice_village_train/platform", "rice_village_train/shelter",
+	"rice_village_water/sluice", "rice_village_water/walk", "rice_village_water/paddy", "rice_village_mill/drive", "rice_village_bench/build"]
+const CASALRANA_FLAGS := {"rice_village_flat/furnish": {"rice_village_roofPatched": true}, "rice_village_water/paddy": {"rice_village_canalFull": true}, "rice_village_mill/drive": {"rice_village_canalFull": true}}
+const CASALRANA_BUILT := {
+	"rice_village_flat/furnish": [[14, -40, "bed", 0], [17, -39, "table", 0], [17, -38, "chair", 2]],
+	"rice_village_stairs/climb": [[-16, 8, "stoneBlock", 0], [-16, 8, "stairs", 0], [-16, 9, "stairs", 0]],
+	"rice_village_nativity/stable": [[-15, 0, "pillar", 0], [-14, 0, "pillar", 0], [-15, 0, "roof", 0], [-16, 1, "lamp", 0], [-13, 1, "lamp", 0]],
+	"rice_village_train/platform": [[10, -43, "bridgeDeck", 0], [11, -43, "bridgeDeck", 0], [12, -43, "bridgeDeck", 0], [13, -43, "bridgeDeck", 0],
+		[17, -43, "bridgeDeck", 0], [18, -43, "bridgeDeck", 0], [19, -43, "bridgeDeck", 0], [20, -43, "bridgeDeck", 0],
+		[25, -43, "bridgeDeck", 0], [26, -43, "bridgeDeck", 0], [27, -43, "bridgeDeck", 0], [28, -43, "bridgeDeck", 0]],
+	"rice_village_train/shelter": [[29, -44, "pillar", 0], [30, -44, "pillar", 0], [31, -44, "lamp", 0], [29, -44, "roof", 0], [29, -42, "bench", 0], [31, -42, "lamp", 0], [32, -42, "enamelSign", 0]],
+	"rice_village_water/sluice": [[-43, -28, "pillar", 0], [-38, -28, "pillar", 0], [-38, -30, "lever", 0]],
+	"rice_village_water/walk": [[-43, -29, "bridgeDeck", 0], [-42, -29, "bridgeDeck", 0], [-41, -29, "bridgeDeck", 0], [-38, -29, "bridgeDeck", 0], [-39, -29, "bridgeDeck", 0], [-40, -29, "bridgeDeck", 0]],
+	"rice_village_water/paddy": [[-39, 10, "waterwheel", 1], [-38, 10, "pump", 2], [-37, 10, "pipe", 1], [-36, 10, "pipe", 1], [-35, 10, "pipe", 1], [-34, 10, "pipe", 1]],
+	"rice_village_mill/drive": [[-39, -13, "waterwheel", 1], [-38, -13, "shaft", 1], [-37, -13, "shaft", 1], [-36, -13, "shaft", 1], [-35, -13, "shaft", 1], [-34, -13, "shaft", 1], [-33, -13, "shaft", 1]],
+	"rice_village_bench/build": [[9, 35, "bench", 0], [11, 35, "flowerBed", 0]]}
+const CASALRANA_WISHED := {
+	"rice_village_flat/furnish": [[15, -38, "rug", 0], [20, -40, "lamp", 0]],
+	"rice_village_stairs/climb": [[-14, 9, "lamp", 0], [-14, 8, "railing", 0]],
+	"rice_village_nativity/stable": [[-17, 3, "fence", 0], [-16, 3, "fence", 0], [-13, 3, "bench", 0]],
+	"rice_village_train/platform": [[8, -44, "flowerBed", 0], [15, -44, "flowerBed", 0], [22, -44, "railLantern", 0]],
+	"rice_village_train/shelter": [[33, -44, "flowerBed", 0, "ff8fab"]],
+	"rice_village_water/sluice": [[-37, -27, "fence", 0], [-36, -27, "fence", 0], [-37, -30, "lamp", 0]],
+	"rice_village_water/walk": [[-42, -29, "railing", 0], [-41, -29, "railing", 0], [-45, -27, "bench", 0]],
+	"rice_village_water/paddy": [[-36, 12, "lever", 0], [-36, 8, "flowerBed", 0]],
+	"rice_village_mill/drive": [[-35, -11, "lamp", 0], [-37, -11, "workbench", 0]],
+	"rice_village_bench/build": [[8, 35, "flowerBed", 0], [12, 36, "lamp", 0]]}
+
+func _cr_step(key: String) -> Dictionary: return _step(key.get_slice("/", 0), key.get_slice("/", 1))
+
+func test_every_casalrana_building_request_is_a_brief():
+	var mine: Array = Data.quests.filter(func(q): return Data.quest_island(String(q.id)) == "rice_village")
+	t.ok(not mine.any(func(q): return q.objectives.any(func(o): return String(o.get("kind", "")) in ["build", "room", "pieces"])), "no old-style building steps left in Casalrana")
+	var people: Array = Data.npcs.filter(func(n): return n.get("island", "") == "rice_village" and not n.get("visitor", false)).map(func(n): return String(n.id))
+	var before: Array = []
+	for q in Data.quests.filter(func(x): return Data.quest_island(String(x.id)) in ["hearthglow", "river_town"] and x.get("main", false)):
+		for oo in q.objectives:
+			if String(oo.get("kind", "")) == "commission": before.append_array(Commission.kinds_of(oo) + Commission.kinds_of(oo, "wishes"))
+	for key in CASALRANA:
+		var o := _cr_step(key)
+		t.ok(String(o.get("kind", "")) == "commission", "%s is a brief" % key)
+		if String(o.get("kind", "")) != "commission": continue
+		var most := 4 if key == "rice_village_train/shelter" else 3
+		t.ok(o.musts.size() >= 1 and o.musts.size() <= most and o.get("wishes", []).size() >= 2 and o.get("wishes", []).size() <= 3, "%s: %d musts (the inspector's shelter has his four) and %d wishes" % [key, o.musts.size(), o.get("wishes", []).size()])
+		for c in o.musts + o.get("wishes", []):
+			t.ok(Commission.KINDS.has(String(c.check)) and String(c.get("label", "")) != "", "%s: \"%s\" is a known check with a label" % [key, c.get("label", "")])
+		for c in o.get("wishes", []):
+			t.ok(people.has(String(c.get("who", ""))), "%s: \"%s\" is wished by someone who lives in Casalrana" % [key, c.label])
+		var fresh: Array = (Commission.kinds_of(o) + Commission.kinds_of(o, "wishes")).filter(func(k): return not before.has(k) and not Commission.BASIC.has(k))
+		t.ok(fresh.is_empty(), "%s uses only checks you've met before (%s)" % [key, str(fresh)])
+
+func test_casalranas_briefs_can_be_built_and_every_wish_met_with_pieces_you_have():
+	Data.use_island("rice_village")
+	var known: Array = Progress.as_if_played(["hearthglow", "river_town"], "rice_village", "Pip").blueprints
+	for q in Data.quests.filter(func(x): return Data.quest_island(String(x.id)) == "rice_village"):
+		known.append_array(q.get("onAccept", {}).get("blueprints", []))
+	for key in CASALRANA:
+		var o := _cr_step(key)
+		Data.apply_world_flags(CASALRANA_FLAGS.get(key, {}))
+		var here := WorldStatics.build_statics(WorldStatics.generate_decor())
+		var placements: Array = []
+		var problem := _built(o, CASALRANA_BUILT[key], placements, here)
+		t.eq(problem, "", "%s: the playthrough's build can be built" % key)
+		var r := Commission.evaluate(o, _here_world(placements, here))
+		t.ok(r.done, "%s: it meets every must: %s" % [key, str(r.musts.map(func(m): return "%s %s" % [m.label, m.ok]))])
+		problem = _built(o, CASALRANA_WISHED[key], placements, here)
+		t.eq(problem, "", "%s: the pieces for its wishes can be built too" % key)
+		r = Commission.evaluate(o, _here_world(placements, here))
+		t.ok(r.done and r.wishes.all(func(w): return w.ok), "%s: every wish met together: %s" % [key, str(r.wishes.map(func(w): return "%s %s" % [w.label, w.ok]))])
+		for e in CASALRANA_BUILT[key] + CASALRANA_WISHED[key]:
+			t.ok(known.has(String(e[2])), "%s: you have the plans for the %s" % [key, e[2]])
+	Data.apply_world_flags({})
+	Data.use_island("hearthglow")

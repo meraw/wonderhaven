@@ -407,6 +407,9 @@ func test_requests_ask_for_enough_to_build_what_they_ask_for():
 				for nd in o.needs:
 					if nd.has("any"): add.call(nd.any, int(nd.get("count", 1)))
 			elif o.kind == "pieces": add.call(o.any, int(o.get("count", 1)))
+			elif o.kind == "commission":
+				for c in o.musts:
+					if String(c.check) == "pieces": add.call(c.any, int(c.get("count", 1)))
 		for k in gather:
 			t.ok(int(gather[k]) >= int(need.get(k, 0)), "%s: gathering %d %s covers the %d its building takes" % [q.id, gather[k], k, need.get(k, 0)])
 

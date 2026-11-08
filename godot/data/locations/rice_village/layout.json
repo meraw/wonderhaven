@@ -22,6 +22,77 @@
   "cornice": "eadfc6",
   "shutters": "6d8466"
  },
+ "naps": {
+  "paper": "La Gazzetta del Binario Morto"
+ },
+ "paper": {
+  "done": [
+   "{title}: done, and Paletta raised his paddle for it",
+   "{title} finished; Barba Tista says it'll do, which is high praise",
+   "Geometra completes {title}. Still no train stops here, but give it time"
+  ],
+  "built": [
+   "{n} new pieces in Casalrana overnight; the herons are suspicious",
+   "Geometra puts up {n} pieces. Nonna has an opinion on every one",
+   "{n} new pieces, and not one train slowed down to look"
+  ],
+  "opened": [
+   "Paletta opens {what} {place}, with a blast on his whistle",
+   "Ribbon cut on {what} {place}. The 8.12 regional went straight past",
+   "{What} {place}: Paletta salutes it and writes it in the station log"
+  ],
+  "quiet": [
+   "Quiet day on the plain. A heron stood on one leg for six hours",
+   "Nothing built yesterday. Barba Tista blames the clear weather",
+   "Slow news day: the 8.12 didn't stop, again"
+  ],
+  "approval": "",
+  "verdict": "The Gazzetta's verdict on the new build: {grade}.",
+  "regrown": "Overnight the poplars, the straw and the cobbles by the canal came back."
+ },
+ "inauguration": {
+  "speaker": "rice_village_ernesto",
+  "place": "in Casalrana",
+  "open": [
+   "Casalrana! Attention, please: {what} {place}. On time, unlike the 8.12.",
+   "Ladies and gentlemen, now arriving: {what} {place}.",
+   "Gather round, all forty-one of you: {what} {place}."
+  ],
+  "body": {
+   "need": [
+    "You all said it on the platform: “{noticed}” The Geometra listened."
+   ],
+   "own": [
+    "Right by my station. I'll keep it polished."
+   ],
+   "art": [
+    "What's it for? Nobody knows what the timetable's for either, and we keep that too.",
+    "It carries no passengers and stops no trains. Nonna says it's lovely."
+   ],
+   "tall": [
+    "Taller than my signal post. Don't tell the railway."
+   ],
+   "colour": [
+    "A proper colour. Signal red would have been better, but still.",
+    "You'll see it from the 8.12. If it ever slows down."
+   ],
+   "many": [
+    "{n} pieces in a day. The railway has done nothing here for thirty years."
+   ],
+   "single": [
+    "One {piece}. Small, but it arrived, which is more than the trains do."
+   ],
+   "plain": [
+    "It stands. That's more than the old platform did.",
+    "Solid work. I'd stake my cap on it."
+   ]
+  },
+  "close": [
+   "The Geometra built it. I'll write it in the station log. Scissors!",
+   "Mind the gap, and cut the ribbon.",
+   "All aboard! Well, all of us. Scissors!"
+  ]
+ },
  "decor": {
   "radius": 54,
   "trees": 0,
