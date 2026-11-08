@@ -71,7 +71,7 @@ func play() -> void:
 		await frames(2)
 	note("load list: slot 3 %s" % [l3 != null])
 	if l3:
-		var old := game.get_instance_id()
+		var old: int = game.get_instance_id()
 		await click(l3.get_global_rect().get_center())
 		var t0 := Time.get_ticks_msec()
 		while Time.get_ticks_msec() - t0 < 120000:

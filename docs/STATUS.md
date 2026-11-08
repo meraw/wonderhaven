@@ -604,7 +604,9 @@ The user asked for Toriano's graphics, requests and systems to work like the oth
   ran straight after the story in `play_all.sh`, and passed when run again on the same saves: it looked for the title's
   Load button and slot 3's button a fixed number of frames after start, and loading a save made elsewhere reloads the
   scene. It now waits for each button to be on screen, then for the game to be playing in Toriano (following the new
-  scene), and notes what it found.
+  scene), and notes what it found. Its walk home to your flat (`[home:spot]`, which also failed on main) planned its
+  route over the flat path graph and ended up in the courtyard under the balcony: going to a room upstairs now climbs
+  the stair and follows the balcony's own path nodes to the door (`metropolis_base.gd`, `go`, `nav_path`).
 - **Checked:** **tested** (379 passed): Toriano's systems (`test_alive`), its work day (`test_work_day`), every brief
   sound, every plan built and meeting its musts and every wish then met (`test_commission`), every city block and
   tenement wing with real windows that light at night, none opening onto a neighbour, rooms fading their upper windows,

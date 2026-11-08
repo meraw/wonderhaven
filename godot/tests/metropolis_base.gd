@@ -44,11 +44,45 @@ func node(id: String) -> Vector2:
 	return Vector2(a[0], a[1])
 
 ## Walks along the nav graph to a named spot with real keys, then checks you got there.
+func nav_path(from: String, to: String) -> Array:
+	var prev := {from: ""}
+	var queue: Array = [from]
+	while not queue.is_empty():
+		var cur: String = queue.pop_front()
+		if cur == to: break
+		for e in Data.layout.nav_edges:
+			var nxt := ""
+			if String(e[0]) == cur: nxt = String(e[1])
+			elif String(e[1]) == cur: nxt = String(e[0])
+			if nxt != "" and not prev.has(nxt):
+				prev[nxt] = cur
+				queue.append(nxt)
+	if not prev.has(to): return []
+	var out: Array = []
+	var c := to
+	while c != "":
+		out.push_front(c)
+		c = String(prev[c])
+	return out
+
 func go(id: String, label: String) -> bool:
 	var to := node(id)
 	var t0 := Time.get_ticks_msec()
-	await walk_to(to.x, to.y, 1.5)
+	var storey := NpcAgent.node_storey(P + id)
+	if storey != INF and storey > 2.0:
+		await storey_to(true)
+		for n in nav_path(P + "terrace_w", P + id):
+			var a: Array = Data.layout.nav_nodes[n]
+			await walk_direct(float(a[0]), float(a[1]), 0.6)
 	var d := Vector2(game.player.pos.x, game.player.pos.z).distance_to(to)
+	for attempt in 3:
+		if d < 2.5: break
+		await walk_to(to.x, to.y, 1.5)
+		d = Vector2(game.player.pos.x, game.player.pos.z).distance_to(to)
+		if d < 2.5: break
+		var near: Array = game.npcs.values().filter(func(a): return Vector2(a.pos.x - game.player.pos.x, a.pos.z - game.player.pos.z).length() < 2.5).map(func(a): return "%s at %s" % [a.def.id, a.pos])
+		note("%s: stopped %.1f m short at %s, next to %s; waiting a moment" % [id, d, game.player.pos, near])
+		await wait(2.0)
 	check(id, label, d < 2.5, "%.1f m away after %.0f s" % [d, (Time.get_ticks_msec() - t0) / 1000.0])
 	return d < 2.5
 
