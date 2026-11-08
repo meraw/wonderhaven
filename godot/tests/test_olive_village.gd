@@ -237,3 +237,14 @@ func test_shared_a_view_check_sees_past_open_ground_but_not_walls():
 		var c := {"check": "view", "of": ["bench"], "to": [sea.x, sea.y]}
 		t.ok(Commission.check(c, {}, [seat], {"placements": [seat]}).ok, "a view check passes for a seat with the sea in view")
 		t.ok(not Commission.check(c, {}, [seat, wall], {"placements": [seat, wall]}).ok, "and fails when it's walled in"))
+
+func test_shared_the_petal_carpet_and_the_beehive():
+	var carpet := Data.piece("petalCarpet")
+	var hive := Data.piece("beehive")
+	t.ok(carpet.get("walkable", false) and not carpet.get("solid", true) and carpet.get("colorable", false), "the petal carpet is a flat tile you walk on, in any colour")
+	t.ok(int(carpet.get("cost", {}).get("flowers", 0)) > 0, "it's laid with the flowers you gather")
+	t.ok(hive.get("solid", true) and int(hive.get("cost", {}).get("wood", 0)) > 0, "the beehive is a solid wooden box")
+	for id in ["petalCarpet", "beehive"]:
+		var mesh := PieceMeshes.make(id)
+		t.ok(mesh.get_child_count() > 0, "%s has a model" % id)
+		mesh.free()
