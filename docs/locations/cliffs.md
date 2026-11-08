@@ -1,7 +1,7 @@
 # Serenza: design for the cliff village
 
-Working id `cliffs`. Agreed with the user on 2026-11-08 in a design interview. **Stage 1 (ground and map) is built; stages 2 to 4 are
-not.** See "Status" at the end. This doc is
+Working id `cliffs`. Agreed with the user on 2026-11-08 in a design interview. **Stages 1 (ground and map) and 2 (buildings and
+scenery) are built; stages 3 and 4 are not.** See "Status" at the end. This doc is
 the plan the build stages follow. The rules every location shares are in `docs/WORLD.md`; `docs/MONTEFORCHETTA.md`
 and the other location docs are the models it follows. Tonnarella (`docs/locations/port.md`) comes just before
 Serenza, and the two were kept apart where they overlapped (see "Agreements needed with other sessions").
@@ -332,7 +332,7 @@ Each is the smallest general version, comes with a test, and is named at the top
 | **A placed piece you can pick from**, once a day (`gives` on a piece): the lemon tree's lemons | The lemon tree | 3 |
 | **A "no taller than" check** for briefs (`lower {height}`), the other side of `taller` | Sturlese's landscape rules | 3 |
 | **Meter points from the world:** a location's code can award points on its meter once per named thing (a terrace), saved, never taken back | Terraces you bring back without a request | 3 |
-| **A slate roof in the house kit**, chosen per building or per layout, and taller houses (three to five storeys) if the kit's `floors` doesn't already hold up | Serenza's houses; offered to Tonnarella, whose palazzi have slate roofs too | 2 |
+| **A slate roof in the house kit**, chosen per building or per layout, and taller houses (three to five storeys) if the kit's `floors` doesn't already hold up | Serenza's houses; offered to Tonnarella, whose palazzi have slate roofs too | 2 (built: `roofTiles`; taller houses needed no change) |
 | **A garden-bed look for broad beans** | The cellar's seed packets and the beds by your hut | 3 |
 
 Everything else lives in Serenza's own files (`docs/WORLD.md`): `godot/data/locations/cliffs/`,
@@ -481,6 +481,51 @@ the euro switch happening in Serenza itself.
     from one end to the other; every nav spot reachable and every nav edge walkable both ways; ground paint and
     greenery; ids and models; the whole place builds.
   - **Played** (`play_cliffs.gd`, real input): see the stage 1 pull request.
-- **Not yet:** the rooms, the station on its arch as a building, real models for the landmarks, the slate roofs, the
-  dry-stone walls drawn over the steep faces (the terrain shows them as steep slopes), the trains, the boats in the
-  main street, the monorail and the coast past the edge (stage 2).
+
+**Stage 2, buildings and scenery: built** (helpers in `godot/scripts/locations/cliffs/`).
+- **The shared change:** the house kit lays slate roofs when the layout's `houseStyle` (or a building) says
+  `"roofTiles": "slate"`: flat slates in staggered rows and a slate ridge instead of coppi. Every other place keeps its
+  coppi (tested in `test_house_kit`).
+- **Houses** (`buildings.gd`): the kit's three- and four-storey pastel houses under slate, with the layout's white
+  painted corners (`quoins`) and cornices, and painted window surrounds that Serenza adds on top of the kit's windows.
+- **Landmarks** (`buildings.gd`): the church on the rocks in grey stone with arched windows and a rose window, and
+  its bell tower beside it with a belfry, a bell and a slate spire; the growers' cellar and Trenin's workshop; the
+  white sanctuary with its bell gable; the roofless stone hut on E4; the railway arch over the main street, the stone
+  tunnel mouths and the track with its sleepers.
+- **Rooms you can walk into:** Nunzia's bar and the station's waiting room (kit rooms), and the church, the cellar,
+  the workshop, the sanctuary chapel and the hut, whose walls are built from the same rectangles the collision uses,
+  so they always agree. Their roofs fade while you're inside. Furniture: the bar's counter and tables, the waiting
+  room's benches and ticket window, the church's pews, altar and candles, the cellar's barrels and press, the
+  workshop's bench and crates, the chapel's altar. The hut is empty, and its build site is inside its walls.
+- **Scenery** (`scenery.gd`):
+  - Dry-stone walls wherever one walkable level drops more than 0.9 m to another (terrace walls, the stair's and the
+    paths' sides, the top band), quay walls round the harbour, the breakwater and the church rocks, and steps on every
+    stair, lane and path.
+  - The monorail's rail on its legs up the east side, broken across the slip, with one cart at the bottom and one
+    stuck below the slip; four boats on their runners in the main street; Settimio's lemon trees on W1 and the vines
+    on their cane pergolas on E2, just budding.
+  - Brambles on the abandoned terraces, broom and rosemary on the cliffs, a few olives, wisteria over the bar's door,
+    the cellar's door and the station lane; the station's awning with the SERENZA board; rubble in the gully, the slip,
+    under W4's fallen wall and where the slipway broke.
+  - Past the edge: the coast's headlands running off both ways, the ridge behind, and the next villages on the
+    headlands, pastel with grey roofs and a bell tower each.
+- **Trains** (`trains.gd`): a train every twenty minutes from 5:10 to 23:10, alternating directions; two in three
+  are red-and-white regionals that brake into the station and wait a minute and a half (the 8:10 and the 18:10 are
+  Sturlese's), the third a white-and-green fast train that runs straight through. They come out of one tunnel and go
+  into the other, and are only drawn between them.
+- **Changes from the plan:**
+  - The platform's canopy became a narrow awning on the station's front: a full canopy hid you and the train from the
+    camera.
+  - The departure point by the platform is `cliffs_train` (its first id was the station building's, which stopped the
+    station's roof fading).
+  - The bell tower stands beside the church, not on it, so the church's room is clear inside.
+- **Checked:**
+  - **Tested** (`test_cliffs.gd`, 15 tests): stage 1's, plus the seven rooms (each reachable on the nav graph, roofs
+    that fade, the hut empty), slate roofs and painted surrounds on every kit house, the scenery and the trains built,
+    the timetable (every twenty minutes, regionals standing at 8:10 and 18:10, fast trains never stopping, only drawn
+    between the tunnels), the boats pulled up at the sides of the street. The shared room test (nothing across a room)
+    covers Serenza's rooms.
+  - **Played** (`play_cliffs.gd`, real input): see the stage 2 pull request.
+- **Not yet:** the people, requests, shops and items, the terraces meter, the boats' launch, the monorail running
+  (stage 3); the look, the animals, the music and sounds, the trains' horns (stage 4). The terrain still shows the
+  low slope in front of each wall that its mesh can't make vertical.
