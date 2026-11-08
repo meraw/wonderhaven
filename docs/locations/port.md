@@ -596,7 +596,7 @@ What exists now, and the choices made while building that the design above didn'
   - Nonna's tins need the metal detector; the washing turns up once, when its owner asks.
   - Every gathering spot is a straight walk from its nearest path spot.
   - The shops; Tonnarella's tastes match painted pieces.
-- **Played** (`godot/tests/play_port.gd`, RESULT_CHECKS checks): the stage 1 and 2 walk, then, from a fresh arrival off
+- **Played** (`godot/tests/play_port.gd`, 106 checks: 37 on the stage 1 and 2 walk, 69 on the requests): the walk, then, from a fresh arrival off
   the train, every request with real keys and mouse:
   - Mind the Change: Nicolò's starter kit (25,000 lire, €12.91), the bank, Rosetta's focaccia, driftwood, the
     harbour office, the 112 steps, and back down to Nicolò. The HUD shows the changeover at 15%, and prices show both
