@@ -1,0 +1,1496 @@
+{
+ "spawn": {
+  "x": -12.0,
+  "z": -5.0,
+  "yaw": 1.570796
+ },
+ "arrive": {
+  "x": -12.0,
+  "z": -5.0,
+  "yaw": 1.570796
+ },
+ "square": {
+  "x": 0.0,
+  "z": 26.0,
+  "r": 0.0
+ },
+ "safeSpot": "platform",
+ "safeText": "Back on the station platform.",
+ "houseStyle": {
+  "kit": true,
+  "cornice": "efeae0",
+  "shutters": "4f6b43"
+ },
+ "decor": {
+  "radius": 75,
+  "trees": 60,
+  "bushes": 70,
+  "flowers": 160,
+  "grass": 420
+ },
+ "buildings": [
+  {
+   "id": "cliffs_house_w1",
+   "kind": "cottage",
+   "name": "A house",
+   "x": -6.75,
+   "z": 18.0,
+   "w": 6.5,
+   "d": 6,
+   "wall": "#e9b9a6",
+   "roof": "#7e8189",
+   "door": "E",
+   "floors": 3,
+   "kit": true
+  },
+  {
+   "id": "cliffs_house_w2",
+   "kind": "cottage",
+   "name": "A house",
+   "x": -6.75,
+   "z": 12.0,
+   "w": 6.5,
+   "d": 6,
+   "wall": "#f1d27a",
+   "roof": "#7e8189",
+   "door": "E",
+   "floors": 4,
+   "kit": true
+  },
+  {
+   "id": "cliffs_house_w3",
+   "kind": "cottage",
+   "name": "A house",
+   "x": -6.75,
+   "z": 6.25,
+   "w": 6.5,
+   "d": 5.5,
+   "wall": "#d97b5e",
+   "roof": "#7e8189",
+   "door": "E",
+   "floors": 4,
+   "kit": true
+  },
+  {
+   "id": "cliffs_house_w4",
+   "kind": "cottage",
+   "name": "A house",
+   "x": -14.0,
+   "z": 16.5,
+   "w": 7.0,
+   "d": 7,
+   "wall": "#f3c9a0",
+   "roof": "#7e8189",
+   "door": "E",
+   "floors": 4,
+   "kit": true
+  },
+  {
+   "id": "cliffs_house_w5",
+   "kind": "cottage",
+   "name": "A house",
+   "x": -14.0,
+   "z": 8.75,
+   "w": 7.0,
+   "d": 7.5,
+   "wall": "#e6a3a0",
+   "roof": "#7e8189",
+   "door": "E",
+   "floors": 3,
+   "kit": true
+  },
+  {
+   "id": "cliffs_house_w6",
+   "kind": "cottage",
+   "name": "A house",
+   "x": -21.5,
+   "z": 13.5,
+   "w": 7,
+   "d": 9,
+   "wall": "#ebc96e",
+   "roof": "#7e8189",
+   "door": "E",
+   "floors": 4,
+   "kit": true
+  },
+  {
+   "id": "cliffs_house_e1",
+   "kind": "cottage",
+   "name": "A house",
+   "x": 6.75,
+   "z": 18.0,
+   "w": 6.5,
+   "d": 6,
+   "wall": "#f0c08a",
+   "roof": "#7e8189",
+   "door": "W",
+   "floors": 3,
+   "kit": true
+  },
+  {
+   "id": "cliffs_house_e2",
+   "kind": "cottage",
+   "name": "A house",
+   "x": 6.75,
+   "z": 8.75,
+   "w": 6.5,
+   "d": 5.5,
+   "wall": "#e8a2a8",
+   "roof": "#7e8189",
+   "door": "W",
+   "floors": 4,
+   "kit": true
+  },
+  {
+   "id": "cliffs_house_e3",
+   "kind": "cottage",
+   "name": "A house",
+   "x": 6.75,
+   "z": 2.75,
+   "w": 6.5,
+   "d": 5.5,
+   "wall": "#f2dc8c",
+   "roof": "#7e8189",
+   "door": "W",
+   "floors": 4,
+   "kit": true
+  },
+  {
+   "id": "cliffs_house_e4",
+   "kind": "cottage",
+   "name": "A house",
+   "x": 6.75,
+   "z": -3.25,
+   "w": 6.5,
+   "d": 5.5,
+   "wall": "#d98a6a",
+   "roof": "#7e8189",
+   "door": "W",
+   "floors": 3,
+   "kit": true
+  },
+  {
+   "id": "cliffs_house_e5",
+   "kind": "cottage",
+   "name": "A house",
+   "x": 13.25,
+   "z": 18.0,
+   "w": 5.5,
+   "d": 6,
+   "wall": "#efb8a0",
+   "roof": "#7e8189",
+   "door": "W",
+   "floors": 4,
+   "kit": true
+  },
+  {
+   "id": "cliffs_house_e6",
+   "kind": "cottage",
+   "name": "A house",
+   "x": 13.75,
+   "z": 6.0,
+   "w": 6.5,
+   "d": 6,
+   "wall": "#e7c27c",
+   "roof": "#7e8189",
+   "door": "W",
+   "floors": 4,
+   "kit": true
+  },
+  {
+   "id": "cliffs_house_e7",
+   "kind": "cottage",
+   "name": "A house",
+   "x": 26.75,
+   "z": 12.0,
+   "w": 6.5,
+   "d": 8,
+   "wall": "#e3a48c",
+   "roof": "#7e8189",
+   "door": "W",
+   "floors": 4,
+   "kit": true
+  },
+  {
+   "id": "cliffs_bar",
+   "kind": "shop",
+   "name": "Nunzia's bar",
+   "x": -11.0,
+   "z": 24.5,
+   "w": 6.0,
+   "d": 6.0,
+   "wall": "#f2c6a0",
+   "roof": "#7e8189",
+   "door": "E",
+   "floors": 3,
+   "kit": true
+  },
+  {
+   "id": "cliffs_station",
+   "kind": "cliffs_station",
+   "name": "Serenza station",
+   "x": -11.5,
+   "z": -1.5,
+   "w": 11.0,
+   "d": 4.0,
+   "h": 3.6,
+   "wall": "#efe3c4",
+   "door": "N"
+  },
+  {
+   "id": "cliffs_church",
+   "kind": "cliffs_church",
+   "name": "The church on the rocks",
+   "x": 22.5,
+   "z": 29.5,
+   "w": 7.0,
+   "d": 11.0,
+   "h": 7.5,
+   "wall": "#a9a59b",
+   "door": "W"
+  },
+  {
+   "id": "cliffs_church_tower",
+   "kind": "cliffs_church_tower",
+   "name": "The bell tower",
+   "x": 25.0,
+   "z": 25.2,
+   "w": 2.6,
+   "d": 2.6,
+   "h": 15.0,
+   "wall": "#9f9b91"
+  },
+  {
+   "id": "cliffs_cellar",
+   "kind": "cliffs_cellar",
+   "name": "The growers' cellar",
+   "x": -9.0,
+   "z": -22.5,
+   "w": 9.0,
+   "d": 5.0,
+   "h": 4.6,
+   "wall": "#b9ae98",
+   "door": "S"
+  },
+  {
+   "id": "cliffs_workshop",
+   "kind": "cliffs_workshop",
+   "name": "Trenin's workshop",
+   "x": 9.5,
+   "z": -22.5,
+   "w": 6.0,
+   "d": 5.0,
+   "h": 3.6,
+   "wall": "#c9b28e",
+   "door": "S"
+  },
+  {
+   "id": "cliffs_sanctuary",
+   "kind": "cliffs_sanctuary",
+   "name": "The sanctuary",
+   "x": -55.0,
+   "z": -57.5,
+   "w": 6.0,
+   "d": 5.0,
+   "h": 5.2,
+   "wall": "#f2efe8",
+   "door": "E"
+  },
+  {
+   "id": "cliffs_track_w",
+   "kind": "cliffs_track_w",
+   "name": "The railway",
+   "x": -19.75,
+   "z": -8.25,
+   "w": 32.5,
+   "d": 3.5,
+   "h": 0.6,
+   "wall": "#6f6a64",
+   "y": 9.0
+  },
+  {
+   "id": "cliffs_track_e",
+   "kind": "cliffs_track_e",
+   "name": "The railway",
+   "x": 19.75,
+   "z": -8.25,
+   "w": 32.5,
+   "d": 3.5,
+   "h": 0.6,
+   "wall": "#6f6a64",
+   "y": 9.0
+  },
+  {
+   "id": "cliffs_arch",
+   "kind": "cliffs_arch",
+   "name": "The railway arch",
+   "x": 0.0,
+   "z": -8.25,
+   "w": 7.0,
+   "d": 3.5,
+   "h": 1.2,
+   "wall": "#b8ab94",
+   "y": 7.8,
+   "solid": false
+  },
+  {
+   "id": "cliffs_tunnel_w",
+   "kind": "cliffs_tunnel_w",
+   "name": "The west tunnel",
+   "x": -37.5,
+   "z": -8.25,
+   "w": 3.0,
+   "d": 6.0,
+   "h": 6.5,
+   "wall": "#8e877c",
+   "y": 9.0
+  },
+  {
+   "id": "cliffs_tunnel_e",
+   "kind": "cliffs_tunnel_e",
+   "name": "The east tunnel",
+   "x": 37.5,
+   "z": -8.25,
+   "w": 3.0,
+   "d": 6.0,
+   "h": 6.5,
+   "wall": "#8e877c",
+   "y": 9.0
+  }
+ ],
+ "zones": [
+  {
+   "id": "cliffs_hut",
+   "name": "The hut on terrace E4",
+   "minI": 18,
+   "maxI": 22,
+   "minK": -42,
+   "maxK": -39,
+   "unlock": {
+    "quest": "cliffs_hut"
+   }
+  },
+  {
+   "id": "cliffs_wall",
+   "name": "The fallen wall under W4",
+   "minI": -31,
+   "maxI": -24,
+   "minK": -40,
+   "maxK": -37,
+   "unlock": {
+    "quest": "cliffs_wall"
+   }
+  },
+  {
+   "id": "cliffs_slip",
+   "name": "The slip by the monorail",
+   "minI": 13,
+   "maxI": 16,
+   "minK": -50,
+   "maxK": -43,
+   "unlock": {
+    "quest": "cliffs_monorail"
+   },
+   "endpoints": {
+    "a": {
+     "minI": 13,
+     "maxI": 16,
+     "minK": -43,
+     "maxK": -43
+    },
+    "b": {
+     "minI": 13,
+     "maxI": 16,
+     "minK": -50,
+     "maxK": -50
+    }
+   }
+  },
+  {
+   "id": "cliffs_gully",
+   "name": "The gully on the mule path",
+   "minI": -51,
+   "maxI": -47,
+   "minK": -40,
+   "maxK": -35,
+   "unlock": {
+    "quest": "cliffs_path"
+   },
+   "endpoints": {
+    "a": {
+     "minI": -51,
+     "maxI": -47,
+     "minK": -35,
+     "maxK": -35
+    },
+    "b": {
+     "minI": -51,
+     "maxI": -47,
+     "minK": -40,
+     "maxK": -40
+    }
+   }
+  },
+  {
+   "id": "cliffs_slipway",
+   "name": "The old slipway",
+   "minI": -3,
+   "maxI": 1,
+   "minK": 30,
+   "maxK": 34,
+   "unlock": {
+    "quest": "cliffs_boats"
+   },
+   "endpoints": {
+    "a": {
+     "minI": -3,
+     "maxI": 1,
+     "minK": 30,
+     "maxK": 30
+    },
+    "b": {
+     "minI": -3,
+     "maxI": 1,
+     "minK": 34,
+     "maxK": 34
+    }
+   }
+  },
+  {
+   "id": "cliffs_swim",
+   "name": "The rocks below the church",
+   "minI": 22,
+   "maxI": 25,
+   "minK": 36,
+   "maxK": 41,
+   "unlock": {
+    "quest": "cliffs_swim"
+   },
+   "endpoints": {
+    "a": {
+     "minI": 22,
+     "maxI": 25,
+     "minK": 36,
+     "maxK": 36
+    },
+    "b": {
+     "minI": 22,
+     "maxI": 25,
+     "minK": 41,
+     "maxK": 41
+    }
+   }
+  },
+  {
+   "id": "cliffs_plot",
+   "name": "Your terrace (E4)",
+   "minI": 24,
+   "maxI": 43,
+   "minK": -42,
+   "maxK": -39,
+   "unlock": {
+    "flag": "cliffs_homePlot"
+   }
+  },
+  {
+   "id": "cliffs_terrace_e1",
+   "name": "Terrace E1",
+   "minI": 18,
+   "maxI": 43,
+   "minK": -30,
+   "maxK": -27
+  },
+  {
+   "id": "cliffs_terrace_w2",
+   "name": "Terrace W2",
+   "minI": -44,
+   "maxI": -5,
+   "minK": -34,
+   "maxK": -31
+  },
+  {
+   "id": "cliffs_terrace_w3",
+   "name": "Terrace W3",
+   "minI": -44,
+   "maxI": -5,
+   "minK": -38,
+   "maxK": -35
+  },
+  {
+   "id": "cliffs_terrace_e3",
+   "name": "Terrace E3",
+   "minI": 18,
+   "maxI": 43,
+   "minK": -38,
+   "maxK": -35
+  },
+  {
+   "id": "cliffs_terrace_w4",
+   "name": "Terrace W4",
+   "minI": -44,
+   "maxI": -5,
+   "minK": -42,
+   "maxK": -39
+  },
+  {
+   "id": "cliffs_terrace_w5",
+   "name": "Terrace W5",
+   "minI": -44,
+   "maxI": -14,
+   "minK": -46,
+   "maxK": -43
+  },
+  {
+   "id": "cliffs_terrace_e5",
+   "name": "Terrace E5",
+   "minI": 18,
+   "maxI": 43,
+   "minK": -46,
+   "maxK": -43
+  },
+  {
+   "id": "cliffs_terrace_w6",
+   "name": "Terrace W6",
+   "minI": -44,
+   "maxI": -5,
+   "minK": -50,
+   "maxK": -47
+  },
+  {
+   "id": "cliffs_terrace_e6",
+   "name": "Terrace E6",
+   "minI": 18,
+   "maxI": 43,
+   "minK": -50,
+   "maxK": -47
+  },
+  {
+   "id": "cliffs_terrace_w7",
+   "name": "Terrace W7",
+   "minI": -44,
+   "maxI": -5,
+   "minK": -54,
+   "maxK": -51
+  },
+  {
+   "id": "cliffs_terrace_e7",
+   "name": "Terrace E7",
+   "minI": 18,
+   "maxI": 43,
+   "minK": -54,
+   "maxK": -51
+  },
+  {
+   "id": "cliffs_terrace_w8",
+   "name": "Terrace W8",
+   "minI": -44,
+   "maxI": -5,
+   "minK": -58,
+   "maxK": -55
+  },
+  {
+   "id": "cliffs_terrace_e8",
+   "name": "Terrace E8",
+   "minI": 18,
+   "maxI": 43,
+   "minK": -58,
+   "maxK": -55
+  }
+ ],
+ "nodes": [
+  {
+   "id": "cliffs_pine0",
+   "kind": "chop",
+   "x": -36.0,
+   "z": -61.0
+  },
+  {
+   "id": "cliffs_pine1",
+   "kind": "chop",
+   "x": -24.0,
+   "z": -61.0
+  },
+  {
+   "id": "cliffs_pine2",
+   "kind": "chop",
+   "x": -12.0,
+   "z": -61.0
+  },
+  {
+   "id": "cliffs_pine3",
+   "kind": "chop",
+   "x": 8.0,
+   "z": -61.0
+  },
+  {
+   "id": "cliffs_pine4",
+   "kind": "chop",
+   "x": 24.0,
+   "z": -61.0
+  },
+  {
+   "id": "cliffs_pine5",
+   "kind": "chop",
+   "x": 36.0,
+   "z": -61.0
+  },
+  {
+   "id": "cliffs_chestnut0",
+   "kind": "chop",
+   "x": -59.0,
+   "z": -52.5
+  },
+  {
+   "id": "cliffs_chestnut1",
+   "kind": "chop",
+   "x": -48.0,
+   "z": -60.8
+  },
+  {
+   "id": "cliffs_rubble0",
+   "kind": "mine",
+   "x": -28.5,
+   "z": -34.8
+  },
+  {
+   "id": "cliffs_rubble1",
+   "kind": "mine",
+   "x": -21.5,
+   "z": -35.0
+  },
+  {
+   "id": "cliffs_rubble2",
+   "kind": "mine",
+   "x": 31.5,
+   "z": -36.5
+  },
+  {
+   "id": "cliffs_rubble3",
+   "kind": "mine",
+   "x": -18.0,
+   "z": -39.5
+  },
+  {
+   "id": "cliffs_rubble4",
+   "kind": "mine",
+   "x": -36.0,
+   "z": -44.0
+  },
+  {
+   "id": "cliffs_rubble5",
+   "kind": "mine",
+   "x": 34.0,
+   "z": -48.0
+  },
+  {
+   "id": "cliffs_rubble6",
+   "kind": "mine",
+   "x": -12.0,
+   "z": -52.0
+  },
+  {
+   "id": "cliffs_rubble7",
+   "kind": "mine",
+   "x": 24.0,
+   "z": -52.0
+  },
+  {
+   "id": "cliffs_clay0",
+   "kind": "clay",
+   "x": -54.0,
+   "z": -37.0
+  },
+  {
+   "id": "cliffs_wild0",
+   "kind": "flowers",
+   "x": -40.0,
+   "z": -47.5
+  },
+  {
+   "id": "cliffs_wild1",
+   "kind": "flowers",
+   "x": -8.0,
+   "z": -36.5
+  },
+  {
+   "id": "cliffs_wild2",
+   "kind": "flowers",
+   "x": 40.0,
+   "z": -44.5
+  },
+  {
+   "id": "cliffs_wild3",
+   "kind": "flowers",
+   "x": 8.0,
+   "z": -52.5
+  },
+  {
+   "id": "cliffs_wild4",
+   "kind": "flowers",
+   "x": -30.0,
+   "z": -56.0
+  },
+  {
+   "id": "cliffs_fish0",
+   "kind": "fish",
+   "x": 6.0,
+   "z": 34.0
+  },
+  {
+   "id": "cliffs_fish1",
+   "kind": "fish",
+   "x": -8.0,
+   "z": 40.0
+  },
+  {
+   "id": "cliffs_fish2",
+   "kind": "fish",
+   "x": 27.5,
+   "z": 42.5
+  },
+  {
+   "id": "cliffs_fish3",
+   "kind": "fish",
+   "x": -24.0,
+   "z": 45.0
+  }
+ ],
+ "features": [
+  {
+   "id": "cliffs_station",
+   "kind": "boat",
+   "x": -12.0,
+   "z": -5.0,
+   "depart_label": "Take the train"
+  },
+  {
+   "id": "cliffs_ferry",
+   "kind": "boat",
+   "x": -7.5,
+   "z": 46.5,
+   "depart_label": "Take the ferry",
+   "flag": "olive_village_revealed"
+  },
+  {
+   "id": "cliffs_bench_square",
+   "kind": "bench",
+   "x": 7.0,
+   "z": 29.5,
+   "r": 2
+  },
+  {
+   "id": "cliffs_bench_church",
+   "kind": "bench",
+   "x": 27.6,
+   "z": 37.4,
+   "r": 0
+  },
+  {
+   "id": "cliffs_bench_platform",
+   "kind": "bench",
+   "x": -7.5,
+   "z": -4.2,
+   "r": 2
+  },
+  {
+   "id": "cliffs_bench_belvedere",
+   "kind": "bench",
+   "x": 19.5,
+   "z": 15.6,
+   "r": 0
+  },
+  {
+   "id": "cliffs_bench_halfway",
+   "kind": "bench",
+   "x": -11.0,
+   "z": -43.0,
+   "r": 0
+  },
+  {
+   "id": "cliffs_bench_sanctuary",
+   "kind": "bench",
+   "x": -49.5,
+   "z": -53.5,
+   "r": 1
+  }
+ ],
+ "nav_nodes": {
+  "platform": [
+   -12.0,
+   -5.0
+  ],
+  "platformW": [
+   -19.0,
+   -5.0
+  ],
+  "laneTop": [
+   -19.0,
+   2.0
+  ],
+  "laneBottom": [
+   -4.6,
+   2.0
+  ],
+  "street2": [
+   0.0,
+   2.0
+  ],
+  "archS": [
+   0.0,
+   -2.5
+  ],
+  "arch": [
+   0.0,
+   -7.8
+  ],
+  "archN": [
+   0.0,
+   -10.6
+  ],
+  "cellarSq": [
+   0.0,
+   -19.2
+  ],
+  "cellarDoor": [
+   -9.0,
+   -19.2
+  ],
+  "workshopDoor": [
+   9.5,
+   -19.2
+  ],
+  "cellarSqE": [
+   15.0,
+   -19.2
+  ],
+  "top0": [
+   0.0,
+   -59.5
+  ],
+  "railTop": [
+   15.0,
+   -59.5
+  ],
+  "topW": [
+   -30.0,
+   -59.5
+  ],
+  "topE": [
+   32.0,
+   -59.5
+  ],
+  "topRamp": [
+   -44.0,
+   -59.5
+  ],
+  "sanctuaryW": [
+   -47.5,
+   -59.5
+  ],
+  "sanctuary": [
+   -49.0,
+   -55.5
+  ],
+  "chapelDoor": [
+   -51.2,
+   -57.5
+  ],
+  "sanctuaryS": [
+   -48.5,
+   -52.0
+  ],
+  "mule3": [
+   -48.5,
+   -46.0
+  ],
+  "muleGullyN": [
+   -48.5,
+   -40.6
+  ],
+  "muleGullyS": [
+   -48.5,
+   -34.4
+  ],
+  "mule1": [
+   -48.5,
+   -31.5
+  ],
+  "muleS": [
+   -48.5,
+   -28.0
+  ],
+  "W1": [
+   -30.0,
+   -28.0
+  ],
+  "E2": [
+   30.0,
+   -33.0
+  ],
+  "halfway": [
+   -6.0,
+   -45.0
+  ],
+  "street8": [
+   0.0,
+   8.0
+  ],
+  "streetLane": [
+   0.0,
+   13.25
+  ],
+  "laneE": [
+   9.5,
+   13.25
+  ],
+  "belvedere": [
+   19.5,
+   12.8
+  ],
+  "street18": [
+   0.0,
+   18.0
+  ],
+  "squareN": [
+   0.0,
+   22.5
+  ],
+  "square": [
+   0.0,
+   26.0
+  ],
+  "barDoor": [
+   -7.3,
+   24.5
+  ],
+  "squareSW": [
+   -10.0,
+   29.6
+  ],
+  "beach": [
+   -20.0,
+   33.0
+  ],
+  "squareE": [
+   8.0,
+   26.5
+  ],
+  "churchRamp": [
+   11.2,
+   25.5
+  ],
+  "churchRampTop": [
+   16.6,
+   25.5
+  ],
+  "churchDoor": [
+   18.2,
+   29.5
+  ],
+  "rocksS": [
+   17.6,
+   37.0
+  ],
+  "rockPath": [
+   17.0,
+   42.0
+  ],
+  "breakwaterE": [
+   16.0,
+   46.5
+  ],
+  "breakwaterMid": [
+   4.0,
+   46.5
+  ],
+  "ferry": [
+   -7.5,
+   46.5
+  ],
+  "stair1": [
+   0.0,
+   -29.0
+  ],
+  "rail1": [
+   15.0,
+   -29.0
+  ],
+  "stair2": [
+   0.0,
+   -33.0
+  ],
+  "rail2": [
+   15.0,
+   -33.0
+  ],
+  "stair3": [
+   0.0,
+   -37.0
+  ],
+  "rail3": [
+   15.0,
+   -37.0
+  ],
+  "stair4": [
+   0.0,
+   -41.0
+  ],
+  "rail4": [
+   15.0,
+   -41.0
+  ],
+  "stair5": [
+   0.0,
+   -45.0
+  ],
+  "rail5": [
+   15.0,
+   -43.2
+  ],
+  "stair6": [
+   0.0,
+   -49.0
+  ],
+  "rail6": [
+   15.0,
+   -49.5
+  ],
+  "stair7": [
+   0.0,
+   -53.0
+  ],
+  "rail7": [
+   15.0,
+   -53.0
+  ],
+  "stair8": [
+   0.0,
+   -57.0
+  ],
+  "rail8": [
+   15.0,
+   -57.0
+  ]
+ },
+ "nav_edges": [
+  [
+   "platform",
+   "platformW"
+  ],
+  [
+   "platformW",
+   "laneTop"
+  ],
+  [
+   "laneTop",
+   "laneBottom"
+  ],
+  [
+   "laneBottom",
+   "street2"
+  ],
+  [
+   "street2",
+   "archS"
+  ],
+  [
+   "archS",
+   "arch"
+  ],
+  [
+   "arch",
+   "archN"
+  ],
+  [
+   "archN",
+   "cellarSq"
+  ],
+  [
+   "cellarSq",
+   "cellarDoor"
+  ],
+  [
+   "cellarSq",
+   "workshopDoor"
+  ],
+  [
+   "workshopDoor",
+   "cellarSqE"
+  ],
+  [
+   "cellarSq",
+   "stair1"
+  ],
+  [
+   "cellarSqE",
+   "rail1"
+  ],
+  [
+   "stair8",
+   "top0"
+  ],
+  [
+   "rail4",
+   "rail5"
+  ],
+  [
+   "rail5",
+   "rail6",
+   "cliffs_monorailRuns"
+  ],
+  [
+   "rail8",
+   "railTop"
+  ],
+  [
+   "railTop",
+   "top0"
+  ],
+  [
+   "railTop",
+   "topE"
+  ],
+  [
+   "top0",
+   "topW"
+  ],
+  [
+   "topW",
+   "topRamp"
+  ],
+  [
+   "topRamp",
+   "sanctuaryW"
+  ],
+  [
+   "sanctuaryW",
+   "sanctuary"
+  ],
+  [
+   "sanctuary",
+   "chapelDoor"
+  ],
+  [
+   "sanctuary",
+   "sanctuaryS"
+  ],
+  [
+   "sanctuaryS",
+   "mule3"
+  ],
+  [
+   "mule3",
+   "muleGullyN"
+  ],
+  [
+   "muleGullyN",
+   "muleGullyS",
+   "cliffs_sanctuaryPath"
+  ],
+  [
+   "muleGullyS",
+   "mule1"
+  ],
+  [
+   "mule1",
+   "muleS"
+  ],
+  [
+   "muleS",
+   "W1"
+  ],
+  [
+   "W1",
+   "stair1"
+  ],
+  [
+   "stair2",
+   "E2"
+  ],
+  [
+   "stair5",
+   "halfway"
+  ],
+  [
+   "street2",
+   "street8"
+  ],
+  [
+   "street8",
+   "streetLane"
+  ],
+  [
+   "streetLane",
+   "laneE"
+  ],
+  [
+   "laneE",
+   "belvedere"
+  ],
+  [
+   "streetLane",
+   "street18"
+  ],
+  [
+   "street18",
+   "squareN"
+  ],
+  [
+   "squareN",
+   "square"
+  ],
+  [
+   "square",
+   "barDoor"
+  ],
+  [
+   "square",
+   "squareSW"
+  ],
+  [
+   "squareSW",
+   "beach"
+  ],
+  [
+   "square",
+   "squareE"
+  ],
+  [
+   "squareE",
+   "churchRamp"
+  ],
+  [
+   "churchRamp",
+   "churchRampTop"
+  ],
+  [
+   "churchRampTop",
+   "churchDoor"
+  ],
+  [
+   "churchDoor",
+   "rocksS"
+  ],
+  [
+   "rocksS",
+   "rockPath"
+  ],
+  [
+   "rockPath",
+   "breakwaterE"
+  ],
+  [
+   "breakwaterE",
+   "breakwaterMid"
+  ],
+  [
+   "breakwaterMid",
+   "ferry"
+  ],
+  [
+   "stair1",
+   "stair2"
+  ],
+  [
+   "stair2",
+   "stair3"
+  ],
+  [
+   "stair3",
+   "stair4"
+  ],
+  [
+   "stair4",
+   "stair5"
+  ],
+  [
+   "stair5",
+   "stair6"
+  ],
+  [
+   "stair6",
+   "stair7"
+  ],
+  [
+   "stair7",
+   "stair8"
+  ],
+  [
+   "rail1",
+   "rail2"
+  ],
+  [
+   "rail2",
+   "rail3"
+  ],
+  [
+   "rail3",
+   "rail4"
+  ],
+  [
+   "rail6",
+   "rail7"
+  ],
+  [
+   "rail7",
+   "rail8"
+  ]
+ ],
+ "ground": [
+  {
+   "kind": "gravel",
+   "rect": [
+    -34.0,
+    -9.6,
+    34.0,
+    -6.9
+   ]
+  },
+  {
+   "kind": "slabs",
+   "rect": [
+    -14.0,
+    21.0,
+    12.0,
+    30.4
+   ]
+  },
+  {
+   "kind": "slabs",
+   "rect": [
+    12.0,
+    23.0,
+    16.0,
+    28.0
+   ]
+  },
+  {
+   "kind": "setts",
+   "rect": [
+    -3.0,
+    -11.0,
+    3.0,
+    21.0
+   ]
+  },
+  {
+   "kind": "slabs",
+   "rect": [
+    -2.5,
+    -18.0,
+    2.5,
+    -11.0
+   ]
+  },
+  {
+   "kind": "setts",
+   "rect": [
+    -14.4,
+    -25.4,
+    17.4,
+    -18.6
+   ]
+  },
+  {
+   "kind": "slabs",
+   "rect": [
+    -20.4,
+    -5.9,
+    -4.1,
+    -3.5
+   ]
+  },
+  {
+   "kind": "slabs",
+   "rect": [
+    -20.4,
+    -3.5,
+    -17.0,
+    3.5
+   ]
+  },
+  {
+   "kind": "slabs",
+   "rect": [
+    -17.0,
+    0.5,
+    -3.5,
+    3.5
+   ]
+  },
+  {
+   "kind": "slabs",
+   "rect": [
+    3.5,
+    12.6,
+    16.0,
+    13.9
+   ]
+  },
+  {
+   "kind": "setts",
+   "rect": [
+    16.0,
+    10.1,
+    22.4,
+    15.9
+   ]
+  },
+  {
+   "kind": "slabs",
+   "rect": [
+    -6.0,
+    45.5,
+    19.0,
+    47.5
+   ]
+  },
+  {
+   "kind": "slabs",
+   "rect": [
+    -9.5,
+    44.5,
+    -5.0,
+    48.5
+   ]
+  },
+  {
+   "kind": "slabs",
+   "rect": [
+    -2.5,
+    -61.0,
+    2.5,
+    -26.0
+   ]
+  },
+  {
+   "kind": "gravel",
+   "rect": [
+    13.5,
+    -61.0,
+    16.5,
+    -26.0
+   ]
+  },
+  {
+   "kind": "gravel",
+   "rect": [
+    -50.5,
+    -51.0,
+    -46.5,
+    -26.0
+   ]
+  },
+  {
+   "kind": "gravel",
+   "rect": [
+    -59.4,
+    -60.9,
+    -42.0,
+    -51.6
+   ]
+  }
+ ],
+ "paths": [],
+ "props": []
+}
