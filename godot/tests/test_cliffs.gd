@@ -115,7 +115,7 @@ func test_you_can_walk_everywhere_the_village_needs():
 			var p: Vector2 = places[name]
 			t.ok(seen.has(_cell(p.x, p.y)), "you can walk to %s" % name)
 		for n in range(1, 9):
-			var z := _z_mid(n)
+			var z := _z_mid(n) - 1.5
 			t.ok(seen.has(_cell(-25.5, z)), "you can walk onto terrace W%d" % n)
 			t.ok(seen.has(_cell(8.5, z)), "and onto E%d by the stair" % n)
 			t.ok(seen.has(_cell(30.5, z)), "and along E%d past the monorail" % n)
@@ -266,4 +266,83 @@ func test_the_village_builds():
 			t.ok(v.objects.has(b.id), "%s is built" % b.id)
 		t.ok(absf(v.objects.cliffs_arch.position.y - 7.8) < 0.01, "the arch carries the railway over the main street")
 		t.ok(absf(v.objects.cliffs_track_w.position.y - 9.0) < 0.01, "on its ledge above the houses")
+		var sc: Node = v.get_node_or_null("cliffs_scenery")
+		t.ok(sc != null, "Serenza's scenery is dressed")
+		if sc:
+			var stones := 0
+			for mm in sc.get_node("dry_stone_walls").find_children("*", "MultiMeshInstance3D", true, false): stones += (mm as MultiMeshInstance3D).multimesh.instance_count
+			t.ok(stones > 5000, "dry-stone walls hold the terraces up (%d stones)" % stones)
+			for part in ["steps", "monorail", "plants", "station_canopy", "rubble", "far_coast", "next_villages"]:
+				t.ok(sc.get_node_or_null(part) != null, "the scenery has its %s" % part)
+			for pr in Data.layout.props:
+				t.ok(sc.get_node_or_null("%s_model" % pr.id) != null, "%s is drawn" % pr.id)
+		t.ok(v.get_node_or_null("cliffs_trains") != null, "the trains run")
 		v.free())
+
+func test_rooms_you_can_walk_into():
+	_here(func():
+		var rooms: Array = Data.layout.buildings.filter(func(b): return Interiors.enterable(b)).map(func(b): return b.id)
+		t.eq(rooms, ["cliffs_bar", "cliffs_station", "cliffs_church", "cliffs_cellar", "cliffs_workshop", "cliffs_sanctuary", "cliffs_hut"],
+			"Nunzia's bar, the waiting room, the church, the cellar, Trenin's workshop, the sanctuary chapel and your hut")
+		var start := Schedule.nearest_node(Data.layout.spawn.x, Data.layout.spawn.z, {})
+		var pack := Data.location_script(ID)
+		var fns: Array = pack.get_script_method_list().map(func(m): return m.name)
+		for id in rooms:
+			t.ok(not Schedule.find_path(start, id + ":spot", {}).is_empty(), "you can walk into %s" % id)
+			var b: Dictionary = Data.layout.buildings.filter(func(x): return x.id == id)[0]
+			var o: Node3D = Village.building_model(b, pack, fns)
+			if id == "cliffs_hut":
+				t.ok(b.interior.get("empty", false), "the hut is an empty ruin until you fix it up")
+				t.eq(o.get_meta("fade_parts", [1]).size(), 0, "and has no roof to fade")
+			else:
+				t.ok(o.get_meta("fade_parts", []).size() > 0, "%s's roof fades while you're inside" % id)
+			o.free()
+		var hut := Data.zone("cliffs_hut")
+		t.ok(hut.get("interior", false), "the hut's build site is inside its walls"))
+
+func test_slate_roofs():
+	_here(func():
+		t.eq(Data.layout.houseStyle.get("roofTiles", ""), "slate", "Serenza asks the house kit for slate")
+		var pack := Data.location_script(ID)
+		var fns: Array = pack.get_script_method_list().map(func(m): return m.name)
+		for b in Data.layout.buildings.filter(func(x): return HouseKit.uses(x)):
+			var o: Node3D = Village.building_model(b, pack, fns)
+			var slates := 0
+			var coppi := 0
+			for mm in o.find_children("*", "MultiMeshInstance3D", true, false):
+				var m := mm as MultiMeshInstance3D
+				if not (m.material_override is ShaderMaterial): continue
+				if m.multimesh.mesh == HouseKit.unit_box(): slates += m.multimesh.instance_count
+				else: coppi += m.multimesh.instance_count
+			t.ok(slates > 80 and coppi == 0, "%s has a slate roof (%d slates, %d coppi)" % [b.id, slates, coppi])
+			t.ok(o.find_children("painted_frames", "MultiMeshInstance3D", true, false).size() > 0, "%s has painted window surrounds" % b.id)
+			o.free())
+
+func test_the_trains():
+	var T := preload("res://scripts/locations/cliffs/trains.gd")
+	var deps := T.departures()
+	t.eq(float(deps[0].at), 310.0, "the first train at 5:10")
+	t.ok(deps.all(func(d): return int(d.at) % 20 == 10), "then every twenty minutes")
+	t.ok(T.standing(8 * 60 + 10.5), "the morning regional stands at the platform at 8:10, Sturlese's train")
+	t.ok(T.standing(18 * 60 + 10.5), "and the evening one at 18:10")
+	t.ok(T.active(3 * 60.0).is_empty(), "no trains in the small hours")
+	for d in deps:
+		var before := T.centre_x(d, float(d.at) - 6.0)
+		var after := T.centre_x(d, float(d.at) + 6.0)
+		t.ok((after - before) * float(d.dir) > 100.0, "train %d runs right through, one way" % d.n)
+		if d.stops:
+			t.ok(absf(T.centre_x(d, float(d.at) + 0.7) - T.STOP_X) < 0.01, "regional %d waits at the platform" % d.n)
+		else:
+			t.ok(not T.standing(float(d.at)), "the fast train %d doesn't stop" % d.n)
+	for m in range(300, 1440, 3):
+		var a := T.active(float(m))
+		if a.is_empty(): continue
+		t.ok(absf(float(a.x)) - T.length_of(a.dep) / 2.0 < T.SHOW, "a train is only drawn between the tunnels")
+
+func test_the_boats_leave_the_street_open():
+	_here(func():
+		var boats: Array = Data.layout.props.filter(func(p): return p.kind == "cliffs_boat")
+		t.eq(boats.size(), 4, "four boats winter in the main street")
+		for b in boats:
+			t.ok(absf(float(b.x)) - float(b.w) / 2.0 > 1.4, "%s is pulled up at the side of the street" % b.id)
+			t.ok(C.kind_at(b.x, b.z) == int(G.KINDS.street), "%s is on the main street" % b.id))
