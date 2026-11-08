@@ -1,0 +1,230 @@
+{
+ "_comment": "Serenza's shops: Nunzia's bar, Trenin's workshop, Capo Horn's boat and, once it reopens, the cellar.",
+ "shops": {
+  "cliffs_nunzia": {
+   "name": "Nunzia's Bar",
+   "label": "A coffee and something from the counter",
+   "greet": "Sit, sit. Coffee? Of course coffee.",
+   "requires": {
+    "quests": [
+     "cliffs_welcome"
+    ]
+   },
+   "buys": {
+    "cliffs_lemon": 3,
+    "cliffs_greens": 2,
+    "cliffs_borage": 3,
+    "cliffs_bream": 5,
+    "cliffs_mullet": 4,
+    "cliffs_octopus": 7,
+    "fish": 3
+   },
+   "stock": [
+    {
+     "items": {
+      "cliffs_coffee": 1
+     },
+     "price": 2
+    },
+    {
+     "items": {
+      "cliffs_focaccia": 1
+     },
+     "price": 4
+    },
+    {
+     "items": {
+      "cliffs_lemoncake": 1
+     },
+     "price": 6
+    },
+    {
+     "items": {
+      "cliffs_pie": 1
+     },
+     "price": 7,
+     "requires": {
+      "quests": [
+       "cliffs_herbs"
+      ]
+     }
+    },
+    {
+     "items": {
+      "fabric": 3
+     },
+     "price": 9
+    },
+    {
+     "blueprint": "table",
+     "price": 20
+    },
+    {
+     "blueprint": "chair",
+     "price": 12
+    },
+    {
+     "blueprint": "flowerBed",
+     "price": 15
+    }
+   ]
+  },
+  "cliffs_mario": {
+   "name": "Trenin's Workshop",
+   "label": "Let's see the spare parts",
+   "greet": "Mind the oil. And Zia Pina, she's the cart on the left.",
+   "requires": {
+    "quests": [
+     "cliffs_welcome"
+    ]
+   },
+   "buys": {
+    "cliffs_coin": 12,
+    "cliffs_button": 15,
+    "cliffs_medal": 15,
+    "metal": 3
+   },
+   "stock": [
+    {
+     "items": {
+      "metal": 1
+     },
+     "price": 6
+    },
+    {
+     "items": {
+      "metal": 5
+     },
+     "price": 26
+    },
+    {
+     "items": {
+      "crystal": 1
+     },
+     "price": 9
+    },
+    {
+     "blueprint": "stairs",
+     "price": 15
+    },
+    {
+     "blueprint": "railing",
+     "price": 10
+    },
+    {
+     "blueprint": "lever",
+     "price": 20
+    },
+    {
+     "blueprint": "workbench",
+     "price": 30
+    },
+    {
+     "blueprint": "streetlight",
+     "price": 30
+    }
+   ]
+  },
+  "cliffs_giacomo": {
+   "name": "Capo Horn's Boat",
+   "label": "What's in the lockers?",
+   "greet": "Sailcloth, anchovies, bait. And a story, free with every purchase.",
+   "requires": {
+    "quests": [
+     "cliffs_welcome"
+    ]
+   },
+   "buys": {
+    "cliffs_bream": 5,
+    "cliffs_mullet": 4,
+    "cliffs_octopus": 7,
+    "wood": 2
+   },
+   "stock": [
+    {
+     "items": {
+      "fabric": 3
+     },
+     "price": 8
+    },
+    {
+     "items": {
+      "cliffs_anchovies": 1
+     },
+     "price": 4
+    },
+    {
+     "blueprint": "pontoon",
+     "price": 25
+    },
+    {
+     "blueprint": "bridgeDeck",
+     "price": 15
+    },
+    {
+     "clothes": "cliffs_captainCap",
+     "price": 30,
+     "requires": {
+      "quests": [
+       "cliffs_boats"
+      ]
+     }
+    }
+   ]
+  },
+  "cliffs_marta": {
+   "name": "The Growers' Cellar",
+   "label": "See what the cellar sells",
+   "greet": "Serenza: bottled sunshine. That's the slogan. One of them.",
+   "requires": {
+    "quests": [
+     "cliffs_cellar"
+    ]
+   },
+   "buys": {
+    "cliffs_lemon": 3,
+    "cliffs_greens": 2
+   },
+   "stock": [
+    {
+     "items": {
+      "cliffs_vine": 1
+     },
+     "price": 8
+    },
+    {
+     "items": {
+      "cliffs_lemon_sapling": 1
+     },
+     "price": 12
+    },
+    {
+     "items": {
+      "cliffs_wine": 1
+     },
+     "price": 5
+    },
+    {
+     "items": {
+      "wood": 5
+     },
+     "price": 15
+    },
+    {
+     "items": {
+      "stone": 5
+     },
+     "price": 15
+    },
+    {
+     "blueprint": "drystoneWall",
+     "price": 10
+    },
+    {
+     "blueprint": "vinePergola",
+     "price": 15
+    }
+   ]
+  }
+ }
+}

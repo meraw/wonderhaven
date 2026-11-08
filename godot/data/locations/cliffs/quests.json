@@ -1,0 +1,2363 @@
+{
+ "_comment": "Serenza's requests (docs/locations/cliffs.md): six main, seven side. Terraces count on the meter through Serenza's own check (cliffs.gd meter_things), so requests add 0 meter points.",
+ "quests": [
+  {
+   "id": "cliffs_welcome",
+   "title": "Welcome to Serenza",
+   "giver": "cliffs_marta",
+   "type": "story",
+   "chapter": 6,
+   "description": "Marta meets your train and the walk is the tour: Capo Horn and the boats in the main street, Nunzia's bar on the harbour square, Don Aurelio at the church on the rocks, Trenin's workshop by the cellar, a little wood and stone on the way, and up the terrace steps to her grandfather's vines.",
+   "objectives": [
+    {
+     "id": "horn",
+     "kind": "talk",
+     "npc": "cliffs_giacomo",
+     "text": "Meet Capo Horn, mending nets beside his boat in the main street",
+     "stage": 0,
+     "lines": [
+      "Ahoy! You'll be the Geometra. Capitano Rollandi. They call me Capo Horn. Eleven times round it. Or fourteen.",
+      "Mind the boats. They wintered in the street and the slipway's crumbled, so here they stay. Come and see me when you've a minute and a hammer."
+     ],
+     "hint": {
+      "x": 0.0,
+      "z": 9.0
+     }
+    },
+    {
+     "id": "nunzia",
+     "kind": "talk",
+     "npc": "cliffs_nunzia",
+     "text": "Say hello to Nunzia at her bar on the harbour square",
+     "stage": 0,
+     "lines": [
+      "The Geometra! Sit. Coffee. Don't argue, it's on the house the first time, and the second time if you tell me what Marta's up to.",
+      "That's the payphone, that's the fax, that's my guest book. Eight schoolteachers are coming for Easter. My first guests since 1991!"
+     ],
+     "hint": {
+      "x": -9.0,
+      "z": 24.5
+     }
+    },
+    {
+     "id": "aurelio",
+     "kind": "talk",
+     "npc": "cliffs_aurelio",
+     "text": "Meet Don Aurelio at the church on the rocks",
+     "stage": 0,
+     "lines": [
+      "Welcome, welcome! Don Aurelio. That's my church, those are my rocks, and that's my sea. I swim in it every morning.",
+      "When you've settled, come and talk to me about Easter. The procession has a problem, and it's halfway up a gully."
+     ],
+     "hint": {
+      "x": 19.0,
+      "z": 26.0
+     }
+    },
+    {
+     "id": "trenin",
+     "kind": "talk",
+     "npc": "cliffs_mario",
+     "text": "Meet Trenin at his workshop by the cellar",
+     "stage": 1,
+     "lines": [
+      "Oh, hello! Mario Cozzani. Trenin. Come in, mind the sump. This is Zia Pina. She's a monorail cart. She's resting.",
+      "She'd run all the way to the top if the slip hadn't taken the rail. I'll tell you about it. Bring stone. And patience."
+     ],
+     "hint": {
+      "x": 9.5,
+      "z": -20.0
+     }
+    },
+    {
+     "id": "wood",
+     "kind": "gather",
+     "item": "wood",
+     "count": 3,
+     "text": "Chop 3 wood from the pines along the top of the terraces",
+     "stage": 1,
+     "hint": {
+      "x": -12.0,
+      "z": -60.0
+     }
+    },
+    {
+     "id": "stone",
+     "kind": "gather",
+     "item": "stone",
+     "count": 3,
+     "text": "Quarry 3 stone from the heaps where terrace walls have fallen",
+     "stage": 1,
+     "hint": {
+      "x": -21.5,
+      "z": -35.0
+     }
+    },
+    {
+     "id": "nonno",
+     "kind": "talk",
+     "npc": "cliffs_settimio",
+     "text": "Climb the terrace steps to Settimio's vines on E2",
+     "stage": 2,
+     "final": true,
+     "hint": {
+      "x": 30.0,
+      "z": -33.0
+     }
+    }
+   ],
+   "rewards": {
+    "meter": 0,
+    "items": {
+     "coins": 20
+    },
+    "flags": [
+     "cliffs_welcomed"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "You're the Geometra! Marta Bonanni. I wrote to the province. Well, I wrote to the province on agency letterhead.",
+     "Welcome to Serenza: sixteen terraces, two tunnels, one train in each direction and a cooperative that votes in April whether to give up.",
+     "Let me show you round. Down the station stairs, under the arch, and mind the boats. They're in the street."
+    ],
+    "acceptLabel": "Show me round!",
+    "declineLabel": "In a minute",
+    "accept": [
+     "Brilliant. Capo Horn's in the main street, Nunzia's at the bar, Don Aurelio's on the church rocks. Say hello to all three.",
+     "Then Trenin by the cellar. Pick up a little wood and stone on the way, the pines are at the top. And then… Nonno. On E2. He doesn't know about the letter yet."
+    ],
+    "decline": [
+     "Of course. Serenza's been here since the twelfth century. It'll wait a minute."
+    ],
+    "progress": [
+     "Capo Horn, Nunzia, Don Aurelio, Trenin, a little wood and stone. Then Nonno's vines on E2. Brace yourself."
+    ],
+    "complete": [
+     "You're the one my granddaughter wrote to the province about. Behind my back. On paper with a biscuit on it.",
+     "Hm. Well. You're here now. The cooperative's hut on E4 has no roof. If you're staying, you'll stay where I can see you.",
+     "Tonight you sleep on a bench. Everybody does, once. Tomorrow we talk about the hut."
+    ]
+   },
+   "main": true,
+   "onAccept": {
+    "flags": [
+     "hasTool"
+    ],
+    "items": {
+     "wood": 1
+    }
+   }
+  },
+  {
+   "id": "cliffs_hut",
+   "title": "The Hut on the Terrace",
+   "giver": "cliffs_settimio",
+   "type": "construction",
+   "chapter": 6,
+   "description": "The cooperative's hut on E4 has lost its roof. Cut back the brambles, give it a roof, a door and a light, and plant something green on the terrace: E4 comes back, the hut becomes your home and the terrace your plot.",
+   "objectives": [
+    {
+     "id": "brambles",
+     "kind": "event",
+     "event": "chop",
+     "count": 3,
+     "stage": 0,
+     "text": "Cut back the brambles on E4 (and any wood you chop counts)",
+     "hint": {
+      "x": 23.2,
+      "z": -40.0
+     }
+    },
+    {
+     "id": "wood",
+     "kind": "gather",
+     "item": "wood",
+     "count": 9,
+     "text": "Gather 9 wood",
+     "stage": 0,
+     "hint": {
+      "x": 24.0,
+      "z": -60.0
+     }
+    },
+    {
+     "id": "stone",
+     "kind": "gather",
+     "item": "stone",
+     "count": 4,
+     "text": "Quarry 4 stone for the pillars",
+     "stage": 0,
+     "hint": {
+      "x": 31.5,
+      "z": -36.5
+     }
+    },
+    {
+     "id": "hut",
+     "kind": "commission",
+     "stage": 1,
+     "text": "Put a roof, a door and a light on the hut on E4",
+     "zone": "cliffs_hut",
+     "musts": [
+      {
+       "check": "pieces",
+       "label": "A roof",
+       "any": [
+        "roof"
+       ]
+      },
+      {
+       "check": "pieces",
+       "label": "A door",
+       "any": [
+        "doorWall"
+       ]
+      },
+      {
+       "check": "provides",
+       "label": "A light",
+       "kind": "light"
+      }
+     ],
+     "wishes": [
+      {
+       "check": "pieces",
+       "who": "cliffs_settimio",
+       "label": "Stone, not wood, to hold the roof up",
+       "any": [
+        "stoneBlock",
+        "drystoneWall",
+        "pillar",
+        "column"
+       ],
+       "count": 2
+      },
+      {
+       "check": "lower",
+       "who": "cliffs_fulvio",
+       "label": "No taller than 4 m (the landscape rules)",
+       "height": 4.0
+      },
+      {
+       "check": "recolored",
+       "who": "cliffs_marta",
+       "label": "Something painted. It's a launch, Nonno!"
+      }
+     ],
+     "buildHint": "A roof rests on pillars or walls. A door goes on the edge of a tile: R turns it.",
+     "hint": {
+      "x": 20.0,
+      "z": -41.0
+     },
+     "plan": [
+      [
+       19,
+       -42,
+       "pillar"
+      ],
+      [
+       20,
+       -42,
+       "pillar"
+      ],
+      [
+       19,
+       -42,
+       "roof",
+       0
+      ],
+      [
+       19,
+       -41,
+       "doorWall",
+       2,
+       "#4f6b43"
+      ],
+      [
+       20,
+       -41,
+       "lamp"
+      ]
+     ],
+     "onDone": {
+      "flags": [
+       "cliffs_homePlot",
+       "cliffs_hutHome"
+      ]
+     }
+    },
+    {
+     "id": "vines",
+     "kind": "commission",
+     "stage": 2,
+     "text": "Plant two vine pergolas on terrace E4, beside the hut",
+     "zone": "cliffs_plot",
+     "musts": [
+      {
+       "check": "provides",
+       "label": "Two green things on E4",
+       "kind": "green",
+       "count": 2
+      }
+     ],
+     "wishes": [],
+     "buildHint": "Vine pergolas need a vine sapling each.",
+     "hint": {
+      "x": 27.5,
+      "z": -40.5
+     },
+     "plan": [
+      [
+       26,
+       -41,
+       "vinePergola"
+      ],
+      [
+       29,
+       -41,
+       "vinePergola"
+      ]
+     ]
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "cliffs_settimio",
+     "text": "Tell Settimio the hut has a roof",
+     "stage": 3,
+     "final": true
+    }
+   ],
+   "rewards": {
+    "meter": 0,
+    "items": {
+     "coins": 30
+    }
+   },
+   "dialogue": {
+    "offer": [
+     "The cooperative's hut on E4. Stone walls, no roof. The roof went in the storm of '87, with my best hat.",
+     "If you're staying, you'll stay there. Cut back the brambles, put a roof on it, a door and a light. Then plant something on the terrace. A terrace with nothing on it isn't a terrace. It's a step."
+    ],
+    "acceptLabel": "I'll fix up the hut",
+    "declineLabel": "Not yet",
+    "accept": [
+     "Brambles first, there's three of them and they bite. Wood from the pines, stone from the fallen walls.",
+     "Two vine saplings for the terrace. From my own vines. Don't drown them."
+    ],
+    "decline": [
+     "Hm. The bench it is, then. The bench doesn't complain."
+    ],
+    "progress": [
+     "Brambles, wood, stone. A roof, a door, a light. Then two vines on E4."
+    ],
+    "complete": [
+     "A roof. A door. A light. And vines on E4, first time in eleven years.",
+     "It'll do. The hut's yours, and so's the terrace. Sleep in it. Build on it. Don't paint it pink."
+    ]
+   },
+   "main": true,
+   "requires": {
+    "quests": [
+     "cliffs_welcome"
+    ]
+   },
+   "onAccept": {
+    "blueprints": [
+     "pillar",
+     "roof",
+     "doorWall",
+     "lamp",
+     "vinePergola"
+    ],
+    "items": {
+     "cliffs_vine": 2,
+     "clay": 1,
+     "crystal": 1
+    }
+   }
+  },
+  {
+   "id": "cliffs_wall",
+   "title": "The First Wall",
+   "giver": "cliffs_settimio",
+   "type": "construction",
+   "chapter": 6,
+   "description": "The wall under W4 has collapsed onto W3 and buried its vines. Quarry the fallen stones and rebuild the wall across the gap, dry stone, no mortar, then plant something green on W3 and on W4.",
+   "objectives": [
+    {
+     "id": "stone",
+     "kind": "gather",
+     "item": "stone",
+     "count": 12,
+     "text": "Quarry 12 wall stones from the rubble heaps",
+     "stage": 0,
+     "hint": {
+      "x": -28.5,
+      "z": -34.8
+     }
+    },
+    {
+     "id": "learn",
+     "kind": "talk",
+     "npc": "cliffs_settimio",
+     "text": "Ask Settimio how to build a dry-stone wall",
+     "stage": 1,
+     "lines": [
+      "Big stones at the bottom. Long side into the hill. Every stone leans a little back, like an old man on a bench.",
+      "No mortar. Mortar cracks. Dry stone breathes. The water goes through and the earth stays put.",
+      "Two courses high across the whole gap, or W4 comes down on W3 again with the first rain."
+     ]
+    },
+    {
+     "id": "wall",
+     "kind": "commission",
+     "stage": 2,
+     "text": "Rebuild the wall across the gap under W4",
+     "zone": "cliffs_wall",
+     "musts": [
+      {
+       "check": "sealed",
+       "label": "A wall across the whole gap: nothing low enough for W4 to slide through"
+      },
+      {
+       "check": "taller",
+       "label": "At least 1.8 m tall",
+       "height": 1.8
+      }
+     ],
+     "wishes": [
+      {
+       "check": "material",
+       "who": "cliffs_settimio",
+       "label": "Stone only",
+       "of": [
+        "stone"
+       ]
+      },
+      {
+       "check": "pieces",
+       "who": "cliffs_marta",
+       "label": "A sign for the visitors",
+       "any": [
+        "signpost",
+        "enamelSign"
+       ]
+      },
+      {
+       "check": "lower",
+       "who": "cliffs_fulvio",
+       "label": "No higher than the terrace above",
+       "height": 2.6
+      }
+     ],
+     "buildHint": "Dry-stone walls stack: build two courses across the gap.",
+     "hint": {
+      "x": -28.0,
+      "z": -38.0
+     },
+     "plan": [
+      [
+       -30,
+       -38,
+       "drystoneWall"
+      ],
+      [
+       -29,
+       -38,
+       "drystoneWall"
+      ],
+      [
+       -28,
+       -38,
+       "drystoneWall"
+      ],
+      [
+       -27,
+       -38,
+       "drystoneWall"
+      ],
+      [
+       -26,
+       -38,
+       "drystoneWall"
+      ],
+      [
+       -30,
+       -38,
+       "drystoneWall"
+      ],
+      [
+       -29,
+       -38,
+       "drystoneWall"
+      ],
+      [
+       -28,
+       -38,
+       "drystoneWall"
+      ],
+      [
+       -27,
+       -38,
+       "drystoneWall"
+      ],
+      [
+       -26,
+       -38,
+       "drystoneWall"
+      ]
+     ],
+     "onDone": {
+      "flags": [
+       "cliffs_wallBuilt"
+      ]
+     }
+    },
+    {
+     "id": "w3",
+     "kind": "flag",
+     "flag": "cliffs_terrace_w3",
+     "stage": 3,
+     "text": "Plant something green on W3, below the wall",
+     "hint": {
+      "x": -24.0,
+      "z": -36.0
+     }
+    },
+    {
+     "id": "w4",
+     "kind": "flag",
+     "flag": "cliffs_terrace_w4",
+     "stage": 3,
+     "text": "Plant something green on W4, above the wall",
+     "hint": {
+      "x": -24.0,
+      "z": -40.0
+     }
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "cliffs_settimio",
+     "text": "Show Settimio his wall",
+     "stage": 4,
+     "final": true
+    }
+   ],
+   "rewards": {
+    "meter": 0,
+    "items": {
+     "coins": 40
+    }
+   },
+   "dialogue": {
+    "offer": [
+     "See that? Under W4. The wall came down in November and took W3's vines with it. My father built that wall. Badly, it turns out.",
+     "I'll show you how. You do the lifting. My back did its lifting in 1961."
+    ],
+    "acceptLabel": "Teach me",
+    "declineLabel": "Later",
+    "accept": [
+     "Twelve stones from the heaps. The wall's in pieces all over W3. Then come and ask me how."
+    ],
+    "decline": [
+     "It's been down since November. It'll stay down till you come back. Walls are patient. I'm not."
+    ],
+    "progress": [
+     "Stones, then ask me. Then the wall. Then plant something either side of it."
+    ],
+    "complete": [
+     "Hm. Let me kick it. …It'll do. For now.",
+     "Look: a lizard on your stones already. Lizards know a good wall."
+    ]
+   },
+   "main": true,
+   "requires": {
+    "quests": [
+     "cliffs_hut"
+    ]
+   },
+   "onAccept": {
+    "blueprints": [
+     "drystoneWall",
+     "signpost"
+    ],
+    "items": {
+     "cliffs_vine": 2
+    }
+   }
+  },
+  {
+   "id": "cliffs_monorail",
+   "title": "The Monorail",
+   "giver": "cliffs_mario",
+   "type": "construction",
+   "chapter": 6,
+   "description": "A slip took the footpath beside the monorail between E5 and E6, and the rail with it. Build a way up the slip, with a railing, and Trenin lays the rail along it: the carts reach the top again and the growers bring E5 and E6 back.",
+   "objectives": [
+    {
+     "id": "wood",
+     "kind": "gather",
+     "item": "wood",
+     "count": 6,
+     "text": "Gather 6 wood for the steps",
+     "stage": 0,
+     "hint": {
+      "x": 24.0,
+      "z": -60.0
+     }
+    },
+    {
+     "id": "stone",
+     "kind": "gather",
+     "item": "stone",
+     "count": 2,
+     "text": "Quarry 2 stone",
+     "stage": 0,
+     "hint": {
+      "x": 34.0,
+      "z": -48.0
+     }
+    },
+    {
+     "id": "metal",
+     "kind": "gather",
+     "item": "metal",
+     "count": 1,
+     "text": "Get 1 metal for the cart stop (Trenin sells it)",
+     "stage": 0,
+     "hint": {
+      "x": 9.5,
+      "z": -20.0
+     }
+    },
+    {
+     "id": "slip",
+     "kind": "commission",
+     "stage": 1,
+     "text": "Build a way up the slip beside the monorail",
+     "zone": "cliffs_slip",
+     "musts": [
+      {
+       "check": "path",
+       "label": "A walkable way from the bottom of the slip to the top"
+      },
+      {
+       "check": "pieces",
+       "label": "A railing on the open side",
+       "any": [
+        "railing"
+       ]
+      }
+     ],
+     "wishes": [
+      {
+       "check": "pieces",
+       "who": "cliffs_mario",
+       "label": "A lever at the top for the cart stop",
+       "any": [
+        "lever"
+       ]
+      },
+      {
+       "check": "pieces",
+       "who": "cliffs_settimio",
+       "label": "Stone under the steps",
+       "any": [
+        "stoneBlock",
+        "drystoneWall"
+       ]
+      }
+     ],
+     "buildHint": "Stairs climb a metre toward their back edge; put them on a block to climb two.",
+     "hint": {
+      "x": 15.0,
+      "z": -47.0
+     },
+     "plan": [
+      [
+       14,
+       -48,
+       "stairs",
+       0
+      ],
+      [
+       14,
+       -49,
+       "stoneBlock"
+      ],
+      [
+       14,
+       -49,
+       "stairs",
+       0
+      ],
+      [
+       14,
+       -50,
+       "railing",
+       1
+      ],
+      [
+       15,
+       -50,
+       "lever"
+      ]
+     ],
+     "onDone": {
+      "flags": [
+       "cliffs_slipBuilt"
+      ]
+     }
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "cliffs_mario",
+     "text": "Tell Trenin the slip is passable",
+     "stage": 2,
+     "final": true
+    }
+   ],
+   "rewards": {
+    "meter": 0,
+    "items": {
+     "coins": 50
+    },
+    "flags": [
+     "cliffs_monorailRuns"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "The slip, Geometra. Between E5 and E6. It took the footpath and my rail with it, and now Zia Pina stops halfway like a sulky hen.",
+     "Build me a way up the slip, with a railing, and I'll lay the rail along it. Then the carts climb to the top and the growers go back up."
+    ],
+    "acceptLabel": "I'll build it",
+    "declineLabel": "Not now",
+    "accept": [
+     "Wood for steps, a little stone, and a bit of metal from my shop for the cart stop.",
+     "Mind the slip itself, the earth's still loose. Brrrr-tak!"
+    ],
+    "decline": [
+     "Zia Pina will wait. She's good at waiting. She's a cart."
+    ],
+    "progress": [
+     "Wood, stone, metal. Then a way up the slip and a railing. Then I lay the rail."
+    ],
+    "complete": [
+     "Listen. Brrrrr-tak, brrrrr-tak… that's Zia Pina going up! Loaded with stakes! Past the slip! To the top!",
+     "The growers are already carrying vines up to E5 and E6. Look at them go. Well, look at them go slowly."
+    ]
+   },
+   "main": true,
+   "requires": {
+    "quests": [
+     "cliffs_wall"
+    ]
+   },
+   "onAccept": {
+    "blueprints": [
+     "stairs",
+     "stoneBlock",
+     "railing",
+     "lever"
+    ],
+    "items": {
+     "wood": 2
+    }
+   }
+  },
+  {
+   "id": "cliffs_path",
+   "title": "The Sanctuary Path",
+   "giver": "cliffs_aurelio",
+   "type": "construction",
+   "chapter": 6,
+   "description": "A winter flood in the gully took the mule path's steps. Build a way up the gully from the lower path to the upper, with railings for the old ladies, and walk up to the sanctuary to ring its bell. The growers can reach W7 again.",
+   "objectives": [
+    {
+     "id": "wood",
+     "kind": "gather",
+     "item": "wood",
+     "count": 8,
+     "text": "Gather 8 wood",
+     "stage": 0,
+     "hint": {
+      "x": -48.0,
+      "z": -60.8
+     }
+    },
+    {
+     "id": "stone",
+     "kind": "gather",
+     "item": "stone",
+     "count": 6,
+     "text": "Quarry 6 stone",
+     "stage": 0,
+     "hint": {
+      "x": -36.0,
+      "z": -44.0
+     }
+    },
+    {
+     "id": "gully",
+     "kind": "commission",
+     "stage": 1,
+     "text": "Build a way up the gully on the mule path",
+     "zone": "cliffs_gully",
+     "musts": [
+      {
+       "check": "path",
+       "label": "A walkable way up from the lower path to the upper"
+      },
+      {
+       "check": "pieces",
+       "label": "Railings for the old ladies",
+       "any": [
+        "railing"
+       ],
+       "count": 2
+      }
+     ],
+     "wishes": [
+      {
+       "check": "pieces",
+       "who": "cliffs_aurelio",
+       "label": "A little statue on the way",
+       "any": [
+        "statue"
+       ]
+      },
+      {
+       "check": "pieces",
+       "who": "cliffs_settimio",
+       "label": "Steps on stone",
+       "any": [
+        "stoneBlock",
+        "drystoneWall"
+       ]
+      },
+      {
+       "check": "lower",
+       "who": "cliffs_fulvio",
+       "label": "No taller than 3 m",
+       "height": 3.0
+      }
+     ],
+     "buildHint": "Stairs climb a metre toward their back edge: stack blocks under them to climb higher.",
+     "hint": {
+      "x": -48.5,
+      "z": -37.5
+     },
+     "plan": [
+      [
+       -49,
+       -37,
+       "stairs",
+       0
+      ],
+      [
+       -49,
+       -38,
+       "stoneBlock"
+      ],
+      [
+       -49,
+       -38,
+       "stairs",
+       0
+      ],
+      [
+       -49,
+       -39,
+       "stoneBlock"
+      ],
+      [
+       -49,
+       -39,
+       "stoneBlock"
+      ],
+      [
+       -49,
+       -39,
+       "stairs",
+       0
+      ],
+      [
+       -49,
+       -40,
+       "railing",
+       1
+      ],
+      [
+       -49,
+       -40,
+       "railing",
+       3
+      ]
+     ],
+     "onDone": {
+      "flags": [
+       "cliffs_gullyBuilt"
+      ]
+     }
+    },
+    {
+     "id": "bell",
+     "kind": "event",
+     "event": "cliffs_bell",
+     "count": 1,
+     "stage": 2,
+     "text": "Walk up to the sanctuary and ring its bell",
+     "hint": {
+      "x": -56.0,
+      "z": -57.5
+     }
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "cliffs_aurelio",
+     "text": "Tell Don Aurelio the way is open",
+     "stage": 3,
+     "final": true
+    }
+   ],
+   "rewards": {
+    "meter": 0,
+    "items": {
+     "coins": 50,
+     "cliffs_focaccia": 1
+    },
+    "flags": [
+     "cliffs_sanctuaryPath"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "Every Easter the procession climbs from my church to the sanctuary at the top. Every grower, every grandmother, every knee in Serenza.",
+     "But the gully on the mule path flooded in the winter and took the steps. The old ladies can't climb three metres of mud. Neither can I, to be honest."
+    ],
+    "acceptLabel": "I'll build the steps",
+    "declineLabel": "Not yet",
+    "accept": [
+     "Bless you. Wood from the chestnuts up by the sanctuary, stone from the fallen walls.",
+     "And railings! Signora Bertone is ninety-one and has opinions about railings."
+    ],
+    "decline": [
+     "Easter will come whether we're ready or not. That's rather the point of Easter."
+    ],
+    "progress": [
+     "Wood and stone, then steps up the gully with railings. Then up to the sanctuary to ring the bell."
+    ],
+    "complete": [
+     "I heard it from the church! The sanctuary bell, after all winter. Half the village came out to look.",
+     "The old growers are already planning to go back up to W7. Bertone says she'll walk the procession this year. With her railings."
+    ]
+   },
+   "main": true,
+   "requires": {
+    "quests": [
+     "cliffs_monorail"
+    ]
+   },
+   "onAccept": {
+    "blueprints": [
+     "stairs",
+     "stoneBlock",
+     "railing",
+     "statue"
+    ],
+    "items": {
+     "wood": 2
+    }
+   }
+  },
+  {
+   "id": "cliffs_easter",
+   "title": "Easter on the Terraces",
+   "giver": "cliffs_marta",
+   "type": "construction",
+   "chapter": 6,
+   "description": "Ten terraces back in use, a resting place halfway up the procession route, the procession on Easter morning, and the cooperative's vote in the cellar.",
+   "objectives": [
+    {
+     "id": "terraces",
+     "kind": "meter",
+     "value": 8,
+     "stage": 0,
+     "text": "Ten of sixteen terraces back in use"
+    },
+    {
+     "id": "wood",
+     "kind": "gather",
+     "item": "wood",
+     "count": 4,
+     "text": "Gather 4 wood for the resting place",
+     "stage": 0,
+     "hint": {
+      "x": -24.0,
+      "z": -61.0
+     }
+    },
+    {
+     "id": "stone",
+     "kind": "gather",
+     "item": "stone",
+     "count": 2,
+     "text": "Quarry 2 stone",
+     "stage": 0,
+     "hint": {
+      "x": -12.0,
+      "z": -52.0
+     }
+    },
+    {
+     "id": "rest",
+     "kind": "commission",
+     "stage": 0,
+     "text": "Build a resting place at the halfway spot on the procession route",
+     "zone": "cliffs_halfway",
+     "musts": [
+      {
+       "check": "provides",
+       "label": "A seat",
+       "kind": "seat"
+      },
+      {
+       "check": "provides",
+       "label": "Shade",
+       "kind": "shelter"
+      },
+      {
+       "check": "provides",
+       "label": "Something green",
+       "kind": "green"
+      }
+     ],
+     "wishes": [
+      {
+       "check": "pieces",
+       "who": "cliffs_aurelio",
+       "label": "A statue of the saint",
+       "any": [
+        "statue"
+       ]
+      },
+      {
+       "check": "pieces",
+       "who": "cliffs_settimio",
+       "label": "A dry-stone wall to lean on",
+       "any": [
+        "drystoneWall"
+       ]
+      },
+      {
+       "check": "lower",
+       "who": "cliffs_fulvio",
+       "label": "No taller than 3 m",
+       "height": 3.0
+      }
+     ],
+     "buildHint": "A vine pergola gives shade and green at once.",
+     "hint": {
+      "x": -9.0,
+      "z": -44.5
+     },
+     "plan": [
+      [
+       -10,
+       -45,
+       "drystoneWall"
+      ],
+      [
+       -9,
+       -45,
+       "drystoneWall"
+      ],
+      [
+       -10,
+       -44,
+       "bench",
+       0
+      ],
+      [
+       -11,
+       -44,
+       "vinePergola"
+      ],
+      [
+       -8,
+       -44,
+       "vinePergola"
+      ]
+     ],
+     "onDone": {
+      "flags": [
+       "cliffs_restBuilt"
+      ]
+     }
+    },
+    {
+     "id": "procession",
+     "kind": "talk",
+     "npc": "cliffs_aurelio",
+     "text": "On Easter morning, join the procession at the church (6 AM to 11 AM)",
+     "stage": 1,
+     "lines": [
+      "Christ is risen! And so are we, at six in the morning. Here they come: every grower, every grandmother, the band from the next town and the statue on four shoulders.",
+      "Up the main street, under the arch, past the cellar. The bells are pealing. Listen: the hiking club's off the 8:10, eight red anoraks joining at the back.",
+      "Along the terraces, green all the way: E4, the wall on W4, the vines on E5. Signora Bertone takes the gully steps holding both railings, and nobody breathes.",
+      "We rest at your resting place, in the shade. Then up to the sanctuary, and the bell. The whole coast can hear it. Thank you, Geometra."
+     ],
+     "hours": [
+      6,
+      11
+     ],
+     "hint": {
+      "x": 18.2,
+      "z": 25.6
+     }
+    },
+    {
+     "id": "vote",
+     "kind": "talk",
+     "npc": "cliffs_settimio",
+     "text": "Go to the cellar for the cooperative's vote",
+     "stage": 2,
+     "final": true,
+     "hint": {
+      "x": -9.0,
+      "z": -22.5
+     }
+    }
+   ],
+   "rewards": {
+    "meter": 0,
+    "items": {
+     "coins": 150,
+     "cliffs_wine": 2
+    },
+    "flags": [
+     "cliffs_easterDone",
+     "olive_village_revealed"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "Geometra. Easter. The cooperative votes the week after, and I want them to vote looking at a green hill.",
+     "Ten terraces in use. A resting place halfway up the procession route. Then Easter morning, and then the vote. Are you in?"
+    ],
+    "acceptLabel": "Let's make it Easter",
+    "declineLabel": "Not yet",
+    "accept": [
+     "Brilliant. The halfway spot's on W5, by the stair: shade, a seat, something green. Don Aurelio's very particular about shade.",
+     "And ten terraces. Every one you bring back is one more grower who votes to stay. I've done the maths. On a fax."
+    ],
+    "decline": [
+     "Easter's on a fixed date. Well, a moveable fixed date. Don't move it too far."
+    ],
+    "progress": [
+     "Ten terraces, the resting place, Easter morning, then the vote in the cellar."
+    ],
+    "complete": [
+     "Order, order. The cooperative of Serenza will now vote. All in favour of staying open?",
+     "…Eleven hands. Marta, you're not a member. Put your hand down. …Eleven. All against? Nobody. Abstentions?",
+     "Ragionier Sturlese abstains on procedural grounds. Noted. And the president votes… yes. Twelve. The cooperative stays open.",
+     "Marta, give me that bottle. Your label. 'Serenza: Terraced Sunshine.' …It'll do. For now. Geometra: thank you."
+    ]
+   },
+   "main": true,
+   "requires": {
+    "quests": [
+     "cliffs_welcome",
+     "cliffs_hut",
+     "cliffs_wall",
+     "cliffs_monorail",
+     "cliffs_path"
+    ]
+   },
+   "onAccept": {
+    "blueprints": [
+     "bench",
+     "statue",
+     "vinePergola",
+     "drystoneWall"
+    ],
+    "items": {
+     "cliffs_vine": 2
+    }
+   }
+  },
+  {
+   "id": "cliffs_boats",
+   "title": "Boats Back to Sea",
+   "giver": "cliffs_giacomo",
+   "type": "construction",
+   "chapter": 6,
+   "description": "Every spring the village slides the boats that wintered in the main street down the slipway into the harbour, and the slipway has crumbled. Build a new one out over the water, and at dawn the boats go back to sea.",
+   "objectives": [
+    {
+     "id": "wood",
+     "kind": "gather",
+     "item": "wood",
+     "count": 9,
+     "text": "Gather 9 wood for the slipway",
+     "stage": 0,
+     "hint": {
+      "x": 8.0,
+      "z": -61.0
+     }
+    },
+    {
+     "id": "slipway",
+     "kind": "commission",
+     "stage": 1,
+     "text": "Build a slipway from the harbour square out over the water",
+     "zone": "cliffs_slipway",
+     "musts": [
+      {
+       "check": "path",
+       "label": "A walkable slipway from the square out over the water"
+      },
+      {
+       "check": "count",
+       "label": "At least six pieces",
+       "count": 6
+      }
+     ],
+     "wishes": [
+      {
+       "check": "pieces",
+       "who": "cliffs_giacomo",
+       "label": "A railing, so nobody follows the boats in",
+       "any": [
+        "railing"
+       ]
+      },
+      {
+       "check": "provides",
+       "who": "cliffs_nunzia",
+       "label": "A bench to watch from",
+       "kind": "seat"
+      },
+      {
+       "check": "lower",
+       "who": "cliffs_fulvio",
+       "label": "Nothing sticking up above the quay",
+       "height": 1.5
+      }
+     ],
+     "buildHint": "Start the planks on the square: they reach two tiles out over the water from there.",
+     "hint": {
+      "x": -0.5,
+      "z": 31.0
+     },
+     "plan": [
+      [
+       -1,
+       30,
+       "bridgeDeck"
+      ],
+      [
+       0,
+       30,
+       "bridgeDeck"
+      ],
+      [
+       -1,
+       31,
+       "bridgeDeck"
+      ],
+      [
+       0,
+       31,
+       "bridgeDeck"
+      ],
+      [
+       -1,
+       32,
+       "bridgeDeck"
+      ],
+      [
+       0,
+       32,
+       "bridgeDeck"
+      ],
+      [
+       -1,
+       32,
+       "railing",
+       3
+      ],
+      [
+       0,
+       32,
+       "railing",
+       1
+      ]
+     ],
+     "onDone": {
+      "flags": [
+       "cliffs_boatsReady"
+      ]
+     }
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "cliffs_giacomo",
+     "text": "Tell Capo Horn the slipway is ready",
+     "stage": 2,
+     "final": true
+    }
+   ],
+   "rewards": {
+    "meter": 0,
+    "items": {
+     "coins": 40,
+     "cliffs_anchovies": 2
+    },
+    "clothes": [
+     "cliffs_captainCap"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "See my boat? In the main street. Like a whale on a pavement. Every spring we slide them down the slipway, and every spring the slipway's a bit less slipway.",
+     "This spring it's no slipway at all. Build me a new one out over the water and the whole village will launch the boats at dawn."
+    ],
+    "acceptLabel": "Aye aye, Captain",
+    "declineLabel": "Not yet",
+    "accept": [
+     "Wood, and plenty of it. Planks reach two tiles over the water from the square. That's enough for a boat to get its feet wet."
+    ],
+    "decline": [
+     "The boats have waited all winter. They're patient. They're boats."
+    ],
+    "progress": [
+     "Wood, then a slipway from the square out over the water."
+    ],
+    "complete": [
+     "A slipway! A proper one! Tomorrow at dawn, the whole village, every boat, down into the harbour. Like Valparaiso in 1974.",
+     "Here, take this cap. White, for a captain. You've earned it, and it's too small for me."
+    ]
+   },
+   "requires": {
+    "quests": [
+     "cliffs_welcome"
+    ]
+   },
+   "onAccept": {
+    "blueprints": [
+     "bridgeDeck",
+     "railing",
+     "bench"
+    ],
+    "items": {
+     "wood": 2
+    }
+   }
+  },
+  {
+   "id": "cliffs_cellar",
+   "title": "The Cellar Reopens",
+   "giver": "cliffs_marta",
+   "type": "construction",
+   "chapter": 6,
+   "description": "With the carts running again, the crates can come up. Fit out the growers' cellar with a counter, lamps and shelves, then plant the first saplings on E1, and the cellar becomes Marta's shop.",
+   "objectives": [
+    {
+     "id": "wood",
+     "kind": "gather",
+     "item": "wood",
+     "count": 10,
+     "text": "Gather 10 wood",
+     "stage": 0,
+     "hint": {
+      "x": 36.0,
+      "z": -61.0
+     }
+    },
+    {
+     "id": "fit",
+     "kind": "commission",
+     "stage": 1,
+     "text": "Fit out the growers' cellar",
+     "zone": "cliffs_cellar",
+     "musts": [
+      {
+       "check": "pieces",
+       "label": "A counter",
+       "any": [
+        "counter"
+       ]
+      },
+      {
+       "check": "provides",
+       "label": "Two lamps",
+       "kind": "light",
+       "count": 2
+      },
+      {
+       "check": "pieces",
+       "label": "Shelves for the bottles",
+       "any": [
+        "cabinet",
+        "bookshelf",
+        "drawers"
+       ],
+       "count": 2
+      }
+     ],
+     "wishes": [
+      {
+       "check": "pieces",
+       "who": "cliffs_mario",
+       "label": "A workbench for the press",
+       "any": [
+        "workbench"
+       ]
+      },
+      {
+       "check": "pieces",
+       "who": "cliffs_settimio",
+       "label": "A table for tasting",
+       "any": [
+        "table"
+       ]
+      },
+      {
+       "check": "recolored",
+       "who": "cliffs_marta",
+       "label": "The counter painted. Brand colours!"
+      }
+     ],
+     "buildHint": "The cellar's roof fades while you build inside it.",
+     "hint": {
+      "x": -9.0,
+      "z": -22.5
+     },
+     "plan": [
+      [
+       -9,
+       -24,
+       "counter",
+       0,
+       "#3fb5a3"
+      ],
+      [
+       -11,
+       -24,
+       "lamp"
+      ],
+      [
+       -6,
+       -24,
+       "lamp"
+      ],
+      [
+       -11,
+       -23,
+       "cabinet",
+       1
+      ],
+      [
+       -11,
+       -22,
+       "cabinet",
+       1
+      ]
+     ]
+    },
+    {
+     "id": "e1",
+     "kind": "commission",
+     "stage": 2,
+     "text": "Plant the first saplings on E1, the terrace above the cellar",
+     "zone": "cliffs_terrace_e1",
+     "musts": [
+      {
+       "check": "provides",
+       "label": "Two green things on E1",
+       "kind": "green",
+       "count": 2
+      }
+     ],
+     "wishes": [],
+     "buildHint": "Vine pergolas need a vine sapling each.",
+     "hint": {
+      "x": 21.5,
+      "z": -28.0
+     },
+     "plan": [
+      [
+       20,
+       -28,
+       "vinePergola"
+      ],
+      [
+       23,
+       -28,
+       "vinePergola"
+      ]
+     ]
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "cliffs_marta",
+     "text": "Tell Marta the cellar's ready",
+     "stage": 3,
+     "final": true
+    }
+   ],
+   "rewards": {
+    "meter": 0,
+    "items": {
+     "coins": 40,
+     "cliffs_wine": 2
+    },
+    "flags": [
+     "cliffs_cellarOpen"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "The carts are running! Which means crates can come up, which means bottles, which means a cellar that sells something.",
+     "Fit it out for me: a counter, lamps, shelves. I've got labels. I've got a fax. I've got forty numbers to fax them to."
+    ],
+    "acceptLabel": "Let's open the cellar",
+    "declineLabel": "Later",
+    "accept": [
+     "Wood for the counter and the shelves. Paint the counter if you love me. Teal. Brand colours.",
+     "Then two saplings on E1. A cellar with nothing growing above it is just a cave."
+    ],
+    "decline": [
+     "The fax will keep. It's very patient. It's beige."
+    ],
+    "progress": [
+     "A counter, two lamps, shelves for the bottles. Then saplings on E1."
+    ],
+    "complete": [
+     "Look at it! Counter, lamps, shelves. And vines on E1 out of the door. 'Serenza: Bottled Sunshine.' Faxing now.",
+     "Forty faxes. Thirty-nine came back 'number not recognised'. One came back 'stop faxing me'. That's engagement!"
+    ]
+   },
+   "requires": {
+    "quests": [
+     "cliffs_monorail"
+    ]
+   },
+   "onAccept": {
+    "blueprints": [
+     "counter",
+     "lamp",
+     "cabinet",
+     "workbench",
+     "table"
+    ],
+    "items": {
+     "crystal": 2,
+     "stone": 1,
+     "cliffs_vine": 2
+    }
+   }
+  },
+  {
+   "id": "cliffs_lunch",
+   "title": "Fish for the Easter Lunch",
+   "giver": "cliffs_giacomo",
+   "type": "request",
+   "chapter": 6,
+   "description": "Nunzia is cooking Easter lunch for the hiking club. Fish off the harbour wall and the rocks with the captain: three sea bream and two grey mullet, and hand them to Nunzia.",
+   "objectives": [
+    {
+     "id": "bream",
+     "kind": "gather",
+     "item": "cliffs_bream",
+     "count": 3,
+     "text": "Catch 3 sea bream off the harbour wall or the rocks",
+     "stage": 0,
+     "hint": {
+      "x": 6.0,
+      "z": 33.0
+     }
+    },
+    {
+     "id": "mullet",
+     "kind": "gather",
+     "item": "cliffs_mullet",
+     "count": 2,
+     "text": "Catch 2 grey mullet",
+     "stage": 0,
+     "hint": {
+      "x": -8.0,
+      "z": 39.0
+     }
+    },
+    {
+     "id": "hand",
+     "kind": "pay",
+     "npc": "cliffs_nunzia",
+     "items": {
+      "cliffs_bream": 3,
+      "cliffs_mullet": 2
+     },
+     "stage": 1,
+     "label": "Hand over the fish",
+     "text": "Bring Nunzia the fish for the Easter lunch",
+     "lines": [
+      "Bream! Mullet! Fresh as this morning, because they are this morning. The schoolteachers will write poems."
+     ]
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "cliffs_nunzia",
+     "text": "Tell Nunzia the captain sends his regards",
+     "stage": 2,
+     "final": true
+    }
+   ],
+   "rewards": {
+    "meter": 0,
+    "items": {
+     "coins": 30,
+     "cliffs_lemoncake": 1
+    },
+    "clothes": [
+     "cliffs_espadrilles"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "Nunzia's cooking Easter lunch for the hiking club and she wants fish. Not frozen fish. Fish with a story.",
+     "Come fishing off the harbour wall. Three bream, two mullet. I'll supply the story. I've got one for every fish."
+    ],
+    "acceptLabel": "Let's go fishing",
+    "declineLabel": "Not now",
+    "accept": [
+     "Bream off the harbour wall, mullet by the rocks. Did I ever tell you about the tuna off Madagascar? It was this big. No, bigger."
+    ],
+    "decline": [
+     "The fish aren't going anywhere. Well, they are. But there are more."
+    ],
+    "progress": [
+     "Three bream and two mullet, then to Nunzia. The tuna was bigger, by the way."
+    ],
+    "complete": [
+     "The captain sent his regards? He sends his regards with every fish. And a story. I've heard the Madagascar one forty times.",
+     "These are for you. Espadrilles, rope soles. My late husband's size, never worn. He didn't like his feet to see the sun."
+    ]
+   },
+   "requires": {
+    "quests": [
+     "cliffs_welcome"
+    ]
+   },
+   "onAccept": {
+    "blueprints": []
+   }
+  },
+  {
+   "id": "cliffs_shelter",
+   "title": "A Shelter for the Last Train",
+   "giver": "cliffs_fulvio",
+   "type": "construction",
+   "chapter": 6,
+   "description": "Ragionier Sturlese misses the last train one day in three and sleeps on the platform bench. Build him a shelter at the end of the platform: a seat, a roof and a light.",
+   "objectives": [
+    {
+     "id": "wood",
+     "kind": "gather",
+     "item": "wood",
+     "count": 7,
+     "text": "Gather 7 wood",
+     "stage": 0,
+     "hint": {
+      "x": -36.0,
+      "z": -61.0
+     }
+    },
+    {
+     "id": "stone",
+     "kind": "gather",
+     "item": "stone",
+     "count": 4,
+     "text": "Quarry 4 stone for the pillars",
+     "stage": 0,
+     "hint": {
+      "x": -36.0,
+      "z": -44.0
+     }
+    },
+    {
+     "id": "shelter",
+     "kind": "commission",
+     "stage": 1,
+     "text": "Build a shelter at the west end of the platform",
+     "zone": "cliffs_shelter",
+     "musts": [
+      {
+       "check": "provides",
+       "label": "A seat",
+       "kind": "seat"
+      },
+      {
+       "check": "pieces",
+       "label": "A roof",
+       "any": [
+        "roof"
+       ]
+      },
+      {
+       "check": "provides",
+       "label": "A light",
+       "kind": "light"
+      }
+     ],
+     "wishes": [
+      {
+       "check": "lower",
+       "who": "cliffs_fulvio",
+       "label": "No taller than the canopy, 3 m",
+       "height": 3.0
+      },
+      {
+       "check": "pieces",
+       "who": "cliffs_marta",
+       "label": "A sign with the timetable",
+       "any": [
+        "enamelSign",
+        "signpost"
+       ]
+      },
+      {
+       "check": "pieces",
+       "who": "cliffs_nunzia",
+       "label": "A flower bed",
+       "any": [
+        "flowerBed"
+       ]
+      }
+     ],
+     "buildHint": "A roof rests on pillars. Put the bench under it.",
+     "hint": {
+      "x": -20.0,
+      "z": 0.5
+     },
+     "plan": [
+      [
+       -21,
+       -1,
+       "pillar"
+      ],
+      [
+       -20,
+       -1,
+       "pillar"
+      ],
+      [
+       -21,
+       -1,
+       "roof",
+       0
+      ],
+      [
+       -21,
+       0,
+       "bench",
+       0
+      ],
+      [
+       -20,
+       1,
+       "lamp"
+      ],
+      [
+       -21,
+       1,
+       "flowerBed"
+      ]
+     ],
+     "onDone": {
+      "flags": [
+       "cliffs_shelterBuilt"
+      ]
+     }
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "cliffs_fulvio",
+     "text": "Look in on Sturlese at the shelter after the last train (8 PM to midnight)",
+     "stage": 2,
+     "final": true,
+     "hours": [
+      20,
+      24
+     ],
+     "hint": {
+      "x": -20.0,
+      "z": 0.2
+     }
+    }
+   ],
+   "rewards": {
+    "meter": 0,
+    "items": {
+     "coins": 35
+    }
+   },
+   "dialogue": {
+    "offer": [
+     "Geometra. A formal request. Unofficial, but formal.",
+     "I miss the 21:40 one day in three. I sleep on the platform bench. The bench is within the regulations. The weather is not.",
+     "A shelter at the end of the platform: a seat, a roof, a light. Nothing taller than the canopy. I'll stamp it whatever you do."
+    ],
+    "acceptLabel": "I'll build you a shelter",
+    "declineLabel": "Maybe later",
+    "accept": [
+     "Most kind. I have prepared a form. You don't need to fill it in. I just like to have it."
+    ],
+    "decline": [
+     "Noted. I'll bring an umbrella. I always bring an umbrella. It's on the form."
+    ],
+    "progress": [
+     "A seat, a roof, a light. At the west end of the platform."
+    ],
+    "complete": [
+     "…",
+     "Zzz… received… stamped… very dry… zzz…"
+    ]
+   },
+   "requires": {
+    "quests": [
+     "cliffs_hut"
+    ]
+   },
+   "onAccept": {
+    "blueprints": [
+     "pillar",
+     "roof",
+     "bench",
+     "lamp",
+     "flowerBed",
+     "enamelSign"
+    ],
+    "items": {
+     "clay": 1,
+     "crystal": 1,
+     "flowers": 2
+    }
+   }
+  },
+  {
+   "id": "cliffs_herbs",
+   "title": "Herbs for the Easter Pie",
+   "giver": "cliffs_nunzia",
+   "type": "request",
+   "chapter": 6,
+   "description": "Gather wild greens and borage off the abandoned terraces for Nunzia's Easter pie, then plant two green things on W2, the terrace above the houses, so next year her greens are nearer.",
+   "objectives": [
+    {
+     "id": "greens",
+     "kind": "gather",
+     "item": "cliffs_greens",
+     "count": 8,
+     "text": "Pick 8 wild greens off the abandoned terraces",
+     "stage": 0,
+     "hint": {
+      "x": -24.0,
+      "z": -32.5
+     }
+    },
+    {
+     "id": "borage",
+     "kind": "gather",
+     "item": "cliffs_borage",
+     "count": 3,
+     "text": "Pick 3 borage along the walls",
+     "stage": 0,
+     "hint": {
+      "x": -36.0,
+      "z": -40.5
+     }
+    },
+    {
+     "id": "hand",
+     "kind": "pay",
+     "npc": "cliffs_nunzia",
+     "items": {
+      "cliffs_greens": 8,
+      "cliffs_borage": 3
+     },
+     "stage": 1,
+     "label": "Hand over the greens",
+     "text": "Bring Nunzia the greens and the borage",
+     "lines": [
+      "Look at these! Bitter, sweet, a bit of borage for the blue. My grandmother would cry. I'll cry for her."
+     ]
+    },
+    {
+     "id": "w2",
+     "kind": "commission",
+     "stage": 2,
+     "text": "Plant two green things on W2, the terrace above the houses",
+     "zone": "cliffs_terrace_w2",
+     "musts": [
+      {
+       "check": "provides",
+       "label": "Two green things on W2",
+       "kind": "green",
+       "count": 2
+      }
+     ],
+     "wishes": [],
+     "buildHint": "Any green thing counts: a hedge, a flower bed, a vine, a tree.",
+     "hint": {
+      "x": -13.0,
+      "z": -32.0
+     },
+     "plan": [
+      [
+       -14,
+       -32,
+       "hedge"
+      ],
+      [
+       -12,
+       -32,
+       "hedge"
+      ]
+     ]
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "cliffs_nunzia",
+     "text": "Tell Nunzia W2 is planted",
+     "stage": 3,
+     "final": true
+    }
+   ],
+   "rewards": {
+    "meter": 0,
+    "items": {
+     "coins": 25,
+     "cliffs_pie": 2
+    },
+    "flags": [
+     "cliffs_pieBaked"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "The Easter pie. Torta di erbe. Wild greens, borage, eggs, pastry you can read the paper through.",
+     "The greens grow on the abandoned terraces now, between the brambles. Pick me eight, and three borage. And then… plant something on W2? So next year I don't have to climb."
+    ],
+    "acceptLabel": "I'll pick them",
+    "declineLabel": "Not now",
+    "accept": [
+     "Greens grow up on the terraces where nobody's working. Borage along the walls, blue flowers, you can't miss them."
+    ],
+    "decline": [
+     "The pie can wait. The guests can't. But they're not here yet."
+    ],
+    "progress": [
+     "Eight greens, three borage. Then two green things on W2."
+    ],
+    "complete": [
+     "Here: the first slice. Eat it standing, like my grandmother did. And from now on it's on the counter.",
+     "And W2, green again, right above the roofs. I'll be able to pick greens in my slippers."
+    ]
+   },
+   "requires": {
+    "quests": [
+     "cliffs_welcome"
+    ]
+   },
+   "onAccept": {
+    "blueprints": [
+     "hedge",
+     "flowerBed"
+    ],
+    "items": {
+     "wood": 2
+    }
+   }
+  },
+  {
+   "id": "cliffs_tables",
+   "title": "Tables for the Guests",
+   "giver": "cliffs_nunzia",
+   "type": "construction",
+   "chapter": 6,
+   "description": "The hiking club will want to eat outside. Set up tables on the harbour square: two tables, four chairs and shade.",
+   "objectives": [
+    {
+     "id": "wood",
+     "kind": "gather",
+     "item": "wood",
+     "count": 9,
+     "text": "Gather 9 wood",
+     "stage": 0,
+     "hint": {
+      "x": -36.0,
+      "z": -61.0
+     }
+    },
+    {
+     "id": "tables",
+     "kind": "commission",
+     "stage": 1,
+     "text": "Set up tables for the guests on the harbour square",
+     "zone": "cliffs_tables",
+     "musts": [
+      {
+       "check": "pieces",
+       "label": "Two tables",
+       "any": [
+        "table"
+       ],
+       "count": 2
+      },
+      {
+       "check": "provides",
+       "label": "Four chairs",
+       "kind": "seat",
+       "count": 4
+      },
+      {
+       "check": "provides",
+       "label": "Shade",
+       "kind": "shelter"
+      }
+     ],
+     "wishes": [
+      {
+       "check": "pieces",
+       "who": "cliffs_giacomo",
+       "label": "A railing along the quay",
+       "any": [
+        "railing"
+       ]
+      },
+      {
+       "check": "lower",
+       "who": "cliffs_fulvio",
+       "label": "Nothing taller than 3 m",
+       "height": 3.0
+      },
+      {
+       "check": "pieces",
+       "who": "cliffs_nunzia",
+       "label": "A lemon tree",
+       "any": [
+        "lemonTree"
+       ]
+      }
+     ],
+     "buildHint": "A vine pergola gives shade.",
+     "hint": {
+      "x": 5.0,
+      "z": 26.5
+     },
+     "plan": [
+      [
+       3,
+       26,
+       "table"
+      ],
+      [
+       3,
+       27,
+       "chair",
+       0
+      ],
+      [
+       2,
+       26,
+       "chair",
+       1
+      ],
+      [
+       7,
+       26,
+       "table"
+      ],
+      [
+       7,
+       27,
+       "chair",
+       0
+      ],
+      [
+       8,
+       26,
+       "chair",
+       3
+      ],
+      [
+       5,
+       26,
+       "vinePergola"
+      ]
+     ]
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "cliffs_nunzia",
+     "text": "Tell Nunzia the tables are out",
+     "stage": 2,
+     "final": true
+    }
+   ],
+   "rewards": {
+    "meter": 0,
+    "items": {
+     "coins": 40,
+     "cliffs_lemoncake": 2
+    }
+   },
+   "dialogue": {
+    "offer": [
+     "Schoolteachers eat outside. It's a rule. They read it in a book. Two tables, four chairs, and shade, Geometra.",
+     "On the square, by the water, where they can see the boats and tell each other the names of the clouds."
+    ],
+    "acceptLabel": "Tables it is",
+    "declineLabel": "Later",
+    "accept": [
+     "Wood for the tables and chairs. A vine for shade, there's a sapling. Nunzia's tip: lemon trees are very fashionable."
+    ],
+    "decline": [
+     "They'll eat standing up, then. Like Romans. No, Romans lay down. Like Genoese."
+    ],
+    "progress": [
+     "Two tables, four chairs, shade. On the square."
+    ],
+    "complete": [
+     "Tables! Chairs! Shade! I've already sat in every chair. They all work.",
+     "Lemon cake for you. And when the guests come I'll tell them the Geometra built the tables. Twice. In case they don't hear the first time."
+    ]
+   },
+   "requires": {
+    "quests": [
+     "cliffs_herbs"
+    ]
+   },
+   "onAccept": {
+    "blueprints": [
+     "table",
+     "chair",
+     "vinePergola"
+    ],
+    "items": {
+     "cliffs_vine": 1
+    }
+   }
+  },
+  {
+   "id": "cliffs_swim",
+   "title": "Don Aurelio's Morning Swim",
+   "giver": "cliffs_aurelio",
+   "type": "construction",
+   "chapter": 6,
+   "description": "The iron ladder down the rocks below the church has rusted away. Build Don Aurelio a way down from the church terrace to a pontoon on the water.",
+   "objectives": [
+    {
+     "id": "wood",
+     "kind": "gather",
+     "item": "wood",
+     "count": 9,
+     "text": "Gather 9 wood",
+     "stage": 0,
+     "hint": {
+      "x": 24.0,
+      "z": -61.0
+     }
+    },
+    {
+     "id": "stone",
+     "kind": "gather",
+     "item": "stone",
+     "count": 2,
+     "text": "Quarry 2 stone",
+     "stage": 0,
+     "hint": {
+      "x": 31.5,
+      "z": -36.5
+     }
+    },
+    {
+     "id": "clay",
+     "kind": "gather",
+     "item": "clay",
+     "count": 1,
+     "text": "Dig 1 clay from the gully bank",
+     "stage": 0,
+     "hint": {
+      "x": -54.0,
+      "z": -37.0
+     }
+    },
+    {
+     "id": "ladder",
+     "kind": "commission",
+     "stage": 1,
+     "text": "Build a way down the rocks from the church terrace to the water",
+     "zone": "cliffs_swim",
+     "musts": [
+      {
+       "check": "path",
+       "label": "A walkable way from the water up to the church terrace"
+      },
+      {
+       "check": "pieces",
+       "label": "A platform on the water",
+       "any": [
+        "pontoon"
+       ]
+      }
+     ],
+     "wishes": [
+      {
+       "check": "pieces",
+       "who": "cliffs_aurelio",
+       "label": "A rail to hold",
+       "any": [
+        "railing"
+       ]
+      },
+      {
+       "check": "recolored",
+       "who": "cliffs_giacomo",
+       "label": "Painted, like a proper boat"
+      },
+      {
+       "check": "lower",
+       "who": "cliffs_fulvio",
+       "label": "No taller than the church terrace above the water",
+       "height": 4.0
+      }
+     ],
+     "buildHint": "A pontoon floats on open water. Stairs climb a metre toward their back edge.",
+     "hint": {
+      "x": 23.5,
+      "z": 39.5
+     },
+     "plan": [
+      [
+       23,
+       41,
+       "pontoon",
+       0,
+       "#2f6fa8"
+      ],
+      [
+       23,
+       40,
+       "stairs",
+       0
+      ],
+      [
+       23,
+       39,
+       "stoneBlock"
+      ],
+      [
+       23,
+       39,
+       "stairs",
+       0
+      ],
+      [
+       22,
+       38,
+       "railing",
+       1
+      ],
+      [
+       24,
+       38,
+       "railing",
+       3
+      ]
+     ],
+     "onDone": {
+      "flags": [
+       "cliffs_ladderBuilt"
+      ]
+     }
+    },
+    {
+     "id": "swim",
+     "kind": "talk",
+     "npc": "cliffs_aurelio",
+     "text": "Be on the church rocks at dawn for Don Aurelio's swim (5 AM to 9 AM)",
+     "stage": 2,
+     "final": true,
+     "hours": [
+      5,
+      9
+     ],
+     "hint": {
+      "x": 23.5,
+      "z": 37.0
+     }
+    }
+   ],
+   "rewards": {
+    "meter": 0,
+    "items": {
+     "coins": 30
+    },
+    "flags": [
+     "cliffs_swimDone"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "There was an iron ladder down the rocks below the church. Sixty years of salt and it finally gave up last winter.",
+     "Now I climb in like a crab and out like a seal, and I'm not as young a seal as I was. A way down, and a pontoon to swim from?"
+    ],
+    "acceptLabel": "I'll build it",
+    "declineLabel": "Later",
+    "accept": [
+     "Wood, a little stone, and clay to seal the pontoon. Bless you. I'll pray for good weather. I always do. It doesn't always listen."
+    ],
+    "decline": [
+     "The sea will be there. It's very reliable, the sea."
+    ],
+    "progress": [
+     "A way down the rocks and a pontoon. Then come at dawn."
+    ],
+    "complete": [
+     "Fourteen degrees! Bracing! Glorious! Come in, Geometra, come in!",
+     "No? Not this morning? Not any morning? …Fair enough. Hold my towel, then. The Lord made the sea and the towel, and both are good."
+    ]
+   },
+   "requires": {
+    "quests": [
+     "cliffs_hut"
+    ]
+   },
+   "onAccept": {
+    "blueprints": [
+     "pontoon",
+     "stairs",
+     "stoneBlock",
+     "railing"
+    ],
+    "items": {
+     "wood": 2
+    }
+   }
+  }
+ ]
+}

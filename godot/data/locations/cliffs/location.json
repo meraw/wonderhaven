@@ -7,15 +7,114 @@
  "color": "#e7a98f",
  "reveal": "port_lighthouse_lit",
  "bikes": false,
- "day": {"holdAt": 20.5, "regrow": "overnight", "hold": false},
+ "day": {
+  "holdAt": 20.5,
+  "regrow": "overnight",
+  "hold": false
+ },
  "look": {
-  "shade": [0.0, 0.012, 0.03],
-  "light": [1.02, 1.0, 0.95],
+  "shade": [
+   0.0,
+   0.012,
+   0.03
+  ],
+  "light": [
+   1.02,
+   1.0,
+   0.95
+  ],
   "wind": 0.7,
-  "life": {"motes": 0.4, "fireflies": 0.0, "leaves": 0.0},
-  "weather": ["clear", "fair", "drizzle", "mist"],
+  "life": {
+   "motes": 0.4,
+   "fireflies": 0.0,
+   "leaves": 0.0
+  },
+  "weather": [
+   "clear",
+   "fair",
+   "drizzle",
+   "mist"
+  ],
   "mist": 0.3,
-  "water": {"shallow": "#86d1c6", "mid": "#3f9db0", "deep": "#1f5b86", "foam": 0.6},
+  "water": {
+   "shallow": "#86d1c6",
+   "mid": "#3f9db0",
+   "deep": "#1f5b86",
+   "foam": 0.6
+  },
   "sun_peak": 50
+ },
+ "meter": {
+  "name": "Terraces in use",
+  "icon": "🌿",
+  "about": "Sixteen terraces climb Serenza's ravine and only two are still tended. Mend a terrace's wall and plant something green on it, a vine pergola, a lemon tree, a young tree, a flower bed or a hedge, and it's back in use, for good. Any terrace counts, request or not.",
+  "reward": "%d more terraces in use",
+  "display": {
+   "from": 2,
+   "per_point": 1,
+   "format": "%d of 16 terraces",
+   "to": 16
+  },
+  "milestones": [
+   {
+    "at": 2,
+    "id": "cliffs_terraces4",
+    "title": "Green on the hill",
+    "desc": "Four terraces in use. Settimio opens the cooperative's tin and counts out thirty coins, twice.",
+    "items": {
+     "coins": 30
+    }
+   },
+   {
+    "at": 4,
+    "id": "cliffs_terraces6",
+    "title": "The lizards are back",
+    "desc": "Wall lizards bask on the new stones. Settimio gives you the lemon tree's plan and two saplings from his own trees.",
+    "blueprints": [
+     "lemonTree"
+    ],
+    "items": {
+     "cliffs_lemon_sapling": 2
+    }
+   },
+   {
+    "at": 6,
+    "id": "cliffs_terraces8",
+    "title": "Settimio takes his hat off",
+    "desc": "Half the hillside is green. Settimio takes his hat off to you, briefly, and hands over three vine saplings and forty coins.",
+    "items": {
+     "cliffs_vine": 3,
+     "coins": 40
+    }
+   },
+   {
+    "at": 8,
+    "id": "cliffs_terraces10",
+    "title": "Ready for Easter",
+    "desc": "Ten terraces in use: the procession can climb through green all the way up. Tell Marta."
+   },
+   {
+    "at": 11,
+    "id": "cliffs_terraces13",
+    "title": "The hillside in green",
+    "desc": "Thirteen terraces. The hiking club sends a postcard of the hillside, and the cooperative a hundred coins.",
+    "items": {
+     "coins": 100,
+     "cliffs_postcard": 1
+    }
+   },
+   {
+    "at": 14,
+    "id": "cliffs_terraces16",
+    "title": "Sixteen of sixteen",
+    "desc": "Every terrace in Serenza is in use. A slate plaque with your name goes up by the cellar door, and the cooperative pays a hundred and fifty coins.",
+    "items": {
+     "coins": 150
+    },
+    "flags": [
+     "cliffs_plaque"
+    ]
+   }
+  ]
  }
 }

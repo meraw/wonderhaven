@@ -1,0 +1,121 @@
+{
+ "_comment": "Serenza's own produce, treats, catches and finds (docs/locations/cliffs.md).",
+ "resources": {
+  "cliffs_lemon": {
+   "name": "Lemons",
+   "icon": "🍋",
+   "color": "#f2d03b"
+  },
+  "cliffs_greens": {
+   "name": "Wild Greens",
+   "icon": "🥬",
+   "color": "#6f9a3c"
+  },
+  "cliffs_borage": {
+   "name": "Borage",
+   "icon": "🌼",
+   "color": "#6b7fd4"
+  },
+  "cliffs_vine": {
+   "name": "Vine Sapling",
+   "icon": "🌱",
+   "color": "#7a9a4a"
+  },
+  "cliffs_lemon_sapling": {
+   "name": "Lemon Sapling",
+   "icon": "🪴",
+   "color": "#5a8a3a"
+  },
+  "cliffs_bream": {
+   "name": "Sea Bream",
+   "icon": "🐟",
+   "color": "#b8c4cc"
+  },
+  "cliffs_mullet": {
+   "name": "Grey Mullet",
+   "icon": "🐟",
+   "color": "#9aa4a8"
+  },
+  "cliffs_octopus": {
+   "name": "Little Octopus",
+   "icon": "🐙",
+   "color": "#d98a8a"
+  },
+  "cliffs_coffee": {
+   "name": "Coffee",
+   "icon": "☕",
+   "color": "#6b4a32",
+   "treat": 1
+  },
+  "cliffs_focaccia": {
+   "name": "Focaccia",
+   "icon": "🫓",
+   "color": "#e8c27a",
+   "treat": 2
+  },
+  "cliffs_lemoncake": {
+   "name": "Lemon Cake",
+   "icon": "🍰",
+   "color": "#f4e08a",
+   "treat": 3
+  },
+  "cliffs_pie": {
+   "name": "Easter Pie",
+   "icon": "🥧",
+   "color": "#d9b45a",
+   "treat": 3
+  },
+  "cliffs_anchovies": {
+   "name": "Salted Anchovies",
+   "icon": "🐟",
+   "color": "#8a9aa8",
+   "treat": 2
+  },
+  "cliffs_wine": {
+   "name": "Sweet Wine",
+   "icon": "🍷",
+   "color": "#c98a3a",
+   "treat": 2
+  },
+  "cliffs_coin": {
+   "name": "Old Coin",
+   "icon": "🪙",
+   "color": "#c9a46a"
+  },
+  "cliffs_button": {
+   "name": "Brass Button",
+   "icon": "🔘",
+   "color": "#d9b45a"
+  },
+  "cliffs_medal": {
+   "name": "Pilgrim's Medal",
+   "icon": "🏅",
+   "color": "#c9c2b0"
+  },
+  "cliffs_postcard": {
+   "name": "The Hiking Club's Postcard",
+   "icon": "🖼️",
+   "color": "#e85d4a"
+  }
+ },
+ "order": [
+  "cliffs_lemon",
+  "cliffs_greens",
+  "cliffs_borage",
+  "cliffs_vine",
+  "cliffs_lemon_sapling",
+  "cliffs_bream",
+  "cliffs_mullet",
+  "cliffs_octopus",
+  "cliffs_coffee",
+  "cliffs_focaccia",
+  "cliffs_lemoncake",
+  "cliffs_pie",
+  "cliffs_anchovies",
+  "cliffs_wine",
+  "cliffs_coin",
+  "cliffs_button",
+  "cliffs_medal",
+  "cliffs_postcard"
+ ]
+}

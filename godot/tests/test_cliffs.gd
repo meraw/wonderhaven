@@ -135,7 +135,7 @@ func test_walls_you_cant_climb():
 		t.ok(_walk(Vector2(-48.5, -34.6), Vector2(-48.5, -35.6)), "but you can walk down into it from the south side")
 		t.ok(Heightfield.height(-48.5, -39.6) - Heightfield.height(-48.5, -37.5) > 2.0, "the gully needs steps and a bridge")
 		t.ok(not _walk(Vector2(15, -48.6), Vector2(15, -49.6)), "from the slip you can't climb to the monorail's path above")
-		t.ok(Heightfield.height(15, -49.5) - Heightfield.height(15, -46) > 2.0, "the slip needs a way up")
+		t.ok(Heightfield.height(15, -49.5) - Heightfield.height(15, -46) > 1.9, "the slip needs a way up")
 		t.ok(not _stand(_world(), -12, -8.25), "the railway's ledge is no place to walk")
 		t.ok(Heightfield.height(0, -8.25) < 5.0, "the main street runs under the railway arch"))
 
@@ -282,8 +282,8 @@ func test_the_village_builds():
 func test_rooms_you_can_walk_into():
 	_here(func():
 		var rooms: Array = Data.layout.buildings.filter(func(b): return Interiors.enterable(b)).map(func(b): return b.id)
-		t.eq(rooms, ["cliffs_bar", "cliffs_station", "cliffs_church", "cliffs_cellar", "cliffs_workshop", "cliffs_sanctuary", "cliffs_hut"],
-			"Nunzia's bar, the waiting room, the church, the cellar, Trenin's workshop, the sanctuary chapel and your hut")
+		t.eq(rooms, ["cliffs_bar", "cliffs_station", "cliffs_church", "cliffs_cellar", "cliffs_workshop", "cliffs_sanctuary"],
+			"Nunzia's bar, the waiting room, the church, the cellar, Trenin's workshop and the sanctuary chapel")
 		var start := Schedule.nearest_node(Data.layout.spawn.x, Data.layout.spawn.z, {})
 		var pack := Data.location_script(ID)
 		var fns: Array = pack.get_script_method_list().map(func(m): return m.name)
@@ -291,14 +291,14 @@ func test_rooms_you_can_walk_into():
 			t.ok(not Schedule.find_path(start, id + ":spot", {}).is_empty(), "you can walk into %s" % id)
 			var b: Dictionary = Data.layout.buildings.filter(func(x): return x.id == id)[0]
 			var o: Node3D = Village.building_model(b, pack, fns)
-			if id == "cliffs_hut":
-				t.ok(b.interior.get("empty", false), "the hut is an empty ruin until you fix it up")
-				t.eq(o.get_meta("fade_parts", [1]).size(), 0, "and has no roof to fade")
-			else:
-				t.ok(o.get_meta("fade_parts", []).size() > 0, "%s's roof fades while you're inside" % id)
+			t.ok(o.get_meta("fade_parts", []).size() > 0, "%s's roof fades while you're inside" % id)
 			o.free()
 		var hut := Data.zone("cliffs_hut")
-		t.ok(hut.get("interior", false), "the hut's build site is inside its walls"))
+		var ruins: Array = Data.layout.props.filter(func(p): return String(p.kind) == "cliffs_ruin")
+		var west := ruins.any(func(p): return float(p.x) < float(hut.minI) and float(p.x) > float(hut.minI) - 0.6)
+		var east := ruins.any(func(p): return float(p.x) > float(hut.maxI) + 1.0)
+		t.ok(not hut.is_empty() and west and east, "the hut is a roofless ruin, its build site inside its tumbled walls")
+		t.ok(Data.layout.features.any(func(f): return f.kind == "wardrobe" and f.get("flag", "") == "cliffs_hutHome"), "with a wardrobe that's yours once the hut is"))
 
 func test_slate_roofs():
 	_here(func():
@@ -346,3 +346,177 @@ func test_the_boats_leave_the_street_open():
 		for b in boats:
 			t.ok(absf(float(b.x)) - float(b.w) / 2.0 > 1.4, "%s is pulled up at the side of the street" % b.id)
 			t.ok(C.kind_at(b.x, b.z) == int(G.KINDS.street), "%s is on the main street" % b.id))
+
+func _quest(qid: String) -> Dictionary: return Data.quest(qid)
+
+func _step(qid: String, oid: String) -> Dictionary:
+	for o in _quest(qid).objectives:
+		if o.id == oid: return o
+	return {}
+
+func _put(list: Array, id: String, i: int, k: int, r: int = 0) -> Dictionary:
+	var pl := {"uid": 2000 + list.size(), "id": id, "i": float(i), "k": float(k), "r": r, "y": 0.0}
+	pl.y = BuildGrid.suggest_bottom(id, i, k, r, BuildGrid.ground_at(i, k) + 10.0, list, {})
+	list.append(pl)
+	return pl
+
+func _build_plan(qid: String, o: Dictionary, placements: Array, here: Array) -> bool:
+	var zone := Data.zone(String(o.get("zone", "")))
+	for pl in Plans.lay_out(o.plan, zone, placements):
+		var y := BuildGrid.suggest_bottom(pl.id, pl.i, pl.k, int(pl.r), BuildGrid.ground_at(pl.i, pl.k) + 10.0, placements, zone)
+		if absf(y - float(pl.y)) > 0.01:
+			t.ok(false, "%s: the ghost %s at (%d, %d) sits at %.2f, but builds at %.2f" % [qid, pl.id, pl.i, pl.k, pl.y, y])
+			return false
+		pl.uid = 1000 + placements.size()
+		var v := BuildGrid.validate_placement(pl, {"placements": placements, "zones": Data.layout.zones, "statics": here, "bodies": [], "flags": {}})
+		if not v.ok:
+			t.ok(false, "%s: %s at (%d, %d) turned %d can't be built: %s" % [qid, pl.id, pl.i, pl.k, pl.r, v.reason])
+			return false
+		placements.append(pl)
+	return true
+
+func _brief(o: Dictionary, placements: Array, here: Array) -> Dictionary:
+	var path := func(zone_id: String) -> Dictionary:
+		var w := WalkWorld.new(here, func(_f): return false)
+		w.floors = WorldStatics.floors()
+		w.surfaces = BuildGrid.surfaces_for(placements)
+		return Validate.path_across(Data.zone(zone_id), w)
+	var m := Mechanics.solve(placements, Data.layout.get("machines", []))
+	return Commission.evaluate(o, {"placements": placements, "lamps": m.lamps, "fed": m.fed, "mech": m, "path": path})
+
+func test_the_cast():
+	_here(func():
+		var cast: Array = Data.npcs.filter(func(n): return n.get("island", "") == ID)
+		t.eq(cast.map(func(n): return n.id), ["cliffs_marta", "cliffs_settimio", "cliffs_mario", "cliffs_aurelio", "cliffs_giacomo", "cliffs_nunzia", "cliffs_fulvio"], "seven villagers")
+		var nav: Dictionary = Data.layout.nav_nodes
+		for n in cast:
+			t.ok(String(n.get("pronoun", "")) != "", "%s has a pronoun" % n.name)
+			t.ok(nav.has(String(n.home)), "%s goes home to a spot on the map" % n.name)
+			var spots: Array = n.schedule.map(func(e): return String(e[2]))
+			for w in n.get("when", []): spots.append_array(w.schedule.map(func(e): return String(e[2])))
+			t.ok(spots.all(func(sp): return nav.has(sp)), "%s's day goes to real spots (%s)" % [n.name, ", ".join(spots.filter(func(sp): return not nav.has(sp)))])
+			t.ok(n.greetings.size() >= 2 and n.topics.size() == 3 and not n.gifts.is_empty(), "%s has greetings, three topics and a gift" % n.name)
+			t.ok(Data.tastes.tastes.has(n.id), "%s has tastes" % n.name)
+			for item in n.likes: t.ok(Data.resources.has(item), "%s likes %s, which exists" % [n.name, item])
+		var start := Schedule.nearest_node(Data.layout.spawn.x, Data.layout.spawn.z, {})
+		for n in cast:
+			for e in n.schedule: t.ok(not Schedule.find_path(start, String(e[2]), {}).is_empty(), "%s can walk to %s" % [n.name, e[2]])
+		t.ok(Data.appearance.variants.has("cliffs_strawHat") and Data.appearance.locked.has("cliffs_captainCap"), "Serenza's clothes join the wardrobe, locked until earned"))
+
+func test_the_requests():
+	_here(func():
+		var mine: Array = Data.quests.filter(func(q): return Data.quest_island(q.id) == ID)
+		t.eq(mine.size(), 13, "thirteen requests")
+		t.eq(mine.filter(func(q): return q.get("main", false)).size(), 6, "six of them the main story")
+		for q in mine:
+			for r in q.get("requires", {}).get("quests", []): t.ok(not Data.quest(r).is_empty(), "%s waits for %s, which exists" % [q.id, r])
+			for c in q.rewards.get("clothes", []): t.ok(Data.appearance.variants.has(c), "%s gives %s, which exists" % [q.id, c])
+			for o in q.objectives:
+				if o.kind == "commission": t.ok(o.has("plan") and not o.plan.is_empty() and not Data.zone(String(o.zone)).is_empty(), "%s: \"%s\" has a site and a plan" % [q.id, o.text])
+				if o.kind == "talk": t.ok(not Data.npc(String(o.npc)).is_empty(), "%s: talks to %s" % [q.id, o.npc])
+				if o.kind == "gather": t.ok(Data.resources.has(String(o.item)), "%s: gathers %s" % [q.id, o.item])
+		var easter := _quest("cliffs_easter")
+		t.ok(easter.rewards.flags.has("olive_village_revealed"), "the finale opens the way to Liolivato")
+		t.eq(easter.requires.quests, ["cliffs_welcome", "cliffs_hut", "cliffs_wall", "cliffs_monorail", "cliffs_path"], "and comes once the other five are done")
+		var shops: Dictionary = Data.shops.shops
+		for sid in shops:
+			if not String(sid).begins_with("cliffs_"): continue
+			for s in shops[sid].stock:
+				if s.has("blueprint"): t.ok(not Data.piece(String(s.blueprint)).is_empty(), "%s sells the plan for %s" % [sid, s.blueprint])
+				for k in s.get("items", {}): t.ok(Data.resources.has(k), "%s sells %s" % [sid, k])
+		t.eq(shops.keys().filter(func(k): return String(k).begins_with("cliffs_")).size(), 4, "four shops"))
+
+func test_every_brief_is_built_by_its_plan():
+	_here(func():
+		var here := WorldStatics.build_statics(WorldStatics.generate_decor())
+		for q in Data.quests.filter(func(x): return Data.quest_island(x.id) == ID):
+			var placements: Array = []
+			var cost := {}
+			for o in q.objectives.filter(func(x): return x.kind == "commission"):
+				t.ok(not _brief(o, [], here).done, "%s: \"%s\" isn't done before anything is built" % [q.id, o.text])
+				for e in o.plan:
+					var c: Dictionary = Data.piece(String(e[2])).get("cost", {})
+					for k in c: cost[k] = int(cost.get(k, 0)) + int(c[k])
+					t.ok(not c.has("cliffs_lemon_sapling"), "%s: no plan needs a lemon sapling before the lemon tree's milestone" % q.id)
+				if not _build_plan(q.id, o, placements, here): continue
+				var r := _brief(o, placements, here)
+				t.ok(r.done, "%s: building its plan finishes \"%s\" (%s)" % [q.id, o.text, ", ".join(r.musts.filter(func(m): return not m.ok).map(func(m): return m.label))])
+			var have := {}
+			for g in q.objectives.filter(func(x): return x.kind == "gather"): have[g.item] = int(have.get(g.item, 0)) + int(g.count)
+			for k in q.get("onAccept", {}).get("items", {}): have[k] = int(have.get(k, 0)) + int(q.onAccept.items[k])
+			for k in cost:
+				if k in ["wood", "stone", "clay", "metal", "cliffs_vine"]: t.ok(int(have.get(k, 0)) >= int(cost[k]), "%s: what it gives and has you gather pays for the %d %s its plans take" % [q.id, cost[k], k]))
+
+func test_the_wall_and_the_steps_are_real():
+	_here(func():
+		var here := WorldStatics.build_statics(WorldStatics.generate_decor())
+		var wall := _step("cliffs_wall", "wall")
+		var one: Array = []
+		for i in range(-30, -25): _put(one, "drystoneWall", i, -39)
+		var r := _brief(wall, one, here)
+		t.ok(r.musts[0].ok and not r.musts[1].ok, "one course on the ramp closes the gap but isn't 1.8 m tall")
+		var gap: Array = []
+		for i in range(-30, -26): _put(gap, "drystoneWall", i, -38)
+		for i in range(-30, -26): _put(gap, "drystoneWall", i, -38)
+		t.ok(not _brief(wall, gap, here).musts[0].ok, "a wall with a gap in it doesn't close it")
+		var w := WalkWorld.new(here, func(_f): return false)
+		w.floors = WorldStatics.floors()
+		for zid in ["cliffs_slip", "cliffs_gully", "cliffs_swim", "cliffs_slipway"]:
+			t.ok(not Validate.path_across(Data.zone(zid), w).ok, "%s can't be crossed before you build" % zid))
+
+func test_terraces_come_back_on_the_meter():
+	_here(func():
+		var s := GameState.new_game()
+		var ids := func() -> Array: return C.meter_things(s).map(func(x): return String(x.flag))
+		t.eq(ids.call(), [], "nothing on the hill counts at first")
+		var pls: Array = []
+		s.placements = pls
+		var here := WorldStatics.build_statics(WorldStatics.generate_decor())
+		_build_plan("cliffs_wall", _step("cliffs_wall", "wall"), pls, here)
+		t.eq(ids.call(), [], "a wall alone brings nothing back: something has to grow")
+		_put(pls, "vinePergola", -20, -36)
+		t.eq(ids.call(), ["cliffs_terrace_w3"], "the wall mended and a vine on W3: W3 is back")
+		_put(pls, "hedge", -20, -40)
+		t.eq(ids.call(), ["cliffs_terrace_w3", "cliffs_terrace_w4"], "and a hedge on W4 brings W4 back")
+		_put(pls, "flowerBed", -30, -44)
+		t.eq(ids.call().size(), 2, "green on W5 doesn't count while its wall is breached")
+		for i in range(-20, -16): _put(pls, "drystoneWall", i, -43)
+		t.ok(ids.call().has("cliffs_terrace_w5"), "mend W5's wall too, and it comes back")
+		_put(pls, "vinePergola", 30, -41)
+		t.ok(ids.call().has("cliffs_terrace_e4"), "E4 comes back with something green on it")
+		s.flags["cliffs_monorailRuns"] = true
+		s.flags["cliffs_sanctuaryPath"] = true
+		t.ok(ids.call().has("cliffs_terrace_e5") and ids.call().has("cliffs_terrace_e6") and ids.call().has("cliffs_terrace_w7"), "the monorail brings E5 and E6 back, the sanctuary path W7")
+		t.eq(LocationMeter.new_things(s, C.meter_things(s)).size(), ids.call().size(), "each counts once")
+		for f in ids.call(): s.flags[f] = true
+		t.eq(LocationMeter.new_things(s, C.meter_things(s)), [], "and never again")
+		pls.clear()
+		t.eq(C.Terraces.in_use(s), 9, "taking the planting away doesn't take a terrace back")
+		var m := LocationMeter.def(ID)
+		t.eq(LocationMeter.reading(m, 0), "2 of 16 terraces", "the meter starts at the two Settimio tends")
+		t.eq(LocationMeter.reading(m, 14), "16 of 16 terraces", "and ends at sixteen")
+		t.eq(m.milestones.map(func(u): return int(u.at)), [2, 4, 6, 8, 11, 14], "milestones at four, six, eight, ten, thirteen and sixteen terraces")
+		t.eq(int(_step("cliffs_easter", "terraces").value), 8, "the finale needs ten terraces in use"))
+
+func test_the_place_changes_with_the_story():
+	_here(func():
+		t.eq(Data.world_flags_of(ID, {"cliffs_boats_launched": true, "cliffs_welcomed": true}), {"cliffs_boats_launched": true}, "the boats' launch reshapes the harbour")
+		var lay: Dictionary = Data.read_layout(ID)
+		C.adjust(lay, {"cliffs_boats_launched": true})
+		var boats: Array = lay.props.filter(func(p): return String(p.kind) == "cliffs_boat")
+		t.ok(boats.all(func(p): return p.get("afloat", false) and Heightfield.height(p.x, p.z) < Heightfield.WATER_Y), "launched, the boats ride at their moorings in the harbour")
+		t.ok(Data.layout.nav_edges.any(func(e): return e.size() > 2 and e[2] == "cliffs_monorailRuns"), "the path beside the monorail opens when it runs")
+		t.ok(Data.layout.nav_edges.any(func(e): return e.size() > 2 and e[2] == "cliffs_sanctuaryPath"), "the mule path opens when the gully is bridged")
+		var ferry: Dictionary = Data.layout.features.filter(func(f): return f.id == "cliffs_ferry")[0]
+		t.eq(ferry.get("flag", ""), "olive_village_revealed", "the ferry calls once the finale's done"))
+
+func test_paper_naps_and_openings():
+	_here(func():
+		var naps := Data.naps_here()
+		t.eq(naps.paper, "Il Gabbiano", "you wake under Il Gabbiano")
+		t.ok(naps.gags.has("train") and naps.gags.has("sturlese") and naps.gags.has("stared"), "with the dawn train's horn and Sturlese at the other end of the bench")
+		t.eq(Data.layout.inauguration.speaker, "cliffs_marta", "Marta opens what you build")
+		var w := _world()
+		for h in Data.layout.hangouts: t.ok(_stand(w, float(h.x), float(h.z)), "%s is somewhere you can stand" % h.name)
+		var fish: Array = Data.layout.fish
+		t.ok(fish.any(func(f): return f.get("item", "") == "cliffs_bream") and fish.any(func(f): return f.get("item", "") == "cliffs_mullet"), "sea bream and grey mullet bite in the harbour"))

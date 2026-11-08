@@ -1,0 +1,26 @@
+{
+ "_comment": "Serenza's own clothes: shapes the wardrobe already has, in Serenza's colours (Data.merge_variants, Chibi.resolve).",
+ "variants": {
+  "cliffs_strawHat": {
+   "slot": "hat",
+   "base": "sunhat",
+   "color": "#d9c27a",
+   "label": "Settimio's straw hat",
+   "unlock": "Make friends with Presidente Settimio"
+  },
+  "cliffs_captainCap": {
+   "slot": "hat",
+   "base": "captain",
+   "color": "#f4f1e8",
+   "label": "White captain's cap",
+   "unlock": "Help Capo Horn get the boats back to sea"
+  },
+  "cliffs_espadrilles": {
+   "slot": "shoes",
+   "base": "sandals",
+   "color": "#c9b08a",
+   "label": "Rope-soled espadrilles",
+   "unlock": "Catch the fish for Nunzia's Easter lunch"
+  }
+ }
+}
