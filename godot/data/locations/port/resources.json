@@ -1,0 +1,118 @@
+{
+ "resources": {
+  "port_caper": {
+   "name": "Capers",
+   "icon": "🌿",
+   "color": "6f8f3a"
+  },
+  "port_mussel": {
+   "name": "Mussels",
+   "icon": "🦪",
+   "color": "2e3440"
+  },
+  "port_glass": {
+   "name": "Glass Panes",
+   "icon": "🪟",
+   "color": "b8d8e0"
+  },
+  "port_anchovy": {
+   "name": "Anchovies",
+   "icon": "🐟",
+   "color": "8fa9b8"
+  },
+  "port_lire_purse": {
+   "name": "Purses of Old Lire",
+   "icon": "👛",
+   "color": "7a5a3a"
+  },
+  "port_lire_tin": {
+   "name": "Nonna's Tins of Lire",
+   "icon": "🥫",
+   "color": "b03a2e"
+  },
+  "port_boot": {
+   "name": "Old Sea Boots",
+   "icon": "👢",
+   "color": "3a3a3a"
+  },
+  "port_lobster_pot": {
+   "name": "Lobster Pots",
+   "icon": "🦞",
+   "color": "8a6a44"
+  },
+  "port_focaccia": {
+   "name": "Focaccia",
+   "icon": "🍞",
+   "color": "e8c06a",
+   "treat": 2
+  },
+  "port_focaccia_onion": {
+   "name": "Onion Focaccia",
+   "icon": "🧅",
+   "color": "d9a85b",
+   "treat": 2
+  },
+  "port_farinata": {
+   "name": "Farinata",
+   "icon": "🥞",
+   "color": "e0a84a",
+   "treat": 3
+  },
+  "port_greens_pie": {
+   "name": "Spring Greens Pie",
+   "icon": "🥧",
+   "color": "8fae5a",
+   "treat": 3
+  },
+  "port_last_note": {
+   "name": "Framed 1,000-Lire Note",
+   "icon": "🖼️",
+   "color": "a8c0a0"
+  },
+  "port_wash_tablecloth": {
+   "name": "Nonna's Best Tablecloth",
+   "icon": "🧺",
+   "color": "f2ece2"
+  },
+  "port_wash_shirt": {
+   "name": "The Comandante's Dress Shirt",
+   "icon": "👔",
+   "color": "f4f4f0"
+  },
+  "port_wash_longjohns": {
+   "name": "Baciccia's Long Johns",
+   "icon": "👖",
+   "color": "e8dcc8"
+  },
+  "port_wash_apron": {
+   "name": "Rosetta's Spare Apron",
+   "icon": "🥼",
+   "color": "f8f4ea"
+  },
+  "port_wash_gloves": {
+   "name": "Agostino's White Gloves",
+   "icon": "🧤",
+   "color": "ffffff"
+  }
+ },
+ "order": [
+  "port_caper",
+  "port_mussel",
+  "port_glass",
+  "port_anchovy",
+  "port_lire_purse",
+  "port_lire_tin",
+  "port_boot",
+  "port_lobster_pot",
+  "port_focaccia",
+  "port_focaccia_onion",
+  "port_farinata",
+  "port_greens_pie",
+  "port_last_note",
+  "port_wash_tablecloth",
+  "port_wash_shirt",
+  "port_wash_longjohns",
+  "port_wash_apron",
+  "port_wash_gloves"
+ ]
+}

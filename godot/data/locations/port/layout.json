@@ -17,6 +17,171 @@
  },
  "safeSpot": "port_forecourt",
  "safeText": "Back on the station forecourt.",
+ "naps": {
+  "paper": "Il Gabbiano",
+  "gags": {
+   "newspaper": {
+    "weight": 3,
+    "lines": [
+     "You wake up under yesterday's {paper}. The tramontana takes it back out to sea.",
+     "Somebody covered you with the {paper}. A gull is reading the sports pages.",
+     "You slept under the {paper}'s shipping forecast. It said: wind. It was right."
+    ]
+   },
+   "gull": {
+    "weight": 3,
+    "lines": [
+     "You fell asleep holding a slice of focaccia. You are no longer holding a slice of focaccia.",
+     "A gull stands on the back of the bench, chewing. You check your pockets. Your focaccia is gone."
+    ]
+   },
+   "spray": {
+    "weight": 2,
+    "lines": [
+     "A wave comes over the quay wall and finds you. Good morning from the Ligurian Sea.",
+     "Salt spray all night. You wake up seasoned."
+    ]
+   },
+   "basket": {
+    "weight": 2,
+    "lines": [
+     "Nonna's basket is on the bench beside you. A note inside: 'Go home to bed. P.S. Are you eating?'",
+     "A basket on a rope sways next to your head. Inside, a blanket and a note: 'From the third floor.'"
+    ]
+   },
+   "stared": {
+    "weight": 2,
+    "visual": true
+   },
+   "rain": {
+    "visual": true
+   }
+  }
+ },
+ "paper": {
+  "done": [
+   "{title}: done, and Il Gabbiano was there before the gulls",
+   "Geometra finishes {title}; the Comandante grumbles, which means he's pleased",
+   "{title} completed. Baciccia says it cost too many lire. He would"
+  ],
+  "built": [
+   "{n} new pieces in Tonnarella overnight; the gulls have already sat on all of them",
+   "Geometra puts up {n} pieces while the town argued about the price of bread in euros",
+   "{n} new pieces by the sea, and the tramontana didn't take a single one"
+  ],
+  "opened": [
+   "Comandante Traverso opens {what} {place}, with a speech that starts as a complaint",
+   "Ribbon cut on {what} {place}. Rosetta brought focaccia; the gulls brought themselves",
+   "{What} {place}: the Comandante calls it 'acceptable', the highest honour in the harbour"
+  ],
+  "quiet": [
+   "Quiet day in Tonnarella. The tramontana blew; nobody built anything",
+   "Nothing built yesterday. The queue at the bank was the longest thing in town",
+   "Slow news day: a gull stole a whole focaccia from the bakery, again"
+  ],
+  "approval": "",
+  "verdict": "Il Gabbiano's verdict on the new build: {grade}.",
+  "regrown": "Overnight the sea threw up more driftwood, and the capers and the mussels grew back."
+ },
+ "inauguration": {
+  "speaker": "port_lorenzo",
+  "place": "in the harbour",
+  "open": [
+   "Citizens of Tonnarella. I have a complaint. It is about {what} {place}. I complain that it wasn't here before.",
+   "Gather round, out of the wind. {What} {place}. I had a list of objections. I've lost the list.",
+   "As harbour master, I am required to open {what} {place}. As a Genoese sailor, I am required to grumble about it. First, the grumbling."
+  ],
+  "body": {
+   "need": [
+    "Il Gabbiano wrote: \u201c{noticed}\u201d For once the gulls' paper got something right."
+   ],
+   "own": [
+    "Right here, where we needed it. I said so in a letter in 1994."
+   ],
+   "art": [
+    "What is it for? Nothing. Like the castle. We love the castle."
+   ],
+   "tall": [
+    "Tall. You can see it from the breakwater. I checked."
+   ],
+   "colour": [
+    "A colour. In a town of faded paint, that's practically a scandal. Good."
+   ],
+   "many": [
+    "{n} pieces in a day. The Navy takes a year to send a letter."
+   ],
+   "single": [
+    "One {piece}. The harbour began with one stone, too. It fell in the sea."
+   ],
+   "plain": [
+    "It stands, it's square, and the tramontana hasn't moved it. That's all I ask.",
+    "Sound work. I kicked it. It didn't move. My foot did."
+   ]
+  },
+  "close": [
+   "The Geometra did the work. I did the grumbling. Scissors!",
+   "My complaints are withdrawn. For today. Cut the ribbon.",
+   "Well built, and on time, which in this harbour is a miracle. The mugugno is over. Ribbon!"
+  ]
+ },
+ "hangouts": [
+  {
+   "id": "port_fishmarket_h",
+   "name": "The fish market",
+   "at": "at the fish market",
+   "x": 36.0,
+   "z": 27.5,
+   "r": 4.0,
+   "needs": [
+    "seat",
+    "light",
+    "shelter"
+   ],
+   "who": "port_giobatta"
+  },
+  {
+   "id": "port_bakery_h",
+   "name": "Rosetta's door",
+   "at": "outside Rosetta's bakery",
+   "x": -3.0,
+   "z": 27.5,
+   "r": 3.0,
+   "needs": [
+    "seat",
+    "shelter",
+    "light"
+   ],
+   "who": "port_rosetta"
+  },
+  {
+   "id": "port_bank_h",
+   "name": "The bank's arcade",
+   "at": "outside the bank",
+   "x": 13.5,
+   "z": 27.5,
+   "r": 3.5,
+   "needs": [
+    "seat",
+    "shelter",
+    "green"
+   ],
+   "who": "port_nicolo"
+  },
+  {
+   "id": "port_bastion_h",
+   "name": "The bastion",
+   "at": "on the castle bastion",
+   "x": 31.0,
+   "z": -42.0,
+   "r": 4.0,
+   "needs": [
+    "seat",
+    "light",
+    "green"
+   ],
+   "who": "port_agostino"
+  }
+ ],
  "decor": {
   "radius": 300,
   "trees": 0,
@@ -1258,6 +1423,28 @@
    "look": "none"
   }
  ],
+ "machines": [
+  {
+   "id": "port_lift",
+   "cell": [
+    25,
+    -44
+   ],
+   "side": "W",
+   "type": "power",
+   "label": "The lift's drive (in the machine room's east wall)"
+  },
+  {
+   "id": "port_lighthouse",
+   "cell": [
+    38,
+    84
+   ],
+   "side": "E",
+   "type": "power",
+   "label": "The lighthouse's turning gear (in the tower's west wall)"
+  }
+ ],
  "harbor_cliffs": [
   {
    "minX": 55.4,
@@ -1287,6 +1474,9 @@
    "minK": 52,
    "maxK": 63,
    "spanY": 0.4,
+   "unlock": {
+    "quest": "port_breakwater"
+   },
    "endpoints": {
     "a": {
      "minI": 37,
@@ -1308,7 +1498,11 @@
    "minI": 30,
    "maxI": 41,
    "minK": 23,
-   "maxK": 31
+   "maxK": 31,
+   "floorY": 1.2,
+   "unlock": {
+    "quest": "port_fishmarket"
+   }
   },
   {
    "id": "port_bastion",
@@ -1316,7 +1510,11 @@
    "minI": 25,
    "maxI": 39,
    "minK": -46,
-   "maxK": -39
+   "maxK": -39,
+   "floorY": 20.0,
+   "unlock": {
+    "quest": "port_lift"
+   }
   },
   {
    "id": "port_rock",
@@ -1324,7 +1522,11 @@
    "minI": 32,
    "maxI": 38,
    "minK": 82,
-   "maxK": 85
+   "maxK": 85,
+   "floorY": 1.6,
+   "unlock": {
+    "quest": "port_lighthouse"
+   }
   },
   {
    "id": "port_bakery_door",
@@ -1332,7 +1534,11 @@
    "minI": -8,
    "maxI": 2,
    "minK": 26,
-   "maxK": 29
+   "maxK": 29,
+   "floorY": 1.2,
+   "unlock": {
+    "quest": "port_seagulls"
+   }
   },
   {
    "id": "port_bank_arcade",
@@ -1340,7 +1546,23 @@
    "minI": 8,
    "maxI": 19,
    "minK": 26,
-   "maxK": 29
+   "maxK": 29,
+   "floorY": 1.2,
+   "unlock": {
+    "quest": "port_queue"
+   }
+  },
+  {
+   "id": "port_arcade",
+   "name": "Under the arcade",
+   "minI": -9,
+   "maxI": 29,
+   "minK": 22,
+   "maxK": 23,
+   "floorY": 1.2,
+   "unlock": {
+    "quest": "port_labels"
+   }
   },
   {
    "id": "port_terrace",
@@ -1430,31 +1652,619 @@
    "id": "port_fish0",
    "kind": "fish",
    "x": -20.0,
-   "z": 43.2
+   "z": 41.3,
+   "facing": 0.0
   },
   {
    "id": "port_fish1",
    "kind": "fish",
    "x": 14.0,
-   "z": 43.2
+   "z": 41.3,
+   "facing": 0.0
   },
   {
    "id": "port_fish2",
    "kind": "fish",
    "x": -55.0,
-   "z": 43.2
+   "z": 41.3,
+   "facing": 0.0
   },
   {
    "id": "port_fish3",
    "kind": "fish",
-   "x": 36.2,
-   "z": 50.0
+   "x": 36.9,
+   "z": 50.0,
+   "facing": -1.5708
   },
   {
    "id": "port_fish4",
    "kind": "fish",
-   "x": 71.5,
-   "z": 0.0
+   "x": 69.0,
+   "z": 0.0,
+   "facing": 1.5708
+  },
+  {
+   "id": "port_lampara_spot",
+   "kind": "fish",
+   "x": -25.5,
+   "z": 41.3,
+   "facing": 0.0,
+   "flag": "port_lampara_on",
+   "hours": [
+    20,
+    4
+   ],
+   "label": "Fish under Stefano's lamp"
+  },
+  {
+   "id": "port_caper0",
+   "kind": "flowers",
+   "x": 41.5,
+   "z": -46.6,
+   "gives": {
+    "port_caper": 2
+   },
+   "label": "Pick capers off the wall"
+  },
+  {
+   "id": "port_caper1",
+   "kind": "flowers",
+   "x": 47.0,
+   "z": -46.6,
+   "gives": {
+    "port_caper": 2
+   },
+   "label": "Pick capers off the wall"
+  },
+  {
+   "id": "port_caper2",
+   "kind": "flowers",
+   "x": -36.5,
+   "z": -46.0,
+   "gives": {
+    "port_caper": 2
+   },
+   "label": "Pick capers off the wall"
+  },
+  {
+   "id": "port_caper3",
+   "kind": "flowers",
+   "x": 28.5,
+   "z": -38.2,
+   "gives": {
+    "port_caper": 2
+   },
+   "label": "Pick capers off the wall"
+  },
+  {
+   "id": "port_caper4",
+   "kind": "flowers",
+   "x": -11.0,
+   "z": -16.5,
+   "gives": {
+    "port_caper": 2
+   },
+   "label": "Pick capers off the wall"
+  },
+  {
+   "id": "port_caper5",
+   "kind": "flowers",
+   "x": 7.5,
+   "z": -11.5,
+   "gives": {
+    "port_caper": 2
+   },
+   "label": "Pick capers off the wall"
+  },
+  {
+   "id": "port_mussel0",
+   "kind": "flowers",
+   "x": 47.6,
+   "z": 79.5,
+   "gives": {
+    "port_mussel": 2
+   },
+   "label": "Prise mussels off the rocks"
+  },
+  {
+   "id": "port_mussel1",
+   "kind": "flowers",
+   "x": 47.0,
+   "z": 85.5,
+   "gives": {
+    "port_mussel": 2
+   },
+   "label": "Prise mussels off the rocks"
+  },
+  {
+   "id": "port_mussel2",
+   "kind": "flowers",
+   "x": 36.8,
+   "z": 46.5,
+   "gives": {
+    "port_mussel": 2
+   },
+   "label": "Prise mussels off the rocks"
+  },
+  {
+   "id": "port_mussel3",
+   "kind": "flowers",
+   "x": 39.2,
+   "z": 70.0,
+   "gives": {
+    "port_mussel": 2
+   },
+   "label": "Prise mussels off the rocks"
+  },
+  {
+   "id": "port_tin0",
+   "kind": "dig",
+   "x": -12.4,
+   "z": -28.0,
+   "flag": "port_nonna_asked",
+   "gives": {
+    "port_lire_tin": 1
+   },
+   "text": "A biscuit tin wedged under a step, stuffed with lire from 1956. Nonna's!"
+  },
+  {
+   "id": "port_tin1",
+   "kind": "dig",
+   "x": 17.4,
+   "z": -28.0,
+   "flag": "port_nonna_asked",
+   "gives": {
+    "port_lire_tin": 1
+   },
+   "text": "Behind a loose brick in the lane wall: a cocoa tin of thousand-lire notes, rolled tight."
+  },
+  {
+   "id": "port_tin2",
+   "kind": "dig",
+   "x": -38.0,
+   "z": 2.0,
+   "flag": "port_nonna_asked",
+   "gives": {
+    "port_lire_tin": 1
+   },
+   "text": "Under a geranium pot that hasn't moved since 1961: a tin of lire, and a recipe for pesto."
+  },
+  {
+   "id": "port_tin3",
+   "kind": "dig",
+   "x": 46.0,
+   "z": 2.0,
+   "flag": "port_nonna_asked",
+   "gives": {
+    "port_lire_tin": 1
+   },
+   "text": "In a hole by the drainpipe, a tin of anchovies that isn't anchovies. It's lire."
+  },
+  {
+   "id": "port_tin4",
+   "kind": "dig",
+   "x": -34.0,
+   "z": -40.0,
+   "flag": "port_nonna_asked",
+   "gives": {
+    "port_lire_tin": 1
+   },
+   "text": "Under the belvedere's bench, a tin marked BUTTONS. It isn't buttons."
+  },
+  {
+   "id": "port_wash_tablecloth",
+   "kind": "fragment",
+   "x": -30.8,
+   "z": 1.4,
+   "flag": "port_wash_tablecloth_asked",
+   "once": true,
+   "gives": {
+    "port_wash_tablecloth": 1
+   },
+   "name": "Nonna's best tablecloth",
+   "look": "scarf"
+  },
+  {
+   "id": "port_wash_shirt",
+   "kind": "fragment",
+   "x": 64.0,
+   "z": -24.0,
+   "flag": "port_wash_shirt_asked",
+   "once": true,
+   "gives": {
+    "port_wash_shirt": 1
+   },
+   "name": "the Comandante's dress shirt",
+   "look": "scarf"
+  },
+  {
+   "id": "port_wash_longjohns",
+   "kind": "fragment",
+   "x": -6.0,
+   "z": 37.4,
+   "flag": "port_wash_longjohns_asked",
+   "once": true,
+   "gives": {
+    "port_wash_longjohns": 1
+   },
+   "name": "Baciccia's long johns",
+   "look": "scarf"
+  },
+  {
+   "id": "port_wash_apron",
+   "kind": "fragment",
+   "x": 56.2,
+   "z": -44.6,
+   "flag": "port_wash_apron_asked",
+   "once": true,
+   "gives": {
+    "port_wash_apron": 1
+   },
+   "name": "Rosetta's spare apron",
+   "look": "scarf"
+  },
+  {
+   "id": "port_wash_gloves",
+   "kind": "fragment",
+   "x": 23.5,
+   "z": -39.8,
+   "flag": "port_wash_gloves_asked",
+   "once": true,
+   "gives": {
+    "port_wash_gloves": 1
+   },
+   "name": "Agostino's white gloves",
+   "look": "glove"
+  }
+ ],
+ "fish": [
+  {
+   "id": "port_bream",
+   "name": "Sea Bream",
+   "weight": 4.0,
+   "pull": 0.7,
+   "caught": "A sea bream! Silver and gold, and very offended.",
+   "node": "port_fish0"
+  },
+  {
+   "id": "port_mullet",
+   "name": "Grey Mullet",
+   "weight": 4.0,
+   "pull": 0.6,
+   "caught": "A grey mullet. It has the face of a man who missed his train.",
+   "node": "port_fish0"
+  },
+  {
+   "id": "port_scorpion",
+   "name": "Scorpionfish",
+   "weight": 2.0,
+   "pull": 0.9,
+   "caught": "A scorpionfish! All spines and opinions. Baciccia will want it for the soup.",
+   "node": "port_fish0"
+  },
+  {
+   "id": "port_octopus",
+   "name": "Octopus",
+   "weight": 1.5,
+   "pull": 1.0,
+   "caught": "An octopus! It holds on to the quay with three arms and waves with the rest.",
+   "node": "port_fish0"
+  },
+  {
+   "id": "port_moray",
+   "name": "Moray Eel",
+   "weight": 0.6,
+   "pull": 1.2,
+   "caught": "A moray eel! It looks at you the way the Comandante looks at the Navy.",
+   "node": "port_fish0"
+  },
+  {
+   "id": "port_boot",
+   "name": "Old Boot",
+   "weight": 1.2,
+   "pull": 0.4,
+   "item": "port_boot",
+   "caught": "An old sea boot. Somewhere in the harbour, a sailor is hopping.",
+   "node": "port_fish0"
+  },
+  {
+   "id": "port_lobster_pot",
+   "name": "Lobster Pot",
+   "weight": 0.8,
+   "pull": 0.8,
+   "item": "port_lobster_pot",
+   "caught": "A lobster pot, empty. The lobster left a note. No, it didn't.",
+   "node": "port_fish0"
+  },
+  {
+   "id": "port_lire_purse",
+   "name": "Purse of Old Lire",
+   "weight": 0.6,
+   "pull": 0.5,
+   "item": "port_lire_purse",
+   "caught": "A purse full of soggy old lire! The bank will change them, if Nicol\u00f2 stops crying.",
+   "node": "port_fish0"
+  },
+  {
+   "id": "port_bream",
+   "name": "Sea Bream",
+   "weight": 4.0,
+   "pull": 0.7,
+   "caught": "A sea bream! Silver and gold, and very offended.",
+   "node": "port_fish1"
+  },
+  {
+   "id": "port_mullet",
+   "name": "Grey Mullet",
+   "weight": 4.0,
+   "pull": 0.6,
+   "caught": "A grey mullet. It has the face of a man who missed his train.",
+   "node": "port_fish1"
+  },
+  {
+   "id": "port_scorpion",
+   "name": "Scorpionfish",
+   "weight": 2.0,
+   "pull": 0.9,
+   "caught": "A scorpionfish! All spines and opinions. Baciccia will want it for the soup.",
+   "node": "port_fish1"
+  },
+  {
+   "id": "port_octopus",
+   "name": "Octopus",
+   "weight": 1.5,
+   "pull": 1.0,
+   "caught": "An octopus! It holds on to the quay with three arms and waves with the rest.",
+   "node": "port_fish1"
+  },
+  {
+   "id": "port_moray",
+   "name": "Moray Eel",
+   "weight": 0.6,
+   "pull": 1.2,
+   "caught": "A moray eel! It looks at you the way the Comandante looks at the Navy.",
+   "node": "port_fish1"
+  },
+  {
+   "id": "port_boot",
+   "name": "Old Boot",
+   "weight": 1.2,
+   "pull": 0.4,
+   "item": "port_boot",
+   "caught": "An old sea boot. Somewhere in the harbour, a sailor is hopping.",
+   "node": "port_fish1"
+  },
+  {
+   "id": "port_lobster_pot",
+   "name": "Lobster Pot",
+   "weight": 0.8,
+   "pull": 0.8,
+   "item": "port_lobster_pot",
+   "caught": "A lobster pot, empty. The lobster left a note. No, it didn't.",
+   "node": "port_fish1"
+  },
+  {
+   "id": "port_lire_purse",
+   "name": "Purse of Old Lire",
+   "weight": 0.6,
+   "pull": 0.5,
+   "item": "port_lire_purse",
+   "caught": "A purse full of soggy old lire! The bank will change them, if Nicol\u00f2 stops crying.",
+   "node": "port_fish1"
+  },
+  {
+   "id": "port_bream",
+   "name": "Sea Bream",
+   "weight": 4.0,
+   "pull": 0.7,
+   "caught": "A sea bream! Silver and gold, and very offended.",
+   "node": "port_fish2"
+  },
+  {
+   "id": "port_mullet",
+   "name": "Grey Mullet",
+   "weight": 4.0,
+   "pull": 0.6,
+   "caught": "A grey mullet. It has the face of a man who missed his train.",
+   "node": "port_fish2"
+  },
+  {
+   "id": "port_scorpion",
+   "name": "Scorpionfish",
+   "weight": 2.0,
+   "pull": 0.9,
+   "caught": "A scorpionfish! All spines and opinions. Baciccia will want it for the soup.",
+   "node": "port_fish2"
+  },
+  {
+   "id": "port_octopus",
+   "name": "Octopus",
+   "weight": 1.5,
+   "pull": 1.0,
+   "caught": "An octopus! It holds on to the quay with three arms and waves with the rest.",
+   "node": "port_fish2"
+  },
+  {
+   "id": "port_moray",
+   "name": "Moray Eel",
+   "weight": 0.6,
+   "pull": 1.2,
+   "caught": "A moray eel! It looks at you the way the Comandante looks at the Navy.",
+   "node": "port_fish2"
+  },
+  {
+   "id": "port_boot",
+   "name": "Old Boot",
+   "weight": 1.2,
+   "pull": 0.4,
+   "item": "port_boot",
+   "caught": "An old sea boot. Somewhere in the harbour, a sailor is hopping.",
+   "node": "port_fish2"
+  },
+  {
+   "id": "port_lobster_pot",
+   "name": "Lobster Pot",
+   "weight": 0.8,
+   "pull": 0.8,
+   "item": "port_lobster_pot",
+   "caught": "A lobster pot, empty. The lobster left a note. No, it didn't.",
+   "node": "port_fish2"
+  },
+  {
+   "id": "port_lire_purse",
+   "name": "Purse of Old Lire",
+   "weight": 0.6,
+   "pull": 0.5,
+   "item": "port_lire_purse",
+   "caught": "A purse full of soggy old lire! The bank will change them, if Nicol\u00f2 stops crying.",
+   "node": "port_fish2"
+  },
+  {
+   "id": "port_bream",
+   "name": "Sea Bream",
+   "weight": 4.0,
+   "pull": 0.7,
+   "caught": "A sea bream! Silver and gold, and very offended.",
+   "node": "port_fish3"
+  },
+  {
+   "id": "port_mullet",
+   "name": "Grey Mullet",
+   "weight": 4.0,
+   "pull": 0.6,
+   "caught": "A grey mullet. It has the face of a man who missed his train.",
+   "node": "port_fish3"
+  },
+  {
+   "id": "port_scorpion",
+   "name": "Scorpionfish",
+   "weight": 2.0,
+   "pull": 0.9,
+   "caught": "A scorpionfish! All spines and opinions. Baciccia will want it for the soup.",
+   "node": "port_fish3"
+  },
+  {
+   "id": "port_octopus",
+   "name": "Octopus",
+   "weight": 1.5,
+   "pull": 1.0,
+   "caught": "An octopus! It holds on to the quay with three arms and waves with the rest.",
+   "node": "port_fish3"
+  },
+  {
+   "id": "port_moray",
+   "name": "Moray Eel",
+   "weight": 0.6,
+   "pull": 1.2,
+   "caught": "A moray eel! It looks at you the way the Comandante looks at the Navy.",
+   "node": "port_fish3"
+  },
+  {
+   "id": "port_boot",
+   "name": "Old Boot",
+   "weight": 1.2,
+   "pull": 0.4,
+   "item": "port_boot",
+   "caught": "An old sea boot. Somewhere in the harbour, a sailor is hopping.",
+   "node": "port_fish3"
+  },
+  {
+   "id": "port_lobster_pot",
+   "name": "Lobster Pot",
+   "weight": 0.8,
+   "pull": 0.8,
+   "item": "port_lobster_pot",
+   "caught": "A lobster pot, empty. The lobster left a note. No, it didn't.",
+   "node": "port_fish3"
+  },
+  {
+   "id": "port_lire_purse",
+   "name": "Purse of Old Lire",
+   "weight": 0.6,
+   "pull": 0.5,
+   "item": "port_lire_purse",
+   "caught": "A purse full of soggy old lire! The bank will change them, if Nicol\u00f2 stops crying.",
+   "node": "port_fish3"
+  },
+  {
+   "id": "port_bream",
+   "name": "Sea Bream",
+   "weight": 4.0,
+   "pull": 0.7,
+   "caught": "A sea bream! Silver and gold, and very offended.",
+   "node": "port_fish4"
+  },
+  {
+   "id": "port_mullet",
+   "name": "Grey Mullet",
+   "weight": 4.0,
+   "pull": 0.6,
+   "caught": "A grey mullet. It has the face of a man who missed his train.",
+   "node": "port_fish4"
+  },
+  {
+   "id": "port_scorpion",
+   "name": "Scorpionfish",
+   "weight": 2.0,
+   "pull": 0.9,
+   "caught": "A scorpionfish! All spines and opinions. Baciccia will want it for the soup.",
+   "node": "port_fish4"
+  },
+  {
+   "id": "port_octopus",
+   "name": "Octopus",
+   "weight": 1.5,
+   "pull": 1.0,
+   "caught": "An octopus! It holds on to the quay with three arms and waves with the rest.",
+   "node": "port_fish4"
+  },
+  {
+   "id": "port_moray",
+   "name": "Moray Eel",
+   "weight": 0.6,
+   "pull": 1.2,
+   "caught": "A moray eel! It looks at you the way the Comandante looks at the Navy.",
+   "node": "port_fish4"
+  },
+  {
+   "id": "port_boot",
+   "name": "Old Boot",
+   "weight": 1.2,
+   "pull": 0.4,
+   "item": "port_boot",
+   "caught": "An old sea boot. Somewhere in the harbour, a sailor is hopping.",
+   "node": "port_fish4"
+  },
+  {
+   "id": "port_lobster_pot",
+   "name": "Lobster Pot",
+   "weight": 0.8,
+   "pull": 0.8,
+   "item": "port_lobster_pot",
+   "caught": "A lobster pot, empty. The lobster left a note. No, it didn't.",
+   "node": "port_fish4"
+  },
+  {
+   "id": "port_lire_purse",
+   "name": "Purse of Old Lire",
+   "weight": 0.6,
+   "pull": 0.5,
+   "item": "port_lire_purse",
+   "caught": "A purse full of soggy old lire! The bank will change them, if Nicol\u00f2 stops crying.",
+   "node": "port_fish4"
+  },
+  {
+   "id": "port_anchovy",
+   "name": "Anchovies",
+   "weight": 5.0,
+   "pull": 0.5,
+   "node": "port_lampara_spot",
+   "item": "port_anchovy",
+   "hours": [
+    20,
+    4
+   ],
+   "caught": "A net of anchovies, flashing under the lamp like spilled coins."
   }
  ],
  "features": [
@@ -1563,6 +2373,14 @@
    "z": -9.1,
    "y": 27.5,
    "flag": "port_home"
+  },
+  {
+   "id": "port_ferry_landing",
+   "kind": "boat",
+   "x": -56.0,
+   "z": 40.6,
+   "flag": "olive_village_revealed",
+   "depart_label": "Take the ferry"
   }
  ],
  "port_lift_stops": [
@@ -1898,6 +2716,34 @@
   "port_gallery": [
    42.0,
    86.6
+  ],
+  "port_lift_top_door": [
+   19.5,
+   -39.8
+  ],
+  "port_stefano_boat": [
+   -27.5,
+   40.6
+  ],
+  "port_bw_a": [
+   40.0,
+   66.0
+  ],
+  "port_bw_b": [
+   40.3,
+   69.0
+  ],
+  "port_bw_c": [
+   40.6,
+   71.5
+  ],
+  "port_crowd_w": [
+   -6.0,
+   26.4
+  ],
+  "port_crowd_e": [
+   1.0,
+   26.4
   ]
  },
  "nav_edges": [
@@ -2125,6 +2971,42 @@
   [
    "port_roof_e",
    "port_roof_stairs"
+  ],
+  [
+   "port_lift_top_door",
+   "port_laneA2_top"
+  ],
+  [
+   "port_lift_top_door",
+   "port_castle_gate"
+  ],
+  [
+   "port_lift_bottom",
+   "port_stefano_boat"
+  ],
+  [
+   "port_breakwater_s",
+   "port_bw_a"
+  ],
+  [
+   "port_bw_a",
+   "port_bw_b"
+  ],
+  [
+   "port_bw_b",
+   "port_bw_c"
+  ],
+  [
+   "port_bw_c",
+   "port_rock"
+  ],
+  [
+   "port_bakery_door",
+   "port_crowd_w"
+  ],
+  [
+   "port_bakery_door",
+   "port_crowd_e"
   ]
  ],
  "paths": [],
@@ -2212,7 +3094,7 @@
   {
    "id": "port_pillar10",
    "kind": "port_pillar",
-   "x": -4.52,
+   "x": 3.55,
    "z": 25.3,
    "rad": 0.32,
    "y": 1.2
@@ -2220,7 +3102,7 @@
   {
    "id": "port_pillar11",
    "kind": "port_pillar",
-   "x": -0.48,
+   "x": 8.45,
    "z": 25.3,
    "rad": 0.32,
    "y": 1.2
@@ -2228,7 +3110,7 @@
   {
    "id": "port_pillar12",
    "kind": "port_pillar",
-   "x": 3.55,
+   "x": 12.15,
    "z": 25.3,
    "rad": 0.32,
    "y": 1.2
@@ -2236,7 +3118,7 @@
   {
    "id": "port_pillar13",
    "kind": "port_pillar",
-   "x": 8.45,
+   "x": 15.85,
    "z": 25.3,
    "rad": 0.32,
    "y": 1.2
@@ -2244,7 +3126,7 @@
   {
    "id": "port_pillar14",
    "kind": "port_pillar",
-   "x": 12.15,
+   "x": 19.55,
    "z": 25.3,
    "rad": 0.32,
    "y": 1.2
@@ -2252,7 +3134,7 @@
   {
    "id": "port_pillar15",
    "kind": "port_pillar",
-   "x": 15.85,
+   "x": 20.45,
    "z": 25.3,
    "rad": 0.32,
    "y": 1.2
@@ -2260,7 +3142,7 @@
   {
    "id": "port_pillar16",
    "kind": "port_pillar",
-   "x": 19.55,
+   "x": 23.48,
    "z": 25.3,
    "rad": 0.32,
    "y": 1.2
@@ -2268,29 +3150,13 @@
   {
    "id": "port_pillar17",
    "kind": "port_pillar",
-   "x": 20.45,
-   "z": 25.3,
-   "rad": 0.32,
-   "y": 1.2
-  },
-  {
-   "id": "port_pillar18",
-   "kind": "port_pillar",
-   "x": 23.48,
-   "z": 25.3,
-   "rad": 0.32,
-   "y": 1.2
-  },
-  {
-   "id": "port_pillar19",
-   "kind": "port_pillar",
    "x": 26.52,
    "z": 25.3,
    "rad": 0.32,
    "y": 1.2
   },
   {
-   "id": "port_pillar20",
+   "id": "port_pillar18",
    "kind": "port_pillar",
    "x": 29.55,
    "z": 25.3,

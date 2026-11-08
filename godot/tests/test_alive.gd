@@ -164,3 +164,10 @@ func test_toriano_has_the_redesigns_systems():
 	t.ok(not day.is_empty() and not WorkDay.holds(day) and String(day.get("regrow", "")) == "overnight", "a work day that regrows overnight and doesn't hold the clock, for Gino's score at night and Christmas Eve")
 	t.ok(not Market.here(), "Monteforchetta's market day doesn't come to Toriano")
 	Data.use_island("hearthglow")
+
+func test_a_taste_colour_matches_however_it_is_written():
+	var sea_green: String = Data.palette.filter(func(c): return String(c).ends_with("3fb5a3"))[0]
+	t.ok(Tastes.same_colour("3fb5a3", sea_green), "a colour written without its hash is the palette's colour")
+	t.ok(Tastes.same_colour(sea_green, sea_green), "and so is the palette's own")
+	t.ok(not Tastes.same_colour("ff0000", sea_green), "another colour isn't")
+	t.ok(not Tastes.same_colour("not a colour", sea_green), "and nonsense never is")
