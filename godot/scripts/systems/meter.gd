@@ -67,3 +67,14 @@ static func add(state: Dictionary, island: String, n: int) -> Array:
 	var before := points(state, island)
 	state.meters[island] = before + n
 	return between(def(island), before, before + n)
+
+static func new_things(state: Dictionary, things: Array) -> Array:
+	var flags: Dictionary = state.get("flags", {})
+	var seen := {}
+	var out: Array = []
+	for t in things:
+		var f := String(t.get("flag", ""))
+		if f == "" or flags.get(f, false) or seen.has(f): continue
+		seen[f] = true
+		out.append(t)
+	return out

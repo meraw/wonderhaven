@@ -66,11 +66,12 @@ func load_all() -> void:
 	tools = _read("tools")
 	tastes = _read("tastes")
 	market = _read("market")
-	var lists := {"islands": islands, "npcs": npcs, "quests": quests, "shops": shops.get("shops", {}), "resources": resources, "order": resource_order, "appearance": appearance}
+	if not tastes.get("tastes") is Dictionary: tastes["tastes"] = {}
+	var lists := {"islands": islands, "npcs": npcs, "quests": quests, "shops": shops.get("shops", {}), "resources": resources, "order": resource_order, "appearance": appearance, "tastes": tastes.tastes}
 	for id in location_ids():
 		var dir := "%s/%s/" % [LOCATIONS, id]
 		merge_pack(lists, id, {"location": _read_opt(dir + "location"), "npcs": _read_opt(dir + "npcs"), "quests": _read_opt(dir + "quests"),
-			"shops": _read_opt(dir + "shops"), "resources": _read_opt(dir + "resources"), "appearance": _read_opt(dir + "appearance")})
+			"shops": _read_opt(dir + "shops"), "resources": _read_opt(dir + "resources"), "appearance": _read_opt(dir + "appearance"), "tastes": _read_opt(dir + "tastes")})
 	for n in npcs: npc_by_id[n.id] = n
 	for q in quests: quest_by_id[q.id] = q
 	_add_interior_nav()
@@ -114,6 +115,10 @@ static func merge_pack(lists: Dictionary, id: String, pack: Dictionary) -> void:
 	for k in res.get("order", res.get("resources", {}).keys()):
 		if not lists.order.has(k): lists.order.append(k)
 	if lists.has("appearance"): merge_variants(lists.appearance, pack.get("appearance", {}).get("variants", {}))
+	if lists.has("tastes"):
+		var ts: Dictionary = pack.get("tastes", {}).get("tastes", {})
+		for k in ts:
+			if not lists.tastes.has(k): lists.tastes[k] = ts[k]
 
 ## Which appearance list each kind of clothing variant joins.
 const VARIANT_SLOTS := {"hat": "HATS", "accessory": "ACCESSORIES", "shoes": "SHOES", "top": "TOPS", "bottom": "BOTTOMS"}

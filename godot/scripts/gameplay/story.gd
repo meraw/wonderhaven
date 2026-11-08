@@ -286,6 +286,7 @@ func complete_quest(qid: String, agent) -> void:
 	WorkDay.note(game.state, "quests", String(q.id))
 	if r.get("harmony", 0) > 0: add_harmony(int(r.harmony))
 	if r.get("meter", 0) > 0 or not LocationMeter.waiting(game.state, where).is_empty(): add_meter(where, int(r.get("meter", 0)))
+	count_world_meter()
 	game.on_quest_completed(qid)
 	if has_brief: game.emit_event("permit", {"quest": qid, "stamp": permit})
 	handle(engine.refresh())
@@ -361,6 +362,20 @@ func add_meter(island: String, n: int) -> void:
 	if not due.is_empty(): game.build.rebuild_grid()   # a build site there may grow with the meter
 	game.hud.render_harmony()
 	handle(engine.refresh())
+
+func count_world_meter() -> void:
+	var island := Data.island
+	var v = game.village
+	if LocationMeter.def(island).is_empty() or v == null or not v.pack_fns.has("meter_things"): return
+	var fresh := LocationMeter.new_things(game.state, v.pack.meter_things(game.state))
+	if fresh.is_empty(): return
+	var n := 0
+	for t in fresh:
+		game.set_flag(String(t.flag))
+		n += int(t.get("points", 1))
+		if String(t.get("text", "")) != "": game.toast(String(t.text), "good", 3.2)
+	game.sfx("unlock")
+	add_meter(island, n)
 
 func apply_unlock(u: Dictionary) -> void:
 	if not GameState.see_unlock(game.state, String(u.get("id", ""))): return

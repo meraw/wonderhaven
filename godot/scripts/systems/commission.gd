@@ -1,6 +1,6 @@
 class_name Commission
 
-const KINDS := ["pieces", "provides", "path", "fed", "lit", "recolored", "material", "kinds", "count", "taller", "sealed"]
+const KINDS := ["pieces", "provides", "path", "fed", "lit", "recolored", "material", "kinds", "count", "taller", "lower", "sealed"]
 const BASIC := ["pieces"]
 
 static func cfg() -> Dictionary: return Data.commissions
@@ -100,6 +100,20 @@ static func check(c: Dictionary, o: Dictionary, pieces: Array, ctx: Dictionary) 
 			need = int(ceil(float(c.get("height", 1.0))))
 			have = int(floor(height))
 			ok = height >= float(c.get("height", 1.0)) - 0.001
+			if not tallest.is_empty(): hit = [tallest]
+		"lower":
+			var low := INF
+			var top := -INF
+			var tallest := {}
+			for p in pieces:
+				var b := BuildGrid.bounds(p)
+				low = minf(low, float(b.bottom))
+				if float(b.top) > top:
+					top = float(b.top)
+					tallest = p
+			need = 1
+			ok = not pieces.is_empty() and top - low <= float(c.get("height", 3.0)) + 0.001
+			have = 1 if ok else 0
 			if not tallest.is_empty(): hit = [tallest]
 		"path":
 			need = 1

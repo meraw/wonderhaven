@@ -937,7 +937,9 @@ func on_build_changed(ev: Dictionary) -> void:
 	build.refresh_drafts()
 	refresh_village(ev)
 	emit_event("build", ev)
-	if ev.get("action", "") != "load": autosave("build")
+	if ev.get("action", "") != "load":
+		story.count_world_meter()
+		autosave("build")
 
 func _refresh_piece_interactables() -> void:
 	interactables = interactables.filter(func(it): return not it.get("piece", false))
@@ -965,6 +967,17 @@ func _refresh_piece_interactables() -> void:
 			"sleep":
 				rec["label"] = func(): return "Sleep"
 				rec["act"] = func(): rest("bed")
+			"pick":
+				var what: Array = d.get("gives", {}).keys()
+				var nm: String = String(Data.resources.get(what[0], {}).get("name", what[0])).to_lower() if not what.is_empty() else "it"
+				rec["label"] = func(): return ("Pick %s" % nm) if Gardening.pickable(ppl, int(state.time.day)) else ("Picked today: more %s tomorrow" % nm)
+				rec["act"] = func():
+					var got := Gardening.pick(ppl, int(state.time.day))
+					if got.is_empty():
+						toast("Nothing left to pick today. More tomorrow.", "", 2.0)
+						return
+					give(got, Vector3(float(rec.x), float(rec.y) + 1.6, float(rec.z)))
+					sfx("pick")
 		if rec.has("act"): add_interactable(rec)
 
 ## Sit on a seat (pose "sleep" to wake up slumped on a bench); moving gets you up again, back where you stood.
