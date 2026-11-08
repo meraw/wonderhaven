@@ -1,0 +1,46 @@
+{
+  "_doc": "The evening inauguration (Inauguration, scripts/systems/inauguration.gd; the scene is scripts/world/inauguration_scene.gd). When you end a day in a place with a work day, the pieces you put up that day and left standing are opened at dusk: the biggest group of them (pieces within `cluster` metres of each other), with the villagers placed around it, a speech, a ribbon and the crowd's reactions. A layout's \"inauguration\" block overrides any of this; with no `speaker` there is no ceremony. Lines: {what} is the pieces (\"a bench and two lamps\"), {What} the same with a capital, {place} the hangout's `at` or `place`, {noticed} the complaint a need met had in the paper, {n} the number of pieces, {piece} the single piece. `tall` is how many metres one piece sits above the lowest before the speech calls it tall, `many` how many pieces make a spree. The speech is one `open` line, one `body` line (the first that fits: need, own, art, tall, colour, many, single, plain) and one `close` line. `grade` is out of 10, in halves: base, plus `need` for each need met (up to need_max), `kind` for each kind of piece after the first (up to kind_max), `usable` when someone can use it, `colour` for a painted piece; above 10 it's `lode`.",
+  "speaker": "",
+  "cluster": 3.0,
+  "tall": 2.5,
+  "many": 6,
+  "kinds_shown": 3,
+  "place": "in the village",
+  "nouns": {
+    "stairs": ["a flight of stairs", "flights of stairs"],
+    "sandbags": ["a row of sandbags", "rows of sandbags"],
+    "bookshelf": ["a bookshelf", "bookshelves"],
+    "bench": ["a bench", "benches"]
+  },
+  "numbers": ["", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve"],
+  "others": "{n} other pieces",
+  "open": [
+    "Citizens! Tonight I give you {what} {place}.",
+    "Friends, voters, pigeons: behold {what} {place}.",
+    "Monteforchetta! Gather round {what} {place}."
+  ],
+  "body": {
+    "need": ["For years you told me: “{noticed}” I listened.", "“{noticed}” Not any more. You're welcome."],
+    "own": ["On my own castle steps, no less. Generous of me.", "Right outside my office. I insisted. Modestly."],
+    "art": ["Some will ask what it is for. That is how you know it's art.", "Is it a seat? A sculpture? A warning? Yes."],
+    "tall": ["Taller than my expectations, nearly as tall as my ambitions.", "From up there you can see the next election."],
+    "colour": ["Note the colour. I chose it. In a dream.", "Such a colour! The province will be furious."],
+    "many": ["{n} pieces in one day! I carried most of them myself, in spirit."],
+    "single": ["One {piece}. Restraint, citizens. Elegance.", "A single {piece}. Less is more, and more is expensive."],
+    "plain": ["It stands. It is ours. Mostly mine.", "Solid work. I inspected it from a safe distance."]
+  },
+  "close": [
+    "My vision, of course. The Geometra held the ladder.",
+    "Designed by me, built by the Geometra, paid for by... let's not.",
+    "Remember this at the next election. Scissors!"
+  ],
+  "comments": {
+    "cheer": ["Bravo!", "Finally!", "Che bello!", "About time!"],
+    "puzzled": ["...What is it?", "Is it finished?", "Bello. I think.", "Who's it for?"],
+    "polite": ["Very nice.", "Mm. Solid.", "Lovely, Geometra."]
+  },
+  "thanks": ["Grazie, Geometra!", "Just what we needed!", "Now that's more like it!"],
+  "grade": {"base": 6.0, "need": 1.0, "need_max": 3, "kind": 0.5, "kind_max": 3, "usable": 0.5, "colour": 0.5, "min": 5.0, "lode": "10 e lode"},
+  "card": "Voto {grade}",
+  "skip": "Skip"
+}

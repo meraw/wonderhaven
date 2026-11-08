@@ -8,7 +8,69 @@ Working title: **Wonderhaven** (to be renamed). The game is moving to a comic, l
 ## The redesign (07/11)
 After a review of how the game plays, the user agreed a new design: building is the core, the game values what you build
 whether or not anyone asked for it, requests become briefs with checks, and the day becomes a work day you end
-yourself. All of it, and the order it's built in, is in `docs/DESIGN.md`. Stages 1 to 4 are done; the rest is still to do.
+yourself. All of it, and the order it's built in, is in `docs/DESIGN.md`. Stages 1 to 5 are done; the rest is still to do.
+
+### Stage 5: the inauguration (Monteforchetta)
+- **When you end the day** (sleep until tomorrow morning) after putting up pieces that are still standing, the
+  Sindaco opens them first. The clock goes to dusk (8:30 PM). The camera cuts to the build, and everyone is placed
+  round it rather than walking there: the Sindaco on one side of a red ribbon, you on the other, the villagers on
+  either side. Then you go to sleep as before. A day with nothing new has no ceremony.
+- **What is opened**: the biggest group of the day's pieces. Pieces within 3 m of each other form a group, and a
+  need met counts extra. Pieces put up and taken away again the same day don't count. Other groups that day are left
+  out.
+- **The speech** is three lines from `data/inauguration.json`:
+  - what and where ("Citizens! Tonight I give you a bench and a flower bed outside the bakery.");
+  - one line that fits the build: the complaint it answers from the paper, the Sindaco's own castle steps, "art"
+    for something nobody can use, something perched high, a painted piece, a spree of pieces, a single piece;
+  - him taking the credit ("My vision, of course. The Geometra held the ladder.").
+- **The ribbon and the crowd**: he cuts the ribbon (confetti, fanfare) and the crowd reacts. If people can use the
+  build they clap and cheer, and the villager whose spot it is thanks you and gains a heart (Ornella at the bakery,
+  Gigia at her gate, and so on). If nobody can use it (a chair on two blocks) everyone shrugs under a question mark,
+  to crickets, even when it counts for the need. One or two villagers say a word in a bubble.
+- **Approval is counted**: a small card gives the day's approval change and a mark out of ten, in halves (Italian
+  school marks, up to "10 e lode"). The mark goes up for each need met, each different kind of piece, someone being
+  able to use it, and a painted piece; wonkiness costs nothing.
+- **The next morning's Eco del Colle** leads with the opening ("Sindaco opens a bench and a flower bed outside the
+  bakery; calls it 'my vision'") and gives the mark. A request finished that day still takes the headline.
+- **Always skippable**: a Skip button or Esc ends it at once, and its results (the heart, the paper) still count.
+  "Evening inaugurations" in the settings turns it off; the paper still reports the build.
+- Where: `Inauguration` (`scripts/systems/inauguration.gd`) holds the rules: today's pieces, the groups, the facts,
+  the speech, the mark, the reactions, and where everyone stands. `InaugurationScene`
+  (`scripts/world/inauguration_scene.gd`) is the scene, run by `game.sleep_until` while the screen is faded. A place
+  turns it on with a work day and a `speaker` in its layout's `inauguration` block (Monteforchetta:
+  `"speaker": "percival"`). Scripted playthroughs skip the scene unless they ask for it (`inauguration=play`), the
+  way they skip the nap jokes.
+- **Checked:**
+  - **Tested** (`godot/run_tests.sh`, 304 passed). `test_inauguration` covers:
+    - naming what was built;
+    - today's pieces remembered across a save, and pieces taken away dropped;
+    - the bakery bench opened with the right place, complaint and credit, and Ornella's heart;
+    - a chair on a stack called art, with the crowd shrugging and no hearts;
+    - the Sindaco's own steps;
+    - the marks;
+    - everyone given a free spot to stand, clear of the pieces and of each other;
+    - the paper's headline and mark.
+  - **Played** (`play_inauguration`, 11 checks, in `play_all.sh`; the pieces are placed by the script, and you
+    sleep on a public bench each night):
+    - a day with nothing built has no ceremony;
+    - a bench and a flower bed at the bakery are opened at 8:30 PM, with all five villagers gathered round;
+    - the speech names them, quotes "Nowhere to sit outside the bakery." and takes the credit;
+    - the ribbon is cut, Ornella thanks you ("Just what we needed!" in this run) and gains a heart, and the card
+      shows "Voto 9/10, +16 today";
+    - the next paper leads with the opening and gives the mark;
+    - a stone block put up across the village the same day is left out;
+    - a chair on two blocks on the church steps gets a ceremony with the whole crowd shrugging and no hearts;
+    - Esc ends a ceremony within a fifth of a second and the paper still reports it;
+    - with the setting off there is no ceremony and the build is still reported.
+  - **Monteforchetta's other playthroughs pass** (`play_all.sh`: 20 runs).
+  - **Seen** in screenshots: the speech with the bench, the flower bed and the ribbon between the Sindaco and you;
+    the cut ribbon and the cheering; the mark; the puzzled crowd at the church.
+  - **Not checked:** the ceremony on the tutorial's first night (the guided day's playthrough skips it); builds
+    indoors or in tight spots, where there may be no room to gather (then it is skipped and only reported); a
+    camera view blocked from every side (the camera then moves in until the view is clear); how it feels to see one
+    every evening.
+- **Not built yet:** the ceremony changing with the villagers' tastes (stage 1's "tastes" are still to do), music at
+  the ceremony, and a record of past openings to look back on.
 
 ### Stage 4: villagers use what you build (Monteforchetta)
 - **Visits.** Now and then a villager takes a break from their routine and goes to one of the village's spots to use
@@ -114,7 +176,7 @@ The user found too much text everywhere. Changes, all shared:
     pillar is shelter; a lamp is light, and an electric lamp only when lit; charm's repeats, colours and cap; three
     needs noticed at a time, only buildable ones, the same for the same morning; approval going down and up again
     without a milestone twice; the plot not shrinking; the paper leading with what was noticed.
-  - **Played** (`play_needs`, 9 checks, now in `play_all.sh`):
+  - **Played** (`play_needs`, 19 checks, in `play_all.sh`):
     - a night on a bench brings three noticed needs in the paper, with icons over the places and the tracker list;
     - build mode shows each place's ring, name and needs;
     - building the right piece there meets the need and raises approval;
@@ -122,8 +184,18 @@ The user found too much text everywhere. Changes, all shared:
     - removing it takes the village's points back but keeps the best approval;
     - drafting it previews the approval, and building the draft meets it again.
 
-    The needs are picked at random each morning, so different runs build at different places: the runs here built a
-    hedge at Gigia's gate and a lamp on the church steps.
+    The morning's needs are picked at random, so v2 and v3 check only that three are noticed and shown. After that the
+    playthrough doesn't rely on the roll: for each kind it builds (seat, green, light) it takes the first place in
+    the layout that wants that kind and has room, makes the village notice it if the morning didn't, and plays the
+    build, remove, draft and rebuild steps there (v5 to v9, once per kind: a bench at the bakery door, a hedge and a
+    lamp in the piazza). Five runs in a row passed all 19 checks.
+  - **Why it used to fail about one run in four** (only when the roll picked a seat): the playthrough aimed its
+    clicks at the middle of the bench's first cell, but build mode centres a piece on the cursor, so for a piece two
+    cells wide that point is exactly on the line between two cells, and the bench landed one cell over. The test then
+    couldn't find its bench at the planned spot and never removed it (v7), and the draft (v8) went next to a bench
+    that already met the need, so it previewed no approval. The game was right; the test was wrong. The new
+    `place_anchored` helper (`tests/full_base.gd`) aims at the middle of the piece's footprint, and v5 now checks that
+    the piece landed where it was aimed.
   - **All of Monteforchetta's playthroughs pass** (`play_all.sh`: 18 runs).
   - **Seen** in the playthroughs' screenshots: the paper with needs, build mode's labels, the "Why?" panel.
   - **Bug the playthrough found**: the village wasn't counted when a new game began, only once something was built.
@@ -271,10 +343,15 @@ What was checked how: **tested** means headless tests (`godot/run_tests.sh`), **
 - **The game stopped on Continue after a trip to Boccapioppo** (played with the tester's own save, and `play_load_away`): Continue (or Load) on a save made in another place reloads the scene for that place, and the "Welcome back" banner was then drawn on the old scene, already out of the tree: a script error, which in the Godot editor pauses the game in the debugger. Saves were never damaged. The new scene now shows the banner (and the pause menu's "Game loaded"). The tester's save loads and plays (8 runs, compatibility renderer and Forward+ on a software GPU).
 - **The crash after Load from the pause menu into another place was the test harness, not the game** (played, tested): `await_island` (`tests/autoplay_base.gd`) asked the old game for its id after a click-triggered load had already freed it. Only Godot run from the editor catches a call on a freed object; a standalone run reads freed memory, and after a second swap in one run that crashed (signal 11, 6 runs in 8). Found with gdb: the crash was inside the playthrough's own awaits. It now checks the old game is still there first: 12 runs in 12 clean. The game itself never crashed: the same two loads driven with real clicks from a plain per-frame script, with no awaits held across the swap, ran 12 times in 12 without a crash, before the harness fix. `play_load_away` now also loads from the pause menu (two swaps in one run).
 
+## Build-piece icons (08/11)
+Seen in the game (the build bar in play_build_clarity's screenshots) and checked by the headless tests (`test_icons.gd`: every piece has its picture) and every playthrough (nothing in play broke).
+- **The build bar shows each piece as a small render of its own model** (ink outline, the game's lighting), in place of its emoji; locked pieces show their picture faded instead of a padlock. The selected-piece and draft panels show it beside the name. The pictures are rendered by `tests/render_piece_icons.gd` into `assets/icons/pieces/` (render again after changing a piece's model: `tools/icons/README.md`).
+- The categories' tabs and lines of text (the plan panel's "Next: ...") keep the piece's emoji, from the one-colour icon font.
+
 ## Icons (07/11)
 Checked in the game (Forward+ screenshots of the top bar, the bag, the journal and the pause menu, loading a real save), by the headless tests (`test_icons.gd`) and every playthrough (nothing in play broke). Not seen on a real monitor yet.
 - **The emoji are now the game's own icons** in watercolour and pencil (style E of the icon directions): the 17 shared resources, the HUD and key hints, the journal, the menus, the weather in the clock, the hours, the minigame tools, build mode's tools and common symbols (84 in all). They are a colour font the UI fonts try before the bundled one-colour icon fonts (`tools/icons/`, `UiTheme.drawn_icon_font`), so the text and data keep their emoji and nothing else changed.
-- **Still one-colour (bundled Noto Emoji):** the build pieces' icons and the other locations' own resources (Boccapioppo's sand, bicycles...). The build pieces would read better as small renders of the pieces.
+- **Still one-colour (bundled Noto Emoji):** the other locations' own resources (Boccapioppo's sand, bicycles...). The build pieces are now pictures of the pieces (above).
 - The approval rating's icon is a green, white and red rosette instead of a heart.
 
 ## Tonemapping and light (07/11)

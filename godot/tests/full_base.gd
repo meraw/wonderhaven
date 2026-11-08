@@ -231,6 +231,10 @@ func place_at(i: float, k: float, y: float = 0.1, r: int = -1) -> String:
 	await click(p); await frames(3)
 	return status
 
+func place_anchored(i: float, k: float, r: int = 0) -> String:
+	var fp := BuildGrid.footprint(Data.piece(game.build.item_id), r)
+	return await place_at(i + (fp.x - 1.0) / 2.0, k + (fp.y - 1.0) / 2.0, 0.1, r)
+
 func leave_build() -> void:
 	for n in 3:
 		if game.mode != "build": return

@@ -582,6 +582,7 @@
   "minK": 7,
   "maxK": 12
  },
+ "inauguration": {"speaker": "percival"},
  "hangouts": [
   {
    "id": "piazza",

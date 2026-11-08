@@ -22,9 +22,20 @@ code keep their emoji and show these pictures. A symbol with no drawing here com
 
 `godot/tests/test_icons.gd` checks that every shared resource and the HUD's icons have a drawing.
 
+## Build pieces
+The build pieces are pictures of the pieces themselves, not drawings: `godot/tests/render_piece_icons.gd` builds each
+piece with the game's own model (`PieceMeshes.make`), lights it like the game (ACES, warm sun, ink outline), crops it
+to its visible pixels and saves a 128 px PNG to `godot/assets/icons/pieces/<id>.png`. Build mode shows them on the
+piece cards and in the selected-piece and draft panels (`BuildMode.piece_icon`); a locked piece shows its picture
+faded. After adding a piece or changing its model, render again (Forward+ needs `mesa-vulkan-drivers` on a headless
+machine) and commit the PNGs:
+
+    xvfb-run -a godot --path godot --rendering-method forward_plus --rendering-driver vulkan -s res://tests/render_piece_icons.gd
+
+Add `-- --only=bench,lamp` to render some pieces only. `test_icons.gd` checks that every piece has its picture.
+
 ## Not drawn yet
-The build pieces' icons (`godot/data/pieces.json`) and the other locations' own resources still come from the
-one-colour icon fonts. The build pieces would read better as small renders of the pieces themselves than as drawings.
+The other locations' own resources still come from the one-colour icon fonts.
 
 ## Notes on Godot
 - Godot tries fallback fonts that claim the text's script first. An emoji inside English text is shaped with the

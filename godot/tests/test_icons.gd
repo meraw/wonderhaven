@@ -27,3 +27,13 @@ func test_ui_fonts_try_the_drawings_first():
 	# an emoji in a line of text is shaped in that line's script run: the icon font must claim Latin, as the emoji font does
 	t.ok(UiTheme.drawn_icon_font().is_script_supported("Latn"), "the drawn icons are tried for emoji inside Latin text")
 	t.ok(not UiTheme.marker_font().fallbacks.has(UiTheme.drawn_icon_font()), "the villagers' tinted markers keep a plain star")
+
+func test_every_piece_has_a_rendered_icon():
+	var missing := []
+	for p in Data.pieces:
+		var path := BuildMode.piece_icon_path(String(p.id))
+		if not ResourceLoader.exists(path): missing.append(String(p.id)); continue
+		var tex: Texture2D = load(path)
+		if tex == null or tex.get_width() != 128 or tex.get_height() != 128: missing.append(String(p.id) + " (size)")
+	t.ok(missing.is_empty(), "every build piece has its rendered icon (missing: %s)" % ", ".join(missing))
+	t.ok(BuildMode.piece_icon("bench", 34.0) is TextureRect, "the build bar shows the bench's picture, not its emoji")

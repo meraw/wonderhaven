@@ -60,6 +60,7 @@ These hold for any cozy, stylised 3D game with a painted look, not only this one
 | Ground bounce light | `atmosphere.gd` | all |
 | ACES tonemapping (white point 4, exposure 0.92; 0.78 in the compatibility renderer), a sun nearly three times the ambient by day, a brighter moon and ambient at night | `terrain.gd` (`build_environment`), `daylight.gd` (`KEYS`) | all |
 | Watercolour-and-pencil icons for the resources, the HUD, the menus and the weather, as a colour font the UI fonts try before the one-colour icon fonts (`tools/icons/`) | `ui_theme.gd` (`drawn_icon_font`), `assets/fonts/WonderhavenIcons.ttf` | all |
+| Build pieces shown as small renders of their own models (ink outline, game lighting) on the build bar and panels | `tests/render_piece_icons.gd`, `assets/icons/pieces/`, `build_mode.gd` (`piece_icon`) | all |
 | A layout's own cobblestones (`cobbleColors`: Monteforchetta's warm grey local stone instead of pale granite) | `terrain.gd` (terrain shader `cobble_a`, `cobble_b`) | all |
 | Colour grade that follows the hour and weather | `atmosphere.gd` (environment colour correction) | all |
 | Cloud shadows matching the sky's clouds, soft vignette | `atmosphere.gd` (screen pass) | Forward+ |
@@ -142,8 +143,6 @@ The terrain shader has a realistic variant too (`TerrainBuilder.terrain_code`, a
   Anything that should darken after dusk needs a lit material (or should go to bed at night).
 - **Clouds with sunlit edges** and a soft horizon glow in the sky shader.
 - **Screen-space indirect light (SSIL)** for colour bleeding from walls onto paths (Forward+ only, costs frame time).
-- **Icons for the build pieces**: small renders of the pieces themselves, in place of their emoji (the rest of the
-  UI's icons are drawn: `tools/icons/README.md`).
 - **Footprints and paths that wear in** where villagers walk, as terrain decals.
 - **Hand-modelled hero assets** (Blender, exported as glTF) if the procedural shapes ever feel limiting. This changes
   how models are made, so it is a project of its own.
