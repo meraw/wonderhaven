@@ -83,3 +83,38 @@ func test_camera_and_snow_know_the_kit():
 		var tall := blockers.any(func(box: AABB): return box.has_point(Vector3(b.x, HouseKit.height(b) - 0.2, b.z)))
 		t.ok(tall, "the camera stops at the top of %s" % b.id)
 	t.ok(HouseKit.tile_material(Color("c46a3e")).shader.code.contains("world_snow"), "coppi take the snow")
+
+func _touches(b: Dictionary, side: String) -> bool:
+	for o in Data.layout.buildings:
+		if o == b: continue
+		var ox := minf(b.x + b.w / 2.0, o.x + o.w / 2.0) - maxf(b.x - b.w / 2.0, o.x - o.w / 2.0)
+		var oz := minf(b.z + b.d / 2.0, o.z + o.d / 2.0) - maxf(b.z - b.d / 2.0, o.z - o.d / 2.0)
+		match side:
+			"E": if absf((o.x - o.w / 2.0) - (b.x + b.w / 2.0)) < 0.05 and oz > 1.0: return true
+			"W": if absf((b.x - b.w / 2.0) - (o.x + o.w / 2.0)) < 0.05 and oz > 1.0: return true
+			"S": if absf((o.z - o.d / 2.0) - (b.z + b.d / 2.0)) < 0.05 and ox > 1.0: return true
+			"N": if absf((b.z - b.d / 2.0) - (o.z + o.d / 2.0)) < 0.05 and ox > 1.0: return true
+	return false
+
+func test_the_village_core_is_dense_and_clear():
+	var kit := _kit_buildings()
+	t.ok(kit.size() >= 16, "Monteforchetta has a village core of kit houses (%d)" % kit.size())
+	var rows := kit.filter(func(b): return b.has("party"))
+	t.ok(rows.size() >= 4, "some houses stand in attached rows (%d)" % rows.size())
+	for b in rows:
+		for s in b.party: t.ok(_touches(b, String(s)), "%s shares its %s wall with a neighbour" % [b.id, s])
+	var sq: Dictionary = Data.layout.square
+	for b in kit.filter(func(b): return not Interiors.enterable(b)):
+		var near_path := INF
+		var near_node := INF
+		var near_square := INF
+		for i in 9:
+			for k in 9:
+				var x: float = b.x - b.w / 2.0 + b.w * i / 8.0
+				var z: float = b.z - b.d / 2.0 + b.d * k / 8.0
+				near_path = minf(near_path, WorldStatics.dist_to_paths(x, z))
+				near_square = minf(near_square, Vector2(x - sq.x, z - sq.z).length() - float(sq.r))
+				for n in Data.layout.nodes: near_node = minf(near_node, Vector2(x - n.x, z - n.z).length())
+		t.ok(near_path > 1.3, "%s keeps off the lanes (%.2f m)" % [b.id, near_path])
+		t.ok(near_node > 1.4, "%s leaves every resource spot reachable (%.2f m)" % [b.id, near_node])
+		t.ok(near_square > 0.0, "%s stands round the piazza, not on it" % b.id)
