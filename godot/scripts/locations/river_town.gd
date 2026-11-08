@@ -49,6 +49,7 @@ const QUAY := Rect2(22.5, 1.5, 4.5, 7.0)   # its stone quay: level ground to a s
 const LANDING := Rect2(23.0, 11.0, 4.0, 5.0)   # the old ferry landing: the bank eases down to the water there
 
 const FLOOD_PEAK := 0.45
+const FLOODPLAIN_SPOTS := [Vector2(-30.0, 31.0), Vector2(-14.0, 31.0), Vector2(0.0, 31.0)]
 
 static func flood_level(minute: float) -> float:
 	var h := minute / 60.0

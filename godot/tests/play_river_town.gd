@@ -808,9 +808,14 @@ func sec_levee() -> void:
 	await frames(10)
 	var fl: Node = game.village.find_child("river_town_flood", true, false)
 	var level: float = float(fl.call("level")) if fl != null else -9.0
-	var under := [Vector2(-40.0, 34.0), Vector2(-8.0, 30.0), Vector2(8.0, 36.0)].all(func(p): return Heightfield.height(p.x, p.y) < level)
-	check("s11b", "Keeping watch till midnight, the Po spreads over the floodplain to the foot of the levee; the town behind it stays dry", fl != null and level > RiverTown.FLOOD_H + 0.15 and under and Heightfield.height(5.0, 0.0) > level,
-		"flood at %.2f m" % level)
+	var under: bool = RiverTown.FLOODPLAIN_SPOTS.all(func(p): return Heightfield.height(p.x, p.y) < level)
+	var town_dry := true
+	if fl != null:
+		for c in fl.get_children():
+			var half: Vector2 = ((c as MeshInstance3D).mesh as PlaneMesh).size / 2.0
+			if absf(5.0 - c.position.x) < half.x and absf(0.0 - c.position.z) < half.y: town_dry = false
+	check("s11b", "Keeping watch till midnight, the Po spreads over the floodplain to the foot of the levee; the town behind it stays dry", fl != null and level > RiverTown.FLOOD_H + 0.15 and under and town_dry,
+		"flood at %.2f m, floodplain under %s, town dry %s" % [level, under, town_dry])
 	await shot("flood-at-midnight")
 	await talk(P + "ermes")   # the peak, and it holds
 	var over := await await_rebuild()

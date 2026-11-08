@@ -508,6 +508,7 @@ func test_on_the_storm_night_the_po_rises_over_the_floodplain_but_not_into_town(
 	t.ok(at.call(22.5) > at.call(21.5) and at.call(23.5) > at.call(22.5), "it climbs through the evening")
 	t.ok(at.call(23.9) > RT.FLOOD_H + 0.2 and at.call(0.5) >= at.call(23.9) - 0.01, "by midnight the floodplain is under water, and it stays up past midnight (%.2f)" % at.call(0.5))
 	t.ok(at.call(0.5) < RT.TOWN_H - 0.08 and at.call(0.5) < RT.DANCE_H, "it stops short of the town and the dance hall's floor on its stilts")
+	for p in RT.FLOODPLAIN_SPOTS: t.ok(RT.height(p.x, p.y) < at.call(0.5) - 0.1, "at midnight the floodplain at (%d, %d) is under water (ground %.2f)" % [p.x, p.y, RT.height(p.x, p.y)])
 
 func test_the_monster_leaps_when_it_bites():
 	var monster: Dictionary = Data.read_layout("river_town").fish.filter(func(f): return f.id == "river_town_monster")[0]
