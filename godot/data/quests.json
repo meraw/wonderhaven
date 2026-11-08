@@ -113,12 +113,43 @@
     },
     {
      "id": "build",
-     "kind": "build",
-     "check": "bridge",
+     "kind": "commission",
      "zone": "bridge",
      "stage": 1,
      "text": "Rebuild the crossing over the stream (B at the washout)",
-     "goal": "A continuous walkable path from bank to bank",
+     "musts": [
+      {
+       "check": "path",
+       "label": "Walkable from bank to bank"
+      },
+      {
+       "check": "pieces",
+       "any": [
+        "railing"
+       ],
+       "count": 4,
+       "label": "Railings along it"
+      }
+     ],
+     "wishes": [
+      {
+       "check": "material",
+       "of": [
+        "wood"
+       ],
+       "who": "fern",
+       "label": "All in wood"
+      },
+      {
+       "check": "pieces",
+       "any": [
+        "railing"
+       ],
+       "count": 8,
+       "who": "percival",
+       "label": "Eight railings"
+      }
+     ],
      "buildHint": "Planks reach 2 tiles from a bank or post.",
      "hint": {
       "x": 0,
@@ -169,25 +200,7 @@
        0,
        -21,
        "bridgeDeck"
-      ]
-     ]
-    },
-    {
-     "id": "rails",
-     "kind": "pieces",
-     "zone": "bridge",
-     "any": [
-      "railing"
-     ],
-     "count": 4,
-     "stage": 2,
-     "text": "Add 4 railings along the crossing, so nobody ends up in the stream",
-     "buildHint": "Point near the edge where a railing goes: it turns to face it.",
-     "hint": {
-      "x": 0,
-      "z": -18
-     },
-     "plan": [
+      ],
       [
        0,
        -17,
@@ -332,54 +345,54 @@
      "text": "Ask Elio how he'd like his shop",
      "lines": [
       "Oh! You've got everything. Okay. Deep breath.",
-      "A workbench, two places to sit, two lamps — it gets so dark in here — and two shelves or cabinets.",
-      "And one thing in a bright colour. For courage. Press T in build mode to paint it."
+      "I need a workbench, two places to sit and two lamps. It gets so dark in here.",
+      "Two shelves would be lovely. And one thing in a bright colour, for courage: press T in build mode to paint it. Only if you like."
      ]
     },
     {
      "id": "build",
-     "kind": "room",
+     "kind": "commission",
      "zone": "workshop",
-     "needs": [
+     "stage": 2,
+     "text": "Fit out the shop (B inside it)",
+     "musts": [
       {
+       "check": "pieces",
        "any": [
         "workbench"
        ],
        "label": "A workbench"
       },
       {
-       "any": [
-        "chair",
-        "sofa",
-        "bench"
-       ],
+       "check": "provides",
+       "kind": "seat",
        "count": 2,
        "label": "Two places to sit"
       },
       {
-       "any": [
-        "lamp",
-        "poweredLamp",
-        "streetlight"
-       ],
+       "check": "provides",
+       "kind": "light",
        "count": 2,
        "label": "Two lamps"
-      },
+      }
+     ],
+     "wishes": [
       {
+       "check": "pieces",
        "any": [
         "cabinet",
         "bookshelf"
        ],
        "count": 2,
+       "who": "bram",
        "label": "Two shelves or cabinets"
       },
       {
-       "recolored": true,
-       "label": "Recolour a piece (T)"
+       "check": "recolored",
+       "who": "bram",
+       "label": "One thing painted bright (T)"
       }
      ],
-     "stage": 2,
-     "text": "Fit out the shop (B inside it)",
      "hint": {
       "x": -12,
       "z": 10
@@ -537,11 +550,34 @@
     },
     {
      "id": "build",
-     "kind": "build",
-     "check": "fountain",
+     "kind": "commission",
      "zone": "plaza",
      "stage": 1,
      "text": "Get water flowing into the fountain",
+     "musts": [
+      {
+       "check": "fed",
+       "target": "fountain",
+       "label": "Water flows into the fountain"
+      }
+     ],
+     "wishes": [
+      {
+       "check": "pieces",
+       "any": [
+        "flowerBed"
+       ],
+       "count": 2,
+       "who": "tilly",
+       "label": "Two flower beds by it"
+      },
+      {
+       "check": "provides",
+       "kind": "seat",
+       "who": "percival",
+       "label": "A bench to admire it from"
+      }
+     ],
      "buildHint": "Fountain inlet: east side, by the piazza edge.",
      "hint": {
       "x": 6,
@@ -703,38 +739,69 @@
     },
     {
      "id": "house",
-     "kind": "room",
+     "kind": "commission",
      "zone": "plot",
-     "needs": [
+     "stage": 1,
+     "text": "Rebuild the ruined farmhouse across the stream: 3 walls, a door, a roof and a bed (beds are dear: save up, and nap on benches meanwhile)",
+     "musts": [
       {
+       "check": "pieces",
        "any": [
         "woodWall",
-        "windowWall"
-       ],
-       "count": 3,
-       "label": "Walls (3)"
-      },
-      {
-       "any": [
+        "windowWall",
         "doorWall"
        ],
-       "label": "A door"
+       "count": 4,
+       "with": [
+        "doorWall"
+       ],
+       "label": "Four walls, one a door"
       },
       {
-       "any": [
-        "roof"
-       ],
+       "check": "provides",
+       "kind": "shelter",
        "label": "A roof"
       },
       {
+       "check": "pieces",
        "any": [
         "bed"
        ],
        "label": "A bed"
       }
      ],
-     "stage": 1,
-     "text": "Rebuild the ruined farmhouse across the stream: 3 walls, a door, a roof and a bed (beds are dear: save up, and nap on benches meanwhile)",
+     "wishes": [
+      {
+       "check": "pieces",
+       "any": [
+        "table",
+        "desk",
+        "counter"
+       ],
+       "who": "mabel",
+       "label": "A table"
+      },
+      {
+       "check": "provides",
+       "kind": "green",
+       "who": "fern",
+       "label": "Something growing"
+      },
+      {
+       "check": "pieces",
+       "any": [
+        "rug",
+        "painting",
+        "lamp",
+        "bookshelf",
+        "cabinet",
+        "poweredLamp"
+       ],
+       "count": 2,
+       "who": "percival",
+       "label": "Two cosy touches"
+      }
+     ],
      "buildHint": "Walls stand on cell edges; the roof rests on top of them.",
      "hint": {
       "x": 18,
@@ -800,51 +867,7 @@
        -35,
        "bed",
        0
-      ]
-     ]
-    },
-    {
-     "id": "cosy",
-     "kind": "room",
-     "zone": "plot",
-     "stage": 2,
-     "needs": [
-      {
-       "any": [
-        "table",
-        "desk",
-        "counter"
-       ],
-       "label": "A table or desk"
-      },
-      {
-       "any": [
-        "chair",
-        "sofa",
-        "bench"
-       ],
-       "label": "Somewhere to sit"
-      },
-      {
-       "any": [
-        "rug",
-        "painting",
-        "lamp",
-        "bookshelf",
-        "cabinet",
-        "flowerBed",
-        "poweredLamp"
-       ],
-       "count": 2,
-       "label": "Two cosy touches (rug, painting, lamp, shelf…)"
-      }
-     ],
-     "text": "Make it cosy: a table, a seat and two homely touches",
-     "hint": {
-      "x": 18,
-      "z": -34
-     },
-     "plan": [
+      ],
       [
        17,
        -34,
@@ -946,17 +969,51 @@
      }
     },
     {
-     "id": "paving",
-     "kind": "pieces",
+     "id": "build",
+     "kind": "commission",
      "zone": "dock",
-     "any": [
-      "gardenPath",
-      "stoneBlock",
-      "foundation"
-     ],
-     "count": 12,
      "stage": 1,
-     "text": "Pave the turning circle on the belvedere (12 paving stones)",
+     "text": "Build the bus stop on the belvedere: paving to turn on, a seat and a sign",
+     "musts": [
+      {
+       "check": "pieces",
+       "any": [
+        "gardenPath",
+        "stoneBlock",
+        "foundation"
+       ],
+       "count": 12,
+       "label": "Twelve paving stones"
+      },
+      {
+       "check": "provides",
+       "kind": "seat",
+       "label": "Somewhere to wait"
+      },
+      {
+       "check": "pieces",
+       "any": [
+        "signpost",
+        "streetlight",
+        "enamelSign"
+       ],
+       "label": "A sign for the stop"
+      }
+     ],
+     "wishes": [
+      {
+       "check": "provides",
+       "kind": "shelter",
+       "who": "captain",
+       "label": "A roof for rainy days"
+      },
+      {
+       "check": "provides",
+       "kind": "light",
+       "who": "percival",
+       "label": "A light at night"
+      }
+     ],
      "buildHint": "Garden paths make good paving.",
      "hint": {
       "x": 4,
@@ -1022,48 +1079,13 @@
        6,
        36,
        "gardenPath"
-      ]
-     ]
-    },
-    {
-     "id": "bench",
-     "kind": "pieces",
-     "zone": "dock",
-     "any": [
-      "bench"
-     ],
-     "count": 1,
-     "stage": 1,
-     "text": "Put a bench at the stop",
-     "hint": {
-      "x": 4,
-      "z": 37
-     },
-     "plan": [
+      ],
       [
        2,
        38,
        "bench",
        0
-      ]
-     ]
-    },
-    {
-     "id": "sign",
-     "kind": "pieces",
-     "zone": "dock",
-     "any": [
-      "signpost",
-      "streetlight"
-     ],
-     "count": 1,
-     "stage": 1,
-     "text": "Put up a signpost or a street light",
-     "hint": {
-      "x": 4,
-      "z": 37
-     },
-     "plan": [
+      ],
       [
        6,
        38,
@@ -1507,9 +1529,24 @@
    "objectives": [
     {
      "id": "lamp",
-     "kind": "build",
-     "check": "lamp",
+     "kind": "commission",
+     "zone": "plaza",
      "text": "Light an electric lamp: a waterwheel in the mill channel by the piazza, and a lamp on the bank beside it",
+     "musts": [
+      {
+       "check": "lit",
+       "label": "An electric lamp, lit"
+      }
+     ],
+     "wishes": [
+      {
+       "check": "lit",
+       "count": 2,
+       "who": "tilly",
+       "label": "Two lamps lit"
+      }
+     ],
+     "buildHint": "A waterwheel turns in running water and sends power out onto the banks either side of it. An electric lamp touching one of those sides lights up; shafts carry the power further in a line, gear boxes turn corners.",
      "plan": [
       [
        11,
@@ -1522,9 +1559,7 @@
        2,
        "poweredLamp"
       ]
-     ],
-     "zone": "plaza",
-     "buildHint": "A waterwheel turns in running water and sends power out onto the banks either side of it. An electric lamp touching one of those sides lights up; shafts carry the power further in a line, gear boxes turn corners."
+     ]
     },
     {
      "id": "tell",

@@ -20,7 +20,9 @@ func test_npcs():
 func test_quest_flow():
 	var s := GameState.new_game()
 	var built := [false]
-	var e := QuestEngine.new(s, {"bridge": func(): return built[0]})
+	var e := QuestEngine.new(s)
+	e.world = func(): return {"placements": s.placements, "path": func(_z): return {"ok": built[0], "path": []}}
+	var brief: Dictionary = Data.quest("bridge").objectives.filter(func(o): return String(o.get("kind", "")) == "commission")[0]
 	t.eq(e.offers_for("fern").size(), 0, "bridge locked before tool")
 	e.accept("tool")
 	e.on_gain({"wood": 2}); t.ok(not e.is_ready("tool"))
@@ -28,8 +30,8 @@ func test_quest_flow():
 	t.eq(e.turn_ins_for("percival").map(func(q): return q.id), ["tool"], "turn in to the Sindaco")
 	t.eq(int(e.complete("tool").harmony), 10, "reward")
 	e.accept("bridge")
-	t.eq([e.stage_index("bridge"), e.stages("bridge").size()], [1, 3], "the bridge comes in three steps")
-	built[0] = true   # built before its step comes up: it waits its turn
+	t.eq([e.stage_index("bridge"), e.stages("bridge").size()], [1, 2], "the bridge comes in two steps: the wood, then the crossing's brief")
+	built[0] = true
 	var ev := e.refresh()
 	t.ok(not ev.any(func(x): return x.has("objective") and x.objective.id == "build"), "the building step isn't reported early")
 	built[0] = false
@@ -38,16 +40,15 @@ func test_quest_flow():
 	t.eq(e.next_step("bridge").objective.id, "wood", "next: more wood")
 	e.on_gain({"wood": 8})
 	t.eq(e.current_stage("bridge"), 1, "materials done: now build")
-	t.ok(e.shown_objectives("bridge").later == 1, "the railings step stays hidden until then")
+	t.eq(e.objective("bridge", brief).have, 0, "none of the brief's musts met yet")
 	built[0] = true
 	e.refresh()
-	t.eq(e.current_stage("bridge"), 2, "bridge built: now railings")
-	t.ok(not e.is_ready("bridge"), "railings still to do")
+	t.ok(not e.is_ready("bridge") and e.objective("bridge", brief).have == 1, "walkable: one must of two")
 	for i in 4: s.placements.append({"uid": 50 + i, "id": "railing", "i": float(-1 + (i % 2) * 2), "k": float(-16 - i), "r": 1, "y": 0.0})
 	ev = e.refresh()
 	t.ok(ev.any(func(x): return x.has("ready")), "four railings on the bridge: ready")
 	built[0] = false
-	t.ok(e.is_ready("bridge"), "build objective latched")
+	t.ok(e.is_ready("bridge"), "the brief latched")
 	t.eq(e.next_step("bridge").npc, "captain", "next step: tell Aldo")
 
 func test_stages_gate_gathering_and_talks():
@@ -251,14 +252,13 @@ func test_home_of_your_own():
 	var deed: Dictionary = q.objectives[0]
 	t.ok(deed.kind == "pay" and int(deed.items.get("coins", 0)) > 0 and "homePlot" in deed.onDone.flags, "the plot opens once you've paid for the deed")
 	t.ok("bed" in deed.onDone.blueprints and "roof" in deed.onDone.blueprints and int(deed.onDone.items.get("fabric", 0)) >= 2, "the deed comes with the blueprints and fabric for a bed and roof")
-	var home_needs: Array = q.objectives[1].needs
-	var z := Data.zone("plot")
+	var brief: Dictionary = q.objectives[1]
 	var pls: Array = []
 	var add := func(id: String, i: int, k: int) -> void: pls.append({"uid": pls.size() + 1, "id": id, "i": float(i), "k": float(k), "r": 0, "y": 0.0})
 	add.call("woodWall", 15, -36); add.call("woodWall", 16, -36); add.call("doorWall", 17, -36)
-	t.ok(not Validate.room_checklist(z, pls, home_needs).all(func(r): return r.ok), "not a home yet: missing a wall, roof and bed")
+	t.ok(brief.kind == "commission" and not Commission.evaluate(brief, {"placements": pls}).done, "not a home yet: missing a wall, roof and bed")
 	add.call("windowWall", 15, -35); add.call("roof", 15, -35); add.call("bed", 18, -34)
-	t.ok(Validate.room_checklist(z, pls, home_needs).all(func(r): return r.ok), "3 walls, a door, a roof and a bed make a home")
+	t.ok(Commission.evaluate(brief, {"placements": pls}).done, "four walls with a door, a roof and a bed make a home")
 	var bed: Dictionary = Data.layout.features.filter(func(f): return f.kind == "rest")[0]
 	var castle: Dictionary = Data.layout.buildings.filter(func(b): return b.id == "castle")[0]
 	t.ok(absf(bed.x - castle.x) < castle.w / 2.0 and absf(bed.z - castle.z) < castle.d / 2.0, "you start out in the castle's guest room")
@@ -268,10 +268,10 @@ func test_live_checks_are_cached_until_something_changes():
 	var s := GameState.new_game()
 	s.quests["tool"] = {"status": "done", "progress": {}}
 	var calls := [0]
-	var check := func():
+	var e := QuestEngine.new(s)
+	e.world = func():
 		calls[0] += 1
-		return false
-	var e := QuestEngine.new(s, {"bridge": check})
+		return {"placements": [], "path": func(_z): return {"ok": false}}
 	e.accept("bridge")
 	e.on_gain({"wood": 14})   # the wood step done, so the building step's live check is the current one
 	calls[0] = 0

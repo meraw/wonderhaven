@@ -51,7 +51,7 @@ func test_every_island_is_a_playable_world():
 				for o in q.objectives:
 					if o.has("zone"): t.ok(not Data.zone(o.zone).is_empty(), "%s: %s builds in a real zone (%s)" % [id, q.id, o.zone])
 					if o.has("npc"): t.eq(Data.npc_island(o.npc), id, "%s: %s's step is with someone on the island (%s)" % [id, q.id, o.npc])
-					if o.has("hint") and not o.kind in ["build", "pieces"]: t.ok(not Heightfield.is_water(o.hint.x, o.hint.z), "%s: %s's compass hint is on land" % [id, q.id]))
+					if o.has("hint") and not o.kind in ["build", "pieces", "commission"]: t.ok(not Heightfield.is_water(o.hint.x, o.hint.z), "%s: %s's compass hint is on land" % [id, q.id]))
 
 func test_cove_ground():
 	_on("clockwork", func():

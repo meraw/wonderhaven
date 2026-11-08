@@ -11,7 +11,7 @@ const PLACES := ["hearthglow", "river_town"]
 func _init() -> void:
 	statics = WorldStatics.build_statics(WorldStatics.generate_decor())
 
-const BUILD_KINDS := ["build", "pieces", "room"]
+const BUILD_KINDS := ["build", "pieces", "room", "commission"]
 
 func test_every_building_step_has_a_plan():
 	for q in Data.quests:
@@ -42,6 +42,17 @@ func _build(q: Dictionary, placements: Array, flags_for: Callable = func(_o): re
 	return true
 
 func _done(o: Dictionary, placements: Array, here: Array) -> bool:
+	if o.kind == "commission":
+		var F2: Dictionary = Data.layout.get("fountain", {})
+		var targets: Array = [{"id": "fountain", "cell": F2.inlet.cell, "side": F2.inlet.side, "type": "water"}] if F2.has("inlet") else []
+		targets.append_array(Data.layout.get("machines", []))
+		var m := Mechanics.solve(placements, targets)
+		var path := func(zone_id: String) -> Dictionary:
+			var w := WalkWorld.new(here, func(_f): return false)
+			w.floors = WorldStatics.floors()
+			w.surfaces = BuildGrid.surfaces_for(placements)
+			return Validate.path_across(Data.zone(zone_id), w)
+		return Commission.evaluate(o, {"placements": placements, "lamps": m.lamps, "fed": m.fed, "mech": m, "path": path}).done
 	match o.kind:
 		"room": return Validate.room_checklist(Data.zone(o.zone), placements, o.needs).all(func(r): return r.ok)
 		"pieces":
@@ -109,7 +120,7 @@ func test_plan_ghosts_and_what_is_built():
 	s.quests["bridge"] = {"status": "active", "progress": {"wood": 14}}
 	e.invalidate()
 	var now := Plans.current(e)
-	t.ok(now.size() == 1 and now[0].objective == "build", "with the wood gathered, the crossing's plan shows (not yet the railings')")
+	t.ok(now.size() == 1 and now[0].objective == "build", "with the wood gathered, the crossing's plan shows")
 	# the next piece to build: the first of the plan not built yet (BuildMode follows it)
 	var nx := Plans.next_piece(now[0].pieces, [])
 	t.ok(not nx.is_empty() and nx.id == String(Data.quest("bridge").objectives[1].plan[0][2]), "the next piece is the plan's first")

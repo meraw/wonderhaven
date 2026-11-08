@@ -103,11 +103,13 @@ func play() -> void:
 	key(KEY_CTRL, true); await tap(KEY_Y); key(KEY_CTRL, false); await frames(3)
 	var redone: bool = not game.state.placements.any(func(p): return p.id == "railing")
 	check(5, "Construction: place, rotate, move, remove (+ undo/redo)", sel and rot == 1 and moved == -2.0 and removed and undone and redone, "selected=%s r=%d moved=%s removed=%s undo=%s redo=%s" % [sel, rot, moved, removed, undone, redone])
-	var step_rails: bool = game.story.engine.current_stage("bridge") == 2
+	var brief: Dictionary = Data.quest("bridge").objectives.filter(func(o): return String(o.get("kind", "")) == "commission")[0]
+	var musts_before: Array = game.story.engine.commission("bridge", brief).musts.map(func(m): return m.ok)
+	var step_rails: bool = musts_before == [true, false]
 	# last step: railings along both sides
 	await select_piece("railing")
 	for k in [-16, -17, -18, -19]: print("   railing: ", await place_at(0, k, 0.3, 1 if k % 2 == 0 else 3))
-	check("A2", "Bridge built, then four railings finish the request", step_rails and game.story.engine.is_ready("bridge"), "rails step=%s ready=%s" % [step_rails, game.story.engine.is_ready("bridge")])
+	check("A2", "The crossing's brief: walkable bank to bank ticks first, then four railings meet the last must", step_rails and game.story.engine.is_ready("bridge"), "musts before the railings %s, ready=%s" % [str(musts_before), game.story.engine.is_ready("bridge")])
 	await shot("bridge-built")
 	await leave_build()
 	# 7. Cross the bridge
@@ -121,6 +123,8 @@ func play() -> void:
 	await talk("captain")
 	check(9, "Completing a quest changes the world and grants rewards", q("bridge").get("status", "") == "done" and game.state.flags.get("orchardOpen", false) and game.state.harmony > h0, "harmony %d→%d, orchardOpen=%s" % [h0, game.state.harmony, game.state.flags.get("orchardOpen", false)])
 	check(10, "New blueprints become available as you progress", game.state.blueprints.size() > bp0 and game.state.blueprints.has("flowerBed"), "%d→%d blueprints" % [bp0, game.state.blueprints.size()])
+	var permit: Dictionary = q("bridge").get("stamp", {})
+	check("A2b", "Handing it in stamps the permit: Gigia's all-in-wood wish is met, the Sindaco's eight railings aren't", String(permit.get("text", "")) == "Approvato con plauso" and int(permit.get("met", 0)) == 1, str(permit))
 	# Workshop: materials, then Bram's plan, then furnishing
 	await talk("bram")
 	await gather_until("chop", func(): return int(q("workshop").progress.get("wood", 0)) >= 12 and inv("wood") >= 12, [], 18)
@@ -151,5 +155,7 @@ func play() -> void:
 	await talk("bram")
 	print("   workshop: ", q("workshop").get("status", ""), " harmony ", game.state.harmony)
 	check("A4", "The bigger workshop request is finished", q("workshop").get("status", "") == "done", str(q("workshop").get("status", "")))
+	var shop_permit: Dictionary = q("workshop").get("stamp", {})
+	check("A4b", "Two cabinets and a painted chair meet both of Elio's wishes: the best stamp", String(shop_permit.get("text", "")) == "Approvato con lode", str(shop_permit))
 	# Hand over to part two through a save, made in the pause menu
 	check("A5", "Saved for part two (slot 3)", await save_to("slot3"), "")

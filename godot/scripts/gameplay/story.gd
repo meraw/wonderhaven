@@ -20,6 +20,7 @@ func _init(g) -> void:
 			if name.begins_with("sealed:"): return Validate.sealed(Data.zone(name.substr(7)), game.state.placements).sealed
 			return false})
 	engine.gate = func(qid: String) -> bool: return Tutorial.allows_offer(game.state.get("tutorial", {}), qid)
+	engine.world = commission_world
 	game.game_event.connect(_on_event)
 
 func attach(state: Dictionary) -> void: engine.state = state; engine.invalidate()
@@ -30,11 +31,41 @@ func _on_event(type: String, data: Dictionary) -> void:
 	if type == "build":
 		if data.get("action", "") == "place": first_of_kind(data.pl.id)
 		handle(engine.refresh())
+		commission_ticks(String(data.get("action", "")) != "load")
 
-func path_ok(id: String) -> bool:
+func path_ok(id: String) -> bool: return path_across(id).ok
+
+func path_across(id: String) -> Dictionary:
 	var r := Validate.path_across(Data.zone(id), game.walk)
 	if r.ok: game.state.crossings[id] = r.path.map(func(c): return [c.x, c.y])
-	return r.ok
+	return r
+
+var ticked := {}
+
+func commission_ticks(show: bool = true) -> void:
+	for q in engine.active():
+		if not engine.here(q.id): continue
+		for o in q.objectives:
+			if String(o.get("kind", "")) != "commission" or not engine.is_current(q.id, o): continue
+			var cr := engine.commission(q.id, o)
+			var rows: Array = cr.musts + cr.wishes
+			for i in rows.size():
+				var key := "%s/%s/%d" % [q.id, String(o.id), i]
+				var was: bool = ticked.get(key, rows[i].ok)
+				ticked[key] = rows[i].ok
+				if show and rows[i].ok and not was: _tick(rows[i], i >= cr.musts.size())
+
+func _tick(row: Dictionary, wish: bool) -> void:
+	for uid in row.uids:
+		var n: Node3D = game.piece_nodes.get(uid)
+		if n: game.effects.sparkle(n.position + Vector3(0, 0.6, 0), 14, Color("ffd76a") if wish else Color("8ee6a8"), 0.3)
+	var who := String(Data.npc(String(row.get("who", ""))).get("name", "")).get_slice(" ", 0)
+	game.toast(("★ " if wish else "✔ ") + String(row.label) + ((" · " + who) if who != "" else ""), "good", 2.6)
+	game.sfx("objective")
+	game.emit_event("commission_tick", {"label": String(row.label), "wish": wish, "uids": row.uids})
+
+func commission_world() -> Dictionary:
+	return {"placements": game.state.placements, "lamps": game.mech.lamps, "fed": game.mech.fed, "mech": game.mech, "path": path_across}
 
 func event(name: String, n: int = 1) -> void: handle(engine.on_event(name, n))
 
@@ -211,9 +242,21 @@ func complete_quest(qid: String, agent) -> void:
 	var q := Data.quest(qid)
 	agent.character.play("celebrate")
 	await ui.say(Conversation.quest_lines(qid, "complete", game.state.name), {"mood": "happy"})
-	var r := engine.complete(qid)
+	var wishes: Array = []
+	for o in q.objectives:
+		if String(o.get("kind", "")) == "commission": wishes.append_array(engine.commission(qid, o).wishes)
+	var has_brief: bool = q.objectives.any(func(o): return String(o.get("kind", "")) == "commission")
+	var r: Dictionary = engine.complete(qid).duplicate(true)
 	var where := Data.quest_island(qid)
 	var lines: Array = []
+	var permit := {}
+	if has_brief:
+		permit = Commission.stamp(wishes)
+		var extra := Commission.bonus(wishes)
+		r["harmony"] = int(r.get("harmony", 0)) + int(extra.harmony)
+		game.state.quests[qid]["stamp"] = {"text": String(permit.text), "met": int(permit.met), "of": int(permit.of)}
+		lines.append("🖋 %s%s" % [String(permit.text), (" · %d of %d wishes" % [int(permit.met), int(permit.of)]) if int(permit.of) > 0 else ""])
+		for who in extra.hearts: add_hearts(String(who), int(extra.hearts[who]))
 	if r.get("harmony", 0) > 0: lines.append("+%d 💖 approval" % int(r.harmony))
 	if r.get("meter", 0) > 0: lines.append(LocationMeter.reward_text(LocationMeter.def(where), int(r.meter)))
 	for k in r.get("items", {}): lines.append("+" + Money.amount(k, int(r.items[k])))
@@ -232,6 +275,7 @@ func complete_quest(qid: String, agent) -> void:
 	if r.get("harmony", 0) > 0: add_harmony(int(r.harmony))
 	if r.get("meter", 0) > 0 or not LocationMeter.waiting(game.state, where).is_empty(): add_meter(where, int(r.get("meter", 0)))
 	game.on_quest_completed(qid)
+	if has_brief: game.emit_event("permit", {"quest": qid, "stamp": permit})
 	handle(engine.refresh())
 	game.render_resources()
 	game.autosave("quest", true)
@@ -363,6 +407,20 @@ func _zone_items(qid: String, o: Dictionary) -> Array:
 		"pieces":
 			var in_draft := 0 if st.done else Validate.pieces_in_zone(Data.zone(o.zone), drafts).filter(func(pl): return o.any.has(pl.id)).size()
 			return [{"label": o.text + ("" if st.done else " (%d/%d)" % [st.have, st.need]) + ((" +%d drafted" % in_draft) if in_draft > 0 else ""), "ok": st.done}]
+		"commission":
+			var cr := engine.commission(qid, o)
+			var rows: Array = []
+			for r in cr.musts:
+				var ok: bool = r.ok or st.done
+				rows.append({"label": String(r.label) + ("" if ok or int(r.need) <= 1 else " (%d/%d)" % [int(r.have), int(r.need)]), "ok": ok})
+				if String(r.check) == "fed" and not ok:
+					var m: Dictionary = game.mech
+					rows.append({"label": "A waterwheel or windmill turning", "ok": not m.sources.is_empty(), "sub": true})
+					rows.append({"label": "A pump beside the water, powered", "ok": not m.pumps.is_empty(), "sub": true})
+			for r in cr.wishes:
+				var who := String(Data.npc(String(r.who)).get("name", "")).get_slice(" ", 0)
+				rows.append({"label": String(r.label) + ("" if r.ok or int(r.need) <= 1 else " (%d/%d)" % [int(r.have), int(r.need)]) + ((" · " + who) if who != "" else ""), "ok": r.ok, "wish": true})
+			return rows
 		"build":
 			if o.check == "fountain":
 				var m: Dictionary = game.mech

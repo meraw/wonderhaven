@@ -54,7 +54,15 @@ func facts() -> Dictionary:
 		"stage": func(q: String) -> int: return e.current_stage(q) if e.status(q) == "active" else -1,
 		"objective": func(q: String, i: int) -> bool:
 			var quest := Data.quest(q)
-			return i < quest.objectives.size() and e.status(q) == "active" and e.objective(q, quest.objectives[i]).done}
+			return i < quest.objectives.size() and e.status(q) == "active" and e.objective(q, quest.objectives[i]).done,
+		"must": func(q: String, oid: String, i: int) -> bool:
+			if e.status(q) != "active": return false
+			for o in Data.quest(q).objectives:
+				if String(o.get("id", "")) != oid: continue
+				if e.objective(q, o).done: return true
+				var rows: Array = e.commission(q, o).musts
+				return i < rows.size() and rows[i].ok
+			return false}
 
 func _steps_done() -> void:
 	game.sfx("objective")

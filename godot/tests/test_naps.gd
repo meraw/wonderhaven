@@ -69,7 +69,7 @@ func test_beds_are_dear():
 	for p in Data.pieces:
 		if p.cat == "furniture" and p.id != "bed": t.ok(int(p.cost.get("coins", 0)) < int(bed.cost.coins), "%s is cheaper than a bed" % p.id)
 	t.eq(int(Data.piece("bench").cost.get("coins", 0)), 0, "benches cost no money")
-	t.ok(Data.quest("home").objectives[1].needs.any(func(n): return n.get("any", []).has("bed")), "your home still needs a bed")
+	t.ok(Data.quest("home").objectives[1].musts.any(func(n): return n.get("any", []).has("bed")), "your home still needs a bed")
 	var inv := {"wood": 3, "fabric": 2, "coins": 50}
 	t.ok(not Inventory.can_afford(inv, bed.cost) and Inventory.missing(inv, bed.cost) == [{"id": "coins", "need": int(bed.cost.coins) - 50}], "materials alone aren't enough")
 
