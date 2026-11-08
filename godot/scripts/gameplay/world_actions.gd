@@ -335,6 +335,7 @@ func refresh_node(n: Dictionary) -> void:
 func refresh_all() -> void:
 	for n in Data.layout.nodes: refresh_node(n)
 	refresh_gardens(); place_squirrels(true)
+	if not squirrels.is_empty() and count_boars(state()) and game.story: game.story.event("feed", 0)
 
 # ---- Gardens
 const SOIL := "7a5236"       # dry tilled earth
@@ -421,6 +422,20 @@ func _build_squirrels() -> void:
 
 func squirrel_fed(n: int) -> bool: return state().flags.get("squirrelsGone", false) or state().flags.get("squirrelFed%d" % n, false)
 
+static func boars_fed(s: Dictionary) -> int:
+	if s.flags.get("squirrelsGone", false): return SQUIRREL_SPOTS.size()
+	var n := 0
+	for i in SQUIRREL_SPOTS.size():
+		if s.flags.get("squirrelFed%d" % i, false): n += 1
+	return n
+
+static func count_boars(s: Dictionary) -> bool:
+	if not s.has("stats"): s["stats"] = {}
+	var fed := boars_fed(s)
+	if int(s.stats.get("bakeryBoars", -1)) == fed: return false
+	s.stats["bakeryBoars"] = fed
+	return true
+
 func feed_squirrel(sq: Dictionary) -> void:
 	var s := state()
 	if s.quests.get("squirrels", {}).get("status", "") != "active" or s.inventory.get("acorn", 0) <= 0:
@@ -429,6 +444,7 @@ func feed_squirrel(sq: Dictionary) -> void:
 		return
 	s.inventory.acorn -= 1; game.render_resources(["acorn"])
 	s.flags["squirrelFed%d" % sq.n] = true
+	count_boars(s)
 	game.player_char.play("feed"); game.sfx("squeak")
 	game.effects.hearts(sq.obj.position + Vector3(0, 0.6, 0))
 	game.toast("Crunch. The boar trots off towards the woods, very pleased with itself.", "good")

@@ -1298,6 +1298,7 @@
      "kind": "event",
      "event": "feed",
      "count": 3,
+     "stat": "bakeryBoars",
      "text": "Offer a chestnut to each boar",
      "hint": {
       "x": -11,
