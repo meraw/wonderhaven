@@ -520,6 +520,12 @@ Checked by the headless tests (`test_animation.gd`: stopping eases, the stride s
 - **Standing still is alive:** breathing, a slow shift of weight, and now and then a glance to one side.
 - **Actions have anticipation and follow-through:** chopping and mining wind the tool back over the shoulder, strike fast and jolt on impact; hammering and digging do the same; the wave overshoots and lowers; celebrating crouches before the jumps and squashes on each landing; surprise squashes before it jumps.
 
+## The sawmill's letterbox moves to the yard gate (08/11)
+- **A letterbox you couldn't reach** (Boccapioppo): after the merge with main, Boccapioppo's playthrough posted only four
+  of Pierina's five letters. The sawmill's box stood inside the open shed, among the log piles and two metres from
+  Ines's door, so she took the interaction when she was home and the way in was blocked. It now stands at the yard gate
+  on the path, and a test keeps every letterbox more than 2.5 m from any spot a villager's day takes them to.
+
 ## Playtest fixes: the flood, the monster, Pierina's far round (08/11)
 - **The storm night's river really rises** (Boccapioppo): it used to come up 32 cm, all at once, and stay in its bed.
   Now a muddy flood spreads outside the levee through the evening: still in its bed at 9 PM, over the floodplain by

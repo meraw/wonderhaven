@@ -2013,9 +2013,9 @@
   {
    "id": "river_town_box_sawmill",
    "kind": "letterbox",
-   "x": 45.6,
-   "z": 23.0,
-   "name": "The sawmill's letterbox",
+   "x": 41.0,
+   "z": 25.8,
+   "name": "The sawmill's letterbox, at the yard gate",
    "item": "river_town_letter",
    "posted": "Into the sawmill's letterbox: an invoice, by the look of it. Ines will be thrilled.",
    "empty": "The sawmill's letterbox. Nothing to post here today."
