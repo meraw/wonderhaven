@@ -34,7 +34,7 @@ func _init(g, d: Dictionary) -> void:
 	game.add_child(character)
 	var a := Schedule.activity_at(def, game.state.time.minute, game.state.flags)
 	var p := node_pos(a.node)
-	pos = Vector3(p.x, game.walk.surface_at(p.x, p.y).y, p.y)
+	pos = Vector3(p.x, game.walk.surface_at(p.x, p.y, node_storey(a.node)).y, p.y)
 	goal = a.node; activity = a.activity
 	game.walk.dynamic.append(body)
 	marker_offer = _marker("!", Color("ffb93b")); marker_ready = _marker("★", Color("59c27a"))
@@ -57,6 +57,14 @@ func node_pos(node: String) -> Vector2:
 				return Vector2(p.i + 1.0, p.k + (1.0 if int(p.r) % 2 else (-0.7 if int(p.r) == 2 else 1.7)))
 	var a: Array = Data.layout.nav_nodes[node]
 	return Vector2(a[0], a[1])
+
+static func node_storey(node: String) -> float:
+	var i := node.find(":")
+	if i < 0: return INF
+	var id := node.substr(0, i)
+	for b in Data.layout.buildings:
+		if b.id == id: return float(b.y) if b.has("y") else INF
+	return INF
 
 func visiting() -> bool: return not visit.is_empty()
 
@@ -83,7 +91,7 @@ func _arrive() -> void:
 func end_visit() -> void:
 	if seated():
 		var back: Vector2 = visit.spot.approach
-		pos = Vector3(back.x, game.walk.surface_at(back.x, back.y).y, back.y)
+		pos = Vector3(back.x, game.walk.surface_at(back.x, back.y, float(visit.spot.get("y", INF))).y, back.y)
 	visit = {}
 	stare_mark.visible = false
 	var every: Array = Data.needs.get("visits", {}).get("every", [60, 150])
@@ -95,6 +103,8 @@ func teleport_home() -> void:
 	var a := Schedule.activity_at(def, game.state.time.minute, game.state.flags)
 	var p := node_pos(a.node)
 	pos.x = p.x; pos.z = p.y; waypoints = []; goal = a.node; activity = a.activity
+	var storey := node_storey(a.node)
+	if storey != INF: pos.y = game.walk.surface_at(p.x, p.y, storey).y
 
 ## The way to nav node `to`, from where they stand, or after a first dash to `via` (hurrying off: NapGags).
 func plan_route(to: String, via: Vector2 = Vector2.INF) -> void:

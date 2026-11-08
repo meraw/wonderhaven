@@ -74,6 +74,16 @@ func _register_node(n: Dictionary) -> void:
 	base.merge({"radius": 2.0 if n.kind == "mine" else (1.3 if n.kind == "fish" else (2.2 if n.get("big", false) else 1.7)), "label": func(): return node_label(nd), "act": func(): act(nd)}, true)
 	game.add_interactable(base)
 
+static func feature_y(f: Dictionary):
+	if f.has("y"): return float(f.y)
+	if f.kind == "boat": return null
+	return Heightfield.height(f.x, f.z)
+
+func _add_feature(f: Dictionary, rec: Dictionary) -> void:
+	var y = feature_y(f)
+	if y != null: rec["y"] = y
+	game.add_interactable(rec)
+
 func node_label(n: Dictionary) -> String:
 	if n.get("big", false):
 		return "Fell the big oak" if Tools.fells(state(), n) else "A big oak: too much for your %s" % String(Tools.stats(state(), "axe").get("name", "axe")).to_lower()
@@ -82,25 +92,25 @@ func node_label(n: Dictionary) -> String:
 func _register_feature(f: Dictionary) -> void:
 	match f.kind:
 		"rest":
-			if f.has("refuse"): game.add_interactable({"id": f.id, "x": f.x, "z": f.z, "radius": 1.3, "label": func(): return String(f.get("label", "Look at the bed")), "act": func(): game.toast(String(f.refuse), "", 4.0)})
-			else: game.add_interactable({"id": f.id, "x": f.x, "z": f.z, "radius": 1.3, "label": func(): return "Sleep", "act": func(): game.rest("bed")})
+			if f.has("refuse"): _add_feature(f, {"id": f.id, "x": f.x, "z": f.z, "radius": 1.3, "label": func(): return String(f.get("label", "Look at the bed")), "act": func(): game.toast(String(f.refuse), "", 4.0)})
+			else: _add_feature(f, {"id": f.id, "x": f.x, "z": f.z, "radius": 1.3, "label": func(): return "Sleep", "act": func(): game.rest("bed")})
 		"bench":
 			var r := int(f.get("r", 0))
 			var fp := BuildGrid.footprint(Data.piece("bench"), r)
 			var seat := {"id": "bench", "i": f.x - fp.x / 2.0, "k": f.z - fp.y / 2.0, "r": r, "y": Heightfield.height(f.x, f.z)}
-			game.add_interactable({"id": f.id, "x": f.x, "z": f.z, "radius": 1.5, "object": game.village.objects.get(f.id), "label": func(): return "Sit or nap on the bench", "act": func(): game.rest("bench", seat)})
+			_add_feature(f, {"id": f.id, "x": f.x, "z": f.z, "radius": 1.5, "object": game.village.objects.get(f.id), "label": func(): return "Sit or nap on the bench", "act": func(): game.rest("bench", seat)})
 		# a wardrobe with a flag is yours once that's set (in a flat you rent, say)
-		"wardrobe": game.add_interactable({"id": f.id, "x": f.x, "z": f.z, "object": game.village.objects[f.id], "available": func(): return not f.has("flag") or state().flags.get(f.flag, false),
+		"wardrobe": _add_feature(f, {"id": f.id, "x": f.x, "z": f.z, "object": game.village.objects[f.id], "available": func(): return not f.has("flag") or state().flags.get(f.flag, false),
 			"label": func(): return "Change outfit", "act": func(): game.open_wardrobe()})
-		"board": game.add_interactable({"id": f.id, "x": f.x, "z": f.z, "object": game.village.objects[f.id], "label": func(): return "Read the notice board", "act": func(): game.panels.notice_board()})
+		"board": _add_feature(f, {"id": f.id, "x": f.x, "z": f.z, "object": game.village.objects[f.id], "label": func(): return "Read the notice board", "act": func(): game.panels.notice_board()})
 		# a stop on a line within this place (a tram, a funicular): ride to another stop on it (Travel.stops_on)
-		"stop": game.add_interactable({"id": f.id, "x": f.x, "z": f.z, "radius": 2.2, "object": game.village.objects.get(f.id), "label": func(): return String(f.get("ride_label", "Take a ride")), "act": func(): game.panels.stops(f)})
+		"stop": _add_feature(f, {"id": f.id, "x": f.x, "z": f.z, "radius": 2.2, "object": game.village.objects.get(f.id), "label": func(): return String(f.get("ride_label", "Take a ride")), "act": func(): game.panels.stops(f)})
 		# the departure point (any id; "depart_label" names how you leave, a train from a city station, say; "flag",
 		# if any, is the story flag it waits for: a station where the trains only stop again after a request)
 		"boat":   # a bus can be boarded anywhere along its side, not just by its middle
 			var reach: float = float(f.get("length", 8.6)) / 2.0 + 0.6 if f.get("model", "boat") == "bus" else 2.6
 			var fl := String(f.get("flag", ""))
-			game.add_interactable({"id": f.id, "x": f.x, "z": f.z, "radius": reach, "object": game.village.objects.get(f.id), "available": func(): return state().flags.get("boatReady", false) and (fl == "" or state().flags.get(fl, false)), "label": func(): return String(f.get("depart_label", "Catch the bus")), "act": func(): game.panels.map(true)})
+			_add_feature(f, {"id": f.id, "x": f.x, "z": f.z, "radius": reach, "object": game.village.objects.get(f.id), "available": func(): return state().flags.get("boatReady", false) and (fl == "" or state().flags.get(fl, false)), "label": func(): return String(f.get("depart_label", "Catch the bus")), "act": func(): game.panels.map(true)})
 
 func _src(n: Dictionary, up: float = 1.0) -> Vector3: return Vector3(n.x, Heightfield.height(n.x, n.z) + up, n.z)
 
