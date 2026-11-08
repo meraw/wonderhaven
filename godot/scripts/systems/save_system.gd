@@ -23,6 +23,10 @@ static func deserialize(text: String) -> Dictionary:
 		s[k] = merged
 	for k in ["blueprints", "new_blueprints", "clothes_owned", "unlocks_seen"]:
 		s[k] = (raw[k] as Array).filter(func(x): return x is String) if raw.get(k) is Array else base[k]
+	var seen: Array = []
+	for id in s.unlocks_seen:
+		if not seen.has(id): seen.append(id)
+	s.unlocks_seen = seen
 	s.appearance = Chibi.sanitize(raw.get("appearance", {}) if raw.get("appearance") is Dictionary else {})
 	# Saves from before the guided first day: no tutorial, and no tip cards for things the player already knows.
 	if raw.get("tutorial") is Dictionary:

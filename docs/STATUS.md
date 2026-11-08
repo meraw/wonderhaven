@@ -251,7 +251,12 @@ The user found too much text everywhere. Changes, all shared:
   Building raises approval and removing lowers it, recounted on every change, with a toast ("✔ Somewhere to sit outside
   the bakery: +5 approval"). Requests and first-of-a-kind pieces still give permanent points. Milestones go by the best
   approval ever reached, so they're never taken back or given twice, and the home plot's size goes by it too
-  (`state.village_points`, `state.approval_best`).
+  (`state.village_points`, `state.approval_best`). An approval milestone is announced only where the HUD shows
+  approval (Monteforchetta, Clockwork Cove): one reached in a place with its own meter (Boccapioppo's gauge,
+  Casalrana's petition, Toriano's paper) waits until you're back, and is announced on arrival (`Harmony.due`).
+  `state.unlocks_seen` holds each milestone once (`GameState.see_unlock`; older saves are cleaned on load), and
+  `Progress.as_if_played` sets the best approval and marks the milestones of the places played on the way, so a later
+  place's first bed no longer announces Monteforchetta's five milestones again (headless: `test_milestones.gd`).
 - **Noticed needs.** Each morning, once the guided day is over, the village notices needs, three open at a time and
   only for pieces you can already build. The paper leads with them ("Noticed: Nowhere to sit outside the bakery."), an
   icon floats over the place, and the request tracker lists them under "The village could use". Leaving one costs
