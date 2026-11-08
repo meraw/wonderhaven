@@ -3,7 +3,8 @@
  "textures": {
   "paving": {
    "source": "blender",
-   "made_by": "tools/blender/make_textures.py"
+   "made_by": "tools/blender/make_textures.py",
+   "note": "Albedo calmed by tools/textures/game_paving.py from the generated one (lab/blender): contrast at the power 0.55, neutral grey around 82% like the other game textures, so the layout's stone colour tints it. At full contrast the grout went black and the stones patchy on the game's pale squares and floors."
   },
   "plaster": {
    "source": "blender",

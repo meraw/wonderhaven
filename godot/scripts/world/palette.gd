@@ -19,17 +19,18 @@ static var _real_tex: Dictionary = {}
 const PAINTED_MODES := "diffuse_lambert_wrap, specular_disabled"
 const REAL_MODES := "diffuse_burley, specular_schlick_ggx"
 const REAL_TEX := {"plaster": ["plaster", 1.4, 1.1], "wood": ["wood", 1.2, 0.8], "stone": ["stone", 0.9, 1.4],
-	"fabric": ["knit", 0.12, 1.4]}
+	"fabric": ["knit", 0.12, 1.4], "paving": ["paving", 4.0, 0.4]}
 const REAL_ROUGHNESS := {"mottle": 0.85, "smooth": 0.5}
 const TEX_GAIN := 1.2
 const REAL_SPECULAR := {"smooth": 0.5}
 const ROUGH_SPECULAR := 0.25
 const REAL_AMBIENT := 1.35
+const REAL_NIGHT_AMBIENT := 1.15
 const REAL_AMBIENT_WARMTH := 0.3
 const REAL_SHADER_ALBEDO := 0.9
 
 static func ambient_gain(night: float = 0.0) -> float:
-	return lerpf(REAL_AMBIENT, 1.0, clampf(night, 0.0, 1.0)) if real else 1.0
+	return lerpf(REAL_AMBIENT, REAL_NIGHT_AMBIENT, clampf(night, 0.0, 1.0)) if real else 1.0
 
 static func ambient_color(ambient: Color, sun: Color, night: float = 0.0) -> Color:
 	return ambient.lerp(sun, REAL_AMBIENT_WARMTH * (1.0 - clampf(night, 0.0, 1.0))) if real else ambient
@@ -64,6 +65,7 @@ static func wood(color) -> StandardMaterial3D: return detailed(color, "wood")
 static func stone(color) -> StandardMaterial3D: return detailed(color, "stone")
 static func fabric(color) -> StandardMaterial3D: return detailed(color, "fabric")
 static func smooth(color) -> StandardMaterial3D: return detailed(color, "smooth")
+static func paving(color) -> StandardMaterial3D: return detailed(color, "paving") if real else stone(color)
 
 # Triplanar scale (repeats per metre) for each kind; textures are grey multipliers close to 1 so colours stay true.
 const DETAIL_SCALE := {"mottle": 0.6, "plaster": 0.45, "wood": 1.1, "stone": 0.9, "fabric": 4.0}

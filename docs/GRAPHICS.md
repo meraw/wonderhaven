@@ -91,6 +91,32 @@ things carried over from the painted look had to be handled:
 - **Rough surfaces reflect less.** At the default specular, rough plaster, stone and fabric reflected the bluish sky
   and greyed warm colours (12 to 15% less saturation). They use 0.25; smooth ones 0.5.
 
+## Ground and wet (conversion, step two)
+The terrain shader has a realistic variant too (`TerrainBuilder.terrain_code`, a `REAL` switch in the shader;
+`--look=painted` keeps the old ground).
+- **Grass keeps its soft wrapped light** and, dry, no specular at all, so it looks as it did. Only the light's model
+  changed (`specular_schlick_ggx`): wet grass gets a faint sheen.
+- **Flagstones in the squares.** The generated flagstones from the look tests replace the painted cobbles, tinted with
+  the layout's `cobbleColors`, with their relief and roughness. The texture is calmed first
+  (`tools/textures/game_paving.py`): at full contrast the grout went black and the stones patchy on the pale squares.
+  The castle hall's floor uses the same stones (`Palette.paving`). The kerb ring stays painted.
+- **Wet ground is glossy.** Paving and paths drop to roughness 0.25 in the rain (dirt paths less), with stronger
+  specular, and get darker than before (45% instead of 30%), because a smoother surface takes more of the wrapped sun.
+- **Puddles are mirrors, more than real water would be.** From the game's raised camera, real water reflects about a
+  tenth of the sky, and puddles disappeared. They are treated as 80% metallic with a mid-grey tint: dark underneath,
+  bright with the sky and the village above. Raindrop rings are drawn on top. A little of the old painted sky tint
+  stays (15%); in the compatibility renderer, which has no screen-space reflections, puddles are faint.
+- **The generated flagstones have a few curved double edges**, from tiling 4D noise into a square texture. They read
+  as cracks, and the lab floor had them too; a periodic 2D cell pattern in `tools/blender/make_textures.py` would
+  remove them.
+- **Screen-space reflections** (Forward+ only) put what stands nearby into the puddles (the noticeboard's post in the
+  rain view); off screen, puddles fall back to the sky. Their cost on a real graphics card is not measured yet.
+- **A little ambient fill stays at night** (1.15 instead of 1.0): night had come out 15% darker in step one.
+- **Not fixed: the castle hall at dawn.** It stays about 20% darker than before the conversion, and cooler. The
+  dawn ambient was already at full strength. The loss is the old rim light's warm fill, which reached shaded surfaces
+  too; a room in full shadow at dawn has nothing else. A raised ambient would wash out every daytime shadow. The hall
+  is due to be rebuilt in step three, and lit windows or lamps in the room are the better fix.
+
 ## Tried and dropped
 - **Normal maps from the detail textures** (plaster, wood, stone, fabric). Invisible at gentle strengths, and at
   visible strengths the rim light made surfaces lighter and flatter. Fabric relief also broke on character meshes that
