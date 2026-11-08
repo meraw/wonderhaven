@@ -120,7 +120,7 @@ func _ready() -> void:
 		var a := NpcAgent.new(self, d)
 		npcs[d.id] = a
 		var ag := a
-		add_interactable({"id": "npc:" + d.id, "x": func(): return ag.pos.x, "z": func(): return ag.pos.z, "radius": 1.9, "priority": 0.6, "object": null, "sight": true,
+		add_interactable({"id": "npc:" + d.id, "x": func(): return ag.pos.x, "z": func(): return ag.pos.z, "y": func(): return ag.pos.y, "radius": 1.9, "priority": 0.6, "object": null, "sight": true,
 			"available": func(): return ag.present, "label": func(): return "Talk to " + ag.def.name, "act": func(): story.talk(ag)})
 	for f in Data.layout.features:
 		if f.kind == "sign":
@@ -928,7 +928,7 @@ func find_target():
 		var dz := _pos_of(it, "z") - p.z
 		var d := sqrt(dx * dx + dz * dz)
 		if d > it.radius + 0.6: continue
-		if it.has("y") and absf(float(it.y) - p.y) > 1.6: continue   # on another storey (a bed in the flat upstairs)
+		if it.has("y") and absf(_pos_of(it, "y") - p.y) > 1.6: continue   # on another storey (a bed in the flat upstairs)
 		var facing := (dx * fwd.x + dz * fwd.y) / d if d > 0.01 else 1.0
 		if d > 1.0 and facing < 0.1: continue
 		if it.get("sight", false) and not WalkWorld.sight_clear(Vector2(p.x, p.z), Vector2(p.x + dx, p.z + dz), sight_walls): continue   # not through a wall
