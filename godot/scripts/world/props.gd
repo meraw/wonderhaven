@@ -721,6 +721,7 @@ static func _inn_sign(g: Node3D, b: Dictionary) -> void:
 		_add(lan, P.cone(0.11, 0.08, 6), iron, Vector3(0, 0.13, 0.18))
 
 static func workshop(b: Dictionary) -> Node3D:
+	if HouseKit.kit_style(): return Landmarks.workshop(b)
 	var g := Node3D.new(); var h := 2.6; var t := 0.35
 	var hw: float = b.w / 2.0; var hd: float = b.d / 2.0
 	var wall_mat := P.texturize(P.unique_mat(b.wall), "plaster")
@@ -769,6 +770,7 @@ const CASTLE_FLOOR := 0.02
 
 static func castle(b: Dictionary) -> Node3D:
 	if not Interiors.enterable(b): return _castle_closed(b)
+	if HouseKit.kit_style(): return Landmarks.castle(b)
 	# Curtain wall and keep, both with a gateway on the door side; a throne room inside the keep.
 	var g := Node3D.new()
 	var light := P.stone("eadfcd"); var keep_mat := P.stone(b.wall)
@@ -1075,6 +1077,7 @@ static func market_stall() -> Node3D:
 ## tower with a clock and an open belfry. Its door faces the layout's `door` side; the tower stands at the far end of
 ## the east side. Not a room you can walk into (it opens for Mass on Sundays).
 static func church(b: Dictionary) -> Node3D:
+	if HouseKit.kit_style(): return Landmarks.church(b)
 	var g := Node3D.new()
 	var tower_w := 2.4
 	var nave_w: float = b.w - tower_w

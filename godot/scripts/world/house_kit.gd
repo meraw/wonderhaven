@@ -39,8 +39,11 @@ static var _variants := {}
 static var _tile_shader: Shader
 static var _box: BoxMesh
 
+static func kit_style() -> bool:
+	return bool(Data.layout.get("houseStyle", {}).get("kit", false))
+
 static func uses(b: Dictionary) -> bool:
-	return bool(Data.layout.get("houseStyle", {}).get("kit", false)) and KINDS.has(String(b.get("kind", ""))) and not b.has("model")
+	return kit_style() and KINDS.has(String(b.get("kind", ""))) and not b.has("model")
 
 static func floors_of(b: Dictionary) -> int:
 	return int(b.get("floors", 1 if b.get("kind", "") == "hut" else 2))
@@ -149,6 +152,145 @@ static func tinted(m: StandardMaterial3D) -> StandardMaterial3D:
 	return t
 
 
+class Parts:
+	var parent: Node3D
+	var batches := {}
+	var glass_mat: Material
+	var glasses: Array = []
+	var high_nodes: Array = []
+
+	func _init(p: Node3D) -> void:
+		parent = p
+
+	func put(mesh: Mesh, xf: Transform3D, high: bool = false, override: Material = null, col: Color = Color.WHITE, shadow: bool = true) -> void:
+		if mesh == null: return
+		var key := "%d|%s|%d" % [mesh.get_instance_id(), high, override.get_instance_id() if override else 0]
+		if not batches.has(key):
+			batches[key] = {"mesh": mesh, "xf": [], "col": [], "high": high, "override": override, "shadow": shadow}
+		batches[key].xf.append(xf)
+		batches[key].col.append(col)
+
+	func add(mesh: Mesh, mat: Material, pos: Vector3, rot: Vector3 = Vector3.ZERO, high: bool = false) -> MeshInstance3D:
+		var mi := Props._add(parent, mesh, mat, pos, rot)
+		if high: high_nodes.append(mi)
+		return mi
+
+	func window(xf: Transform3D, ww: float, wh: float, shutter: String = "", state: String = "open", grate: bool = false, high: bool = false) -> void:
+		var wx := xf * Transform3D(Basis.from_scale(Vector3(ww, wh / 1.4, 1.0)), Vector3.ZERO)
+		put(HouseKit.part_mesh("window"), wx, high)
+		put(HouseKit.part_mesh("window", {}, true), wx, high, glass_mat, Color.WHITE, false)
+		if grate: put(HouseKit.part_mesh("grate"), wx, high)
+		if shutter == "": return
+		var angles: Array = {"open": [178, 178], "shut": [0, 0], "ajar": [110, 135], "half": [178, 0]}[state]
+		var rc := {HouseKit.SHUTTER_KEY: shutter}
+		for k in 2:
+			var sgn := -1.0 if k == 0 else 1.0
+			put(HouseKit.part_mesh("shutter_%d" % angles[k], rc, false, k == 1), xf * Transform3D(Basis.from_scale(Vector3(ww, wh / 1.4, 1.0)), Vector3(sgn * ww / 2.0, 0.0, 0.0)), high)
+
+	func stones(length: float, top: float, xf: Transform3D, mat: Material, rng: RandomNumberGenerator, skip_a: float = 1e9, skip_b: float = -1e9) -> void:
+		var box := HouseKit.unit_box()
+		var z := 0.0
+		while z < top - 0.03:
+			var h := minf(rng.randf_range(0.08, 0.17), top - z)
+			var s := -length / 2.0 - rng.randf_range(0.0, 0.3)
+			while s < length / 2.0:
+				var L := rng.randf_range(0.2, 0.62)
+				var a := maxf(s, -length / 2.0)
+				var c := minf(s + L, length / 2.0)
+				if a < skip_b and c > skip_a:
+					if a < skip_a: c = skip_a
+					else: a = maxf(a, skip_b)
+				if c - a > 0.06:
+					var depth := rng.randf_range(0.03, 0.075)
+					var size := Vector3(c - a - 0.014, h - 0.014, depth + 0.03)
+					var pos := Vector3((a + c) / 2.0, z + h / 2.0, depth / 2.0 - 0.015)
+					var k := rng.randf_range(0.88, 1.08)
+					put(box, xf * Transform3D(Basis.from_scale(size), pos), false, mat, Color(k, k * rng.randf_range(0.97, 1.0), k * rng.randf_range(0.92, 0.99)))
+				s += L
+			z += h
+
+	func roof(W: float, D: float, H: float, color: Color, rng: RandomNumberGenerator, left: float, right: float, sag: float, high: bool, barge_left: bool = true, barge_right: bool = true) -> float:
+		var rise := D / 2.0 * tan(HouseKit.PITCH)
+		var RW := W + left + right
+		var cx := (right - left) / 2.0
+		var run := D / 2.0 + HouseKit.OVERHANG
+		var slope := run / cos(HouseKit.PITCH)
+		var ridge := Vector3(cx, H + rise, 0.0)
+		var tmat := HouseKit.tile_material(color)
+		var cap := HouseKit.part_mesh("coppo_cap")
+		var pan := HouseKit.part_mesh("coppo_pan")
+		var wood := P.wood("5e4632")
+		var sp := sin(HouseKit.PITCH)
+		var cp := cos(HouseKit.PITCH)
+		for sgn in [-1.0, 1.0]:
+			var down := Vector3(0.0, -sp, sgn * cp)
+			var nrm := Vector3(0.0, cp, sgn * sp)
+			add(P.box(RW, 0.06, slope), wood, ridge + down * slope / 2.0 - nrm * 0.03, Vector3(sgn * HouseKit.PITCH, 0, 0), high)
+			var pitch_x := 0.34
+			var cols := int(RW / pitch_x)
+			var x0 := cx - cols * pitch_x / 2.0
+			var rows := int(slope / 0.36) + 1
+			for c in cols * 2 + 1:
+				var is_cap := c % 2 == 1
+				var u := x0 + c * pitch_x / 2.0
+				var lift := sag * (1.0 - sin(PI * clampf((u - x0) / (cols * pitch_x), 0.0, 1.0)))
+				for k in rows:
+					var y := maxf(slope - 0.44 - k * 0.36 + rng.randf_range(-0.02, 0.02), -0.02)
+					var origin := ridge + Vector3(u - cx + rng.randf_range(-0.012, 0.012), 0, 0) + down * y + nrm * ((0.045 if is_cap else 0.0) + lift)
+					var basis := Basis(Vector3(-sgn, 0, 0), nrm, -down)
+					basis = Basis(nrm, deg_to_rad(rng.randf_range(-2.5, 2.5))) * basis
+					var roll := rng.randf()
+					var t := rng.randf_range(0.9, 1.1)
+					var col := Color(t, t * rng.randf_range(0.95, 1.0), t * rng.randf_range(0.9, 1.0))
+					if roll < 0.05: col = Color(col.r * 0.72, col.g * 0.8, col.b * 0.62)
+					elif roll < 0.11: col = Color(col.r * 1.12, col.g * 1.08, col.b)
+					put(cap if is_cap else pan, Transform3D(basis, origin), high, tmat, col)
+			var ez := H + rise - run * tan(HouseKit.PITCH)
+			add(P.box(RW, 0.14, 0.05), wood, Vector3(cx, ez - 0.07, sgn * run - sgn * 0.02), Vector3.ZERO, high)
+			add(P.cyl(0.065, 0.065, RW, 10), P.mat("a8683a"), Vector3(cx, ez - 0.1, sgn * (run + 0.05)), Vector3(0, 0, PI / 2.0), high)
+			var nraf := int(W / 0.5)
+			var raf := HouseKit.unit_box()
+			var rmat := HouseKit.tinted(P.wood("6a4e36"))
+			for i in nraf + 1:
+				var x := -W / 2.0 + 0.1 + i * (W - 0.2) / nraf
+				var yy := H + rise - (D / 2.0 + HouseKit.OVERHANG / 2.0) * tan(HouseKit.PITCH) - 0.13
+				var rt := rng.randf_range(0.9, 1.06)
+				put(raf, Transform3D(Basis(Vector3.RIGHT, sgn * HouseKit.PITCH) * Basis.from_scale(Vector3(0.085, 0.12, HouseKit.OVERHANG + 0.06)), Vector3(x, yy, sgn * (D / 2.0 + HouseKit.OVERHANG / 2.0))), high, rmat, Color(rt, rt, rt))
+			for s in [-1.0, 1.0]:
+				if not (barge_right if s > 0.0 else barge_left): continue
+				add(P.box(0.05, 0.2, slope), wood, ridge + down * slope / 2.0 + Vector3(s * RW / 2.0, -0.02, 0), Vector3(sgn * HouseKit.PITCH, 0, 0), high)
+		add(P.box(RW, 0.08, 0.22), P.plaster("d8cdb8"), Vector3(cx, H + rise + 0.02, 0), Vector3.ZERO, high)
+		var n := int(RW / 0.38) + 1
+		var rb := Basis(Vector3(0, 0, 1), Vector3.UP, Vector3(-1, 0, 0)) * Basis.from_scale(Vector3(1.3, 1.0, 0.95))
+		for i in n:
+			var x := cx - RW / 2.0 + i * RW / n
+			var t := rng.randf_range(0.9, 1.08)
+			put(cap, Transform3D(rb, Vector3(x, H + rise + 0.06, 0)), high, tmat, Color(t, t, t))
+		return rise
+
+	func flush() -> void:
+		for key in batches:
+			var bt: Dictionary = batches[key]
+			var mm := MultiMesh.new()
+			mm.transform_format = MultiMesh.TRANSFORM_3D
+			var colored := false
+			for c in bt.col:
+				if c != Color.WHITE: colored = true
+			mm.use_colors = colored
+			mm.mesh = bt.mesh
+			mm.instance_count = bt.xf.size()
+			for i in bt.xf.size():
+				mm.set_instance_transform(i, bt.xf[i])
+				if colored: mm.set_instance_color(i, bt.col[i])
+			var mmi := MultiMeshInstance3D.new()
+			mmi.multimesh = mm
+			mmi.material_override = bt.override
+			mmi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON if bt.shadow else GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+			parent.add_child(mmi)
+			if bt.high: high_nodes.append(mmi)
+			if glass_mat != null and bt.override == glass_mat: glasses.append(mmi)
+
+
 class _House:
 	var b: Dictionary
 	var g := Node3D.new()
@@ -160,7 +302,7 @@ class _House:
 	var floors := 2
 	var enter := false
 	var rng := RandomNumberGenerator.new()
-	var batches := {}
+	var parts: HouseKit.Parts
 	var over: Array = []
 	var glasses: Array = []
 	var glass_mat: StandardMaterial3D
@@ -191,6 +333,7 @@ class _House:
 		for s in b.get("party", []):
 			party.append(_canonical(String(s)))
 		if (b.get("kind", "") == "shop" or b.get("shopfront", false)) and W >= 4.4: shop_w = clampf(W - 1.4, 3.0, 4.2)
+		parts = HouseKit.Parts.new(f)
 
 	func _canonical(world_side: String) -> String:
 		var v: Vector3 = {"N": Vector3(0, 0, -1), "S": Vector3(0, 0, 1), "E": Vector3(1, 0, 0), "W": Vector3(-1, 0, 0)}[world_side]
@@ -206,12 +349,7 @@ class _House:
 		return Transform3D(Basis.IDENTITY, Vector3(0, 0, D / 2.0))
 
 	func put(mesh: Mesh, xf: Transform3D, high: bool, override: Material = null, col: Color = Color.WHITE, shadow: bool = true) -> void:
-		if mesh == null: return
-		var key := "%d|%s|%d" % [mesh.get_instance_id(), high, override.get_instance_id() if override else 0]
-		if not batches.has(key):
-			batches[key] = {"mesh": mesh, "xf": [], "col": [], "high": high, "override": override, "shadow": shadow}
-		batches[key].xf.append(xf)
-		batches[key].col.append(col)
+		parts.put(mesh, xf, high, override, col, shadow)
 
 	func add(mesh: Mesh, mat: Material, pos: Vector3, rot: Vector3 = Vector3.ZERO, high: bool = false, parent: Node3D = null) -> MeshInstance3D:
 		var mi := Props._add(parent if parent else f, mesh, mat, pos, rot)
@@ -229,6 +367,7 @@ class _House:
 		if P.real:
 			glass_mat.roughness = 0.12
 			glass_mat.metallic_specular = 0.6
+		parts.glass_mat = glass_mat
 		walls()
 		footing()
 		quoins(hs)
@@ -237,7 +376,9 @@ class _House:
 		roof()
 		chimney()
 		downpipe()
-		flush()
+		parts.flush()
+		glasses.append_array(parts.glasses)
+		if enter: over.append_array(parts.high_nodes)
 		g.set_meta("glasses", glasses)
 		g.set_meta("chimney", chimney_top)
 		if enter: g.set_meta("fade_parts", Props.fade_parts(over))
@@ -278,31 +419,12 @@ class _House:
 
 	func footing() -> void:
 		var mat := HouseKit.tinted(P.stone(HouseKit.FOOTING_STONE))
-		var box := HouseKit.unit_box()
 		var skip := shop_w / 2.0 + 0.1 if shop_w > 0.0 else 0.85
 		for side in ["front", "back", "left", "right"]:
 			if party.has(side): continue
 			var length := W if side in ["front", "back"] else D
-			var fx := facade(side)
-			var z := 0.0
-			while z < HouseKit.FOOTING - 0.03:
-				var h := minf(rng.randf_range(0.08, 0.17), HouseKit.FOOTING - z)
-				var s := -length / 2.0 - rng.randf_range(0.0, 0.3)
-				while s < length / 2.0:
-					var L := rng.randf_range(0.2, 0.62)
-					var a := maxf(s, -length / 2.0)
-					var c := minf(s + L, length / 2.0)
-					if side == "front" and a < door_u + skip and c > door_u - skip:
-						if a < door_u - skip: c = door_u - skip
-						else: a = maxf(a, door_u + skip)
-					if c - a > 0.06:
-						var depth := rng.randf_range(0.03, 0.075)
-						var size := Vector3(c - a - 0.014, h - 0.014, depth + 0.03)
-						var pos := Vector3((a + c) / 2.0, z + h / 2.0, depth / 2.0 - 0.015)
-						var k := rng.randf_range(0.88, 1.08)
-						put(box, fx * Transform3D(Basis.from_scale(size), pos), false, mat, Color(k, k * rng.randf_range(0.97, 1.0), k * rng.randf_range(0.92, 0.99)))
-					s += L
-				z += h
+			if side == "front": parts.stones(length, HouseKit.FOOTING, facade(side), mat, rng, door_u - skip, door_u + skip)
+			else: parts.stones(length, HouseKit.FOOTING, facade(side), mat, rng)
 
 	func quoins(hs: Dictionary) -> void:
 		var col = b.get("quoins", hs.get("quoins", null))
@@ -446,62 +568,7 @@ class _House:
 	func roof() -> void:
 		var left := 0.02 if party.has("left") else HouseKit.SIDE_OVERHANG
 		var right := 0.02 if party.has("right") else HouseKit.SIDE_OVERHANG
-		var RW := W + left + right
-		var cx := (right - left) / 2.0
-		var run := D / 2.0 + HouseKit.OVERHANG
-		var slope := run / cos(HouseKit.PITCH)
-		var ridge := Vector3(cx, H + rise, 0.0)
-		var tmat := HouseKit.tile_material(Color(b.roof))
-		var cap := HouseKit.part_mesh("coppo_cap")
-		var pan := HouseKit.part_mesh("coppo_pan")
-		var wood := P.wood("5e4632")
-		var sag := float(b.get("sag", 0.04))
-		var sp := sin(HouseKit.PITCH)
-		var cp := cos(HouseKit.PITCH)
-		for sgn in [-1.0, 1.0]:
-			var down := Vector3(0.0, -sp, sgn * cp)
-			var nrm := Vector3(0.0, cp, sgn * sp)
-			add(P.box(RW, 0.06, slope), wood, ridge + down * slope / 2.0 - nrm * 0.03, Vector3(sgn * HouseKit.PITCH, 0, 0), true)
-			var pitch_x := 0.34
-			var cols := int(RW / pitch_x)
-			var x0 := cx - cols * pitch_x / 2.0
-			var rows := int(slope / 0.36) + 1
-			for c in cols * 2 + 1:
-				var is_cap := c % 2 == 1
-				var u := x0 + c * pitch_x / 2.0
-				var lift := sag * (1.0 - sin(PI * clampf((u - x0) / (cols * pitch_x), 0.0, 1.0)))
-				for k in rows:
-					var y := maxf(slope - 0.44 - k * 0.36 + rng.randf_range(-0.02, 0.02), -0.02)
-					var origin := ridge + Vector3(u - cx + rng.randf_range(-0.012, 0.012), 0, 0) + down * y + nrm * ((0.045 if is_cap else 0.0) + lift)
-					var basis := Basis(Vector3(-sgn, 0, 0), nrm, -down)
-					basis = Basis(nrm, deg_to_rad(rng.randf_range(-2.5, 2.5))) * basis
-					var roll := rng.randf()
-					var t := rng.randf_range(0.9, 1.1)
-					var col := Color(t, t * rng.randf_range(0.95, 1.0), t * rng.randf_range(0.9, 1.0))
-					if roll < 0.05: col = Color(col.r * 0.72, col.g * 0.8, col.b * 0.62)
-					elif roll < 0.11: col = Color(col.r * 1.12, col.g * 1.08, col.b)
-					put(cap if is_cap else pan, Transform3D(basis, origin), true, tmat, col)
-			var ez := H + rise - run * tan(HouseKit.PITCH)
-			add(P.box(RW, 0.14, 0.05), wood, Vector3(cx, ez - 0.07, sgn * run - sgn * 0.02), Vector3.ZERO, true)
-			add(P.cyl(0.065, 0.065, RW, 10), P.mat("a8683a"), Vector3(cx, ez - 0.1, sgn * (run + 0.05)), Vector3(0, 0, PI / 2.0), true)
-			var nraf := int(W / 0.5)
-			var raf := HouseKit.unit_box()
-			var rmat := HouseKit.tinted(P.wood("6a4e36"))
-			for i in nraf + 1:
-				var x := -W / 2.0 + 0.1 + i * (W - 0.2) / nraf
-				var yy := H + rise - (D / 2.0 + HouseKit.OVERHANG / 2.0) * tan(HouseKit.PITCH) - 0.13
-				var rt := rng.randf_range(0.9, 1.06)
-				put(raf, Transform3D(Basis(Vector3.RIGHT, sgn * HouseKit.PITCH) * Basis.from_scale(Vector3(0.085, 0.12, HouseKit.OVERHANG + 0.06)), Vector3(x, yy, sgn * (D / 2.0 + HouseKit.OVERHANG / 2.0))), true, rmat, Color(rt, rt, rt))
-			for s in [-1.0, 1.0]:
-				if party.has("right" if s > 0.0 else "left"): continue
-				add(P.box(0.05, 0.2, slope), wood, ridge + down * slope / 2.0 + Vector3(s * RW / 2.0, -0.02, 0), Vector3(sgn * HouseKit.PITCH, 0, 0), true)
-		add(P.box(RW, 0.08, 0.22), P.plaster("d8cdb8"), Vector3(cx, H + rise + 0.02, 0), Vector3.ZERO, true)
-		var n := int(RW / 0.38) + 1
-		var rb := Basis(Vector3(0, 0, 1), Vector3.UP, Vector3(-1, 0, 0)) * Basis.from_scale(Vector3(1.3, 1.0, 0.95))
-		for i in n:
-			var x := cx - RW / 2.0 + i * RW / n
-			var t := rng.randf_range(0.9, 1.08)
-			put(cap, Transform3D(rb, Vector3(x, H + rise + 0.06, 0)), true, tmat, Color(t, t, t))
+		parts.roof(W, D, H, Color(b.roof), rng, left, right, float(b.get("sag", 0.04)), true, not party.has("left"), not party.has("right"))
 
 	func chimney() -> void:
 		var cxp := rng.randf_range(-W * 0.3, W * 0.3)
@@ -521,25 +588,3 @@ class _House:
 		var copper := P.mat("a8683a")
 		add(P.cyl(0.05, 0.05, top - 0.35, 8), copper, Vector3(x, (top + 0.25) / 2.0 + 0.05, D / 2.0 + 0.08), Vector3.ZERO, true)
 		add(P.cyl(0.05, 0.05, HouseKit.OVERHANG - 0.1, 8), copper, Vector3(x, top - 0.05, D / 2.0 + 0.08 + (HouseKit.OVERHANG - 0.2) / 2.0), Vector3(PI / 2.0, 0, 0), true)
-
-	func flush() -> void:
-		for key in batches:
-			var bt: Dictionary = batches[key]
-			var mm := MultiMesh.new()
-			mm.transform_format = MultiMesh.TRANSFORM_3D
-			var colored := false
-			for c in bt.col:
-				if c != Color.WHITE: colored = true
-			mm.use_colors = colored
-			mm.mesh = bt.mesh
-			mm.instance_count = bt.xf.size()
-			for i in bt.xf.size():
-				mm.set_instance_transform(i, bt.xf[i])
-				if colored: mm.set_instance_color(i, bt.col[i])
-			var mmi := MultiMeshInstance3D.new()
-			mmi.multimesh = mm
-			mmi.material_override = bt.override
-			mmi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON if bt.shadow else GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-			f.add_child(mmi)
-			if bt.high and enter: over.append(mmi)
-			if bt.override == glass_mat: glasses.append(mmi)
