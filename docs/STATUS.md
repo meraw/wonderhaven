@@ -614,11 +614,15 @@ The user asked for Toriano's graphics, requests and systems to work like the oth
   bench and a lamp at the tram shelter's site (Ambrogio liked the bench: "A bench! Passengers will wait in comfort. Ding
   ding! ♥") and slept on the square's bench into the next morning: Annoni opened them at dusk in her own words ("Gather
   round, before the fog does. A bench and a lamp in the city, opened in our lifetime."), and the paper was *La Sera di
-  Toriano*, leading with the opening, with La Sera's verdict and a taste of Elvira's, and no Sindaco or approval. The
-  playthroughs: see the last line. **Seen:**
+  Toriano*, leading with the opening, with La Sera's verdict and a taste of Elvira's, and no Sindaco or approval. All of
+  Toriano's playthroughs pass through `play_all.sh` with everything in place: `play_metropolis_story` (41 checks, the
+  new briefs and the footbridge's two musts included), `play_metropolis_side` (50, from the title screen, every side
+  brief built to its musts) and `play_metropolis` (37). **Seen:**
   number 14's courtyard, a city block from the street, the cathedral square from above and a street at night, before and
   after, and the cast lineup (a bin in the look-dev scene hides the last villager). **Not checked:** frame rate on a real graphics card with the city's windows (4,087
-  windows, about 17,000 instanced parts in all, drawn a few batches per building); the landmarks restyled with the kit (not done).
+  windows, about 17,000 instanced parts in all, drawn a few batches per building); the landmarks restyled with the kit (not done). **Noticed, not changed:** at the
+  north end of number 14's west balcony the playthrough sometimes steps off onto the stair beside it and down into the
+  courtyard (it climbs back up); a player might too.
 
 ## Playtest fixes (third playtest notes, 08/11)
 - **Build mode's view** (shared): you could move (WASD), turn (Q/Z, right-drag) and zoom it, but in build mode nothing said so (the key bar is hidden there), and on a trackpad only zooming worked. Now ⟲ ⟳ buttons in the top bar turn it 45°, a line along the bottom of the catalogue gives the keys, middle-drag moves the view (grab the map), sideways or Shift+scroll turns it, and a trackpad's two-finger swipe moves it and a pinch zooms.
