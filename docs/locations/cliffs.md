@@ -457,7 +457,8 @@ the euro switch happening in Serenza itself.
   - Ground paint: grey rock with scrub and pines on the cliffs, bare soil on Settimio's terraces, bramble green on the
     abandoned ones, rubble in the gaps, sand under the sea. The layout's paving (`ground`) lays stone on the square,
     the lanes, the platform, the breakwater and the stair, setts on the street and the cellar square, gravel on the
-    paths and the railway.
+    railway. The mule path, the monorail's footpath and the sanctuary are painted rather than paved, because a paving
+    edge next to a steep wall runs up it in spikes.
 - **The layout** (`godot/data/locations/cliffs/layout.json`):
   - You arrive on the station platform. Two departure points: the train from the start, and the ferry at the landing
     once `olive_village_revealed` is set.
