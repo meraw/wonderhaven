@@ -574,6 +574,153 @@
      ]
     ]
    }
+  },
+  {
+   "id": "rowPiazzaNW",
+   "kind": "cottage",
+   "name": "House on the piazza",
+   "x": -4.2,
+   "z": -7.3,
+   "w": 4.8,
+   "d": 4.6,
+   "wall": "#d9a093",
+   "roof": "#b9603c",
+   "door": "S",
+   "floors": 3,
+   "balcony": true
+  },
+  {
+   "id": "rowPiazzaNE",
+   "kind": "cottage",
+   "name": "Tall house by the bridge lane",
+   "x": 3.2,
+   "z": -6.7,
+   "w": 3.1,
+   "d": 3.4,
+   "wall": "#e3b53c",
+   "roof": "#c46a3e",
+   "door": "W",
+   "floors": 3
+  },
+  {
+   "id": "rowLaneSE",
+   "kind": "cottage",
+   "name": "House on the south lane",
+   "x": 7.2,
+   "z": 12.1,
+   "w": 5.0,
+   "d": 5.8,
+   "wall": "#c46a50",
+   "roof": "#be6640",
+   "door": "W",
+   "floors": 2
+  },
+  {
+   "id": "rowChurch",
+   "kind": "cottage",
+   "name": "House beside the church",
+   "x": -12.4,
+   "z": 17.4,
+   "w": 4.4,
+   "d": 5.0,
+   "wall": "#efdfbd",
+   "roof": "#c97445",
+   "door": "N",
+   "floors": 2
+  },
+  {
+   "id": "rowSouthE1",
+   "kind": "cottage",
+   "name": "Terrace on the south lane",
+   "x": 8.43,
+   "z": 23.7,
+   "w": 5.75,
+   "d": 4.6,
+   "wall": "#dca23a",
+   "roof": "#b0603e",
+   "door": "W",
+   "floors": 3,
+   "party": [
+    "E",
+    "S"
+   ]
+  },
+  {
+   "id": "rowSouthE2",
+   "kind": "cottage",
+   "name": "Terrace on the south lane",
+   "x": 8.9,
+   "z": 28.2,
+   "w": 5.4,
+   "d": 4.4,
+   "wall": "#8c2e2b",
+   "roof": "#c26a3e",
+   "door": "W",
+   "floors": 2,
+   "party": [
+    "N"
+   ]
+  },
+  {
+   "id": "rowSouthS1",
+   "kind": "cottage",
+   "name": "Terrace on the south lane",
+   "x": 13.65,
+   "z": 21.45,
+   "w": 4.7,
+   "d": 3.3,
+   "wall": "#e6d6b4",
+   "roof": "#c46a3e",
+   "door": "N",
+   "floors": 2,
+   "party": [
+    "W"
+   ]
+  },
+  {
+   "id": "rowSouthW1",
+   "kind": "cottage",
+   "name": "House on the south lane",
+   "x": -0.22,
+   "z": 28.55,
+   "w": 5.35,
+   "d": 4.5,
+   "wall": "#d9692f",
+   "roof": "#b9603c",
+   "door": "E",
+   "floors": 2
+  },
+  {
+   "id": "rowGateA",
+   "kind": "cottage",
+   "name": "House at the village gate",
+   "x": -29.4,
+   "z": 8.8,
+   "w": 3.6,
+   "d": 5.4,
+   "wall": "#e8c88f",
+   "roof": "#c97445",
+   "door": "N",
+   "floors": 2,
+   "party": [
+    "E"
+   ]
+  },
+  {
+   "id": "rowGateB",
+   "kind": "cottage",
+   "name": "House at the village gate",
+   "x": -25.9,
+   "z": 8.8,
+   "w": 3.4,
+   "d": 5.2,
+   "wall": "#b5352c",
+   "roof": "#be6640",
+   "door": "N",
+   "floors": 3,
+   "party": [
+    "W"
+   ]
   }
  ],
  "workshop_interior": {

@@ -131,6 +131,10 @@ each, and most of that was the same windows, shutters and tiles repeated.
   - `shutters` and `doorColor`;
   - `sign` and `shopFrame` (a shop, or a building with `shopfront`);
   - `party`: sides shared with a neighbour, which get no windows, footing or overhang, for attached rows.
+- **Monteforchetta's core** has sixteen kit houses: the six story buildings and ten without a room inside. The ten
+  were placed with a clearance check against the layout's lanes, villagers' routes, resource spots, building sites,
+  benches, signs and hangouts, and the slope; `tests/test_house_kit.gd` keeps them off lanes and resource spots and
+  checks every shared wall has a neighbour.
 - **What the game needed** (see "Putting a Blender building in the game for real" above):
   - collision and walking still come from the footprint;
   - rooms you walk into keep `Interiors`' walls and doorway, and everything above them fades while you're inside

@@ -20,7 +20,8 @@ static func as_if_played(places: Array, here: String, player_name: String = "Pip
 		_grant(s, u)
 		if u.get("allBlueprints", false):
 			for p in Data.pieces: _plan(s, p.id)
-		s.unlocks_seen.append(u.get("id", ""))
+		GameState.see_unlock(s, String(u.get("id", "")))
+	s.approval_best = maxi(int(s.approval_best), int(s.harmony))
 	s.island = here
 	var L: Dictionary = Data.read_layout(here)
 	var at: Dictionary = L.get("arrive", L.get("spawn", {"x": 0.0, "z": 0.0}))
@@ -42,7 +43,9 @@ static func _finish(s: Dictionary, q: Dictionary) -> void:
 	_grant(s, rw)
 	s.harmony = int(s.harmony) + int(rw.get("harmony", 0))
 	if int(rw.get("meter", 0)) > 0:
-		for u in LocationMeter.add(s, Data.quest_island(q.id), int(rw.meter)): _grant(s, u)
+		for u in LocationMeter.add(s, Data.quest_island(q.id), int(rw.meter)):
+			_grant(s, u)
+			GameState.see_unlock(s, String(u.get("id", "")))
 	var giver := String(q.get("giver", ""))
 	if giver != "":
 		if not s.relationships.has(giver): s.relationships[giver] = {"hearts": 0, "talked_day": 0, "gifts": []}

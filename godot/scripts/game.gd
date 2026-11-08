@@ -476,7 +476,7 @@ func refresh_village(ev: Dictionary = {}) -> void:
 		if a.visiting() and not visit_opts.any(func(o): return int(o.uid) == int(a.visit.uid) and bool(o.use) == bool(a.visit.use)): a.end_visit()
 	var r := Needs.settle(state, int(village_score.points))
 	if not quiet: _village_toasts(before, village_score, hs)
-	for u in r.unlocks: story.apply_unlock(u)
+	if not r.unlocks.is_empty(): story.announce_approval()
 	if r.delta != 0: story.handle(story.engine.refresh())
 	hud.render_harmony(); hud.render_tracker()
 	render_needs()
@@ -683,6 +683,7 @@ func _arrived() -> void:
 	_fade(false)
 	if first and Data.island != "hearthglow": banner(isl.get("name", ""), isl.get("desc", ""), [], 5.0); sfx("fanfare")
 	else: toast("⛵ %s" % isl.get("name", ""), "good", 2.5)
+	story.announce_approval()
 	autosave("travel", true)
 
 func to_title() -> void:

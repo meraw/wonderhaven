@@ -17,5 +17,11 @@ static func new_game(player_name: String = "Geometra", appearance: Dictionary = 
 		"unlocks_seen": [], "tutorial": Tutorial.new_state(true), "meters": {}, "bike_color": Bicycle.COLORS[0],
 	}
 
+static func see_unlock(state: Dictionary, id: String) -> bool:
+	if not state.get("unlocks_seen") is Array: state["unlocks_seen"] = []
+	if id == "" or state.unlocks_seen.has(id): return false
+	state.unlocks_seen.append(id)
+	return true
+
 static func clothing_unlocked(state: Dictionary, id: String) -> bool:
 	return not Data.appearance.locked.has(id) or state.clothes_owned.has(id)
