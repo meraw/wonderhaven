@@ -47,11 +47,14 @@ static func is_done(step: Dictionary, facts: Dictionary) -> bool:
 		"stage":
 			if quests.get(parts[1], {}).get("status", "") == "done": return true
 			return facts.has("stage") and facts.stage.call(parts[1]) >= int(parts[2])
+		"must":
+			if quests.get(parts[1], {}).get("status", "") == "done": return true
+			return facts.has("must") and facts.must.call(parts[1], parts[2], int(parts[3]))
 	return false
 
 ## Steps finished by story progress (taking or finishing a request). If the player is already past one of these,
 ## the guide catches up, so a learning step they skipped (say, opening the bag) can never hold the game back.
-const PROGRESS_KINDS := ["flag", "accepted", "quest", "ready", "objective", "stage"]
+const PROGRESS_KINDS := ["flag", "accepted", "quest", "ready", "objective", "stage", "must"]
 
 ## Moves past every step that is already done, and jumps ahead to just after the furthest story-progress step that
 ## is done. Returns the ids of the steps passed; switches the guided day off after the last one.

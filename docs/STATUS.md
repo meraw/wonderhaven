@@ -8,7 +8,50 @@ Working title: **Wonderhaven** (to be renamed). The game is moving to a comic, l
 ## The redesign (07/11)
 After a review of how the game plays, the user agreed a new design: building is the core, the game values what you build
 whether or not anyone asked for it, requests become briefs with checks, and the day becomes a work day you end
-yourself. All of it, and the order it's built in, is in `docs/DESIGN.md`. Stages 1 to 5 are done; the rest is still to do.
+yourself. All of it, and the order it's built in, is in `docs/DESIGN.md`. Stages 1 to 6 are done; stage 7 is still to do.
+
+### Stage 6: requests as commissions (Monteforchetta)
+- **A request's building step is now a brief**: a site, two or three **musts** that check what it does, and up to
+  three **wishes** from people who have a say. Anything that meets the musts passes, however it looks.
+  - The crossing (Aldo): walkable from bank to bank; railings along it. Wishes: all in wood (Gigia); eight railings
+    (the Sindaco).
+  - Elio's shop: a workbench, two places to sit, two lamps. Wishes: two shelves or cabinets; one thing painted bright
+    (both Elio's).
+  - The fountain (Fede): water flows into it. Wishes: two flower beds by it (Fede); a bench to admire it from (the
+    Sindaco).
+  - The farmhouse: four walls with a door, a roof, a bed. Wishes: a table (Ornella), something growing (Gigia), two
+    cosy touches (the Sindaco). These replace the old "make it cosy" step.
+  - The bus stop (Aldo): twelve paving stones, somewhere to wait, a sign. Wishes: a roof for rainy days (Aldo); a
+    light at night (the Sindaco).
+  - The electric lamp (Fede): one lit by a waterwheel you built. Wish: two lit.
+  - The labels are kept to a few words so the list fits beside the plan in build mode.
+- **Checks tick live** in build mode's list on the right: ○ / ✔ for each must, with a count, and ☆ / ★ for each
+  wish with who wants it. When one ticks, the pieces that meet it sparkle (green for a must, gold for a wish) and a
+  short toast names it. For the fountain the list also shows the two steps on the way (a wheel turning, a pump
+  powered). The request tracker says to build it your way and that the musts tick off as you go.
+- **Handing it in stamps the permit**: "Approvato" for the musts alone, "Approvato con plauso" with some wishes,
+  "Approvato con lode" with all of them. Each wish met adds 5 approval and a heart with whoever wished it. The stamp
+  is shown on the request-complete banner and kept with the request (`stamp`).
+- **Teaching**: each brief brings in at most one new kind of check after the ones before it (a test checks this
+  along the order requests unlock): the crossing a path and counting pieces; the shop and the farmhouse what pieces
+  give (seats, light, shelter); the fountain water arriving; the lamp a lamp lit. The example plans are still there
+  to follow or copy into a draft, and each one meets every must.
+- **The guided first day** waits on the crossing's first must (walkable) before asking for the railings, with a new
+  `must:Q:O:N` step condition (`data/tutorial.json`).
+- Where: `Commission` (`scripts/systems/commission.gd`) holds the checks, the stamp and the bonus; settings and the
+  check list are in `data/commissions.json`. `QuestEngine` has the new `commission` step (done when every must is
+  met, and it stays done); `Story` supplies what the checks look at and does the ticks and the stamp. Other places'
+  requests keep their old `build`, `room` and `pieces` steps until their owners convert them.
+- **Checked:**
+  - **Tested** (`godot/run_tests.sh`, 310 passed). `test_commission` covers: every brief has at most three musts and
+    three wishes, known checks, villagers wishing, and at most one new kind of check; each example plan meets every
+    must; each kind of check; a brief done when its musts are met, staying done, with the wishes left for later and
+    the guided day able to wait on one must; the stamps and the wish bonus. `test_story`, `test_plans` and
+    `test_build` were updated for the new steps.
+  - **Played**: see below.
+  - **Not checked:** the farmhouse, bus stop and lamp briefs played through to their stamp (the main playthroughs
+    build them, but only the crossing's and the shop's stamps are checked); a brief "anywhere in the village" (none
+    of Monteforchetta's requests uses one yet).
 
 ### Stage 5: the inauguration (Monteforchetta)
 - **When you end the day** (sleep until tomorrow morning) after putting up pieces that are still standing, the
@@ -41,7 +84,7 @@ yourself. All of it, and the order it's built in, is in `docs/DESIGN.md`. Stages
   `"speaker": "percival"`). Scripted playthroughs skip the scene unless they ask for it (`inauguration=play`), the
   way they skip the nap jokes.
 - **Checked:**
-  - **Tested** (`godot/run_tests.sh`, 304 passed). `test_inauguration` covers:
+  - **Tested** (`godot/run_tests.sh`, 305 passed after merging main). `test_inauguration` covers:
     - naming what was built;
     - today's pieces remembered across a save, and pieces taken away dropped;
     - the bakery bench opened with the right place, complaint and credit, and Ornella's heart;
@@ -62,7 +105,8 @@ yourself. All of it, and the order it's built in, is in `docs/DESIGN.md`. Stages
     - a chair on two blocks on the church steps gets a ceremony with the whole crowd shrugging and no hearts;
     - Esc ends a ceremony within a fifth of a second and the paper still reports it;
     - with the setting off there is no ceremony and the build is still reported.
-  - **Monteforchetta's other playthroughs pass** (`play_all.sh`: 20 runs).
+  - **Monteforchetta's other playthroughs passed** before main was merged in (`play_all.sh`), apart from
+    `play_needs`, which main has since fixed. They were not run again after the merge.
   - **Seen** in screenshots: the speech with the bench, the flower bed and the ribbon between the Sindaco and you;
     the cut ribbon and the cheering; the mark; the puzzled crowd at the church.
   - **Not checked:** the ceremony on the tutorial's first night (the guided day's playthrough skips it); builds

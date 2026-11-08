@@ -117,9 +117,10 @@ func play() -> void:
 	check("c8b", "With the draft bar, the plan panel and the checklist all showing, no boxes overlap", overlap.is_empty() and game.build.ui.find_child("plan_panel", true, false) != null, ", ".join(overlap))
 	await ui_click("draft_build")
 	await frames(10)
-	var stage: int = game.story.engine.current_stage("bridge")
-	check("c9", "Build the draft builds it all, bottom up, and the crossing counts", drafted() == 0 and count("bridgeDeck") == 8 and count("bridgePost") == 1 and stage >= 2,
-		"drafts left %d, decks %d, posts %d, request step %d" % [drafted(), count("bridgeDeck"), count("bridgePost"), stage])
+	var brief: Dictionary = Data.quest("bridge").objectives.filter(func(o): return String(o.get("kind", "")) == "commission")[0]
+	var crossed: bool = game.story.engine.commission("bridge", brief).musts[0].ok
+	check("c9", "Build the draft builds it all, bottom up, and the crossing counts", drafted() == 0 and count("bridgeDeck") == 8 and count("bridgePost") == 1 and crossed,
+		"drafts left %d, decks %d, posts %d, walkable %s" % [drafted(), count("bridgeDeck"), count("bridgePost"), crossed])
 	await ui_click("piece_railing")
 	await cell_click(0.07, -16.5, 0.25)
 	await cell_click(0.93, -16.5, 0.25)

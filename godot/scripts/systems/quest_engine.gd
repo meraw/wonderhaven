@@ -24,6 +24,7 @@ extends RefCounted
 var state: Dictionary
 var checks: Dictionary   # check id -> Callable returning bool
 var gate := Callable()   # optional (quest id) -> bool: extra condition on offers (the guided first day uses it)
+var world := Callable()
 
 var _memo: Dictionary = {}   # objective results and current stages, until something changes (see invalidate)
 
@@ -160,12 +161,25 @@ func _objective(qid: String, o: Dictionary) -> Dictionary:
 			var list := Validate.room_checklist(Data.zone(o.zone), state.get("placements", []), o.needs)
 			var ok := list.filter(func(r): return r.ok).size()
 			return {"done": ok == list.size(), "have": ok, "need": list.size()}
+		"commission":
+			var n_musts: int = o.get("musts", []).size()
+			if p.get(o.id, 0) == 1: return {"done": true, "have": n_musts, "need": n_musts}
+			if not here(qid) or not world.is_valid(): return {"done": false, "have": 0, "need": n_musts}
+			var cr := commission(qid, o)
+			return {"done": cr.done, "have": int(cr.met), "need": n_musts}
 		"pieces":
 			if p.get(o.id, 0) == 1: return {"done": true, "have": need, "need": need}
 			if not here(qid): return {"done": false, "have": 0, "need": need}
 			var n := Validate.pieces_in_zone(Data.zone(o.zone), state.get("placements", [])).filter(func(pl): return o.any.has(pl.id)).size()
 			return {"done": n >= need, "have": mini(n, need), "need": need}
 	return {"done": false, "have": 0, "need": need}
+
+func commission(qid: String, o: Dictionary) -> Dictionary:
+	var key: String = "c:" + qid + "/" + String(o.get("id", ""))
+	if _memo.has(key): return _memo[key]
+	var r: Dictionary = Commission.evaluate(o, world.call()) if world.is_valid() else {"musts": [], "wishes": [], "done": false, "met": 0}
+	_memo[key] = r
+	return r
 
 ## A gather step counts what you're carrying (wood chopped last week counts), unless it's a hunt for fresh finds
 ## (`fresh`) or tied to hours (`hours`: gather at night), which count only what turns up while the step is current.
@@ -194,7 +208,7 @@ func refresh() -> Array:
 			for o in q.objectives:
 				if o.get("final", false) or stage_of(o) > cur: continue
 				var st := objective(q.id, o)
-				if st.done and o.kind in ["harmony", "meter", "build", "flag", "room", "pieces"]: r.progress[o.id] = 1
+				if st.done and o.kind in ["harmony", "meter", "build", "flag", "room", "pieces", "commission"]: r.progress[o.id] = 1
 				if st.done and o.kind == "gather": r.progress[o.id] = st.need   # stays done when you build with it
 				if st.done and not r.done.has(o.id): r.done[o.id] = true; newly.append({"quest": q, "objective": o}); any = true
 			if not any or current_stage(q.id) == cur: break

@@ -1,5 +1,5 @@
 {
- "_comment": "Godot-only content: the guided first day (steps shown one at a time by the guide card) and one-time tip cards. {action} is replaced by the player's current key for that action; {move} by the four movement keys. done: moved | looked | flag:X | panel:X | buildmode | accepted:Q | ready:Q | quest:Q | objective:Q:index | stage:Q:N (request Q has reached its Nth stage, counting from 0). reveal: HUD parts that appear from this step on.",
+ "_comment": "Godot-only content: the guided first day (steps shown one at a time by the guide card) and one-time tip cards. {action} is replaced by the player's current key for that action; {move} by the four movement keys. done: moved | looked | flag:X | panel:X | buildmode | accepted:Q | ready:Q | quest:Q | objective:Q:index | stage:Q:N (request Q has reached its Nth stage, counting from 0) | must:Q:O:N (the Nth must of request Q's commission step O is met, counting from 0). reveal: HUD parts that appear from this step on.",
  "offers": [
   "tool",
   "bridge"
@@ -88,7 +88,7 @@
   {
    "id": "bridge",
    "text": "Lay planks from bank to bank: the green spots show how far a plank reaches.",
-   "done": "stage:bridge:2",
+   "done": "must:bridge:build:0",
    "target": "zone:bridge"
   },
   {

@@ -196,8 +196,9 @@ func render_tracker() -> void:
 			var l := UiTheme.label(txt, 13, Color("59a86f") if st.done else UiTheme.INK2); l.autowrap_mode = TextServer.AUTOWRAP_WORD; l.custom_minimum_size.x = 236
 			v.add_child(l)
 			# a building step: say how (the site's glowing grid, build mode, and the plan to follow if there is one)
-			if q == tracked and not st.done and o.kind in ["build", "room", "pieces"] and e.is_current(q.id, o):
-				var how := UiTheme.label(("📐 At the site press %s, then follow the glowing plan" if o.has("plan") else "📐 At the site press %s and build it your way") % Controls.key_label("build"), 12, Color("7a5cc9"))
+			if q == tracked and not st.done and o.kind in ["build", "room", "pieces", "commission"] and e.is_current(q.id, o):
+				var how_text := "📐 At the site press %s and build it your way: the musts tick off as you go" if o.kind == "commission" else ("📐 At the site press %s, then follow the glowing plan" if o.has("plan") else "📐 At the site press %s and build it your way")
+				var how := UiTheme.label(how_text % Controls.key_label("build"), 12, Color("7a5cc9"))
 				how.autowrap_mode = TextServer.AUTOWRAP_WORD; how.custom_minimum_size.x = 236; how.name = "build_how"
 				v.add_child(how)
 		tracker.add_child(p)

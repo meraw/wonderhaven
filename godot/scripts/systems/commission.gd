@@ -1,0 +1,138 @@
+class_name Commission
+
+const KINDS := ["pieces", "provides", "path", "fed", "lit", "recolored", "material", "kinds", "count", "taller"]
+const BASIC := ["pieces"]
+
+static func cfg() -> Dictionary: return Data.commissions
+
+static func site(o: Dictionary) -> Dictionary:
+	var zid := String(o.get("zone", ""))
+	return Data.zone(zid) if zid != "" else {}
+
+static func here(o: Dictionary, placements: Array) -> Array:
+	var z := site(o)
+	if z.is_empty(): return placements.duplicate()
+	return Validate.pieces_in_zone(z, placements)
+
+static func material(id: String) -> String:
+	var cost: Dictionary = Data.piece(id).get("cost", {})
+	var best := ""
+	var most := -1
+	for k in cost:
+		if String(k) == "coins": continue
+		if int(cost[k]) > most:
+			most = int(cost[k])
+			best = String(k)
+	return best
+
+static func recolored(p: Dictionary) -> bool:
+	var col := String(p.get("color", ""))
+	return col != "" and col != String(Data.piece(String(p.id)).get("color", ""))
+
+static func _has(d: Dictionary, uid) -> bool: return d.has(uid) or d.has(int(uid)) or d.has(float(uid))
+
+static func check(c: Dictionary, o: Dictionary, pieces: Array, ctx: Dictionary) -> Dictionary:
+	var need := int(c.get("count", 1))
+	var hit: Array = []
+	var have := 0
+	var ok := false
+	var lamps: Dictionary = ctx.get("lamps", {})
+	match String(c.get("check", "")):
+		"pieces":
+			var any: Array = c.get("any", [])
+			hit = pieces.filter(func(p): return any.has(String(p.id)))
+			have = hit.size()
+			var with: Array = c.get("with", [])
+			ok = have >= need and (with.is_empty() or hit.any(func(p): return with.has(String(p.id))))
+		"provides":
+			hit = pieces.filter(func(p): return Needs.gives(p, String(c.get("kind", "")), lamps))
+			have = hit.size()
+			ok = have >= need
+		"lit":
+			hit = pieces.filter(func(p): return _has(lamps, p.uid))
+			have = hit.size()
+			ok = have >= need
+		"recolored":
+			hit = pieces.filter(func(p): return recolored(p))
+			have = hit.size()
+			ok = have >= need
+		"material":
+			var of: Array = c.get("of", [])
+			hit = pieces.filter(func(p): return of.has(material(String(p.id))))
+			need = maxi(pieces.size(), 1)
+			have = hit.size()
+			ok = not pieces.is_empty() and hit.size() == pieces.size()
+		"kinds":
+			var seen := {}
+			for p in pieces:
+				if not seen.has(String(p.id)):
+					seen[String(p.id)] = true
+					hit.append(p)
+			have = seen.size()
+			ok = have >= need
+		"count":
+			hit = pieces.duplicate()
+			have = hit.size()
+			ok = have >= need
+		"taller":
+			var low := INF
+			var top := -INF
+			var tallest := {}
+			for p in pieces:
+				var b := BuildGrid.bounds(p)
+				low = minf(low, float(b.bottom))
+				if float(b.top) > top:
+					top = float(b.top)
+					tallest = p
+			var height := (top - low) if not pieces.is_empty() else 0.0
+			need = int(ceil(float(c.get("height", 1.0))))
+			have = int(floor(height))
+			ok = height >= float(c.get("height", 1.0)) - 0.001
+			if not tallest.is_empty(): hit = [tallest]
+		"path":
+			need = 1
+			var zid := String(c.get("zone", o.get("zone", "")))
+			var r: Dictionary = ctx.path.call(zid) if ctx.has("path") else {"ok": false}
+			ok = r.get("ok", false)
+			have = 1 if ok else 0
+			var cells := {}
+			for cell in r.get("path", []): cells[Vector2i(int(cell.x), int(cell.y))] = true
+			hit = pieces.filter(func(p): return BuildGrid.cells(p).any(func(cc): return cells.has(Vector2i(int(cc.x), int(cc.y)))))
+		"fed":
+			need = 1
+			ok = ctx.get("fed", {}).get(String(c.get("target", "")), false)
+			have = 1 if ok else 0
+			var mech: Dictionary = ctx.get("mech", {})
+			hit = pieces.filter(func(p): return _has(mech.get("powered", {}), p.uid) or _has(mech.get("watered", {}), p.uid) or _has(mech.get("pumps", {}), p.uid) or _has(mech.get("sources", {}), p.uid))
+	return {"label": String(c.get("label", "")), "check": String(c.get("check", "")), "ok": ok, "have": mini(have, need), "need": need,
+		"uids": hit.map(func(p): return int(p.uid)), "who": String(c.get("who", ""))}
+
+static func evaluate(o: Dictionary, ctx: Dictionary) -> Dictionary:
+	var pieces := here(o, ctx.get("placements", []))
+	var musts: Array = o.get("musts", []).map(func(c): return check(c, o, pieces, ctx))
+	var wishes: Array = o.get("wishes", []).map(func(c): return check(c, o, pieces, ctx))
+	return {"musts": musts, "wishes": wishes, "done": not musts.is_empty() and musts.all(func(r): return r.ok), "met": musts.filter(func(r): return r.ok).size()}
+
+static func stamp(wishes: Array, c: Dictionary = {}) -> Dictionary:
+	var names: Array = (c if not c.is_empty() else cfg()).get("stamps", ["Approved", "Approved with thanks", "Approved with honours"])
+	var met := wishes.filter(func(r): return r.ok).size()
+	var tier := 0 if met == 0 else (2 if met == wishes.size() else 1)
+	return {"met": met, "of": wishes.size(), "tier": tier, "text": String(names[mini(tier, names.size() - 1)])}
+
+static func bonus(wishes: Array, c: Dictionary = {}) -> Dictionary:
+	var w: Dictionary = (c if not c.is_empty() else cfg()).get("wish", {})
+	var hearts := {}
+	var harmony := 0
+	for r in wishes:
+		if not r.ok: continue
+		harmony += int(w.get("harmony", 0))
+		var who := String(r.get("who", ""))
+		if who != "": hearts[who] = int(hearts.get(who, 0)) + int(w.get("hearts", 0))
+	return {"harmony": harmony, "hearts": hearts}
+
+static func kinds_of(o: Dictionary, which: String = "musts") -> Array:
+	var out: Array = []
+	for c in o.get(which, []):
+		var k := String(c.get("check", ""))
+		if not out.has(k): out.append(k)
+	return out

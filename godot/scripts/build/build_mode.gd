@@ -948,8 +948,14 @@ func _build_ui() -> void:
 		var gv := VBoxContainer.new(); gp.add_child(gv)
 		gv.add_child(UiTheme.label("📜 " + goals.title, 14))
 		if goals.has("hint"): var hh := UiTheme.label(goals.hint, 12, UiTheme.INK2); hh.autowrap_mode = TextServer.AUTOWRAP_WORD; hh.custom_minimum_size.x = 226; gv.add_child(hh)
+		var wished := false
 		for it in goals.items:
-			var gl := UiTheme.label(("" if it.get("later", false) else ("✔ " if it.ok else "○ ")) + it.label, 13, Color("2f8a52") if it.ok else (UiTheme.INK2 if it.get("later", false) else UiTheme.INK))
+			if it.get("wish", false) and not wished:
+				wished = true
+				gv.add_child(UiTheme.label("Wishes, if you like", 12, Color("b07a1c")))
+			var mark: String = "" if it.get("later", false) else (("★ " if it.ok else "☆ ") if it.get("wish", false) else (("   ✔ " if it.ok else "   · ") if it.get("sub", false) else ("✔ " if it.ok else "○ ")))
+			var tint: Color = Color("b07a1c") if it.get("wish", false) and it.ok else (Color("2f8a52") if it.ok else (UiTheme.INK2 if it.get("later", false) or it.get("sub", false) or it.get("wish", false) else UiTheme.INK))
+			var gl := UiTheme.label(mark + it.label, 12 if it.get("sub", false) else 13, tint)
 			gl.autowrap_mode = TextServer.AUTOWRAP_WORD; gl.custom_minimum_size.x = 226; gv.add_child(gl)
 		right.add_child(gp)
 	if selected == -1 and selected_draft == -1 and moving.is_empty(): _plan_panel(right)
