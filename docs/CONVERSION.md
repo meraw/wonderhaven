@@ -82,8 +82,15 @@ own cobble colours, and `views.sh` with `measure_views.py` for before-and-after 
    - **done:** Monteforchetta's houses and shops are assembled from a Blender kit of parts, from layout data
      (`docs/MODELS.md`, "The house kit"). Collision stays the footprint, upper floors and roofs fade while you're
      inside, windows light at night, and the coppi take snow. Before and after: `docs/models/conversion_step3_a.jpg`;
-   - Monteforchetta's core made denser and varied: attached rows of different heights, colours and setbacks, as
-     decided in the look tests;
+   - **done:** Monteforchetta's core made denser and varied: ten more kit houses, of two and three storeys in different
+     colours, some attached in rows, as decided in the look tests:
+     - two frame the piazza's north side, either side of the lane to the bridge;
+     - one stands between the piazza and the newsstand, one beside the church;
+     - a terrace of four lines the south lane toward the belvedere;
+     - two stand at the village gate, where the bus stops.
+
+     They were placed clear of every lane, villagers' route, resource spot, building site, bench, sign and hangout,
+     with no change to gameplay data. Before and after: `docs/models/conversion_step3_b.jpg`;
    - the code-built church, castle and workshop restyled.
 4. **Characters:**
    - fabric chosen per garment (knit, denim, leather) instead of knit for everything;
