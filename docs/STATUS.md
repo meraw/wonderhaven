@@ -62,10 +62,7 @@ yourself. All of it, and the order it's built in, is in `docs/DESIGN.md`. Stages
     - a chair on two blocks on the church steps gets a ceremony with the whole crowd shrugging and no hearts;
     - Esc ends a ceremony within a fifth of a second and the paper still reports it;
     - with the setting off there is no ceremony and the build is still reported.
-  - **Monteforchetta's other playthroughs pass** (`play_all.sh`: 20 runs). `play_needs` failed whenever the morning
-    happened to notice a seat, on main too: to delete the bench it had built it looked for one at the exact cell it
-    aimed at, and a two-wide bench sits half a cell over. It now takes the newest piece of that kind; with the
-    bakery bench forced it passes 9 of 9.
+  - **Monteforchetta's other playthroughs pass** (`play_all.sh`: 20 runs).
   - **Seen** in screenshots: the speech with the bench, the flower bed and the ribbon between the Sindaco and you;
     the cut ribbon and the cheering; the mark; the puzzled crowd at the church.
   - **Not checked:** the ceremony on the tutorial's first night (the guided day's playthrough skips it); builds
@@ -179,7 +176,7 @@ The user found too much text everywhere. Changes, all shared:
     pillar is shelter; a lamp is light, and an electric lamp only when lit; charm's repeats, colours and cap; three
     needs noticed at a time, only buildable ones, the same for the same morning; approval going down and up again
     without a milestone twice; the plot not shrinking; the paper leading with what was noticed.
-  - **Played** (`play_needs`, 9 checks, now in `play_all.sh`):
+  - **Played** (`play_needs`, 19 checks, in `play_all.sh`):
     - a night on a bench brings three noticed needs in the paper, with icons over the places and the tracker list;
     - build mode shows each place's ring, name and needs;
     - building the right piece there meets the need and raises approval;
@@ -187,8 +184,18 @@ The user found too much text everywhere. Changes, all shared:
     - removing it takes the village's points back but keeps the best approval;
     - drafting it previews the approval, and building the draft meets it again.
 
-    The needs are picked at random each morning, so different runs build at different places: the runs here built a
-    hedge at Gigia's gate and a lamp on the church steps.
+    The morning's needs are picked at random, so v2 and v3 check only that three are noticed and shown. After that the
+    playthrough doesn't rely on the roll: for each kind it builds (seat, green, light) it takes the first place in
+    the layout that wants that kind and has room, makes the village notice it if the morning didn't, and plays the
+    build, remove, draft and rebuild steps there (v5 to v9, once per kind: a bench at the bakery door, a hedge and a
+    lamp in the piazza). Five runs in a row passed all 19 checks.
+  - **Why it used to fail about one run in four** (only when the roll picked a seat): the playthrough aimed its
+    clicks at the middle of the bench's first cell, but build mode centres a piece on the cursor, so for a piece two
+    cells wide that point is exactly on the line between two cells, and the bench landed one cell over. The test then
+    couldn't find its bench at the planned spot and never removed it (v7), and the draft (v8) went next to a bench
+    that already met the need, so it previewed no approval. The game was right; the test was wrong. The new
+    `place_anchored` helper (`tests/full_base.gd`) aims at the middle of the piece's footprint, and v5 now checks that
+    the piece landed where it was aimed.
   - **All of Monteforchetta's playthroughs pass** (`play_all.sh`: 18 runs).
   - **Seen** in the playthroughs' screenshots: the paper with needs, build mode's labels, the "Why?" panel.
   - **Bug the playthrough found**: the village wasn't counted when a new game began, only once something was built.
@@ -335,10 +342,15 @@ What was checked how: **tested** means headless tests (`godot/run_tests.sh`), **
 - **The game stopped on Continue after a trip to Boccapioppo** (played with the tester's own save, and `play_load_away`): Continue (or Load) on a save made in another place reloads the scene for that place, and the "Welcome back" banner was then drawn on the old scene, already out of the tree: a script error, which in the Godot editor pauses the game in the debugger. Saves were never damaged. The new scene now shows the banner (and the pause menu's "Game loaded"). The tester's save loads and plays (8 runs, compatibility renderer and Forward+ on a software GPU).
 - **The crash after Load from the pause menu into another place was the test harness, not the game** (played, tested): `await_island` (`tests/autoplay_base.gd`) asked the old game for its id after a click-triggered load had already freed it. Only Godot run from the editor catches a call on a freed object; a standalone run reads freed memory, and after a second swap in one run that crashed (signal 11, 6 runs in 8). Found with gdb: the crash was inside the playthrough's own awaits. It now checks the old game is still there first: 12 runs in 12 clean. The game itself never crashed: the same two loads driven with real clicks from a plain per-frame script, with no awaits held across the swap, ran 12 times in 12 without a crash, before the harness fix. `play_load_away` now also loads from the pause menu (two swaps in one run).
 
+## Build-piece icons (08/11)
+Seen in the game (the build bar in play_build_clarity's screenshots) and checked by the headless tests (`test_icons.gd`: every piece has its picture) and every playthrough (nothing in play broke).
+- **The build bar shows each piece as a small render of its own model** (ink outline, the game's lighting), in place of its emoji; locked pieces show their picture faded instead of a padlock. The selected-piece and draft panels show it beside the name. The pictures are rendered by `tests/render_piece_icons.gd` into `assets/icons/pieces/` (render again after changing a piece's model: `tools/icons/README.md`).
+- The categories' tabs and lines of text (the plan panel's "Next: ...") keep the piece's emoji, from the one-colour icon font.
+
 ## Icons (07/11)
 Checked in the game (Forward+ screenshots of the top bar, the bag, the journal and the pause menu, loading a real save), by the headless tests (`test_icons.gd`) and every playthrough (nothing in play broke). Not seen on a real monitor yet.
 - **The emoji are now the game's own icons** in watercolour and pencil (style E of the icon directions): the 17 shared resources, the HUD and key hints, the journal, the menus, the weather in the clock, the hours, the minigame tools, build mode's tools and common symbols (84 in all). They are a colour font the UI fonts try before the bundled one-colour icon fonts (`tools/icons/`, `UiTheme.drawn_icon_font`), so the text and data keep their emoji and nothing else changed.
-- **Still one-colour (bundled Noto Emoji):** the build pieces' icons and the other locations' own resources (Boccapioppo's sand, bicycles...). The build pieces would read better as small renders of the pieces.
+- **Still one-colour (bundled Noto Emoji):** the other locations' own resources (Boccapioppo's sand, bicycles...). The build pieces are now pictures of the pieces (above).
 - The approval rating's icon is a green, white and red rosette instead of a heart.
 
 ## Tonemapping and light (07/11)

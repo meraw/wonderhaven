@@ -51,59 +51,78 @@ func play() -> void:
 	var markers: int = game.need_root.get_child_count() if game.need_root else 0
 	var tracked := label_text(game.hud.tracker, "village_needs")
 	check("v3", "Icons float over the places that want something, and the tracker lists them", markers > 0 and tracked.contains("could use"), "%d markers; %s" % [markers, tracked])
-	var target := ""
-	for k in open:
-		if PIECE.has(String(k).get_slice(":", 1)): target = String(k); break
-	var h := Needs.hangout(hs, target.get_slice(":", 0))
-	var piece: String = PIECE.get(target.get_slice(":", 1), "bench")
-	note("building %s for %s" % [piece, target])
+	var first := true
+	for kind in PIECE:
+		await play_kind(String(kind), hs, open, first)
+		first = false
+
+func target_for(kind: String, hs: Array) -> Dictionary:
+	for h in hs:
+		if not h.get("needs", []).has(kind): continue
+		if not spot_in(h, String(PIECE[kind])).is_empty(): return h
+	return {}
+
+func play_kind(kind: String, hs: Array, open: Array, first: bool) -> void:
+	var s: Dictionary = game.state
+	var piece: String = PIECE[kind]
+	var h := target_for(kind, hs)
+	var target := Needs.key(h, kind) if not h.is_empty() else kind
+	if h.is_empty():
+		check("v5-" + kind, "There is a place that wants a %s and room to build one there" % piece, false, "none found")
+		return
+	if not Needs.open_keys(s, Needs.met_keys(game.village_score)).has(target):
+		Needs.know(s, [target]); game.render_needs(); game.hud.render_tracker()
+	note("building %s for %s (%s by the morning roll)" % [piece, target, "noticed" if open.has(target) else "not noticed"])
 	var zone_id := String(BuildGrid.zone_at(game.placement_ctx().zones, floor(float(h.x)), floor(float(h.z))).get("id", "village"))
 	await walk_to(float(h.x), float(h.z), 2.0)
 	await open_build(zone_id)
-	var rings: int = game.build.hangout_root.get_child_count()
-	await shot("hangouts-in-build-mode")
-	var hl := label_text(game.build.hangout_root, "hangout_" + String(h.id))
-	check("v4", "In build mode each place shows its area, its name and what it wants", game.build.hangout_root.visible and rings >= hs.size() * 2 and hl.contains(String(h.name)), "%d nodes, visible=%s, label '%s'" % [rings, game.build.hangout_root.visible, hl])
+	if first:
+		var rings: int = game.build.hangout_root.get_child_count()
+		await shot("hangouts-in-build-mode")
+		var hl := label_text(game.build.hangout_root, "hangout_" + String(h.id))
+		check("v4", "In build mode each place shows its area, its name and what it wants", game.build.hangout_root.visible and rings >= hs.size() * 2 and hl.contains(String(h.name)), "%d nodes, visible=%s, label '%s'" % [rings, game.build.hangout_root.visible, hl])
 	var spot := spot_in(h, piece)
 	var before := int(s.harmony)
-	var best_before := int(s.approval_best)
 	var vp_before := int(s.village_points)
+	var uids: Array = s.placements.map(func(p): return int(p.uid))
 	await select_piece(piece)
-	await place_at(float(spot.get("i", 0)), float(spot.get("k", 0)), 0.1, 0)
+	await place_anchored(float(spot.get("i", 0)), float(spot.get("k", 0)), 0)
 	await frames(10)
+	var placed: Dictionary = {}
+	for p in s.placements:
+		if p.id == piece and not uids.has(int(p.uid)): placed = p
+	var at_spot: bool = not placed.is_empty() and is_equal_approx(float(placed.i), float(spot.get("i", INF))) and is_equal_approx(float(placed.k), float(spot.get("k", INF)))
 	var met := Needs.met_keys(game.village_score).has(target)
 	var gained := int(s.harmony) - before
-	await shot("need-met")
-	check("v5", "Building it there meets the need: approval goes up by at least its %d points" % int(Data.needs.points), not spot.is_empty() and met and gained >= int(Data.needs.points), "%s at %s: +%d" % [piece, str(spot), gained])
+	await shot("need-met-" + kind)
+	check("v5-" + kind, "Building a %s where it was aimed meets the need: approval goes up by at least its %d points" % [piece, int(Data.needs.points)], at_spot and met and gained >= int(Data.needs.points), "%s for %s, aimed at %s, built %s: +%d" % [piece, target, str(spot), str(placed), gained])
 	var h_built := int(s.harmony)
 	var vp_built := int(s.village_points)
 	await leave_build()
 	await tap(KEY_P); await frames(8)
 	var why := label_text(game.panels, "approval_why")
 	var card := label_text(game.panels, "why_" + String(h.id))
-	await shot("why-panel")
-	check("v6", "The approval screen says why: the village's share, and this place's need met", why.contains("from the village") and card.contains("✔"), "%s / %s" % [why, card])
+	await shot("why-panel-" + kind)
+	check("v6-" + kind, "The approval screen says why: the village's share, and this place's need met", why.contains("from the village") and card.contains("✔ " + String(Needs.kind_def(kind).get("name", ""))), "%s / %s" % [why, card])
 	await tap(KEY_ESCAPE); await frames(5)
 	await open_build(zone_id)
-	var placed: Dictionary = {}
-	for p in s.placements:
-		if p.id == piece and (placed.is_empty() or int(p.uid) > int(placed.uid)): placed = p
-	var bb := BuildGrid.bounds(placed) if not placed.is_empty() else {}
 	if not placed.is_empty():
+		var bb := BuildGrid.bounds(placed)
 		game.build.focus = Vector3((bb.minX + bb.maxX) / 2.0, 0.0, (bb.minZ + bb.maxZ) / 2.0); await settle()
 		mouse_move(game.camera.unproject_position(Vector3((bb.minX + bb.maxX) / 2.0, (float(bb.bottom) + float(bb.top)) / 2.0, (bb.minZ + bb.maxZ) / 2.0))); await frames(4)
 		await tap(KEY_DELETE); await frames(8)
+	var gone: bool = not placed.is_empty() and s.placements.filter(func(p): return int(p.uid) == int(placed.uid)).is_empty()
 	var lost := not Needs.met_keys(game.village_score).has(target)
-	check("v7", "Taking it away loses the village's points (the first-of-its-kind bonus stays), the need is open again, and the best approval stays", lost and int(s.village_points) == vp_before and int(s.harmony) == h_built - (vp_built - vp_before) and int(s.approval_best) >= h_built and Needs.open_keys(s, Needs.met_keys(game.village_score)).has(target),
-		"approval %d (built %d, before %d), village %d (was %d), best %d" % [int(s.harmony), h_built, before, int(s.village_points), vp_before, int(s.approval_best)])
+	check("v7-" + kind, "Taking the %s away loses the village's points (the first-of-its-kind bonus stays), the need is open again, and the best approval stays" % piece, gone and lost and int(s.village_points) == vp_before and int(s.harmony) == h_built - (vp_built - vp_before) and int(s.approval_best) >= h_built and Needs.open_keys(s, Needs.met_keys(game.village_score)).has(target),
+		"removed=%s, approval %d (built %d, before %d), village %d (was %d), best %d" % [gone, int(s.harmony), h_built, before, int(s.village_points), vp_before, int(s.approval_best)])
 	await tap(KEY_G); await frames(3)
 	await select_piece(piece)
-	await place_at(float(spot.get("i", 0)), float(spot.get("k", 0)), 0.1, 0)
+	await place_anchored(float(spot.get("i", 0)), float(spot.get("k", 0)), 0)
 	await frames(6)
 	var bar := label_text(game.build.ui, "draft_panel")
-	await shot("draft-preview")
-	check("v8", "Drafted there, the draft bar previews the approval it would bring", Drafts.of(s).size() == 1 and bar.contains("💖") and bar.contains("+"), bar)
+	await shot("draft-preview-" + kind)
+	check("v8-" + kind, "Drafted there, the draft bar previews the approval the %s would bring" % piece, Drafts.of(s).size() == 1 and bar.contains("💖") and bar.contains("+"), bar)
 	await tap(KEY_G); await frames(3)
 	await ui_click("draft_build"); await frames(10)
-	check("v9", "Building the draft meets the need again", Needs.met_keys(game.village_score).has(target) and int(s.harmony) - before >= int(Data.needs.points), "approval %d" % int(s.harmony))
+	check("v9-" + kind, "Building the drafted %s meets the need again" % piece, Drafts.of(s).is_empty() and Needs.met_keys(game.village_score).has(target) and int(s.harmony) - before >= int(Data.needs.points), "approval %d (before %d)" % [int(s.harmony), before])
 	await leave_build()
