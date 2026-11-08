@@ -477,3 +477,27 @@ func test_you_cant_step_off_the_roman_bridge():
 			if s.is_empty(): across = false; break
 			feet = s.y
 		t.ok(across, "and you still walk over it from end to end"))
+
+func test_once_the_hall_is_ready_the_town_dances_there_every_evening():
+	var hall := Rect2(11.2, 28.2, 9.6, 6.6)
+	var nodes: Dictionary = Data.read_layout("river_town").nav_nodes
+	var dancers := 0
+	for n in Data.npcs.filter(func(x): return x.get("island", "") == "river_town"):
+		for flag in ["river_town_hall_ready", "river_town_flood_over"]:
+			var sched: Array = []
+			for w in n.get("when", []):
+				if String(w.get("flag", "")) == flag: sched = w.schedule
+			var at_hall: Array = sched.filter(func(e): return int(e[0]) <= 20 and int(e[1]) >= 22 and String(e[3]) == "dance")
+			if flag == "river_town_hall_ready" and not at_hall.is_empty(): dancers += 1
+			for e in at_hall:
+				var p: Array = nodes.get(String(e[2]), [])
+				t.ok(String(e[2]).begins_with("river_town_dance_hall") or (p.size() == 2 and hall.has_point(Vector2(float(p[0]), float(p[1])))), "%s dances in the hall (%s)" % [n.id, e[2]])
+	t.ok(dancers >= 8, "%d villagers dance from 8 to 10 every evening once the hall is ready" % dancers)
+	var c := Chibi.new({})
+	c.play("dance", true)
+	var turns: Array = []
+	for k in 30:
+		c.animate(0.1, 0.0)
+		turns.append(c.body.rotation.y)
+	t.ok(c.hold == "dance" and turns.max() - turns.min() > 0.5, "a dancer sways and turns (%.2f)" % (turns.max() - turns.min()))
+	c.free()

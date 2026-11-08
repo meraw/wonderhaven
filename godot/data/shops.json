@@ -137,6 +137,66 @@
        "workshop"
       ]
      }
+    },
+    {
+     "blueprint": "armchair",
+     "price": 30
+    },
+    {
+     "blueprint": "sideTable",
+     "price": 20
+    },
+    {
+     "blueprint": "pottedPlant",
+     "price": 15
+    },
+    {
+     "blueprint": "coatStand",
+     "price": 15
+    },
+    {
+     "blueprint": "drawers",
+     "price": 30
+    },
+    {
+     "blueprint": "mirror",
+     "price": 30
+    },
+    {
+     "blueprint": "stove",
+     "price": 40,
+     "requires": {
+      "quests": [
+       "workshop"
+      ]
+     }
+    },
+    {
+     "blueprint": "clock",
+     "price": 50,
+     "requires": {
+      "quests": [
+       "workshop"
+      ]
+     }
+    },
+    {
+     "blueprint": "credenza",
+     "price": 45,
+     "requires": {
+      "quests": [
+       "workshop"
+      ]
+     }
+    },
+    {
+     "blueprint": "piano",
+     "price": 70,
+     "requires": {
+      "quests": [
+       "workshop"
+      ]
+     }
     }
    ]
   },

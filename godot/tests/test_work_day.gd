@@ -75,13 +75,16 @@ func test_spots_grow_back_overnight_in_a_work_day():
 	Clock.sleep_until(napped, 20.5)
 	t.ok(napped.total < WorkDay.regrow_at(c, DAY, 180.0), "a nap until dusk doesn't")
 
-func test_a_night_on_a_bench_always_ends_with_a_joke():
+func test_a_night_on_a_bench_sometimes_ends_with_a_joke():
 	var naps: Dictionary = Data.naps.duplicate(true)
-	t.ok(float(naps.get("overnight", 0.0)) >= 1.0, "naps.json: a night on a bench always ends with something")
 	var quiet := 0
+	var kinds := {}
 	for i in 40:
-		if BenchNap.pick(naps, {"overnight": true, "watchers": ["Gigia"], "last": ""}, float(i) / 40.0, 0.5) == "": quiet += 1
-	t.eq(quiet, 0, "every overnight roll gives a gag")
+		var g := BenchNap.pick(naps, {"overnight": true, "watchers": ["Gigia"], "last": ""}, float(i) / 40.0, float(i % 8) / 8.0 + 0.06)
+		if g == "": quiet += 1
+		else: kinds[g] = true
+	t.ok(quiet >= 10 and quiet <= 30, "some nights on a bench are quiet, some end in a joke (%d of 40 quiet)" % quiet)
+	t.ok(kinds.size() >= 3, "and the jokes vary: %s" % str(kinds.keys()))
 	t.eq(BenchNap.pick(naps, {"overnight": false, "watchers": []}, 0.9, 0.5), "", "a daytime nap is still mostly quiet")
 	t.eq(BenchNap.pick(naps, {"overnight": true, "indoors": true}, 0.0, 0.5), "", "your own sofa indoors stays quiet")
 

@@ -446,6 +446,9 @@ One pull request per stage. Each keeps the game playable and the tests passing.
 - Its own paper, *La Gazzetta del Binario Morto*, and Paletta opening the day's builds at dusk in his own words
   (`naps`, `paper` and `inauguration` blocks in `layout.json`).
 - Tastes for the six villagers (`tastes.json`; the inspector is only visiting).
+- Six spots that want things (`hangouts`: the crossroads, the station forecourt, the church door, the farmyard, Nonna's
+  garden gate, the farm office) and an open area in the lanes and yards to build in (`rice_village_streets`); the
+  hamlet's needs don't move Monteforchetta's approval.
 - Every building request is a brief with musts and the villagers' wishes (`quests.json`). The inspector's shelter keeps
   his four conditions, so it has four musts where the others have at most three.
 

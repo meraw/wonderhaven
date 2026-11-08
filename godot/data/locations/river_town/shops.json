@@ -80,6 +80,22 @@
     {
      "blueprint": "bench",
      "price": 20
+    },
+    {
+     "blueprint": "sideTable",
+     "price": 20
+    },
+    {
+     "blueprint": "drawers",
+     "price": 30
+    },
+    {
+     "blueprint": "coatStand",
+     "price": 15
+    },
+    {
+     "blueprint": "clock",
+     "price": 50
     }
    ]
   },

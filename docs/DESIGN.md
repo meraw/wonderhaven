@@ -28,8 +28,9 @@ Days, gathering, money and requests serve that loop.
 - **Pieces carry tags** for what they provide (a bench, chair or sofa is a seat; a roof is shelter; a lit lamp is light;
   a flower bed, hedge or tree is green; a counter is a stall). A need is met when a tagged piece stands in the hangout
   and you can walk to it (the same `WalkWorld` check as bridges).
-- **At most three needs open at a time**, only for pieces you can already build, and nothing bad happens if you leave
-  one.
+- **At most three needs open at a time** in each place, only for pieces you can already build, and nothing bad happens
+  if you leave one. Each place has its own hangouts and lists only its own needs; in a place with its own meter (a
+  flood gauge, a petition) met needs bring villagers and hearts but don't move Monteforchetta's approval.
 - **Villagers use what you build** in their free time: they sit on your bench, stand under your roof, set out wares on
   your counter. A villager who can't use something (a seat with no clear front, a bench on a roof) stops and gives it
   a puzzled stare instead. That changes nothing in the rules; it makes the wonky builds read as jokes.

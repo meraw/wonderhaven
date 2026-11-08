@@ -470,6 +470,9 @@ bicycles (4b), and the music, sounds and outfits (4c).
 for the night scenes (`"hold": false`), its own paper (*La Voce dell'Argine*), Ermes opening the day's builds, tastes
 for every villager, and every building request as a brief with musts and wishes from the townspeople. Closing the
 breach brought a new kind of check, `sealed`. The Roman bridge's parapets are solid where the walkway is above the banks.
+Six spots that want things (`hangouts`: Rina's bar, Primo's workshop, the church door, Ermes's door, Pierina's doorstep,
+the piazza) and an open area in the streets to build in (`river_town_streets`); the town's needs don't move
+Monteforchetta's approval. From 8 to 10 every evening once the hall is ready, the town dances there.
 
 ## Checks for every stage
 `godot/run_tests.sh`, `npm test` and `npm run build`; screenshots of Boccapioppo in both renderers

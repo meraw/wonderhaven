@@ -452,3 +452,22 @@ func test_a_location_can_have_clothes_of_its_own():
 	var nonna: Dictionary = Data.npc_by_id.rice_village_pierina
 	t.ok(nonna.gifts.any(func(g): return g.get("clothes", []).has("rice_village_woolHat") and g.clothes.has("rice_village_scarf")), "Nonna knits the hat and scarf")
 	t.ok(Data.quest("rice_village_water").rewards.get("clothes", []).has("rice_village_boots"), "the boots are Water for the Winter's reward")
+
+func test_more_furniture_to_furnish_with():
+	var added := ["armchair", "sideTable", "pottedPlant", "coatStand", "drawers", "mirror", "clock", "stove", "credenza", "piano"]
+	var sold := {}
+	for path in ["res://data/shops.json", "res://data/locations/river_town/shops.json", "res://data/locations/rice_village/shops.json"]:
+		var raw = JSON.parse_string(FileAccess.get_file_as_string(path))
+		for sid in raw.shops:
+			for line in raw.shops[sid].get("stock", []):
+				if line.has("blueprint"): sold[String(line.blueprint)] = true
+	var known: Array = Data.resources.keys()
+	for id in added:
+		var d := Data.piece(id)
+		t.ok(not d.is_empty() and String(d.cat) == "furniture", "%s is a piece of furniture" % id)
+		var m := PieceMeshes.make(id)
+		t.ok(m.get_child_count() >= 3, "%s has a model of its own (%d parts)" % [id, m.get_child_count()])
+		m.free()
+		t.ok(d.get("cost", {}).keys().all(func(k): return known.has(k) or k == "coins"), "%s costs things you can gather or buy: %s" % [id, str(d.get("cost", {}))])
+		t.ok(sold.has(id), "a shop sells the plans for the %s" % id)
+	t.ok(Data.pieces.filter(func(p): return String(p.cat) == "furniture").size() >= 26, "plenty to furnish a home with")

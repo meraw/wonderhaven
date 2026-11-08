@@ -641,6 +641,12 @@ func sec_dancehall() -> void:
 		dancers = game.npcs.values().filter(func(a): return a.present and hall.has_point(Vector2(a.pos.x, a.pos.z))).size()
 		if dancers >= 7: break
 		await wait(1.0)
+	var dancing := 0
+	for k in 20:
+		dancing = game.npcs.values().filter(func(a): return a.present and hall.has_point(Vector2(a.pos.x, a.pos.z)) and a.character.hold == "dance").size()
+		if dancing >= 6: break
+		await wait(1.0)
+	check("s5b", "And in the hall they dance, not just stand about", dancing >= 6, "%d dancing" % dancing)
 	await walk_to(12.8, 31.5, 0.6)
 	await shot("first-dance")
 	await talk(P + "wanda")

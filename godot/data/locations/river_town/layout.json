@@ -112,6 +112,85 @@
    "To the centimetre. Cut the ribbon."
   ]
  },
+ "hangouts": [
+  {
+   "id": "river_town_piazza",
+   "name": "The piazza",
+   "at": "in the piazza",
+   "x": 4.0,
+   "z": 5.0,
+   "r": 4.0,
+   "needs": [
+    "green",
+    "light",
+    "seat"
+   ]
+  },
+  {
+   "id": "river_town_bar",
+   "name": "Rina's bar",
+   "at": "outside Rina's bar",
+   "x": 8.0,
+   "z": -0.8,
+   "r": 2.5,
+   "needs": [
+    "seat",
+    "shelter"
+   ],
+   "who": "river_town_rina"
+  },
+  {
+   "id": "river_town_workshop",
+   "name": "Primo's workshop",
+   "at": "outside Primo's workshop",
+   "x": 7.0,
+   "z": -10.0,
+   "r": 2.5,
+   "needs": [
+    "light",
+    "seat"
+   ],
+   "who": "river_town_primo"
+  },
+  {
+   "id": "river_town_church",
+   "name": "The church door",
+   "at": "at the church door",
+   "x": 0.4,
+   "z": -17.0,
+   "r": 2.5,
+   "needs": [
+    "light",
+    "green"
+   ]
+  },
+  {
+   "id": "river_town_ermes",
+   "name": "Ermes's door",
+   "at": "at Ermes's door",
+   "x": -16.0,
+   "z": 9.6,
+   "r": 2.5,
+   "needs": [
+    "light",
+    "seat"
+   ],
+   "who": "river_town_ermes"
+  },
+  {
+   "id": "river_town_pierina",
+   "name": "Pierina's doorstep",
+   "at": "at Pierina's door",
+   "x": -13.0,
+   "z": -8.8,
+   "r": 2.5,
+   "needs": [
+    "green",
+    "seat"
+   ],
+   "who": "river_town_pierina"
+  }
+ ],
  "decor": {
   "radius": 56,
   "trees": 0
@@ -1272,6 +1351,15 @@
    "unlock": {
     "flag": "river_town_mooring_garden"
    }
+  },
+  {
+   "id": "river_town_streets",
+   "name": "The town's streets",
+   "open": true,
+   "minI": -42,
+   "maxI": 16,
+   "minK": -34,
+   "maxK": 19
   }
  ],
  "crossings": [

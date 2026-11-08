@@ -6,13 +6,21 @@ class_name BenchNap
 
 const RAINY := ["rain", "drizzle"]
 
-## True when rain (or drizzle) fell during a nap from t0 to t1 (clock time dictionaries): every weather slot the nap
-## spans, and weather a request brought (state.forced_weather, see Daylight.force).
 static func rained(t0: Dictionary, t1: Dictionary, allowed: Array = [], forced: Dictionary = {}) -> bool:
-	if RAINY.has(String(forced.get("type", ""))) and float(forced.get("until", 0.0)) > float(t0.get("total", 0.0)): return true
-	for slot in range(Daylight.slot_index(t0), Daylight.slot_index(t1) + 1):
+	var since := maxf(float(t0.get("total", 0.0)), float(t1.get("total", 0.0)) - Daylight.SLOT_MINUTES)
+	if RAINY.has(String(forced.get("type", ""))) and float(forced.get("until", 0.0)) > since: return true
+	var last := _slot_before(t1, 1.0)
+	for slot in range(maxi(Daylight.slot_index(t0), _slot_before(t1, Daylight.SLOT_MINUTES)), last + 1):
 		if RAINY.has(Daylight.slot_weather(slot, allowed)): return true
 	return false
+
+static func _slot_before(t: Dictionary, minutes: float) -> int:
+	var m := float(t.get("minute", 0.0)) - minutes
+	var d := int(t.get("day", 1))
+	while m < 0.0:
+		m += 24.0 * 60.0
+		d -= 1
+	return d * 6 + int(m / Daylight.SLOT_MINUTES)
 
 ## The gag on waking, or "" for none. ctx: indoors (a sofa in your house: nothing happens), rained, watchers (names of
 ## villagers who could be standing there), last (the previous gag, not repeated while another is possible).

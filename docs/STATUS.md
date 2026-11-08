@@ -520,6 +520,33 @@ Checked by the headless tests (`test_animation.gd`: stopping eases, the stride s
 - **Standing still is alive:** breathing, a slow shift of weight, and now and then a glance to one side.
 - **Actions have anticipation and follow-through:** chopping and mining wind the tool back over the shoulder, strike fast and jolt on impact; hammering and digging do the same; the wave overshoots and lowers; celebrating crouches before the jumps and squashes on each landing; surprise squashes before it jumps.
 
+## Playtest fixes: a village map, the Roman bridge, the town's needs, dancing, furniture, naps (08/11)
+- **A map of where you are** (shared): M opens a map of the place you're in, drawn from its layout: the ground and the
+  water, the paths, the buildings (the ones with a name are labelled), the building sites open to you (dashed), the
+  bus stop, benches, the spots that want something, every villager about with their name and a ! or ★ if they have
+  a request or are waiting to hear from you, what you're tracking (⭐) and you (the pink arrow, pointing the way you
+  face). Click anything for its name. A tab switches to the travel map; catching the bus still opens the travel map
+  (`VillageMap`, `scripts/ui/village_map.gd`).
+- **The Roman bridge** (Boccapioppo) looked like two loose walls with the dirt path between them, and a dark hole
+  showed through the walkway where an arch's shadow was. It's one stone body now: arches that run right through it
+  under a paved deck, parapets standing on it, and the piers' cutwaters capped in stone.
+- **The things the village could use** (Boccapioppo, Casalrana): the list showed Monteforchetta's wishes ("somewhere to
+  sit", with no place) because the other villages had no spots of their own. Now each has six (Rina's bar, Primo's
+  workshop, the church door, Ermes's door, Pierina's doorstep and the piazza; in Casalrana the crossroads, the station
+  forecourt, the church door, the farmyard, Nonna's garden gate and the farm office), each wanting two or three things,
+  noticed a few at a time in the morning paper, and an open area in the streets where you can build anything, as in
+  Monteforchetta. The list only shows the place you're in. Since these villages keep their own meter, what you build
+  there doesn't move Monteforchetta's approval (`Needs.open_here`, `Needs.approval_here`).
+- **Dancing at the dance hall** (Boccapioppo): once the hall is ready, the town still comes every evening from 8 to 10,
+  but now they dance (a new `dance` pose: a swaying three-step with one arm up and a slow turn), Wanda too.
+- **Bench naps**: you only wake up soaked if it rained in the four hours before you woke (rain anywhere in a long night
+  used to count, so it was nearly every night), and a night on a bench ends in a joke about half the time instead of
+  always.
+- **Ten more pieces of furniture**: an armchair you can sit in, a side table, a potted plant (it counts as something
+  green), a coat stand, a chest of drawers, a mirror for the wall, a grandfather clock, a wood stove, a credenza with the
+  good plates and an upright piano, each with its own model and build-bar picture. Elio sells all ten plans in
+  Monteforchetta (the bigger pieces once his workshop is done), Ines four in Boccapioppo and Silvia four in Casalrana.
+
 ## Casalrana catches up (08/11)
 Casalrana gets the redesign's systems, as Boccapioppo did:
 - **A work day that doesn't hold the clock** (`"hold": false` in its `day`): poplars, straw, cobbles and clay grow back

@@ -392,8 +392,19 @@ func notice_board() -> void:
 		v.add_child(UiTheme.label("Posted by " + Data.npc(q.giver).name, 12, Color("b34a6a"))); v.add_child(UiTheme.label(q.title, 17)); v.add_child(_wrap(q.description))
 	body.add_child(_wrap("Tips: a gold ! over someone means a request; a green ★ means you can report back. Your metal detector beeps near buried finds.", 14))
 
-func map(from_boat: bool = false) -> void:
+func map(from_boat: bool = false, travel: bool = false) -> void:
 	open_panel("map", "🗺️ Map")
+	if not from_boat:
+		var tabs := HBoxContainer.new(); tabs.add_theme_constant_override("separation", 10); tabs.name = "map_tabs"
+		var here := UiTheme.button("📍 " + String(Data.island_def(Data.island).get("name", "Here")), func(): map(false, false), not travel); here.name = "tab_here"
+		var away := UiTheme.button("🚌 Travel map", func(): map(false, true), travel); away.name = "tab_travel"
+		tabs.add_child(here); tabs.add_child(away); body.add_child(tabs)
+		if not travel:
+			var vm := VillageMap.new(); vm.game = game; vm.custom_minimum_size = Vector2(800, 430); vm.name = "village_map"
+			var said := _wrap("Click a villager, a building or a site to see what it is.  Dashed: a building site · ! a request · ★ someone to report back to · ⭐ what you're tracking · 🚌 the bus · pink arrow: you", 14, UiTheme.INK)
+			vm.picked.connect(func(text: String): said.text = text; game.sfx("select"))
+			body.add_child(vm); body.add_child(said)
+			return
 	var info := _wrap("Where to? Pick a destination." if from_boat else "Click a place to learn about it.", 15, UiTheme.INK)
 	var canvas := MapView.new(); canvas.game = game; canvas.custom_minimum_size = Vector2(800, 430); canvas.name = "map_view"
 	canvas.picked.connect(func(isl: Dictionary):
