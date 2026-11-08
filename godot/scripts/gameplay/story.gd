@@ -46,7 +46,7 @@ func commission_ticks(show: bool = true) -> void:
 	for q in engine.active():
 		if not engine.here(q.id): continue
 		for o in q.objectives:
-			if String(o.get("kind", "")) != "commission" or not engine.is_current(q.id, o): continue
+			if String(o.get("kind", "")) != "commission" or QuestEngine.stage_of(o) > engine.current_stage(q.id): continue
 			var cr := engine.commission(q.id, o)
 			var rows: Array = cr.musts + cr.wishes
 			for i in rows.size():
@@ -366,9 +366,14 @@ func first_of_kind(id: String) -> void:
 ## is still to do before its building step (materials first) if that hasn't come up yet.
 func build_goals(z: Dictionary) -> Dictionary:
 	if z.is_empty(): return {}
+	var found := _goals_for(z, func(_qid, o): return o.get("zone", "") == z.id)
+	if not found.is_empty(): return found
+	return _goals_for(z, func(qid, o): return String(o.get("kind", "")) == "commission" and String(o.get("zone", "")) == "" and engine.is_current(qid, o) and not engine.objective(qid, o).done)
+
+func _goals_for(z: Dictionary, fits: Callable) -> Dictionary:
 	for q in engine.active().filter(func(x): return engine.here(x.id)):
 		var cur := engine.current_stage(q.id)
-		var here: Array = q.objectives.filter(func(o): return o.get("zone", "") == z.id and not o.get("final", false))
+		var here: Array = q.objectives.filter(func(o): return fits.call(q.id, o) and not o.get("final", false))
 		if here.is_empty(): continue
 		var items: Array = []
 		var hint := ""

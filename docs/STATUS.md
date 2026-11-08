@@ -10,6 +10,33 @@ After a review of how the game plays, the user agreed a new design: building is 
 whether or not anyone asked for it, requests become briefs with checks, and the day becomes a work day you end
 yourself. All of it, and the order it's built in, is in `docs/DESIGN.md`. All seven stages are done for Monteforchetta.
 
+### More to build (Monteforchetta, after the redesign)
+- **Four more briefs**, so there's more to build than the main story's six:
+  - **A Plinth for the Sindaco** (his side request) is now a build on the castle steps: three stone pieces, at least
+    two metres tall. Wishes: taller than three metres (the Sindaco), a light on it (Elio), flowers round it (Gigia).
+    It used to be "gather stone and copper wire, hand them over".
+  - **Tables Outside the Bakery** (Ornella, after the crossing): two tables and four seats outside her door.
+    Wishes: something green (Gigia), a sunshade (Ornella).
+  - **A Stall for Gigia's Hazelnuts** (Gigia, after the bus stop), **anywhere in the village**: a counter and two
+    green things round it. Wishes: painted cheerfully (Gigia), a bench for customers (Ornella).
+  - **A Reading Corner** (Fede, after the bus stop), anywhere: a seat, a light and a bookshelf. Wishes: a roof
+    (Fede), a rug (Elio).
+- **New kinds of site.** A brief can name one of the village's places (`hangout`) instead of a build zone, or no site
+  at all: then the pieces that count are the best group built together, each within 3 m of another. A counter here
+  and hedges across the village aren't a stall. Build mode shows a site-less brief in whichever zone you build, when
+  no brief belongs to that zone.
+- **Ticks keep coming after the musts**: a brief's checks stay live once its musts are met, so the last must ticks
+  too and a wish met afterwards still sparkles. Before, the last must's tick was lost.
+- Each brief has an example plan that meets every must (tested), and none brings in more than one new kind of check.
+- **Checked:**
+  - **Tested** (`godot/run_tests.sh`): the ten briefs are sound; every example plan builds and meets its musts; a
+    brief at a hangout counts only what stands there; "anywhere" counts only pieces together.
+  - **Played** (`play_commissions`, 6 checks, in `play_all.sh`): Ornella offers her request in conversation; build
+    mode in the village streets shows her brief with its wishes; two tables and four chairs tick both musts and her
+    permit is stamped; Gigia's stall doesn't count apart and does together; three stacked blocks make the plinth,
+    tall enough for the Sindaco's wish.
+  - **Not checked:** Fede's reading corner in play (tests only).
+
 ### Stage 7: tools and materials (shared; content for Monteforchetta)
 - **Tools have levels.** You start with an old hatchet and an old pick; Elio's shop sells the next one, for lire and
   metal, one level at a time:

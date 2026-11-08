@@ -9,10 +9,22 @@ static func site(o: Dictionary) -> Dictionary:
 	var zid := String(o.get("zone", ""))
 	return Data.zone(zid) if zid != "" else {}
 
+static func anywhere(o: Dictionary) -> bool: return String(o.get("zone", "")) == "" and String(o.get("hangout", "")) == ""
+
 static func here(o: Dictionary, placements: Array) -> Array:
+	var hid := String(o.get("hangout", ""))
+	if hid != "":
+		var h := Needs.hangout(Needs.hangouts(), hid)
+		return placements.filter(func(p): return not h.is_empty() and Needs.inside(p, h))
 	var z := site(o)
 	if z.is_empty(): return placements.duplicate()
 	return Validate.pieces_in_zone(z, placements)
+
+static func site_text(o: Dictionary) -> String:
+	var hid := String(o.get("hangout", ""))
+	if hid != "": return String(Needs.hangout(Needs.hangouts(), hid).get("at", ""))
+	if String(o.get("zone", "")) != "": return String(site(o).get("name", ""))
+	return String(cfg().get("anywhere", "anywhere in the village"))
 
 static func material(id: String) -> String:
 	var cost: Dictionary = Data.piece(id).get("cost", {})
@@ -107,11 +119,25 @@ static func check(c: Dictionary, o: Dictionary, pieces: Array, ctx: Dictionary) 
 	return {"label": String(c.get("label", "")), "check": String(c.get("check", "")), "ok": ok, "have": mini(have, need), "need": need,
 		"uids": hit.map(func(p): return int(p.uid)), "who": String(c.get("who", ""))}
 
-static func evaluate(o: Dictionary, ctx: Dictionary) -> Dictionary:
-	var pieces := here(o, ctx.get("placements", []))
+static func _judge(o: Dictionary, pieces: Array, ctx: Dictionary) -> Dictionary:
 	var musts: Array = o.get("musts", []).map(func(c): return check(c, o, pieces, ctx))
 	var wishes: Array = o.get("wishes", []).map(func(c): return check(c, o, pieces, ctx))
-	return {"musts": musts, "wishes": wishes, "done": not musts.is_empty() and musts.all(func(r): return r.ok), "met": musts.filter(func(r): return r.ok).size()}
+	return {"musts": musts, "wishes": wishes, "done": not musts.is_empty() and musts.all(func(r): return r.ok), "met": musts.filter(func(r): return r.ok).size(),
+		"wished": wishes.filter(func(r): return r.ok).size(), "uids": pieces.map(func(p): return int(p.uid))}
+
+static func evaluate(o: Dictionary, ctx: Dictionary) -> Dictionary:
+	var pieces := here(o, ctx.get("placements", []))
+	if not anywhere(o) or pieces.is_empty(): return _judge(o, pieces, ctx)
+	var best := {}
+	for g in Inauguration.groups(pieces, float(cfg().get("together", 3.0))):
+		var r := _judge(o, g, ctx)
+		if best.is_empty() or _better(r, best): best = r
+	return best
+
+static func _better(a: Dictionary, b: Dictionary) -> bool:
+	if int(a.met) != int(b.met): return int(a.met) > int(b.met)
+	if int(a.wished) != int(b.wished): return int(a.wished) > int(b.wished)
+	return a.uids.size() > b.uids.size()
 
 static func stamp(wishes: Array, c: Dictionary = {}) -> Dictionary:
 	var names: Array = (c if not c.is_empty() else cfg()).get("stamps", ["Approved", "Approved with thanks", "Approved with honours"])

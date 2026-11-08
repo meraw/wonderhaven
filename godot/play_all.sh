@@ -12,7 +12,7 @@ GODOT="${GODOT:-godot}"
 root="${1:-/tmp/wonderhaven-plays}"; shift || true
 mkdir -p "$root"; root="$(cd "$root" && pwd)"
 if [ $# -gt 0 ]; then lanes=("$@")
-else lanes=("play_full,play_full2" play_cove play_camera play_interiors play_shop play_sleep play_build play_build_clarity play_needs play_visits play_inauguration play_tools play_story play_tutorial play_core play_dialogue play_overlays play_map play_ui_shots play_load_away); fi
+else lanes=("play_full,play_full2" play_cove play_camera play_interiors play_shop play_sleep play_build play_build_clarity play_needs play_visits play_inauguration play_tools play_commissions play_story play_tutorial play_core play_dialogue play_overlays play_map play_ui_shots play_load_away); fi
 JOBS="${JOBS:-$(nproc)}"
 
 # The extra arguments and TIMEOUT a playthrough asks for on its "## Run:" line, and --island=<id> for a location's.

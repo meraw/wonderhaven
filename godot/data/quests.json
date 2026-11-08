@@ -1142,9 +1142,9 @@
    "id": "stones",
    "title": "A Plinth for the Sindaco",
    "giver": "percival",
-   "type": "collection",
+   "type": "building",
    "chapter": 1,
-   "description": "The Sindaco wants stone and copper wire for a plinth that lights up a bust of himself.",
+   "description": "The Sindaco wants a plinth on the castle steps for a bust of himself: stone from the old quarry, piled up somewhere it can be admired. Mostly by him.",
    "requires": {
     "quests": [
      "tool"
@@ -1156,6 +1156,7 @@
      "kind": "gather",
      "item": "stone",
      "count": 10,
+     "stage": 0,
      "text": "Mine 10 stone in the old quarry",
      "hint": {
       "x": -30,
@@ -1163,22 +1164,78 @@
      }
     },
     {
-     "id": "crystal",
-     "kind": "gather",
-     "item": "crystal",
-     "count": 2,
-     "text": "Find 2 lengths of copper wire (try the big street bins)",
+     "id": "plinth",
+     "kind": "commission",
+     "hangout": "castle",
+     "stage": 1,
+     "text": "Build the Sindaco's plinth on the castle steps",
+     "musts": [
+      {
+       "check": "pieces",
+       "any": [
+        "stoneBlock",
+        "foundation",
+        "pillar",
+        "column"
+       ],
+       "count": 3,
+       "label": "Three stone pieces"
+      },
+      {
+       "check": "taller",
+       "height": 2.0,
+       "label": "At least two metres tall"
+      }
+     ],
+     "wishes": [
+      {
+       "check": "taller",
+       "height": 3.0,
+       "who": "percival",
+       "label": "Taller than three metres"
+      },
+      {
+       "check": "provides",
+       "kind": "light",
+       "who": "bram",
+       "label": "A light on it"
+      },
+      {
+       "check": "provides",
+       "kind": "green",
+       "who": "fern",
+       "label": "Flowers round it"
+      }
+     ],
+     "buildHint": "Stone blocks stack: point at the top of one to put the next on it.",
      "hint": {
-      "x": -35,
-      "z": -10
-     }
+      "x": 22,
+      "z": -6
+     },
+     "plan": [
+      [
+       22,
+       -6,
+       "stoneBlock"
+      ],
+      [
+       22,
+       -6,
+       "stoneBlock"
+      ],
+      [
+       22,
+       -6,
+       "stoneBlock"
+      ]
+     ]
     },
     {
      "id": "tell",
      "kind": "talk",
      "npc": "percival",
      "final": true,
-     "text": "Bring them to the Sindaco"
+     "text": "Show the Sindaco his plinth"
     }
    ],
    "rewards": {
@@ -1193,7 +1250,7 @@
    "dialogue": {
     "offer": [
      "Geometra! A matter of civic importance. The village has no statue of its mayor.",
-     "A modest bust, on a modest plinth, with modest lights. Bring me stone from the old quarry, west of the bakery, and copper wire for the lights."
+     "A modest bust, on a modest plinth. On the castle steps, where everyone passes. Stone from the old quarry, west of the bakery. Pile it high. Modestly high."
     ],
     "acceptLabel": "For civic pride!",
     "declineLabel": "Is that really necessary?",
@@ -1204,10 +1261,10 @@
      "Necessary? Visitors need to know whom to thank. Me. They need to know to thank me."
     ],
     "progress": [
-     "Stone and copper wire, posthaste! Or slowhaste. Any haste."
+     "Three stones at least, two metres at least. Three would be better. Metres, I mean. Also stones."
     ],
     "complete": [
-     "Magnificent! The plinth will glow! I have prepared a small medal for you. It is a button. But it is a SHINY button."
+     "Magnificent! A plinth worthy of a bust worthy of a mayor. I have prepared a small medal for you. It is a button. But it is a SHINY button."
     ]
    }
   },
@@ -1604,6 +1661,348 @@
      "metal": 1,
      "crystal": 1
     }
+   }
+  },
+  {
+   "id": "tables",
+   "title": "Tables Outside the Bakery",
+   "giver": "mabel",
+   "type": "building",
+   "chapter": 1,
+   "description": "Ornella wants people to sit down with their bread instead of eating it walking off. Tables and seats outside her door, please.",
+   "requires": {
+    "quests": [
+     "bridge"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "tables",
+     "kind": "commission",
+     "hangout": "bakery",
+     "text": "Put tables and seats outside the bakery",
+     "musts": [
+      {
+       "check": "pieces",
+       "any": [
+        "table",
+        "desk"
+       ],
+       "count": 2,
+       "label": "Two tables"
+      },
+      {
+       "check": "provides",
+       "kind": "seat",
+       "count": 4,
+       "label": "Four seats"
+      }
+     ],
+     "wishes": [
+      {
+       "check": "provides",
+       "kind": "green",
+       "who": "fern",
+       "label": "Something green"
+      },
+      {
+       "check": "provides",
+       "kind": "shelter",
+       "who": "mabel",
+       "label": "A sunshade"
+      }
+     ],
+     "buildHint": "A chair faces the way you turn it: face it to the table.",
+     "hint": {
+      "x": -11,
+      "z": 0
+     },
+     "plan": [
+      [
+       -13,
+       -1,
+       "table"
+      ],
+      [
+       -13,
+       0,
+       "chair",
+       2
+      ],
+      [
+       -14,
+       -1,
+       "chair",
+       3
+      ],
+      [
+       -10,
+       -1,
+       "table"
+      ],
+      [
+       -10,
+       0,
+       "chair",
+       2
+      ],
+      [
+       -9,
+       -1,
+       "chair",
+       1
+      ]
+     ]
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "mabel",
+     "final": true,
+     "text": "Show Ornella her tables"
+    }
+   ],
+   "rewards": {
+    "harmony": 15,
+    "items": {
+     "coins": 20,
+     "bread": 2
+    }
+   },
+   "dialogue": {
+    "offer": [
+     "People buy my bread and eat it walking away. Walking! Like animals. Like boars, even.",
+     "Two tables outside the door, and four seats. Then they'll sit, and smell the next batch, and buy that too."
+    ],
+    "acceptLabel": "Tables it is",
+    "declineLabel": "Not today",
+    "accept": [
+     "Lovely. Anywhere outside the door, so long as I can see them from the counter."
+    ],
+    "decline": [
+     "They'll keep walking, then. Off into the sunset with my focaccia."
+    ],
+    "progress": [
+     "Two tables and four seats outside the door. Chairs facing the tables, please, not the wall."
+    ],
+    "complete": [
+     "Look at them, sitting! Chewing! Buying seconds! Here, bread for you. Sit down and eat it. Properly."
+    ]
+   }
+  },
+  {
+   "id": "stall",
+   "title": "A Stall for Gigia's Hazelnuts",
+   "giver": "fern",
+   "type": "building",
+   "chapter": 1,
+   "description": "Gigia wants a stall to sell her hazelnuts from, wherever you think people will pass, with something growing round it so it looks like a farm and not a shed.",
+   "requires": {
+    "quests": [
+     "dock"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "stall",
+     "kind": "commission",
+     "text": "Build Gigia a stall, anywhere in the village",
+     "musts": [
+      {
+       "check": "provides",
+       "kind": "stall",
+       "label": "A counter to sell from"
+      },
+      {
+       "check": "provides",
+       "kind": "green",
+       "count": 2,
+       "label": "Two green things round it"
+      }
+     ],
+     "wishes": [
+      {
+       "check": "recolored",
+       "who": "fern",
+       "label": "Painted cheerfully"
+      },
+      {
+       "check": "provides",
+       "kind": "seat",
+       "who": "mabel",
+       "label": "A bench for customers"
+      }
+     ],
+     "buildHint": "Anywhere in the village: it counts if the pieces stand together.",
+     "hint": {
+      "x": 9.5,
+      "z": -6
+     },
+     "plan": [
+      [
+       9,
+       -6,
+       "counter"
+      ],
+      [
+       8,
+       -6,
+       "hedge"
+      ],
+      [
+       11,
+       -6,
+       "hedge"
+      ]
+     ]
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "fern",
+     "final": true,
+     "text": "Tell Gigia her stall is up"
+    }
+   ],
+   "rewards": {
+    "harmony": 15,
+    "items": {
+     "coins": 25,
+     "seeds": 3
+    }
+   },
+   "dialogue": {
+    "offer": [
+     "The city bus brings people up now, and people buy hazelnuts. In theory.",
+     "I need a stall. A counter, and something growing round it, so it looks like a farm and not a shed. Put it wherever folk walk past. You'd know better than me. I only know trees."
+    ],
+    "acceptLabel": "I'll build it",
+    "declineLabel": "Maybe later",
+    "accept": [
+     "Wonderful. Anywhere in the village. Just keep the pieces together, so it looks like one stall and not a scattering."
+    ],
+    "decline": [
+     "The hazelnuts will wait. They're patient. Nuts usually are."
+    ],
+    "progress": [
+     "A counter, and two green things round it. Hedges, a flower bed, a little tree. Then people will stop."
+    ],
+    "complete": [
+     "A real stall! I'll put a sign up. HAZELNUTS. Then smaller: also seeds. Take these, for your trouble."
+    ]
+   }
+  },
+  {
+   "id": "corner",
+   "title": "A Reading Corner",
+   "giver": "tilly",
+   "type": "building",
+   "chapter": 1,
+   "description": "Fede wants somewhere outdoors to read the computer magazines her dad keeps throwing away: a seat, a light and a bookshelf, anywhere in the village.",
+   "requires": {
+    "quests": [
+     "dock"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "corner",
+     "kind": "commission",
+     "text": "Build a reading corner, anywhere in the village",
+     "musts": [
+      {
+       "check": "provides",
+       "kind": "seat",
+       "label": "Somewhere to sit"
+      },
+      {
+       "check": "provides",
+       "kind": "light",
+       "label": "A light to read by"
+      },
+      {
+       "check": "pieces",
+       "any": [
+        "bookshelf"
+       ],
+       "label": "A bookshelf"
+      }
+     ],
+     "wishes": [
+      {
+       "check": "provides",
+       "kind": "shelter",
+       "who": "tilly",
+       "label": "A roof, for rain"
+      },
+      {
+       "check": "pieces",
+       "any": [
+        "rug"
+       ],
+       "who": "bram",
+       "label": "A rug"
+      }
+     ],
+     "buildHint": "Anywhere in the village: it counts if the pieces stand together.",
+     "hint": {
+      "x": 16,
+      "z": 8
+     },
+     "plan": [
+      [
+       16,
+       9,
+       "bookshelf",
+       2
+      ],
+      [
+       16,
+       8,
+       "chair",
+       0
+      ],
+      [
+       17,
+       8,
+       "lamp"
+      ]
+     ]
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "tilly",
+     "final": true,
+     "text": "Show Fede her reading corner"
+    }
+   ],
+   "rewards": {
+    "harmony": 15,
+    "items": {
+     "coins": 25,
+     "crystal": 1
+    }
+   },
+   "dialogue": {
+    "offer": [
+     "My dad throws away every computer magazine the day the next one comes. I rescue them. I have forty-one.",
+     "I need somewhere to read them that isn't the caravan. A seat, a light, a bookshelf. Outside. Anywhere, really. Surprise me."
+    ],
+    "acceptLabel": "A reading corner, coming up",
+    "declineLabel": "Not now",
+    "accept": [
+     "Ace. Keep the bits together, or it's just a chair in a field."
+    ],
+    "decline": [
+     "Fine. I'll read under the duvet with a torch. Like a professional."
+    ],
+    "progress": [
+     "A seat, a light and a bookshelf, together. A roof would be nice. It rains on magazines."
+    ],
+    "complete": [
+     "Forty-one magazines and a lamp. This is the best day of 1998. Have some copper wire, I found it in issue twelve."
+    ]
    }
   },
   {
