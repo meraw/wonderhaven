@@ -51,3 +51,15 @@ static func _size(o: Node3D) -> Vector3:
 		box = bb if first else box.merge(bb)
 		first = false
 	return box.size
+
+func test_a_particular_lost_thing_turns_up_once():
+	var places: Array = Data.islands.filter(func(i): return Data.has_island(i.id)).map(func(i): return i.id)
+	for id in places:
+		Data.use_island(id)
+		for n in Data.layout.nodes:
+			if n.kind != "fragment": continue
+			var particular: bool = n.has("name") or WorldActions.lost_name(n) == WorldActions.LOST[0]
+			if particular: t.ok(not WorldActions.regrows(n), "%s, %s (%s) is found once, not every day" % [id, n.id, WorldActions.lost_name(n)])
+	Data.use_island("hearthglow")
+	var glasses: Array = Data.layout.nodes.filter(func(n): return n.kind == "fragment" and WorldActions.lost_name(n) == WorldActions.LOST[0])
+	t.eq(glasses.size(), 1, "one pair of the Sindaco's glasses in Monteforchetta")

@@ -7,7 +7,8 @@ extends RefCounted
 ## gives straw, labelled "Gather loose straw".
 const P := preload("res://scripts/world/palette.gd")
 const REGROW := {"chop": 180.0, "mine": 240.0, "clay": 150.0, "flowers": 180.0, "shake": 90.0, "fruit": 240.0, "fragment": 1440.0, "bin": 300.0, "forage": 300.0}
-const SQUIRREL_SPOTS := [[-8.4, -3.2], [-13.7, -3.3], [-7.2, -6.6]]
+const SQUIRREL_SPOTS := [[-8.4, -3.2], [-13.7, -3.3], [-15.4, -6.8]]
+const TROT := 2.6
 const LABELS := {"chop": "Chop tree", "mine": "Mine rock", "clay": "Dig clay", "fish": "Fish here", "flowers": "Pick flowers", "shake": "Shake the chestnut tree", "fruit": "Pick hazelnuts", "chest": "Open chest", "fragment": "Pick up the lost thing", "bin": "Dig through the bin", "forage": "Pick the porcini"}
 ## What the lost things turn out to be (lost_name gives each unnamed one its own); in Monteforchetta the first is
 ## the Sindaco's reading glasses. A layout's `lost` list replaces it there. A gathering node may also carry its own `label`, `hours` when it's out (a page blown about at
@@ -333,7 +334,7 @@ func refresh_node(n: Dictionary) -> void:
 
 func refresh_all() -> void:
 	for n in Data.layout.nodes: refresh_node(n)
-	refresh_gardens(); place_squirrels()
+	refresh_gardens(); place_squirrels(true)
 
 # ---- Gardens
 const SOIL := "7a5236"       # dry tilled earth
@@ -410,13 +411,13 @@ func _build_squirrels() -> void:
 		var s := Props.wild_boar()
 		s.scale = Vector3.ONE * 0.9
 		game.add_child(s)
-		var sq := {"n": n, "obj": s, "home": Vector2(SQUIRREL_SPOTS[n][0], SQUIRREL_SPOTS[n][1]), "t": randf() * 10.0, "pos": Vector2(SQUIRREL_SPOTS[n][0], SQUIRREL_SPOTS[n][1]), "up": 0.0}
+		var sq := {"n": n, "obj": s, "home": Vector2(SQUIRREL_SPOTS[n][0], SQUIRREL_SPOTS[n][1]), "t": randf() * 10.0, "pos": Vector2(SQUIRREL_SPOTS[n][0], SQUIRREL_SPOTS[n][1]), "at": Vector2(SQUIRREL_SPOTS[n][0], SQUIRREL_SPOTS[n][1]), "up": 0.0}
 		squirrels.append(sq)
-		game.add_interactable({"id": "squirrel%d" % n, "x": func(): return sq.pos.x, "z": func(): return sq.pos.y, "radius": 1.5, "object": s,
+		game.add_interactable({"id": "squirrel%d" % n, "x": func(): return sq.pos.x, "z": func(): return sq.pos.y, "radius": 1.5, "priority": 0.3, "object": s,
 			"available": func(): return not squirrel_fed(sq.n),
 			"label": func(): return "Offer a chestnut" if state().quests.get("squirrels", {}).get("status", "") == "active" and state().inventory.get("acorn", 0) > 0 else "Keep your distance from the boar",
 			"act": func(): feed_squirrel(sq)})
-	place_squirrels()
+	place_squirrels(true)
 
 func squirrel_fed(n: int) -> bool: return state().flags.get("squirrelsGone", false) or state().flags.get("squirrelFed%d" % n, false)
 
@@ -434,12 +435,22 @@ func feed_squirrel(sq: Dictionary) -> void:
 	place_squirrels()
 	game.story.event("feed")
 
-func place_squirrels() -> void:
+func place_squirrels(snap: bool = false) -> void:
 	for sq in squirrels:
-		if squirrel_fed(sq.n):
-			sq.home = Vector2(-18.5 + [-1.2, 0.6, 0.2][sq.n], -1.0 + [0.8, 0.0, -1.2][sq.n]); sq.up = 0.0   # back at the edge of the woods
-		else:
-			sq.home = Vector2(SQUIRREL_SPOTS[sq.n][0], SQUIRREL_SPOTS[sq.n][1]); sq.up = 0.0
+		if squirrel_fed(sq.n): sq.home = woods_home(sq.n)
+		else: sq.home = Vector2(SQUIRREL_SPOTS[sq.n][0], SQUIRREL_SPOTS[sq.n][1])
+		sq.up = 0.0
+		if snap: sq.at = sq.home
+
+static func woods_home(n: int) -> Vector2:
+	var bakery := Vector2(SQUIRREL_SPOTS[0][0], SQUIRREL_SPOTS[0][1])
+	var off := Vector2([-1.2, 0.6, 0.2][n], [0.8, 0.0, -1.2][n])
+	var best := {}
+	for w in Data.layout.get("decor", {}).get("woods", []):
+		if best.is_empty() or Vector2(float(w.x), float(w.z)).distance_to(bakery) < Vector2(float(best.x), float(best.z)).distance_to(bakery): best = w
+	if best.is_empty(): return Vector2(-18.5, -1.0) + off
+	var c := Vector2(float(best.x), float(best.z))
+	return c + (bakery - c).normalized() * float(best.r) * 0.45 + off * 1.5
 
 func update(dt: float) -> void:
 	var s := state()
@@ -468,11 +479,14 @@ func update(dt: float) -> void:
 			var sh: float = o.get_meta("shake") - dt; o.set_meta("shake", sh); o.rotation.z = sin(sh * 40.0) * 0.05
 	for sq in squirrels:
 		sq.t += dt
-		var r := 0.2 if sq.up > 0.0 else 0.9
-		sq.pos = sq.home + Vector2(sin(sq.t * 0.7 + sq.n) * r, cos(sq.t * 0.5 + sq.n * 2) * r)
-		var hop := absf(sin(sq.t * 5.0)) * 0.15
+		var to: Vector2 = sq.home - sq.at
+		var trotting := to.length() > 0.3
+		if trotting: sq.at += to.normalized() * minf(to.length(), TROT * dt)
+		var r := 0.0 if trotting else (0.2 if sq.up > 0.0 else 0.9)
+		sq.pos = sq.at + Vector2(sin(sq.t * 0.7 + sq.n) * r, cos(sq.t * 0.5 + sq.n * 2) * r)
+		var hop := absf(sin(sq.t * (11.0 if trotting else 5.0))) * (0.08 if trotting else 0.15)
 		sq.obj.position = Vector3(sq.pos.x, (sq.up if sq.up > 0.0 else Heightfield.height(sq.pos.x, sq.pos.y)) + hop, sq.pos.y)
-		sq.obj.rotation.y = atan2(cos(sq.t * 0.7 + sq.n) * 0.7, -sin(sq.t * 0.5 + sq.n * 2) * 0.5)
+		sq.obj.rotation.y = atan2(to.x, to.y) if trotting else atan2(cos(sq.t * 0.7 + sq.n) * 0.7, -sin(sq.t * 0.5 + sq.n * 2) * 0.5)
 	if not fishing.is_empty():
 		var mg = fishing.mg
 		var dip := (-0.12 + sin(game.time * 30.0) * 0.04) if mg.phase == "bite" else (sin(game.time * 12.0) * 0.05 if mg.phase == "reel" else sin(game.time * 2.0) * 0.02)

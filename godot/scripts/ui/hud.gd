@@ -161,8 +161,10 @@ func render_tracker() -> void:
 	if not e.tracked_valid(): e.retrack()
 	var act := e.active().filter(func(q): return e.here(q.id))   # requests on this island
 	var tracked = null
+	var lead_id := String(game.state.tracked)
+	if game.build != null and game.build.active and game.build.site_quest() != "": lead_id = game.build.site_quest()
 	for q in act:
-		if q.id == game.state.tracked: tracked = q
+		if q.id == lead_id: tracked = q
 	var show: Array = []
 	if tracked != null: show.append(tracked)
 	for q in act:
