@@ -107,6 +107,7 @@ func _build_vineyards() -> void:
 static func building_model(b: Dictionary, loc: Script = null, loc_fns: Array = []) -> Node3D:
 	var o: Node3D = loc.building(b) if loc != null and loc_fns.has("building") else null
 	if o != null: return o
+	if HouseKit.uses(b): return HouseKit.build(b)
 	match b.kind:
 		"workshop": return Props.workshop(b)
 		"castle": return Props.castle(b)

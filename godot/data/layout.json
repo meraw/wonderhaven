@@ -51,6 +51,8 @@
    "d": 5,
    "wall": "#e6b8a2",
    "roof": "#c26a3e",
+   "floors": 2,
+   "sign": "Panetteria Tealdi",
    "door": "S",
    "awning": "#c8323c",
    "navDoor": "bakeryDoor",
@@ -145,6 +147,8 @@
    "d": 5,
    "wall": "#efdfbd",
    "roof": "#c97445",
+   "floors": 2,
+   "balcony": true,
    "door": "S",
    "navDoor": "fernDoor",
    "interior": {
@@ -237,6 +241,10 @@
    "d": 6,
    "wall": "#d9bc8f",
    "roof": "#b9603c",
+   "floors": 2,
+   "shopfront": true,
+   "sign": "Giornali Tabacchi",
+   "shopFrame": "2f3e5c",
    "door": "S",
    "navDoor": "cottageDoor",
    "interior": {
@@ -339,6 +347,8 @@
    "d": 4,
    "wall": "#d6b083",
    "roof": "#c06a40",
+   "floors": 2,
+   "balcony": false,
    "door": "W"
   },
   {
@@ -351,6 +361,7 @@
    "d": 4,
    "wall": "#e8c77f",
    "roof": "#c47040",
+   "floors": 2,
    "door": "E",
    "navDoor": "gatehouse",
    "interior": {
@@ -398,6 +409,7 @@
    "d": 4,
    "wall": "#ecd9b6",
    "roof": "#c97445",
+   "floors": 1,
    "door": "W",
    "navDoor": "harborHut",
    "interior": {
@@ -1735,6 +1747,7 @@
  ],
  "roofStyle": "coppi",
  "houseStyle": {
+  "kit": true,
   "posts": false,
   "quoins": "d9cdb4",
   "cornice": "efe4cc",

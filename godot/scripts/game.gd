@@ -1169,7 +1169,7 @@ func _world_reactions(dt: float) -> void:
 		if a1 == a0 and (a1 == 1.0 or a1 < 0.001): continue
 		var fading := a1 < 0.99
 		for part in o.get_meta("fade_parts"):
-			var mi: MeshInstance3D = part[0]
+			var mi: GeometryInstance3D = part[0]
 			var m: Material = part[2] if fading else part[1]
 			if mi.material_override != m: mi.material_override = m
 			if not fading: continue

@@ -101,6 +101,44 @@ What it would take, beyond the lab:
 - **Camera:** buildings stop the camera through `Props.camera_blockers`; check the taller houses are covered.
 - **Speed:** measure a full street on a low-end machine before converting a whole location.
 
+## The house kit (conversion step three)
+Buildings are stored as a **kit of parts** (decision 3 above), not as whole houses: whole houses were 1.4 to 2.8 MB
+each, and most of that was the same windows, shutters and tiles repeated.
+- **The kit:** `tools/blender/house_kit.py` builds every part with the same code as the lab houses (`langhe_lane.House`)
+  and writes them all to `godot/assets/models/kit/langhe_kit.glb`: 233 KB and 3,432 triangles. The parts:
+  - a window, an iron grate, and a shutter leaf shut, ajar (110 and 135 degrees) and open;
+  - an arched door, an arched doorway with no leaf (for rooms you walk into), and a plain door;
+  - a balcony with its French window and geraniums;
+  - a shopfront, shut or with an open doorway;
+  - a chimney stack and cap;
+  - a coppo cap and pan;
+  - a wall lamp and a pot of flowers.
+
+  Rebuild it with `blender -b --factory-startup -P tools/blender/house_kit.py -- --out godot/assets/models/kit`.
+- **The assembler:** `HouseKit` (`godot/scripts/world/house_kit.gd`) builds a house from its layout entry:
+  - plaster walls to the footprint, the gable, floor bands and the cornice;
+  - a sandstone footing laid stone by stone, quoins if the place's house style has them;
+  - bays of windows on every floor, each with its shutters in a random position (seeded, so a house is the same
+    every time);
+  - the door or shopfront, a balcony, a wall lamp and pots;
+  - coppi laid tile by tile with a sagging ridge, rafter tails, a gutter, a downpipe and a chimney.
+
+  Repeated parts are drawn as instances, so a house is 20 to 27 draw batches and 13,000 to 24,000 triangles.
+- **In the layout:** a place opts in with `"kit": true` in its `houseStyle`, which applies to its cottages, shops and
+  huts. A building can set:
+  - `floors`;
+  - `balcony` (true or false);
+  - `shutters` and `doorColor`;
+  - `sign` and `shopFrame` (a shop, or a building with `shopfront`);
+  - `party`: sides shared with a neighbour, which get no windows, footing or overhang, for attached rows.
+- **What the game needed** (see "Putting a Blender building in the game for real" above):
+  - collision and walking still come from the footprint;
+  - rooms you walk into keep `Interiors`' walls and doorway, and everything above them fades while you're inside
+    (`Props.fade_parts` now fades instanced parts too);
+  - window glass is a part of its own, lit at night;
+  - coppi have a shader that takes the snow;
+  - the camera stops at the house's real height (`HouseKit.height`).
+
 ## Look tests from the paintover
 **Status: look-dev only, nothing in the game changed.** Another agent is improving the game's graphics at the same
 time, so converting the game to this look needs a fresh analysis of its state first. The tests answer four
