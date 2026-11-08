@@ -600,16 +600,22 @@ The user asked for Toriano's graphics, requests and systems to work like the oth
   windows, shutters, doors and a granite base by `metropolis/facades.gd` instead of the painted façade; rooms keep
   their walls and doorways, with fading kit windows above; shared walls stay blank; landmarks and the backdrop ring
   unchanged; a build for every villager. Before and after: `docs/models/conversion_toriano.jpg`.
-- **The side playthrough's first check** (loading the main story's save from the title screen) missed whenever the
-  machine was busy: the load reloads the scene, and the script only waited 30 frames. It now waits for the new scene
-  (`await_island`).
+- **The side playthrough's first check** (loading the main story's save from the title screen) missed every time it
+  ran straight after the story in `play_all.sh`, and passed when run again on the same saves: it looked for the title's
+  Load button and slot 3's button a fixed number of frames after start, and loading a save made elsewhere reloads the
+  scene. It now waits for each button to be on screen, then for the game to be playing in Toriano (following the new
+  scene), and notes what it found.
 - **Checked:** **tested** (379 passed): Toriano's systems (`test_alive`), its work day (`test_work_day`), every brief
   sound, every plan built and meeting its musts and every wish then met (`test_commission`), every city block and
   tenement wing with real windows that light at night, none opening onto a neighbour, rooms fading their upper windows,
-  the backdrops unchanged, and thirteen different builds (`test_house_kit`). **Played:** see the last line. **Seen:**
+  the backdrops unchanged, and thirteen different builds (`test_house_kit`). **Played:** a throwaway run in Toriano built a
+  bench and a lamp at the tram shelter's site (Ambrogio liked the bench: "A bench! Passengers will wait in comfort. Ding
+  ding! ♥") and slept on the square's bench into the next morning: Annoni opened them at dusk in her own words ("Gather
+  round, before the fog does. A bench and a lamp in the city, opened in our lifetime."), and the paper was *La Sera di
+  Toriano*, leading with the opening, with La Sera's verdict and a taste of Elvira's, and no Sindaco or approval. The
+  playthroughs: see the last line. **Seen:**
   number 14's courtyard, a city block from the street, the cathedral square from above and a street at night, before and
-  after, and the cast lineup (a bin in the look-dev scene hides the last villager). **Not checked:** an evening opening
-  and a morning paper in Toriano in play (tests only); frame rate on a real graphics card with the city's windows (4,087
+  after, and the cast lineup (a bin in the look-dev scene hides the last villager). **Not checked:** frame rate on a real graphics card with the city's windows (4,087
   windows, about 17,000 instanced parts in all, drawn a few batches per building); the landmarks restyled with the kit (not done).
 
 ## Playtest fixes (third playtest notes, 08/11)

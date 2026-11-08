@@ -57,12 +57,29 @@ const SKIPS := ["metropolis_skip1", "metropolis_skip2", "metropolis_skip3", "met
 func play() -> void:
 	lighten()
 	await frames(20)
-	var title_load: Control = game.screens.find_child("btn_load", true, false)
-	if title_load: await click(title_load.get_global_rect().get_center()); await frames(10)
-	var l3: Control = game.screens.find_child("load_slot3", true, false)
+	var title_load: Control = null
+	for n in 300:
+		title_load = game.screens.find_child("btn_load", true, false)
+		if title_load and title_load.is_visible_in_tree(): break
+		await frames(2)
+	note("title: mode %s, island %s, load button %s" % [game.mode, Data.island, title_load != null])
+	if title_load: await click(title_load.get_global_rect().get_center())
+	var l3: Control = null
+	for n in 300:
+		l3 = game.screens.find_child("load_slot3", true, false)
+		if l3 and l3.is_visible_in_tree(): break
+		await frames(2)
+	note("load list: slot 3 %s" % [l3 != null])
 	if l3:
+		var old := game.get_instance_id()
 		await click(l3.get_global_rect().get_center())
-		if not await await_island("metropolis", 120.0): await frames(30)
+		var t0 := Time.get_ticks_msec()
+		while Time.get_ticks_msec() - t0 < 120000:
+			await frames(2)
+			var cur = get_tree().current_scene
+			if cur != null and cur.get_instance_id() != old and cur.get("started") == true: game = cur
+			if is_instance_valid(game) and game.mode == "explore" and Data.island == "metropolis": break
+		await frames(20)
 	check("loaded", "the main story's save loads from the title screen, in Toriano", game.mode == "explore" and Data.island == "metropolis" and done("angel"), "mode %s, island %s, angel %s" % [game.mode, Data.island, status("angel")])
 	if game.mode != "explore": return
 	await frames(20)
