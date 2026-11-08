@@ -52,6 +52,10 @@ static func sanitize(a: Dictionary) -> Dictionary:
 	col.call("skin"); pick.call("eyeShape", A.EYE_SHAPES); col.call("eyeColor"); pick.call("hair", A.HAIR_STYLES); col.call("hairColor"); pick.call("mouth", A.MOUTHS)
 	pick.call("top", A.TOPS); col.call("topColor"); pick.call("bottom", A.BOTTOMS); col.call("bottomColor"); pick.call("shoes", A.SHOES); col.call("shoesColor")
 	pick.call("hat", A.HATS); col.call("hatColor"); pick.call("accessory", A.ACCESSORIES)
+	var bd = a.get("body", {})
+	if bd is Dictionary and not bd.is_empty():
+		out["body"] = {"height": clampf(float(bd.get("height", 1.0)), 0.88, 1.12), "width": clampf(float(bd.get("width", 1.0)), 0.88, 1.15),
+			"belly": clampf(float(bd.get("belly", 0.0)), 0.0, 1.0)}
 	return out
 
 ## What to draw: a clothing variant (Data.appearance.variants, a location's own piece) becomes its base shape in its
@@ -123,7 +127,10 @@ func set_appearance(app: Dictionary) -> void:
 	appearance = sanitize(app)
 	var a := resolve(appearance)
 	for c in get_children(): c.queue_free(); remove_child(c)
-	body = Node3D.new(); add_child(body)
+	var shape := Node3D.new(); shape.name = "shape"; add_child(shape)
+	var bd: Dictionary = a.get("body", {})
+	shape.scale = Vector3(float(bd.get("width", 1.0)), float(bd.get("height", 1.0)), float(bd.get("width", 1.0)))
+	body = Node3D.new(); shape.add_child(body)
 	var skin = P.smooth(a.skin); var top = a.topColor; var bottom = a.bottomColor; var shoes = a.shoesColor
 	var bare_legs: bool = a.bottom in ["shorts", "skirt", "dress"]
 	var dark := func(c, k: float = 0.25) -> Color: return Color(c).darkened(k)
@@ -131,30 +138,34 @@ func set_appearance(app: Dictionary) -> void:
 	for s in [-1, 1]:
 		var hip := Node3D.new(); hip.position = Vector3(s * 0.1, 0.34, 0); body.add_child(hip)
 		if a.bottom == "jeans":
-			_m(_lathe("jeans_leg", JEANS_LEG), bottom, hip, Vector3.ZERO)
-			_m(P.torus(0.096, 0.014, 32), Color(bottom).lightened(0.18), hip, Vector3(0, -0.245, 0))   # turned-up hem
+			_m(_lathe("jeans_leg", JEANS_LEG), P.denim(bottom), hip, Vector3.ZERO)
+			_m(P.torus(0.096, 0.014, 32), P.denim(Color(bottom).lightened(0.18)), hip, Vector3(0, -0.245, 0))
 		else: _m(_lathe("leg", LEG), skin if bare_legs else bottom, hip, Vector3.ZERO)
 		if a.bottom == "shorts": _m(_lathe("shorts_leg", SHORTS_LEG), bottom, hip, Vector3.ZERO)
 		if a.bottom == "pants": _m(P.torus(0.066, 0.012, 32), dark.call(bottom, 0.15), hip, Vector3(0, -0.245, 0))
 		if a.shoes == "sandals":
 			_m(P.sphere(0.075, 28, 18), skin, hip, Vector3(0, -0.3, 0.035), Vector3(0.9, 0.5, 1.3))
-			_m(P.rbox(0.15, 0.035, 0.24, 0.015), shoes, hip, Vector3(0, -0.335, 0.03))
-			_m(P.torus(0.06, 0.012, 32), shoes, hip, Vector3(0, -0.3, 0.06), Vector3(1, 1, 0.8))
+			_m(P.rbox(0.15, 0.035, 0.24, 0.015), P.leather(shoes), hip, Vector3(0, -0.335, 0.03))
+			_m(P.torus(0.06, 0.012, 32), P.leather(shoes), hip, Vector3(0, -0.3, 0.06), Vector3(1, 1, 0.8))
 		else:
-			_m(P.sphere(0.1, 28, 18), shoes, hip, Vector3(0, -0.29, 0.035), Vector3(0.85, 0.55, 1.3))
-			_m(P.rbox(0.17, 0.04, 0.27, 0.018), dark.call(shoes, 0.3), hip, Vector3(0, -0.33, 0.035))
+			var upper = shoes if a.shoes == "sneakers" else P.leather(shoes)
+			_m(P.sphere(0.1, 28, 18), upper, hip, Vector3(0, -0.29, 0.035), Vector3(0.85, 0.55, 1.3))
+			_m(P.rbox(0.17, 0.04, 0.27, 0.018), P.leather(dark.call(shoes, 0.3)), hip, Vector3(0, -0.33, 0.035))
 			if a.shoes == "sneakers":
 				_m(P.sphere(0.06, 28, 18), dark.call(shoes, 0.08), hip, Vector3(0, -0.3, 0.11), Vector3(1, 0.55, 0.9))
 			if a.shoes == "boots":
-				_m(P.cyl(0.075, 0.08, 0.15, 24), shoes, hip, Vector3(0, -0.22, 0))
-				_m(P.torus(0.078, 0.016, 32), dark.call(shoes, 0.2), hip, Vector3(0, -0.15, 0))
+				_m(P.cyl(0.075, 0.08, 0.15, 24), P.leather(shoes), hip, Vector3(0, -0.22, 0))
+				_m(P.torus(0.078, 0.016, 32), P.leather(dark.call(shoes, 0.2)), hip, Vector3(0, -0.15, 0))
 		if s < 0: leg_l = hip
 		else: leg_r = hip
 	# Torso: a soft bell shape in the top's colour, with the bottom garment over the hips.
 	var torso_col = bottom if a.top == "overalls" else top
 	_m(_lathe("torso", TORSO, 0.86), top, body, Vector3.ZERO)
+	var belly := float(bd.get("belly", 0.0))
+	var tummy: MeshInstance3D = null
+	if belly > 0.01: tummy = _m(P.sphere(0.2, 24, 16), top, body, Vector3(0, 0.43, 0.05 + 0.04 * belly), Vector3(1.0 + 0.05 * belly, 0.82 + 0.12 * belly, 0.72 + 0.28 * belly))
 	if a.bottom in ["pants", "shorts", "jeans"] or a.top == "overalls":
-		_m(_lathe("waist", WAIST, 0.87), bottom, body, Vector3.ZERO)
+		_m(_lathe("waist", WAIST, 0.87), P.denim(bottom) if a.bottom == "jeans" or a.top == "overalls" else bottom, body, Vector3.ZERO)
 		_m(P.torus(0.223, 0.012, 40), dark.call(bottom, 0.2), body, Vector3(0, 0.42, 0), Vector3(1, 1, 0.87))
 	if a.bottom == "skirt": _m(_lathe("skirt", SKIRT, 0.88), bottom, body, Vector3.ZERO); _m(P.torus(0.285, 0.012, 40), dark.call(bottom, 0.18), body, Vector3(0, 0.243, 0), Vector3(1, 1, 0.88))
 	if a.bottom == "dress": _m(_lathe("dress", DRESS, 0.88), top, body, Vector3.ZERO); _m(P.torus(0.325, 0.014, 40), Color(top).lightened(0.3), body, Vector3(0, 0.165, 0), Vector3(1, 1, 0.88))
@@ -165,10 +176,10 @@ func set_appearance(app: Dictionary) -> void:
 			_m(P.torus(0.105, 0.03, 32), dark.call(top, 0.12), body, Vector3(0, 0.71, 0.0), Vector3(1, 1, 0.86))
 			_m(P.torus(0.213, 0.022, 40), dark.call(top, 0.12), body, Vector3(0, 0.3, 0), Vector3(1, 1, 0.86))
 		"overalls":
-			_m(P.rbox(0.25, 0.22, 0.06, 0.03), torso_col, body, Vector3(0, 0.5, 0.17), Vector3.ONE, Vector3(-0.12, 0, 0))
+			_m(P.rbox(0.25, 0.22, 0.06, 0.03), P.denim(torso_col), body, Vector3(0, 0.5, 0.17), Vector3.ONE, Vector3(-0.12, 0, 0))
 			_m(P.rbox(0.09, 0.06, 0.02, 0.01), dark.call(torso_col, 0.15), body, Vector3(0, 0.5, 0.205), Vector3.ONE, Vector3(-0.12, 0, 0))
 			for s in [-1, 1]:
-				_m(P.rbox(0.045, 0.2, 0.3, 0.015), torso_col, body, Vector3(s * 0.09, 0.62, 0.0), Vector3.ONE, Vector3(0, 0, -s * 0.12))
+				_m(P.rbox(0.045, 0.2, 0.3, 0.015), P.denim(torso_col), body, Vector3(s * 0.09, 0.62, 0.0), Vector3.ONE, Vector3(0, 0, -s * 0.12))
 				_m(P.sphere(0.018, 12, 8), P.GOLD, body, Vector3(s * 0.085, 0.585, 0.195))
 		"tunic":
 			_m(_lathe("tunic_hem", TUNIC_HEM, 0.87), top, body, Vector3.ZERO)
@@ -286,6 +297,15 @@ func set_appearance(app: Dictionary) -> void:
 			_m(P.rbox(0.14, 0.08, 0.012, 0.01), dark.call(ap, 0.08), body, Vector3(0, 0.28, 0.26), Vector3.ONE, Vector3(-0.22, 0, 0))
 			_m(P.torus(0.115, 0.012, 24), ap, body, Vector3(0, 0.69, 0), Vector3(1, 1, 0.86))
 			_m(P.torus(0.226, 0.012, 40), ap, body, Vector3(0, 0.44, 0), Vector3(1, 1, 0.87))
+	_follow_belly(tummy, belly)
+
+func _follow_belly(tummy: MeshInstance3D, belly: float) -> void:
+	if tummy == null: return
+	for mi in body.get_children():
+		if not (mi is MeshInstance3D) or mi == tummy: continue
+		var p: Vector3 = (mi as MeshInstance3D).position
+		if p.z > 0.12 and p.y > 0.22 and p.y < 0.68:
+			(mi as MeshInstance3D).position.z = p.z + 0.1 * belly * maxf(0.0, 1.0 - absf(p.y - 0.43) / 0.25)
 
 func apply_layer() -> void:
 	for m in find_children("*", "VisualInstance3D", true, false): m.layers = vis_layer
@@ -369,10 +389,14 @@ static var _hair_shader: Shader
 static var _hair_mats: Dictionary = {}
 static var _hair_caps: Dictionary = {}
 
+static func hair_code() -> String:
+	if not P.real: return HAIR_SHADER
+	return P.shader_code(HAIR_SHADER.replace("\tRIM = 0.25;\n\tRIM_TINT = 0.8;\n", "").replace("band * 0.7", "band * 0.35"), 0.45, 0.4, 1.0)
+
 static func hair_material(color) -> ShaderMaterial:
 	var key := str(color)
 	if _hair_mats.has(key): return _hair_mats[key]
-	if _hair_shader == null: _hair_shader = Shader.new(); _hair_shader.code = HAIR_SHADER
+	if _hair_shader == null: _hair_shader = Shader.new(); _hair_shader.code = hair_code()
 	var m := ShaderMaterial.new(); m.shader = _hair_shader
 	m.set_shader_parameter("color", Color(color))
 	_hair_mats[key] = m

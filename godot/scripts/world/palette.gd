@@ -19,7 +19,8 @@ static var _real_tex: Dictionary = {}
 const PAINTED_MODES := "diffuse_lambert_wrap, specular_disabled"
 const REAL_MODES := "diffuse_burley, specular_schlick_ggx"
 const REAL_TEX := {"plaster": ["plaster", 1.4, 1.1], "wood": ["wood", 1.2, 0.8], "stone": ["stone", 0.9, 1.4],
-	"fabric": ["knit", 0.12, 1.4], "paving": ["paving", 4.0, 0.4]}
+	"fabric": ["knit", 0.12, 1.4], "paving": ["paving", 4.0, 0.4], "denim": ["denim", 0.14, 1.6],
+	"leather": ["leather", 0.2, 1.4]}
 const REAL_ROUGHNESS := {"mottle": 0.85, "smooth": 0.5}
 const TEX_GAIN := 1.2
 const REAL_SPECULAR := {"smooth": 0.5}
@@ -66,6 +67,8 @@ static func stone(color) -> StandardMaterial3D: return detailed(color, "stone")
 static func fabric(color) -> StandardMaterial3D: return detailed(color, "fabric")
 static func smooth(color) -> StandardMaterial3D: return detailed(color, "smooth")
 static func paving(color) -> StandardMaterial3D: return detailed(color, "paving") if real else stone(color)
+static func denim(color) -> StandardMaterial3D: return detailed(color, "denim") if real else fabric(color)
+static func leather(color) -> StandardMaterial3D: return detailed(color, "leather") if real else fabric(color)
 
 # Triplanar scale (repeats per metre) for each kind; textures are grey multipliers close to 1 so colours stay true.
 const DETAIL_SCALE := {"mottle": 0.6, "plaster": 0.45, "wood": 1.1, "stone": 0.9, "fabric": 4.0}

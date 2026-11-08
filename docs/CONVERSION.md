@@ -101,17 +101,39 @@ own cobble colours, and `views.sh` with `measure_views.py` for before-and-after 
        brightness before the conversion.
 
      Places without the kit keep the old buildings. Before and after: `docs/models/conversion_step3_c.jpg`.
-4. **Characters:**
-   - fabric chosen per garment (knit, denim, leather) instead of knit for everything;
-   - hair material;
-   - villagers with bodies of their own (silhouettes).
+4. **Characters.** Done:
+   - **fabric per garment:** jeans and overalls are denim, shoes, boots and sandals leather, and tops, trousers and
+     trainers stay knit (`Palette.denim`, `Palette.leather`);
+   - **hair:** real specular, with the painted highlight band halved and the old rim fill removed, like every other
+     material since step one (`Chibi.hair_code`);
+   - **bodies of their own:** a villager's appearance can set a `body` (`height`, `width`, `belly`, kept within cute
+     limits). The shape sits on a node of its own, so walking, sitting and every other pose are unchanged, and
+     front details (an apron, a tie, buttons) move forward over a belly. Monteforchetta's cast and the Cove's have
+     builds: a short, round Sindaco, a tall, lean electrician, a small computer whiz, a stocky baker and bus driver.
+     The player keeps the standard body.
+
+     Before and after: `docs/models/conversion_step4_6.jpg`.
 5. **Other locations.** Boccapioppo, Toriano and Casalrana get the new materials through `Palette` automatically.
-   Their own buildings and shaders are their owners' to convert, the same way.
-6. **Performance:**
-   - frame rate on real hardware (only measurable on the user's machines);
-   - texture memory;
-   - a quality setting for slower machines (possibly the painted look);
-   - the compatibility renderer.
+   Their own buildings and shaders are their owners' to convert, the same way: `HouseKit` and `Landmarks` are there
+   for them (`"kit": true` in a layout's `houseStyle`).
+6. **Performance.** Done as far as it can be from here:
+   - **a quality setting:** Settings has "Simpler graphics, for slower computers". It turns off screen-space
+     reflections, contact shadows (SSAO) and multisample anti-aliasing, and gives the sun two shadow cascades out to
+     45 m instead of four out to 70 m. It applies at once and is saved with the other settings.
+   - **what a frame costs,** measured in a wide view of Monteforchetta (software Vulkan, 1280×720):
+
+     | | Texture memory | Video memory | Draw calls | Triangles |
+     | --- | --- | --- | --- | --- |
+     | Before step three | 206 MB | 272 MB | 5,079 | 5.7 million |
+     | Now, full graphics | 213 MB | 288 MB | 4,632 | 6.2 million |
+     | Now, simpler graphics | 101 MB | 174 MB | 2,447 | 4.3 million |
+
+     The kit houses added 7 MB of textures and about 10% more triangles, but fewer draw calls, because their parts
+     are drawn as instances. Most of the triangles are the sun's shadow passes.
+   - **the compatibility renderer:** every shader compiles, and the houses, church and piazza draw correctly. As
+     before, that renderer is a little brighter and has no screen-space reflections.
+   - **not measured: frame rate on real hardware.** Software rendering here runs at about one frame a second
+     whatever the settings, so the numbers above are the guide until the game runs on a real card.
 
 ## Working alongside the graphics agent
 The other agent works on light and colour, in `daylight.gd`, `terrain.gd`'s environment and `atmosphere.gd`. The
