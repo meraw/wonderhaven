@@ -42,6 +42,7 @@ Days, gathering, money and requests serve that loop.
   time at livelier ones. At piazza level 3 people gather in the evening with music; later a market day comes every
   fifth day, with sellers at the stalls you built.
 - **Tastes**: villagers like certain pieces and colours; building them near their homes earns hearts and a comment.
+  *Liveliness's music, the market day, tastes and an album of openings are in: see `docs/STATUS.md`.*
 
 ## 2. Commissions: briefs with checks
 Requests that build become commissions:

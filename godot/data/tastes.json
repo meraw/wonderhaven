@@ -1,0 +1,18 @@
+{
+  "_doc": "Villagers' tastes (Tastes, scripts/systems/tastes.gd). Each villager likes some pieces and some paint colours. A piece they like, or a piece painted a colour they like, put up within `radius` metres of their spot (`near`: one of the layout's hangouts, or [x, z]) earns a heart and their `line` once a day ({piece} is the piece's name). The morning paper gives away one taste nobody has heard yet (`gossip`), and the bag lists the tastes you know. At an inauguration, a villager who likes a piece in what's opened cheers for it.",
+  "radius": 8.0,
+  "tastes": {
+    "fern": {"near": "gigia", "pieces": ["hedge", "flowerBed", "tree", "fence"], "colours": ["#7bd389", "#5cb85c"],
+      "line": "Oh, a {piece}! You do know me.", "gossip": "Overheard: Gigia can't walk past a hedge without patting it. Green paint makes her weep."},
+    "bram": {"near": [-6.6, 10.0], "pieces": ["lamp", "streetlight", "poweredLamp", "railLantern"], "colours": ["#ffd166"],
+      "line": "A {piece}! Proper wiring, I hope. Lovely.", "gossip": "Overheard: Elio stops to admire every lamp in the village, lit or not. Yellow is his favourite colour. He says it's 'the colour of current'."},
+    "percival": {"near": "castle", "pieces": ["statue", "pillar", "column", "stoneArch"], "colours": ["#e86f5c"],
+      "line": "A {piece}! Dignified. Like me.", "gossip": "Overheard: the Sindaco believes every village needs more columns and statues. Red, he says, is the colour of leadership."},
+    "tilly": {"near": "piazza", "pieces": ["poweredLamp", "enamelSign", "windmill", "signpost"], "colours": ["#6cc4ff", "#b59cff"],
+      "line": "Ooh, a {piece}! That's going on the website.", "gossip": "Overheard: Fede photographs every sign and windmill for the website. Blue and lilac, she says, look best on a screen."},
+    "mabel": {"near": "bakery", "pieces": ["bench", "table", "flowerBed", "counter"], "colours": ["#ff8fab"],
+      "line": "A {piece}! My customers will love it.", "gossip": "Overheard: Ornella wants benches and tables everywhere people might eat bread. Which is everywhere. And she adores pink."},
+    "captain": {"near": "belvedere", "pieces": ["bench", "roof", "signpost", "streetlight"], "colours": ["#6cc4ff"],
+      "line": "A {piece}, at my stop! Now that's a service.", "gossip": "Overheard: Aldo would like a bench and a roof at every bus stop in the province. Painted bus blue, ideally."}
+  }
+}

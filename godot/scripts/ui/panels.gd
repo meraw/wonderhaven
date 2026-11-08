@@ -106,6 +106,11 @@ func _wrap(text: String, size: int = 14, color: Color = UiTheme.INK2) -> Label:
 	var l := UiTheme.label(text, size, color); l.autowrap_mode = TextServer.AUTOWRAP_WORD; l.custom_minimum_size.x = 780
 	return l
 
+func _taste_place(id: String) -> String:
+	var near = Tastes.of(id).get("near", null)
+	if near is String: return String(Needs.hangout(Needs.hangouts(), String(near)).get("name", near)).to_lower()
+	return "home"
+
 func inventory() -> void:
 	open_panel("inventory", "🎒 Your Bag")
 	var grid := GridContainer.new(); grid.columns = 5; grid.add_theme_constant_override("h_separation", 10); grid.add_theme_constant_override("v_separation", 10); body.add_child(grid)
@@ -139,6 +144,10 @@ func inventory() -> void:
 	for n in Data.npcs:
 		if game.state.relationships.has(n.id):
 			body.add_child(UiTheme.label("%s — %s   %s" % [n.name, n.title, "♥".repeat(int(game.state.relationships[n.id].get("hearts", 0)))], 15))
+			if Tastes.known(game.state, String(n.id)) and not Tastes.of(String(n.id)).is_empty():
+				var tl := _wrap("      Likes %s, near %s" % [Tastes.describe(String(n.id)), _taste_place(String(n.id))], 13, UiTheme.INK2)
+				tl.name = "taste_" + String(n.id)
+				body.add_child(tl)
 
 ## A villager's shop: buy bundles and blueprints with coins, or sell them what they want.
 func shop(npc_id: String, tab: String = "buy") -> void:
@@ -163,7 +172,7 @@ func shop(npc_id: String, tab: String = "buy") -> void:
 			row.add_child(b)
 	else:
 		var list := Shop.sellable(s, npc_id)
-		var wants: Array = d.get("buys", {}).keys().map(func(id): return "%s %s (%s each)" % [Data.resources[id].icon, Data.resources[id].name, Money.lire(Shop.sell_price(npc_id, id))])
+		var wants: Array = d.get("buys", {}).keys().map(func(id): return "%s %s (%s each)" % [Data.resources[id].icon, Data.resources[id].name, Money.lire(Shop.sell_price(npc_id, id, game.state))])
 		body.add_child(_wrap("%s buys: %s." % [Data.npc(npc_id).name, ", ".join(wants)]))
 		if list.is_empty(): body.add_child(_wrap("You don't have anything %s wants right now." % Data.pron(npc_id), 15, UiTheme.INK))
 		for e in list:
@@ -310,12 +319,26 @@ func progress() -> void:
 	var bar := ProgressBar.new(); bar.custom_minimum_size = Vector2(780, 20); bar.show_percentage = false; bar.max_value = nx.at if not nx.is_empty() else 1; bar.value = h if not nx.is_empty() else 1; body.add_child(bar)
 	body.add_child(_wrap("The Sindaco's approval rating grows when you help villagers, finish requests, build something new for the first time and fix up the village. He takes the credit; you get the rewards."))
 	_village_why(h)
+	_openings()
 	var best := maxi(h, int(game.state.get("approval_best", h)))
 	for u in Data.harmony_unlocks:
 		var got: bool = best >= u.at
 		var v := _card(Color("f3fff6") if got else Color.WHITE)
 		v.add_child(UiTheme.label(("🌟 " if got else "🔒 ") + u.title + ("   Unlocked" if got else "   at %d approval" % int(u.at)), 16))
 		v.add_child(_wrap(u.desc, 13))
+
+func _openings() -> void:
+	var list: Array = game.state.get("openings", []) if game.state.get("openings") is Array else []
+	if list.is_empty(): return
+	var v := _card(Color("fffaf0"))
+	v.name = "openings"
+	v.add_child(UiTheme.label("🎀 Openings", 16))
+	var recent: Array = list.slice(maxi(list.size() - 6, 0))
+	recent.reverse()
+	for o in recent:
+		var l := _wrap("Day %d · %s %s · %s" % [int(o.get("day", 0)), String(o.get("what", "")), String(o.get("place", "")), String(o.get("grade", ""))], 13, UiTheme.INK)
+		v.add_child(l)
+	if list.size() > 6: v.add_child(_wrap("And %d before those." % (list.size() - 6), 12, UiTheme.INK2))
 
 func _village_why(h: int) -> void:
 	var hs := Needs.hangouts()

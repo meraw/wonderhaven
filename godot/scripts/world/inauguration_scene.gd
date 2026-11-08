@@ -40,7 +40,8 @@ func run() -> void:
 	var speaker = game.npcs.get(Inauguration.speaker())
 	var crowd: Array = game.npcs.values().filter(func(a): return a != speaker and a.present)
 	var lines := Inauguration.speech(f, hs, c, [randf(), randf(), randf()])
-	var reacts := Inauguration.reactions(f, crowd.map(func(a): return String(a.def.id)), c, randf())
+	var fans: Dictionary = Tastes.fans(group) if WorkDay.on(Data.island) else {}
+	var reacts := Inauguration.reactions(f, crowd.map(func(a): return String(a.def.id)), c, randf(), fans)
 	var st := {}
 	if watch() and speaker != null and speaker.present:
 		var dyn: Array = game.walk.dynamic
@@ -55,8 +56,10 @@ func _finish(f: Dictionary, g: float, c: Dictionary, reacts: Array, lines: Array
 	var rec := WorkDay.record(game.state)
 	rec["opened"] = Inauguration.summary(f, g, c)
 	rec["placed"] = []
+	Inauguration.remember(game.state, rec.opened)
 	for r in reacts:
 		if r.heart: game.story.add_hearts(String(r.npc), 1)
+		if r.get("taste", false): Tastes.learn(game.state, String(r.npc))
 	last = {"what": String(f.what), "place": String(f.place), "hangout": String(f.hangout), "grade": Inauguration.grade_text(g, c), "lines": lines,
 		"reactions": reacts, "played": played, "skipped": skipping, "uids": f.uids}
 	game.emit_event("inauguration", last)

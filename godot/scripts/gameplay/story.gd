@@ -29,7 +29,9 @@ func _on_event(type: String, data: Dictionary) -> void:
 	if type == "gain": handle(engine.on_gain(data.items))
 	if type == "rode": event("ride"); event("ride:" + String(data.to))   # a ride between stops, and where to
 	if type == "build":
-		if data.get("action", "") == "place": first_of_kind(data.pl.id)
+		if data.get("action", "") == "place":
+			first_of_kind(data.pl.id)
+			tastes_for(data.pl)
 		handle(engine.refresh())
 		commission_ticks(String(data.get("action", "")) != "load")
 
@@ -39,6 +41,16 @@ func path_across(id: String) -> Dictionary:
 	var r := Validate.path_across(Data.zone(id), game.walk)
 	if r.ok: game.state.crossings[id] = r.path.map(func(c): return [c.x, c.y])
 	return r
+
+func tastes_for(pl: Dictionary) -> void:
+	if not WorkDay.on(Data.island): return
+	for r in Tastes.pleased(game.state, pl, game.npcs.keys()):
+		var a = game.npcs.get(String(r.npc))
+		if a == null or not a.present: continue
+		add_hearts(String(r.npc), 1)
+		game.toast("%s: %s ♥" % [String(a.def.name).get_slice(" ", 0), String(r.line)], "good", 3.2)
+		a.character.play("clap")
+		game.emit_event("taste", {"npc": String(r.npc), "piece": String(pl.id), "line": String(r.line)})
 
 var ticked := {}
 

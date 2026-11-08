@@ -173,27 +173,35 @@ static func mood(f: Dictionary) -> String:
 	if not f.needs.is_empty() or int(f.usable) > 0: return "cheer"
 	return "polite"
 
-static func reactions(f: Dictionary, crowd: Array, c: Dictionary, roll: float) -> Array:
+static func reactions(f: Dictionary, crowd: Array, c: Dictionary, roll: float, fans: Dictionary = {}) -> Array:
 	var m := mood(f)
 	var out: Array = []
-	var thanked := -1
+	var spoke := {}
 	for i in crowd.size():
 		var id := String(crowd[i])
 		var anim := "shrug" if m == "puzzled" else ("clap" if m == "polite" or i % 2 == 1 else "celebrate")
 		var r := {"npc": id, "mood": m, "anim": anim, "line": "", "heart": false}
 		if id == String(f.who) and id != String(c.get("speaker", "")) and m != "puzzled":
-			r.line = _pick(c.get("thanks", []), roll); r.heart = true; r.anim = "celebrate"; thanked = i
+			r.line = _pick(c.get("thanks", []), roll); r.heart = true; r.anim = "celebrate"; spoke[i] = true
+		elif fans.has(id) and id != String(c.get("speaker", "")):
+			r.line = String(fans[id]); r.heart = true; r.anim = "celebrate"; r["taste"] = true; spoke[i] = true
 		out.append(r)
 	var others: Array = []
 	for i in out.size():
-		if i != thanked: others.append(i)
-	if not others.is_empty():
+		if not spoke.has(i): others.append(i)
+	if not others.is_empty() and spoke.size() < 2:
 		var k: int = others[mini(int(clampf(roll, 0.0, 0.999) * others.size()), others.size() - 1)]
 		out[k].line = _pick(c.get("comments", {}).get(m, []), fmod(roll * 7.31, 1.0))
 	return out
 
 static func summary(f: Dictionary, g: float, c: Dictionary) -> Dictionary:
 	return {"what": String(f.what), "place": String(f.place), "hangout": String(f.hangout), "n": int(f.n), "grade": grade_text(g, c), "score": g}
+
+static func remember(state: Dictionary, opening: Dictionary) -> void:
+	if not state.get("openings") is Array: state["openings"] = []
+	var o := opening.duplicate()
+	o["day"] = int(state.get("time", {}).get("day", 1))
+	state.openings.append(o)
 
 static func _stand(walk: WalkWorld, p: Vector2, low: float) -> Dictionary:
 	var s := walk.surface_at(p.x, p.y)
