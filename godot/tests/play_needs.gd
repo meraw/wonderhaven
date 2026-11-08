@@ -87,7 +87,7 @@ func play() -> void:
 	await open_build(zone_id)
 	var placed: Dictionary = {}
 	for p in s.placements:
-		if p.id == piece and is_equal_approx(float(p.i), float(spot.i)) and is_equal_approx(float(p.k), float(spot.k)): placed = p
+		if p.id == piece and (placed.is_empty() or int(p.uid) > int(placed.uid)): placed = p
 	var bb := BuildGrid.bounds(placed) if not placed.is_empty() else {}
 	if not placed.is_empty():
 		game.build.focus = Vector3((bb.minX + bb.maxX) / 2.0, 0.0, (bb.minZ + bb.maxZ) / 2.0); await settle()

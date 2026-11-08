@@ -41,7 +41,7 @@ yourself. All of it, and the order it's built in, is in `docs/DESIGN.md`. Stages
   `"speaker": "percival"`). Scripted playthroughs skip the scene unless they ask for it (`inauguration=play`), the
   way they skip the nap jokes.
 - **Checked:**
-  - **Tested** (`godot/run_tests.sh`). `test_inauguration` covers:
+  - **Tested** (`godot/run_tests.sh`, 304 passed). `test_inauguration` covers:
     - naming what was built;
     - today's pieces remembered across a save, and pieces taken away dropped;
     - the bakery bench opened with the right place, complaint and credit, and Ornella's heart;
@@ -62,6 +62,10 @@ yourself. All of it, and the order it's built in, is in `docs/DESIGN.md`. Stages
     - a chair on two blocks on the church steps gets a ceremony with the whole crowd shrugging and no hearts;
     - Esc ends a ceremony within a fifth of a second and the paper still reports it;
     - with the setting off there is no ceremony and the build is still reported.
+  - **Monteforchetta's other playthroughs pass** (`play_all.sh`: 20 runs). `play_needs` failed whenever the morning
+    happened to notice a seat, on main too: to delete the bench it had built it looked for one at the exact cell it
+    aimed at, and a two-wide bench sits half a cell over. It now takes the newest piece of that kind; with the
+    bakery bench forced it passes 9 of 9.
   - **Seen** in screenshots: the speech with the bench, the flower bed and the ribbon between the Sindaco and you;
     the cut ribbon and the cheering; the mark; the puzzled crowd at the church.
   - **Not checked:** the ceremony on the tutorial's first night (the guided day's playthrough skips it); builds
