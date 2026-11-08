@@ -1,0 +1,22 @@
+{
+ "name": "Tonnarella",
+ "x": 580,
+ "y": 455,
+ "r": 58,
+ "color": "5d7f93",
+ "desc": "The old quarter of a port on a rocky headland: tall palazzi, stair lanes, laundry lines, and a lighthouse gone dark since the February storm.",
+ "reveal": "metropolis_angel_lit",
+ "bikes": false,
+ "look": {
+  "shade": [0.0, 0.006, 0.022],
+  "light": [1.03, 1.01, 0.98],
+  "wind": 1.6,
+  "sun_peak": 36,
+  "life": {"motes": 0.25, "fireflies": 0.0, "leaves": 0.35},
+  "leafColors": ["f2d64b", "e8c53a", "f5e27a", "d9b830"],
+  "weather": ["clear", "fair", "cloudy", "drizzle", "mist"],
+  "mist": 0.1,
+  "water": {"shallow": "4f9aa0", "mid": "2f7590", "deep": "1d4f70", "foam": 0.6},
+  "songbirds": false
+ }
+}

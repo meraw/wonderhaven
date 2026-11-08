@@ -1,0 +1,1197 @@
+{
+ "size": 300.0,
+ "spawn": {
+  "x": -8.0,
+  "z": -65.5,
+  "yaw": 0.0
+ },
+ "arrive": {
+  "x": -8.0,
+  "z": -65.5,
+  "yaw": 0.0
+ },
+ "square": {
+  "x": 0.0,
+  "z": 0.0,
+  "r": -1.0
+ },
+ "safeSpot": "port_forecourt",
+ "safeText": "Back on the station forecourt.",
+ "decor": {
+  "radius": 300,
+  "trees": 0,
+  "bushes": 8,
+  "flowers": 50,
+  "grass": 320,
+  "area": [
+   -44,
+   -74,
+   28,
+   -36
+  ]
+ },
+ "ground": [
+  {
+   "kind": "slabs",
+   "rect": [
+    -60,
+    22,
+    42,
+    42
+   ]
+  },
+  {
+   "kind": "slabs",
+   "rect": [
+    -46,
+    -22,
+    56,
+    12
+   ]
+  },
+  {
+   "kind": "slabs",
+   "rect": [
+    -46,
+    -34,
+    56,
+    -22
+   ]
+  },
+  {
+   "kind": "slabs",
+   "rect": [
+    -46,
+    12,
+    56,
+    22
+   ]
+  },
+  {
+   "kind": "setts",
+   "circle": [
+    2,
+    -6,
+    8
+   ]
+  },
+  {
+   "kind": "setts",
+   "rect": [
+    -30,
+    -70,
+    14,
+    -50
+   ]
+  },
+  {
+   "kind": "slabs",
+   "rect": [
+    -46,
+    -48,
+    -20,
+    -34
+   ]
+  },
+  {
+   "kind": "slabs",
+   "rect": [
+    -20,
+    -41,
+    30,
+    -34
+   ]
+  },
+  {
+   "kind": "slabs",
+   "rect": [
+    -24,
+    -79,
+    8,
+    -77
+   ]
+  },
+  {
+   "kind": "gravel",
+   "line": [
+    [
+     -38,
+     -81.5
+    ],
+    [
+     50,
+     -81.5
+    ]
+   ],
+   "w": 4
+  },
+  {
+   "kind": "slabs",
+   "rect": [
+    10,
+    -56,
+    18,
+    -41
+   ]
+  }
+ ],
+ "buildings": [
+  {
+   "id": "port_station",
+   "kind": "port_station",
+   "name": "Tonnarella station",
+   "x": -8.0,
+   "z": -73.5,
+   "w": 28,
+   "d": 7,
+   "h": 10.0,
+   "wall": "b9a27f",
+   "roof": "5d636a"
+  },
+  {
+   "id": "port_villa",
+   "kind": "port_palazzo",
+   "name": "A villa by the station",
+   "x": 23.0,
+   "z": -61.0,
+   "w": 10,
+   "d": 18,
+   "h": 12.0,
+   "wall": "c98a6a",
+   "roof": "5d636a"
+  },
+  {
+   "id": "port_castle",
+   "kind": "port_castle",
+   "name": "The castle",
+   "x": 45.0,
+   "z": -60.0,
+   "w": 30,
+   "d": 24,
+   "h": 14.0,
+   "wall": "8a8a86",
+   "roof": "77766f"
+  },
+  {
+   "id": "port_lift_top",
+   "kind": "port_lift_house",
+   "name": "The lift's machine room",
+   "x": 21.0,
+   "z": -43.5,
+   "w": 6,
+   "d": 5,
+   "h": 5.0,
+   "wall": "c9b48a",
+   "roof": "5d636a"
+  },
+  {
+   "id": "port_top_block",
+   "kind": "port_palazzo",
+   "name": "A palazzo above the lanes",
+   "x": 2.0,
+   "z": -43.0,
+   "w": 16,
+   "d": 10,
+   "h": 10.0,
+   "wall": "e0b98a",
+   "roof": "5d636a"
+  },
+  {
+   "id": "port_band_a1",
+   "kind": "port_palazzo",
+   "name": "A palazzo on the slope",
+   "x": -38.0,
+   "z": -28.0,
+   "w": 16,
+   "d": 12,
+   "h": 11.0,
+   "wall": "d4a24c",
+   "roof": "5d636a"
+  },
+  {
+   "id": "port_band_a2",
+   "kind": "port_palazzo",
+   "name": "A palazzo on the slope",
+   "x": -21.5,
+   "z": -28.0,
+   "w": 17,
+   "d": 12,
+   "h": 11.0,
+   "wall": "a8473a",
+   "roof": "5d636a"
+  },
+  {
+   "id": "port_band_a3",
+   "kind": "port_palazzo",
+   "name": "A palazzo on the slope",
+   "x": 2.5,
+   "z": -28.0,
+   "w": 23,
+   "d": 12,
+   "h": 11.0,
+   "wall": "e09a7a",
+   "roof": "5d636a"
+  },
+  {
+   "id": "port_band_a4",
+   "kind": "port_palazzo",
+   "name": "A palazzo on the slope",
+   "x": 27.0,
+   "z": -28.0,
+   "w": 18,
+   "d": 12,
+   "h": 11.0,
+   "wall": "e9d39a",
+   "roof": "5d636a"
+  },
+  {
+   "id": "port_band_a5",
+   "kind": "port_palazzo",
+   "name": "A palazzo on the slope",
+   "x": 46.0,
+   "z": -28.0,
+   "w": 20,
+   "d": 12,
+   "h": 11.0,
+   "wall": "d4a24c",
+   "roof": "5d636a"
+  },
+  {
+   "id": "port_church",
+   "kind": "port_church",
+   "name": "The striped church",
+   "x": 2.0,
+   "z": -18.0,
+   "w": 14,
+   "d": 7.0,
+   "h": 14.0,
+   "wall": "efeae0",
+   "roof": "77766f"
+  },
+  {
+   "id": "port_mid_w1",
+   "kind": "port_palazzo",
+   "name": "A palazzo in the alleys",
+   "x": -38.5,
+   "z": -12.5,
+   "w": 15,
+   "d": 19,
+   "h": 18.0,
+   "wall": "d4a24c",
+   "roof": "5d636a"
+  },
+  {
+   "id": "port_nonna",
+   "kind": "port_palazzo",
+   "name": "Nonna Pina's palazzo",
+   "x": -20.5,
+   "z": -12.5,
+   "w": 15,
+   "d": 19,
+   "h": 16.0,
+   "wall": "e09a7a",
+   "roof": "5d636a"
+  },
+  {
+   "id": "port_mid_e1",
+   "kind": "port_palazzo",
+   "name": "A palazzo in the alleys",
+   "x": 23.0,
+   "z": -12.5,
+   "w": 10,
+   "d": 19,
+   "h": 18.0,
+   "wall": "a8473a",
+   "roof": "5d636a"
+  },
+  {
+   "id": "port_home",
+   "kind": "port_palazzo",
+   "name": "Your palazzo (112 steps)",
+   "x": 36.0,
+   "z": -8.5,
+   "w": 10,
+   "d": 11,
+   "h": 20.0,
+   "wall": "e9d39a",
+   "roof": "5d636a"
+  },
+  {
+   "id": "port_mid_e3",
+   "kind": "port_palazzo",
+   "name": "A palazzo in the alleys",
+   "x": 50.0,
+   "z": -12.5,
+   "w": 12,
+   "d": 19,
+   "h": 18.0,
+   "wall": "d4a24c",
+   "roof": "5d636a"
+  },
+  {
+   "id": "port_mid_s1",
+   "kind": "port_palazzo",
+   "name": "A palazzo in the alleys",
+   "x": -38.0,
+   "z": 7.5,
+   "w": 16,
+   "d": 9,
+   "h": 16.0,
+   "wall": "e09a7a",
+   "roof": "5d636a"
+  },
+  {
+   "id": "port_mid_s2",
+   "kind": "port_palazzo",
+   "name": "A palazzo in the alleys",
+   "x": -20.0,
+   "z": 7.5,
+   "w": 14,
+   "d": 9,
+   "h": 16.0,
+   "wall": "a8473a",
+   "roof": "5d636a"
+  },
+  {
+   "id": "port_mid_s3",
+   "kind": "port_palazzo",
+   "name": "A palazzo in the alleys",
+   "x": -2.5,
+   "z": 7.5,
+   "w": 13,
+   "d": 9,
+   "h": 16.0,
+   "wall": "e9d39a",
+   "roof": "5d636a"
+  },
+  {
+   "id": "port_mid_s4",
+   "kind": "port_palazzo",
+   "name": "A palazzo in the alleys",
+   "x": 17.0,
+   "z": 7.5,
+   "w": 18,
+   "d": 9,
+   "h": 16.0,
+   "wall": "d4a24c",
+   "roof": "5d636a"
+  },
+  {
+   "id": "port_mid_s5",
+   "kind": "port_palazzo",
+   "name": "A palazzo in the alleys",
+   "x": 36.5,
+   "z": 7.5,
+   "w": 15,
+   "d": 9,
+   "h": 16.0,
+   "wall": "e09a7a",
+   "roof": "5d636a"
+  },
+  {
+   "id": "port_mid_s6",
+   "kind": "port_palazzo",
+   "name": "A palazzo in the alleys",
+   "x": 52.0,
+   "z": 7.5,
+   "w": 8,
+   "d": 9,
+   "h": 16.0,
+   "wall": "a8473a",
+   "roof": "5d636a"
+  },
+  {
+   "id": "port_band_b1",
+   "kind": "port_palazzo",
+   "name": "A palazzo over the arcades",
+   "x": -37.0,
+   "z": 17.0,
+   "w": 18,
+   "d": 10,
+   "h": 16.0,
+   "wall": "d4a24c",
+   "roof": "5d636a"
+  },
+  {
+   "id": "port_lift_low",
+   "kind": "port_lift_house",
+   "name": "The lift (harbour stop)",
+   "x": -24.0,
+   "z": 17.0,
+   "w": 8,
+   "d": 10,
+   "h": 16.0,
+   "wall": "c9b48a",
+   "roof": "5d636a"
+  },
+  {
+   "id": "port_band_b2",
+   "kind": "port_palazzo",
+   "name": "A palazzo over the arcades",
+   "x": -16.5,
+   "z": 17.0,
+   "w": 7,
+   "d": 10,
+   "h": 16.0,
+   "wall": "e09a7a",
+   "roof": "5d636a"
+  },
+  {
+   "id": "port_bakery",
+   "kind": "port_palazzo",
+   "name": "Rosetta's bakery",
+   "x": -2.5,
+   "z": 17.0,
+   "w": 13,
+   "d": 10,
+   "h": 16.0,
+   "wall": "e9d39a",
+   "roof": "5d636a"
+  },
+  {
+   "id": "port_bank",
+   "kind": "port_palazzo",
+   "name": "The savings bank",
+   "x": 14.0,
+   "z": 17.0,
+   "w": 12,
+   "d": 10,
+   "h": 16.0,
+   "wall": "e0b98a",
+   "roof": "5d636a"
+  },
+  {
+   "id": "port_chandlery",
+   "kind": "port_palazzo",
+   "name": "The chandlery",
+   "x": 25.0,
+   "z": 17.0,
+   "w": 10,
+   "d": 10,
+   "h": 16.0,
+   "wall": "a8473a",
+   "roof": "5d636a"
+  },
+  {
+   "id": "port_band_b6",
+   "kind": "port_palazzo",
+   "name": "A palazzo over the arcades",
+   "x": 37.0,
+   "z": 17.0,
+   "w": 14,
+   "d": 10,
+   "h": 16.0,
+   "wall": "d4a24c",
+   "roof": "5d636a"
+  },
+  {
+   "id": "port_band_b7",
+   "kind": "port_palazzo",
+   "name": "A palazzo over the arcades",
+   "x": 52.0,
+   "z": 17.0,
+   "w": 8,
+   "d": 10,
+   "h": 16.0,
+   "wall": "e09a7a",
+   "roof": "5d636a"
+  },
+  {
+   "id": "port_harbour_office",
+   "kind": "port_office",
+   "name": "The harbour office",
+   "x": -51.0,
+   "z": 30.0,
+   "w": 10,
+   "d": 8,
+   "h": 7.0,
+   "wall": "d9c9a8",
+   "roof": "5d636a"
+  },
+  {
+   "id": "port_lighthouse",
+   "kind": "port_lighthouse",
+   "name": "The lighthouse",
+   "x": 42.0,
+   "z": 84.5,
+   "w": 5.0,
+   "d": 5,
+   "h": 26.0,
+   "wall": "e6dfd2",
+   "roof": "3a3a3a"
+  }
+ ],
+ "floors": [
+  {
+   "id": "port_terrace",
+   "rect": [
+    32,
+    -13,
+    40,
+    -4
+   ],
+   "top": 30.0,
+   "bottom": 29.6
+  }
+ ],
+ "harbor_cliffs": [
+  {
+   "minX": 55.4,
+   "maxX": 56.0,
+   "minZ": -3.0,
+   "maxZ": 3.0
+  },
+  {
+   "minX": 59.4,
+   "maxX": 60.0,
+   "minZ": -48.0,
+   "maxZ": -34.0
+  }
+ ],
+ "zones": [
+  {
+   "id": "port_breakwater",
+   "name": "The breakwater gap",
+   "minI": 35,
+   "maxI": 43,
+   "minK": 52,
+   "maxK": 63,
+   "spanY": 0.4,
+   "endpoints": {
+    "a": {
+     "minI": 37,
+     "maxI": 39,
+     "minK": 52,
+     "maxK": 52
+    },
+    "b": {
+     "minI": 38,
+     "maxI": 40,
+     "minK": 63,
+     "maxK": 63
+    }
+   }
+  },
+  {
+   "id": "port_fishmarket",
+   "name": "The fish market",
+   "minI": 30,
+   "maxI": 41,
+   "minK": 23,
+   "maxK": 31
+  },
+  {
+   "id": "port_bastion",
+   "name": "The castle bastion",
+   "minI": 25,
+   "maxI": 39,
+   "minK": -46,
+   "maxK": -39
+  },
+  {
+   "id": "port_rock",
+   "name": "The lighthouse rock",
+   "minI": 33,
+   "maxI": 38,
+   "minK": 79,
+   "maxK": 85
+  },
+  {
+   "id": "port_bakery_door",
+   "name": "Outside Rosetta's bakery",
+   "minI": -8,
+   "maxI": 2,
+   "minK": 24,
+   "maxK": 28
+  },
+  {
+   "id": "port_bank_arcade",
+   "name": "The bank's stretch of arcade",
+   "minI": 8,
+   "maxI": 19,
+   "minK": 24,
+   "maxK": 28
+  },
+  {
+   "id": "port_terrace",
+   "name": "Your roof terrace",
+   "minI": 32,
+   "maxI": 39,
+   "minK": -13,
+   "maxK": -5,
+   "floorY": 30.0,
+   "unlock": {
+    "flag": "port_home"
+   }
+  }
+ ],
+ "nodes": [
+  {
+   "id": "port_driftwood0",
+   "kind": "chop",
+   "x": 62.5,
+   "z": -2.0,
+   "label": "Chop the driftwood"
+  },
+  {
+   "id": "port_driftwood1",
+   "kind": "chop",
+   "x": 64.5,
+   "z": 4.0,
+   "label": "Chop the driftwood"
+  },
+  {
+   "id": "port_driftwood2",
+   "kind": "chop",
+   "x": 66.5,
+   "z": 16.0,
+   "label": "Chop the driftwood"
+  },
+  {
+   "id": "port_driftwood3",
+   "kind": "chop",
+   "x": 65.0,
+   "z": -10.0,
+   "label": "Chop the driftwood"
+  },
+  {
+   "id": "port_driftwood4",
+   "kind": "chop",
+   "x": 52.0,
+   "z": 34.0,
+   "label": "Chop the driftwood"
+  },
+  {
+   "id": "port_driftwood5",
+   "kind": "chop",
+   "x": 66.0,
+   "z": -28.0,
+   "label": "Chop the driftwood"
+  },
+  {
+   "id": "port_rubble0",
+   "kind": "mine",
+   "x": 63.5,
+   "z": -56.0,
+   "label": "Quarry the fallen wall"
+  },
+  {
+   "id": "port_rubble1",
+   "kind": "mine",
+   "x": 66.0,
+   "z": -52.0,
+   "label": "Quarry the fallen wall"
+  },
+  {
+   "id": "port_rubble2",
+   "kind": "mine",
+   "x": 66.5,
+   "z": -42.0,
+   "label": "Quarry the fallen wall"
+  },
+  {
+   "id": "port_fish0",
+   "kind": "fish",
+   "x": -20.0,
+   "z": 43.2
+  },
+  {
+   "id": "port_fish1",
+   "kind": "fish",
+   "x": 14.0,
+   "z": 43.2
+  },
+  {
+   "id": "port_fish2",
+   "kind": "fish",
+   "x": -55.0,
+   "z": 43.2
+  },
+  {
+   "id": "port_fish3",
+   "kind": "fish",
+   "x": 36.2,
+   "z": 50.0
+  },
+  {
+   "id": "port_fish4",
+   "kind": "fish",
+   "x": 71.5,
+   "z": 0.0
+  }
+ ],
+ "features": [
+  {
+   "id": "port_train",
+   "kind": "boat",
+   "x": -8,
+   "z": -68.8,
+   "depart_label": "Take the train"
+  },
+  {
+   "id": "port_station_sign",
+   "kind": "sign",
+   "x": -17,
+   "z": -68.5,
+   "text": "Tonnarella. Trains for Toriano. The lift to the harbour is out of order: the stairs are to your left."
+  },
+  {
+   "id": "port_bench_belvedere",
+   "kind": "bench",
+   "x": -42,
+   "z": -38,
+   "r": 1
+  },
+  {
+   "id": "port_bench_forecourt",
+   "kind": "bench",
+   "x": -22,
+   "z": -60,
+   "r": 0
+  },
+  {
+   "id": "port_bench_square",
+   "kind": "bench",
+   "x": -2,
+   "z": -9.5,
+   "r": 0
+  },
+  {
+   "id": "port_bench_quay1",
+   "kind": "bench",
+   "x": -30,
+   "z": 38.5,
+   "r": 2
+  },
+  {
+   "id": "port_bench_quay2",
+   "kind": "bench",
+   "x": 10,
+   "z": 38.5,
+   "r": 2
+  }
+ ],
+ "port_lift_stops": [
+  {
+   "id": "port_lift_harbour",
+   "kind": "stop",
+   "line": "port_lift",
+   "name": "Harbour",
+   "x": -26.5,
+   "z": 25.5,
+   "ride_label": "Take the lift",
+   "arrive_text": "The harbour. Agostino holds the door."
+  },
+  {
+   "id": "port_lift_church",
+   "kind": "stop",
+   "line": "port_lift",
+   "name": "Church square",
+   "x": 12,
+   "z": -9,
+   "ride_label": "Take the lift",
+   "arrive_text": "The church square, halfway up."
+  },
+  {
+   "id": "port_lift_castle",
+   "kind": "stop",
+   "line": "port_lift",
+   "name": "Castle",
+   "x": 21,
+   "z": -38.8,
+   "ride_label": "Take the lift",
+   "arrive_text": "The castle, at the top. Mind the wind."
+  }
+ ],
+ "nav_nodes": {
+  "port_station": [
+   -8,
+   -67
+  ],
+  "port_forecourt": [
+   -8,
+   -58
+  ],
+  "port_belvedere": [
+   -36,
+   -44
+  ],
+  "port_top_w": [
+   -11,
+   -42
+  ],
+  "port_laneA1_top": [
+   -11,
+   -35.5
+  ],
+  "port_top_e": [
+   14,
+   -50
+  ],
+  "port_laneA2_top": [
+   16,
+   -35.5
+  ],
+  "port_castle_gate": [
+   27,
+   -36.5
+  ],
+  "port_laneA1_foot": [
+   -11,
+   -20.5
+  ],
+  "port_laneA2_foot": [
+   16,
+   -20.5
+  ],
+  "port_alley_w1": [
+   -11,
+   0
+  ],
+  "port_nonna_door": [
+   -21.5,
+   0
+  ],
+  "port_alley_w2": [
+   -38,
+   0
+  ],
+  "port_square": [
+   2,
+   -6
+  ],
+  "port_church_door": [
+   2,
+   -13.5
+  ],
+  "port_alley_e1": [
+   16,
+   0
+  ],
+  "port_court_lane": [
+   29.5,
+   0
+  ],
+  "port_court_entry": [
+   29.5,
+   -16
+  ],
+  "port_court": [
+   36,
+   -18
+  ],
+  "port_home_door": [
+   36,
+   0
+  ],
+  "port_alley_e2": [
+   46,
+   0
+  ],
+  "port_alley_e3": [
+   53,
+   0
+  ],
+  "port_laneB2_top": [
+   6,
+   1.5
+  ],
+  "port_laneB1_foot": [
+   -11,
+   23.6
+  ],
+  "port_laneB2_foot": [
+   6,
+   23.6
+  ],
+  "port_laneB3_foot": [
+   46,
+   23.6
+  ],
+  "port_lift_bottom": [
+   -24,
+   23.6
+  ],
+  "port_bakery_door": [
+   -2.5,
+   23.6
+  ],
+  "port_bank_door": [
+   14,
+   23.6
+  ],
+  "port_chandlery_door": [
+   25,
+   23.6
+  ],
+  "port_quay_w": [
+   -38,
+   30
+  ],
+  "port_harbour_office_door": [
+   -45,
+   30
+  ],
+  "port_quay_mid": [
+   5,
+   31
+  ],
+  "port_quay_e": [
+   26,
+   35
+  ],
+  "port_fishmarket": [
+   36,
+   35
+  ],
+  "port_breakwater_root": [
+   38.2,
+   45
+  ],
+  "port_breakwater_n": [
+   38.9,
+   52
+  ],
+  "port_breakwater_s": [
+   40.6,
+   64
+  ],
+  "port_rock": [
+   41,
+   76
+  ],
+  "port_lighthouse_door": [
+   42,
+   80.8
+  ],
+  "port_tip": [
+   50,
+   30
+  ],
+  "port_rocks_se": [
+   60,
+   26
+  ],
+  "port_rocks_s": [
+   63,
+   12
+  ],
+  "port_rocks_mid": [
+   64,
+   -20
+  ],
+  "port_rocks_n": [
+   64,
+   -46
+  ]
+ },
+ "nav_edges": [
+  [
+   "port_station",
+   "port_forecourt"
+  ],
+  [
+   "port_forecourt",
+   "port_belvedere"
+  ],
+  [
+   "port_forecourt",
+   "port_top_w"
+  ],
+  [
+   "port_top_w",
+   "port_laneA1_top"
+  ],
+  [
+   "port_belvedere",
+   "port_top_w"
+  ],
+  [
+   "port_forecourt",
+   "port_top_e"
+  ],
+  [
+   "port_top_e",
+   "port_laneA2_top"
+  ],
+  [
+   "port_laneA1_top",
+   "port_laneA2_top"
+  ],
+  [
+   "port_laneA2_top",
+   "port_castle_gate"
+  ],
+  [
+   "port_laneA1_top",
+   "port_laneA1_foot"
+  ],
+  [
+   "port_laneA2_top",
+   "port_laneA2_foot"
+  ],
+  [
+   "port_laneA1_foot",
+   "port_alley_w1"
+  ],
+  [
+   "port_laneA2_foot",
+   "port_alley_e1"
+  ],
+  [
+   "port_alley_w1",
+   "port_nonna_door"
+  ],
+  [
+   "port_nonna_door",
+   "port_alley_w2"
+  ],
+  [
+   "port_alley_w1",
+   "port_square"
+  ],
+  [
+   "port_square",
+   "port_church_door"
+  ],
+  [
+   "port_square",
+   "port_alley_e1"
+  ],
+  [
+   "port_square",
+   "port_laneB2_top"
+  ],
+  [
+   "port_alley_e1",
+   "port_court_lane"
+  ],
+  [
+   "port_court_lane",
+   "port_court_entry"
+  ],
+  [
+   "port_court_entry",
+   "port_court"
+  ],
+  [
+   "port_court_lane",
+   "port_home_door"
+  ],
+  [
+   "port_home_door",
+   "port_alley_e2"
+  ],
+  [
+   "port_alley_e2",
+   "port_alley_e3"
+  ],
+  [
+   "port_alley_w1",
+   "port_laneB1_foot"
+  ],
+  [
+   "port_laneB2_top",
+   "port_laneB2_foot"
+  ],
+  [
+   "port_alley_e2",
+   "port_laneB3_foot"
+  ],
+  [
+   "port_lift_bottom",
+   "port_laneB1_foot"
+  ],
+  [
+   "port_laneB1_foot",
+   "port_bakery_door"
+  ],
+  [
+   "port_bakery_door",
+   "port_laneB2_foot"
+  ],
+  [
+   "port_laneB2_foot",
+   "port_bank_door"
+  ],
+  [
+   "port_bank_door",
+   "port_chandlery_door"
+  ],
+  [
+   "port_lift_bottom",
+   "port_quay_w"
+  ],
+  [
+   "port_quay_w",
+   "port_harbour_office_door"
+  ],
+  [
+   "port_quay_w",
+   "port_quay_mid"
+  ],
+  [
+   "port_quay_mid",
+   "port_laneB2_foot"
+  ],
+  [
+   "port_quay_mid",
+   "port_quay_e"
+  ],
+  [
+   "port_chandlery_door",
+   "port_quay_e"
+  ],
+  [
+   "port_quay_e",
+   "port_fishmarket"
+  ],
+  [
+   "port_fishmarket",
+   "port_tip"
+  ],
+  [
+   "port_tip",
+   "port_laneB3_foot"
+  ],
+  [
+   "port_tip",
+   "port_rocks_se"
+  ],
+  [
+   "port_rocks_se",
+   "port_rocks_s"
+  ],
+  [
+   "port_rocks_s",
+   "port_rocks_mid"
+  ],
+  [
+   "port_rocks_mid",
+   "port_rocks_n"
+  ],
+  [
+   "port_fishmarket",
+   "port_breakwater_root"
+  ],
+  [
+   "port_breakwater_root",
+   "port_breakwater_n"
+  ],
+  [
+   "port_breakwater_n",
+   "port_breakwater_s",
+   "port_breakwater_done"
+  ],
+  [
+   "port_breakwater_s",
+   "port_rock"
+  ],
+  [
+   "port_rock",
+   "port_lighthouse_door"
+  ]
+ ],
+ "paths": [],
+ "props": []
+}

@@ -1,7 +1,7 @@
 # Tonnarella: design for the port
 
-Working id `port`. Agreed with the user on 2026-11-08 in a design interview. **Nothing is built yet.** This doc is
-the plan the build stages follow. The rules every location shares are in `docs/WORLD.md`; `docs/MONTEFORCHETTA.md`
+Working id `port`. Agreed with the user on 2026-11-08 in a design interview. **Stage 1 (ground and map) is built;
+stages 2 to 4 are not.** See "Build status" at the end. This doc is the plan the build stages follow. The rules every location shares are in `docs/WORLD.md`; `docs/MONTEFORCHETTA.md`
 and the other location docs are the models it follows.
 
 ## The concept
@@ -34,8 +34,8 @@ night the town spends its last lire.
   only a name now (a tuna-net store on the quay was offered and not chosen).
 
 ## Ground rules for Tonnarella
-- **Size:** about 170 m across, bigger than a village and much smaller than Toriano, in three levels (below). The
-  layout's `size` can be larger so the sea and the horizon have room.
+- **Size:** about 130 m across and 170 m from the station to the lighthouse rock, bigger than a village and much
+  smaller than Toriano, in three levels (below). The layout's `size` is 300 m so the sea and the mountain have room.
 - **Season:** late winter, from February into early March. The story ends in early spring. There are no dates.
 - **Money:** lire turning into euros, gradually, over the stay (see "The changeover").
 - **Language, names, originality, no magic:** as in `docs/WORLD.md`. Tonnarella, its castle, church, lighthouse and
@@ -69,7 +69,7 @@ castle and station on top (about 20 m), joined by stair lanes and the public lif
 
 | Area | What's there |
 | --- | --- |
-| The top (landward neck) | **The station**, a grand, sooty old station building where the coast railway comes out of one tunnel and goes into the next. A forecourt with a payphone. **The castle**, an old fort in grey stone, with its bastion facing the open sea (where the lift's windmill goes) and the stretch of sea wall the storm brought down, its rubble heaped at the foot. **The belvedere** looking over the harbour, with the lift's top stop and its machine room beside it. Umbrella pines and dark holm oaks round the castle and down the slope. |
+| The top (landward neck) | **The station**, a grand, sooty old station building where the coast railway comes out of one tunnel and goes into the next. A forecourt with a payphone. **The castle**, an old fort in grey stone, with its bastion facing the open sea (where the lift's windmill goes) and the stretch of sea wall the storm brought down, its rubble heaped at the foot. **The belvedere** looking over the harbour. At the top of the lane to the castle, the lift's top stop and its machine room, right beside the bastion so the windmill's power has only a short way to go. Umbrella pines and dark holm oaks round the castle and down the slope. |
 | The middle (the alleys) | Tall, narrow palazzi of six or seven storeys along dark alleys, with laundry lines strung across them, bare since the storm. **The striped church** in black-and-white stone with its bell tower, on a little square of its own with mimosa in bloom and the lift's middle stop. **Your palazzo**, 112 steps to the top, with a tiny slate roof terrace. **Nonna Pina's palazzo**, her third-floor balcony a jungle of basil pots, her basket on its rope. Capers growing out of the old walls. Stair lanes run down to the waterfront and up to the castle. |
 | The waterfront (sea level) | **The arcades**, a long, low, dark arcade along the harbour, with **the fish market** at its end (open stalls whose roof the storm tore off), **Rosetta's bakery**, **the savings bank** and **the chandlery** under its arches. The lift's bottom stop. **The quays** with a row of old palms, **the harbour office**, fishing boats, Stefano's lampara boat and Gerolamo's rowing boat. |
 | The breakwater | A stone breakwater curving out from the end of the quays to the lighthouse rock, closing the harbour to the south. The storm smashed a stretch of it, leaving a gap of open water. Spray comes over it on windy days. |
@@ -93,7 +93,7 @@ shines.
   whatever place comes next.
 - **On foot.** Stair lanes join the three levels. There are no bicycles.
 - **The public lift**, with three stops: the harbour (by the arcades), the church square and the castle (by the
-  belvedere and the station). It's out of action after the storm until Up and Down; then you ride it with Agostino.
+  castle gate, at the top of the lane). It's out of action after the storm until Up and Down; then you ride it with Agostino.
   The stops are features of kind `stop` on the line `port_lift`, added by Tonnarella's own script (`WORLD_FLAGS` and
   `adjust`) once the request's flag is set. Riding to a stop raises `ride:<stop id>`, as elsewhere.
 - **Out to the lighthouse.** Over the breakwater once it's mended. Until then Gerolamo rows in and out, and you can't
@@ -355,5 +355,52 @@ Davide's Round as requests; the rounding and the mugugno as town-wide running ga
 Traverso's nicknames); life in the alleys, wind and church bells as sounds; cormorants and dolphins; a legendary
 grouper; a pergola as a shared building piece; a harbour boat to the lighthouse.
 
-## Status
-Design only. Nothing is built yet.
+## Build status
+What exists now, and the choices made while building that the design above didn't settle.
+
+**Stage 1, the ground and the map:**
+- **Where it lives:** the ground shape is code in `godot/scripts/locations/port.gd`. The map is
+  `godot/data/locations/port/layout.json`, and the map entry is `location.json`.
+- **The levels:** the top is at 20 m, the alleys at 10 m and the quays at 1.2 m. Between them the ground slopes, and
+  palazzi stand all along the slopes. The gaps between them are the stair lanes, which are paved ramps for now; the
+  steps come with the buildings. Two lanes climb from the alleys to the top: one to the station and one to the castle.
+  Three run down to the waterfront: by the bakery, from the church square, and by the fish market.
+- **Edges:** where the ground drops straight into the sea, you stop at the edge. Two parapets stand where a fall would
+  land you on the east rocks: at the end of the main alley and beside the castle. They are the layout's
+  `harbor_cliffs`, drawn as low stone walls.
+- **The breakwater** is low, 0.4 m above the sea, so a post standing on the gap's bed (-1.0 m) reaches deck height.
+  Posts, columns, stone arches and oak beams can all close the 7 m gap. The path over it waits for
+  `port_breakwater_done`, which The Broken Breakwater will set.
+- **The lift's stops** are in the layout (`port_lift_stops`) and join the map once `port_lift_on` is set
+  (`WORLD_FLAGS` and `adjust`). The top stop is by the castle gate, the middle stop on the east side of the church
+  square, and the bottom stop by the lift house under the arcades.
+- **Build sites:** the breakwater gap, the fish market, the castle bastion, the lighthouse rock, outside the bakery,
+  the bank's stretch of arcade, and your roof terrace. The terrace is a raised floor 30 m up on your palazzo, and it
+  stays closed until `port_home` is set.
+- **Gathering spots:** driftwood on the east rocks, drawn as piles of grey logs; rubble from the castle's fallen wall
+  to quarry; and fishing spots on the quays, the breakwater and the rocks.
+- **Buildings:** plain boxes in the palazzo colours, with slate-grey tops. A box on a slope reaches down to the lowest
+  ground under it.
+- **Behind the station:** the mountain is part of the ground. It rises in a step you can't climb, with two rock spurs
+  where the railway's tunnels will go.
+- **The travel map:** Tonnarella appears south-east of Monteforchetta and south of Toriano once Toriano's finale sets
+  `metropolis_angel_lit`. You leave by train from the station.
+- **Not yet:**
+  - The rocks and the breakwater come out olive rather than grey, because the shared terrain shading warms all
+    ground. That's for the look stage.
+  - The HUD still shows the approval rating until the changeover meter arrives with the requests.
+  - There's no horizon backdrop yet: the port across the bay and the city's tiers come with the scenery.
+
+**Checked for stage 1:**
+- **Tested** (`godot/tests/test_port.gd`): the pack and its map entry; ids; the three levels, the sea and the
+  mountain; every path walked both ways with the player's own step rule; every level reached from the station, with
+  the lighthouse cut off; the lanes as the only way between levels; the cliff edges; the gap; the build sites; the lift
+  stops appearing with their flag; buildings reaching down the slope; arriving as if you'd played the way here.
+- **Played** (`godot/tests/play_port.gd`, 25 checks): off the train on the forecourt, with the four earlier places'
+  main stories done; across the top to the belvedere; down to the church square; along the alleys to Nonna Pina's door,
+  your palazzo and the parapet at the alley's end; down to the arcades, the bakery and the harbour office; out along the
+  breakwater to the gap, which stops you; round to the east rocks, whose cliff you can't climb; back up to the castle
+  gate; the train opening the travel map; the lift's stops appearing with its flag (set directly by the script); riding
+  the lift down to the harbour and up to the church square.
+- **Seen** in screenshots in both renderers: the harbour from the air, the arrival, a stair lane, the church square,
+  the breakwater gap and the east rocks.
