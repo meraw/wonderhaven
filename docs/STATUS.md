@@ -520,6 +520,100 @@ Checked by the headless tests (`test_animation.gd`: stopping eases, the stride s
 - **Standing still is alive:** breathing, a slow shift of weight, and now and then a glance to one side.
 - **Actions have anticipation and follow-through:** chopping and mining wind the tool back over the shoulder, strike fast and jolt on impact; hammering and digging do the same; the wave overshoots and lowers; celebrating crouches before the jumps and squashes on each landing; surprise squashes before it jumps.
 
+## Playtest fixes: the flood, the monster, Pierina's far round (08/11)
+- **The storm night's river really rises** (Boccapioppo): it used to come up 32 cm, all at once, and stay in its bed.
+  Now a muddy flood spreads outside the levee through the evening: still in its bed at 9 PM, over the floodplain by
+  11, and by midnight lapping at the foot of the levee and against your wall in the breach, the trees standing in it,
+  while the town behind the levee stays dry. It stays up until Ermes calls the flood over (`RiverTown.flood_level`, a
+  flood layer in `scenery.gd`; the shared water shader gained an `opaque` setting for muddy water).
+- **The Monster of the Po shows itself** (Boccapioppo): when it bites, the camera cuts to the water and a three-metre
+  catfish bursts out, arcs through the air thrashing, hangs there turning to stare at you, and crashes back in, before
+  the whisker and the toast (`BigFish`, `WorldActions.leap`, the fish's `leap` in the layout: any fish can do it).
+- **Pierina's Far Round** (Boccapioppo): the town is too small for a bike to make a difference, so the round now goes
+  where she can't: five letters posted in letterboxes the length of the map, at the farm out west, the station, Gildo's
+  biscuit tin on the floodplain, and over the river the sawmill and the plantation foreman's box. Letterboxes are a new
+  shared feature (`letterbox` in a layout: "Post a letter" when a request is waiting for one, `post:<id>`).
+- **Checked:** **tested** (384 passed): the flood's rise through the evening (in its bed at 9 PM, over the floodplain by
+  midnight, short of the town and the dance hall's floor), the monster's leap and model, the five letterboxes (dry,
+  by a path, two over the river, 70 m and more apart) and the round's steps. **Played**, from the playthrough's own
+  checkpoints: the round (`b3`: five letters posted by bike, 251 m ridden), the catfish (`s8b`: it leapt 3.9 m and the
+  request finished) and the levee (`s11b`: at midnight the flood stands at 0.45 m over the floodplain while the town is
+  dry; `s11` and `s12` still pass), then Boccapioppo's whole playthrough from the start (36 checks, all passing). The
+  flood and the leap were checked in Forward+ screenshots by day and by night.
+
+## Playtest fixes: a village map, the Roman bridge, the town's needs, dancing, furniture, naps (08/11)
+- **A map of where you are** (shared): M opens a map of the place you're in, drawn from its layout: the ground and the
+  water, the paths, the buildings (the ones with a name are labelled), the building sites open to you (dashed), the
+  bus stop, benches, the spots that want something, every villager about with their name and a ! or ★ if they have
+  a request or are waiting to hear from you, what you're tracking (⭐) and you (the pink arrow, pointing the way you
+  face). Click anything for its name. A tab switches to the travel map; catching the bus still opens the travel map
+  (`VillageMap`, `scripts/ui/village_map.gd`).
+- **The Roman bridge** (Boccapioppo) looked like two loose walls with the dirt path between them, and a dark hole
+  showed through the walkway where an arch's shadow was. It's one stone body now: arches that run right through it
+  under a paved deck, parapets standing on it, and the piers' cutwaters capped in stone.
+- **The things the village could use** (Boccapioppo, Casalrana): the list showed Monteforchetta's wishes ("somewhere to
+  sit", with no place) because the other villages had no spots of their own. Now each has six (Rina's bar, Primo's
+  workshop, the church door, Ermes's door, Pierina's doorstep and the piazza; in Casalrana the crossroads, the station
+  forecourt, the church door, the farmyard, Nonna's garden gate and the farm office), each wanting two or three things,
+  noticed a few at a time in the morning paper, and an open area in the streets where you can build anything, as in
+  Monteforchetta. The list only shows the place you're in. Since these villages keep their own meter, what you build
+  there doesn't move Monteforchetta's approval (`Needs.open_here`, `Needs.approval_here`).
+- **Dancing at the dance hall** (Boccapioppo): once the hall is ready, the town still comes every evening from 8 to 10,
+  but now they dance (a new `dance` pose: a swaying three-step with one arm up and a slow turn), Wanda too.
+- **Bench naps**: you only wake up soaked if it rained in the four hours before you woke (rain anywhere in a long night
+  used to count, so it was nearly every night), and a night on a bench ends in a joke about half the time instead of
+  always.
+- **Ten more pieces of furniture**: an armchair you can sit in, a side table, a potted plant (it counts as something
+  green), a coat stand, a chest of drawers, a mirror for the wall, a grandfather clock, a wood stove, a credenza with the
+  good plates and an upright piano, each with its own model and build-bar picture. Elio sells all ten plans in
+  Monteforchetta (the bigger pieces once his workshop is done), Ines four in Boccapioppo and Silvia four in Casalrana.
+- **Checked:** **tested** (381 passed): the map's labels, the spots in both villages (in the open streets, reachable,
+  every need meetable there, Monteforchetta's needs not listed, no approval moved), the dance schedules and pose, the
+  four-hour rain window and the quieter nights, and the furniture (models, costs, plans on sale). **Played:** all of
+  Monteforchetta's playthroughs pass (24 runs; `play_ui_shots` checks M shows you, every villager about, the buildings
+  and the bus stop), Boccapioppo's (34 checks: the new `s5b` finds nine villagers dancing in the hall on the first
+  night) and Casalrana's three. The map, the bridge and the furniture were checked in screenshots in all three places.
+  **Not checked:** building in Boccapioppo's or Casalrana's new streets and meeting a need there in a playthrough (the
+  tests place pieces at every spot); a bench nap's gag in play (it's random by design).
+
+## Casalrana catches up (08/11)
+Casalrana gets the redesign's systems, as Boccapioppo did:
+- **A work day that doesn't hold the clock** (`"hold": false` in its `day`): poplars, straw, cobbles and clay grow back
+  the next morning, the clock runs on through the night for the night express, the dawn inspection train and the
+  nativity, and a sleep into the next day ends the day.
+- **Its own paper**, *La Gazzetta del Binario Morto* (the dead-end siding's gazette), with headlines about Paletta,
+  the herons and the 8.12 that never stops.
+- **Paletta opens what you build** at dusk, in station-master's words ("Ladies and gentlemen, now arriving: two flower
+  beds and a bench in Casalrana.").
+- **Tastes** for the six villagers, each near the place they spend their days: Paletta likes railway lanterns, enamel
+  signs and flower beds in signal red and green on the platform, Barba Tista stone, fences, levers and pumps by the
+  sluice, Nonna flowers, trees and benches at her corner of the paddy, Silvia waterwheels and gears at the mill, Don
+  Remo lamps, pillars and statues in the churchyard, Matteo railway things by the crossing. The inspector is only
+  visiting.
+- **Every building request is a brief with wishes**:
+  - the flat (a bed, a table, somewhere to sit; a rug for Nonna, a lamp in the window for Paletta);
+  - the bell-tower climb (a lamp for Don Remo, something to hold on to for Silvia);
+  - the nativity stable (a fence for Barba Tista's ox, a seat for Nonna to sing from);
+  - the platform (flower beds for Paletta, a railway lantern for Matteo) and its shelter (an enamel sign for Paletta,
+    some colour for Nonna);
+  - the sluice (a fence for the cows, a lamp for Silvia), its walkway (railings for Matteo's BMX, a bench for Don
+    Remo), the winter paddy (a lever for Barba Tista, flowers for Nonna);
+  - the mill (a lamp for Silvia, a workbench for Barba Tista) and Nonna's bench (flowers on both sides, a lamp for
+    Matteo).
+  - The shelter keeps the inspector's four conditions as its four musts (roof, bench, two lamps, a sign).
+  - A wish met there adds hearts but no Monteforchetta approval, since Casalrana keeps its petition.
+- **Checked:** **tested** (377 passed): every Casalrana building step is a brief whose wishes come from its own
+  villagers and use only checks met before; each step's playthrough build meets its musts, the pieces for every wish
+  can be built alongside it, and you hold the plans for all of them; Casalrana's day, paper, ceremony and tastes are
+  its own (`test_commission`, `test_alive`, `test_work_day`). **Played:** all three of Casalrana's playthroughs pass
+  with the briefs (`play_rice_village` 30 checks, `play_rice_village2` 48, `play_rice_village3` 40): the flat, the
+  sluice and its walkway, the paddy, Nonna's bench, the tower climb, the mill, the stable, the platform and the shelter
+  all tick off from the same builds as before. A separate check built a bench and two flower beds at Nonna's corner:
+  Nonna gave a heart, her wish for flowers on both sides was met, and sleeping into the next day Paletta opened them
+  ("Ladies and gentlemen, now arriving: two flower beds and a bench in Casalrana."), Nonna cheered, and the morning
+  *Gazzetta del Binario Morto* led with it ("Ribbon cut on two flower beds and a bench in Casalrana. The 8.12 regional
+  went straight past"), with Barba Tista's gossip. **Not checked:** most wishes met in play (only Nonna's).
+
 ## Playtest fixes: Boccapioppo catches up, and travel (08/11)
 - **Leaving a conversation is 1** (shared): the way out ("Goodbye", "Not now") is listed first and numbered 1, so it's
   next to the other choices on the keyboard instead of 0 at the far end; the other choices follow from 2. Esc still

@@ -161,6 +161,9 @@ func gather_node(id: String) -> bool:
 	await frames(6)
 	if game.mode == "minigame": await play_minigame()
 	await frames(20)
+	for k in 200:
+		if game.mode != "cutscene": break
+		await frames(2)
 	return true
 
 func gather_until(kind: String, test: Callable, only: Array = [], rounds: int = 30) -> bool:

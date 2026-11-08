@@ -108,6 +108,8 @@ func _register_feature(f: Dictionary) -> void:
 		"wardrobe": _add_feature(f, {"id": f.id, "x": f.x, "z": f.z, "object": game.village.objects[f.id], "available": func(): return not f.has("flag") or state().flags.get(f.flag, false),
 			"label": func(): return "Change outfit", "act": func(): game.open_wardrobe()})
 		"board": _add_feature(f, {"id": f.id, "x": f.x, "z": f.z, "object": game.village.objects[f.id], "label": func(): return "Read the notice board", "act": func(): game.panels.notice_board()})
+		"letterbox": _add_feature(f, {"id": f.id, "x": f.x, "z": f.z, "radius": 1.4, "object": game.village.objects.get(f.id),
+			"label": func(): return "Post a letter" if wants("post:" + String(f.id)) else String(f.get("name", "A letterbox")), "act": func(): post(f)})
 		# a stop on a line within this place (a tram, a funicular): ride to another stop on it (Travel.stops_on)
 		"stop": _add_feature(f, {"id": f.id, "x": f.x, "z": f.z, "radius": 2.2, "object": game.village.objects.get(f.id), "label": func(): return String(f.get("ride_label", "Take a ride")), "act": func(): game.panels.stops(f)})
 		# the departure point (any id; "depart_label" names how you leave, a train from a city station, say; "flag",
@@ -116,6 +118,29 @@ func _register_feature(f: Dictionary) -> void:
 			var reach: float = float(f.get("length", 8.6)) / 2.0 + 0.6 if f.get("model", "boat") == "bus" else 2.6
 			var fl := String(f.get("flag", ""))
 			_add_feature(f, {"id": f.id, "x": f.x, "z": f.z, "radius": reach, "object": game.village.objects.get(f.id), "available": func(): return state().flags.get("boatReady", false) and (fl == "" or state().flags.get(fl, false)), "label": func(): return String(f.get("depart_label", "Catch the bus")), "act": func(): game.panels.map(true)})
+
+func wants(ev: String) -> bool:
+	var e: QuestEngine = game.story.engine
+	for q in e.active():
+		if not e.here(q.id): continue
+		for o in q.objectives:
+			if String(o.get("event", "")) == ev and e.is_current(q.id, o) and not e.objective(q.id, o).done: return true
+	return false
+
+func post(f: Dictionary) -> void:
+	var ev := "post:" + String(f.id)
+	if not wants(ev):
+		game.toast(String(f.get("empty", "Nothing to post here today.")), "", 2.8)
+		return
+	var item := String(f.get("item", ""))
+	if item != "":
+		if int(state().inventory.get(item, 0)) <= 0:
+			game.toast("You've nothing left to post.", "warn", 2.8)
+			return
+		state().inventory[item] = int(state().inventory[item]) - 1
+	game.player_char.play("feed"); game.sfx("blip")
+	game.toast(String(f.get("posted", "Posted.")), "good", 3.6)
+	game.story.event(ev)
 
 func _src(n: Dictionary, up: float = 1.0) -> Vector3: return Vector3(n.x, Heightfield.height(n.x, n.z) + up, n.z)
 
@@ -283,6 +308,7 @@ func _fishing_done(mg) -> void:
 	game.player_char.stop_hold()
 	if mg == null or mg.result != "caught": return
 	var at := Vector3(f.fx, 0.3, f.fz)
+	if mg.fish.get("leap", false): await leap(Vector3(f.fx, _water_y(), f.fz), float(mg.fish.get("length", 3.0)))
 	game.give(mg.reward(), at)
 	game.effects.splash(Vector3(f.fx, Heightfield.WATER_Y + 0.1, f.fz))
 	game.player_char.play("celebrate"); game.sfx("fanfare_small")
@@ -290,6 +316,53 @@ func _fishing_done(mg) -> void:
 	game.toast(String(mg.fish.get("caught", "You caught %s!" % Minigames.a_name(mg.fish.name))), "good")
 	game.story.event("fish")
 	game.story.event("fish:" + String(mg.fish.id))   # a request can wait for one particular catch
+
+func _water_y() -> float:
+	var w = game.village.get("water") if game.village else null
+	return (w as Node3D).position.y if w is Node3D else Heightfield.WATER_Y
+
+func leap(at: Vector3, length: float) -> void:
+	game.set_mode("cutscene")
+	var pp: Vector3 = game.player.pos
+	var dir := Vector3(at.x - pp.x, 0.0, at.z - pp.z).normalized()
+	var side := Vector3(dir.z, 0.0, -dir.x)
+	var fish := BigFish.make(length)
+	game.village.add_child(fish)
+	var a := at - side * 1.8 - dir * 0.6 + Vector3(0, -length * 0.4, 0)
+	var b := at + side * 1.8 + dir * 0.6 + Vector3(0, -length * 0.4, 0)
+	var high := length * 0.9 + 1.2
+	game.cam.cinema = {"pos": at + dir * 8.5 + Vector3(0, 2.2, 0), "look": pp.lerp(at, 0.6) + Vector3(0, high * 0.45, 0)}
+	fish.position = a
+	game.sfx("bite")
+	game.effects.splash(at + Vector3(0, 0.1, 0))
+	game.emit_event("leap", {"length": length, "height": high})
+	var out := [false, false]
+	var pose := func(p: float) -> void:
+		fish.position = BigFish.arc(a, b, high, p)
+		fish.basis = Basis.looking_at(BigFish.heading(a, b, high, p), Vector3.UP) * Basis(Vector3.BACK, sin(p * 26.0) * 0.4)
+		if p > 0.1 and not out[0]:
+			out[0] = true
+			game.sfx("water")
+			var rise := a.lerp(b, p)
+			for k in 3: game.effects.splash(Vector3(rise.x + randf_range(-0.6, 0.6), at.y + 0.1, rise.z + randf_range(-0.6, 0.6)))
+		if p > 0.9 and not out[1]:
+			out[1] = true
+			game.sfx("water")
+			for k in 5: game.effects.splash(Vector3(b.x + randf_range(-1.0, 1.0), at.y + 0.1, b.z + randf_range(-1.0, 1.0)))
+	var stare := func(k: float) -> void:
+		var top := BigFish.arc(a, b, high, 0.5)
+		fish.position = top + Vector3(0, sin(k * PI) * 0.15, 0)
+		var to_you := Vector3(pp.x - top.x, 0.0, pp.z - top.z).normalized()
+		var along := BigFish.heading(a, b, high, 0.5)
+		fish.basis = Basis.looking_at(along.lerp(to_you, sin(k * PI)).normalized(), Vector3.UP) * Basis(Vector3.BACK, sin(k * 40.0) * 0.12)
+	var tw: Tween = game.create_tween()
+	tw.tween_method(pose, 0.0, 0.5, 1.1).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tw.tween_method(stare, 0.0, 1.0, 1.2)
+	tw.tween_method(pose, 0.5, 1.0, 0.8).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	await tw.finished
+	fish.queue_free()
+	game.cam.cinema = {}
+	game.set_mode("explore")
 
 ## Which kinds of place give each item (for pointing the compass at the nearest one).
 const SOURCES := {"wood": ["chop"], "stone": ["mine"], "metal": ["mine", "bin"], "crystal": ["bin"], "clay": ["clay"], "flowers": ["flowers"],

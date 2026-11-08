@@ -1590,12 +1590,12 @@
   },
   {
    "id": "river_town_round",
-   "title": "Pierina's Round",
+   "title": "Pierina's Far Round",
    "giver": "river_town_pierina",
    "main": false,
    "type": "request",
    "chapter": 1,
-   "description": "Pierina's wrist is in a sling since the flood, so she walks her bike. Now you have one, do her round: letters for Ermes, Tullio, Gildo, Ines and Rina, and a parcel for Wanda that's shaped exactly like a tuba.",
+   "description": "Pierina's wrist is in a sling since the flood. She can still walk the town, but not the far end of her round: the farm out west, the station, Gildo's shack out on the floodplain, and over the river the sawmill and the plantation foreman's box at the edge of the poplars. Five letters, five letterboxes, as far apart as they can be. That's what a bike is for.",
    "requires": {
     "quests": [
      "river_town_bike"
@@ -1603,89 +1603,64 @@
    },
    "objectives": [
     {
-     "id": "letter_ermes",
-     "kind": "pay",
+     "id": "post_farm",
+     "kind": "event",
      "stage": 0,
-     "text": "Deliver Ermes's letter",
-     "npc": "river_town_ermes",
-     "items": {
-      "river_town_letter": 1
-     },
-     "label": "Hand over the letter",
-     "lines": [
-      "A letter from the river authority. Four pages. They'll write back in March, they say. It's November."
-     ]
+     "text": "Post a letter at the farm, out west",
+     "event": "post:river_town_box_farm",
+     "count": 1,
+     "hint": {
+      "x": -33.8,
+      "z": -27.6
+     }
     },
     {
-     "id": "letter_tullio",
-     "kind": "pay",
+     "id": "post_station",
+     "kind": "event",
      "stage": 0,
-     "text": "Deliver Tullio's letter",
-     "npc": "river_town_tullio",
-     "items": {
-      "river_town_letter": 1
-     },
-     "label": "Hand over the letter",
-     "lines": [
-      "…A postcard. From my sister. In Chioggia."
-     ]
+     "text": "Post a letter at the station",
+     "event": "post:river_town_box_station",
+     "count": 1,
+     "hint": {
+      "x": -22.6,
+      "z": -38.6
+     }
     },
     {
-     "id": "letter_gildo",
-     "kind": "pay",
+     "id": "post_shack",
+     "kind": "event",
      "stage": 0,
-     "text": "Deliver Gildo's letter",
-     "npc": "river_town_gildo",
-     "items": {
-      "river_town_letter": 1
-     },
-     "label": "Hand over the letter",
-     "lines": [
-      "A letter! From the fishing club. They've seen my drawings of the monster. They want to put one in the newsletter!"
-     ]
+     "text": "Post a letter in Gildo's biscuit tin, out on the floodplain",
+     "event": "post:river_town_box_shack",
+     "count": 1,
+     "hint": {
+      "x": -37.2,
+      "z": 30.4
+     }
     },
     {
-     "id": "letter_ines",
-     "kind": "pay",
+     "id": "post_sawmill",
+     "kind": "event",
      "stage": 0,
-     "text": "Deliver Ines's letter",
-     "npc": "river_town_ines",
-     "items": {
-      "river_town_letter": 1
-     },
-     "label": "Hand over the letter",
-     "lines": [
-      "The timber merchant in Pavia. Paying, at last. On time is too much to ask, but paying is a start."
-     ]
+     "text": "Post a letter at the sawmill, over the river",
+     "event": "post:river_town_box_sawmill",
+     "count": 1,
+     "hint": {
+      "x": 45.6,
+      "z": 23.0
+     }
     },
     {
-     "id": "letter_rina",
-     "kind": "pay",
+     "id": "post_poplars",
+     "kind": "event",
      "stage": 0,
-     "text": "Deliver Rina's letter",
-     "npc": "river_town_rina",
-     "items": {
-      "river_town_letter": 1
-     },
-     "label": "Hand over the letter",
-     "lines": [
-      "The brewery. The new tap's on its way. And a postcard of the sea from someone who owes me money. Cheeky."
-     ]
-    },
-    {
-     "id": "parcel",
-     "kind": "pay",
-     "stage": 0,
-     "text": "Deliver Wanda's parcel (it's shaped like a tuba)",
-     "npc": "river_town_wanda",
-     "items": {
-      "river_town_parcel": 1
-     },
-     "label": "Hand over the parcel",
-     "lines": [
-      "A parcel! For me! From Rimini! It's… a tuba. My sister sent me a tuba.",
-      "Well. Every dance hall needs a tuba. Does anybody play the tuba? Ermes? Ermes plays everything badly."
-     ]
+     "text": "Post a letter in the foreman's box at the edge of the poplars, over the river",
+     "event": "post:river_town_box_poplars",
+     "count": 1,
+     "hint": {
+      "x": 40.2,
+      "z": -11.0
+     }
     },
     {
      "id": "tell",
@@ -1708,29 +1683,28 @@
    "dialogue": {
     "offer": [
      "Look at me. One arm in a sling, a bag full of post and a bike I can only push. Thirty-one years and never late, and now this.",
-     "You've got wheels now, Geometra. Would you do my round? Just this once. Five letters and one parcel.",
-     "The parcel's for the Signora Wanda. It's shaped like a tuba. I'm not asking."
+     "The town I can do on foot. It's the far end that's beyond me: the farm out west, the station, Gildo's tin out on the floodplain, and over the river, the sawmill and the foreman's box at the edge of the poplars.",
+     "You've got wheels now, Geometra. Five letters, five letterboxes, the length of the map. Would you?"
     ],
-    "acceptLabel": "I'll do your round",
+    "acceptLabel": "I'll ride the far round",
     "declineLabel": "Not today",
     "accept": [
-     "Bless you. Ermes, Tullio, Gildo, Ines over the river, Rina at the bar. And the tuba. Don't stop for coffee at every house. Well. One or two."
+     "Bless you. The farm, the station, Gildo's tin, then over the Roman bridge for the sawmill and the poplars. Ride, don't walk. Don't stop for coffee. Well. Once."
     ],
     "decline": [
      "Of course. The post can wait. It's been waiting since the flood."
     ],
     "progress": [
-     "Ermes, Tullio, Gildo, Ines, Rina, and the Signora Wanda's tuba."
+     "The farm, the station, Gildo's tin, the sawmill and the poplar box. Five letterboxes, and mind the Roman bridge's cobbles."
     ],
     "complete": [
-     "All of them? Before lunch? Without a single coffee? You're a natural. A natural postwoman. Postman. Post-Geometra.",
+     "All five? The poplar box too? Before lunch? You're a natural. A natural postwoman. Postman. Post-Geometra.",
      "Here, for your trouble. And if you ever get tired of measuring things, the post office is always hiring."
     ]
    },
    "onAccept": {
     "items": {
-     "river_town_letter": 5,
-     "river_town_parcel": 1
+     "river_town_letter": 5
     }
    }
   },

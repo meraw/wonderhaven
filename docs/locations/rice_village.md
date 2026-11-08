@@ -440,6 +440,18 @@ One pull request per stage. Each keeps the game playable and the tests passing.
   of the square, and a railway cottage by the crossing.
 - **Builds:** each villager has a body of their own (`npcs.json`), from tiny Nonna and Matteo to the tall inspector.
 
+**The redesign's systems** (08/11, see `docs/STATUS.md`), as in Monteforchetta and Boccapioppo:
+- A work day that regrows overnight but keeps the clock running for the night express, the dawn inspection train and
+  the nativity (`"day"` with `"hold": false` in `location.json`).
+- Its own paper, *La Gazzetta del Binario Morto*, and Paletta opening the day's builds at dusk in his own words
+  (`naps`, `paper` and `inauguration` blocks in `layout.json`).
+- Tastes for the six villagers (`tastes.json`; the inspector is only visiting).
+- Six spots that want things (`hangouts`: the crossroads, the station forecourt, the church door, the farmyard, Nonna's
+  garden gate, the farm office) and an open area in the lanes and yards to build in (`rice_village_streets`); the
+  hamlet's needs don't move Monteforchetta's approval.
+- Every building request is a brief with musts and the villagers' wishes (`quests.json`). The inspector's shelter keeps
+  his four conditions, so it has four musts where the others have at most three.
+
 ## Checks for every stage
 `godot/run_tests.sh`, `npm test` and `npm run build`; screenshots of Casalrana in both renderers
 (`--island=rice_village`); from stage 3, the scripted playthrough of its requests. Each pull request says what was

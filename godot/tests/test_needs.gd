@@ -174,3 +174,31 @@ func test_approval_follows_the_village_but_milestones_stay():
 func test_the_paper_leads_with_what_was_noticed():
 	var p := MorningPaper.compose({"quests": [], "built": 0, "harmony": 5}, {"day": 3, "harmony": 5, "noticed": ["Nowhere to sit outside the bakery.", "It's dark on the church steps after dusk."], "weather": "rain"}, Data.paper, [], 0.0)
 	t.ok(p.notes.size() == 3 and String(p.notes[0]).contains("outside the bakery") and String(p.notes[1]).contains("church steps"), "noticed needs come first: %s" % str(p.notes))
+
+func test_boccapioppo_and_casalrana_have_spots_that_want_things():
+	var home := statics
+	for id in ["river_town", "rice_village"]:
+		Data.use_island(id)
+		statics = WorldStatics.build_statics(WorldStatics.generate_decor())
+		var hs := Needs.hangouts()
+		t.ok(hs.size() >= 5 and hs.all(func(h): return String(h.id).begins_with(id + "_")), "%s: %d spots of its own" % [id, hs.size()])
+		var open_zones: Array = Data.layout.zones.filter(func(z): return z.get("open", false))
+		var people: Array = Data.npcs_here().map(func(n): return String(n.id))
+		var w := _walk([])
+		for h in hs:
+			if h.has("who"): t.ok(people.has(String(h.who)), "%s: %s lives here" % [h.id, h.who])
+			t.ok(not BuildGrid.zone_at(open_zones, floor(float(h.x)), floor(float(h.z))).is_empty(), "%s is in the open streets, where you can build" % h.id)
+			t.ok(Needs.reach_cells(w, h).size() > 20, "%s: you can walk about in it" % h.id)
+			for kind in h.needs:
+				var by: Array = Data.pieces.filter(func(p): return p.get("provides", []).has(kind)).map(func(p): return String(p.id))
+				t.ok(by.any(func(pid): return _meets(pid, h, String(kind))), "%s: %s can be met there" % [h.id, kind])
+		t.ok(not Needs.approval_here(), "%s keeps its own meter, so its spots don't move Monteforchetta's approval" % id)
+		var s := GameState.new_game("Tester")
+		s.needs.noticed = ["bakery:seat", "piazza:green"]
+		t.eq(Needs.open_here(s, hs, {}), [], "%s doesn't list what Monteforchetta wanted" % id)
+		var first := Needs.notice(s, hs, {}, 0.3)
+		t.ok(first.size() == int(Data.needs.open_max) and first.all(func(k): return Needs.hangout(hs, String(k).get_slice(":", 0)).size() > 0), "%s notices its own needs, up to three at once: %s" % [id, str(first)])
+		t.ok(first.all(func(k): return Needs.line(hs, String(k)).contains(String(Needs.hangout(hs, String(k).get_slice(":", 0)).at))), "and says where")
+	Data.use_island("hearthglow")
+	statics = home
+	t.ok(Needs.approval_here(), "Monteforchetta's spots make its approval")
