@@ -21,6 +21,7 @@ static func as_if_played(places: Array, here: String, player_name: String = "Pip
 		if u.get("allBlueprints", false):
 			for p in Data.pieces: _plan(s, p.id)
 		s.unlocks_seen.append(u.get("id", ""))
+	s.approval_best = int(s.harmony)
 	s.island = here
 	var L: Dictionary = Data.read_layout(here)
 	var at: Dictionary = L.get("arrive", L.get("spawn", {"x": 0.0, "z": 0.0}))

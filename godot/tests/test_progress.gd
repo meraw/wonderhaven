@@ -10,6 +10,9 @@ func test_arriving_somewhere_as_if_monteforchetta_was_played():
 	for q in main:
 		approval += int(q.get("rewards", {}).get("harmony", 0)); lire += int(q.get("rewards", {}).get("items", {}).get("coins", 0))
 	t.eq(int(s.harmony), approval, "approval is what those requests gave")
+	t.eq(int(s.approval_best), int(s.harmony), "and it's the best approval so far, so the next point of approval doesn't announce every milestone on the way up again")
+	var reached: Array = Harmony.between(int(s.approval_best), int(s.harmony) + 1)
+	t.ok(reached.all(func(u): return float(u.at) > float(s.harmony)), "one more point of approval reaches no milestone already passed (%s)" % str(reached.map(func(u): return u.at)))
 	t.eq(int(s.inventory.get("coins", 0)), lire, "and so are the lire")
 	t.ok(s.flags.get("hasTool", false) and s.flags.get("orchardOpen", false) and s.flags.get("boatReady", false) and s.flags.get("homePlot", false), "their flags are set: the kit, the crossing, the bus line, the farmhouse deed")
 	t.ok(s.blueprints.has("flowerBed") and s.blueprints.has("roof") and s.blueprints.has("gardenPath"), "with the plans they gave, the deed's and accepting's included")
