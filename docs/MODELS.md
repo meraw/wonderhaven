@@ -74,7 +74,7 @@ on a real graphics card, and how the street feels to walk down, since the models
 2. **Characters.** Three ways to go:
    - **Keep the code-built chibis** and give villagers different bodies within that system: height, belly, leg
      length, shoulders. Cheapest, keeps the wardrobe and the face shader. Recommended now: it fixes the silhouette
-     problem.
+     problem. **Done in conversion step four:** a villager's appearance can set a `body` (height, width, belly).
    - **Bespoke Blender villagers**, keeping the code-built chibi for the player only, because of the wardrobe.
    - **Everyone in Blender** on one shared skeleton, with clothes as swappable meshes and the face shader on a
      textured head. The way most studio games do it, and the most work.

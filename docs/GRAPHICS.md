@@ -121,6 +121,14 @@ The terrain shader has a realistic variant too (`TerrainBuilder.terrain_code`, a
   daytime shadow. Step three gives the hall two wall lamps with warm lights of their own (no shadows, 4.6 m reach):
   at dawn the hall is now about as bright as before the conversion, and warm again.
 
+## Simpler graphics (conversion, step six)
+Settings has "Simpler graphics, for slower computers" (`simple_graphics`, applied in `game.gd`'s
+`_apply_quality`): no screen-space reflections, no SSAO, no multisample anti-aliasing, and two sun shadow cascades out
+to 45 m instead of four out to 70 m. In a wide view of Monteforchetta it halves texture memory (213 to 101 MB) and draw
+calls (4,632 to 2,447), and cuts triangles from 6.2 to 4.3 million, most of which are shadow passes. The look stays
+the same apart from softer contact shadows and no reflections in puddles. Depth blur, cloud shadows and ambient life
+could join it if a slow machine needs more.
+
 ## Tried and dropped
 - **Normal maps from the detail textures** (plaster, wood, stone, fabric). Invisible at gentle strengths, and at
   visible strengths the rim light made surfaces lighter and flatter. Fabric relief also broke on character meshes that

@@ -786,6 +786,7 @@ func begin_play() -> void:
 func apply_settings() -> void:
 	Controls.setup(settings.bindings)
 	_apply_outline()
+	_apply_quality()
 	_apply_window()
 	if audio: audio.set_volumes(settings.music, settings.sfx)
 	SaveSystem.store_settings(settings)
@@ -1292,6 +1293,22 @@ func unstick() -> void:
 func toggle_fullscreen() -> void:
 	settings.fullscreen = not settings.get("fullscreen", false)
 	apply_settings()
+
+var _msaa_default := -1
+
+func _apply_quality() -> void:
+	var simple: bool = settings.get("simple_graphics", false)
+	var compat := RenderingServer.get_current_rendering_method() == "gl_compatibility"
+	if env:
+		env.environment.ssr_enabled = Palette.real and not compat and not simple
+		env.environment.ssao_enabled = not compat and not simple
+	if sun:
+		sun.directional_shadow_mode = DirectionalLight3D.SHADOW_PARALLEL_2_SPLITS if simple else DirectionalLight3D.SHADOW_PARALLEL_4_SPLITS
+		sun.directional_shadow_max_distance = 45.0 if simple else 70.0
+	var vp := get_viewport()
+	if vp:
+		if _msaa_default < 0: _msaa_default = vp.msaa_3d
+		vp.msaa_3d = Viewport.MSAA_DISABLED if simple else _msaa_default
 
 func _apply_outline() -> void:
 	if outline: outline.visible = (outline_override == "1") if outline_override != "" else settings.get("outlines", true)

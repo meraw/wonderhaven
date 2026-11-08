@@ -484,9 +484,10 @@ func settings() -> void:
 		row.add_child(sl)
 	var toggles := [["↕️ Invert camera Y", "invert_y"], ["🌦️ Weather effects", "weather"], ["★ Evening inaugurations", "inaugurations"]]
 	if Outline.supported(): toggles.append(["✏️ Ink outlines", "outlines"])
+	toggles.append(["🖥️ Simpler graphics, for slower computers", "simple_graphics"])
 	toggles.append(["🖥️ Fullscreen (F11)", "fullscreen"])
 	for pair in toggles:
-		var cb := CheckBox.new(); cb.text = pair[0]; cb.button_pressed = st.get(pair[1], pair[1] != "fullscreen")
+		var cb := CheckBox.new(); cb.text = pair[0]; cb.button_pressed = st.get(pair[1], pair[1] not in ["fullscreen", "simple_graphics"])
 		var key2: String = pair[1]
 		cb.toggled.connect(func(v): st[key2] = v; game.apply_settings())
 		body.add_child(cb)

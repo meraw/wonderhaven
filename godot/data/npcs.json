@@ -26,7 +26,12 @@
     "shoesColor": "#3d4a2e",
     "hat": "none",
     "hatColor": "#ff8fab",
-    "accessory": "none"
+    "accessory": "none",
+    "body": {
+     "height": 1.02,
+     "width": 1.0,
+     "belly": 0.1
+    }
    },
    "schedule": [
     [
@@ -154,7 +159,11 @@
     "shoesColor": "#3a2c22",
     "hat": "none",
     "hatColor": "#ff9f5a",
-    "accessory": "pens"
+    "accessory": "pens",
+    "body": {
+     "height": 1.1,
+     "width": 0.92
+    }
    },
    "schedule": [
     [
@@ -274,7 +283,12 @@
     "shoesColor": "#1d1f26",
     "hat": "none",
     "hatColor": "#2f5fa8",
-    "accessory": "sash"
+    "accessory": "sash",
+    "body": {
+     "height": 0.9,
+     "width": 1.12,
+     "belly": 1.0
+    }
    },
    "schedule": [
     [
@@ -424,7 +438,11 @@
     "shoesColor": "#f2f2f2",
     "hat": "headphones",
     "hatColor": "#2a2a30",
-    "accessory": "discman"
+    "accessory": "discman",
+    "body": {
+     "height": 0.9,
+     "width": 0.94
+    }
    },
    "schedule": [
     [
@@ -552,7 +570,12 @@
     "shoesColor": "#8b5a3c",
     "hat": "none",
     "hatColor": "#ffffff",
-    "accessory": "apron"
+    "accessory": "apron",
+    "body": {
+     "height": 0.95,
+     "width": 1.1,
+     "belly": 0.6
+    }
    },
    "schedule": [
     [
@@ -658,7 +681,12 @@
     "shoesColor": "#1d1f26",
     "hat": "drivercap",
     "hatColor": "#2f3f6a",
-    "accessory": "beard"
+    "accessory": "beard",
+    "body": {
+     "height": 1.04,
+     "width": 1.1,
+     "belly": 0.7
+    }
    },
    "schedule": [
     [
@@ -758,7 +786,12 @@
     "shoesColor": "#5a3d2b",
     "hat": "none",
     "hatColor": "#ffffff",
-    "accessory": "glasses"
+    "accessory": "glasses",
+    "body": {
+     "height": 0.95,
+     "width": 1.02,
+     "belly": 0.5
+    }
    },
    "schedule": [
     [
@@ -856,7 +889,11 @@
     "shoesColor": "#3a2e2a",
     "hat": "beanie",
     "hatColor": "#e0594f",
-    "accessory": "scarf"
+    "accessory": "scarf",
+    "body": {
+     "height": 1.08,
+     "width": 0.93
+    }
    },
    "schedule": [
     [
@@ -944,7 +981,11 @@
     "shoesColor": "#2e2420",
     "hat": "goggles",
     "hatColor": "#ffd166",
-    "accessory": "none"
+    "accessory": "none",
+    "body": {
+     "height": 1.0,
+     "width": 1.1
+    }
    },
    "schedule": [
     [
