@@ -12,6 +12,7 @@ const P := preload("res://scripts/world/palette.gd")
 const Mist := preload("res://scripts/locations/river_town/mist.gd")
 const Animals := preload("res://scripts/locations/river_town/animals.gd")
 const Sounds := preload("res://scripts/locations/river_town/sounds.gd")
+const Flood := preload("res://scripts/locations/river_town/flood.gd")
 
 static var _meshes: Dictionary = {}
 
@@ -25,7 +26,7 @@ static func dress(village: Node3D, rt) -> void:
 	_flood(village, rt)
 	_quay(village, rt)
 	_jetty(village)
-	_storm(village)
+	_storm(village, rt)
 	_bikes(village)
 	_reeds(village, rt)
 	_stubble(village)
@@ -144,6 +145,7 @@ static func _roman_bridge(village: Node3D, rt) -> void:
 	var ac: float = rt.alpine_center(z0)
 	var stone := _two_sided(P.stone("cbbfa8")); var cap := _two_sided(P.stone("ddd2bd")); var ring := _two_sided(P.stone("e2d8c4"))
 	var shadow := _two_sided(P.mat("2e3330"))
+	var paving := _two_sided(P.stone("b3a68e"))
 	var x0 := ac - 8.0; var x1 := ac + 8.0
 	var spans := [[ac - 5.1, ac - 1.75], [ac - 1.65, ac + 1.65], [ac + 1.75, ac + 5.1]]
 	var arch := func(x: float) -> float:   # the underside of the arches at x (-1.0: solid down into the riverbed)
@@ -168,19 +170,26 @@ static func _roman_bridge(village: Node3D, rt) -> void:
 			var first: bool = e == sp[0]
 			xs.insert(at, e); lo.insert(at, outer if first else inner); top.insert(at, H(e, z0))
 			xs.insert(at + 1, e); lo.insert(at + 1, inner if first else outer); top.insert(at + 1, H(e, z0))
+	var deck_top: Array = top.map(func(h): return h + 0.03)
+	village.add_child(_slab(xs, lo, deck_top, z0, 2.0 * (half + 0.08) + 0.3, stone))
+	village.add_child(_slab(xs, deck_top.map(func(h): return h - 0.05), deck_top.map(func(h): return h + 0.02), z0, 2.0 * half - 0.1, paving))
 	for zs in [-1.0, 1.0]:
 		var zc: float = z0 + zs * (half + 0.08)
 		var wall_top: Array = top.map(func(h): return h + 0.5)
-		village.add_child(_slab(xs, lo, wall_top, zc, 0.3, stone))   # spandrel and parapet in one
-		village.add_child(_slab(xs, wall_top, wall_top.map(func(h): return h + 0.08), zc, 0.38, cap))   # cap stones
+		village.add_child(_slab(xs, deck_top, wall_top, zc, 0.3, stone))
+		village.add_child(_slab(xs, wall_top, wall_top.map(func(h): return h + 0.08), zc, 0.38, cap))
 		var face: float = zc + zs * 0.16
-		for sp in spans:   # a ring of dressed stones round each arch, and the shadow under it
+		for sp in spans:
 			village.add_child(_arch_band(sp, face, zs, 0.2, ring))
-			village.add_child(_arch_fill(sp, z0 + zs * (half - 0.12), zs, shadow))
-	for px in [ac - 1.7, ac + 1.7]:   # cutwaters against the current, upstream (north) and down
+	for sp in spans:
+		village.add_child(_arch_fill(sp, z0, 1.0, shadow))
+	for px in [ac - 1.7, ac + 1.7]:
 		for zs in [-1.0, 1.0]:
-			var cw := P.mi(P.box(0.9, 1.6, 0.9), stone, Vector3(px, -0.2, z0 + zs * (half + 0.45)))
+			var at := Vector3(px, -0.75, z0 + zs * (half + 0.45))
+			var cw := P.mi(P.box(0.9, 1.3, 0.9), stone, at)
 			cw.rotation.y = PI / 4; village.add_child(cw)
+			var hood := P.mi(P.cyl(0.02, 0.66, 0.55, 4), cap, at + Vector3(0.0, 0.92, 0.0))
+			village.add_child(hood)
 	# flood debris caught against the piers upstream
 	var wood := P.wood("6b5440")
 	for k in 6:
@@ -414,14 +423,38 @@ static func _jetty(village: Node3D) -> void:
 			village.add_child(P.mi(P.cyl(0.09, 0.1, 1.4, 6), P.wood("6b5440"), Vector3(c.x, top - 0.6, c.y)))
 
 ## The storm night: the Po and the Alpine river swollen to the brim of their banks, until it's over.
-static func _storm(village: Node3D) -> void:
+static func _storm(village: Node3D, rt) -> void:
 	if not _flag("river_town_storm") or _flag("river_town_flood_over"): return
 	var rise := 0.32
 	var water: MeshInstance3D = village.get("water")
 	if water == null: return
 	water.position.y += rise
 	var sm := water.material_override as ShaderMaterial
-	if sm: sm.set_shader_parameter("water_y", Heightfield.WATER_Y + rise)
+	if sm == null: return
+	sm.set_shader_parameter("water_y", Heightfield.WATER_Y + rise)
+	var flood := Node3D.new()
+	flood.name = "river_town_flood"
+	flood.set_script(Flood)
+	flood.set("rt", rt)
+	var fm: ShaderMaterial = sm.duplicate()
+	fm.set_shader_parameter("has_tints", false)
+	fm.set_shader_parameter("opaque", 0.93)
+	fm.set_shader_parameter("shallow", Color("8a7a5e"))
+	fm.set_shader_parameter("mid", Color("6f6249"))
+	fm.set_shader_parameter("deep", Color("54493a"))
+	fm.set_shader_parameter("foam_amount", 0.0)
+	flood.set("material", fm)
+	var low: float = rt.FLOOD_H - 0.3
+	for r in [Rect2(-70.0, rt.LEVEE_Z, 140.0, 50.0), Rect2(rt.LEVEE_X, -70.0, 52.0, 70.0 + rt.LEVEE_Z)]:
+		var pm := PlaneMesh.new()
+		pm.size = r.size
+		var mi := MeshInstance3D.new()
+		mi.mesh = pm
+		mi.material_override = fm
+		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		mi.position = Vector3(r.get_center().x, low, r.get_center().y)
+		flood.add_child(mi)
+	village.add_child(flood)
 
 # ---- everyday details ----------------------------------------------------------------------------------------------
 

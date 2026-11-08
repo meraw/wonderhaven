@@ -87,7 +87,7 @@
        20,
        23,
        "hallG",
-       "idle"
+       "dance"
       ]
      ]
     },
@@ -198,7 +198,7 @@
        20,
        23,
        "hallG",
-       "idle"
+       "dance"
       ]
      ]
     },
@@ -398,7 +398,7 @@
        20,
        22,
        "hallF",
-       "idle"
+       "dance"
       ]
      ]
     },
@@ -444,7 +444,7 @@
        20,
        22,
        "hallF",
-       "idle"
+       "dance"
       ]
      ]
     },
@@ -612,7 +612,7 @@
        20,
        22,
        "hallB",
-       "idle"
+       "dance"
       ]
      ]
     },
@@ -664,7 +664,7 @@
        20,
        22,
        "hallB",
-       "idle"
+       "dance"
       ]
      ]
     }
@@ -819,7 +819,7 @@
        20,
        22,
        "hallD",
-       "idle"
+       "dance"
       ]
      ]
     },
@@ -877,7 +877,7 @@
        20,
        22,
        "hallD",
-       "idle"
+       "dance"
       ]
      ]
     }
@@ -1006,7 +1006,7 @@
        20,
        22,
        "hallE",
-       "idle"
+       "dance"
       ]
      ]
     },
@@ -1052,7 +1052,7 @@
        20,
        22,
        "hallE",
-       "idle"
+       "dance"
       ]
      ]
     }
@@ -1175,6 +1175,18 @@
       ],
       [
        14,
+       20,
+       "river_town_dance_hall:spot",
+       "work"
+      ],
+      [
+       20,
+       22,
+       "river_town_dance_hall:spot",
+       "dance"
+      ],
+      [
+       22,
        24,
        "river_town_dance_hall:spot",
        "work"
@@ -1215,6 +1227,18 @@
       ],
       [
        14,
+       20,
+       "river_town_dance_hall:spot",
+       "work"
+      ],
+      [
+       20,
+       22,
+       "river_town_dance_hall:spot",
+       "dance"
+      ],
+      [
+       22,
        24,
        "river_town_dance_hall:spot",
        "work"
@@ -1331,7 +1355,7 @@
        20,
        23,
        "hallA",
-       "idle"
+       "dance"
       ]
      ]
     },
@@ -1365,7 +1389,7 @@
        20,
        23,
        "hallA",
-       "idle"
+       "dance"
       ]
      ]
     }
@@ -1510,7 +1534,7 @@
        20,
        22,
        "hallH",
-       "idle"
+       "dance"
       ]
      ]
     },
@@ -1562,7 +1586,7 @@
        20,
        22,
        "hallH",
-       "idle"
+       "dance"
       ]
      ]
     }
@@ -1729,7 +1753,7 @@
        20,
        22,
        "hallC",
-       "idle"
+       "dance"
       ]
      ]
     },
@@ -1787,7 +1811,7 @@
        20,
        22,
        "hallC",
-       "idle"
+       "dance"
       ]
      ]
     }

@@ -179,7 +179,7 @@ func update(dt: float) -> void:
 		elif pd > 6.0: greeted = false
 	var s: Dictionary = game.walk.surface_at(pos.x, pos.z, pos.y + 0.3)
 	if s.walkable and not seated(): pos.y = s.y
-	var hold: String = "talk" if talking else ("ride" if riding else ("" if speed > 0.0 else {"garden": "garden", "work": "work", "read": "read", "talk": "talk", "sleep": "sleep", "sit": "sit"}.get(activity, "")))
+	var hold: String = "talk" if talking else ("ride" if riding else ("" if speed > 0.0 else {"garden": "garden", "work": "work", "read": "read", "talk": "talk", "sleep": "sleep", "sit": "sit", "dance": "dance"}.get(activity, "")))
 	if hold != "":
 		if character.hold != hold: character.play(hold, true)
 	elif character.hold != "": character.stop_hold()

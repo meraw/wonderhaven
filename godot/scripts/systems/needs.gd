@@ -133,6 +133,12 @@ static func know(state: Dictionary, keys: Array) -> void:
 static func open_keys(state: Dictionary, met: Dictionary) -> Array:
 	return of(state).noticed.filter(func(k): return not met.get(k, false))
 
+static func approval_here() -> bool: return LocationMeter.def(Data.island).is_empty()
+
+static func open_here(state: Dictionary, hs: Array, met: Dictionary) -> Array:
+	var ids: Array = hs.map(func(h): return String(h.id))
+	return open_keys(state, met).filter(func(k): return ids.has(String(k).get_slice(":", 0)))
+
 static func can_build(kind: String, blueprints: Array) -> bool:
 	for p in Data.pieces:
 		if p.get("provides", []).has(kind) and blueprints.has(p.id): return true
@@ -140,7 +146,7 @@ static func can_build(kind: String, blueprints: Array) -> bool:
 
 static func notice(state: Dictionary, hs: Array, met: Dictionary, roll: float) -> Array:
 	var noticed: Array = of(state).noticed
-	var room := int(Data.needs.get("open_max", 3)) - open_keys(state, met).size()
+	var room := int(Data.needs.get("open_max", 3)) - open_here(state, hs, met).size()
 	var pool: Array = []
 	for h in hs:
 		for kind in h.get("needs", []):

@@ -206,9 +206,9 @@ func render_tracker() -> void:
 		tracker.add_child(p)
 
 func _village_needs() -> void:
-	var open := Needs.open_keys(game.state, Needs.met_keys(game.village_score))
-	if open.is_empty(): return
 	var hs := Needs.hangouts()
+	var open := Needs.open_here(game.state, hs, Needs.met_keys(game.village_score))
+	if open.is_empty(): return
 	var p := UiTheme.panel(Color("fff4f7"), UiTheme.PINK, 18); p.mouse_filter = Control.MOUSE_FILTER_IGNORE; p.name = "village_needs"
 	var v := VBoxContainer.new(); p.add_child(v)
 	v.add_child(UiTheme.label("📈 The village could use", 15))
