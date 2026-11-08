@@ -118,7 +118,7 @@ is shown. One euro is 1,936.27 lire, rounded to the cent: one coin is €0.52, a
 | When | What prices show |
 | --- | --- |
 | Before Tonnarella | Lire only, as now. |
-| Arriving in Tonnarella | Tonnarella's own shops show both, lire first ("1,000 lire (€0.52)"), as the law of the two-currency weeks says. The wallet and the other places still show lire. |
+| Arriving in Tonnarella | Every amount shown while you're in Tonnarella (the wallet, the shops, build costs) shows both, lire first ("1,000 lire (€0.52)"), as the law of the two-currency weeks says. The other places still show lire. |
 | 10%: "Prices in both" | The euro converter: the wallet, the bag, toasts and every shop, in every place, show both, lire first. |
 | 50%: "Euros first" | The euro becomes the main figure everywhere: "€0.52 (1,000 lire)". |
 | 100%: "The last lira" | Euros only, in every place, for the rest of the game: "€0.52". |
@@ -286,7 +286,7 @@ Each is the smallest general version, comes with a test, and is named at the top
 
 | Change | Why | Stage |
 | --- | --- | --- |
-| **The euro on screen:** `Money` shows lire, both with lire first, both with euros first, or euros only, chosen by story flags (which Tonnarella's milestones set), with a place's own shops able to show both from arrival. One rate, rounded to the cent. Before any flag is set, every printed amount stays exactly as it is today (tested). | The changeover, in every place | 3 |
+| **The euro on screen:** `Money` shows lire, both with lire first, both with euros first, or euros only, chosen by story flags (which Tonnarella's milestones set), with a place able to show both from arrival. One rate, rounded to the cent. Before any flag is set, every printed amount stays exactly as it is today (tested). | The changeover, in every place | 3a (done) |
 | **A mandolin voice** in the music synth, if the existing plucked voice doesn't pass for one | The music | 4, optional |
 | **Wind that changes with the weather**, only if the look block's wind can't make tramontana days windier than scirocco days | The look | 4, optional |
 
@@ -498,3 +498,33 @@ What exists now, and the choices made while building that the design above didn'
 - **Seen** in screenshots in both renderers: the harbour from the air, the arcades, an alley with Nonna's balcony, the
   church square, the station, and the view across the bay. In the compatibility renderer, from the playthrough: every
   room, the roof terrace, the gallery and the square at night.
+
+**Stage 3a, the euro on screen** (a shared change):
+- **How it works:** `Money` (`godot/scripts/systems/money.gd`) shows a sum in one of four ways:
+  - lire, as before;
+  - both, with lire first: "1,000 lire (€0.52)";
+  - both, with euros first: "€0.52 (1,000 lire)";
+  - euros only: "€0.52".
+
+  One euro is 1,936.27 lire, rounded to the cent.
+- **The `currency` block:** a place's map entry can name the story flags that switch the whole game to each of the
+  last three, and can show both while you're there. Tonnarella's entry names `port_euro_both`, `port_euro_first` and
+  `port_euro_only` (set by the changeover's milestones in stage 3b) and shows both from arrival.
+- **What changed in shared code:**
+  - The game tells `Money` where its story flags are (one line in `game.gd`).
+  - The wallet, shop prices, toasts and request lines already went through `Money`. Build mode's cost line now does
+    too (`Money.short`: the main figure only).
+- **Checked:**
+  - **Tested:** `godot/tests/test_money.gd`, a new shared test file, checks:
+    - every amount prints exactly as before when no flag is set;
+    - euros to the cent;
+    - the four ways of showing a price;
+    - a place switching the currency with its flags;
+    - the game's flags choosing what you see.
+
+    `test_port.gd` checks Tonnarella's own block.
+  - **Played:** in `play_port`, the wallet reads "1,000,000 lire (€516.46)" on arrival in Tonnarella. Monteforchetta's
+    shop playthrough (`play_shop`) still passes, lire only.
+  - **Seen:** the € sign renders in the HUD's font.
+  - **Not yet:** no flag is set in play until the changeover meter arrives (stage 3b), so the later steps are only
+    unit-tested.

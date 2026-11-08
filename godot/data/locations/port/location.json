@@ -7,6 +7,7 @@
  "desc": "The old quarter of a port on a rocky headland: tall palazzi, stair lanes, laundry lines, and a lighthouse gone dark since the February storm.",
  "reveal": "metropolis_angel_lit",
  "bikes": false,
+ "currency": {"both": "port_euro_both", "first": "port_euro_first", "euro": "port_euro_only", "here": "both"},
  "look": {
   "shade": [0.0, 0.006, 0.022],
   "light": [1.03, 1.01, 0.98],

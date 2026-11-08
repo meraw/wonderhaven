@@ -299,3 +299,11 @@ func test_you_arrive_off_the_train_as_if_you_had_played_the_way_here():
 	var L := _layout()
 	t.eq(Vector2(s.player.x, s.player.z), Vector2(L.arrive.x, L.arrive.z), "you stand where the train leaves you")
 	_on(func(): t.eq(Port.level(L.arrive.x, L.arrive.z), "top", "on the station forecourt, at the top"))
+
+func test_prices_show_both_currencies_from_arrival():
+	var c: Dictionary = Data.island_def("port").get("currency", {})
+	for k in ["both", "first", "euro"]: t.ok(String(c.get(k, "")).begins_with("port_euro_"), "the changeover's %s flag is Tonnarella's" % k)
+	t.eq(Money.mode_for({}, "port"), "both", "prices in Tonnarella show both from arrival")
+	t.eq(Money.mode_for({}, "river_town"), "lire", "the other places keep lire until the changeover")
+	t.eq(Money.mode_for({c.both: true}, "river_town"), "both", "then both everywhere")
+	t.eq(Money.mode_for({c.both: true, c.first: true, c.euro: true}, "hearthglow"), "euro", "and in the end euros only, everywhere")

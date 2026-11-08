@@ -81,6 +81,9 @@ func play() -> void:
 	var off := Vector2(game.player.pos.x - ar.x, game.player.pos.z - ar.z).length()
 	step("off the train on the station forecourt, at the top", off < 1.0 and absf(feet() - Port.TOP_H) < 0.05, str(game.player.pos))
 	step("Toriano's finale is behind you and Tonnarella is on the travel map", game.state.flags.get("metropolis_angel_lit", false) and Travel.on_map(Data.island_def("port"), game.state.flags, "port"))
+	var chip := game.hud_res.find_child("res_coins", true, false) as Control
+	var wallet: String = (chip.get_child(0) as Label).text if chip else "no chip"
+	step("the wallet shows lire and euros in Tonnarella", wallet.contains(" lire (€"), wallet)
 	await look(PI, 0.35, 12.0)
 	await shot("arrival")
 
