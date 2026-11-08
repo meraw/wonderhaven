@@ -156,3 +156,46 @@ func test_build_sites_fit_their_jobs():
 					lo = minf(lo, BuildGrid.ground_at(i, k))
 					hi = maxf(hi, BuildGrid.ground_at(i, k))
 			t.ok(hi - lo < 0.2, "%s is level ground to build on (%.2f m)" % [id, hi - lo]))
+
+func test_rooms_you_can_walk_into():
+	_on(func():
+		var rooms := ["olive_village_osteria", "olive_village_barber", "olive_village_sandals", "olive_village_church",
+			"olive_village_farmhouse", "olive_village_boathouse", "olive_village_empty_house"]
+		for id in rooms:
+			var b: Dictionary = Data.layout.buildings.filter(func(x): return x.id == id)[0]
+			t.ok(Interiors.enterable(b), "%s is a room you can walk into" % id)
+			t.ok(Data.layout.nav_nodes.has(String(b.get("navDoor", ""))), "%s has a spot outside its door" % id)
+			t.ok(not Schedule.find_path("beach", id + ":spot", {}).is_empty(), "you can walk from the beach into %s" % id)
+		var empty: Dictionary = Data.layout.buildings.filter(func(x): return x.id == "olive_village_empty_house")[0]
+		t.ok(empty.interior.get("empty", false) and empty.interior.items.is_empty(), "the empty house beside the osteria waits, bare, for the finale"))
+
+func test_landmarks_and_trees():
+	_on(func():
+		var by_id := {}
+		for b in Data.layout.buildings: by_id[b.id] = b
+		var tallest := 0.0
+		for b in Data.layout.buildings:
+			if b.id != "olive_village_belltower": tallest = maxf(tallest, float(b.get("h", 0.0)))
+		t.ok(float(by_id["olive_village_belltower"].h) > tallest, "the church's tiled spire rises above every roof")
+		t.ok(not by_id["olive_village_washhouse"].get("solid", true), "the wash-house is open-sided")
+		var statics := WorldStatics.build_statics(WorldStatics.generate_decor())
+		var w := WalkWorld.new(statics, func(_f): return true)
+		var wash: Dictionary = by_id["olive_village_washhouse"]
+		t.ok(w.blocked(wash.x, wash.z, Heightfield.height(wash.x, wash.z), 0.3), "its stone basin is solid")
+		t.ok(not w.blocked(wash.x + 1.0, wash.z + 1.2, Heightfield.height(wash.x + 1.0, wash.z + 1.2), 0.3), "but you can walk in under its roof")
+		var trees: Array = Data.layout.props.filter(func(p): return p.kind == "olive_village_tree")
+		t.ok(trees.filter(func(p): return p.tree == "olive").size() >= 80, "olive trees stand in rows on the terraces (%d)" % trees.size())
+		var level := true
+		var dry := true
+		var off_sites := true
+		for p in trees:
+			var h := Heightfield.height(p.x, p.z)
+			dry = dry and h > 0.4
+			if p.x > OV.torrent_center(p.z):
+				for o in [Vector2(0.6, 0.0), Vector2(-0.6, 0.0), Vector2(0.0, 0.6), Vector2(0.0, -0.6)]:
+					level = level and absf(Heightfield.height(p.x + o.x, p.z + o.y) - h) < 0.05
+			for zn in Data.layout.zones:
+				if BuildGrid.zone_contains(zn, floorf(p.x), floorf(p.z), 999): off_sites = false
+		t.ok(dry and level, "every tree is on dry land, and on the terraces it stands on a level tread, clear of the walls")
+		t.ok(off_sites, "no tree stands on a build site")
+		t.ok(Data.layout.props.filter(func(p): return p.kind == "olive_village_arch").size() == 3, "three covered passages arch over the alley from the bridge to the piazza"))

@@ -23,6 +23,7 @@ const CRAG_RISE := 4.5
 const GULLY_W := -83.0
 const GULLY_E := 83.0
 const GULLY_HALF := 2.5
+const GULLY_BANK := 9.0
 const SHELF := Rect2(9.9, 18.0, 4.1, 10.0)
 const SHELF_H := 0.25
 const FALLEN := Rect2(34.0, -20.0, 12.0, 6.0)
@@ -49,7 +50,7 @@ const PADS := [
 	[-31.5, -6.0, 3.0, 4.0, 13.8],
 	[-7.0, -3.0, 3.0, 2.6, -99.0],
 	[-19.75, 14.8, 6.0, 6.0, -99.0],
-	[-34.0, -27.0, 5.0, 11.5, -99.0],
+	[-34.5, -27.0, 6.0, 11.5, -99.0],
 	[-44.0, -61.0, 7.0, 6.0, -99.0],
 	[-45.0, -6.0, 3.3, 3.3, -99.0],
 	[-39.0, 5.0, 3.3, 3.3, -99.0],
@@ -187,7 +188,7 @@ static func _gullies(x: float, h: float) -> float:
 	for gx in [GULLY_W, GULLY_E]:
 		var d := absf(x - gx)
 		if d < GULLY_HALF: h = minf(h, lerpf(-1.0, -0.6, ss(GULLY_HALF - 1.0, GULLY_HALF, d)))
-		elif d < GULLY_HALF + 1.2: h = minf(h, lerpf(-0.5, h, ss(GULLY_HALF, GULLY_HALF + 1.2, d)))
+		elif d < GULLY_HALF + GULLY_BANK: h = minf(h, lerpf(-0.5, h, ss(GULLY_HALF, GULLY_HALF + GULLY_BANK, d)))
 	return h
 
 static func _sea(x: float, z: float, h: float) -> float:
@@ -205,10 +206,10 @@ static func height(x: float, z: float) -> float:
 	var h := s
 	if x > torrent_center(z): h = _east_ground(p, s)
 	h = _pads(p, h)
+	h = _gullies(x, h)
 	if z < CRAG_Z: h += CRAG_RISE
 	h = _torrent(x, z, h)
 	if SHELF.has_point(p): h = SHELF_H
-	h = _gullies(x, h)
 	return _sea(x, z, h)
 
 static func is_stream_cell(i: float, k: float) -> bool:
@@ -226,6 +227,7 @@ const C_VILLAGE := Color("b5a868")
 const C_GRAVEL := Color("c8b48e")
 const C_STAIRS := Color("b3a891")
 const C_ROCK := Color("8f8a7e")
+const C_WALL := Color("a89f8d")
 const C_PEBBLES := Color("cfc6b4")
 const C_BED := Color("8a8578")
 const C_SEABED := Color("b9ad94")
@@ -233,6 +235,12 @@ const C_SEABED := Color("b9ad94")
 static func _bare(c: Color) -> Color: return Color(c.r, c.g, c.b, 0.0)
 
 static func _grown(c: Color, a: float) -> Color: return Color(c.r, c.g, c.b, a)
+
+static func steep(x: float, z: float, h: float) -> bool:
+	var d := 0.0
+	for o in [Vector2(0.5, 0.0), Vector2(-0.5, 0.0), Vector2(0.0, 0.5), Vector2(0.0, -0.5)]:
+		d = maxf(d, absf(height(x + o.x, z + o.y) - h))
+	return d > 0.8
 
 static func paint(x: float, z: float) -> Color:
 	var h := height(x, z)
@@ -245,6 +253,7 @@ static func paint(x: float, z: float) -> Color:
 	if z < CRAG_Z: return _bare(C_ROCK.lerp(C_ROCK.lightened(0.12), n))
 	if SHELF.has_point(p): return _bare(C_STAIRS.darkened(0.12))
 	if absf(x - tc) < torrent_half(z) + 1.2 and h > 0.6: return _bare(C_ROCK.lerp(C_ROCK.darkened(0.12), n))
+	if absf(absf(x) - GULLY_E) < GULLY_HALF + 2.0: return _bare(C_ROCK.lerp(C_ROCK.darkened(0.1), n))
 	if z > shore(x) - 6.0 and h < 1.6: return _bare(C_PEBBLES.lerp(C_PEBBLES.darkened(0.08), n))
 	if x > tc:
 		if line_dist(p, CART) < CART_HALF: return _bare(C_GRAVEL.lerp(C_GRAVEL.darkened(0.1), n))
@@ -253,6 +262,7 @@ static func paint(x: float, z: float) -> Color:
 		if FALLEN.has_point(p): return _bare(C_ROCK.lerp(C_TERRACE[2], 0.5))
 		if z < TERRACE_NORTH: return _grown(C_WOODS.lerp(C_WOODS.darkened(0.15), n), 1.0)
 		if z < TERRACE_SOUTH:
+			if steep(x, z, h): return _bare(C_WALL.lerp(C_WALL.darkened(0.18), n))
 			var g: Color = C_TERRACE[0].lerp(C_TERRACE[1], n)
 			return _grown(g.lerp(C_TERRACE[2], 0.25 * sin(x * 0.11 + z * 0.07) + 0.25), 0.35)
 		return _grown(C_SCRUB.lerp(C_TERRACE[1], n * 0.5), 0.85)
@@ -260,107 +270,22 @@ static func paint(x: float, z: float) -> Color:
 	if x < RIDGE_X - 8.0 or z > 26.0: return _grown(C_SCRUB.lerp(C_SCRUB.darkened(0.1), n), 0.9)
 	return _grown(C_VILLAGE.lerp(C_TERRACE[0], n * 0.5), 0.45)
 
-const WHITEWASH := Color("f1ece0")
-const STONE := Color("a39a8a")
-const TERRACOTTA := Color("b8643c")
-const DOOR := Color("5d4a3a")
+const Models := preload("olive_village/models.gd")
+const Scenery := preload("olive_village/scenery.gd")
 
 static func building(b: Dictionary) -> Node3D:
-	var root := Node3D.new()
-	var w := float(b.w)
-	var d := float(b.d)
-	var h := float(b.get("h", 4.0))
-	var kind := String(b.get("kind", "house"))
-	var wall := Color(String(b.get("wall", WHITEWASH.to_html(false))))
-	var roof := Color(String(b.get("roof", TERRACOTTA.to_html(false))))
-	var sink := 2.0
-	var body: float = 1.2 if kind == "tank" else h
-	var wall_mat: Material = Palette.stone(wall) if kind in ["tank", "tower", "washhouse"] else Palette.plaster(wall)
-	root.add_child(Palette.mi(Palette.box(w, body + sink, d), wall_mat, Vector3(0, (body - sink) / 2.0, 0)))
-	if kind == "tank":
-		root.add_child(Palette.mi(Palette.box(w - 0.5, 0.1, d - 0.5), Palette.mat(Color("6b7f86")), Vector3(0, body + 0.01, 0)))
-		return root
-	if kind != "tower":
-		root.add_child(Palette.mi(Palette.box(w + 0.5, 0.4, d + 0.5), Palette.mat(roof), Vector3(0, body + 0.2, 0)))
-		root.add_child(Palette.mi(Palette.box(w * 0.6, 0.5, d * 0.6), Palette.mat(roof.darkened(0.1)), Vector3(0, body + 0.65, 0)))
-	if kind == "church":
-		root.add_child(Palette.mi(Palette.box(2.6, h + 6.0, 2.6), Palette.plaster(wall), Vector3(w / 2.0 - 1.3, (h + 6.0) / 2.0, -d / 2.0 + 1.3)))
-		root.add_child(Palette.mi(Palette.box(1.8, 2.2, 1.8), Palette.mat(Color("2f7d5b")), Vector3(w / 2.0 - 1.3, h + 7.1, -d / 2.0 + 1.3)))
-	var side := String(b.get("door", ""))
-	var face := {"N": Vector3(0, 1.0, -d / 2.0), "S": Vector3(0, 1.0, d / 2.0), "E": Vector3(w / 2.0, 1.0, 0), "W": Vector3(-w / 2.0, 1.0, 0)}
-	if face.has(side):
-		var along_x: bool = side in ["N", "S"]
-		var door := Palette.box(1.1 if along_x else 0.12, 2.0, 0.12 if along_x else 1.1)
-		root.add_child(Palette.mi(door, Palette.mat(DOOR), face[side]))
-	return root
+	return Models.build(b)
 
 static func dress(village: Node3D) -> void:
-	_far_land(village, village.terrain.material_override)
-	_bridge(village)
+	Scenery.dress(village)
 
 static func far_height(x: float, z: float) -> float:
 	var cx := clampf(x, -MAP_HALF, MAP_HALF)
 	var cz := clampf(z, -MAP_HALF, MAP_HALF)
 	var edge := height(cx, cz)
 	var beyond := Vector2(x - cx, z - cz).length()
-	var hill := 14.0 + 0.16 * beyond + 0.22 * maxf(0.0, -z) + 5.0 * sin(x * 0.021 + 1.3) * cos(z * 0.017)
-	var coast := shore(x)
+	var hill := 12.0 + 30.0 * ss(0.0, 260.0, beyond) + 6.0 * sin(x * 0.021 + 1.3) * cos(z * 0.017)
+	var head := 1.0 - ss(40.0, 95.0, Vector2((x - 300.0) * 0.7, z - 105.0).length())
+	var coast := shore(x) + 70.0 * head
 	if z > coast - 18.0: hill = lerpf(hill, -3.0, ss(coast - 18.0, coast + 4.0, z))
 	return lerpf(edge, hill, ss(0.0, 40.0, beyond))
-
-static func _far_colour(x: float, z: float, y: float) -> Color:
-	if y < 0.6: return C_PEBBLES
-	var n := 0.5 + 0.5 * sin(x * 0.05 + cos(z * 0.04) * 2.0)
-	var c := C_SCRUB.lerp(C_WOODS, ss(10.0, 40.0, y)).lerp(C_TERRACE[1], 0.3 * n)
-	return c.lerp(C_ROCK, ss(55.0, 80.0, y))
-
-static func _far_land(village: Node3D, mat: Material) -> void:
-	var st := SurfaceTool.new()
-	st.begin(Mesh.PRIMITIVE_TRIANGLES)
-	var reach := 360.0
-	var step := 8.0
-	var count := int(reach * 2.0 / step)
-	var idx := 0
-	for j in count:
-		for i in count:
-			var x0 := -reach + i * step
-			var z0 := -reach + j * step
-			var x1 := x0 + step
-			var z1 := z0 + step
-			if x0 >= -MAP_HALF and x1 <= MAP_HALF and z0 >= -MAP_HALF and z1 <= MAP_HALF: continue
-			for c in [Vector2(x0, z0), Vector2(x1, z0), Vector2(x0, z1), Vector2(x1, z1)]:
-				var y := far_height(c.x, c.y)
-				st.set_color(_far_colour(c.x, c.y, y))
-				st.add_vertex(Vector3(c.x, y, c.y))
-			st.add_index(idx); st.add_index(idx + 1); st.add_index(idx + 2)
-			st.add_index(idx + 1); st.add_index(idx + 3); st.add_index(idx + 2)
-			idx += 4
-	st.generate_normals()
-	var m := MeshInstance3D.new()
-	m.mesh = st.commit()
-	m.material_override = mat
-	m.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	m.name = "FarLand"
-	village.add_child(m)
-
-static func _slab(village: Node3D, a: Vector3, b: Vector3, width: float, thick: float, mat: Material) -> void:
-	var run := Vector2(b.x - a.x, b.y - a.y)
-	var m := Palette.mi(Palette.box(run.length(), thick, width), mat, (a + b) / 2.0 - Vector3(0, thick / 2.0, 0))
-	m.rotation.z = atan2(run.y, run.x)
-	village.add_child(m)
-
-static func _bridge(village: Node3D) -> void:
-	var mat := Palette.stone(STONE)
-	var z := BRIDGE_Z
-	var w := Vector3(BRIDGE_W, BRIDGE_LOW, z)
-	var cw := Vector3(CROWN_W, BRIDGE_PEAK, z)
-	var ce := Vector3(CROWN_E, BRIDGE_PEAK, z)
-	var e := Vector3(BRIDGE_E, BRIDGE_LOW, z)
-	for seg in [[w, cw], [cw, ce], [ce, e]]:
-		_slab(village, seg[0], seg[1], BRIDGE_HALF * 2.0 + 0.7, 0.6, mat)
-		for side in [-1.0, 1.0]:
-			var off := Vector3(0, 0.9, side * (BRIDGE_HALF + 0.17))
-			_slab(village, seg[0] + off, seg[1] + off, 0.34, 0.9, mat)
-	for x in [BRIDGE_W + 0.4, BRIDGE_E - 0.4]:
-		var pier := Palette.mi(Palette.box(1.6, BRIDGE_LOW + 1.2, BRIDGE_HALF * 2.0 + 0.7), mat, Vector3(x, (BRIDGE_LOW - 1.2) / 2.0, z))
-		village.add_child(pier)
