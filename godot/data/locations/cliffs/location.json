@@ -1,0 +1,21 @@
+{
+ "name": "Serenza",
+ "desc": "Pastel houses stacked up a ravine to a tiny harbour, terraced vineyards going back to bramble, and a train that dives in and out of the cliffs.",
+ "x": 680,
+ "y": 455,
+ "r": 46,
+ "color": "#e7a98f",
+ "reveal": "port_lighthouse_lit",
+ "bikes": false,
+ "day": {"holdAt": 20.5, "regrow": "overnight", "hold": false},
+ "look": {
+  "shade": [0.0, 0.012, 0.03],
+  "light": [1.02, 1.0, 0.95],
+  "wind": 0.7,
+  "life": {"motes": 0.4, "fireflies": 0.0, "leaves": 0.0},
+  "weather": ["clear", "fair", "drizzle", "mist"],
+  "mist": 0.3,
+  "water": {"shallow": "#86d1c6", "mid": "#3f9db0", "deep": "#1f5b86", "foam": 0.6},
+  "sun_peak": 50
+ }
+}

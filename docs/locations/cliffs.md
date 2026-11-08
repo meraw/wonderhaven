@@ -1,6 +1,7 @@
 # Serenza: design for the cliff village
 
-Working id `cliffs`. Agreed with the user on 2026-11-08 in a design interview. **Nothing is built yet.** This doc is
+Working id `cliffs`. Agreed with the user on 2026-11-08 in a design interview. **Stage 1 (ground and map) is built; stages 2 to 4 are
+not.** See "Status" at the end. This doc is
 the plan the build stages follow. The rules every location shares are in `docs/WORLD.md`; `docs/MONTEFORCHETTA.md`
 and the other location docs are the models it follows. Tonnarella (`docs/locations/port.md`) comes just before
 Serenza, and the two were kept apart where they overlapped (see "Agreements needed with other sessions").
@@ -442,4 +443,44 @@ Capo Horn's ports as running gags; a monorail rail as a building piece; real ban
 the euro switch happening in Serenza itself.
 
 ## Status
-**Design agreed; nothing built yet.** Stage 1 (ground and map) is next, once the user has approved this doc.
+**Stage 1, ground and map: built.**
+- **The ground** (`godot/scripts/locations/cliffs.gd`, with its shape in `cliffs/ground_data.gd`):
+  - Flat areas and ramps laid out as rectangles: the harbour square, the main street rising under the railway arch,
+    the steps up to the cellar square, the station platform and its lane, the east lane and the belvedere, the church
+    rocks, the breakwater and the ferry landing, the pebble beach running into the sea, and the house plots.
+  - Sixteen terraces 4 m deep and 2 m apart (12 m up for W1 and E1, 26 m for W8 and E8), the stair up the middle, the
+    monorail's footpath on the east (broken by the slip between E5 and E6), the mule path on the west (broken by a
+    gully beside W3 and W4), the band of pines along the top at 27 m and the sanctuary at 29.5 m in the north-west
+    corner. W4's wall has fallen onto W3, and six other terraces have a gap in their wall (rubble you can scramble up).
+  - Outside those areas, rock: it rises up the sides of the ravine and towards the north, and always stands at least
+    2.4 m above any path beside it, so the walls can't be climbed. Below the coast line, the sea.
+  - Ground paint: grey rock with scrub and pines on the cliffs, bare soil on Settimio's terraces, bramble green on the
+    abandoned ones, rubble in the gaps, sand under the sea. The layout's paving (`ground`) lays stone on the square,
+    the lanes, the platform, the breakwater and the stair, setts on the street and the cellar square, gravel on the
+    railway. The mule path, the monorail's footpath and the sanctuary are painted rather than paved, because a paving
+    edge next to a steep wall runs up it in spikes.
+- **The layout** (`godot/data/locations/cliffs/layout.json`):
+  - You arrive on the station platform. Two departure points: the train from the start, and the ferry at the landing
+    once `olive_village_revealed` is set.
+  - 13 kit houses (three or four storeys, pastel, green shutters) and Nunzia's bar; plain boxes for the station, the
+    church and its tower, the cellar, Trenin's workshop, the sanctuary, the railway, the arch and the two tunnels.
+  - 64 nav spots; the slip and the gully are nav edges that wait for their requests (`cliffs_monorailRuns`,
+    `cliffs_sanctuaryPath`).
+  - Build sites: the hut, your terrace (E4, behind `cliffs_homePlot`), the fallen wall under W4, the slip, the gully,
+    the slipway, the rocks below the church (each behind its request), and 13 abandoned terraces open from the start.
+  - Basic gathering: pines and chestnuts at the top, eight rubble heaps of fallen walls, clay in the gully, wild greens
+    on the abandoned terraces, fishing in the harbour and off the rocks and the beach. Six benches.
+- **The map entry** (`location.json`): Serenza, off the map until `port_lighthouse_lit`; no bicycles; a work day
+  that doesn't hold the clock at dusk; a first look (spring sun, sea colours, clear, fair, drizzle and misty mornings).
+- **Checked:**
+  - **Tested** (`test_cliffs.gd`, 11 tests): the map entry; arriving on the platform; a walk over the whole map on a
+    1 m grid with the player's own rules (0.45 m up per step, falls allowed, solid boxes block) reaches the harbour,
+    the beach, the breakwater, the belvedere, the cellar square, both halves of every terrace, the top and the
+    sanctuary, and not the railway, the cliffs or the ridge; terrace walls, the gully and the slip can't be climbed;
+    water where the design puts it; build sites on dry ground and clear of scenery, the slip and the gully climbing
+    from one end to the other; every nav spot reachable and every nav edge walkable both ways; ground paint and
+    greenery; ids and models; the whole place builds.
+  - **Played** (`play_cliffs.gd`, real input): see the stage 1 pull request.
+- **Not yet:** the rooms, the station on its arch as a building, real models for the landmarks, the slate roofs, the
+  dry-stone walls drawn over the steep faces (the terrain shows them as steep slopes), the trains, the boats in the
+  main street, the monorail and the coast past the edge (stage 2).
