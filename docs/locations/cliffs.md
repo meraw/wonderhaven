@@ -58,7 +58,7 @@ edge.
 ```text
                                N
  +------------------------------------------------------------+
- | [SANCTUARY]   pines and chestnuts            chestnuts      |
+ | [SANCTUARY]   pines and chestnuts            chestnuts     |
  |   chapel   \                                    pines      |
  |  mule path  \  gully X               ~E8~   ~E7~           |
  |   ~W8~  ~W7~ \                       ~E6~ | monorail       |
@@ -73,14 +73,14 @@ edge.
  |    slope      |        |     slope                         |
  |  rocks   [harbour square, Nunzia's bar]  [CHURCH on rocks] |
  |  little       [slipway]   harbour          church rocks    |
- |  beach          ~~~~~~~ breakwater ~~~~~~~                 |
+ |  beach     [ferry landing]~~~ breakwater ~~~~~~~           |
  +------------------------------------------------------------+
         the sea; headlands and the next villages both ways
 ```
 
 | Area | What's there |
 | --- | --- |
-| The harbour (south, sea level) | A tiny harbour inside a short breakwater, with **the broken slipway** running down from the harbour square into the water. **The harbour square**, a small paved piazza with **Nunzia's bar** (the payphone, the fax machine on the counter, a few rooms upstairs for guests) and benches. West of it, rocks and **a little pebble beach**; east of it, **the church on the rocks**: grey stone, a square bell tower, the apse right over the water, and below it the rocks where Don Aurelio's rusted ladder used to go down into the sea. |
+| The harbour (south, sea level) | A tiny harbour inside a short breakwater, with **the ferry landing** at the breakwater's end (unused until the finale), **the broken slipway** running down from the harbour square into the water. **The harbour square**, a small paved piazza with **Nunzia's bar** (the payphone, the fax machine on the counter, a few rooms upstairs for guests) and benches. West of it, rocks and **a little pebble beach**; east of it, **the church on the rocks**: grey stone, a square bell tower, the apse right over the water, and below it the rocks where Don Aurelio's rusted ladder used to go down into the sea. |
 | The main street (the valley floor) | A stream covered over long ago, now a paved street climbing gently north from the harbour square. **The boats winter here**, pulled up on wooden runners along it: Capo Horn's among them. Tall, narrow pastel houses of three to five storeys rise in steps up both slopes, joined by stair lanes, little arches and washing lines. |
 | The railway (across the middle) | The coastal line crosses the ravine about halfway up, on a stone arch high over the main street, between two tunnels in the cliffs. **The station** is a single platform with a canopy on the arch, a tiny waiting room and a bench, reached by stairs from the main street. The departure point. |
 | The top of the village | Just above the railway: **the growers' cellar**, the cooperative's stone building where the grapes were pressed, shut up and half empty; beside it **Trenin's workshop**, half cave, at the foot of the monorail. |
@@ -98,9 +98,14 @@ terraces climb from about 14 m to about 30 m, about 2 m a step; the sanctuary is
 - **On the travel map.** Serenza's entry stays off the map until Tonnarella's finale sets `port_lighthouse_lit` (the
   flag Tonnarella's doc already keeps "ready for whatever place comes next"). It sits on the coast east of Tonnarella,
   further down the line; the exact spot is placed once Tonnarella's entry exists. Serenza's finale sets
-  `cliffs_cooperative_saved` for whatever comes next.
-- **The departure point** is the station platform: a feature of kind `boat` (`cliffs_station`), with `depart_label`
-  "Take the train", as `docs/WORLD.md` asks.
+  `olive_village_revealed`, the flag Liolivato's map entry reveals on (agreed with that session).
+- **The departure points:**
+  - **The station platform**, from the start: a feature of kind `boat` (`cliffs_station`), with `depart_label`
+    "Take the train", as `docs/WORLD.md` asks.
+  - **The ferry landing**, after the finale: a second `boat` feature at the end of the breakwater (`cliffs_ferry`,
+    `depart_label` "Take the ferry") that waits for `olive_village_revealed` (the shared `flag` on a departure
+    point). From then on a little white ferry calls at the landing on its way along the coast; it's the way to
+    Liolivato (the user decided the travel order goes on Serenza, then Liolivato by sea).
 - **The trains.** A timetable in Serenza's own code: regional trains stop at the platform every hour or so; faster
   trains rush through without stopping, horn blaring, out of one tunnel and into the other. Sturlese arrives on the
   morning regional at about 8:10 and leaves on the evening one at about 18:05.
@@ -220,7 +225,7 @@ No brief brings in more than one kind of check the player hasn't met yet.
 | 3 | **The First Wall** (`cliffs_wall`) | Settimio | The wall under W4 has collapsed onto W3 and buried its vines. Quarry 12 wall stones from the rubble, then Settimio shows you how (the dry-stone wall and its plan). **Brief** at the gap: **musts:** a wall across the gap, with nothing low enough for the terrace to spill through (`sealed`); at least 1.8 m tall. **Wishes:** stone only (Settimio); a sign for the visitors (Marta); no higher than the terrace above (Sturlese). Then plant something green on W3 and on W4. Both come back, the wall lizards come out on the new stones, and Settimio pays his first compliment: "It'll do. For now." |
 | 4 | **The Monorail** (`cliffs_monorail`) | Trenin | A slip took the footpath beside the monorail between E5 and E6, and the rail with it, so the carts can't reach the top and the terraces up there were given up. Gather wood and stone and buy metal at Trenin's. **Brief** along the slip: **musts:** a walkable path from its lower end up to its upper end (`path`, climbing); a railing on the open side. **Wishes:** a lever at the top for the cart stop (Trenin); stone steps (Settimio). Trenin lays the rail along your path (drawn by Serenza's code on the path the check found), and the first cart creeps up loaded with stakes, his aunt's name painted on its side. The growers bring E5 and E6 back. From then on the carts run by day. |
 | 5 | **The Sanctuary Path** (`cliffs_path`) | Don Aurelio | The procession climbs to the sanctuary on Easter morning, but a winter flood in the gully took the mule path's steps and its little footbridge. Gather wood and stone. **Brief** at the gully: **musts:** a walkable path across the gully from the lower path to the upper (`path`, climbing); railings for the old ladies. **Wishes:** a little statue on the way (Don Aurelio); in stone (Settimio); no taller than 3 m (Sturlese). Walk up to the sanctuary with him and ring its bell. The old growers can reach W7 again, and it comes back. Don Aurelio's afternoon walk uses your bridge from then on (a layout `crossing`). |
-| 6 | **Easter on the Terraces**, the finale (`cliffs_easter`) | Marta | Offered once the other five are done. In steps. **Ten terraces back in use** (the meter). **The resting place:** a brief at the halfway spot on the procession route (the hangout by W5): **musts:** a seat; shade; something green. **Wishes:** a statue of the saint (Don Aurelio); in stone (Settimio); no taller than 3 m (Sturlese). **Easter morning** (after you sleep): the procession climbs from the church on the rocks up the main street, under the arch, past the cellar, along the terraces, across your bridge and up to the sanctuary, pausing at the resting place, with the church bells pealing; the hiking club steps off the morning train and joins at the back. **The vote:** in the cellar, the cooperative votes to stay open, Settimio casting the deciding vote with Marta's label on the first bottle; Sturlese abstains on procedural grounds. It ends there. Sets `cliffs_cooperative_saved`. |
+| 6 | **Easter on the Terraces**, the finale (`cliffs_easter`) | Marta | Offered once the other five are done. In steps. **Ten terraces back in use** (the meter). **The resting place:** a brief at the halfway spot on the procession route (the hangout by W5): **musts:** a seat; shade; something green. **Wishes:** a statue of the saint (Don Aurelio); in stone (Settimio); no taller than 3 m (Sturlese). **Easter morning** (after you sleep): the procession climbs from the church on the rocks up the main street, under the arch, past the cellar, along the terraces, across your bridge and up to the sanctuary, pausing at the resting place, with the church bells pealing; the hiking club steps off the morning train and joins at the back. **The vote:** in the cellar, the cooperative votes to stay open, Settimio casting the deciding vote with Marta's label on the first bottle; Sturlese abstains on procedural grounds. It ends there. Sets `olive_village_revealed`: the ferry starts calling at the landing, and Liolivato appears on the travel map. |
 
 ### Side requests
 | Request | Given by | What you do |
@@ -333,7 +338,8 @@ Everything else lives in Serenza's own files (`docs/WORLD.md`): `godot/data/loca
 `godot/scripts/locations/cliffs.gd` and helpers in `godot/scripts/locations/cliffs/`, `godot/tests/test_cliffs.gd` and
 `godot/tests/play_cliffs.gd`. That covers the ravine, the terraces, the harbour and the sea; the painted frames on top
 of the kit houses; the station on its arch, the tunnels and the trains; the monorail, its rail drawn along the
-built path and its freight carts; the boats moving from the main street to the harbour; checking which terraces are
+built path and its freight carts; the boats moving from the main street to the harbour; the ferry calling at the
+landing after the finale (`WORLD_FLAGS`); checking which terraces are
 back in use (a wall `sealed` across its zone and something green on it) and how they look; the gulls, lizards and
 swallows; the procession; the coast and the next villages past the edge.
 
@@ -343,7 +349,8 @@ One pull request per stage. Each keeps the game playable and the tests passing.
 1. **Ground and map.**
    - The ground shape in `cliffs.gd`: the ravine and its slopes, the harbour and the breakwater, the rocks and the
      little beach, the sixteen terraces as flat strips stepping up both sides, the gully, the sea round the south.
-   - The layout: arrival on the station platform, the departure point, the nav graph, paths, stair lanes and terrace
+   - The layout: arrival on the station platform, the two departure points (the station, and the ferry landing
+     behind `olive_village_revealed`), the nav graph, paths, stair lanes and terrace
      steps (raised floors and stairs where the ground is too steep to walk), build zones (the hut, the W4 gap, the
      slip, the gully, the slipway, the church rocks, the cellar, the sixteen terraces, the hangouts), resource spots
      and benches.
@@ -367,7 +374,7 @@ One pull request per stage. Each keeps the game playable and the tests passing.
    - The thirteen requests with their briefs and ghost plans, the four shops, Serenza's items, fish and finds, the
      terraces meter, the clothes, the paper's headlines, Marta's openings and the naps block.
    - The shared changes marked stage 3 above.
-   - The boats' launch, the monorail running, the procession and the vote.
+   - The boats' launch, the monorail running, the procession and the vote, and the ferry at the landing after it.
    - `play_cliffs.gd`: a scripted playthrough of every request with real input, starting off the train as if the
      player had come from Tonnarella with realistic stats.
 4. **Look and ambient life.**
@@ -386,7 +393,12 @@ One pull request per stage. Each keeps the game playable and the tests passing.
 - **The playthrough** starts with `arrive_as_if_played(["hearthglow", "river_town", "rice_village", "metropolis",
   "port"])` once Tonnarella's pack is on main, so money shows as Tonnarella leaves it; until then without `"port"`,
   and the playthrough's amounts show in lire.
-- **Whatever comes next:** Serenza's finale sets `cliffs_cooperative_saved` for the next place's map entry.
+- **Liolivato (`olive_village`):** it comes after Serenza, reached by the ferry. Serenza's finale sets
+  `olive_village_revealed`, the flag Liolivato's map entry reveals on, and opens Serenza's ferry landing; nothing in
+  Liolivato's files changes for it. A ferry from Tonnarella once Liolivato is unlocked is Liolivato's and
+  Tonnarella's to agree.
+- **No dusk hold:** the rule the user set for every place (the clock never holds at dusk) is already Serenza's: its
+  `day` block has `"hold": false`.
 
 ## Risks
 - **Steep ground.** Stair lanes and terrace steps on the heightfield must be walkable (a step up is at most 0.45 m in
