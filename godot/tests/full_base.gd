@@ -168,7 +168,7 @@ func gather_until(kind: String, test: Callable, only: Array = [], rounds: int = 
 	for r in rounds:
 		if test.call(): return true
 		var p: Vector3 = game.player.pos
-		var ready: Array = Data.layout.nodes.filter(func(n): return n.kind == kind and (only.is_empty() or only.has(n.id)) and game.actions.ready(n) and not unreachable.has(n.id))
+		var ready: Array = Data.layout.nodes.filter(func(n): return n.kind == kind and (only.is_empty() or only.has(n.id)) and game.actions.ready(n) and Tools.fells(game.state, n) and not unreachable.has(n.id))
 		ready.sort_custom(func(a, b): return Vector2(a.x - p.x, a.z - p.z).length() < Vector2(b.x - p.x, b.z - p.z).length())
 		if ready.is_empty() and WorkDay.on(Data.island):
 			print("   everything picked for today: sleeping on a bench until tomorrow"); note("sleeping on a bench for %s to grow back" % kind)
