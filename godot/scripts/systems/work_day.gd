@@ -9,11 +9,13 @@ static func on(island: String) -> bool: return not def(island).is_empty()
 
 static func hold_minute(d: Dictionary) -> float: return float(d.get("holdAt", 20.5)) * 60.0
 
+static func holds(d: Dictionary) -> bool: return not d.is_empty() and bool(d.get("hold", true))
+
 static func held(t: Dictionary, d: Dictionary) -> bool:
-	return not d.is_empty() and float(t.minute) >= hold_minute(d) - 0.01
+	return holds(d) and float(t.minute) >= hold_minute(d) - 0.01
 
 static func advance(t: Dictionary, seconds: float, d: Dictionary) -> void:
-	if d.is_empty():
+	if not holds(d):
 		Clock.advance(t, seconds)
 		return
 	var room := hold_minute(d) - float(t.minute)
@@ -30,6 +32,16 @@ static func next_morning(t: Dictionary) -> float:
 static func regrow_at(t: Dictionary, d: Dictionary, minutes: float) -> float:
 	if String(d.get("regrow", "")) == "overnight": return next_morning(t)
 	return float(t.total) + minutes
+
+static func to_dusk(t: Dictionary, d: Dictionary) -> void:
+	var gap := hold_minute(d) - float(t.minute)
+	if d.is_empty() or gap <= 0.0: return
+	t.total = float(t.total) + gap
+	t.minute = float(t.minute) + gap
+
+static func ends_day(t: Dictionary, started: int, hour: float, d: Dictionary) -> bool:
+	var wakes := int(t.get("day", 1)) + (1 if hour * 60.0 - float(t.get("minute", 0.0)) <= 1.0 else 0)
+	return not d.is_empty() and wakes > started
 
 static func sleep_options(minute: float, d: Dictionary) -> Array:
 	var out: Array = []

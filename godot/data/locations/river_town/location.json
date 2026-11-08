@@ -7,6 +7,7 @@
  "r": 54,
  "color": "#b9c98f",
  "reveal": "river_town_revealed",
+ "day": {"holdAt": 20.5, "regrow": "overnight", "hold": false},
  "look": {
   "shade": [0.0, 0.008, 0.024],
   "light": [1.04, 1.0, 0.92],

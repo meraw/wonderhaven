@@ -2,6 +2,10 @@ class_name Market
 
 static func cfg() -> Dictionary: return Data.market
 
+static func here() -> bool:
+	var people: Array = Data.npcs_here().map(func(n): return String(n.id))
+	return cfg().get("sellers", []).any(func(id): return people.has(String(id)))
+
 static func is_day(day: int) -> bool:
 	var every := int(cfg().get("every", 5))
 	return every > 0 and day >= every and day % every == 0

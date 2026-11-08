@@ -265,7 +265,7 @@ func complete_quest(qid: String, agent) -> void:
 	if has_brief:
 		permit = Commission.stamp(wishes)
 		var extra := Commission.bonus(wishes)
-		r["harmony"] = int(r.get("harmony", 0)) + int(extra.harmony)
+		if LocationMeter.def(where).is_empty(): r["harmony"] = int(r.get("harmony", 0)) + int(extra.harmony)
 		game.state.quests[qid]["stamp"] = {"text": String(permit.text), "met": int(permit.met), "of": int(permit.of)}
 		lines.append("🖋 %s%s" % [String(permit.text), (" · %d of %d wishes" % [int(permit.met), int(permit.of)]) if int(permit.of) > 0 else ""])
 		for who in extra.hearts: add_hearts(String(who), int(extra.hearts[who]))

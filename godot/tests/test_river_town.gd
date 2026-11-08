@@ -455,3 +455,25 @@ func test_the_cast_dresses_the_part():
 			t.ok(givers.size() == 1 and wearers.size() == 1 and givers[0].id == wearers[0].id, "%s: its owner wears it and gives you one as a friend" % v)
 		var r := Chibi.resolve(Chibi.sanitize(by_id.river_town_pierina.appearance))
 		t.ok(r.accessory == "backpack" and r.get("accessoryColor", "") == "#8a5a32", "Pierina's post bag is drawn as a leather bag"))
+
+func test_you_cant_step_off_the_roman_bridge():
+	_on(func():
+		var w := WalkWorld.new(WorldStatics.build_statics(WorldStatics.generate_decor()), func(_f): return true)
+		var z0: float = RT.ROMAN_Z
+		var ac: float = RT.alpine_center(z0)
+		var off := 0
+		for dx in range(-72, 73, 4):
+			for zs in [-1.0, 1.0]:
+				var pos := Vector3(ac + dx / 10.0, Heightfield.height(ac + dx / 10.0, z0), z0)
+				for k in 20: pos = w.step_move(pos, 0.0, zs * 0.15).pos
+				if absf(pos.z - z0) > RT.ROMAN_HALF: off += 1
+		t.eq(off, 0, "walking sideways along the Roman bridge, wherever it stands above the banks, stops at its parapets")
+		var path: Array = Data.layout.nav_nodes.romanWest
+		var feet := Heightfield.height(path[0], path[1])
+		var across := true
+		for k in 80:
+			var x: float = lerpf(path[0], float(Data.layout.nav_nodes.romanEast[0]), (k + 1) / 80.0)
+			var s := w.can_stand(x, z0, feet, WalkWorld.PLAYER_RADIUS)
+			if s.is_empty(): across = false; break
+			feet = s.y
+		t.ok(across, "and you still walk over it from end to end"))

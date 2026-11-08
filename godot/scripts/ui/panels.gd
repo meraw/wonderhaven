@@ -419,7 +419,7 @@ func sleep(where: String, seat = null) -> void:
 	body.add_child(_wrap(("Take a nap here until…" if where == "bench" else "Sleep until…") + "   (it's %s now)" % Clock.text(game.state.time).get_slice("· ", 1), 16, UiTheme.INK))
 	var v := VBoxContainer.new(); v.custom_minimum_size.x = 420; v.size_flags_horizontal = Control.SIZE_SHRINK_CENTER; v.add_theme_constant_override("separation", 8); body.add_child(v)
 	var day_rules := WorkDay.def(Data.island)
-	if not day_rules.is_empty():
+	if WorkDay.holds(day_rules):
 		for o in WorkDay.sleep_options(now, day_rules):
 			var opt: Dictionary = o
 			var mins: float = WorkDay.next_morning(game.state.time) - float(game.state.time.total) if opt.ends_day else float(opt.hour) * 60.0 - now
@@ -434,7 +434,8 @@ func sleep(where: String, seat = null) -> void:
 		var mins := fposmod(float(w[2]) * 60.0 - now, 1440.0)
 		if mins < 1.0: mins = 1440.0
 		var hour: float = w[2]
-		var b := UiTheme.button("%s  %s · %s   (in %dh %02dm)" % [w[0], w[1], Clock.hour_num(hour), int(mins / 60.0), int(fmod(mins, 60.0))], func(): game.sleep_until(hour, where, seat))
+		var ends := WorkDay.ends_day(game.state.time, int(WorkDay.record(game.state).day), hour, day_rules)
+		var b := UiTheme.button("%s  %s · %s   (in %dh %02dm)%s" % [w[0], w[1], Clock.hour_num(hour), int(mins / 60.0), int(fmod(mins, 60.0)), " · ends the day" if ends else ""], func(): game.sleep_until(hour, where, seat, ends))
 		b.name = "wake_%d" % int(hour); b.alignment = HORIZONTAL_ALIGNMENT_LEFT; v.add_child(b)
 	if where == "bench" and seat != null:
 		var st := UiTheme.button("🪑  Just sit a while", func(): close(); game.sit_on(seat), true); st.name = "just_sit"; v.add_child(st)
@@ -506,9 +507,13 @@ func settings() -> void:
 class MapView extends Control:
 	signal picked(island: Dictionary)
 	var game
+	var trip_from := ""
+	var trip_to := ""
+	var trip_t := 0.0
+	var vehicle := "🚌"
 	## Places on the map: only the ones you've unlocked, and the one you're in (Travel.on_map). They turn up as
 	## surprises, and the view widens to take them in (Travel.map_frame).
-	func _shown() -> Array: return Data.islands.filter(func(i): return Travel.on_map(i, game.state.flags, Data.island))
+	func _shown() -> Array: return Data.islands.filter(func(i): return Travel.on_map(i, game.state.flags, Data.island) or i.id in [trip_from, trip_to])
 	func _frame() -> Rect2: return Travel.map_frame(_shown())
 	## Where a point of the map (in map units) is drawn on screen.
 	func to_screen(p: Vector2) -> Vector2:
@@ -533,6 +538,17 @@ class MapView extends Control:
 			for j in steps:
 				if j % 2 == 1: continue
 				draw_line(a.lerp(b, float(j) / steps), a.lerp(b, float(j + 1) / steps), Color(1, 1, 1, 0.95), 4)
+		var route := trip_route()
+		if route.size() >= 2:
+			var at := trip_point(route, trip_t)
+			var done := 0.0
+			var whole := 0.0
+			for j in route.size() - 1: whole += route[j].distance_to(route[j + 1])
+			for j in route.size() - 1:
+				var seg: float = route[j].distance_to(route[j + 1])
+				var upto := clampf((trip_t * whole - done) / maxf(seg, 0.001), 0.0, 1.0)
+				if upto > 0.0: draw_line(route[j], route[j].lerp(route[j + 1], upto), Color("ffd166"), 7)
+				done += seg
 		for isl in _shown():
 			var c := to_screen(Vector2(isl.x, isl.y))
 			var r: float = isl.r * k
@@ -544,11 +560,39 @@ class MapView extends Control:
 			var lw := maxf(r * 2.0, 220.0)   # wide enough for the whole name
 			draw_string_outline(font, c + Vector2(-lw / 2.0, r + 30), name, HORIZONTAL_ALIGNMENT_CENTER, lw, 18, 6, Color.WHITE)
 			draw_string(font, c + Vector2(-lw / 2.0, r + 30), name, HORIZONTAL_ALIGNMENT_CENTER, lw, 18, UiTheme.INK)
+			if trip_to != "": continue
 			if isl.id == Data.island:   # you are here, with how many requests are open on this island
 				draw_string(font, c + Vector2(-r * 0.7, -r * 0.4), "📍", HORIZONTAL_ALIGNMENT_LEFT, -1, 24)
 				var e: QuestEngine = game.story.engine
 				var n: int = e.active().filter(func(q): return e.here(q.id)).size() + Data.quests.filter(func(q): return e.can_offer(q.id) and e.here(q.id)).size()
 				if n > 0: draw_string(font, c + Vector2(r * 0.5, -r * 0.5), "❗%d" % n, HORIZONTAL_ALIGNMENT_LEFT, -1, 22, UiTheme.PINK_DARK)
+		if route.size() >= 2:
+			var p := trip_point(route, trip_t)
+			var hop := absf(sin(trip_t * 40.0)) * 5.0
+			draw_circle(p + Vector2(0, 10), 16, Color(0, 0, 0, 0.18))
+			draw_string(UiTheme.main_font(), p + Vector2(-17, 10 - hop), vehicle, HORIZONTAL_ALIGNMENT_LEFT, -1, 30)
+
+	func trip_route() -> Array:
+		if trip_from == "" or trip_to == "": return []
+		var a := Data.island_def(trip_from)
+		var b := Data.island_def(trip_to)
+		if a.is_empty() or b.is_empty(): return []
+		var hub: Dictionary = Data.islands[0]
+		var pts: Array = [to_screen(Vector2(a.x, a.y))]
+		if trip_from != hub.id and trip_to != hub.id: pts.append(to_screen(Vector2(hub.x, hub.y)))
+		pts.append(to_screen(Vector2(b.x, b.y)))
+		return pts
+
+	func trip_point(route: Array, f: float) -> Vector2:
+		var whole := 0.0
+		for j in route.size() - 1: whole += route[j].distance_to(route[j + 1])
+		var left := clampf(f, 0.0, 1.0) * whole
+		for j in route.size() - 1:
+			var seg: float = route[j].distance_to(route[j + 1])
+			if left <= seg: return route[j].lerp(route[j + 1], left / maxf(seg, 0.001))
+			left -= seg
+		return route[route.size() - 1]
+
 	func _gui_input(ev: InputEvent) -> void:
 		if ev is InputEventMouseButton and ev.pressed and ev.button_index == MOUSE_BUTTON_LEFT:
 			var k := size.x / _frame().size.x

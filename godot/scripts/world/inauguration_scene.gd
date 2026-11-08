@@ -68,7 +68,7 @@ func _play(st: Dictionary, f: Dictionary, lines: Array, reacts: Array, speaker, 
 	playing = true
 	clock = 0.0
 	var back := {"x": game.player.pos.x, "z": game.player.pos.z, "yaw": game.player.yaw}
-	WorkDay.advance(game.state.time, 1.0e6, WorkDay.def(Data.island))
+	WorkDay.to_dusk(game.state.time, WorkDay.def(Data.island))
 	game.hud.visible = false
 	held = [speaker]
 	_place(speaker, st.speaker, float(st.yaw))

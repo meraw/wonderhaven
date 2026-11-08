@@ -449,10 +449,10 @@ func morning_paper(yesterday: Dictionary, noticed: Array = []) -> void:
 		"draft": Drafts.items_text(short) if not drafts.is_empty() and not short.is_empty() else "",
 		"weather": Daylight.slot_weather(Daylight.slot_index({"day": state.time.day, "minute": 12 * 60.0}), Daylight.allowed_here()),
 		"noticed": noticed.map(func(k): return Needs.line(Needs.hangouts(), k))}
-	var gossip := Tastes.gossip(state, randf()) if not Tastes.defs().is_empty() and WorkDay.on(Data.island) else {}
+	var gossip := Tastes.gossip(state, randf()) if not Tastes.here().is_empty() and WorkDay.on(Data.island) else {}
 	ctx["gossip"] = String(gossip.get("text", ""))
-	ctx["market"] = Market.paper_line(int(state.time.day), Market.counters(state.placements).size()) if WorkDay.on(Data.island) else ""
-	var p := MorningPaper.compose(yesterday, ctx, Data.paper, Data.quests, randf())
+	ctx["market"] = Market.paper_line(int(state.time.day), Market.counters(state.placements).size()) if WorkDay.on(Data.island) and Market.here() else ""
+	var p := MorningPaper.compose(yesterday, ctx, Data.paper_here(), Data.quests, randf())
 	if not gossip.is_empty() and p.notes.has(ctx.gossip): Tastes.learn(state, String(gossip.id))
 	var lines: Array = ["[b]%s[/b]" % p.headline]
 	lines.append_array(p.notes)
@@ -542,7 +542,7 @@ func festa_now() -> bool:
 var market_held: Array = []
 
 func _update_market() -> void:
-	if not WorkDay.on(Data.island) or mode in ["title", "creator", "cutscene"]: return
+	if not WorkDay.on(Data.island) or not Market.here() or mode in ["title", "creator", "cutscene"]: return
 	var r := Market.record(state)
 	var open := Market.open(state.time)
 	if not open:
@@ -669,6 +669,10 @@ func travel(id: String) -> void:
 	if build.active: build.close()
 	set_mode("cutscene"); sfx("sail")
 	await _fade(true).finished
+	var trip := Journey.new()
+	add_child(trip)
+	trip.setup(self, Data.island, id)
+	await trip.done
 	snapshot()
 	var dest := Data.read_layout(id)
 	Travel.leave(state, Data.island, id, dest.get("arrive", dest.spawn))   # where the ferry lands

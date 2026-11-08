@@ -9,8 +9,29 @@ func _clock(day: int, hour: float) -> Dictionary:
 func test_monteforchetta_has_a_work_day_and_the_others_keep_their_clock():
 	var d := WorkDay.def("hearthglow")
 	t.ok(not d.is_empty() and absf(WorkDay.hold_minute(d) - 20.5 * 60.0) < 0.01 and String(d.get("regrow", "")) == "overnight", "Monteforchetta holds at 8:30 PM and regrows overnight: %s" % str(d))
-	for id in ["river_town", "rice_village", "metropolis", "clockwork"]:
+	for id in ["rice_village", "metropolis", "clockwork"]:
 		t.ok(not WorkDay.on(id), "%s keeps the clock it had (its night requests need it)" % id)
+	var b := WorkDay.def("river_town")
+	t.ok(WorkDay.on("river_town") and not WorkDay.holds(b) and String(b.get("regrow", "")) == "overnight", "Boccapioppo has a work day that regrows overnight but doesn't hold the clock: its storm and its catfish are at night")
+
+func test_a_day_that_doesnt_hold_runs_on_through_the_night():
+	var free := {"holdAt": 20.5, "regrow": "overnight", "hold": false}
+	var c := _clock(1, 20.0)
+	WorkDay.advance(c, 90.0 / Clock.MINUTES_PER_SECOND, free)
+	t.ok(not WorkDay.held(c, free) and float(c.minute) > 21.0 * 60.0, "the clock goes past dusk (%.0f minutes)" % c.minute)
+	t.ok(absf(WorkDay.regrow_at(_clock(1, 16.0), free, 180.0) - WorkDay.next_morning(_clock(1, 16.0))) < 0.01, "a tree felled at 4 PM is back the next morning, not at 7 PM")
+	var late := _clock(1, 23.0)
+	t.ok(WorkDay.ends_day(late, 1, 6.0, free), "sleeping until dawn ends the day")
+	t.ok(not WorkDay.ends_day(late, 1, 23.5, free), "a nap until half past eleven doesn't")
+	var small_hours := _clock(2, 2.0)
+	t.ok(WorkDay.ends_day(small_hours, 1, 6.0, free), "staying up past midnight, then sleeping until dawn, ends the day you started")
+	t.ok(not WorkDay.ends_day(late, 1, 6.0, {}), "a place with no work day never ends one")
+	var dusk := _clock(1, 15.0)
+	WorkDay.to_dusk(dusk, free)
+	t.ok(absf(float(dusk.minute) - 20.5 * 60.0) < 0.01, "the evening opening moves the clock on to dusk")
+	var night := _clock(1, 23.0)
+	WorkDay.to_dusk(night, free)
+	t.ok(absf(float(night.minute) - 23.0 * 60.0) < 0.01, "and leaves it alone when dusk has gone")
 
 func test_the_clock_holds_at_dusk_until_you_end_the_day():
 	var c := _clock(1, 20.0)

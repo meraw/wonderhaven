@@ -79,8 +79,10 @@ The rule now: fewer rules, and the ones left are shown before you click.
   important depends on the hour.
 - **At 8:30 PM the clock holds** at dusk, lamps on, until you end the day.
 - **A place opts in** with a `day` block in its map entry (`{"holdAt": 20.5, "regrow": "overnight"}`, `WorkDay`).
-  Monteforchetta has one; Boccapioppo, Casalrana and Toriano keep the clock they had until their owners convert them,
-  because some of their requests happen at night.
+  Monteforchetta has one. Boccapioppo has one that doesn't hold the clock (`"hold": false`), because its storm, its
+  first dance and its catfish happen at night: things regrow overnight, a sleep into the next day ends the day (the
+  paper, the inauguration), and its beds keep their wake times. Casalrana and Toriano keep the clock they had until
+  their owners convert them.
 - **You end the day by sleeping, and until you own a bed that means a bench.** Sleeping on a bench is the way every
   day ends until you've saved for a bed (beds cost 120,000 lire), so the nap gags are the everyday humiliation of a
   Geometra the village hasn't housed yet, not a joke you might never see: a night on a bench always ends with one.

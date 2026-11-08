@@ -4,6 +4,10 @@ static func defs() -> Dictionary: return Data.tastes.get("tastes", {})
 
 static func of(id: String) -> Dictionary: return defs().get(id, {})
 
+static func here() -> Array:
+	var people: Array = Data.npcs_here().map(func(n): return String(n.id))
+	return defs().keys().filter(func(id): return people.has(String(id)))
+
 static func near_pos(id: String) -> Vector2:
 	var n = of(id).get("near", null)
 	if n is Array and n.size() >= 2: return Vector2(float(n[0]), float(n[1]))
@@ -31,7 +35,7 @@ static func near(id: String, pl: Dictionary) -> bool:
 
 static func fans(pieces: Array) -> Dictionary:
 	var out := {}
-	for id in defs():
+	for id in here():
 		for p in pieces:
 			if likes(String(id), p) != "" and near(String(id), p):
 				out[String(id)] = line(String(id), p)
@@ -42,7 +46,7 @@ static func pleased(state: Dictionary, pl: Dictionary, present: Array = []) -> A
 	var r := record(state)
 	var day := int(state.get("time", {}).get("day", 1))
 	var out: Array = []
-	for id in defs():
+	for id in here():
 		if not present.is_empty() and not present.has(String(id)): continue
 		if int(r.day.get(String(id), 0)) == day: continue
 		if likes(String(id), pl) == "" or not near(String(id), pl): continue
@@ -56,7 +60,7 @@ static func line(id: String, pl: Dictionary) -> String:
 
 static func gossip(state: Dictionary, roll: float) -> Dictionary:
 	var r := record(state)
-	var unknown: Array = defs().keys().filter(func(id): return not r.known.has(String(id)))
+	var unknown: Array = here().filter(func(id): return not r.known.has(String(id)))
 	if unknown.is_empty(): return {}
 	unknown.sort()
 	var id := String(unknown[mini(int(clampf(roll, 0.0, 0.999) * unknown.size()), unknown.size() - 1)])

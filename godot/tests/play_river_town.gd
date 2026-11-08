@@ -233,6 +233,12 @@ func mouse_button(p: Vector2, button: int, pressed: bool) -> void: super.mouse_b
 
 func qs(id: String) -> String: return String(game.state.quests.get(P + id, {}).get("status", ""))
 func stage(id: String) -> int: return game.story.engine.current_stage(P + id)
+
+func must_met(id: String, step: String, n: int) -> bool:
+	game.story.engine.invalidate()
+	for o in Data.quest(P + id).objectives:
+		if String(o.id) == step: return game.story.engine.commission(P + id, o).musts[n].ok
+	return false
 func pts() -> int: return LocationMeter.points(game.state, "river_town")
 func reading() -> String: return LocationMeter.reading(LocationMeter.def("river_town"), pts())
 func flag(f: String) -> bool: return game.state.flags.get(P + f, false)
@@ -538,7 +544,7 @@ func sec_bridge() -> void:
 	await open_build(P + "bridge")
 	await select_piece("pontoon")
 	for i in [27, 29, 31, 33, 35]: await place_piece("pontoon", i, 13, 0.1, 1)
-	var path_done: bool = stage("bridge") >= 3
+	var path_done: bool = must_met("bridge", "build", 0)
 	await frames(4)
 	var clash: Array = build_ui_clashes()   # the first build here: the how-to card is up beside the plan panel
 	await shot("pontoons")

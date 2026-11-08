@@ -108,14 +108,16 @@ func advance() -> void:
 	_next_line()
 
 func choose(options: Array) -> Dictionary:
-	choices = options; focus_index = 0
+	choices = ordered(options)
+	focus_index = 0
+	while focus_index < choices.size() - 1 and is_leave(choices[focus_index]): focus_index += 1
 	_clear_choices()
 	more_label.visible = false
 	# Up to three choices stack; more go into two columns so the box stays short.
 	choice_box.columns = 1 if options.size() <= 3 else 2
 	var wide := options.size() <= 3
-	for n in options.size():
-		var o: Dictionary = options[n]
+	for n in choices.size():
+		var o: Dictionary = choices[n]
 		var b := Button.new(); b.text = "%s. %s" % [_number(n), o.label]; b.alignment = HORIZONTAL_ALIGNMENT_LEFT; b.name = "choice_%d" % n
 		b.add_theme_font_size_override("font_size", UiTheme.px(16 if wide else 15))
 		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -127,7 +129,7 @@ func choose(options: Array) -> Dictionary:
 		b.pressed.connect(func(): pick(idx))
 		choice_box.add_child(b)
 	var esc := _esc_choice()
-	esc_label.text = ("0 or Esc — %s" % choices[esc].label) if esc >= 0 else ""
+	esc_label.text = ("1 or Esc — %s" % choices[esc].label) if esc >= 0 else ""
 	_highlight()
 	var res = await chose
 	return res
@@ -176,18 +178,18 @@ func _esc_choice() -> int:
 ## Goodbye, "not now", "never mind": the way out of a conversation or a question.
 static func is_leave(o: Dictionary) -> bool: return String(o.get("kind", "")) in ["bye", "no"]
 
-## The number shown on choice n: 0 for the way out, else its place among the others (1, 2, 3...).
+static func ordered(options: Array) -> Array:
+	return options.filter(func(o): return is_leave(o)) + options.filter(func(o): return not is_leave(o))
+
 func _number(n: int) -> String:
-	if is_leave(choices[n]): return "0"
-	var k := 1
+	if is_leave(choices[n]): return "1"
+	var k := 2
 	for i in n:
 		if not is_leave(choices[i]): k += 1
 	return str(k)
 
-## The key that picks choice n (for scripted playthroughs): KEY_0 for the way out, else KEY_1, KEY_2...
 func key_for(n: int) -> int: return int(KEY_0) + int(_number(n))
 
-## Which choice a number key picks (0: the way out), or -1.
 func _choice_for_digit(d: int) -> int:
 	for i in choices.size():
 		if _number(i) == str(d): return i

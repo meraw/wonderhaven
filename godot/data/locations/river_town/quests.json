@@ -159,13 +159,42 @@
     },
     {
      "id": "build",
-     "kind": "build",
+     "kind": "commission",
      "stage": 2,
-     "text": "Moor pontoons from bank to bank at the old ferry crossing",
-     "check": "path:river_town_bridge",
+     "text": "Build a crossing at the old ferry landing, pontoons from bank to bank",
      "zone": "river_town_bridge",
-     "goal": "A continuous walkable path across the river",
-     "buildHint": "Pontoons float on open water; walk on them, or lay planks on top.",
+     "musts": [
+      {
+       "check": "path",
+       "label": "Walkable from bank to bank"
+      },
+      {
+       "check": "pieces",
+       "any": [
+        "railing"
+       ],
+       "count": 4,
+       "label": "Railings along it"
+      }
+     ],
+     "wishes": [
+      {
+       "check": "pieces",
+       "any": [
+        "railing"
+       ],
+       "count": 8,
+       "who": "river_town_ermes",
+       "label": "Railings on both sides"
+      },
+      {
+       "check": "provides",
+       "kind": "light",
+       "who": "river_town_primo",
+       "label": "A lamp for cycling home"
+      }
+     ],
+     "buildHint": "Pontoons float. R turns railings.",
      "hint": {
       "x": 31,
       "z": 13
@@ -200,25 +229,7 @@
        13,
        "pontoon",
        1
-      ]
-     ]
-    },
-    {
-     "id": "rails",
-     "kind": "pieces",
-     "stage": 3,
-     "text": "Add 4 railings along the bridge",
-     "zone": "river_town_bridge",
-     "any": [
-      "railing"
-     ],
-     "count": 4,
-     "buildHint": "Railings sit on the edge of a tile; R turns them.",
-     "hint": {
-      "x": 31,
-      "z": 13
-     },
-     "plan": [
+      ],
       [
        28,
        13,
@@ -354,12 +365,31 @@
     },
     {
      "id": "power",
-     "kind": "build",
+     "kind": "commission",
      "stage": 2,
      "text": "Turn the pumping house's drive with a waterwheel in the Alpine river",
-     "check": "fed:river_town_pump",
      "zone": "river_town_works",
-     "goal": "Power reaches the drive by the pumping house's east wall",
+     "musts": [
+      {
+       "check": "fed",
+       "target": "river_town_pump",
+       "label": "Power reaches the pump's drive"
+      }
+     ],
+     "wishes": [
+      {
+       "check": "provides",
+       "kind": "light",
+       "who": "river_town_rina",
+       "label": "A lamp on the quay"
+      },
+      {
+       "check": "provides",
+       "kind": "seat",
+       "who": "river_town_tullio",
+       "label": "A bench to watch the wheel"
+      }
+     ],
      "buildHint": "A waterwheel turns in the flowing river by the quay; shafts carry the turning to the drive. R turns pieces.",
      "hint": {
       "x": 25,
@@ -504,16 +534,13 @@
     },
     {
      "id": "hall",
-     "kind": "room",
+     "kind": "commission",
      "stage": 1,
      "text": "Fit out the dance hall (B inside it)",
      "zone": "river_town_hall",
-     "hint": {
-      "x": 16,
-      "z": 31.5
-     },
-     "needs": [
+     "musts": [
       {
+       "check": "pieces",
        "any": [
         "floor"
        ],
@@ -521,40 +548,45 @@
        "label": "A dance floor (6 floor tiles)"
       },
       {
+       "check": "pieces",
        "any": [
         "platform"
        ],
        "label": "A stage for the band"
       },
       {
-       "any": [
-        "lamp",
-        "poweredLamp",
-        "streetlight"
-       ],
+       "check": "provides",
+       "kind": "seat",
+       "count": 3,
+       "label": "Three seats"
+      }
+     ],
+     "wishes": [
+      {
+       "check": "provides",
+       "kind": "light",
        "count": 2,
-       "label": "Two lamps"
+       "who": "river_town_wanda",
+       "label": "Two lamps for the dancers"
       },
       {
+       "check": "pieces",
        "any": [
         "counter"
        ],
+       "who": "river_town_rina",
        "label": "A bar counter"
       },
       {
-       "any": [
-        "chair",
-        "bench",
-        "sofa"
-       ],
-       "count": 3,
-       "label": "Three seats"
-      },
-      {
-       "recolored": true,
-       "label": "A splash of colour (T)"
+       "check": "recolored",
+       "who": "river_town_pierina",
+       "label": "Something bright (T)"
       }
      ],
+     "hint": {
+      "x": 16,
+      "z": 31.5
+     },
      "onDone": {
       "flags": [
        "river_town_hall_ready"
@@ -776,12 +808,30 @@
     },
     {
      "id": "wall",
-     "kind": "build",
+     "kind": "commission",
      "stage": 1,
      "text": "Build a solid wall across the breach, as high as the levee's shoulders",
-     "check": "sealed:river_town_breach",
      "zone": "river_town_breach",
-     "goal": "No gap low enough for the river to get through",
+     "musts": [
+      {
+       "check": "sealed",
+       "label": "No gap the river can get through"
+      }
+     ],
+     "wishes": [
+      {
+       "check": "provides",
+       "kind": "light",
+       "who": "river_town_tullio",
+       "label": "A lamp to watch the river by"
+      },
+      {
+       "check": "provides",
+       "kind": "seat",
+       "who": "river_town_gildo",
+       "label": "A bench on the levee"
+      }
+     ],
      "buildHint": "Stone blocks and sandbags stack. Fill the gap edge to edge, as high as the levee's shoulders.",
      "hint": {
       "x": 5,
@@ -1027,12 +1077,33 @@
     },
     {
      "id": "slipway",
-     "kind": "build",
+     "kind": "commission",
      "stage": 2,
      "text": "Build a slipway from the houseboat down into the backwater",
-     "check": "path:river_town_mooring",
      "zone": "river_town_mooring",
-     "goal": "A continuous path from beside the boat out over the water",
+     "musts": [
+      {
+       "check": "path",
+       "label": "A path from the bank out over the water"
+      }
+     ],
+     "wishes": [
+      {
+       "check": "pieces",
+       "any": [
+        "railing"
+       ],
+       "count": 2,
+       "who": "river_town_ermes",
+       "label": "A railing to hold on to"
+      },
+      {
+       "check": "provides",
+       "kind": "light",
+       "who": "river_town_gildo",
+       "label": "A lamp at the end"
+      }
+     ],
      "buildHint": "Planks reach out over the water from the bank; posts hold them further.",
      "hint": {
       "x": -24,
@@ -1073,16 +1144,13 @@
     },
     {
      "id": "cosy",
-     "kind": "room",
+     "kind": "commission",
      "stage": 4,
      "text": "Make the cabin cosy (B inside the houseboat)",
      "zone": "river_town_cabin",
-     "hint": {
-      "x": -19.0,
-      "z": 32.5
-     },
-     "needs": [
+     "musts": [
       {
+       "check": "pieces",
        "any": [
         "table",
         "desk",
@@ -1091,31 +1159,35 @@
        "label": "A table"
       },
       {
-       "any": [
-        "chair",
-        "sofa",
-        "bench"
-       ],
+       "check": "provides",
+       "kind": "seat",
        "label": "Somewhere to sit"
       },
       {
-       "any": [
-        "lamp",
-        "poweredLamp"
-       ],
+       "check": "provides",
+       "kind": "light",
        "label": "A lamp"
-      },
+      }
+     ],
+     "wishes": [
       {
+       "check": "pieces",
        "any": [
         "rug"
        ],
+       "who": "river_town_ermes",
        "label": "A rug"
       },
       {
-       "recolored": true,
+       "check": "recolored",
+       "who": "river_town_wanda",
        "label": "A splash of colour (T)"
       }
      ],
+     "hint": {
+      "x": -19.0,
+      "z": 32.5
+     },
      "plan": [
       [
        -24,
