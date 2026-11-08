@@ -28,7 +28,12 @@
     "hat": "none",
     "hatColor": "#ffffff",
     "accessory": "scarf",
-    "accessoryColor": "#c96a8a"
+    "accessoryColor": "#c96a8a",
+    "body": {
+     "height": 1.0,
+     "width": 1.1,
+     "belly": 0.6
+    }
    },
    "schedule": [
     [
@@ -264,7 +269,11 @@
     "shoesColor": "#3a2a1e",
     "hat": "none",
     "hatColor": "#ffffff",
-    "accessory": "glasses"
+    "accessory": "glasses",
+    "body": {
+     "height": 0.92,
+     "width": 0.94
+    }
    },
    "schedule": [
     [
@@ -428,7 +437,11 @@
     "shoesColor": "#5a3d2b",
     "hat": "helmet",
     "hatColor": "#f4f1ea",
-    "accessory": "none"
+    "accessory": "none",
+    "body": {
+     "height": 1.1,
+     "width": 0.92
+    }
    },
    "schedule": [
     [
@@ -625,7 +638,12 @@
     "shoesColor": "#3a2a1e",
     "hat": "drivercap",
     "hatColor": "#2f3f6f",
-    "accessory": "beard"
+    "accessory": "beard",
+    "body": {
+     "height": 1.0,
+     "width": 1.08,
+     "belly": 0.5
+    }
    },
    "schedule": [
     [
@@ -799,7 +817,12 @@
     "shoesColor": "#1d1414",
     "hat": "none",
     "hatColor": "#ffffff",
-    "accessory": "bowtie"
+    "accessory": "bowtie",
+    "body": {
+     "height": 0.95,
+     "width": 1.06,
+     "belly": 0.7
+    }
    },
    "schedule": [
     [
@@ -915,7 +938,11 @@
     "shoesColor": "#1d1414",
     "hat": "none",
     "hatColor": "#ffffff",
-    "accessory": "pens"
+    "accessory": "pens",
+    "body": {
+     "height": 1.02,
+     "width": 0.9
+    }
    },
    "schedule": [
     [
@@ -1055,7 +1082,12 @@
     "shoesColor": "#3a2a1e",
     "hat": "none",
     "hatColor": "#ffffff",
-    "accessory": "glasses"
+    "accessory": "glasses",
+    "body": {
+     "height": 0.9,
+     "width": 0.96,
+     "belly": 0.2
+    }
    },
    "schedule": [
     [
@@ -1231,7 +1263,11 @@
     "shoesColor": "#3a2a1e",
     "hat": "beanie",
     "hatColor": "#3f6b4f",
-    "accessory": "beard"
+    "accessory": "beard",
+    "body": {
+     "height": 1.04,
+     "width": 0.93
+    }
    },
    "schedule": [
     [
@@ -1395,7 +1431,12 @@
     "hat": "beanie",
     "hatColor": "#b03a2e",
     "accessory": "apron",
-    "accessoryColor": "#e8e2d0"
+    "accessoryColor": "#e8e2d0",
+    "body": {
+     "height": 1.02,
+     "width": 1.12,
+     "belly": 0.6
+    }
    },
    "schedule": [
     [
@@ -1512,7 +1553,11 @@
     "shoesColor": "#1d1414",
     "hat": "helmet",
     "hatColor": "#f6f6f2",
-    "accessory": "none"
+    "accessory": "none",
+    "body": {
+     "height": 1.1,
+     "width": 1.02
+    }
    },
    "schedule": [
     [
@@ -1671,7 +1716,11 @@
     "hat": "none",
     "hatColor": "#ffffff",
     "accessory": "scarf",
-    "accessoryColor": "#e0b03a"
+    "accessoryColor": "#e0b03a",
+    "body": {
+     "height": 0.95,
+     "width": 0.92
+    }
    },
    "schedule": [
     [
@@ -1847,7 +1896,11 @@
     "shoesColor": "#ffffff",
     "hat": "none",
     "hatColor": "#ffffff",
-    "accessory": "glasses"
+    "accessory": "glasses",
+    "body": {
+     "height": 1.12,
+     "width": 0.88
+    }
    },
    "schedule": [
     [
@@ -2028,7 +2081,12 @@
     "shoesColor": "#7a4a2a",
     "hat": "none",
     "hatColor": "#ffffff",
-    "accessory": "none"
+    "accessory": "none",
+    "body": {
+     "height": 0.9,
+     "width": 1.02,
+     "belly": 0.3
+    }
    },
    "schedule": [
     [

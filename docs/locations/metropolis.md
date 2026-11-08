@@ -72,6 +72,23 @@ and ambient life.**
     and Rocco's helmet as a friendship gift.
   - **Ambrogio's last run:** on Christmas Eve his tram, number 1528, goes round strung with Christmas lights after
     dark, ringing its bell as it passes you.
+- **The redesign and the new look (08/11):** Toriano now works like the other places.
+  - **A work day** that regrows overnight without holding the clock (Gino's score pages are found at night, and
+    Christmas Eve is an evening), so a sleep into the next morning ends the day.
+  - **Its own morning paper,** *La Sera di Toriano*, with city headlines, and **Architetto Annoni opens what you
+    build** at the end of the day, in her own words ("We started this morning, which for us is unheard of").
+  - **Tastes** for all thirteen villagers, near their spots: Annoni statues and columns in marble white, Franco
+    tables and chairs in bitter red, Ambrogio benches and signs in tram orange, and so on.
+  - **Every building request is a brief** with musts and wishes from the people involved, and an example plan that
+    meets the musts: the flat (a bed, a table and a chair, a lamp; a rug for Augusto, somewhere to file things for
+    Sala, something cheerful for Elvira), the crane, the footbridge (now one brief: walkable and railed), the
+    scaffolding, the Angel, the bathroom, the tram shelter, Chiara's window, the duck house, Gennaro's stall,
+    Rocco's platform, Simone's pergola and Elvira's tree. The footbridge asks for 24 wood and the scaffolding 30
+    stone, what their plans cost.
+  - **The city blocks and number 14 are dressed from the house kit:** real windows with shutters on every storey,
+    shop windows and doors on the ground floor with a granite base, grilled windows under the flats, kit windows on
+    the storeys over the rooms you walk into; blank shared walls. The backdrop ring and the landmarks keep their
+    styles. Every villager has a build of their own. See `docs/CONVERSION.md`.
 - **Shared changes so far:** see the table below.
 
 ## The concept

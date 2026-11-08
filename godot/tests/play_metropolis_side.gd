@@ -60,7 +60,9 @@ func play() -> void:
 	var title_load: Control = game.screens.find_child("btn_load", true, false)
 	if title_load: await click(title_load.get_global_rect().get_center()); await frames(10)
 	var l3: Control = game.screens.find_child("load_slot3", true, false)
-	if l3: await click(l3.get_global_rect().get_center()); await frames(30)
+	if l3:
+		await click(l3.get_global_rect().get_center())
+		if not await await_island("metropolis", 120.0): await frames(30)
 	check("loaded", "the main story's save loads from the title screen, in Toriano", game.mode == "explore" and Data.island == "metropolis" and done("angel"), "mode %s, island %s, angel %s" % [game.mode, Data.island, status("angel")])
 	if game.mode != "explore": return
 	await frames(20)

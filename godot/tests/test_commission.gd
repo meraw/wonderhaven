@@ -252,3 +252,58 @@ func test_a_sealed_check_wants_the_breach_closed():
 	_built(o, o.plan, placements, WorldStatics.build_statics(WorldStatics.generate_decor()))
 	t.ok(Commission.evaluate(o, {"placements": placements}).done, "the wall across it is")
 	Data.use_island("hearthglow")
+
+const TORIANO := {"metropolis_flat": "furnish", "metropolis_marble": "crane", "metropolis_footbridge": "bridge", "metropolis_scaffold": "climb", "metropolis_angel": "light", "metropolis_bathroom": "fit", "metropolis_shelter": "stop", "metropolis_chiara": "window", "metropolis_ducks": "house", "metropolis_cart": "stall", "metropolis_fog_light": "platform", "metropolis_model": "pergola", "metropolis_tree": "tree"}
+const TORIANO_WISHED := {
+	"furnish": [[-29, 109, "rug", 0, "#6cc4ff"], [-26, 111, "bookshelf", 0]],
+	"crane": [[-147, 99, "railing", 0], [-148, 99, "railing", 0], [-147, 98, "lamp", 0]],
+	"bridge": [[-114, 134, "lamp", 0], [-110, 135, "railing", 0], [-110, 135, "railing", 2], [-107, 135, "railing", 0], [-107, 135, "railing", 2]],
+	"climb": [[76, 8, "lamp", 0], [72, 8, "bench", 0]],
+	"light": [[48, 10, "lamp", 0], [44, 10, "bench", 0]],
+	"fit": [[-28, 109, "rug", 0], [-28, 111, "lamp", 0]],
+	"stop": [[-5, 26, "pillar", 0], [-5, 26, "roof", 0], [-4, 28, "chair", 0, "#ff9f5a"]],
+	"window": [[-9, -77, "rug", 0], [-6, -78, "woodWall", 1], [-6, -78, "painting", 1]],
+	"house": [[-108, -124, "flowerBed", 0], [-108, -123, "bench", 1]],
+	"stall": [[-92, -83, "bench", 0], [-90, -86, "signpost", 0]],
+	"platform": [[-27, 8, "railing", 0], [-26, 11, "signpost", 0]],
+	"pergola": [[-37, 112, "flowerBed", 0], [-37, 115, "lamp", 0]],
+	"tree": [[-39, 118, "bench", 0, "#3fb5a3"]]}
+
+func test_every_toriano_building_request_is_a_brief():
+	var mine: Array = Data.quests.filter(func(q): return Data.quest_island(String(q.id)) == "metropolis")
+	t.ok(not mine.any(func(q): return q.objectives.any(func(o): return String(o.get("kind", "")) in ["build", "room", "pieces"])), "no old-style building steps left in Toriano")
+	var people: Array = Data.npcs.filter(func(n): return n.get("island", "") == "metropolis").map(func(n): return String(n.id))
+	for qid in TORIANO:
+		var o := _step(String(qid), String(TORIANO[qid]))
+		t.ok(String(o.get("kind", "")) == "commission", "%s is a brief" % qid)
+		t.ok(o.musts.size() >= 1 and o.musts.size() <= 3 and o.get("wishes", []).size() >= 2 and o.get("wishes", []).size() <= 3, "%s: %d musts and %d wishes" % [qid, o.musts.size(), o.get("wishes", []).size()])
+		for c in o.musts + o.get("wishes", []):
+			t.ok(Commission.KINDS.has(String(c.check)) and String(c.get("label", "")) != "", "%s: \"%s\" is a known check with a label" % [qid, c.get("label", "")])
+		for c in o.get("wishes", []):
+			t.ok(people.has(String(c.get("who", ""))), "%s: \"%s\" is wished by someone who lives in Toriano" % [qid, c.label])
+		var before: Array = []
+		for q in Data.quests.filter(func(x): return Data.quest_island(String(x.id)) == "hearthglow" and x.get("main", false)):
+			for oo in q.objectives:
+				if String(oo.get("kind", "")) == "commission": before.append_array(Commission.kinds_of(oo) + Commission.kinds_of(oo, "wishes"))
+		for a in _ancestors(String(qid)):
+			for oo in Data.quest(a).objectives:
+				if String(oo.get("kind", "")) == "commission": before.append_array(Commission.kinds_of(oo) + Commission.kinds_of(oo, "wishes"))
+		var unique := {}
+		for k in (Commission.kinds_of(o) + Commission.kinds_of(o, "wishes")).filter(func(k): return not before.has(k) and not Commission.BASIC.has(k)): unique[k] = true
+		t.ok(unique.size() <= 1, "%s brings in at most one new kind of check (%s)" % [qid, str(unique.keys())])
+
+func test_torianos_plans_meet_the_musts_and_every_wish_can_be_met():
+	Data.use_island("metropolis")
+	for qid in TORIANO:
+		var o := _step(String(qid), String(TORIANO[qid]))
+		var here := WorldStatics.build_statics(WorldStatics.generate_decor())
+		var placements: Array = []
+		var problem := _built(o, o.plan, placements, here)
+		t.eq(problem, "", "%s: its example plan can be built" % qid)
+		var r := Commission.evaluate(o, _here_world(placements, here))
+		t.ok(r.done, "%s: its example plan meets every must: %s" % [qid, str(r.musts.map(func(m): return "%s %s" % [m.label, m.ok]))])
+		problem = _built(o, TORIANO_WISHED[String(o.id)], placements, here)
+		t.eq(problem, "", "%s: the pieces for its wishes can be built too" % qid)
+		r = Commission.evaluate(o, _here_world(placements, here))
+		t.ok(r.done and r.wishes.all(func(w): return w.ok), "%s: every wish met together: %s" % [qid, str(r.wishes.map(func(w): return "%s %s" % [w.label, w.ok]))])
+	Data.use_island("hearthglow")

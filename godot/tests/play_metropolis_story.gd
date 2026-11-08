@@ -122,11 +122,14 @@ func step_footbridge() -> void:
 		["bridgePost", -107, 135, 0, 0.0], ["bridgeDeck", -107, 135, 0, 0.0], ["bridgeDeck", -108, 135, 0, 0.0], ["bridgeDeck", -106, 135, 0, 0.0],
 		["bridgePost", -104, 135, 0, 0.0], ["bridgeDeck", -104, 135, 0, 0.0], ["bridgeDeck", -105, 135, 0, 0.0], ["bridgeDeck", -103, 135, 0, 0.0], ["bridgeDeck", -102, 135, 0, 0.3]]
 	var placed := await put_all(bridge)
-	check("footbridge_built", "posts in the canal bed and planks across, quay to quay", step_done("footbridge", "bridge"), "%d of %d placed" % [placed, bridge.size()])
+	var brief: Dictionary = Data.quest(P + "footbridge").objectives.filter(func(o): return String(o.id) == "bridge")[0]
+	game.story.engine.invalidate()
+	var walkable: bool = game.story.engine.commission(P + "footbridge", brief).musts[0].ok
+	check("footbridge_built", "posts in the canal bed and planks across, quay to quay: the brief's first must ticks", walkable and not step_done("footbridge", "bridge"), "%d of %d placed" % [placed, bridge.size()])
 	placed = await put_all([["railing", -111, 135, 0, 0.15], ["railing", -111, 135, 2, 0.15], ["railing", -108, 135, 0, 0.15], ["railing", -108, 135, 2, 0.15], ["railing", -105, 135, 0, 0.15], ["railing", -105, 135, 2, 0.15]])
 	await shot("footbridge")
 	await leave_build()
-	check("footbridge_rails", "railings along both sides", placed == 6 and step_done("footbridge", "rails"), "%d placed" % placed)
+	check("footbridge_rails", "railings along both sides, and the brief is met", placed == 6 and step_done("footbridge", "bridge"), "%d placed" % placed)
 	await walk_direct(-113.5, 135.5, 0.5)
 	await walk_direct(-101.0, 135.5, 0.5)
 	check("footbridge_walk", "you walk across the Naviglio on your bridge", game.player.pos.x > -102.0 and absf(game.player.pos.z - 135.5) < 1.0, "at %s" % game.player.pos)

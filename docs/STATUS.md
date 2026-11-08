@@ -481,7 +481,7 @@ Each fix is the general version, for every place. What was checked how is at the
 - **Step three, part two: a village core** (tested, played, seen from above, in the piazza, down the south lane and at the bus stop): ten more kit houses, some in attached rows, frame the piazza's north side, line the south lane toward the belvedere and stand at the village gate, one beside the church and one by the newsstand. None of them is on a lane, a villager's route, a resource spot, a building site, a bench or a hangout, and no gameplay data moved; the playthroughs pass unchanged. They take buildable ground from the open village zone, so a save with something built exactly there would now overlap a house.
 - **Step three, part three: the church, castle and workshop** (tested, played, seen in close-ups and in the castle hall at dawn): all three are restyled with the kit, with their shapes, rooms, doors and named parts unchanged. The church has a gabled front, an arched stone portal, quoins, a coppi roof and a brick tower with a stone belfry; the workshop a coppi roof that fades while you're inside, a stone door frame and kit windows; the castle tiled tower roofs, barred keep windows and two wall lamps in the hall. The lamps fix the dark hall at dawn left over from step one: it is about as bright as before the conversion again. Step three of the conversion is done; places without the kit keep their old buildings.
 - **Steps four and six: characters and performance** (tested, played, seen in the cast lineup and in renders with full and simpler graphics and in the compatibility renderer): villagers have builds of their own (height, width, belly in their appearance data; the Sindaco short and round, the electrician tall and lean); jeans and overalls are denim and shoes leather; hair has real specular. Settings has "Simpler graphics, for slower computers" (no screen-space reflections, contact shadows or anti-aliasing, shorter sun shadows), which halves texture memory and draw calls in a wide view of the village. The conversion plan is done for Monteforchetta; other places are their owners' to convert. Not checked: frame rate on a real graphics card.
-- **Step five: Boccapioppo and Casalrana** (08/11; tested, played, seen in before-and-after views of both places and in their casts' lineups): Monteforchetta's graphic improvements, done the same way in the other two villages (not Toriano yet).
+- **Step five: Boccapioppo and Casalrana** (08/11; tested, played, seen in before-and-after views of both places and in their casts' lineups): Monteforchetta's graphic improvements, done the same way in the other two villages (Toriano later: see "Toriano catches up").
   - **Houses from the kit.** Boccapioppo's nine houses, Rina's bar, Primo's workshop, Ermes's house, the station and the sawmill's office, and Casalrana's crossing keeper's cottage, presbytery, farm office and Cascina Grande are assembled from the house kit, with what each place adds on top: Boccapioppo's tide line above the stone footing, the bar's shopfront, sign, awning and payphone, the workshop's wheels, Ermes's plaque and quoins, the station's canopy and boards; Cascina Grande's long wooden gallery with its stair. Any kind of building can now join the kit with `"kit": true`, and a house can be `shut` (an empty house: closed shutters, dark at night), have a `gallery` and go without a chimney (`docs/MODELS.md`).
   - **Landmarks restyled with kit parts,** shapes, rooms, doors and named parts unchanged: Boccapioppo's church and bell tower, arcade, farm courtyard and pumping house; in Casalrana every building with a roof (station, church, bell tower, mill, machine shed, barn, cowshed, the farm workers' houses) gets coppi laid tile by tile, kit windows, doors and chimneys and a stone footing. The farm workers' houses stay shut up and dark. Wood and tin buildings (the houseboat, shack, dance hall, rice dryer) are unchanged.
   - **A denser core:** nine more houses in Boccapioppo and six in Casalrana, some in attached rows, placed clear of lanes, villagers' routes, resource spots, building sites, features, trees and the square, on level ground. No gameplay data moved.
@@ -579,6 +579,38 @@ Checked by the headless tests (`test_animation.gd`: stopping eases, the stride s
 - **A missing boar** (Monteforchetta, playtest): her request needs three boars fed, but it only counted a feed made on the "Offer a chestnut to each boar" step, while a bakery boar takes a chestnut any time the request is on. Feed one while you're still on the chestnut step (say, with a chestnut left over after feeding the woods boars) and it trotted off to the woods for good, uncounted: two boars left for a step that needs three, and no way to finish. A save stuck like that had all three boars fed and only two counted.
 - **The fix:** the step counts the bakery boars that are fed, from their own flags (`WorldActions.count_boars`, the request's `stat` `bakeryBoars`), whenever they were fed. Loading a stuck save counts them, so the request moves on to Ornella's hazelnuts.
 - **Checked:** **tested** (366 passed): `test_boars` feeds a boar while you're still gathering and finishes with the other two, and repairs a save with all three fed and two counted (both fail without the fix). **Played:** the new `play_boars` (9 checks, in `play_all.sh`) takes on the request with one chestnut left over, feeds a bakery boar early, shakes the chestnut tree, feeds the other two and moves on to the hazelnuts; then it saves a stuck state, loads it, and the request moves on. Without the fix it fails at both points, as the playtest did (2 of 3, no boar left). All of Monteforchetta's playthroughs pass (`play_all.sh`, 24 runs). **Not checked:** the tester's own save (not available here); it should load straight onto the hazelnut step if all three boars are fed.
+
+## Toriano catches up (08/11)
+The user asked for Toriano's graphics, requests and systems to work like the other places'. It gets what Boccapioppo got
+("Boccapioppo catches up", below) and conversion step five's look, done in a city's way. Toriano's own doc has the details
+(`docs/locations/metropolis.md`, Status).
+- **A work day that doesn't hold the clock** (`day` in its `location.json`): spots regrow overnight; Gino's score pages
+  at night and Christmas Eve keep their hours; a sleep into the next morning ends the day.
+- **Its own paper and opening**: the morning paper is *La Sera di Toriano* (its layout's `naps` and `paper` blocks,
+  with no Sindaco, Eco or approval rating), and Architetto Annoni opens the day's build at dusk in her own words (its
+  `inauguration` block).
+- **Tastes** for all thirteen villagers, near their spots (number 14's courtyard has four: Augusto, Sala, Simone and
+  Elvira, who like different pieces).
+- **Every building request is a brief** (13 of them; the footbridge's railings step joined its crossing, as in
+  Monteforchetta and Boccapioppo), with one to three musts, two or three wishes from Toriano's villagers, at most one
+  new kind of check, and an example plan taken from the playthroughs' builds. The scaffolding's plan is a stair one
+  tile wide (21 pieces). Gathering now pays for each plan: the footbridge asks for 24 wood (was 14), the scaffolding
+  30 stone (was 16).
+- **The look**: `"kit": true` in Toriano's `houseStyle`; city blocks and number 14 dressed with the house kit's
+  windows, shutters, doors and a granite base by `metropolis/facades.gd` instead of the painted façade; rooms keep
+  their walls and doorways, with fading kit windows above; shared walls stay blank; landmarks and the backdrop ring
+  unchanged; a build for every villager. Before and after: `docs/models/conversion_toriano.jpg`.
+- **The side playthrough's first check** (loading the main story's save from the title screen) missed whenever the
+  machine was busy: the load reloads the scene, and the script only waited 30 frames. It now waits for the new scene
+  (`await_island`).
+- **Checked:** **tested** (379 passed): Toriano's systems (`test_alive`), its work day (`test_work_day`), every brief
+  sound, every plan built and meeting its musts and every wish then met (`test_commission`), every city block and
+  tenement wing with real windows that light at night, none opening onto a neighbour, rooms fading their upper windows,
+  the backdrops unchanged, and thirteen different builds (`test_house_kit`). **Played:** see the last line. **Seen:**
+  number 14's courtyard, a city block from the street, the cathedral square from above and a street at night, before and
+  after, and the cast lineup (a bin in the look-dev scene hides the last villager). **Not checked:** an evening opening
+  and a morning paper in Toriano in play (tests only); frame rate on a real graphics card with the city's windows (4,087
+  windows, about 17,000 instanced parts in all, drawn a few batches per building); the landmarks restyled with the kit (not done).
 
 ## Playtest fixes (third playtest notes, 08/11)
 - **Build mode's view** (shared): you could move (WASD), turn (Q/Z, right-drag) and zoom it, but in build mode nothing said so (the key bar is hidden there), and on a trackpad only zooming worked. Now ⟲ ⟳ buttons in the top bar turn it 45°, a line along the bottom of the catalogue gives the keys, middle-drag moves the view (grab the map), sideways or Shift+scroll turns it, and a trackpad's two-finger swipe moves it and a pinch zooms.

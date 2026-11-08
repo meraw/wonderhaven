@@ -267,3 +267,47 @@ func test_their_villagers_have_builds_of_their_own():
 			var bd: Dictionary = Chibi.sanitize(n.appearance).body
 			shapes["%.2f|%.2f|%.2f" % [bd.height, bd.width, bd.belly]] = true
 		t.ok(shapes.size() >= people.size() - 1, "%s's villagers come in different builds (%d)" % [PLACES[place].name, shapes.size()])
+
+func test_torianos_villagers_have_builds_of_their_own():
+	var people := _bodies("metropolis")
+	t.ok(people.size() == 13 and people.all(func(n): return n.appearance.has("body")), "everyone in Toriano has a build (%d)" % people.size())
+	var shapes := {}
+	for n in people:
+		var bd: Dictionary = Chibi.sanitize(n.appearance).body
+		shapes["%.2f|%.2f|%.2f" % [bd.height, bd.width, bd.belly]] = true
+	t.ok(shapes.size() == people.size(), "Toriano's villagers come in different builds (%d)" % shapes.size())
+
+func _glass_points(m: Node3D, b: Dictionary) -> Array:
+	var out: Array = []
+	for gl in m.get_meta("glasses", []):
+		var mm: MultiMesh = (gl as MultiMeshInstance3D).multimesh
+		for i in mm.instance_count:
+			var xf: Transform3D = mm.get_instance_transform(i)
+			var p: Vector3 = xf.origin + xf.basis.z.normalized() * 0.3
+			out.append(Vector2(float(b.x) + p.x, float(b.z) + p.z))
+	return out
+
+func test_torianos_city_blocks_come_from_the_kit():
+	Data.use_island("metropolis")
+	t.ok(HouseKit.kit_style(), "Toriano builds with the kit")
+	var city: Array = Data.layout.buildings.filter(func(b): return String(b.kind) in ["city_block", "tenement"])
+	var windows := 0
+	for b in city:
+		var m := _model(b, "metropolis")
+		var pts := _glass_points(m, b)
+		windows += pts.size()
+		t.ok(not pts.is_empty(), "%s has real windows that light up at night" % b.id)
+		var box := _bounds(m)
+		t.ok(box.position.x > -b.w / 2.0 - 1.4 and box.end.x < b.w / 2.0 + 1.4 and box.position.z > -b.d / 2.0 - 1.4 and box.end.z < b.d / 2.0 + 1.4, "%s stays on its footprint, balconies and awnings included" % b.id)
+		for p in pts:
+			var into: Array = Data.layout.buildings.filter(func(o): return String(o.id) != String(b.id) and absf(p.x - float(o.x)) < float(o.w) / 2.0 and absf(p.y - float(o.z)) < float(o.d) / 2.0)
+			t.ok(into.is_empty(), "%s: no window opens onto %s" % [b.id, str(into.map(func(o): return o.id))])
+		if Interiors.enterable(b) and float(b.h) > 6.0:
+			t.ok((m.get_meta("fade_parts", []) as Array).any(func(p): return p[0] is MultiMeshInstance3D), "%s fades its upper windows while you're inside" % b.id)
+		m.free()
+	t.ok(windows > 1500, "the city's streets and courtyard have their windows (%d)" % windows)
+	for b in Data.layout.buildings.filter(func(x): return String(x.kind) == "backdrop").slice(0, 3):
+		var m := _model(b, "metropolis")
+		t.ok(m.get_meta("glasses", []).is_empty(), "%s, in the far ring, keeps its painted façade" % b.id)
+		m.free()
+	Data.use_island("hearthglow")
