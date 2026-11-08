@@ -109,4 +109,4 @@ func play() -> void:
 	var ok: bool = awake.size() > 0 and gathered >= mini(3, awake.size())
 	await frames(10)
 	await shot("dusk-gathering")
-	check("w9", "At dusk, with the piazza fully lively, people gather there", ok and WorkDay.held(s.time, WorkDay.def(Data.island)), "%d gathered of %d awake (%s)" % [gathered, awake.size(), Clock.text(s.time)])
+	check("w9", "At dusk, with the piazza fully lively, people gather there", ok and WorkDay.dusk(s.time, WorkDay.def(Data.island)), "%d gathered of %d awake (%s)" % [gathered, awake.size(), Clock.text(s.time)])

@@ -56,21 +56,21 @@ func play() -> void:
 	game.actions.deplete(tree)
 	await at_bench()
 	var ids: Array = game.panels.find_children("wake_*", "Button", true, false).map(func(x): return String(x.name))
-	check("s1", "At 3 PM a bench offers a nap until dusk, sleep until tomorrow (which ends the day), or just sitting", game.panels.current == "sleep" and ids == ["wake_20", "wake_tomorrow"] and game.panels.find_child("just_sit", true, false) != null, "%s %s" % [game.panels.current, str(ids)])
+	check("s1", "At 3 PM a bench offers sleep until tomorrow (which ends the day), a nap until the evening or the night, or just sitting", game.panels.current == "sleep" and ids.has("wake_tomorrow") and ids.has("wake_18") and ids.has("wake_21") and game.panels.find_child("just_sit", true, false) != null, "%s %s" % [game.panels.current, str(ids)])
 	await shot("bench-panel")
-	await click((game.panels.find_child("wake_20", true, false) as Control).get_global_rect().get_center())
+	await click((game.panels.find_child("wake_21", true, false) as Control).get_global_rect().get_center())
 	for n in 200:
 		await frames(2)
 		if game.mode == "explore": break
 	await frames(10)
-	check("s2", "Napping until dusk: 8:30 PM the same day", int(s.time.day) == 1 and absf(s.time.minute - 20.5 * 60.0) < 2.0, Clock.text(s.time))
+	check("s2", "Napping until the night: 9 PM the same day", int(s.time.day) == 1 and absf(s.time.minute - 21.0 * 60.0) < 2.0, Clock.text(s.time))
 	var on_bench: bool = not game.sitting.is_empty() and Vector2(game.player.pos.x - b.x, game.player.pos.z - b.z).length() < 1.0
 	await get_up()
 	check("s2b", "You wake up on the bench, and a step gets you up again", on_bench and game.sitting.is_empty(), "on the bench=%s, up=%s" % [on_bench, game.sitting.is_empty()])
 	var t_dusk: float = s.time.total
 	await frames(60)
 	await shot("dusk")
-	check("s3", "At dusk the clock waits for you, says so, and a tip card explains it", absf(s.time.total - t_dusk) < 0.01 and "waits" in game.hud.clock_label.text and "dusk" in s.tutorial.seen,
+	check("s3", "After dusk the clock runs on into the night, and a tip card says how to end the day", s.time.total - t_dusk > 0.5 and "dusk" in s.tutorial.seen,
 		"%.2f min passed; clock '%s'" % [s.time.total - t_dusk, game.hud.clock_label.text])
 	check("s3b", "A tree cut before the nap hasn't grown back by dusk", not tree.is_empty() and not game.actions.ready(tree), tree.get("id", "no tree"))
 	var e: QuestEngine = game.story.engine
@@ -112,7 +112,7 @@ func play() -> void:
 	await wait_explore()
 	check("n2", "A nap can end with a villager caught staring at you, who hurries off", woke and w != null and near < 2.0 and later > near + 3.0 and gags_seen.has("stared"),
 		"%s: %.1f m from the bench, then %.1f m; line: %s" % [w.def.name if w else "nobody", near, later, game.nap_gags.line])
-	woke = await bench_nap("newspaper", "wake_15", 15 * 60.0)
+	woke = await bench_nap("newspaper", "wake_18", 18 * 60.0)
 	var sheets: Array = game.nap_gags.paper.get_children() if game.nap_gags.paper else []
 	var start: Array = sheets.map(func(sh): return sh.global_position)
 	await shot("nap-newspaper")
@@ -123,7 +123,7 @@ func play() -> void:
 	await wait_explore(); await frames(30)
 	check("n1", "...or under the local paper, and the wind takes it", woke and flew and not is_instance_valid(game.nap_gags.paper) and gags_seen.has("newspaper"),
 		"%d sheets, flew=%s, line: %s" % [sheets.size(), flew, game.nap_gags.line])
-	woke = await bench_nap("umbrella", "wake_20", 20.5 * 60.0)
+	woke = await bench_nap("umbrella", "wake_21", 21 * 60.0)
 	var um: Node3D = game.nap_gags.umbrella
 	await frames(4)
 	var dripping: bool = game.player_char.get_node_or_null("drips") != null

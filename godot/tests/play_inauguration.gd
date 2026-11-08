@@ -97,7 +97,7 @@ func play() -> void:
 	var started: bool = await start_night()
 	if started: started = await ceremony_started()
 	await frames(3)
-	var dusk := WorkDay.held(s.time, WorkDay.def(Data.island))
+	var dusk := WorkDay.dusk(s.time, WorkDay.def(Data.island))
 	check("i2", "Ending the day after building opens what you built, at dusk, with the camera cut to it", started and dusk and not game.cam.cinema.is_empty() and not game.hud.visible, "%s, %s" % [Clock.text(s.time), str(game.cam.cinema)])
 	var c := Visits.center(bench) if not bench.is_empty() else Vector2.ZERO
 	var sindaco = game.npcs.get("percival")

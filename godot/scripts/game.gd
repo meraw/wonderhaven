@@ -505,7 +505,7 @@ func _update_visits(dt: float) -> void:
 	if visit_opts.is_empty() or mode in ["title", "creator", "cutscene"]: return
 	var hs := Needs.hangouts()
 	var cfg: Dictionary = Data.needs.get("visits", {})
-	var dusk := WorkDay.held(state.time, WorkDay.def(Data.island))
+	var dusk := WorkDay.dusk(state.time, WorkDay.def(Data.island))
 	var rate := float(shot_cfg.get("visit_rate", 1.0))
 	var taken := {}
 	for a in npcs.values():
@@ -535,7 +535,7 @@ func _update_visits(dt: float) -> void:
 		emit_event("visit", {"npc": String(a.def.id), "hangout": String(v.hangout), "kind": String(v.kind), "use": bool(v.use)})
 
 func festa_now() -> bool:
-	if not Visits.gathering(village_score, WorkDay.held(state.time, WorkDay.def(Data.island))): return false
+	if not Visits.gathering(village_score, WorkDay.dusk(state.time, WorkDay.def(Data.island))): return false
 	var h := Needs.hangout(Needs.hangouts(), "piazza")
 	return not h.is_empty() and Vector2(player.pos.x - float(h.x), player.pos.z - float(h.z)).length() < 28.0
 
@@ -1185,7 +1185,7 @@ func _update_world_time(dt: float) -> void:
 	if mode != "menu":
 		s.play_time += dt
 		if mode != "build": WorkDay.advance(s.time, dt, day_rules)
-	if mode == "explore" and WorkDay.held(s.time, day_rules): guide.tip("dusk")
+	if mode == "explore" and WorkDay.dusk(s.time, day_rules): guide.tip("dusk")
 	var night := Clock.is_night(s.time)
 	if night != s.flags.get("night", false): s.flags["night"] = night
 	var h: float = s.time.minute / 60.0
