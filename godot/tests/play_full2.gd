@@ -42,7 +42,7 @@ func play() -> void:
 	await select_piece("gardenPath")
 	for i in range(1, 7):
 		for k in [35, 36]: await place_at(i, k, 0.1)
-	await select_piece("bench"); print("   bench: ", await place_at(2, 38, 0.1, 0))
+	await select_piece("bench"); print("   bench: ", await place_anchored(1, 38, 0))
 	await select_piece("signpost"); print("   sign: ", await place_at(6, 38, 0.1, 0))
 	await shot("turnaround-built")
 	await leave_build()

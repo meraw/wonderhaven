@@ -8,7 +8,54 @@ Working title: **Wonderhaven** (to be renamed). The game is moving to a comic, l
 ## The redesign (07/11)
 After a review of how the game plays, the user agreed a new design: building is the core, the game values what you build
 whether or not anyone asked for it, requests become briefs with checks, and the day becomes a work day you end
-yourself. All of it, and the order it's built in, is in `docs/DESIGN.md`. Stages 1 to 6 are done; stage 7 is still to do.
+yourself. All of it, and the order it's built in, is in `docs/DESIGN.md`. All seven stages are done for Monteforchetta.
+
+### Stage 7: tools and materials (shared; content for Monteforchetta)
+- **Tools have levels.** You start with an old hatchet and an old pick; Elio's shop sells the next one, for lire and
+  metal, one level at a time:
+  - **Steel axe** (after the crossing): fells the **big oaks** for **oak beams**, and gets a little more wood from
+    every tree. Then the **woodcutter's axe** (50 approval): two swings a tree, and more from each.
+  - **Pick and chisel** (after Elio's shop): every perfect strike also dresses a block of **cut stone**. Then the
+    **mason's pick** (80 approval): two strikes a rock, and more stone.
+  - A better tool makes its minigame quicker and easier: a wider green or ring, a slower needle, less wait between
+    swings, one swing fewer at the top level, and a bigger yield.
+- **A perfect run pays**: when every swing is gold, you get 2 more wood or stone, a "Perfect run!" in the panel and a
+  toast.
+- **Big oaks**: two of them stand in the woods west of the village (`bigoak0`, `bigoak1`), larger than the ribboned
+  trees. The old hatchet can't fell them: the prompt says so, and a toast says Elio sells a steel axe. They grow back
+  overnight like the others.
+- **New materials make new building**:
+  - an **oak beam** (from beams) is a deck that reaches four tiles out over water, twice as far as a plank. Oak beams
+    cross Aldo's washout from both banks without a single post;
+  - a **stone arch** (cut stone) reaches three tiles, with an arch underneath;
+  - a **stone column** (cut stone) stands in a river bed like a post and holds up a deck.
+  The tool upgrades bring their plans; Elio sells the plans too.
+- **Lire can buy materials**: Elio sells beams and cut stone (and the plans), so a player who only wants to build
+  can buy instead of chopping. Wood, stone, metal, clay, copper wire and fabric were already for sale.
+- **What you see**: the minigame panel names your tool and shows as many dots as it takes swings; the bag lists your
+  tools, what each does and what the next one costs; the shop lists only the next upgrade of each tool. The
+  chopping and mining tips mention gold swings and the new tools. Gigia's "all in wood" wish on the crossing counts
+  oak beams as wood.
+- Where: `Tools` (`scripts/systems/tools.gd`) and `data/tools.json` (levels, prices, what each level does to the
+  minigame); `Minigames.Chop` and `Mine` take a tool's stats; each span piece has its own `reach` in `pieces.json`
+  (`BuildGrid.reach`); shop lines `{tool, level}`; new resources `beam` and `cutstone` with watercolour icons (drawn in
+  `tools/icons/icons.cjs`), and rendered pictures for the three new pieces.
+- **Checked:**
+  - **Tested** (`godot/run_tests.sh`). `test_tools` covers: better tools make the minigame quicker and the yield
+    bigger; a perfect run's bonus; big oaks need the steel axe and give beams, small trees don't; the chisel's cut
+    stone; buying upgrades at Elio's (lire and materials spent, one level at a time, waiting on the request or the
+    approval it needs, saved); beams and cut stone for sale; oak beams reach four tiles and cross the washout with
+    no post, arches three; a column holds up a plank.
+  - **Played** (`play_tools`, 10 checks, in `play_all.sh`): the old hatchet refused at a big oak; the steel axe bought
+    at Elio's; the oak felled for beams with "Steel axe" in the panel; the pick and chisel bought; a perfect run at
+    the quarry gives the bonus and 4 cut stone; beams and cut stone bought with lire; an oak beam crossing and a stone
+    arch crossing with a column built over the washout; the bag lists the tools; you walk across on the beams. For
+    the perfect run the script puts the shrinking ring on the mark just before each press (at ten frames a second a
+    scripted press can't hit the gold reliably); the game's own judging, bonus and cut stone do the rest.
+  - **Seen** in screenshots: the two crossings side by side, the tool name in the minigame panel, the perfect run,
+    Elio's shop, the bag.
+  - **Not checked:** the woodcutter's axe and the mason's pick in play (only in tests); how the prices feel over a
+    whole game.
 
 ### Stage 6: requests as commissions (Monteforchetta)
 - **A request's building step is now a brief**: a site, two or three **musts** that check what it does, and up to

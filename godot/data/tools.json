@@ -1,0 +1,23 @@
+{
+  "_doc": "Tools (Tools, scripts/systems/tools.gd): each gathering tool has levels; you start on the first and buy the next at `seller`'s shop (shops.json lists the lines as {tool, level}). A level can say: price (lire) and items (materials) it costs, requires {quests, harmony, flags}, what the minigame is like (chop: width of the green, speed of the needle, rounds; mine: zone, the ring's speed, strikes; both: pause between swings), yield (extra of the main material per go), fells (\"big\": the big oaks, which give beams), dresses (each perfect strike also gives cut stone), unlocks (blueprints you get with it) and a short `does` line for the shop and the bag. A go where every swing is perfect gives `perfect_bonus` more.",
+  "seller": "bram",
+  "perfect_bonus": 2,
+  "tools": {
+    "axe": {
+      "name": "Axe", "icon": "🪓", "for": "chop",
+      "levels": [
+        {"name": "Old hatchet", "width": 0.24, "speed": 1.1, "rounds": 3, "pause": 0.6, "yield": 0, "does": "Fells the ribboned trees."},
+        {"name": "Steel axe", "price": 60, "items": {"metal": 2, "wood": 2}, "requires": {"quests": ["bridge"]}, "width": 0.3, "speed": 1.0, "rounds": 3, "pause": 0.45, "yield": 1, "fells": "big", "unlocks": ["oakBeam"], "does": "Fells the big oaks for beams, and gets more wood from every tree."},
+        {"name": "Woodcutter's axe", "price": 140, "items": {"metal": 4}, "requires": {"harmony": 50}, "width": 0.34, "speed": 0.95, "rounds": 2, "pause": 0.4, "yield": 2, "fells": "big", "does": "Two swings a tree, and more wood and beams from each."}
+      ]
+    },
+    "pick": {
+      "name": "Pick", "icon": "⛏", "for": "mine",
+      "levels": [
+        {"name": "Old pick", "zone": [0.32, 0.46], "speed": 0.55, "strikes": 3, "pause": 0.6, "yield": 0, "does": "Breaks stone and a little metal out of the rocks."},
+        {"name": "Pick and chisel", "price": 80, "items": {"metal": 3}, "requires": {"quests": ["workshop"]}, "zone": [0.3, 0.48], "speed": 0.5, "strikes": 3, "pause": 0.45, "yield": 1, "dresses": true, "unlocks": ["stoneArch", "column"], "does": "Every perfect strike dresses a block of cut stone, for arches and columns."},
+        {"name": "Mason's pick", "price": 150, "items": {"metal": 4, "crystal": 1}, "requires": {"harmony": 80}, "zone": [0.28, 0.5], "speed": 0.48, "strikes": 2, "pause": 0.4, "yield": 2, "dresses": true, "does": "Two strikes a rock, and more stone from each."}
+      ]
+    }
+  }
+}

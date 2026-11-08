@@ -111,7 +111,7 @@ Each stage is playable and tested before the next.
 5. **The inauguration.** *Done for Monteforchetta: see `docs/STATUS.md`.*
 6. **Requests rebuilt as commissions** (Monteforchetta's playthrough scripts are rewritten here). *Done for
    Monteforchetta: see `docs/STATUS.md`.*
-7. **Tools and materials.**
+7. **Tools and materials.** *Done: see `docs/STATUS.md`.*
 
 ## Kept from before
 Construction checks look at what you built, not one layout: any continuous, supported walkable path counts as a
