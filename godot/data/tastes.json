@@ -69,6 +69,26 @@
     "metropolis_simone": {"near": [-40.0, 116.0], "pieces": ["pillar", "column", "roof", "stairs"], "colours": ["#3fb5a3"],
       "line": "A {piece}. Structurally honest. My professor would cry.", "gossip": "Overheard: Simone can talk for an hour about a pillar, a column, a roof or a good stair. Teal, for some reason he calls 'modernist'."},
     "metropolis_elvira": {"near": [-44.0, 108.0], "pieces": ["flowerBed", "tree", "hedge", "bench"], "colours": ["#ff8fab"],
-      "line": "A {piece}! My late husband would have loved it.", "gossip": "Overheard: Signora Elvira wants the courtyard full of flower beds, a tree, hedges and a bench in the sun. Rose pink, like her geraniums."}
+      "line": "A {piece}! My late husband would have loved it.", "gossip": "Overheard: Signora Elvira wants the courtyard full of flower beds, a tree, hedges and a bench in the sun. Rose pink, like her geraniums."},
+    "olive_village_giobatta": {"near": [-28.0, -6.0], "pieces": ["signpost", "enamelSign", "statue", "streetlight"], "colours": ["e86f5c"],
+      "line": "A {piece}! Civic. Dignified. I'll wear the sash for it.", "gossip": "Overheard: the Sindaco loves anything a town hall would put up: signs, statues, streetlights. Red is the colour of authority, he says, and of his barber's pole."},
+    "olive_village_klaus": {"near": [-17.0, 15.5], "pieces": ["stoneArch", "column", "stoneBlock", "pillar"], "colours": ["ff9f5a"],
+      "line": "A {piece}! It looks four hundred years old already. Wunderbar!", "gossip": "Overheard: Klaus Wendt goes weak at the knees for old stonework: arches, columns, a good stone block. Terracotta orange is his favourite colour. He has photographed every roof."},
+    "olive_village_hannelore": {"near": [-17.0, 9.0], "pieces": ["painting", "flowerBed", "lamp", "pottedPlant"], "colours": ["6cc4ff"],
+      "line": "A {piece}! Don't move it. Click. Perfect.", "gossip": "Overheard: Hannelore will photograph any painting, flower bed or lamp. Good light, she says. Sea blue is her colour. Her camera strap is sea blue too."},
+    "olive_village_bastian": {"near": [33.0, 1.0], "pieces": ["tree", "fence", "gardenPath", "hedge"], "colours": ["5cb85c"],
+      "line": "Mm. A {piece}. That'll do.", "gossip": "Overheard: Bastian says 'mm' twice for trees, fences and garden paths. Twice is a lot. Green, olive green, is the only colour he trusts."},
+    "olive_village_gina": {"near": "olive_village_washhouse", "pieces": ["bench", "flowerBed", "sofa", "pottedPlant"], "colours": ["ffffff"],
+      "line": "A {piece}! Wait till I tell everyone. I'll tell them now.", "gossip": "Overheard: Nonna Gina wants benches to sit and talk on, and flowers to talk about. White, she says, like clean washing."},
+    "olive_village_delia": {"near": "olive_village_church", "pieces": ["stairs", "railing", "fence", "stoneBlock"], "colours": ["4a4a6a"],
+      "line": "A {piece}. Hm. It could have gone worse.", "gossip": "Overheard: Nonna Delia approves of stairs and railings: things that hold a person up. Dark slate is the only respectable colour, she says. She's worn it since 1971."},
+    "olive_village_rosa": {"near": "olive_village_osteria", "pieces": ["table", "chair", "counter", "lamp"], "colours": ["ff8fab"],
+      "line": "A {piece}! For my customers. All six of them.", "gossip": "Overheard: Rosa can't see a table, a chair or a counter without imagining it full of people eating. Rose pink, like her name."},
+    "olive_village_giacomo": {"near": "olive_village_cove", "pieces": ["bench", "railing", "railLantern", "pontoon"], "colours": ["4a4a6a"],
+      "line": "A {piece}. Now that's useful. Like a good net.", "gossip": "Overheard: Gambero likes things a fisherman can use: benches to mend nets on, railings to lean on, a lantern on a post. Navy, dark as a night sea, is his colour."},
+    "olive_village_marisa": {"near": [22.0, 58.5], "pieces": ["signpost", "streetlight", "railLantern", "enamelSign"], "colours": ["ffffff"],
+      "line": "A {piece}! TOOT! Sorry. I toot for things I like too.", "gossip": "Overheard: Sirena loves anything a port needs: signposts, streetlights, lanterns to steer by. White, like her ferry's hull."},
+    "olive_village_ilario": {"near": [50.0, -55.5], "pieces": ["flowerBed", "hedge", "beehive", "tree"], "colours": ["ffd166"],
+      "line": "Mm. A {piece}. The bees hum about it.", "gossip": "Overheard: Fuco wants flower beds, hedges and beehives, anything the bees would like. Broom yellow is his colour, like his honey."}
   }
 }

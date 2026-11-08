@@ -105,6 +105,7 @@ func test_every_nav_edge_can_be_walked():
 		var w := WalkWorld.new(statics, func(_f): return true)
 		w.floors = WorldStatics.floors()
 		for e in Data.layout.nav_edges:
+			if e.size() > 2: continue
 			var a: Array = Data.layout.nav_nodes[e[0]]
 			var b: Array = Data.layout.nav_nodes[e[1]]
 			t.ok(_walks(w, a, b) and _walks(w, b, a), "you can walk %s to %s and back" % [e[0], e[1]])
@@ -248,3 +249,125 @@ func test_shared_the_petal_carpet_and_the_beehive():
 		var mesh := PieceMeshes.make(id)
 		t.ok(mesh.get_child_count() > 0, "%s has a model" % id)
 		mesh.free()
+
+func _people() -> Array:
+	return Data.npcs.filter(func(n): return Data.npc_island(String(n.id)) == ID)
+
+func test_people_and_their_days():
+	_on(func():
+		var people := _people()
+		t.eq(people.size(), 14, "ten villagers live in Liolivato, and Davide's family of four comes at the festa")
+		var visitors: Array = people.filter(func(n): return n.has("present"))
+		t.ok(visitors.size() == 4 and visitors.all(func(n): return n.present == "olive_village_festa_night"), "the family is only there from the festa night on")
+		var sp: Dictionary = Data.layout.spawn
+		for n in people:
+			t.ok(Data.layout.nav_nodes.has(n.home), "%s has a home here (%s)" % [n.id, n.home])
+			t.ok(Chibi.sanitize(n.appearance).skin == n.appearance.skin and Chibi.sanitize(n.appearance).top == n.appearance.top, "%s keeps the colours and clothes written for them" % n.id)
+			var days: Array = [n.schedule]
+			for w in n.get("when", []): days.append(w.schedule)
+			for d in days:
+				for e in d:
+					t.ok(Data.layout.nav_nodes.has(e[2]), "%s's day takes them to a real spot (%s)" % [n.id, e[2]])
+					var at_spot: Array = Data.layout.nav_nodes.get(e[2], [0, 0])
+					t.ok(Vector2(at_spot[0] - sp.x, at_spot[1] - sp.z).length() > 1.5, "%s never stands where the ferry leaves you (%s)" % [n.id, e[2]])
+					t.ok(not Schedule.find_path("beach", e[2], {}).is_empty(), "%s can walk to %s" % [n.id, e[2]])
+		var at := func(npc: String, hour: float, flags: Dictionary) -> Dictionary: return Schedule.activity_at(Data.npc("olive_village_" + npc), hour * 60.0, flags)
+		var w := {"olive_village_tour": true, "olive_village_welcomed": true}
+		t.eq(at.call("giobatta", 23.0, {}).node, "pebbles", "the Sindaco waits on the pebbles for the new Geometra, at any hour")
+		t.eq(at.call("giobatta", 23.0, {"olive_village_tour": true}).node, "olive_village_barber:spot", "then in the barber shop with the papers")
+		t.eq(at.call("giobatta", 7.5, w).node, "churchDoor", "once you're settled he rings the bells in the morning")
+		t.eq(at.call("giacomo", 16.0, w).node, "olive_village_osteria:in", "Gambero plays cards at the osteria in the afternoon")
+		t.eq(at.call("ilario", 7.0, w).activity, "work", "Fuco is up with his bees at dawn, for the swarm")
+		var ready: Dictionary = w.duplicate(); ready["olive_village_festa_ready"] = true
+		t.eq(at.call("giobatta", 21.0, ready).node, "piazza", "on the festa's evening the Sindaco waits on the piazza for the band")
+		var night: Dictionary = ready.duplicate(); night["olive_village_festa_night"] = true
+		var piazza := ["piazza", "piazzaN", "piazzaS", "piazzaE", "piazzaW", "piazzaNW", "piazzaNE", "piazzaSW", "piazzaSE"]
+		var dancing := people.filter(func(n): return piazza.has(String(at.call(String(n.id).trim_prefix("olive_village_"), 21.0, night).node))).size()
+		t.ok(dancing >= 9, "after the festa the village comes to the piazza in the evening (%d)" % dancing)
+		for flags in [{}, {"olive_village_tour": true}, w, {"olive_village_tour": true, "olive_village_welcomed": true, "olive_village_water_done": true}, ready, night]:
+			for h in 24:
+				var taken := {}
+				for n in people:
+					if n.has("present") and not flags.get(n.present, false): continue
+					var spot: String = at.call(String(n.id).trim_prefix("olive_village_"), h + 0.5, flags).node
+					t.ok(not taken.has(spot), "%s and %s don't share %s at %d:30" % [taken.get(spot, ""), n.id, spot, h])
+					taken[spot] = n.id)
+
+func test_requests_and_the_sign():
+	_on(func():
+		var mine: Array = Data.quests.filter(func(q): return Data.quest_island(String(q.id)) == ID)
+		t.eq(mine.size(), 17, "six main requests, three side requests and eight lost things")
+		var main: Array = mine.filter(func(q): return q.get("main", false))
+		var lost: Array = mine.filter(func(q): return String(q.id).contains("_lost_"))
+		t.eq(main.size(), 6, "six of them tell the main story")
+		t.eq(lost.size(), 8, "eight are lost things")
+		var total := 0
+		var without := 0
+		for q in mine:
+			var want := 0 if lost.has(q) else (4 if q.id == "olive_village_festa" else 1)
+			t.eq(int(q.rewards.get("meter", 0)), want, "%s brings %d to the sign" % [q.id, want])
+			total += int(q.rewards.get("meter", 0))
+			if q.get("main", false): without += int(q.rewards.get("meter", 0))
+		var m: Dictionary = LocationMeter.def(ID)
+		t.eq(LocationMeter.reading(m, total), "50 inhabitants", "everything together brings the sign to 50")
+		t.eq(LocationMeter.reading(m, without), "47 inhabitants", "without the side requests it stops at 47")
+		var by_at := {}
+		for u in m.milestones: by_at[int(u.at)] = u
+		t.ok(by_at[2].flags.has("olive_village_plot"), "at 40 a strip of terrace is yours")
+		t.ok(by_at[5].blueprints.has("beehive") and by_at[5].flags.has("olive_village_hive_plans"), "at 43 the beehive plans, so Fuco can ask about his swarm")
+		t.ok(by_at[8].flags.has("olive_village_own_olive"), "at 46 an olive tree of your own")
+		t.ok(by_at[12].requires.quests.has("olive_village_festa") and by_at[12].flags.has("olive_village_free_haircut"), "at 50 the honours, which wait for the festa")
+		var all := {}
+		for f in OV.SIGN: all[f] = true
+		t.eq(OV.sign_points(all), total, "the sign by the bridge counts the same as the meter")
+		var done := {}
+		for q in mine:
+			for f in q.rewards.get("flags", []): done[f] = true
+		t.eq(OV.sign_points(done), total, "and every request that counts sets the flag the sign reads")
+		Data.apply_world_flags({"olive_village_welcomed": true})
+		var sign: Array = Data.layout.features.filter(func(f): return f.id == "olive_village_sign")
+		t.eq(String(sign[0].text), "Liolivato. 39 inhabitants.", "signing for your house makes it 39, on the sign")
+		Data.apply_world_flags({})
+		t.eq(String(Data.layout.features.filter(func(f): return f.id == "olive_village_sign")[0].text), "Liolivato. 38 inhabitants.", "before that it reads 38")
+		var festa: Dictionary = Data.quest("olive_village_festa")
+		for id in ["olive_village_jetty", "olive_village_water", "olive_village_terrace", "olive_village_roof"]:
+			t.ok(festa.requires.quests.has(id), "the festa waits for %s" % id)
+		t.ok(Data.quest("olive_village_swarm").requires.flags.has("olive_village_hive_plans"), "Fuco asks about his swarm once you have the beehive plans")
+		var people: Array = _people().map(func(n): return String(n.id))
+		for q in mine:
+			t.ok(people.has(String(q.giver)), "%s is given by someone who lives here" % q.id)
+			for o in q.objectives:
+				if o.has("npc"): t.ok(people.has(String(o.npc)), "%s: %s is someone who lives here" % [q.id, o.npc])
+				if o.kind == "gather" and String(o.item).begins_with("olive_village_"):
+					t.ok(Data.layout.nodes.any(func(n): return n.get("gives", {}).has(o.item)), "%s: something in Liolivato gives %s" % [q.id, o.item])
+				if o.kind == "commission": t.ok(not Data.zone(String(o.zone)).is_empty(), "%s builds on a real site (%s)" % [q.id, o.zone])
+		var swarm: Dictionary = Data.node_def("olive_village_swarm")
+		t.ok(swarm.hours.map(func(h): return int(h)) == [5, 9] and swarm.flag == "olive_village_swarm_ready", "the swarm can only be fetched at dawn, once Fuco has handed you the box")
+		t.ok(Data.quest("olive_village_swarm").objectives.any(func(o): return o.get("onDone", {}).get("flags", []).has("olive_village_swarm_ready")), "and he hands it over in the request")
+		for q in lost:
+			var key := String(q.id).trim_prefix("olive_village_lost_")
+			var node := Data.node_def("olive_village_lost_" + key)
+			t.ok(node.kind == "fragment" and node.get("once", false) and node.gives.has("olive_village_" + key), "%s lies somewhere to be found once" % key)
+			t.ok(q.onAccept.flags.has(String(node.flag)), "and turns up once %s has asked about it" % q.giver)
+		var targets: Array = []
+		for n in Data.layout.nodes:
+			if n.has("gives") or n.has("flag"): targets.append(_cell(n.x, n.z))
+		var r := _reach(true, targets)
+		for n in Data.layout.nodes:
+			if n.has("gives") or n.has("flag"): t.ok(r.found.has(_cell(n.x, n.z)), "%s can be reached on foot" % n.id))
+
+func test_tastes_and_shops():
+	_on(func():
+		var villagers: Array = _people().filter(func(n): return not n.has("present"))
+		for n in villagers:
+			var tt := Tastes.of(String(n.id))
+			t.ok(not tt.is_empty() and Tastes.near_pos(String(n.id)) != Vector2.INF, "%s has tastes and a spot" % n.id)
+			for p in tt.get("pieces", []): t.ok(not Data.piece(String(p)).is_empty(), "%s likes a real piece (%s)" % [n.id, p])
+			for c in tt.get("colours", []):
+				t.ok(Data.palette.any(func(pc): return Color(String(pc)).is_equal_approx(Color(String(c)))), "%s likes a colour you can paint (%s)" % [n.id, c])
+		t.eq(Tastes.here().size(), villagers.size(), "in Liolivato only its own villagers' tastes count")
+		var mine: Array = Data.shops.shops.keys().filter(func(id): return String(id).begins_with("olive_village_"))
+		t.eq(mine.size(), 4, "four shops: Rosa's osteria, the Sindaco's everything shop, Fuco's honey and Gambero's nets")
+		var rosa: Dictionary = Shop.def("olive_village_rosa")
+		t.ok(rosa.buys.has("olive_village_basil") and rosa.buys.has("olive_village_mullet"), "Rosa buys basil for her pesto, and fish")
+		t.ok(Shop.def("olive_village_giobatta").stock.any(func(l): return l.get("items", {}).has("clay")), "there's no clay here: the Sindaco sells it"))

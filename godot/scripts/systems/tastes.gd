@@ -26,7 +26,7 @@ static func likes(id: String, pl: Dictionary) -> String:
 	if t.is_empty(): return ""
 	if t.get("pieces", []).has(String(pl.id)): return "piece"
 	var col := String(pl.get("color", ""))
-	if col != "" and t.get("colours", []).has(col) and Commission.recolored(pl): return "colour"
+	if Color.html_is_valid(col) and t.get("colours", []).any(func(c): return Color.html_is_valid(String(c)) and Color(String(c)).is_equal_approx(Color(col))) and Commission.recolored(pl): return "colour"
 	return ""
 
 static func near(id: String, pl: Dictionary) -> bool:

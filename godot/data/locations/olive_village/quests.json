@@ -1,0 +1,2648 @@
+{
+ "_comment": "Liolivato's requests (docs/locations/olive_village.md, Requests).",
+ "quests": [
+  {
+   "id": "olive_village_welcome",
+   "title": "Welcome to Liolivato",
+   "giver": "olive_village_giobatta",
+   "main": true,
+   "type": "story",
+   "chapter": 1,
+   "description": "Gambero carried you ashore on his shoulders, and the Sindaco has a house to sell you. Thank Gambero, gather a little chestnut wood and terrace stone on the way up, meet your new neighbours, then sign for your house in the barber's chair.",
+   "objectives": [
+    {
+     "id": "gambero",
+     "kind": "talk",
+     "npc": "olive_village_giacomo",
+     "stage": 0,
+     "text": "Thank Gambero for the ride ashore (his boathouse, at the cove)",
+     "lines": [
+      "Don't mention it. Thirty years I've carried people ashore. Germans, priests, a piano once. You were easy.",
+      "Up the hill with you. Mind the broken bit of the mule track. Take the cart track, it's longer but it's all there."
+     ]
+    },
+    {
+     "id": "wood",
+     "kind": "gather",
+     "item": "wood",
+     "count": 3,
+     "stage": 1,
+     "text": "Chop 3 chestnut wood (the woods on the ridge, above the terraces)",
+     "hint": {
+      "x": 40,
+      "z": -73
+     }
+    },
+    {
+     "id": "stone",
+     "kind": "gather",
+     "item": "stone",
+     "count": 3,
+     "stage": 1,
+     "text": "Quarry 3 stone from the rubble where the fallen terrace's wall came down",
+     "hint": {
+      "x": 40,
+      "z": -12
+     }
+    },
+    {
+     "id": "klaus",
+     "kind": "talk",
+     "npc": "olive_village_klaus",
+     "stage": 2,
+     "text": "Meet your neighbours, the Sandals, at the house beside your plot",
+     "lines": [
+      "Neighbours! Klaus Wendt. That's Hannelore behind the camera. Wave! She's already taken it.",
+      "Your house is the one with no roof. Wunderbar! Very authentic. The Sindaco is waiting in the barber shop with the papers. And the scissors. Be careful of the scissors."
+     ]
+    },
+    {
+     "id": "sign",
+     "kind": "pay",
+     "npc": "olive_village_giobatta",
+     "stage": 3,
+     "text": "Sign for your house in the barber's chair: 1,000 lire",
+     "items": {
+      "coins": 1
+     }
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "olive_village_giobatta",
+     "stage": 4,
+     "text": "Let the Sindaco repaint the sign",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "meter": 1,
+    "items": {
+     "coins": 20
+    },
+    "flags": [
+     "olive_village_welcomed",
+     "olive_village_homeowner"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "Welcome! Welcome to Liolivato! Giobatta Orengo, Sindaco. This is my timetable cap. I have others.",
+     "You're the Geometra the province sent? Excellent. Thirty-eight inhabitants, Geometra. It says so on the sign. I painted it.",
+     "Now, I have a beautiful house for you. A 1,000-lire house! Roof optional. Shall we go up?"
+    ],
+    "acceptLabel": "Show me the way up",
+    "declineLabel": "In a moment",
+    "accept": [
+     "Up the cart track, over the bridge, into the alleys. Thank Gambero on your way, he has a bad back and a good heart.",
+     "Pick up a little wood and stone as you climb. A homeowner should never arrive empty-handed. I'll be in the barber shop."
+    ],
+    "decline": [
+     "Of course, of course. The house has waited thirty years. It can wait for you to admire the view."
+    ],
+    "progress": [
+     "The barber shop is on the piazza. Follow the bells. If they're late, follow the smell of shaving soap."
+    ],
+    "complete": [
+     "Sign here. And here. And hold still… there. A haircut, on the house. Welcome, homeowner!",
+     "Now, the important part. Brush… paint… THIRTY-NINE. Look at it, Geometra. That's you, that nine."
+    ]
+   },
+   "onAccept": {
+    "flags": [
+     "olive_village_tour",
+     "hasTool"
+    ]
+   }
+  },
+  {
+   "id": "olive_village_jetty",
+   "title": "The Jetty",
+   "giver": "olive_village_marisa",
+   "main": true,
+   "type": "request",
+   "chapter": 2,
+   "description": "The cove's jetty has crumbled to a stump, so Sirena's ferry can't tie up and Gambero carries everyone ashore. Gather wood, then build a jetty from the pebbles out into deep water, with a light at the end.",
+   "requires": {
+    "quests": [
+     "olive_village_welcome"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "wood",
+     "kind": "gather",
+     "item": "wood",
+     "count": 21,
+     "stage": 0,
+     "text": "Chop 21 chestnut wood for the jetty (the woods on the ridge)",
+     "hint": {
+      "x": 46,
+      "z": -75
+     }
+    },
+    {
+     "id": "metal",
+     "kind": "gather",
+     "item": "metal",
+     "count": 1,
+     "stage": 0,
+     "text": "Buy 1 metal for the lantern's bracket (the Sindaco's everything shop)",
+     "hint": {
+      "x": -31,
+      "z": -6
+     }
+    },
+    {
+     "id": "build",
+     "kind": "commission",
+     "stage": 1,
+     "text": "Build a jetty from the pebbles out to deep water, with a light at the end",
+     "zone": "olive_village_jetty",
+     "musts": [
+      {
+       "check": "path",
+       "label": "Walkable from the pebbles to deep water"
+      },
+      {
+       "check": "provides",
+       "label": "A light at the end, lit at night",
+       "kind": "light"
+      }
+     ],
+     "wishes": [
+      {
+       "check": "provides",
+       "who": "olive_village_giacomo",
+       "label": "A bench at the end to fish from",
+       "kind": "seat"
+      },
+      {
+       "check": "recolored",
+       "who": "olive_village_marisa",
+       "label": "Painted, like my ferry: two pieces in colour",
+       "count": 2
+      }
+     ],
+     "buildHint": "Pontoons float. Build them end to end out from the pebbles.",
+     "hint": {
+      "x": 24,
+      "z": 64
+     },
+     "plan": [
+      [
+       24,
+       61,
+       "pontoon",
+       0
+      ],
+      [
+       24,
+       63,
+       "pontoon",
+       0
+      ],
+      [
+       24,
+       65,
+       "pontoon",
+       0
+      ],
+      [
+       24,
+       67,
+       "pontoon",
+       0
+      ],
+      [
+       24,
+       69,
+       "pontoon",
+       0
+      ],
+      [
+       24,
+       71,
+       "pontoon",
+       0
+      ],
+      [
+       23,
+       71,
+       "pontoon",
+       0
+      ],
+      [
+       23,
+       72,
+       "railLantern",
+       0
+      ]
+     ]
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "olive_village_marisa",
+     "stage": 2,
+     "text": "Tell Sirena her jetty is ready",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "meter": 1,
+    "items": {
+     "coins": 40
+    },
+    "flags": [
+     "olive_village_jetty_done"
+    ],
+    "blueprints": [
+     "railing"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "TOOT! Geometra! You see that stump of stones? That was a jetty. Then came the winter of '96.",
+     "I can't tie up. Gambero carries everyone ashore, and his back is older than my boat.",
+     "Build me a jetty out to deep water, with a light on the end, and I'll toot for you every single time."
+    ],
+    "acceptLabel": "I'll build your jetty",
+    "declineLabel": "Not yet",
+    "accept": [
+     "Wonderful! I've brought caulking clay and copper wire from Tonnarella. The wood you'll have to chop yourself. Chestnut, up on the ridge.",
+     "Pontoons from the pebbles, end to end, out to where it's deep. Then a lantern, so I can find it in the dark."
+    ],
+    "decline": [
+     "Gambero will be pleased. His back won't."
+    ],
+    "progress": [
+     "Wood from the ridge, metal from the Sindaco. Then pontoons out to deep water, and a light on the end."
+    ],
+    "complete": [
+     "Look at that! I'm going to tie up. Watch. Watch!",
+     "TOOT! Dry feet! Dry feet in Liolivato! Gambero, you're out of a job!",
+     "He's pretending not to mind. He minds a bit. He'll get over it."
+    ]
+   },
+   "onAccept": {
+    "items": {
+     "clay": 7,
+     "crystal": 1,
+     "wood": 4
+    },
+    "blueprints": [
+     "pontoon",
+     "railLantern",
+     "bench"
+    ]
+   }
+  },
+  {
+   "id": "olive_village_water",
+   "title": "Water for the Terraces",
+   "giver": "olive_village_bastian",
+   "main": true,
+   "type": "request",
+   "chapter": 3,
+   "description": "Bastian's stone tank is dry, and his vegetable rows and grafted saplings are thirsty. Build a waterwheel in the torrent below the bridge, carry its power to a pump, and run pipes up the ramp to the tank.",
+   "requires": {
+    "quests": [
+     "olive_village_welcome"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "wood",
+     "kind": "gather",
+     "item": "wood",
+     "count": 5,
+     "stage": 0,
+     "text": "Chop 5 chestnut wood for the wheel and the pump",
+     "hint": {
+      "x": 28,
+      "z": -74
+     }
+    },
+    {
+     "id": "metal",
+     "kind": "gather",
+     "item": "metal",
+     "count": 2,
+     "stage": 0,
+     "text": "Buy 2 metal for the pump (the Sindaco's everything shop)",
+     "hint": {
+      "x": -31,
+      "z": -6
+     }
+    },
+    {
+     "id": "clay",
+     "kind": "gather",
+     "item": "clay",
+     "count": 15,
+     "stage": 0,
+     "text": "Get 15 clay for the pipes (Bastian has most of it; the Sindaco sells the rest)",
+     "hint": {
+      "x": -31,
+      "z": -6
+     }
+    },
+    {
+     "id": "build",
+     "kind": "commission",
+     "stage": 1,
+     "text": "Bring the torrent's water up to Bastian's tank",
+     "zone": "olive_village_works",
+     "musts": [
+      {
+       "check": "fed",
+       "label": "Water reaches the tank",
+       "target": "olive_village_tank"
+      }
+     ],
+     "wishes": [
+      {
+       "check": "provides",
+       "who": "olive_village_klaus",
+       "label": "A seat to watch the wheel turn from",
+       "kind": "seat"
+      },
+      {
+       "check": "provides",
+       "who": "olive_village_gina",
+       "label": "Flowers by the wheel",
+       "kind": "green"
+      }
+     ],
+     "buildHint": "The wheel goes in the flowing torrent, the pump beside it on the shelf, then pipes up the ramp to the tank's inlet.",
+     "hint": {
+      "x": 11,
+      "z": 30
+     },
+     "plan": [
+      [
+       9,
+       27,
+       "waterwheel",
+       1
+      ],
+      [
+       10,
+       27,
+       "pump",
+       2
+      ],
+      [
+       11,
+       27,
+       "pipe",
+       1
+      ],
+      [
+       12,
+       27,
+       "pipeCorner",
+       2
+      ],
+      [
+       12,
+       28,
+       "pipe",
+       0
+      ],
+      [
+       12,
+       29,
+       "pipe",
+       0
+      ],
+      [
+       12,
+       30,
+       "pipe",
+       0
+      ],
+      [
+       12,
+       31,
+       "pipe",
+       0
+      ],
+      [
+       12,
+       32,
+       "pipe",
+       0
+      ],
+      [
+       12,
+       33,
+       "pipe",
+       0
+      ],
+      [
+       12,
+       34,
+       "pipe",
+       0
+      ],
+      [
+       12,
+       35,
+       "pipe",
+       0
+      ],
+      [
+       12,
+       36,
+       "pipe",
+       0
+      ],
+      [
+       12,
+       37,
+       "pipe",
+       0
+      ],
+      [
+       12,
+       38,
+       "pipe",
+       0
+      ],
+      [
+       12,
+       39,
+       "pipe",
+       0
+      ],
+      [
+       12,
+       40,
+       "pipeCorner",
+       0
+      ]
+     ]
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "olive_village_bastian",
+     "stage": 2,
+     "text": "Show Bastian the water in his tank",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "meter": 1,
+    "items": {
+     "coins": 40
+    },
+    "flags": [
+     "olive_village_water_done"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "Mm. Geometra.",
+     "The tank's dry. My father filled it with a wheel in the torrent and pipes up the hill. The wheel went in the flood of '77.",
+     "The courgettes are thirsty. The saplings are thirstier. I'm too old to carry buckets up a terrace.",
+     "Mm. Can you do it?"
+    ],
+    "acceptLabel": "I'll bring the water up",
+    "declineLabel": "Not now",
+    "accept": [
+     "Good. There's a heap of my father's clay pipe behind the farmhouse. Take it. The plans are older than you, but water hasn't changed.",
+     "Wheel in the torrent, below the bridge. Pump beside it. Pipes up the ramp to the tank. Mm."
+    ],
+    "decline": [
+     "Mm. The courgettes will wait. They're used to it."
+    ],
+    "progress": [
+     "Wheel, pump, pipes, tank. Mm."
+    ],
+    "complete": [
+     "…",
+     "Listen to that. Forty years that tank's been quiet.",
+     "Mm. Thank you, Geometra. The trees say so too."
+    ]
+   },
+   "onAccept": {
+    "items": {
+     "clay": 12,
+     "metal": 1
+    },
+    "blueprints": [
+     "waterwheel",
+     "pump",
+     "pipe",
+     "pipeCorner",
+     "gear",
+     "shaft"
+    ]
+   }
+  },
+  {
+   "id": "olive_village_terrace",
+   "title": "The Fallen Terrace",
+   "giver": "olive_village_bastian",
+   "main": true,
+   "type": "request",
+   "chapter": 4,
+   "description": "The best terrace's dry-stone wall came down in the winter rain. Quarry the rubble for stone, then rebuild the wall with no gap, add steps up onto the terrace, and let the nonnas judge.",
+   "requires": {
+    "quests": [
+     "olive_village_welcome"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "stone",
+     "kind": "gather",
+     "item": "stone",
+     "count": 24,
+     "stage": 0,
+     "text": "Quarry 24 stone (the rubble below the fallen terrace, and the old quarry face on the west flank)",
+     "hint": {
+      "x": 40,
+      "z": -12
+     }
+    },
+    {
+     "id": "wood",
+     "kind": "gather",
+     "item": "wood",
+     "count": 2,
+     "stage": 0,
+     "text": "Chop 2 wood for the steps",
+     "hint": {
+      "x": 28,
+      "z": -74
+     }
+    },
+    {
+     "id": "build",
+     "kind": "commission",
+     "stage": 1,
+     "text": "Rebuild the fallen terrace's wall with no gap, and add steps up onto it",
+     "zone": "olive_village_wall",
+     "musts": [
+      {
+       "check": "sealed",
+       "label": "The wall closes the gap"
+      },
+      {
+       "check": "pieces",
+       "label": "Steps up onto the terrace",
+       "any": [
+        "stairs"
+       ]
+      }
+     ],
+     "wishes": [
+      {
+       "check": "pieces",
+       "who": "olive_village_bastian",
+       "label": "A young olive tree planted on top",
+       "any": [
+        "tree"
+       ]
+      },
+      {
+       "check": "pieces",
+       "who": "olive_village_delia",
+       "label": "A good thick wall: sixteen stone blocks",
+       "any": [
+        "stoneBlock"
+       ],
+       "count": 16
+      }
+     ],
+     "buildHint": "Stone blocks along the terrace edge, end to end with no gap. Stairs on the low side.",
+     "hint": {
+      "x": 40,
+      "z": -18
+     },
+     "plan": [
+      [
+       34,
+       -18,
+       "stoneBlock",
+       0
+      ],
+      [
+       35,
+       -18,
+       "stoneBlock",
+       0
+      ],
+      [
+       36,
+       -18,
+       "stoneBlock",
+       0
+      ],
+      [
+       37,
+       -18,
+       "stoneBlock",
+       0
+      ],
+      [
+       38,
+       -18,
+       "stoneBlock",
+       0
+      ],
+      [
+       39,
+       -18,
+       "stoneBlock",
+       0
+      ],
+      [
+       40,
+       -18,
+       "stoneBlock",
+       0
+      ],
+      [
+       41,
+       -18,
+       "stoneBlock",
+       0
+      ],
+      [
+       42,
+       -18,
+       "stoneBlock",
+       0
+      ],
+      [
+       43,
+       -18,
+       "stoneBlock",
+       0
+      ],
+      [
+       44,
+       -18,
+       "stoneBlock",
+       0
+      ],
+      [
+       45,
+       -18,
+       "stoneBlock",
+       0
+      ],
+      [
+       40,
+       -17,
+       "stairs",
+       0
+      ]
+     ]
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "olive_village_bastian",
+     "stage": 2,
+     "text": "Tell Bastian his terrace is standing again",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "meter": 1,
+    "items": {
+     "coins": 40
+    },
+    "flags": [
+     "olive_village_terrace_done"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "Mm. The fallen terrace. Up there. The best soil on the hill, and the oldest trees.",
+     "The wall came down in February. The rain got behind it. Now the soil goes down the hill a bit more every time it rains.",
+     "Rebuild it. Stone on stone, no gaps. And steps. I can't jump at my age. I couldn't jump at your age."
+    ],
+    "acceptLabel": "I'll rebuild the wall",
+    "declineLabel": "Not yet",
+    "accept": [
+     "The stone's all there, in the rubble. Use it. Stone's patient. It waits to be a wall again.",
+     "Gina and Delia will come up and look. Don't let Delia frighten you. She frightens everyone."
+    ],
+    "decline": [
+     "Mm. It's waited since February."
+    ],
+    "progress": [
+     "Stone from the rubble. Wall with no gaps. Steps. Mm."
+    ],
+    "complete": [
+     "Mm.",
+     "Delia came up and looked at every stone. Then she said, 'It could have gone worse.'",
+     "Geometra, she's never said that to me. Fifty years."
+    ]
+   },
+   "onAccept": {
+    "blueprints": [
+     "stoneBlock",
+     "stairs"
+    ]
+   }
+  },
+  {
+   "id": "olive_village_roof",
+   "title": "A Roof for 1,000 Lire",
+   "giver": "olive_village_giobatta",
+   "main": true,
+   "type": "request",
+   "chapter": 5,
+   "description": "Your 1,000-lire house is four ruined walls round a heap of weeds. Make it a home: walls, a door, a roof and a bed. Beds are dear, so you'll nap on benches until you've saved up.",
+   "requires": {
+    "quests": [
+     "olive_village_welcome"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "wood",
+     "kind": "gather",
+     "item": "wood",
+     "count": 28,
+     "stage": 0,
+     "text": "Chop 28 chestnut wood for walls, a roof and furniture",
+     "hint": {
+      "x": -24,
+      "z": -74
+     }
+    },
+    {
+     "id": "clay",
+     "kind": "gather",
+     "item": "clay",
+     "count": 1,
+     "stage": 0,
+     "text": "Get 1 clay for the roof tiles (the Sindaco sells it)",
+     "hint": {
+      "x": -31,
+      "z": -6
+     }
+    },
+    {
+     "id": "fabric",
+     "kind": "gather",
+     "item": "fabric",
+     "count": 2,
+     "stage": 0,
+     "text": "Get 2 fabric for the bed (Gambero's old sailcloth)",
+     "hint": {
+      "x": 16,
+      "z": 52
+     }
+    },
+    {
+     "id": "flowers",
+     "kind": "gather",
+     "item": "flowers",
+     "count": 4,
+     "stage": 0,
+     "text": "Pick 4 flowers for the window boxes (broom and poppies on the terraces)",
+     "hint": {
+      "x": 50,
+      "z": -28
+     }
+    },
+    {
+     "id": "house",
+     "kind": "commission",
+     "stage": 1,
+     "text": "Make your house a home: four walls with a door, a roof and a bed",
+     "zone": "olive_village_house",
+     "musts": [
+      {
+       "check": "pieces",
+       "label": "Four walls, one a door",
+       "any": [
+        "woodWall",
+        "windowWall",
+        "doorWall"
+       ],
+       "count": 4,
+       "with": [
+        "doorWall"
+       ]
+      },
+      {
+       "check": "provides",
+       "label": "A roof",
+       "kind": "shelter"
+      },
+      {
+       "check": "pieces",
+       "label": "A bed",
+       "any": [
+        "bed"
+       ]
+      }
+     ],
+     "wishes": [
+      {
+       "check": "pieces",
+       "who": "olive_village_klaus",
+       "label": "Something in stone, so it looks old",
+       "any": [
+        "stoneBlock",
+        "pillar",
+        "stoneArch",
+        "column"
+       ]
+      },
+      {
+       "check": "provides",
+       "who": "olive_village_rosa",
+       "label": "Flowers at the window",
+       "kind": "green"
+      },
+      {
+       "check": "pieces",
+       "who": "olive_village_giobatta",
+       "label": "A table, for signing things",
+       "any": [
+        "table",
+        "desk"
+       ]
+      }
+     ],
+     "buildHint": "Walls stand on cell edges; the roof rests on top of them. The old crooked walls can stay.",
+     "hint": {
+      "x": -22,
+      "z": 12
+     },
+     "plan": [
+      [
+       -23,
+       11,
+       "woodWall",
+       0
+      ],
+      [
+       -22,
+       10,
+       "woodWall",
+       2
+      ],
+      [
+       -24,
+       11,
+       "woodWall",
+       1
+      ],
+      [
+       -24,
+       12,
+       "woodWall",
+       1
+      ],
+      [
+       -21,
+       11,
+       "woodWall",
+       3
+      ],
+      [
+       -21,
+       12,
+       "woodWall",
+       3
+      ],
+      [
+       -22,
+       13,
+       "woodWall",
+       0
+      ],
+      [
+       -23,
+       13,
+       "doorWall",
+       0
+      ],
+      [
+       -23,
+       11,
+       "roof",
+       0
+      ],
+      [
+       -22,
+       11,
+       "bed",
+       0
+      ],
+      [
+       -23,
+       12,
+       "table",
+       0
+      ],
+      [
+       -23,
+       11,
+       "chair",
+       2
+      ],
+      [
+       -24,
+       14,
+       "flowerBed",
+       0
+      ],
+      [
+       -22,
+       14,
+       "flowerBed",
+       0
+      ]
+     ]
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "olive_village_giobatta",
+     "stage": 2,
+     "text": "Show the Sindaco your home",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "meter": 1,
+    "items": {
+     "coins": 40
+    },
+    "flags": [
+     "olive_village_roof_done"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "Geometra! How is the house? Don't answer. I know. It's roofless. It's a feature.",
+     "Every house I sell, I promise the buyer it'll be a home by the summer. I've never had to keep the promise before.",
+     "Walls, a door, a roof and a bed. Then you'll stop sleeping on my benches. The Sandals photograph you, you know."
+    ],
+    "acceptLabel": "I'll make it a home",
+    "declineLabel": "Not yet",
+    "accept": [
+     "Splendid! Plans for walls, a roof and a bed. A bed costs money, mind. Beds are the one thing in Liolivato that aren't 1,000 lire.",
+     "The Sandals want you to keep the old crooked wall. Rosa wants flowers at the window. I want a table to sign things on. We all want things."
+    ],
+    "decline": [
+     "Take your time. The benches are very comfortable. I sat on one in 1985."
+    ],
+    "progress": [
+     "Walls, a door, a roof, a bed. The bed's the dear part."
+    ],
+    "complete": [
+     "A home! A real home in a 1,000-lire house! I'm going to put it in the province's newsletter.",
+     "Upside down, probably. But in."
+    ]
+   },
+   "onAccept": {
+    "blueprints": [
+     "woodWall",
+     "doorWall",
+     "windowWall",
+     "roof",
+     "bed",
+     "table",
+     "chair",
+     "flowerBed"
+    ]
+   }
+  },
+  {
+   "id": "olive_village_festa",
+   "title": "The Festa",
+   "giver": "olive_village_giobatta",
+   "main": true,
+   "type": "request",
+   "chapter": 6,
+   "description": "The first festa in Liolivato for years: the band comes on the evening ferry from Tonnarella. Make the empty house ready for Rosa, just in case; lay a carpet of petals from the bridge up through the covered alleys to the piazza; set the piazza with tables, seats and lights; and be there when the band arrives.",
+   "requires": {
+    "quests": [
+     "olive_village_welcome",
+     "olive_village_jetty",
+     "olive_village_water",
+     "olive_village_terrace",
+     "olive_village_roof"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "rosa",
+     "kind": "talk",
+     "npc": "olive_village_rosa",
+     "stage": 0,
+     "text": "Rosa wants a quiet word at the osteria",
+     "lines": [
+      "Geometra. Close the door. Sit.",
+      "The house beside mine is empty. Make it ready for me? Beds for a family, a table, a lamp. Just in case.",
+      "In case of what? I don't know. Somebody might come. For a festa, people come. Here's for the beds. Ten years of Sundays."
+     ],
+     "onDone": {
+      "items": {
+       "coins": 240
+      }
+     }
+    },
+    {
+     "id": "flowers",
+     "kind": "gather",
+     "item": "flowers",
+     "count": 26,
+     "stage": 0,
+     "text": "Pick 26 flowers for the petal carpet (broom, poppies and wild roses on the terraces and the west flank)",
+     "hint": {
+      "x": 54,
+      "z": -44
+     }
+    },
+    {
+     "id": "wood",
+     "kind": "gather",
+     "item": "wood",
+     "count": 19,
+     "stage": 0,
+     "text": "Chop 19 wood for beds, tables, chairs and lamps",
+     "hint": {
+      "x": 60,
+      "z": -70
+     }
+    },
+    {
+     "id": "fabric",
+     "kind": "gather",
+     "item": "fabric",
+     "count": 4,
+     "stage": 0,
+     "text": "Get 4 fabric for the beds (Gambero's sailcloth)",
+     "hint": {
+      "x": 16,
+      "z": 52
+     }
+    },
+    {
+     "id": "crystal",
+     "kind": "gather",
+     "item": "crystal",
+     "count": 3,
+     "stage": 0,
+     "text": "Get 3 copper wire for the lamps (the Sindaco's everything shop)",
+     "hint": {
+      "x": -31,
+      "z": -6
+     }
+    },
+    {
+     "id": "room",
+     "kind": "commission",
+     "stage": 1,
+     "text": "Make the empty house beside the osteria ready: beds for a family, a table and a lamp",
+     "zone": "olive_village_davide",
+     "musts": [
+      {
+       "check": "pieces",
+       "label": "Two beds",
+       "any": [
+        "bed"
+       ],
+       "count": 2
+      },
+      {
+       "check": "pieces",
+       "label": "A table",
+       "any": [
+        "table",
+        "desk"
+       ]
+      },
+      {
+       "check": "provides",
+       "label": "A lamp",
+       "kind": "light"
+      }
+     ],
+     "wishes": [
+      {
+       "check": "pieces",
+       "who": "olive_village_rosa",
+       "label": "A rug, for children to play on",
+       "any": [
+        "rug"
+       ]
+      },
+      {
+       "check": "provides",
+       "who": "olive_village_gina",
+       "label": "Flowers on the table",
+       "kind": "green"
+      }
+     ],
+     "buildHint": "Build inside the empty house, from its door.",
+     "hint": {
+      "x": -10.5,
+      "z": -18.6
+     },
+     "plan": [
+      [
+       -12,
+       -20,
+       "bed",
+       0
+      ],
+      [
+       -10,
+       -20,
+       "bed",
+       0
+      ],
+      [
+       -11,
+       -20,
+       "table",
+       0
+      ],
+      [
+       -12,
+       -18,
+       "lamp",
+       0
+      ]
+     ]
+    },
+    {
+     "id": "carpet",
+     "kind": "commission",
+     "stage": 1,
+     "text": "Lay a carpet of petals from the village end of the bridge up to the piazza, with no gap",
+     "zone": "olive_village_carpet",
+     "musts": [
+      {
+       "check": "path",
+       "label": "Petals all the way from the bridge to the piazza",
+       "on": [
+        "petalCarpet"
+       ]
+      }
+     ],
+     "wishes": [
+      {
+       "check": "recolored",
+       "who": "olive_village_gina",
+       "label": "Three colours at least: paint some petals",
+       "count": 3
+      },
+      {
+       "check": "provides",
+       "who": "olive_village_ilario",
+       "label": "Candles along the way: two lights",
+       "kind": "light",
+       "count": 2
+      }
+     ],
+     "buildHint": "Petal tiles, end to end, through the covered alleys. Paint them in the colours of the flowers.",
+     "hint": {
+      "x": -6,
+      "z": 6
+     },
+     "plan": [
+      [
+       -2,
+       12,
+       "petalCarpet",
+       0
+      ],
+      [
+       -2,
+       11,
+       "petalCarpet",
+       0
+      ],
+      [
+       -3,
+       11,
+       "petalCarpet",
+       0
+      ],
+      [
+       -3,
+       10,
+       "petalCarpet",
+       0
+      ],
+      [
+       -4,
+       10,
+       "petalCarpet",
+       0
+      ],
+      [
+       -4,
+       9,
+       "petalCarpet",
+       0
+      ],
+      [
+       -5,
+       9,
+       "petalCarpet",
+       0
+      ],
+      [
+       -5,
+       8,
+       "petalCarpet",
+       0
+      ],
+      [
+       -5,
+       7,
+       "petalCarpet",
+       0
+      ],
+      [
+       -6,
+       7,
+       "petalCarpet",
+       0
+      ],
+      [
+       -6,
+       6,
+       "petalCarpet",
+       0
+      ],
+      [
+       -7,
+       6,
+       "petalCarpet",
+       0
+      ],
+      [
+       -7,
+       5,
+       "petalCarpet",
+       0
+      ],
+      [
+       -8,
+       5,
+       "petalCarpet",
+       0
+      ],
+      [
+       -8,
+       4,
+       "petalCarpet",
+       0
+      ],
+      [
+       -9,
+       4,
+       "petalCarpet",
+       0
+      ],
+      [
+       -9,
+       3,
+       "petalCarpet",
+       0
+      ],
+      [
+       -10,
+       3,
+       "petalCarpet",
+       0
+      ],
+      [
+       -10,
+       2,
+       "petalCarpet",
+       0
+      ],
+      [
+       -10,
+       1,
+       "petalCarpet",
+       0
+      ],
+      [
+       -10,
+       0,
+       "petalCarpet",
+       0
+      ],
+      [
+       -10,
+       -1,
+       "petalCarpet",
+       0
+      ],
+      [
+       -11,
+       -1,
+       "petalCarpet",
+       0
+      ],
+      [
+       -11,
+       -2,
+       "petalCarpet",
+       0
+      ],
+      [
+       -11,
+       -3,
+       "petalCarpet",
+       0
+      ],
+      [
+       -11,
+       -4,
+       "petalCarpet",
+       0
+      ]
+     ]
+    },
+    {
+     "id": "piazza",
+     "kind": "commission",
+     "stage": 1,
+     "text": "Set the piazza for the village: tables, seats and lights",
+     "zone": "olive_village_piazza",
+     "musts": [
+      {
+       "check": "pieces",
+       "label": "Two tables",
+       "any": [
+        "table",
+        "desk"
+       ],
+       "count": 2
+      },
+      {
+       "check": "provides",
+       "label": "Seats for four",
+       "kind": "seat",
+       "count": 4
+      },
+      {
+       "check": "provides",
+       "label": "Two lights for after dark",
+       "kind": "light",
+       "count": 2
+      }
+     ],
+     "wishes": [
+      {
+       "check": "pieces",
+       "who": "olive_village_giobatta",
+       "label": "A sign for the band",
+       "any": [
+        "signpost",
+        "enamelSign"
+       ]
+      },
+      {
+       "check": "provides",
+       "who": "olive_village_delia",
+       "label": "Flowers, so it looks cared for",
+       "kind": "green"
+      }
+     ],
+     "buildHint": "The piazza is an open site: build anywhere on its setts.",
+     "hint": {
+      "x": -20,
+      "z": -9
+     },
+     "plan": [
+      [
+       -22,
+       -9,
+       "table",
+       0
+      ],
+      [
+       -18,
+       -9,
+       "table",
+       0
+      ],
+      [
+       -23,
+       -9,
+       "chair",
+       1
+      ],
+      [
+       -21,
+       -9,
+       "chair",
+       3
+      ],
+      [
+       -19,
+       -9,
+       "chair",
+       1
+      ],
+      [
+       -17,
+       -9,
+       "chair",
+       3
+      ],
+      [
+       -24,
+       -8,
+       "lamp",
+       0
+      ],
+      [
+       -16,
+       -8,
+       "lamp",
+       0
+      ]
+     ],
+     "onDone": {
+      "flags": [
+       "olive_village_festa_ready"
+      ]
+     }
+    },
+    {
+     "id": "evening",
+     "kind": "talk",
+     "npc": "olive_village_giobatta",
+     "stage": 2,
+     "text": "Be on the piazza after 8 in the evening, when the band comes up from the ferry",
+     "lines": [
+      "Listen! The ferry's horn. And… a tuba! They're coming up the cart track!",
+      "Over the bridge, onto your petals, up through the alleys… Here they come!",
+      "And behind them… Rosa. Rosa, look. Look who's walking up your petals."
+     ],
+     "hours": [
+      20,
+      24
+     ],
+     "onDone": {
+      "flags": [
+       "olive_village_festa_night"
+      ]
+     }
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "olive_village_davide",
+     "stage": 3,
+     "text": "Say hello to the family who came up behind the band",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "meter": 4,
+    "items": {
+     "coins": 60
+    },
+    "flags": [
+     "olive_village_festa_done"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "Geometra! The jetty, the water, the terrace, your house. I've been thinking.",
+     "In June, when I was a boy, we had a festa. The band from Tonnarella, lights in the piazza, petals from the bridge to the church.",
+     "Nobody's had the heart for it for years. But this year… this year the ferry can tie up. Let's have a festa."
+    ],
+    "acceptLabel": "Let's have a festa",
+    "declineLabel": "Not yet",
+    "accept": [
+     "Wonderful! I've written to the band. They said yes before I'd finished the letter. Tubas are lonely instruments.",
+     "Petals from the bridge to the piazza, so the band has something to march on. Tables, seats and lights for the village.",
+     "And Rosa wants a word. She wouldn't tell me what about. She's never not told me anything."
+    ],
+    "decline": [
+     "The band can wait. They've waited ten years."
+    ],
+    "progress": [
+     "Rosa's favour, the petals, the piazza. Then the evening ferry, after eight."
+    ],
+    "complete": [
+     "Fifty, Geometra. Fetch the good paint. No, the very good paint. The paint I was saving.",
+     "FIFTY. Look at it. A village of fifty, with children in it."
+    ]
+   },
+   "onAccept": {
+    "items": {
+     "flowers": 8
+    },
+    "blueprints": [
+     "petalCarpet",
+     "lamp",
+     "table",
+     "chair",
+     "bed",
+     "rug"
+    ]
+   }
+  },
+  {
+   "id": "olive_village_sunset",
+   "title": "The Sandals' Sunset",
+   "giver": "olive_village_klaus",
+   "main": false,
+   "type": "request",
+   "chapter": 2,
+   "description": "Klaus and Hannelore want somewhere on their terrace to watch the sunset over the sea: a seat with a roof over it, and the sea in view.",
+   "requires": {
+    "quests": [
+     "olive_village_roof"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "wood",
+     "kind": "gather",
+     "item": "wood",
+     "count": 5,
+     "stage": 0,
+     "text": "Chop 5 wood for the bench and the roof",
+     "hint": {
+      "x": -36,
+      "z": -77
+     }
+    },
+    {
+     "id": "stone",
+     "kind": "gather",
+     "item": "stone",
+     "count": 4,
+     "stage": 0,
+     "text": "Quarry 4 stone for the pillars",
+     "hint": {
+      "x": -60,
+      "z": -40
+     }
+    },
+    {
+     "id": "clay",
+     "kind": "gather",
+     "item": "clay",
+     "count": 1,
+     "stage": 0,
+     "text": "Get 1 clay for the roof tiles (the Sindaco sells it)",
+     "hint": {
+      "x": -31,
+      "z": -6
+     }
+    },
+    {
+     "id": "build",
+     "kind": "commission",
+     "stage": 1,
+     "text": "Build the Sandals a covered seat looking out to sea",
+     "zone": "olive_village_sunset",
+     "musts": [
+      {
+       "check": "provides",
+       "label": "A seat",
+       "kind": "seat"
+      },
+      {
+       "check": "provides",
+       "label": "A roof over it",
+       "kind": "shelter"
+      },
+      {
+       "check": "view",
+       "label": "The sea in view from the seat",
+       "to": [
+        -16.5,
+        80.0
+       ],
+       "of": [
+        "bench",
+        "chair",
+        "sofa",
+        "armchair"
+       ]
+      }
+     ],
+     "wishes": [
+      {
+       "check": "material",
+       "who": "olive_village_klaus",
+       "label": "Nothing that looks new: all wood and stone",
+       "of": [
+        "wood",
+        "stone"
+       ]
+      },
+      {
+       "check": "provides",
+       "who": "olive_village_hannelore",
+       "label": "Something in flower for the photos",
+       "kind": "green"
+      }
+     ],
+     "buildHint": "Pillars hold the roof up. Face the bench south, to the sea.",
+     "hint": {
+      "x": -17,
+      "z": 17
+     },
+     "plan": [
+      [
+       -18,
+       16,
+       "pillar",
+       0
+      ],
+      [
+       -17,
+       16,
+       "pillar",
+       0
+      ],
+      [
+       -18,
+       16,
+       "roof",
+       0
+      ],
+      [
+       -18,
+       17,
+       "bench",
+       0
+      ]
+     ]
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "olive_village_klaus",
+     "stage": 2,
+     "text": "Tell the Sandals their sunset seat is ready",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "meter": 1,
+    "items": {
+     "coins": 30
+    },
+    "flags": [
+     "olive_village_sunset_done"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "Neighbour! A question. Every evening we sit on our terrace and watch the sun go down over the sea.",
+     "On two kitchen chairs. In the rain, sometimes. Hannelore holds the umbrella and the camera at once. It's very skilful but very wet.",
+     "Could you build us a little shelter with a seat? Facing the sea. Nothing new-looking, please. Authentic!"
+    ],
+    "acceptLabel": "I'll build you a sunset seat",
+    "declineLabel": "Not yet",
+    "accept": [
+     "Wunderbar! Wood and stone, please, like everything here. And the sea in view. That's the whole point. Well, and the roof.",
+     "Hannelore would like flowers. For the photos. Everything is for the photos."
+    ],
+    "decline": [
+     "Of course. The sun sets every evening. We can wait."
+    ],
+    "progress": [
+     "A seat, a roof, the sea. Wood and stone."
+    ],
+    "complete": [
+     "Look at it! Hannelore is crying. She's also photographing herself crying.",
+     "Tonight we watch the sunset dry. Thank you, neighbour. Click! That was you."
+    ]
+   },
+   "onAccept": {
+    "blueprints": [
+     "pillar",
+     "bench"
+    ]
+   }
+  },
+  {
+   "id": "olive_village_swarm",
+   "title": "Fuco's Swarm",
+   "giver": "olive_village_ilario",
+   "main": false,
+   "type": "request",
+   "chapter": 3,
+   "description": "A swarm of Fuco's bees has settled in the bell tower, and the Sindaco can't ring the bells. Build new hives on the broom terrace, then go at dawn, while the bees are calm, and coax the swarm into a box.",
+   "requires": {
+    "quests": [
+     "olive_village_welcome"
+    ],
+    "flags": [
+     "olive_village_hive_plans"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "wood",
+     "kind": "gather",
+     "item": "wood",
+     "count": 7,
+     "stage": 0,
+     "text": "Chop 7 wood for three hives and a flower bed",
+     "hint": {
+      "x": 60,
+      "z": -70
+     }
+    },
+    {
+     "id": "flowers",
+     "kind": "gather",
+     "item": "flowers",
+     "count": 2,
+     "stage": 0,
+     "text": "Pick 2 flowers for the bed beside the hives",
+     "hint": {
+      "x": 58,
+      "z": -46
+     }
+    },
+    {
+     "id": "build",
+     "kind": "commission",
+     "stage": 1,
+     "text": "Build three hives on the broom terrace, with flowers beside them",
+     "zone": "olive_village_hives",
+     "musts": [
+      {
+       "check": "pieces",
+       "label": "Three hives",
+       "any": [
+        "beehive"
+       ],
+       "count": 3
+      },
+      {
+       "check": "provides",
+       "label": "Flowers beside them",
+       "kind": "green"
+      }
+     ],
+     "wishes": [
+      {
+       "check": "provides",
+       "who": "olive_village_giobatta",
+       "label": "A roof against the breeze, like a proper parish",
+       "kind": "shelter"
+      },
+      {
+       "check": "recolored",
+       "who": "olive_village_hannelore",
+       "label": "One hive painted, for the photos",
+       "count": 1
+      }
+     ],
+     "buildHint": "Hives in a row on the terrace, a flower bed beside them.",
+     "hint": {
+      "x": 52,
+      "z": -57
+     },
+     "plan": [
+      [
+       50,
+       -57,
+       "beehive",
+       0
+      ],
+      [
+       52,
+       -57,
+       "beehive",
+       0
+      ],
+      [
+       54,
+       -57,
+       "beehive",
+       0
+      ],
+      [
+       52,
+       -56,
+       "flowerBed",
+       0
+      ]
+     ]
+    },
+    {
+     "id": "box",
+     "kind": "talk",
+     "npc": "olive_village_ilario",
+     "stage": 2,
+     "text": "Tell Fuco the hives are ready",
+     "lines": [
+      "Good hives. The bees are humming about them already. High hum.",
+      "Now the swarm. Go at dawn, before nine, while they're sleepy. Here's a box on a pole.",
+      "Lift it to the bell tower's lowest window and wait. They'll go in. Bees like a box. Everyone likes a box."
+     ],
+     "onDone": {
+      "flags": [
+       "olive_village_swarm_ready"
+      ]
+     }
+    },
+    {
+     "id": "swarm",
+     "kind": "gather",
+     "item": "olive_village_swarm",
+     "count": 1,
+     "stage": 3,
+     "text": "At dawn (5 to 9 AM), coax the swarm into the box at the bell tower's lowest window",
+     "hint": {
+      "x": -38,
+      "z": -33
+     }
+    },
+    {
+     "id": "hive",
+     "kind": "pay",
+     "npc": "olive_village_ilario",
+     "stage": 4,
+     "text": "Carry the swarm up to Fuco's new hives",
+     "items": {
+      "olive_village_swarm": 1
+     }
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "olive_village_giobatta",
+     "stage": 5,
+     "text": "Tell the Sindaco he can ring the bells again",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "meter": 1,
+    "items": {
+     "coins": 30
+    },
+    "flags": [
+     "olive_village_swarm_done"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "Mm. Geometra. Don't look now, but look at the bell tower.",
+     "That's my swarm. They left in the night. Hung themselves on the bell tower like washing.",
+     "The Sindaco can't ring the bells. Well, he can, but the bees ring him back. I need new hives, and somebody braver than me to fetch them."
+    ],
+    "acceptLabel": "I'll fetch your swarm",
+    "declineLabel": "Not now",
+    "accept": [
+     "Good. Hives first, on the broom terrace. With flowers. Bees won't move house without a garden.",
+     "Then the box. At dawn. Don't worry. They're very polite at dawn."
+    ],
+    "decline": [
+     "Mm. They're happy in the tower. The Sindaco isn't."
+    ],
+    "progress": [
+     "Hives, flowers, then the box at dawn."
+    ],
+    "complete": [
+     "Listen.",
+     "…",
+     "The bells! A few minutes late. Perfect."
+    ]
+   }
+  },
+  {
+   "id": "olive_village_steps",
+   "title": "Gambero's Steps",
+   "giver": "olive_village_giacomo",
+   "main": false,
+   "type": "request",
+   "chapter": 2,
+   "description": "A flight of the mule track has collapsed, so Gambero has to go the long way round by the cart track and misses the start of the card game. Rebuild it so you can walk all the way up.",
+   "requires": {
+    "quests": [
+     "olive_village_welcome"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "stone",
+     "kind": "gather",
+     "item": "stone",
+     "count": 12,
+     "stage": 0,
+     "text": "Quarry 12 stone (the rubble on the abandoned terraces)",
+     "hint": {
+      "x": 26,
+      "z": -46
+     }
+    },
+    {
+     "id": "build",
+     "kind": "commission",
+     "stage": 1,
+     "text": "Rebuild the collapsed flight of the mule track so you can walk all the way up",
+     "zone": "olive_village_steps",
+     "musts": [
+      {
+       "check": "path",
+       "label": "Walkable up the broken flight"
+      }
+     ],
+     "wishes": [
+      {
+       "check": "provides",
+       "who": "olive_village_giacomo",
+       "label": "A bench halfway, for my knees",
+       "kind": "seat"
+      },
+      {
+       "check": "pieces",
+       "who": "olive_village_delia",
+       "label": "In stone, like it was: six blocks",
+       "any": [
+        "stoneBlock"
+       ],
+       "count": 6
+      }
+     ],
+     "buildHint": "Stone blocks stack. Build a step at a time, each no higher than you can climb.",
+     "hint": {
+      "x": 20,
+      "z": 31
+     },
+     "plan": [
+      [
+       20,
+       30,
+       "stoneBlock",
+       0
+      ],
+      [
+       20,
+       30,
+       "stoneBlock",
+       0
+      ],
+      [
+       20,
+       31,
+       "stoneBlock",
+       0
+      ],
+      [
+       20,
+       31,
+       "stoneBlock",
+       0
+      ],
+      [
+       20,
+       32,
+       "stoneBlock",
+       0
+      ],
+      [
+       20,
+       32,
+       "stoneBlock",
+       0
+      ]
+     ]
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "olive_village_giacomo",
+     "stage": 2,
+     "text": "Find Gambero at the osteria's card table in the afternoon and tell him the steps are back",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "meter": 1,
+    "items": {
+     "coins": 30
+    },
+    "flags": [
+     "olive_village_steps_done"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "Geometra. You see the mule track? Straight up from the cove to the bridge. The short way.",
+     "One flight fell in last winter. Now I go round by the cart track. All the hairpins. I get to the osteria and the first hand's been dealt.",
+     "Rosa deals me in anyway, but Bastian looks at me. Fix the steps, would you?"
+    ],
+    "acceptLabel": "I'll fix your steps",
+    "declineLabel": "Not yet",
+    "accept": [
+     "Good lad. Good lass. Good Geometra. Stone from the old terraces. Plenty lying about.",
+     "Make them so a man can walk up. Backwards, coming down."
+    ],
+    "decline": [
+     "The cards'll wait. Bastian won't, but the cards will."
+    ],
+    "progress": [
+     "Stone. Steps. Walk up. Simple."
+    ],
+    "complete": [
+     "Here I am! On time! Deal me in, Rosa!",
+     "Bastian's looking at me like I've cheated. I haven't. Yet."
+    ]
+   },
+   "onAccept": {
+    "blueprints": [
+     "stoneBlock"
+    ]
+   }
+  },
+  {
+   "id": "olive_village_lost_cap",
+   "title": "The Sindaco's fourth cap",
+   "giver": "olive_village_giobatta",
+   "main": false,
+   "type": "request",
+   "chapter": 1,
+   "description": "The Sindaco has lost his sacristan's beret, the fourth cap on his rack. Find it and bring it back.",
+   "requires": {
+    "quests": [
+     "olive_village_welcome"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "find",
+     "kind": "gather",
+     "item": "olive_village_cap",
+     "count": 1,
+     "stage": 0,
+     "text": "Find the Sindaco's sacristan's beret"
+    },
+    {
+     "id": "give",
+     "kind": "pay",
+     "npc": "olive_village_giobatta",
+     "stage": 1,
+     "text": "Give it back",
+     "items": {
+      "olive_village_cap": 1
+     }
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "olive_village_giobatta",
+     "stage": 2,
+     "text": "Let them say thank you",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "items": {
+     "coins": 10
+    }
+   },
+   "dialogue": {
+    "offer": [
+     "My fourth cap. The sacristan's beret. I took it off to chase a cat off the altar, and now I'm the Sindaco at funerals."
+    ],
+    "acceptLabel": "I'll look out for it",
+    "declineLabel": "Not now",
+    "accept": [
+     "Look where caps go. Wind takes them. Cats take them. I may have sat on one."
+    ],
+    "decline": [
+     "Of course. It's only a thing. A thing I miss."
+    ],
+    "progress": [
+     "Have you seen it? You'd know it."
+    ],
+    "complete": [
+     "My beret! Now I can be the sacristan again. The cat's been very well behaved without one, I must say."
+    ]
+   },
+   "onAccept": {
+    "flags": [
+     "olive_village_lost_cap_asked"
+    ]
+   }
+  },
+  {
+   "id": "olive_village_lost_guidebook",
+   "title": "Klaus's guidebook",
+   "giver": "olive_village_hannelore",
+   "main": false,
+   "type": "request",
+   "chapter": 1,
+   "description": "Klaus has lost his guidebook, bookmarks and all. Find it and bring it back to Hannelore.",
+   "requires": {
+    "quests": [
+     "olive_village_welcome"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "find",
+     "kind": "gather",
+     "item": "olive_village_guidebook",
+     "count": 1,
+     "stage": 0,
+     "text": "Find Klaus's guidebook for Hannelore"
+    },
+    {
+     "id": "give",
+     "kind": "pay",
+     "npc": "olive_village_hannelore",
+     "stage": 1,
+     "text": "Give it back",
+     "items": {
+      "olive_village_guidebook": 1
+     }
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "olive_village_hannelore",
+     "stage": 2,
+     "text": "Let them say thank you",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "items": {
+     "coins": 10
+    }
+   },
+   "dialogue": {
+    "offer": [
+     "Klaus has lost his guidebook. Three hundred pages, eighty bookmarks, all his underlinings. He's pretending he doesn't mind. He's walking in circles."
+    ],
+    "acceptLabel": "I'll look out for it",
+    "declineLabel": "Not now",
+    "accept": [
+     "He was on the terrace path. Look along it. He'd never leave the path."
+    ],
+    "decline": [
+     "Of course. It's only a thing. A thing I miss."
+    ],
+    "progress": [
+     "Have you seen it? You'd know it."
+    ],
+    "complete": [
+     "His guidebook! He'll be so happy. He'll correct page forty-one again."
+    ]
+   },
+   "onAccept": {
+    "flags": [
+     "olive_village_lost_guidebook_asked"
+    ]
+   }
+  },
+  {
+   "id": "olive_village_lost_glove",
+   "title": "Bastian's grafting glove",
+   "giver": "olive_village_bastian",
+   "main": false,
+   "type": "request",
+   "chapter": 1,
+   "description": "Bastian put his grafting glove down to talk to a tree. Find it and bring it back.",
+   "requires": {
+    "quests": [
+     "olive_village_welcome"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "find",
+     "kind": "gather",
+     "item": "olive_village_glove",
+     "count": 1,
+     "stage": 0,
+     "text": "Find Bastian's grafting glove"
+    },
+    {
+     "id": "give",
+     "kind": "pay",
+     "npc": "olive_village_bastian",
+     "stage": 1,
+     "text": "Give it back",
+     "items": {
+      "olive_village_glove": 1
+     }
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "olive_village_bastian",
+     "stage": 2,
+     "text": "Let them say thank you",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "items": {
+     "coins": 10
+    }
+   },
+   "dialogue": {
+    "offer": [
+     "Mm. My grafting glove. Left one. My father's. Forty years old and better than a new one."
+    ],
+    "acceptLabel": "I'll look out for it",
+    "declineLabel": "Not now",
+    "accept": [
+     "The terraces somewhere. I put it down to talk to a tree."
+    ],
+    "decline": [
+     "Of course. It's only a thing. A thing I miss."
+    ],
+    "progress": [
+     "Have you seen it? You'd know it."
+    ],
+    "complete": [
+     "Mm. That's it. Thank you. The tree will be pleased. It didn't like being blamed."
+    ]
+   },
+   "onAccept": {
+    "flags": [
+     "olive_village_lost_glove_asked"
+    ]
+   }
+  },
+  {
+   "id": "olive_village_lost_binoculars",
+   "title": "Sirena's binoculars",
+   "giver": "olive_village_marisa",
+   "main": false,
+   "type": "request",
+   "chapter": 1,
+   "description": "Sirena's binoculars went missing on the shore. Find them and bring them back.",
+   "requires": {
+    "quests": [
+     "olive_village_welcome"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "find",
+     "kind": "gather",
+     "item": "olive_village_binoculars",
+     "count": 1,
+     "stage": 0,
+     "text": "Find Sirena's binoculars"
+    },
+    {
+     "id": "give",
+     "kind": "pay",
+     "npc": "olive_village_marisa",
+     "stage": 1,
+     "text": "Give it back",
+     "items": {
+      "olive_village_binoculars": 1
+     }
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "olive_village_marisa",
+     "stage": 2,
+     "text": "Let them say thank you",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "items": {
+     "coins": 10
+    }
+   },
+   "dialogue": {
+    "offer": [
+     "My binoculars! I put them down on the rocks to toot at somebody, and somebody else picked them up. Or the sea did."
+    ],
+    "acceptLabel": "I'll look out for it",
+    "declineLabel": "Not now",
+    "accept": [
+     "Along the shore. Where the boats come up. Where people toot."
+    ],
+    "decline": [
+     "Of course. It's only a thing. A thing I miss."
+    ],
+    "progress": [
+     "Have you seen it? You'd know it."
+    ],
+    "complete": [
+     "TOOT! My binoculars! Now I can see who to toot at from twice as far."
+    ]
+   },
+   "onAccept": {
+    "flags": [
+     "olive_village_lost_binoculars_asked"
+    ]
+   }
+  },
+  {
+   "id": "olive_village_lost_key",
+   "title": "An old house key",
+   "giver": "olive_village_gina",
+   "main": false,
+   "type": "request",
+   "chapter": 1,
+   "description": "Gina's sister hid the key to her house on the terraces when she left in 1971. Look for it under the brambles.",
+   "requires": {
+    "quests": [
+     "olive_village_welcome"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "find",
+     "kind": "gather",
+     "item": "olive_village_key",
+     "count": 1,
+     "stage": 0,
+     "text": "Look for Gina's sister's old house key on the abandoned terraces"
+    },
+    {
+     "id": "give",
+     "kind": "pay",
+     "npc": "olive_village_gina",
+     "stage": 1,
+     "text": "Give it back",
+     "items": {
+      "olive_village_key": 1
+     }
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "olive_village_gina",
+     "stage": 2,
+     "text": "Let them say thank you",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "items": {
+     "coins": 10
+    }
+   },
+   "dialogue": {
+    "offer": [
+     "My sister had a house on the terraces. She went to Turin in 1971 and took the key. Or she said she did."
+    ],
+    "acceptLabel": "I'll look out for it",
+    "declineLabel": "Not now",
+    "accept": [
+     "I always thought she hid it up there, under a stone. In case she came back. If you see a key in the brambles…"
+    ],
+    "decline": [
+     "Of course. It's only a thing. A thing I miss."
+    ],
+    "progress": [
+     "Have you seen it? You'd know it."
+    ],
+    "complete": [
+     "Her key. She did leave it. In case she came back."
+    ]
+   },
+   "onAccept": {
+    "flags": [
+     "olive_village_lost_key_asked"
+    ]
+   }
+  },
+  {
+   "id": "olive_village_lost_radio",
+   "title": "A transistor radio",
+   "giver": "olive_village_giacomo",
+   "main": false,
+   "type": "request",
+   "chapter": 1,
+   "description": "Gambero danced to a transistor radio at the festa of 1962. Look for it under the brambles.",
+   "requires": {
+    "quests": [
+     "olive_village_welcome"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "find",
+     "kind": "gather",
+     "item": "olive_village_radio",
+     "count": 1,
+     "stage": 0,
+     "text": "Look for the old transistor radio under the brambles"
+    },
+    {
+     "id": "give",
+     "kind": "pay",
+     "npc": "olive_village_giacomo",
+     "stage": 1,
+     "text": "Give it back",
+     "items": {
+      "olive_village_radio": 1
+     }
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "olive_village_giacomo",
+     "stage": 2,
+     "text": "Let them say thank you",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "items": {
+     "coins": 10
+    }
+   },
+   "dialogue": {
+    "offer": [
+     "There was a transistor radio, at the last festa but one. 1962. I danced with Delia's sister to it. Then it went missing on the terraces."
+    ],
+    "acceptLabel": "I'll look out for it",
+    "declineLabel": "Not now",
+    "accept": [
+     "Up under the brambles, I'd say. Everything left behind ends up under the brambles."
+    ],
+    "decline": [
+     "Of course. It's only a thing. A thing I miss."
+    ],
+    "progress": [
+     "Have you seen it? You'd know it."
+    ],
+    "complete": [
+     "That's it! That's the one. It still… no. Doesn't work. Doesn't matter. Look at it."
+    ]
+   },
+   "onAccept": {
+    "flags": [
+     "olive_village_lost_radio_asked"
+    ]
+   }
+  },
+  {
+   "id": "olive_village_lost_postcard",
+   "title": "A postcard from Tonnarella",
+   "giver": "olive_village_delia",
+   "main": false,
+   "type": "request",
+   "chapter": 1,
+   "description": "One of Delia's sister's postcards was lost on the high terraces. Look for it under the brambles.",
+   "requires": {
+    "quests": [
+     "olive_village_welcome"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "find",
+     "kind": "gather",
+     "item": "olive_village_postcard",
+     "count": 1,
+     "stage": 0,
+     "text": "Look for Delia's lost postcard on the high terraces"
+    },
+    {
+     "id": "give",
+     "kind": "pay",
+     "npc": "olive_village_delia",
+     "stage": 1,
+     "text": "Give it back",
+     "items": {
+      "olive_village_postcard": 1
+     }
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "olive_village_delia",
+     "stage": 2,
+     "text": "Let them say thank you",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "items": {
+     "coins": 10
+    }
+   },
+   "dialogue": {
+    "offer": [
+     "My sister's postcards. I kept every one. One went missing, the summer we moved the furniture to the terraces in the flood scare."
+    ],
+    "acceptLabel": "I'll look out for it",
+    "declineLabel": "Not now",
+    "accept": [
+     "It'll be under the brambles up high. Most things are."
+    ],
+    "decline": [
+     "Of course. It's only a thing. A thing I miss."
+    ],
+    "progress": [
+     "Have you seen it? You'd know it."
+    ],
+    "complete": [
+     "\"Dear Delia, the sea is big, the city is loud, I miss the bells.\" 1963. Hm. It could have gone worse."
+    ]
+   },
+   "onAccept": {
+    "flags": [
+     "olive_village_lost_postcard_asked"
+    ]
+   }
+  },
+  {
+   "id": "olive_village_lost_tinboat",
+   "title": "A tin boat",
+   "giver": "olive_village_rosa",
+   "main": false,
+   "type": "request",
+   "chapter": 1,
+   "description": "Davide lost his tin boat on the terraces when he was eight. Look for it under the brambles, for Rosa's counter.",
+   "requires": {
+    "quests": [
+     "olive_village_welcome"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "find",
+     "kind": "gather",
+     "item": "olive_village_tinboat",
+     "count": 1,
+     "stage": 0,
+     "text": "Look for a child's tin boat on the abandoned terraces"
+    },
+    {
+     "id": "give",
+     "kind": "pay",
+     "npc": "olive_village_rosa",
+     "stage": 1,
+     "text": "Give it back",
+     "items": {
+      "olive_village_tinboat": 1
+     }
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "olive_village_rosa",
+     "stage": 2,
+     "text": "Let them say thank you",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "items": {
+     "coins": 10
+    }
+   },
+   "dialogue": {
+    "offer": [
+     "Davide had a tin boat when he was small. He sailed it in the wash-house basins and Gina chased him. He lost it on the terraces the summer he was eight."
+    ],
+    "acceptLabel": "I'll look out for it",
+    "declineLabel": "Not now",
+    "accept": [
+     "I'd love to have it back. For the counter. Just to look at."
+    ],
+    "decline": [
+     "Of course. It's only a thing. A thing I miss."
+    ],
+    "progress": [
+     "Have you seen it? You'd know it."
+    ],
+    "complete": [
+     "His boat. I'll put it on the counter, next to the payphone. Where I'll see it every day."
+    ]
+   },
+   "onAccept": {
+    "flags": [
+     "olive_village_lost_tinboat_asked"
+    ]
+   }
+  }
+ ]
+}

@@ -48,7 +48,7 @@ static func sanitize(a: Dictionary) -> Dictionary:
 	var D: Dictionary = A["default"]
 	var out := {}
 	var pick := func(k: String, list: Array) -> void: out[k] = a[k] if a.has(k) and list.has(a[k]) else D[k]
-	var col := func(k: String) -> void: out[k] = a[k] if a.has(k) and a[k] is String and a[k].length() == 7 and a[k].begins_with("#") else D[k]
+	var col := func(k: String) -> void: out[k] = a[k] if a.has(k) and a[k] is String and Color.html_is_valid(a[k]) else D[k]
 	col.call("skin"); pick.call("eyeShape", A.EYE_SHAPES); col.call("eyeColor"); pick.call("hair", A.HAIR_STYLES); col.call("hairColor"); pick.call("mouth", A.MOUTHS)
 	pick.call("top", A.TOPS); col.call("topColor"); pick.call("bottom", A.BOTTOMS); col.call("bottomColor"); pick.call("shoes", A.SHOES); col.call("shoesColor")
 	pick.call("hat", A.HATS); col.call("hatColor"); pick.call("accessory", A.ACCESSORIES)

@@ -1,0 +1,2014 @@
+{
+ "_comment": "Liolivato's people (docs/locations/olive_village.md, The cast).",
+ "npcs": [
+  {
+   "id": "olive_village_giobatta",
+   "name": "Giobatta \"Milmestieri\" Orengo",
+   "pronoun": "he",
+   "title": "Sindaco, barber, sacristan and keeper of the ferry timetable",
+   "voice": 0.85,
+   "likes": [
+    "olive_village_farinata",
+    "olive_village_sardenaira",
+    "olive_village_honey"
+   ],
+   "appearance": {
+    "skin": "f0c09a",
+    "eyeShape": "happy",
+    "eyeColor": "3a2a1e",
+    "hair": "short",
+    "hairColor": "d8d4cc",
+    "mouth": "grin",
+    "top": "jacket",
+    "topColor": "f4f1ea",
+    "bottom": "pants",
+    "bottomColor": "3a3a40",
+    "shoes": "boots",
+    "shoesColor": "2a2a2a",
+    "hat": "captain",
+    "hatColor": "2f3a5a",
+    "accessory": "sash",
+    "body": {
+     "height": 0.94,
+     "width": 1.1,
+     "belly": 0.7
+    }
+   },
+   "home": "olive_village_barber:spot",
+   "schedule": [
+    [
+     0,
+     24,
+     "pebbles",
+     "idle"
+    ]
+   ],
+   "when": [
+    {
+     "flag": "olive_village_festa_night",
+     "schedule": [
+      [
+       7,
+       8,
+       "churchDoor",
+       "work"
+      ],
+      [
+       8,
+       12,
+       "olive_village_barber:spot",
+       "work"
+      ],
+      [
+       12,
+       14,
+       "piazza",
+       "idle"
+      ],
+      [
+       14,
+       15,
+       "pebbles",
+       "idle"
+      ],
+      [
+       15,
+       19,
+       "olive_village_barber:spot",
+       "work"
+      ],
+      [
+       19,
+       20,
+       "piazza",
+       "idle"
+      ],
+      [
+       20,
+       23,
+       "piazza",
+       "dance"
+      ]
+     ]
+    },
+    {
+     "flag": "olive_village_festa_ready",
+     "schedule": [
+      [
+       7,
+       8,
+       "churchDoor",
+       "work"
+      ],
+      [
+       8,
+       12,
+       "olive_village_barber:spot",
+       "work"
+      ],
+      [
+       12,
+       14,
+       "piazza",
+       "idle"
+      ],
+      [
+       14,
+       15,
+       "pebbles",
+       "idle"
+      ],
+      [
+       15,
+       19,
+       "olive_village_barber:spot",
+       "work"
+      ],
+      [
+       19,
+       24,
+       "piazza",
+       "idle"
+      ]
+     ]
+    },
+    {
+     "flag": "olive_village_welcomed",
+     "schedule": [
+      [
+       7,
+       8,
+       "churchDoor",
+       "work"
+      ],
+      [
+       8,
+       12,
+       "olive_village_barber:spot",
+       "work"
+      ],
+      [
+       12,
+       14,
+       "piazza",
+       "idle"
+      ],
+      [
+       14,
+       15,
+       "pebbles",
+       "idle"
+      ],
+      [
+       15,
+       19,
+       "olive_village_barber:spot",
+       "work"
+      ],
+      [
+       19,
+       22,
+       "piazza",
+       "idle"
+      ]
+     ]
+    },
+    {
+     "flag": "olive_village_tour",
+     "schedule": [
+      [
+       0,
+       24,
+       "olive_village_barber:spot",
+       "idle"
+      ]
+     ]
+    }
+   ],
+   "greetings": [
+    {
+     "flag": "olive_village_festa_done",
+     "lines": [
+      "Fifty! I've repainted it twice to be sure. The paint is still wet. Don't lean on the sign.",
+      "A village with children in it again. I've had to find my old scissors with the round ends."
+     ]
+    },
+    {
+     "flag": "olive_village_welcomed",
+     "lines": [
+      "Geometra! I'm in my barber's cap, so this is a haircut conversation. Sit down. No? Another time.",
+      "The bells were late this morning. I was halfway through a moustache.",
+      "Thirty-nine, Geometra. Thirty-nine. I say it to myself while I shave."
+     ]
+    },
+    {
+     "flag": "olive_village_tour",
+     "lines": [
+      "The papers are ready in the barber shop. So is the chair. One thing at a time."
+     ]
+    },
+    {
+     "lines": [
+      "Welcome, welcome! Giobatta Orengo, Sindaco. Also the barber, but that's a different cap."
+     ]
+    }
+   ],
+   "sleepy": [
+    "Zzz… thirty-nine… forty… fetch the good paint…"
+   ],
+   "topics": [
+    {
+     "id": "caps",
+     "label": "Why do you keep changing caps?",
+     "lines": [
+      "Thirty-eight people, Geometra, and somebody has to do every job. The peaked cap is the ferry timetable. The white one is the barber. The black beret is the sacristan. The sash is the Sindaco.",
+      "If I wore them all at once I'd fall over. I tried, for the photo in the province's newsletter. They printed it upside down."
+     ]
+    },
+    {
+     "id": "houses",
+     "label": "Who buys a 1,000-lire house?",
+     "lines": [
+      "Brave people. Romantic people. People who haven't seen the plumbing. So far: two Germans and you.",
+      "The euro? I've done the sums. A 1,000-lire house is a 1,000-lire house. The price on the board can say what it likes."
+     ]
+    },
+    {
+     "id": "sign",
+     "label": "Why does the sign matter so much?",
+     "lines": [
+      "Because people read it on the bridge, Geometra, every single day. Thirty-eight looks like a village that's leaving.",
+      "Every time somebody stays, I repaint it myself. I keep the brush in the town hall, next to the seal."
+     ]
+    }
+   ],
+   "gifts": [
+    {
+     "hearts": 4,
+     "items": {
+      "olive_village_farinata": 2
+     },
+     "line": "Farinata from Rosa's oven. Don't tell her I took the corner pieces."
+    },
+    {
+     "hearts": 6,
+     "blueprint": "streetlight",
+     "line": "The province sent plans for a streetlight in 1979. I've been waiting for a Geometra worthy of them."
+    }
+   ]
+  },
+  {
+   "id": "olive_village_klaus",
+   "name": "Klaus Wendt",
+   "pronoun": "he",
+   "title": "One of the Sandals: a retired schoolteacher from Munich",
+   "voice": 1.05,
+   "likes": [
+    "olive_village_stuffed",
+    "olive_village_honey",
+    "olive_village_beans"
+   ],
+   "appearance": {
+    "skin": "f8d8c0",
+    "eyeShape": "round",
+    "eyeColor": "4a6a8a",
+    "hair": "short",
+    "hairColor": "c9c2b0",
+    "mouth": "smile",
+    "top": "shirt",
+    "topColor": "e8dcb8",
+    "bottom": "shorts",
+    "bottomColor": "a08f62",
+    "shoes": "sandals",
+    "shoesColor": "7a5a3a",
+    "hat": "sunhat",
+    "hatColor": "e8dcb0",
+    "accessory": "glasses",
+    "body": {
+     "height": 1.1,
+     "width": 0.96,
+     "belly": 0.3
+    }
+   },
+   "home": "olive_village_sandals:spot",
+   "schedule": [
+    [
+     7,
+     10,
+     "mule3",
+     "idle"
+    ],
+    [
+     10,
+     12,
+     "bridgeTop",
+     "idle"
+    ],
+    [
+     12,
+     14,
+     "olive_village_sandals:spot",
+     "read"
+    ],
+    [
+     14,
+     17,
+     "tp3",
+     "idle"
+    ],
+    [
+     17,
+     19,
+     "bridgeW",
+     "idle"
+    ],
+    [
+     19,
+     22,
+     "sandals",
+     "idle"
+    ]
+   ],
+   "when": [
+    {
+     "flag": "olive_village_festa_night",
+     "schedule": [
+      [
+       7,
+       10,
+       "mule3",
+       "idle"
+      ],
+      [
+       10,
+       12,
+       "bridgeTop",
+       "idle"
+      ],
+      [
+       12,
+       14,
+       "olive_village_sandals:spot",
+       "read"
+      ],
+      [
+       14,
+       17,
+       "tp3",
+       "idle"
+      ],
+      [
+       17,
+       19,
+       "bridgeW",
+       "idle"
+      ],
+      [
+       19,
+       20,
+       "sandals",
+       "idle"
+      ],
+      [
+       20,
+       23,
+       "piazzaW",
+       "dance"
+      ]
+     ]
+    }
+   ],
+   "greetings": [
+    {
+     "flag": "olive_village_sunset_done",
+     "lines": [
+      "Every evening at our little shelter. Hannelore says the sunset is never the same twice. I have checked. She is right.",
+      "Wunderbar. Even the crack in your roof beam. Especially the crack in your roof beam."
+     ]
+    },
+    {
+     "flag": "olive_village_welcomed",
+     "lines": [
+      "Good morning, neighbour! I have walked the mule track twice already. Page forty-one of my guidebook is wrong about the steps. I have written to them.",
+      "Look at that wall! Four hundred years old, and leaning. Please don't fix it.",
+      "In Munich we have no lizards on the walls. Here, every wall has a lizard. I have named eleven of them."
+     ]
+    },
+    {
+     "lines": [
+      "Ah, a new face! Klaus Wendt. We live next door to the empty house, if it's to be yours. Lucky you!"
+     ]
+    }
+   ],
+   "sleepy": [
+    "Zzz… page forty-one… is wrong…"
+   ],
+   "topics": [
+    {
+     "id": "why",
+     "label": "Why did you come to Liolivato?",
+     "lines": [
+      "Thirty years I taught geography in Munich. Thirty years I pointed at Liguria on a map. Then I retired and came to see whether it was really there.",
+      "It was. Then the Sindaco sold us a house for the price of a coffee. Hannelore cried. The Sindaco cried. I think he was surprised."
+     ]
+    },
+    {
+     "id": "sandals",
+     "label": "Why do they call you the Sandals?",
+     "lines": [
+      "Because of our sandals, I think. Hannelore thinks it's affectionate. Nonna Delia thinks it's accurate.",
+      "Socks with sandals is very practical on a mule track. The village will come round to it. It has been eight months."
+     ]
+    },
+    {
+     "id": "fixed",
+     "label": "Don't you want anything fixed?",
+     "lines": [
+      "Fixed? No! The cracks are authentic. The crooked doors are authentic. Even the plumbing is authentic, mostly at night.",
+      "Well. Perhaps the steps on the mule track. Authentic is one thing. Walking backwards down a ravine is another."
+     ]
+    }
+   ],
+   "gifts": [
+    {
+     "hearts": 4,
+     "items": {
+      "olive_village_honey": 1
+     },
+     "line": "Broom honey from Fuco. I bought six jars and Hannelore says that's too many. Take one, as evidence."
+    },
+    {
+     "hearts": 6,
+     "blueprint": "stoneArch",
+     "line": "I drew this arch from the covered alleys, stone by stone. Very authentic. Build one somewhere new and it will be old in fifty years."
+    }
+   ]
+  },
+  {
+   "id": "olive_village_hannelore",
+   "name": "Hannelore Wendt",
+   "pronoun": "she",
+   "title": "The other Sandal: a keen amateur photographer",
+   "voice": 1.15,
+   "likes": [
+    "olive_village_honey",
+    "flowers",
+    "olive_village_farinata"
+   ],
+   "appearance": {
+    "skin": "f8dcc8",
+    "eyeShape": "sparkle",
+    "eyeColor": "4a6a8a",
+    "hair": "bob",
+    "hairColor": "e0d4b0",
+    "mouth": "smile",
+    "top": "shirt",
+    "topColor": "e8e0cc",
+    "bottom": "dress",
+    "bottomColor": "e8e0cc",
+    "shoes": "sandals",
+    "shoesColor": "7a5a3a",
+    "hat": "sunhat",
+    "hatColor": "d9c28a",
+    "accessory": "none",
+    "body": {
+     "height": 1.04,
+     "width": 0.96,
+     "belly": 0.1
+    }
+   },
+   "home": "olive_village_sandals:in",
+   "schedule": [
+    [
+     7,
+     9,
+     "castle",
+     "idle"
+    ],
+    [
+     9,
+     12,
+     "churchSq",
+     "idle"
+    ],
+    [
+     12,
+     14,
+     "olive_village_sandals:in",
+     "read"
+    ],
+    [
+     14,
+     17,
+     "piazzaW",
+     "idle"
+    ],
+    [
+     17,
+     19,
+     "gate",
+     "idle"
+    ],
+    [
+     19,
+     22,
+     "olive_village_sandals:in",
+     "read"
+    ]
+   ],
+   "when": [
+    {
+     "flag": "olive_village_festa_night",
+     "schedule": [
+      [
+       7,
+       9,
+       "castle",
+       "idle"
+      ],
+      [
+       9,
+       12,
+       "churchSq",
+       "idle"
+      ],
+      [
+       12,
+       14,
+       "olive_village_sandals:in",
+       "read"
+      ],
+      [
+       14,
+       17,
+       "piazzaW",
+       "idle"
+      ],
+      [
+       17,
+       19,
+       "gate",
+       "idle"
+      ],
+      [
+       19,
+       20,
+       "olive_village_sandals:in",
+       "read"
+      ],
+      [
+       20,
+       23,
+       "barber",
+       "idle"
+      ]
+     ]
+    }
+   ],
+   "greetings": [
+    {
+     "flag": "olive_village_festa_done",
+     "lines": [
+      "Three rolls of film at the festa! One is of the band. Two are of the cracks in the piazza by lamplight.",
+      "I photographed Rosa's face when she saw them. I won't show anyone. Some photos are only for keeping."
+     ]
+    },
+    {
+     "flag": "olive_village_welcomed",
+     "lines": [
+      "Don't move! The light on your face is perfect. Click. Thank you.",
+      "I photographed you asleep on the bench this morning. Authentic village life! I hope you don't mind. I've already had it developed.",
+      "This crack has a crack in it. Two cracks in one photo! Klaus will be so jealous."
+     ]
+    },
+    {
+     "lines": [
+      "Hello! Hannelore. Klaus's wife. Say cheese. No, say formaggio. Click!"
+     ]
+    }
+   ],
+   "sleepy": [
+    "Zzz… click… click… formaggio…"
+   ],
+   "topics": [
+    {
+     "id": "photos",
+     "label": "What do you photograph?",
+     "lines": [
+      "Cracks, mostly. Walls, doors, steps, the cats on the steps. Every crack in Liolivato tells a story. Usually the story is 'rain'.",
+      "Our walls at home are covered with them. Klaus says it looks like a structural survey. That's the nicest thing he's ever said about my photos."
+     ]
+    },
+    {
+     "id": "village",
+     "label": "What do you think of the village?",
+     "lines": [
+      "It's perfect. The washing on the lines, the nonnas, the bells that ring when they like. In Munich the bells ring exactly on time. It's very boring.",
+      "Everybody here thinks we're mad. I think they're the mad ones, leaving."
+     ]
+    }
+   ],
+   "gifts": [
+    {
+     "hearts": 4,
+     "items": {
+      "flowers": 3
+     },
+     "line": "Wild roses from the castle walls. I photographed them first, so they've done their job."
+    },
+    {
+     "hearts": 6,
+     "blueprint": "painting",
+     "line": "My best crack, framed. Hang it somewhere in your house. Klaus says it's a fine example of rain."
+    }
+   ]
+  },
+  {
+   "id": "olive_village_bastian",
+   "name": "Barba Bastian \"Ulivo\" Ramella",
+   "pronoun": "he",
+   "title": "The last olive farmer",
+   "voice": 0.7,
+   "likes": [
+    "olive_village_beans",
+    "olive_village_honey",
+    "olive_village_stuffed"
+   ],
+   "appearance": {
+    "skin": "d9a37a",
+    "eyeShape": "sleepy",
+    "eyeColor": "3a2a1e",
+    "hair": "short",
+    "hairColor": "b8b4ac",
+    "mouth": "calm",
+    "top": "workjacket",
+    "topColor": "6a6050",
+    "bottom": "pants",
+    "bottomColor": "4a4038",
+    "shoes": "boots",
+    "shoesColor": "3a2a1e",
+    "hat": "drivercap",
+    "hatColor": "5a5040",
+    "accessory": "beard",
+    "body": {
+     "height": 0.9,
+     "width": 1.0,
+     "belly": 0.2
+    }
+   },
+   "home": "olive_village_farmhouse:spot",
+   "schedule": [
+    [
+     5,
+     12,
+     "bastian",
+     "garden"
+    ],
+    [
+     12,
+     14,
+     "olive_village_farmhouse:spot",
+     "idle"
+    ],
+    [
+     14,
+     18,
+     "tpFallen",
+     "garden"
+    ],
+    [
+     18,
+     20,
+     "farmDoor",
+     "idle"
+    ]
+   ],
+   "when": [
+    {
+     "flag": "olive_village_festa_night",
+     "schedule": [
+      [
+       5,
+       12,
+       "bastian",
+       "garden"
+      ],
+      [
+       12,
+       14,
+       "olive_village_farmhouse:spot",
+       "idle"
+      ],
+      [
+       14,
+       18,
+       "tank",
+       "garden"
+      ],
+      [
+       18,
+       20,
+       "farmDoor",
+       "idle"
+      ],
+      [
+       20,
+       23,
+       "emptyDoor",
+       "idle"
+      ]
+     ]
+    },
+    {
+     "flag": "olive_village_water_done",
+     "schedule": [
+      [
+       5,
+       12,
+       "bastian",
+       "garden"
+      ],
+      [
+       12,
+       14,
+       "olive_village_farmhouse:spot",
+       "idle"
+      ],
+      [
+       14,
+       18,
+       "tank",
+       "garden"
+      ],
+      [
+       18,
+       20,
+       "farmDoor",
+       "idle"
+      ]
+     ]
+    }
+   ],
+   "greetings": [
+    {
+     "flag": "olive_village_terrace_done",
+     "lines": [
+      "The fallen terrace is standing. I go up and look at it twice a day. Once to check the wall. Once to check it's real.",
+      "The young tree is doing well. Don't tell it. It'll get proud."
+     ]
+    },
+    {
+     "flag": "olive_village_water_done",
+     "lines": [
+      "The tank's full. I put my hand in it every morning, like a boy.",
+      "The courgettes are drinking. You can almost hear them."
+     ]
+    },
+    {
+     "flag": "olive_village_welcomed",
+     "lines": [
+      "Mm. The Geometra.",
+      "Don't touch the trees. Nobody knows how to prune a tree any more. Except me.",
+      "They're in flower. Look, don't touch."
+     ]
+    },
+    {
+     "lines": [
+      "Mm. Who are you? Ah. The Sindaco's Geometra. Mm."
+     ]
+    }
+   ],
+   "sleepy": [
+    "Zzz… prune it… not like that…"
+   ],
+   "topics": [
+    {
+     "id": "trees",
+     "label": "Do you really talk to your trees?",
+     "lines": [
+      "Somebody has to. Their own families went to the coast in 1971.",
+      "That one's four hundred years old. It's seen the Saracens, the French and my father. It didn't think much of any of them."
+     ]
+    },
+    {
+     "id": "alone",
+     "label": "Do you work all the terraces alone?",
+     "lines": [
+      "Mine, yes. The others went to brambles when the young ones left. Every year the brambles come down one more step.",
+      "I'm not young either. But I'm too stubborn to go anywhere, and the trees know it."
+     ]
+    }
+   ],
+   "gifts": [
+    {
+     "hearts": 4,
+     "items": {
+      "olive_village_basil": 4
+     },
+     "line": "Basil. From my rows, not the pots in the alleys. The pots are for show. This is for pesto."
+    },
+    {
+     "hearts": 6,
+     "blueprint": "tree",
+     "line": "A cutting from the old tree. Plant it somewhere good. Somewhere I can check on it."
+    }
+   ]
+  },
+  {
+   "id": "olive_village_gina",
+   "name": "Nonna Gina Moraldo",
+   "pronoun": "she",
+   "title": "A wash-house nonna: the village's news service",
+   "voice": 1.2,
+   "likes": [
+    "olive_village_stuffed",
+    "flowers",
+    "olive_village_honey"
+   ],
+   "appearance": {
+    "skin": "f0c8a8",
+    "eyeShape": "wide",
+    "eyeColor": "3a2a1e",
+    "hair": "bun",
+    "hairColor": "e8e4dc",
+    "mouth": "o",
+    "top": "sweater",
+    "topColor": "6a8fb5",
+    "bottom": "skirt",
+    "bottomColor": "4a5a7a",
+    "shoes": "boots",
+    "shoesColor": "3a3030",
+    "hat": "none",
+    "hatColor": "c94a44",
+    "accessory": "apron",
+    "body": {
+     "height": 0.9,
+     "width": 1.1,
+     "belly": 0.4
+    }
+   },
+   "home": "ginaDoor",
+   "schedule": [
+    [
+     7,
+     12,
+     "wash",
+     "work"
+    ],
+    [
+     12,
+     15,
+     "ginaDoor",
+     "idle"
+    ],
+    [
+     15,
+     18,
+     "churchSq",
+     "idle"
+    ],
+    [
+     18,
+     21,
+     "piazzaE",
+     "idle"
+    ]
+   ],
+   "when": [
+    {
+     "flag": "olive_village_festa_night",
+     "schedule": [
+      [
+       7,
+       12,
+       "wash",
+       "work"
+      ],
+      [
+       12,
+       15,
+       "ginaDoor",
+       "idle"
+      ],
+      [
+       15,
+       18,
+       "churchSq",
+       "idle"
+      ],
+      [
+       18,
+       20,
+       "piazzaE",
+       "idle"
+      ],
+      [
+       20,
+       23,
+       "piazzaE",
+       "idle"
+      ]
+     ]
+    }
+   ],
+   "greetings": [
+    {
+     "flag": "olive_village_festa_done",
+     "lines": [
+      "Davide's back! I knew he'd come. I said so in 1994. Nobody listens to Gina. Then everybody listens to Gina.",
+      "Two children in the village again! I've told the whole wash-house. The wash-house knew. I told it again."
+     ]
+    },
+    {
+     "flag": "olive_village_welcomed",
+     "lines": [
+      "There's the Geometra! I've told everybody about you. Some of it was true.",
+      "Did you hear? You didn't. I'll tell you. Sit down, it's a long one.",
+      "The Sandals photographed my washing again. My smalls are in Munich now."
+     ]
+    },
+    {
+     "lines": [
+      "Ooh, a new one! Name? Where from? Married? Never mind, I'll find out."
+     ]
+    }
+   ],
+   "sleepy": [
+    "Zzz… did you hear… about the… zzz…"
+   ],
+   "topics": [
+    {
+     "id": "news",
+     "label": "What's the news?",
+     "lines": [
+      "The news is you, dear. Before you it was the Germans. Before the Germans it was the ferry being late in 1988.",
+      "Delia says I talk too much. Delia judges too much. Between us we're the newspaper."
+     ]
+    },
+    {
+     "id": "delia",
+     "label": "Are you and Delia friends?",
+     "lines": [
+      "Friends? We've washed sheets side by side for fifty years. We're worse than friends. We're colleagues.",
+      "She says nice things too, you know. Once a year. Usually about my lasagne."
+     ]
+    }
+   ],
+   "gifts": [
+    {
+     "hearts": 4,
+     "items": {
+      "olive_village_stuffed": 2
+     },
+     "line": "Stuffed courgettes, still warm. I made too many. I always make too many. It's on purpose."
+    },
+    {
+     "hearts": 6,
+     "blueprint": "flowerBed",
+     "line": "My grandmother's way of planting a flower bed, so it looks after itself. Don't tell Delia I gave it away."
+    }
+   ]
+  },
+  {
+   "id": "olive_village_delia",
+   "name": "Nonna Delia Cassini",
+   "pronoun": "she",
+   "title": "The other wash-house nonna: the judge of everything",
+   "voice": 0.95,
+   "likes": [
+    "olive_village_farinata",
+    "olive_village_beans",
+    "olive_village_honey"
+   ],
+   "appearance": {
+    "skin": "f0d0b8",
+    "eyeShape": "sleepy",
+    "eyeColor": "3a2a1e",
+    "hair": "bun",
+    "hairColor": "c9c9c9",
+    "mouth": "calm",
+    "top": "sweater",
+    "topColor": "2a2a2e",
+    "bottom": "dress",
+    "bottomColor": "1f1f24",
+    "shoes": "boots",
+    "shoesColor": "1a1a1a",
+    "hat": "none",
+    "hatColor": "2a2a2e",
+    "accessory": "glasses",
+    "body": {
+     "height": 0.92,
+     "width": 0.92,
+     "belly": 0.0
+    }
+   },
+   "home": "deliaDoor",
+   "schedule": [
+    [
+     7,
+     12,
+     "washIn",
+     "work"
+    ],
+    [
+     12,
+     15,
+     "deliaDoor",
+     "idle"
+    ],
+    [
+     15,
+     18,
+     "churchDoor",
+     "idle"
+    ],
+    [
+     18,
+     21,
+     "piazzaSE",
+     "idle"
+    ]
+   ],
+   "when": [
+    {
+     "flag": "olive_village_festa_night",
+     "schedule": [
+      [
+       7,
+       12,
+       "washIn",
+       "work"
+      ],
+      [
+       12,
+       15,
+       "deliaDoor",
+       "idle"
+      ],
+      [
+       15,
+       18,
+       "churchDoor",
+       "idle"
+      ],
+      [
+       18,
+       20,
+       "piazzaSE",
+       "idle"
+      ],
+      [
+       20,
+       23,
+       "piazzaSE",
+       "idle"
+      ]
+     ]
+    }
+   ],
+   "greetings": [
+    {
+     "flag": "olive_village_festa_done",
+     "lines": [
+      "The festa. It could have gone worse.",
+      "…",
+      "It went well. Don't tell Gina I said so."
+     ]
+    },
+    {
+     "flag": "olive_village_terrace_done",
+     "lines": [
+      "That wall of yours. It could have gone worse. I don't say that often. Ask anyone."
+     ]
+    },
+    {
+     "flag": "olive_village_welcomed",
+     "lines": [
+      "Hm. You've got mud on your shoes. Building mud. Acceptable.",
+      "Gina's told you everything. Half of it's wrong. Ask me which half.",
+      "I've seen your work. I'm reserving judgement. That's a compliment."
+     ]
+    },
+    {
+     "lines": [
+      "Hm. So you're the Geometra. We'll see."
+     ]
+    }
+   ],
+   "sleepy": [
+    "Zzz… could have… gone worse…"
+   ],
+   "topics": [
+    {
+     "id": "praise",
+     "label": "What does it take to impress you?",
+     "lines": [
+      "Corners that meet. Steps that are all the same height. Walls that don't move when Gina leans on them.",
+      "My late husband built that wash-house roof in 1958. Not one tile has moved. That's the standard, Geometra."
+     ]
+    },
+    {
+     "id": "postcard",
+     "label": "Have you always lived here?",
+     "lines": [
+      "Always. My sister went to Tonnarella in 1962 and wrote every week for a year. Then once a month. Then at Christmas.",
+      "That's what happens. People leave, and the postcards get shorter."
+     ]
+    }
+   ],
+   "gifts": [
+    {
+     "hearts": 4,
+     "items": {
+      "olive_village_farinata": 1
+     },
+     "line": "Farinata. I make it better than Rosa. Don't tell Rosa."
+    },
+    {
+     "hearts": 6,
+     "blueprint": "railing",
+     "line": "My husband's railings. Every step in the village should have one. Mind you build them straight."
+    }
+   ]
+  },
+  {
+   "id": "olive_village_rosa",
+   "name": "Rosangela \"la Rosa\" Ardoino",
+   "pronoun": "she",
+   "title": "Keeps the osteria on the piazza",
+   "voice": 1.0,
+   "likes": [
+    "flowers",
+    "olive_village_basil",
+    "olive_village_mullet"
+   ],
+   "appearance": {
+    "skin": "f2c6a0",
+    "eyeShape": "happy",
+    "eyeColor": "3a2a1e",
+    "hair": "bun",
+    "hairColor": "3a2a22",
+    "mouth": "smile",
+    "top": "sweater",
+    "topColor": "c94a44",
+    "bottom": "skirt",
+    "bottomColor": "3a3a40",
+    "shoes": "boots",
+    "shoesColor": "3a2a1e",
+    "hat": "none",
+    "hatColor": "c94a44",
+    "accessory": "apron",
+    "body": {
+     "height": 0.98,
+     "width": 1.06,
+     "belly": 0.3
+    }
+   },
+   "home": "olive_village_osteria:spot",
+   "schedule": [
+    [
+     6,
+     23,
+     "olive_village_osteria:spot",
+     "work"
+    ]
+   ],
+   "when": [
+    {
+     "flag": "olive_village_festa_night",
+     "schedule": [
+      [
+       6,
+       20,
+       "olive_village_osteria:spot",
+       "work"
+      ],
+      [
+       20,
+       23,
+       "piazzaS",
+       "dance"
+      ]
+     ]
+    }
+   ],
+   "greetings": [
+    {
+     "flag": "olive_village_festa_done",
+     "lines": [
+      "He's home, Geometra. He's home and he's staying. I keep going to the window to check.",
+      "Luca has eaten three farinatas. Sara has eaten Luca's fourth. They're Ardoinos, all right."
+     ]
+    },
+    {
+     "flag": "olive_village_welcomed",
+     "lines": [
+      "Sit, sit! What'll it be? The farinata's just out of the oven.",
+      "Gambero's late for cards again. The mule track, you know. The broken bit.",
+      "The payphone works if you hit it on the left. Not the right. Never the right."
+     ]
+    },
+    {
+     "lines": [
+      "A new face in my osteria! Sit down. You look like someone who hasn't eaten since Serenza."
+     ]
+    }
+   ],
+   "sleepy": [
+    "Zzz… one more place… at the table…"
+   ],
+   "topics": [
+    {
+     "id": "davide",
+     "label": "Who do you set that extra place for?",
+     "lines": [
+      "My son, Davide. He went to work on the docks in Tonnarella ten years ago. Good money, he says. A flat with a lift, he says.",
+      "Every Sunday I set a place for him. He hasn't come yet. But you never know with Sundays."
+     ]
+    },
+    {
+     "id": "osteria",
+     "label": "How long have you had the osteria?",
+     "lines": [
+      "My father opened it in 1951. Card tables, the counter, and the payphone, which arrived in 1974 and has been broken since 1975.",
+      "Once it was full every night. Now it's full on Saturdays, if Gambero brings a friend."
+     ]
+    }
+   ],
+   "gifts": [
+    {
+     "hearts": 4,
+     "items": {
+      "olive_village_sardenaira": 1
+     },
+     "line": "Sardenaira, a whole slice. On the house. Don't tell the Sindaco, he'll want one in every cap."
+    },
+    {
+     "hearts": 6,
+     "blueprint": "counter",
+     "line": "The plans for my father's counter. Every village needs a counter where somebody's always on the other side of it."
+    }
+   ]
+  },
+  {
+   "id": "olive_village_giacomo",
+   "name": "Giacomo \"Gambero\" Viale",
+   "pronoun": "he",
+   "title": "The old fisherman",
+   "voice": 0.75,
+   "likes": [
+    "olive_village_farinata",
+    "olive_village_sardenaira",
+    "fish"
+   ],
+   "appearance": {
+    "skin": "c98a62",
+    "eyeShape": "sleepy",
+    "eyeColor": "3a2a1e",
+    "hair": "short",
+    "hairColor": "d8d8d8",
+    "mouth": "grin",
+    "top": "sailor",
+    "topColor": "2f4a7a",
+    "bottom": "pants",
+    "bottomColor": "3a4a5a",
+    "shoes": "boots",
+    "shoesColor": "2a2a2a",
+    "hat": "beanie",
+    "hatColor": "8a2f2f",
+    "accessory": "beard",
+    "body": {
+     "height": 0.92,
+     "width": 1.08,
+     "belly": 0.4
+    }
+   },
+   "home": "olive_village_boathouse:spot",
+   "schedule": [
+    [
+     6,
+     12,
+     "boathouse",
+     "work"
+    ],
+    [
+     12,
+     14,
+     "olive_village_boathouse:spot",
+     "idle"
+    ],
+    [
+     15,
+     19,
+     "olive_village_osteria:in",
+     "idle"
+    ],
+    [
+     19,
+     21,
+     "boathouse",
+     "idle"
+    ]
+   ],
+   "when": [
+    {
+     "flag": "olive_village_festa_night",
+     "schedule": [
+      [
+       6,
+       12,
+       "boathouse",
+       "work"
+      ],
+      [
+       12,
+       14,
+       "olive_village_boathouse:spot",
+       "idle"
+      ],
+      [
+       15,
+       19,
+       "olive_village_osteria:in",
+       "idle"
+      ],
+      [
+       19,
+       20,
+       "boathouse",
+       "idle"
+      ],
+      [
+       20,
+       23,
+       "osteria",
+       "idle"
+      ]
+     ]
+    }
+   ],
+   "greetings": [
+    {
+     "flag": "olive_village_steps_done",
+     "lines": [
+      "On time for cards! Every day this week! Rosa thinks I'm ill.",
+      "Up the steps forwards, down the steps backwards. Same as always. But now there are steps."
+     ]
+    },
+    {
+     "flag": "olive_village_jetty_done",
+     "lines": [
+      "Nobody needs carrying ashore any more. My shoulders are very grateful. My heart is a little sad.",
+      "The ferry ties up at your jetty like it owns it. Which it does, now."
+     ]
+    },
+    {
+     "flag": "olive_village_welcomed",
+     "lines": [
+      "Ah, my passenger! Lighter than the Germans. Much lighter than the Sindaco.",
+      "Mending nets. It's a job that never finishes. Like a conversation with Gina.",
+      "The mullet are biting off the rocks. Bring me one and I'll tell you how to cook it."
+     ]
+    },
+    {
+     "lines": [
+      "Hop on, Geometra. On my shoulders. Mind the hat."
+     ]
+    }
+   ],
+   "sleepy": [
+    "Zzz… backwards… backwards…"
+   ],
+   "topics": [
+    {
+     "id": "name",
+     "label": "Why do they call you Gambero?",
+     "lines": [
+      "Because I walk backwards down the mule track. Saves the knees. A shrimp knows what it's doing.",
+      "Been doing it since 1970. Never fallen once. Well. Once. The radio broke my fall."
+     ]
+    },
+    {
+     "id": "radio",
+     "label": "Was there ever a festa here?",
+     "lines": [
+      "Every June, till the young ones left. Lights in the piazza, the band from Tonnarella, petals from the bridge to the church.",
+      "I danced to a little transistor radio in 1962. With Delia's sister. Don't tell Delia. She knows. Don't tell her anyway."
+     ]
+    }
+   ],
+   "gifts": [
+    {
+     "hearts": 4,
+     "items": {
+      "fabric": 3
+     },
+     "line": "Old sailcloth. The boat doesn't need it. The boat doesn't need much, these days."
+    },
+    {
+     "hearts": 6,
+     "blueprint": "railLantern",
+     "line": "A lantern for a jetty post. The fishermen used to hang them so the boats could find home."
+    }
+   ]
+  },
+  {
+   "id": "olive_village_marisa",
+   "name": "Comandante Marisa \"Sirena\" Novaro",
+   "pronoun": "she",
+   "title": "Skipper of the ferry between Serenza, Liolivato and Tonnarella",
+   "voice": 1.1,
+   "likes": [
+    "olive_village_sardenaira",
+    "olive_village_cuttlefish",
+    "olive_village_farinata"
+   ],
+   "appearance": {
+    "skin": "e0aa80",
+    "eyeShape": "wide",
+    "eyeColor": "2a4a5a",
+    "hair": "ponytail",
+    "hairColor": "4a2a1e",
+    "mouth": "grin",
+    "top": "jacket",
+    "topColor": "1f2f4f",
+    "bottom": "pants",
+    "bottomColor": "f4f1ea",
+    "shoes": "boots",
+    "shoesColor": "2a2a2a",
+    "hat": "captain",
+    "hatColor": "1f2f4f",
+    "accessory": "none",
+    "body": {
+     "height": 1.06,
+     "width": 1.0,
+     "belly": 0.1
+    }
+   },
+   "home": "sirena",
+   "schedule": [
+    [
+     7,
+     10,
+     "landing",
+     "work"
+    ],
+    [
+     10,
+     13,
+     "sirena",
+     "idle"
+    ],
+    [
+     13,
+     15,
+     "cottage",
+     "idle"
+    ],
+    [
+     15,
+     18,
+     "landing",
+     "work"
+    ],
+    [
+     18,
+     21,
+     "sirena",
+     "idle"
+    ]
+   ],
+   "when": [
+    {
+     "flag": "olive_village_festa_night",
+     "schedule": [
+      [
+       7,
+       10,
+       "landing",
+       "work"
+      ],
+      [
+       10,
+       13,
+       "sirena",
+       "idle"
+      ],
+      [
+       13,
+       15,
+       "cottage",
+       "idle"
+      ],
+      [
+       15,
+       24,
+       "landing",
+       "work"
+      ]
+     ]
+    }
+   ],
+   "greetings": [
+    {
+     "flag": "olive_village_jetty_done",
+     "lines": [
+      "TOOT! Sorry. Habit. I toot for everyone I know, and I know everyone.",
+      "I stepped off my boat dry this morning. Dry! Twenty years I haven't had dry shoes in Liolivato."
+     ]
+    },
+    {
+     "flag": "olive_village_welcomed",
+     "lines": [
+      "TOOT! That one was for you.",
+      "Parcels from Tonnarella: one for the Sindaco, one for the Sandals, and one for nobody, which I'll open later.",
+      "I can't tie up to that stump. Gambero carries them. He says it's good exercise. His face says otherwise."
+     ]
+    },
+    {
+     "lines": [
+      "TOOT! Welcome to Liolivato. Mind the gap, it's mostly sea."
+     ]
+    }
+   ],
+   "sleepy": [
+    "Zzz… toot… toot…"
+   ],
+   "topics": [
+    {
+     "id": "horn",
+     "label": "Why do you toot so much?",
+     "lines": [
+      "You toot for people you know. It's manners. On this coast I know everybody, so it's a lot of manners.",
+      "The Sindaco toots back with a bicycle bell. It's not the same, but I appreciate the gesture."
+     ]
+    },
+    {
+     "id": "line",
+     "label": "Where does the ferry go?",
+     "lines": [
+      "Serenza, Liolivato, Tonnarella and back. Three stops, twice a day, weather permitting. The weather mostly permits.",
+      "Fewer passengers every year. Mostly parcels now. Parcels don't tip, but they don't get seasick either."
+     ]
+    }
+   ],
+   "gifts": [
+    {
+     "hearts": 4,
+     "items": {
+      "olive_village_cuttlefish": 1
+     },
+     "line": "A cuttlefish off the stern. Rosa does them with peas. You'll weep."
+    },
+    {
+     "hearts": 6,
+     "blueprint": "signpost",
+     "line": "Signposts! Ports need signposts. People get off a boat and stand there looking lost. It's bad for business."
+    }
+   ]
+  },
+  {
+   "id": "olive_village_ilario",
+   "name": "Ilario \"Fuco\" Anfossi",
+   "pronoun": "he",
+   "title": "The beekeeper",
+   "voice": 0.9,
+   "likes": [
+    "flowers",
+    "olive_village_stuffed",
+    "olive_village_beans"
+   ],
+   "appearance": {
+    "skin": "e8b890",
+    "eyeShape": "sleepy",
+    "eyeColor": "3a2a1e",
+    "hair": "curly",
+    "hairColor": "6a4a2a",
+    "mouth": "cat",
+    "top": "overalls",
+    "topColor": "f4f1ea",
+    "bottom": "pants",
+    "bottomColor": "f4f1ea",
+    "shoes": "boots",
+    "shoesColor": "6a5a40",
+    "hat": "sunhat",
+    "hatColor": "f4f1ea",
+    "accessory": "none",
+    "body": {
+     "height": 1.08,
+     "width": 0.94,
+     "belly": 0.0
+    }
+   },
+   "home": "fuco",
+   "schedule": [
+    [
+     6,
+     12,
+     "hives",
+     "work"
+    ],
+    [
+     12,
+     13,
+     "fuco",
+     "idle"
+    ],
+    [
+     13,
+     15,
+     "hives",
+     "sit"
+    ],
+    [
+     15,
+     19,
+     "hives",
+     "work"
+    ],
+    [
+     19,
+     21,
+     "fuco",
+     "idle"
+    ]
+   ],
+   "when": [
+    {
+     "flag": "olive_village_festa_night",
+     "schedule": [
+      [
+       6,
+       12,
+       "hives",
+       "work"
+      ],
+      [
+       12,
+       13,
+       "fuco",
+       "idle"
+      ],
+      [
+       13,
+       15,
+       "hives",
+       "sit"
+      ],
+      [
+       15,
+       19,
+       "hives",
+       "work"
+      ],
+      [
+       19,
+       20,
+       "fuco",
+       "idle"
+      ],
+      [
+       20,
+       23,
+       "churchSq",
+       "idle"
+      ]
+     ]
+    }
+   ],
+   "greetings": [
+    {
+     "flag": "olive_village_swarm_done",
+     "lines": [
+      "The swarm's settled in the new hives. They told me you'd stay. I told them I knew already.",
+      "The bells rang this morning, a few minutes late. The bees didn't mind. The Sindaco was very relieved."
+     ]
+    },
+    {
+     "flag": "olive_village_welcomed",
+     "lines": [
+      "Mm? Oh. I wasn't asleep. I was listening to the bees.",
+      "They say you'll stay. The bees. They're never wrong. Well. Once. The Germans fooled them too.",
+      "Broom honey this month. Chestnut honey in the summer. Both of them in my tea."
+     ]
+    },
+    {
+     "lines": [
+      "Shh. The bees are deciding about you."
+     ]
+    }
+   ],
+   "sleepy": [
+    "Zzz… mm… the bees say… mm…"
+   ],
+   "topics": [
+    {
+     "id": "bees",
+     "label": "Do your bees really know who'll stay?",
+     "lines": [
+      "They hum differently. A low hum for someone passing through. A high one for someone staying.",
+      "For you they hummed so high I had to sit down. Well. I sit down a lot. But that time it was the bees."
+     ]
+    },
+    {
+     "id": "name",
+     "label": "Why do they call you Fuco?",
+     "lines": [
+      "A fuco is a drone bee. Drones don't work, they say. They just lie about in the sun.",
+      "I work very hard. I just do it lying down, with my eyes closed, near the bees."
+     ]
+    }
+   ],
+   "gifts": [
+    {
+     "hearts": 4,
+     "items": {
+      "olive_village_honey": 2
+     },
+     "line": "Two jars of broom honey. One for you, one to give away. Bees like it when honey travels."
+    },
+    {
+     "hearts": 6,
+     "blueprint": "hedge",
+     "line": "Hedges for the hives, out of the wind. Plant them and the bees will thank you. Quietly."
+    }
+   ]
+  },
+  {
+   "id": "olive_village_davide",
+   "name": "Davide Ardoino",
+   "pronoun": "he",
+   "title": "Rosa's son, home from Tonnarella's docks",
+   "voice": 0.95,
+   "visitor": true,
+   "present": "olive_village_festa_night",
+   "likes": [],
+   "appearance": {
+    "skin": "f0c09a",
+    "eyeShape": "round",
+    "eyeColor": "3a2a1e",
+    "hair": "short",
+    "hairColor": "3a2a22",
+    "mouth": "smile",
+    "top": "jacket",
+    "topColor": "4a5a6a",
+    "bottom": "jeans",
+    "bottomColor": "3a4a6a",
+    "shoes": "sneakers",
+    "shoesColor": "f4f1ea",
+    "hat": "none",
+    "hatColor": "3a3a40",
+    "accessory": "none",
+    "body": {
+     "height": 1.08,
+     "width": 1.02,
+     "belly": 0.1
+    }
+   },
+   "home": "olive_village_empty_house:spot",
+   "schedule": [
+    [
+     8,
+     12,
+     "emptyDoor",
+     "idle"
+    ],
+    [
+     12,
+     15,
+     "osteria",
+     "idle"
+    ],
+    [
+     15,
+     19,
+     "piazzaN",
+     "idle"
+    ],
+    [
+     20,
+     23,
+     "piazzaN",
+     "dance"
+    ]
+   ],
+   "greetings": [
+    {
+     "lines": [
+      "The docks were good money. A flat with a lift. But the lift never had a sea view.",
+      "My mother set a place for me every Sunday for ten years. Tonight I sat in it."
+     ]
+    }
+   ],
+   "topics": [],
+   "gifts": []
+  },
+  {
+   "id": "olive_village_chiara",
+   "name": "Chiara Ardoino",
+   "pronoun": "she",
+   "title": "Davide's wife",
+   "voice": 1.1,
+   "visitor": true,
+   "present": "olive_village_festa_night",
+   "likes": [],
+   "appearance": {
+    "skin": "f2c9a0",
+    "eyeShape": "happy",
+    "eyeColor": "3a2a1e",
+    "hair": "long",
+    "hairColor": "7a4a2a",
+    "mouth": "smile",
+    "top": "shirt",
+    "topColor": "e8a0a8",
+    "bottom": "jeans",
+    "bottomColor": "3a4a6a",
+    "shoes": "sneakers",
+    "shoesColor": "f4f1ea",
+    "hat": "none",
+    "hatColor": "e8a0a8",
+    "accessory": "none",
+    "body": {
+     "height": 1.02,
+     "width": 0.96,
+     "belly": 0.0
+    }
+   },
+   "home": "emptyBack",
+   "schedule": [
+    [
+     8,
+     12,
+     "piazzaNE",
+     "idle"
+    ],
+    [
+     12,
+     15,
+     "emptyBack",
+     "idle"
+    ],
+    [
+     15,
+     19,
+     "piazzaNE",
+     "idle"
+    ],
+    [
+     20,
+     23,
+     "piazzaNE",
+     "dance"
+    ]
+   ],
+   "greetings": [
+    {
+     "lines": [
+      "Somebody made the house ready. Beds for the children, a lamp in the window. Rosa says it was the Geometra. Thank you.",
+      "Davide talked about the petals on the bridge for ten years. I thought he was exaggerating. He was underselling it."
+     ]
+    }
+   ],
+   "topics": [],
+   "gifts": []
+  },
+  {
+   "id": "olive_village_luca",
+   "name": "Luca Ardoino",
+   "pronoun": "he",
+   "title": "Davide and Chiara's son, aged seven",
+   "voice": 1.35,
+   "visitor": true,
+   "present": "olive_village_festa_night",
+   "likes": [],
+   "appearance": {
+    "skin": "f2c9a0",
+    "eyeShape": "wide",
+    "eyeColor": "3a2a1e",
+    "hair": "spiky",
+    "hairColor": "3a2a22",
+    "mouth": "grin",
+    "top": "tee",
+    "topColor": "e2b93b",
+    "bottom": "shorts",
+    "bottomColor": "3a5a8a",
+    "shoes": "sneakers",
+    "shoesColor": "c94a44",
+    "hat": "none",
+    "hatColor": "e2b93b",
+    "accessory": "none",
+    "body": {
+     "height": 0.88,
+     "width": 0.9,
+     "belly": 0.0
+    }
+   },
+   "home": "olive_village_empty_house:in",
+   "schedule": [
+    [
+     8,
+     12,
+     "piazzaSW",
+     "idle"
+    ],
+    [
+     12,
+     15,
+     "olive_village_empty_house:in",
+     "idle"
+    ],
+    [
+     15,
+     19,
+     "piazzaSW",
+     "idle"
+    ],
+    [
+     20,
+     23,
+     "piazzaSW",
+     "dance"
+    ]
+   ],
+   "greetings": [
+    {
+     "lines": [
+      "Is it true you sleep on benches? Can I sleep on a bench? Mamma says no.",
+      "Nonna Rosa has a tin boat on her counter. She says it was Papà's. Papà says he never had a boat. Papà's going red."
+     ]
+    }
+   ],
+   "topics": [],
+   "gifts": []
+  },
+  {
+   "id": "olive_village_sara",
+   "name": "Sara Ardoino",
+   "pronoun": "she",
+   "title": "Davide and Chiara's daughter, aged five",
+   "voice": 1.45,
+   "visitor": true,
+   "present": "olive_village_festa_night",
+   "likes": [],
+   "appearance": {
+    "skin": "f2c9a0",
+    "eyeShape": "sparkle",
+    "eyeColor": "3a2a1e",
+    "hair": "pigtails",
+    "hairColor": "3a2a22",
+    "mouth": "smile",
+    "top": "tee",
+    "topColor": "ff8fab",
+    "bottom": "skirt",
+    "bottomColor": "6cc4ff",
+    "shoes": "sneakers",
+    "shoesColor": "ff8fab",
+    "hat": "bow",
+    "hatColor": "ff8fab",
+    "accessory": "none",
+    "body": {
+     "height": 0.88,
+     "width": 0.9,
+     "belly": 0.0
+    }
+   },
+   "home": "olive_village_osteria:in",
+   "schedule": [
+    [
+     8,
+     12,
+     "piazzaNW",
+     "idle"
+    ],
+    [
+     12,
+     15,
+     "olive_village_osteria:in",
+     "idle"
+    ],
+    [
+     15,
+     19,
+     "piazzaNW",
+     "idle"
+    ],
+    [
+     20,
+     23,
+     "piazzaNW",
+     "dance"
+    ]
+   ],
+   "greetings": [
+    {
+     "lines": [
+      "The lady with the camera took my photo forty times. I counted. Then I lost count.",
+      "I like the cats here. They sleep on the steps. I'm going to sleep on the steps."
+     ]
+    }
+   ],
+   "topics": [],
+   "gifts": []
+  }
+ ]
+}

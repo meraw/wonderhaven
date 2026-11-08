@@ -36,6 +36,11 @@ func test_villagers_have_bodies_of_their_own():
 	var mayor: Dictionary = Data.npcs.filter(func(n): return n.id == "percival")[0]
 	t.ok(float(mayor.appearance.body.belly) > 0.5, "the Sindaco has his round belly")
 
+func test_colours_written_without_a_hash_are_kept():
+	var a := Chibi.sanitize({"skin": "f2c9a0", "hairColor": "pink"})
+	t.eq(a.skin, "f2c9a0", "a skin colour written without its hash is kept")
+	t.eq(a.hairColor, Data.appearance["default"].hairColor, "a word that isn't a colour falls back to the default")
+
 func test_clothes_are_cut_from_their_own_fabric():
 	t.ok(Palette.real, "with realistic materials")
 	var jeans := Chibi.new({"bottom": "jeans", "shoes": "boots"})

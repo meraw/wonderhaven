@@ -6,7 +6,7 @@ var t
 var statics: Array
 
 ## The places whose every building step has a plan (the others' are their owners' to add).
-const PLACES := ["hearthglow", "river_town"]
+const PLACES := ["hearthglow", "river_town", "olive_village"]
 
 func _init() -> void:
 	statics = WorldStatics.build_statics(WorldStatics.generate_decor())
@@ -30,7 +30,7 @@ func _build(q: Dictionary, placements: Array, flags_for: Callable = func(_o): re
 		var here := WorldStatics.build_statics(WorldStatics.generate_decor()) if Data.island != "hearthglow" else statics
 		var zone := Data.zone(String(o.get("zone", "")))
 		for pl in Plans.lay_out(o.plan, zone, placements):
-			var y := BuildGrid.suggest_bottom(pl.id, pl.i, pl.k, int(pl.r), 10.0, placements, zone)
+			var y := BuildGrid.suggest_bottom(pl.id, pl.i, pl.k, int(pl.r), float(zone.get("floorY", 0.0)) + 10.0, placements, zone)
 			if absf(y - float(pl.y)) > 0.01:
 				t.ok(false, "%s: the ghost %s at (%d, %d) sits at %.2f, but builds at %.2f" % [q.id, pl.id, pl.i, pl.k, pl.y, y]); return false
 			pl.uid = placements.size() + 1
@@ -92,6 +92,12 @@ func test_boccapioppos_plans_work():
 	var launched := func(o): return {"river_town_launched": true} if o.id == "cosy" else {}
 	for q in Data.quests.filter(func(x): return Data.quest_island(x.id) == "river_town"):
 		if q.objectives.any(func(o): return o.has("plan")): _build(q, [], launched)
+	Data.use_island("hearthglow")
+
+func test_liolivatos_plans_work():
+	Data.use_island("olive_village")
+	for q in Data.quests.filter(func(x): return Data.quest_island(x.id) == "olive_village"):
+		if q.objectives.any(func(o): return o.has("plan")): _build(q, [])
 	Data.use_island("hearthglow")
 
 ## What a request has you gather pays for following its plans (gifts on accepting are in your bag, so they count
