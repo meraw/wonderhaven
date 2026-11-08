@@ -1,0 +1,1404 @@
+{
+ "size": 180.0,
+ "spawn": {
+  "x": 23.5,
+  "z": 57.0,
+  "yaw": 3.14159
+ },
+ "square": {
+  "x": -20.0,
+  "z": -6.0,
+  "r": 8.5
+ },
+ "grassColors": [
+  "b5a868",
+  "a39a5c",
+  "c8b878"
+ ],
+ "safeSpot": "beach",
+ "safeText": "Back on the pebbles at the cove.",
+ "decor": {
+  "radius": 88,
+  "trees": 30,
+  "bushes": 60,
+  "flowers": 260,
+  "woods": [
+   {
+    "x": 40.0,
+    "z": -73.0,
+    "r": 13,
+    "n": 30,
+    "pine": 0.05
+   },
+   {
+    "x": -38.0,
+    "z": -75.0,
+    "r": 13,
+    "n": 30,
+    "pine": 0.05
+   },
+   {
+    "x": -60.0,
+    "z": 32.0,
+    "r": 12,
+    "n": 16,
+    "pine": 0.85
+   },
+   {
+    "x": 60.0,
+    "z": 46.0,
+    "r": 8,
+    "n": 8,
+    "pine": 0.6
+   }
+  ]
+ },
+ "ground": [
+  {
+   "kind": "setts",
+   "circle": [
+    -20.0,
+    -6.0,
+    8.5
+   ]
+  },
+  {
+   "kind": "slabs",
+   "rect": [
+    -39.0,
+    -24.5,
+    -29.0,
+    -15.5
+   ]
+  },
+  {
+   "kind": "slabs",
+   "rect": [
+    -4.5,
+    9.2,
+    1.5,
+    14.8
+   ]
+  },
+  {
+   "kind": "slabs",
+   "rect": [
+    11.3,
+    9.2,
+    17.7,
+    14.8
+   ]
+  },
+  {
+   "kind": "slabs",
+   "rect": [
+    -25.75,
+    8.8,
+    -13.75,
+    20.8
+   ]
+  },
+  {
+   "kind": "slabs",
+   "line": [
+    [
+     -1.5,
+     12.0
+    ],
+    [
+     -9.0,
+     3.0
+    ],
+    [
+     -12.6,
+     -4.6
+    ]
+   ],
+   "w": 2.4
+  },
+  {
+   "kind": "gravel",
+   "line": [
+    [
+     36.5,
+     54.0
+    ],
+    [
+     52.0,
+     47.0
+    ],
+    [
+     30.0,
+     42.0
+    ],
+    [
+     50.0,
+     36.0
+    ],
+    [
+     30.0,
+     28.0
+    ],
+    [
+     50.0,
+     22.0
+    ],
+    [
+     26.0,
+     14.0
+    ],
+    [
+     17.5,
+     12.5
+    ]
+   ],
+   "w": 3.2
+  }
+ ],
+ "buildings": [
+  {
+   "id": "olive_village_osteria",
+   "kind": "osteria",
+   "name": "Rosa's osteria",
+   "x": -20.0,
+   "z": -18.6,
+   "w": 8.0,
+   "d": 4.8,
+   "h": 5.5,
+   "door": "S"
+  },
+  {
+   "id": "olive_village_empty_house",
+   "kind": "house",
+   "name": "The empty house",
+   "x": -10.5,
+   "z": -18.6,
+   "w": 4.4,
+   "d": 4.8,
+   "h": 5.0,
+   "door": "S"
+  },
+  {
+   "id": "olive_village_barber",
+   "kind": "barber",
+   "name": "The barber shop and town hall",
+   "x": -31.5,
+   "z": -6.0,
+   "w": 4.6,
+   "d": 6.4,
+   "h": 5.5,
+   "door": "E"
+  },
+  {
+   "id": "olive_village_washhouse",
+   "kind": "washhouse",
+   "name": "The wash-house",
+   "x": -7.0,
+   "z": -3.0,
+   "w": 4.4,
+   "d": 3.6,
+   "h": 2.8,
+   "door": "W",
+   "wall": "a39a8a"
+  },
+  {
+   "id": "olive_village_sandals",
+   "kind": "house",
+   "name": "The Sandals' house",
+   "x": -17.0,
+   "z": 11.8,
+   "w": 5.0,
+   "d": 5.0,
+   "h": 5.0,
+   "door": "N"
+  },
+  {
+   "id": "olive_village_church",
+   "kind": "church",
+   "name": "The church",
+   "x": -34.0,
+   "z": -32.0,
+   "w": 7.0,
+   "d": 12.0,
+   "h": 7.0,
+   "door": "S"
+  },
+  {
+   "id": "olive_village_castle_tower",
+   "kind": "tower",
+   "name": "The castle's broken tower",
+   "x": -46.5,
+   "z": -63.5,
+   "w": 3.4,
+   "d": 3.4,
+   "h": 7.0,
+   "wall": "a39a8a"
+  },
+  {
+   "id": "olive_village_house_1",
+   "kind": "house",
+   "name": "A house",
+   "x": -45.0,
+   "z": -6.0,
+   "w": 4.6,
+   "d": 4.6,
+   "h": 6.0,
+   "door": "E"
+  },
+  {
+   "id": "olive_village_delia",
+   "kind": "house",
+   "name": "Nonna Delia's house",
+   "x": -39.0,
+   "z": 5.0,
+   "w": 4.6,
+   "d": 4.6,
+   "h": 5.5,
+   "door": "S"
+  },
+  {
+   "id": "olive_village_gina",
+   "kind": "house",
+   "name": "Nonna Gina's house",
+   "x": -31.0,
+   "z": 4.5,
+   "w": 4.6,
+   "d": 4.6,
+   "h": 5.5,
+   "door": "S"
+  },
+  {
+   "id": "olive_village_house_4",
+   "kind": "house",
+   "name": "A house",
+   "x": -9.5,
+   "z": 9.5,
+   "w": 4.6,
+   "d": 4.6,
+   "h": 5.0,
+   "door": "W"
+  },
+  {
+   "id": "olive_village_house_5",
+   "kind": "house",
+   "name": "An empty house",
+   "x": -9.0,
+   "z": 21.0,
+   "w": 4.6,
+   "d": 4.6,
+   "h": 5.0,
+   "door": "N"
+  },
+  {
+   "id": "olive_village_house_6",
+   "kind": "house",
+   "name": "An empty house",
+   "x": -31.0,
+   "z": 19.0,
+   "w": 4.6,
+   "d": 4.6,
+   "h": 5.0,
+   "door": "N"
+  },
+  {
+   "id": "olive_village_house_7",
+   "kind": "house",
+   "name": "A house",
+   "x": -48.0,
+   "z": -30.0,
+   "w": 4.6,
+   "d": 4.6,
+   "h": 6.0,
+   "door": "E"
+  },
+  {
+   "id": "olive_village_house_8",
+   "kind": "house",
+   "name": "A house",
+   "x": -24.0,
+   "z": -33.0,
+   "w": 4.6,
+   "d": 4.6,
+   "h": 6.0,
+   "door": "S"
+  },
+  {
+   "id": "olive_village_house_9",
+   "kind": "house",
+   "name": "An empty house",
+   "x": -14.0,
+   "z": -31.0,
+   "w": 4.6,
+   "d": 4.6,
+   "h": 6.0,
+   "door": "S"
+  },
+  {
+   "id": "olive_village_house_10",
+   "kind": "house",
+   "name": "A house",
+   "x": -30.0,
+   "z": -46.0,
+   "w": 4.6,
+   "d": 4.6,
+   "h": 6.0,
+   "door": "S"
+  },
+  {
+   "id": "olive_village_house_11",
+   "kind": "house",
+   "name": "An empty house",
+   "x": -52.0,
+   "z": -46.0,
+   "w": 4.6,
+   "d": 4.6,
+   "h": 5.0,
+   "door": "E"
+  },
+  {
+   "id": "olive_village_tank",
+   "kind": "tank",
+   "name": "The old stone tank",
+   "x": 15.0,
+   "z": 40.4,
+   "w": 2.6,
+   "d": 2.0,
+   "h": 1.2,
+   "wall": "a39a8a"
+  },
+  {
+   "id": "olive_village_farmhouse",
+   "kind": "farmhouse",
+   "name": "Bastian's farmhouse",
+   "x": 38.0,
+   "z": 3.6,
+   "w": 6.0,
+   "d": 5.0,
+   "h": 5.0,
+   "door": "W"
+  },
+  {
+   "id": "olive_village_fuco_hut",
+   "kind": "hut",
+   "name": "Fuco's hut",
+   "x": 40.0,
+   "z": -67.2,
+   "w": 3.0,
+   "d": 2.6,
+   "h": 3.0,
+   "door": "W",
+   "wall": "a39a8a"
+  },
+  {
+   "id": "olive_village_boathouse",
+   "kind": "boathouse",
+   "name": "Gambero's boathouse",
+   "x": 16.5,
+   "z": 54.8,
+   "w": 4.4,
+   "d": 3.6,
+   "h": 3.6,
+   "door": "N"
+  },
+  {
+   "id": "olive_village_sirena",
+   "kind": "cottage",
+   "name": "Sirena's cottage",
+   "x": 25.5,
+   "z": 52.5,
+   "w": 4.4,
+   "d": 3.6,
+   "h": 4.2,
+   "door": "N"
+  },
+  {
+   "id": "olive_village_cottage",
+   "kind": "cottage",
+   "name": "A cottage",
+   "x": 31.5,
+   "z": 52.0,
+   "w": 4.4,
+   "d": 3.6,
+   "h": 4.2,
+   "door": "N"
+  }
+ ],
+ "machines": [
+  {
+   "id": "olive_village_tank",
+   "cell": [
+    12,
+    40
+   ],
+   "side": "E",
+   "type": "water",
+   "label": "The old stone tank's inlet"
+  }
+ ],
+ "zones": [
+  {
+   "id": "olive_village_jetty",
+   "name": "The jetty",
+   "minI": 20,
+   "maxI": 24,
+   "minK": 58,
+   "maxK": 71,
+   "endpoints": {
+    "a": {
+     "minI": 20,
+     "maxI": 24,
+     "minK": 58,
+     "maxK": 58
+    },
+    "b": {
+     "minI": 20,
+     "maxI": 24,
+     "minK": 71,
+     "maxK": 71
+    }
+   }
+  },
+  {
+   "id": "olive_village_works",
+   "name": "Below the bridge",
+   "minI": 7,
+   "maxI": 17,
+   "minK": 18,
+   "maxK": 42
+  },
+  {
+   "id": "olive_village_wall",
+   "name": "The fallen terrace",
+   "minI": 34,
+   "maxI": 45,
+   "minK": -20,
+   "maxK": -15,
+   "endpoints": {
+    "a": {
+     "minI": 34,
+     "maxI": 45,
+     "minK": -15,
+     "maxK": -15
+    },
+    "b": {
+     "minI": 34,
+     "maxI": 45,
+     "minK": -20,
+     "maxK": -20
+    }
+   }
+  },
+  {
+   "id": "olive_village_house",
+   "name": "Your house",
+   "minI": -25,
+   "maxI": -20,
+   "minK": 9,
+   "maxK": 14,
+   "unlock": {
+    "quest": "olive_village_welcome"
+   }
+  },
+  {
+   "id": "olive_village_plot",
+   "name": "Your terrace",
+   "minI": -25,
+   "maxI": -20,
+   "minK": 16,
+   "maxK": 20,
+   "unlock": {
+    "flag": "olive_village_plot"
+   },
+   "expanded": {
+    "harmony": 5,
+    "minI": -26,
+    "maxI": -20,
+    "minK": 16,
+    "maxK": 21
+   }
+  },
+  {
+   "id": "olive_village_sunset",
+   "name": "The Sandals' terrace",
+   "minI": -19,
+   "maxI": -15,
+   "minK": 15,
+   "maxK": 19
+  },
+  {
+   "id": "olive_village_hives",
+   "name": "The broom terrace",
+   "minI": 48,
+   "maxI": 57,
+   "minK": -59,
+   "maxK": -54
+  },
+  {
+   "id": "olive_village_steps",
+   "name": "Gambero's steps",
+   "minI": 19,
+   "maxI": 21,
+   "minK": 29,
+   "maxK": 33,
+   "endpoints": {
+    "a": {
+     "minI": 19,
+     "maxI": 21,
+     "minK": 33,
+     "maxK": 33
+    },
+    "b": {
+     "minI": 19,
+     "maxI": 21,
+     "minK": 29,
+     "maxK": 29
+    }
+   }
+  },
+  {
+   "id": "olive_village_carpet",
+   "name": "From the bridge to the piazza",
+   "minI": -11,
+   "maxI": 0,
+   "minK": -6,
+   "maxK": 13
+  },
+  {
+   "id": "olive_village_piazza",
+   "name": "The piazza",
+   "minI": -28,
+   "maxI": -12,
+   "minK": -14,
+   "maxK": 2,
+   "open": true
+  }
+ ],
+ "nodes": [
+  {
+   "id": "olive_village_chestnut0",
+   "kind": "chop",
+   "x": 28.0,
+   "z": -74.0
+  },
+  {
+   "id": "olive_village_chestnut1",
+   "kind": "chop",
+   "x": 46.0,
+   "z": -75.0
+  },
+  {
+   "id": "olive_village_chestnut2",
+   "kind": "chop",
+   "x": 60.0,
+   "z": -70.0
+  },
+  {
+   "id": "olive_village_chestnut3",
+   "kind": "chop",
+   "x": 68.0,
+   "z": -78.0
+  },
+  {
+   "id": "olive_village_chestnut4",
+   "kind": "chop",
+   "x": -24.0,
+   "z": -74.0
+  },
+  {
+   "id": "olive_village_chestnut5",
+   "kind": "chop",
+   "x": -36.0,
+   "z": -77.0
+  },
+  {
+   "id": "olive_village_chestnut6",
+   "kind": "chop",
+   "x": -58.0,
+   "z": -72.0
+  },
+  {
+   "id": "olive_village_chestnut7",
+   "kind": "chop",
+   "x": -64.0,
+   "z": -62.0
+  },
+  {
+   "id": "olive_village_stone0",
+   "kind": "mine",
+   "x": 36.5,
+   "z": -12.0
+  },
+  {
+   "id": "olive_village_stone1",
+   "kind": "mine",
+   "x": 43.5,
+   "z": -11.3
+  },
+  {
+   "id": "olive_village_stone2",
+   "kind": "mine",
+   "x": -60.0,
+   "z": -40.0
+  },
+  {
+   "id": "olive_village_stone3",
+   "kind": "mine",
+   "x": -62.0,
+   "z": -48.0
+  },
+  {
+   "id": "olive_village_stone4",
+   "kind": "mine",
+   "x": 26.0,
+   "z": -46.0
+  },
+  {
+   "id": "olive_village_stone5",
+   "kind": "mine",
+   "x": 48.0,
+   "z": -36.0
+  },
+  {
+   "id": "olive_village_flowers0",
+   "kind": "flowers",
+   "x": 58.0,
+   "z": -46.0
+  },
+  {
+   "id": "olive_village_flowers1",
+   "kind": "flowers",
+   "x": 66.0,
+   "z": -24.0
+  },
+  {
+   "id": "olive_village_flowers2",
+   "kind": "flowers",
+   "x": -60.0,
+   "z": 30.0
+  },
+  {
+   "id": "olive_village_flowers3",
+   "kind": "flowers",
+   "x": 34.0,
+   "z": -40.0
+  },
+  {
+   "id": "olive_village_flowers4",
+   "kind": "flowers",
+   "x": 50.0,
+   "z": -28.0
+  },
+  {
+   "id": "olive_village_fish0",
+   "kind": "fish",
+   "x": 24.5,
+   "z": 60.4,
+   "facing": 0
+  },
+  {
+   "id": "olive_village_fish1",
+   "kind": "fish",
+   "x": 36.0,
+   "z": 60.6,
+   "facing": 0
+  },
+  {
+   "id": "olive_village_fish2",
+   "kind": "fish",
+   "x": 44.0,
+   "z": 60.0,
+   "facing": 0
+  }
+ ],
+ "features": [
+  {
+   "id": "boat",
+   "kind": "boat",
+   "x": 22.0,
+   "z": 60.0,
+   "label": "Take the ferry",
+   "depart_label": "Take the ferry"
+  },
+  {
+   "id": "olive_village_sign",
+   "kind": "sign",
+   "x": -4.0,
+   "z": 14.2,
+   "text": "Liolivato. 38 inhabitants."
+  },
+  {
+   "id": "olive_village_bench_piazza",
+   "kind": "bench",
+   "x": -14.0,
+   "z": -10.5,
+   "r": 1
+  },
+  {
+   "id": "olive_village_bench_bridge",
+   "kind": "bench",
+   "x": 13.0,
+   "z": 14.6,
+   "r": 2
+  },
+  {
+   "id": "olive_village_bench_cove",
+   "kind": "bench",
+   "x": 29.0,
+   "z": 58.6,
+   "r": 2
+  },
+  {
+   "id": "olive_village_bench_church",
+   "kind": "bench",
+   "x": -37.5,
+   "z": -18.0,
+   "r": 1
+  },
+  {
+   "id": "olive_village_bench_castle",
+   "kind": "bench",
+   "x": -40.0,
+   "z": -57.5,
+   "r": 3
+  }
+ ],
+ "nav_nodes": {
+  "beach": [
+   23.0,
+   57.8
+  ],
+  "boathouse": [
+   16.5,
+   52.2
+  ],
+  "sirena": [
+   25.5,
+   50.0
+  ],
+  "cottage": [
+   31.5,
+   49.4
+  ],
+  "muleFoot": [
+   20.5,
+   50.0
+  ],
+  "mule1": [
+   20.2,
+   38.6
+  ],
+  "mule2": [
+   19.7,
+   27.0
+  ],
+  "mule3": [
+   18.5,
+   15.5
+  ],
+  "tank": [
+   13.0,
+   38.4
+  ],
+  "rampTop": [
+   13.5,
+   37.0
+  ],
+  "rampFoot": [
+   12.0,
+   27.5
+  ],
+  "millShelf": [
+   12.0,
+   23.0
+  ],
+  "cartFoot": [
+   36.5,
+   54.0
+  ],
+  "cart1": [
+   52.0,
+   47.0
+  ],
+  "cart2": [
+   30.0,
+   42.0
+  ],
+  "cart3": [
+   50.0,
+   36.0
+  ],
+  "cart4": [
+   30.0,
+   28.0
+  ],
+  "cart5": [
+   50.0,
+   22.0
+  ],
+  "cart6": [
+   26.0,
+   14.0
+  ],
+  "bridgeE": [
+   15.5,
+   12.0
+  ],
+  "bridgeTop": [
+   6.65,
+   12.0
+  ],
+  "bridgeW": [
+   -1.5,
+   12.0
+  ],
+  "farmLane": [
+   15.7,
+   1.0
+  ],
+  "bastian": [
+   33.0,
+   1.0
+  ],
+  "tpFallen": [
+   16.4,
+   -13.8
+  ],
+  "fallenFoot": [
+   40.0,
+   -10.4
+  ],
+  "fallenTop": [
+   40.0,
+   -21.5
+  ],
+  "tp2": [
+   17.5,
+   -25.0
+  ],
+  "tp3": [
+   21.0,
+   -40.0
+  ],
+  "tp4": [
+   27.0,
+   -54.0
+  ],
+  "broomJct": [
+   30.3,
+   -56.6
+  ],
+  "hives": [
+   52.0,
+   -55.5
+  ],
+  "fuco": [
+   37.0,
+   -62.0
+  ],
+  "gate": [
+   -9.0,
+   3.0
+  ],
+  "wash": [
+   -10.6,
+   -3.0
+  ],
+  "piazzaE": [
+   -12.6,
+   -4.6
+  ],
+  "piazza": [
+   -20.0,
+   -6.0
+  ],
+  "osteria": [
+   -20.0,
+   -15.4
+  ],
+  "emptyDoor": [
+   -10.5,
+   -15.4
+  ],
+  "barber": [
+   -28.4,
+   -6.0
+  ],
+  "churchSq": [
+   -31.0,
+   -19.0
+  ],
+  "churchDoor": [
+   -34.0,
+   -24.8
+  ],
+  "westLane": [
+   -41.5,
+   -22.0
+  ],
+  "castleLane": [
+   -42.5,
+   -48.0
+  ],
+  "castle": [
+   -43.0,
+   -58.0
+  ],
+  "sandals": [
+   -17.0,
+   8.6
+  ],
+  "yourHouse": [
+   -22.25,
+   8.6
+  ]
+ },
+ "nav_edges": [
+  [
+   "beach",
+   "muleFoot"
+  ],
+  [
+   "beach",
+   "cartFoot"
+  ],
+  [
+   "muleFoot",
+   "boathouse"
+  ],
+  [
+   "muleFoot",
+   "sirena"
+  ],
+  [
+   "sirena",
+   "cottage"
+  ],
+  [
+   "muleFoot",
+   "mule1"
+  ],
+  [
+   "mule1",
+   "tank"
+  ],
+  [
+   "tank",
+   "rampTop"
+  ],
+  [
+   "rampTop",
+   "rampFoot"
+  ],
+  [
+   "rampFoot",
+   "millShelf"
+  ],
+  [
+   "cartFoot",
+   "cart1"
+  ],
+  [
+   "cart1",
+   "cart2"
+  ],
+  [
+   "cart2",
+   "cart3"
+  ],
+  [
+   "cart3",
+   "cart4"
+  ],
+  [
+   "cart4",
+   "cart5"
+  ],
+  [
+   "cart5",
+   "cart6"
+  ],
+  [
+   "cart6",
+   "bridgeE"
+  ],
+  [
+   "mule2",
+   "mule3"
+  ],
+  [
+   "mule3",
+   "bridgeE"
+  ],
+  [
+   "bridgeE",
+   "bridgeTop"
+  ],
+  [
+   "bridgeTop",
+   "bridgeW"
+  ],
+  [
+   "bridgeE",
+   "farmLane"
+  ],
+  [
+   "farmLane",
+   "bastian"
+  ],
+  [
+   "farmLane",
+   "tpFallen"
+  ],
+  [
+   "tpFallen",
+   "fallenFoot"
+  ],
+  [
+   "fallenFoot",
+   "fallenTop"
+  ],
+  [
+   "tpFallen",
+   "tp2"
+  ],
+  [
+   "tp2",
+   "tp3"
+  ],
+  [
+   "tp3",
+   "tp4"
+  ],
+  [
+   "tp4",
+   "broomJct"
+  ],
+  [
+   "broomJct",
+   "hives"
+  ],
+  [
+   "broomJct",
+   "fuco"
+  ],
+  [
+   "bridgeW",
+   "gate"
+  ],
+  [
+   "gate",
+   "wash"
+  ],
+  [
+   "wash",
+   "piazzaE"
+  ],
+  [
+   "piazzaE",
+   "piazza"
+  ],
+  [
+   "piazza",
+   "osteria"
+  ],
+  [
+   "osteria",
+   "emptyDoor"
+  ],
+  [
+   "piazza",
+   "barber"
+  ],
+  [
+   "piazza",
+   "churchSq"
+  ],
+  [
+   "churchSq",
+   "churchDoor"
+  ],
+  [
+   "churchSq",
+   "westLane"
+  ],
+  [
+   "westLane",
+   "castleLane"
+  ],
+  [
+   "castleLane",
+   "castle"
+  ],
+  [
+   "gate",
+   "sandals"
+  ],
+  [
+   "sandals",
+   "yourHouse"
+  ]
+ ],
+ "paths": [
+  [
+   [
+    -1.5,
+    12.0
+   ],
+   [
+    -9.0,
+    3.0
+   ],
+   [
+    -12.6,
+    -4.6
+   ]
+  ],
+  [
+   [
+    -20.0,
+    -6.0
+   ],
+   [
+    -31.0,
+    -19.0
+   ],
+   [
+    -41.5,
+    -22.0
+   ],
+   [
+    -42.5,
+    -48.0
+   ],
+   [
+    -43.0,
+    -58.0
+   ]
+  ],
+  [
+   [
+    15.5,
+    9.0
+   ],
+   [
+    16.0,
+    -10.0
+   ],
+   [
+    17.5,
+    -25.0
+   ],
+   [
+    21.0,
+    -40.0
+   ],
+   [
+    27.0,
+    -54.0
+   ],
+   [
+    37.0,
+    -62.0
+   ]
+  ]
+ ],
+ "floors": [
+  {
+   "id": "olive_village_bridge_w",
+   "rect": [
+    2.0,
+    10.9,
+    5.9,
+    13.1
+   ],
+   "rise": [
+    8.3,
+    9.9
+   ],
+   "axis": "x",
+   "bottom": 7.5
+  },
+  {
+   "id": "olive_village_bridge_crown",
+   "rect": [
+    5.9,
+    10.9,
+    7.4,
+    13.1
+   ],
+   "top": 9.9,
+   "bottom": 7.5
+  },
+  {
+   "id": "olive_village_bridge_e",
+   "rect": [
+    7.4,
+    10.9,
+    11.3,
+    13.1
+   ],
+   "rise": [
+    9.9,
+    8.3
+   ],
+   "axis": "x",
+   "bottom": 7.5
+  },
+  {
+   "id": "olive_village_parapet_wn",
+   "rect": [
+    2.0,
+    10.55,
+    5.9,
+    10.9
+   ],
+   "rise": [
+    9.200000000000001,
+    10.8
+   ],
+   "axis": "x",
+   "bottom": 7.5,
+   "walkable": false
+  },
+  {
+   "id": "olive_village_parapet_cn",
+   "rect": [
+    5.9,
+    10.55,
+    7.4,
+    10.9
+   ],
+   "top": 10.8,
+   "bottom": 7.5,
+   "walkable": false
+  },
+  {
+   "id": "olive_village_parapet_en",
+   "rect": [
+    7.4,
+    10.55,
+    11.3,
+    10.9
+   ],
+   "rise": [
+    10.8,
+    9.200000000000001
+   ],
+   "axis": "x",
+   "bottom": 7.5,
+   "walkable": false
+  },
+  {
+   "id": "olive_village_parapet_ws",
+   "rect": [
+    2.0,
+    13.1,
+    5.9,
+    13.45
+   ],
+   "rise": [
+    9.200000000000001,
+    10.8
+   ],
+   "axis": "x",
+   "bottom": 7.5,
+   "walkable": false
+  },
+  {
+   "id": "olive_village_parapet_cs",
+   "rect": [
+    5.9,
+    13.1,
+    7.4,
+    13.45
+   ],
+   "top": 10.8,
+   "bottom": 7.5,
+   "walkable": false
+  },
+  {
+   "id": "olive_village_parapet_es",
+   "rect": [
+    7.4,
+    13.1,
+    11.3,
+    13.45
+   ],
+   "rise": [
+    10.8,
+    9.200000000000001
+   ],
+   "axis": "x",
+   "bottom": 7.5,
+   "walkable": false
+  }
+ ],
+ "props": [
+  {
+   "kind": "ruin_wall",
+   "x": -22.25,
+   "z": 9.7,
+   "r": 0.0,
+   "length": 5.0,
+   "seed": 3
+  },
+  {
+   "kind": "ruin_wall",
+   "x": -24.9,
+   "z": 12.0,
+   "r": 1.5708,
+   "length": 4.6,
+   "seed": 5
+  },
+  {
+   "kind": "ruin_wall",
+   "x": -22.25,
+   "z": 14.3,
+   "r": 0.0,
+   "length": 5.0,
+   "seed": 7
+  },
+  {
+   "kind": "ruin_wall",
+   "x": -44.0,
+   "z": -66.5,
+   "r": 0.0,
+   "length": 10.0,
+   "seed": 11
+  },
+  {
+   "kind": "ruin_wall",
+   "x": -50.5,
+   "z": -61.0,
+   "r": 1.5708,
+   "length": 9.0,
+   "seed": 13
+  },
+  {
+   "kind": "ruin_wall",
+   "x": -38.5,
+   "z": -63.0,
+   "r": 1.5708,
+   "length": 6.0,
+   "seed": 17
+  },
+  {
+   "kind": "rock",
+   "x": 21.5,
+   "z": 59.8,
+   "s": 0.8
+  },
+  {
+   "kind": "rock",
+   "x": 22.6,
+   "z": 60.6,
+   "s": 0.7
+  },
+  {
+   "kind": "rock",
+   "x": 22.0,
+   "z": 61.4,
+   "s": 0.6
+  }
+ ]
+}

@@ -1,0 +1,77 @@
+{
+ "name": "Liolivato",
+ "desc": "A hill village of whitewash and stone above its fishing cove: olive terraces, a hump-backed bridge, and 38 inhabitants.",
+ "x": 470,
+ "y": 455,
+ "r": 46,
+ "color": "c9c27a",
+ "reveal": "olive_village_revealed",
+ "day": {
+  "regrow": "overnight",
+  "hold": false
+ },
+ "look": {
+  "shade": [
+   0.02,
+   0.012,
+   0.0
+  ],
+  "light": [
+   1.06,
+   1.0,
+   0.9
+  ],
+  "wind": 0.6,
+  "sun_peak": 58,
+  "weather": [
+   "clear",
+   "fair",
+   "drizzle"
+  ],
+  "life": {
+   "motes": 0.6,
+   "fireflies": 0.9,
+   "leaves": 0.3
+  },
+  "leafColors": [
+   "f4e9c8",
+   "f2c41c",
+   "e8a0a8",
+   "ffffff"
+  ],
+  "water": {
+   "shallow": "8fd6d0",
+   "mid": "3f9fb5",
+   "deep": "1f5f8a",
+   "foam": 0.5
+  }
+ },
+ "meter": {
+  "name": "Inhabitants",
+  "icon": "🏠",
+  "about": "The sign at the village end of the bridge says how many people live in Liolivato. Every request you finish makes someone decide to stay or come back, and the Sindaco repaints the number himself.",
+  "reward": "+%d on the sign",
+  "display": {
+   "from": 38,
+   "per_point": 1,
+   "format": "%d inhabitants"
+  },
+  "milestones": [
+   {
+    "at": 2,
+    "id": "olive_village_sign_40",
+    "title": "Forty. The last time we were forty, there was a war on.",
+    "desc": "A strip of terrace below your house is yours to build on.",
+    "flags": [
+     "olive_village_plot"
+    ]
+   },
+   {
+    "at": 5,
+    "id": "olive_village_sign_43",
+    "title": "Forty-three, and two of them are German.",
+    "desc": "Your terrace grows."
+   }
+  ]
+ }
+}
