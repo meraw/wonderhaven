@@ -67,6 +67,11 @@ Shared rules for everyone building a location, people and Claude sessions alike,
   can rule pieces out with a reason (`noBuild` in its layout). **Idea for a future city** (not one of the current
   locations): a flat you can furnish with everything except a bed, every bed in town sold out, so you sleep on its
   benches.
+- **The clock never holds** (the user's decision, 08/11), in any location: it runs on through dusk and the night.
+  A place's `day` block in its map entry says `"hold": false` (`WorkDay`), as Boccapioppo's does; sleeping still
+  ends the day, with overnight regrowth, the morning paper and the inauguration. Don't add a dusk hold to a new place
+  or a conversion. Monteforchetta still holds (its `day` block in `godot/data/islands.json`, and `WorkDay.holds`
+  defaults to true without `hold`) until its owner changes it.
 - **Look:** shared shaders and the atmosphere module (`docs/GRAPHICS.md`) give every location wind, light,
   weather and ambient life. A location tunes its mood with the `look` block in its map entry: `shade` is added to
   shadows, `light` multiplies highlights, `wind` scales the wind, `life` scales motes, fireflies and leaves, and

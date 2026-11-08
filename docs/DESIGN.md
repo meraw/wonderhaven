@@ -77,7 +77,8 @@ The rule now: fewer rules, and the ones left are shown before you click.
 ## 4. The work day
 - **The day runs from 7 AM to dusk**, about 13 real minutes of daylight. The clock stops in build mode, and nothing
   important depends on the hour.
-- **At 8:30 PM the clock holds** at dusk, lamps on, until you end the day.
+- **At 8:30 PM the clock holds** at dusk, lamps on, until you end the day. *Changed 08/11: the clock never holds,
+  in any location (`docs/WORLD.md`); Monteforchetta's hold goes when its owner changes it.*
 - **A place opts in** with a `day` block in its map entry (`{"holdAt": 20.5, "regrow": "overnight"}`, `WorkDay`).
   Monteforchetta has one. Boccapioppo has one that doesn't hold the clock (`"hold": false`), because its storm, its
   first dance and its catfish happen at night: things regrow overnight, a sleep into the next day ends the day (the
