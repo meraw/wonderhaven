@@ -176,7 +176,7 @@ and amounts below are the plan and can change in the build.
 | **A Roof That Floats** | Ermes | You sleep in the houseboat stranded on the mud from day one. Patch the hull (wood and clay), build a slipway of planks and posts from the boat down to the backwater (any continuous, supported path counts), and at dawn half the town hauls it down on ropes and it floats at its mooring. Last, make the cabin cosy (a table, somewhere to sit, a lamp, a rug, a painting). |
 | **The Monster of the Po** | Gildo and Mattia | Bait from Gildo, a stronger line from Primo, then night fishing at the confluence (after 8 PM). You hook it: an enormous fishing minigame. Mattia takes the photo, and Gildo asks you to let it go, because "what would we talk about then?". The photo hangs in Rina's bar, and nobody believes it. |
 | **Ines's Runaway Logs** | Ines | The flood swept her poplar logs downriver. Find six stranded along the banks (in the willows, under the dance hall, against the Roman bridge, on the sandbank) and bring them back. |
-| **Pierina's Round** | Pierina | Her wrist is in a sling, so she walks her bike. Once you have yours, do her round: letters to five villagers and an absurd parcel for Wanda. |
+| **Pierina's Far Round** | Pierina | Her wrist is in a sling: she can walk the town, but not the far end of her round. Once you have your bike, post five letters in letterboxes the length of the map: the farm out west, the station, Gildo's biscuit tin on the floodplain, and over the river the sawmill and the plantation foreman's box. |
 
 Five main and five side requests, plus the lost things.
 
@@ -393,7 +393,9 @@ fixed:
 - **A Bike from the Mud** (Primo): 2 metal (his shop, or the rusty boulder on the gravel bar) and an old tyre
   fished out of the Alpine river by the town (once he's asked, a tyre bites there). Hand them over in the afternoon or
   evening, collect the bike the next morning, and ride it 25 m along the levee road.
-- **Pierina's Round:** five letters (Ermes, Tullio, Gildo, Ines, Rina) and a tuba-shaped parcel for Wanda.
+- **Pierina's Far Round** (reworked 08/11, the town was too small for a bike to matter): five letters posted in
+  `letterbox` features at the farm, the station, Gildo's shack, the sawmill and the edge of the poplars (two over the
+  river), each `post:<id>` an event step.
 - **The gauge** now reaches 0.00 m with every request done, and can't without the finale.
 - **Villagers on bicycles** come with the look and ambient life, in stage 4.
 
@@ -472,7 +474,9 @@ for every villager, and every building request as a brief with musts and wishes 
 breach brought a new kind of check, `sealed`. The Roman bridge's parapets are solid where the walkway is above the banks.
 Six spots that want things (`hangouts`: Rina's bar, Primo's workshop, the church door, Ermes's door, Pierina's doorstep,
 the piazza) and an open area in the streets to build in (`river_town_streets`); the town's needs don't move
-Monteforchetta's approval. From 8 to 10 every evening once the hall is ready, the town dances there.
+Monteforchetta's approval. From 8 to 10 every evening once the hall is ready, the town dances there. On the storm
+night the Po climbs over the floodplain to the foot of the levee by midnight (a muddy flood layer outside the levee,
+`flood_level`), and the Monster of the Po leaps out of the water when you hook it (`BigFish`, a fish's `leap`).
 
 ## Checks for every stage
 `godot/run_tests.sh`, `npm test` and `npm run build`; screenshots of Boccapioppo in both renderers

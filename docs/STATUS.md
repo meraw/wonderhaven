@@ -520,6 +520,20 @@ Checked by the headless tests (`test_animation.gd`: stopping eases, the stride s
 - **Standing still is alive:** breathing, a slow shift of weight, and now and then a glance to one side.
 - **Actions have anticipation and follow-through:** chopping and mining wind the tool back over the shoulder, strike fast and jolt on impact; hammering and digging do the same; the wave overshoots and lowers; celebrating crouches before the jumps and squashes on each landing; surprise squashes before it jumps.
 
+## Playtest fixes: the flood, the monster, Pierina's far round (08/11)
+- **The storm night's river really rises** (Boccapioppo): it used to come up 32 cm, all at once, and stay in its bed.
+  Now a muddy flood spreads outside the levee through the evening: still in its bed at 9 PM, over the floodplain by
+  11, and by midnight lapping at the foot of the levee and against your wall in the breach, the trees standing in it,
+  while the town behind the levee stays dry. It stays up until Ermes calls the flood over (`RiverTown.flood_level`, a
+  flood layer in `scenery.gd`; the shared water shader gained an `opaque` setting for muddy water).
+- **The Monster of the Po shows itself** (Boccapioppo): when it bites, the camera cuts to the water and a three-metre
+  catfish bursts out, arcs through the air thrashing, hangs there turning to stare at you, and crashes back in, before
+  the whisker and the toast (`BigFish`, `WorldActions.leap`, the fish's `leap` in the layout: any fish can do it).
+- **Pierina's Far Round** (Boccapioppo): the town is too small for a bike to make a difference, so the round now goes
+  where she can't: five letters posted in letterboxes the length of the map, at the farm out west, the station, Gildo's
+  biscuit tin on the floodplain, and over the river the sawmill and the plantation foreman's box. Letterboxes are a new
+  shared feature (`letterbox` in a layout: "Post a letter" when a request is waiting for one, `post:<id>`).
+
 ## Playtest fixes: a village map, the Roman bridge, the town's needs, dancing, furniture, naps (08/11)
 - **A map of where you are** (shared): M opens a map of the place you're in, drawn from its layout: the ground and the
   water, the paths, the buildings (the ones with a name are labelled), the building sites open to you (dashed), the
@@ -546,6 +560,14 @@ Checked by the headless tests (`test_animation.gd`: stopping eases, the stride s
   green), a coat stand, a chest of drawers, a mirror for the wall, a grandfather clock, a wood stove, a credenza with the
   good plates and an upright piano, each with its own model and build-bar picture. Elio sells all ten plans in
   Monteforchetta (the bigger pieces once his workshop is done), Ines four in Boccapioppo and Silvia four in Casalrana.
+- **Checked:** **tested** (381 passed): the map's labels, the spots in both villages (in the open streets, reachable,
+  every need meetable there, Monteforchetta's needs not listed, no approval moved), the dance schedules and pose, the
+  four-hour rain window and the quieter nights, and the furniture (models, costs, plans on sale). **Played:** all of
+  Monteforchetta's playthroughs pass (24 runs; `play_ui_shots` checks M shows you, every villager about, the buildings
+  and the bus stop), Boccapioppo's (34 checks: the new `s5b` finds nine villagers dancing in the hall on the first
+  night) and Casalrana's three. The map, the bridge and the furniture were checked in screenshots in all three places.
+  **Not checked:** building in Boccapioppo's or Casalrana's new streets and meeting a need there in a playthrough (the
+  tests place pieces at every spot); a bench nap's gag in play (it's random by design).
 
 ## Casalrana catches up (08/11)
 Casalrana gets the redesign's systems, as Boccapioppo did:

@@ -501,3 +501,39 @@ func test_once_the_hall_is_ready_the_town_dances_there_every_evening():
 		turns.append(c.body.rotation.y)
 	t.ok(c.hold == "dance" and turns.max() - turns.min() > 0.5, "a dancer sways and turns (%.2f)" % (turns.max() - turns.min()))
 	c.free()
+
+func test_on_the_storm_night_the_po_rises_over_the_floodplain_but_not_into_town():
+	var at := func(h: float) -> float: return RT.flood_level(h * 60.0)
+	t.ok(at.call(21.0) < RT.FLOOD_H, "at 9 PM the river is still in its bed (%.2f)" % at.call(21.0))
+	t.ok(at.call(22.5) > at.call(21.5) and at.call(23.5) > at.call(22.5), "it climbs through the evening")
+	t.ok(at.call(23.9) > RT.FLOOD_H + 0.2 and at.call(0.5) >= at.call(23.9) - 0.01, "by midnight the floodplain is under water, and it stays up past midnight (%.2f)" % at.call(0.5))
+	t.ok(at.call(0.5) < RT.TOWN_H - 0.08 and at.call(0.5) < RT.DANCE_H, "it stops short of the town and the dance hall's floor on its stilts")
+
+func test_the_monster_leaps_when_it_bites():
+	var monster: Dictionary = Data.read_layout("river_town").fish.filter(func(f): return f.id == "river_town_monster")[0]
+	t.ok(monster.get("leap", false) and float(monster.get("length", 0.0)) >= 2.5, "the Monster of the Po leaps out of the water when you hook it (%.1f m long)" % float(monster.get("length", 0.0)))
+	var fish := BigFish.make(3.0)
+	t.ok(fish.get_child_count() >= 15, "a catfish with a head, whiskers, eyes and fins (%d parts)" % fish.get_child_count())
+	fish.free()
+	var a := Vector3(0, -1, 0); var b := Vector3(4, -1, 0)
+	t.ok(BigFish.arc(a, b, 3.0, 0.5).y > 1.9 and BigFish.arc(a, b, 3.0, 0.0).is_equal_approx(a) and BigFish.arc(a, b, 3.0, 1.0).is_equal_approx(b), "it arcs out of the water and back in")
+	t.ok(BigFish.heading(a, b, 3.0, 0.1).y > 0.5 and BigFish.heading(a, b, 3.0, 0.9).y < -0.5, "nose up on the way out, nose down on the way in")
+
+func test_pierinas_far_round_takes_you_the_length_of_the_map():
+	var L: Dictionary = Data.read_layout("river_town")
+	var boxes: Array = L.features.filter(func(f): return String(f.get("kind", "")) == "letterbox")
+	t.eq(boxes.size(), 5, "five letterboxes")
+	var q := Data.quest("river_town_round")
+	var posts: Array = q.objectives.filter(func(o): return String(o.get("event", "")).begins_with("post:")).map(func(o): return String(o.event).trim_prefix("post:"))
+	t.ok(posts.size() == 5 and boxes.all(func(b): return posts.has(String(b.id))), "the round posts a letter in each")
+	t.eq(int(q.get("onAccept", {}).get("items", {}).get("river_town_letter", 0)), 5, "and gives you five letters to post")
+	var east: Array = boxes.filter(func(b): return float(b.x) > RT.alpine_center(float(b.z)))
+	t.ok(east.size() >= 2, "two of them are over the river (%d)" % east.size())
+	var widest := 0.0
+	for a in boxes:
+		t.ok(RT.height(float(a.x), float(a.z)) > Heightfield.WATER_Y + 0.3, "%s stands on dry ground" % a.id)
+		var near := 99.0
+		for k in L.nav_nodes: near = minf(near, Vector2(float(L.nav_nodes[k][0]) - float(a.x), float(L.nav_nodes[k][1]) - float(a.z)).length())
+		t.ok(near < 5.0, "%s is by a path (%.1f m)" % [a.id, near])
+		for b in boxes: widest = maxf(widest, Vector2(float(a.x) - float(b.x), float(a.z) - float(b.z)).length())
+	t.ok(widest > 70.0, "they're the length of the map apart (%.0f m)" % widest)

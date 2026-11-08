@@ -340,6 +340,15 @@ static func sign_post() -> Node3D:
 	_add(g, P.rbox(1.0, 0.55, 0.1, 0.04), P.wood(P.WOOD), Vector3(0, 1.05, 0))
 	return g
 
+static func letterbox(color: String = "c0392b") -> Node3D:
+	var g := Node3D.new()
+	_add(g, P.cyl(0.05, 0.06, 1.05, 6), P.wood(P.WOOD_DARK), Vector3(0, 0.52, 0))
+	_add(g, P.rbox(0.34, 0.42, 0.26, 0.05), P.mat(color), Vector3(0, 1.2, 0))
+	_add(g, P.box(0.2, 0.025, 0.01), P.mat("1e1c1a"), Vector3(0, 1.32, 0.135), Vector3.ZERO, Vector3.ONE, false)
+	_add(g, P.box(0.38, 0.04, 0.3), P.mat("8a2a20"), Vector3(0, 1.43, 0))
+	_add(g, P.box(0.12, 0.05, 0.01), P.mat("f4d35e"), Vector3(0, 1.12, 0.135), Vector3.ZERO, Vector3.ONE, false)
+	return g
+
 static func notice_board() -> Node3D:
 	var g := Node3D.new()
 	for x in [-0.6, 0.6]: _add(g, P.cyl(0.07, 0.08, 1.7, 6), P.wood(P.WOOD_DARK), Vector3(x, 0.85, 0))

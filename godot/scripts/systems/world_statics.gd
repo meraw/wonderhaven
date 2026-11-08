@@ -251,7 +251,7 @@ static func build_statics(decor: Dictionary) -> Array:
 		elif nd.kind == "chest": out.append(_box(nd.x - 0.45, nd.x + 0.45, nd.z - 0.32, nd.z + 0.32, nd.id))
 		elif nd.kind == "bin": out.append({"type": "circle", "x": nd.x, "z": nd.z, "r": 0.65, "tag": nd.id})
 	for f in Data.layout.features:
-		if f.kind in ["sign", "board", "wardrobe", "stop"]: out.append({"type": "circle", "x": f.x, "z": f.z, "r": 0.3, "tag": f.id})
+		if f.kind in ["sign", "board", "wardrobe", "stop", "letterbox"]: out.append({"type": "circle", "x": f.x, "z": f.z, "r": 0.3, "tag": f.id})
 		if f.kind == "boat" and f.get("model", "boat") == "bus":   # the bus you travel on: solid once it's there
 			var hl := float(f.get("length", 8.6)) / 2.0 + 0.1; var hw := 1.25
 			var turned := absf(sin(float(f.get("rot", 0.0)))) > 0.7

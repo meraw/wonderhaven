@@ -1528,7 +1528,9 @@
     20,
     4
    ],
-   "caught": "THE MONSTER! A head like a bathtub! It thrashes, it stares, it slips back into the Po… leaving a whisker on your line. Show Mattia, quick!"
+   "caught": "THE MONSTER! A head like a bathtub! It thrashes, it stares, it slips back into the Po… leaving a whisker on your line. Show Mattia, quick!",
+   "leap": true,
+   "length": 3.0
   }
  ],
  "nodes": [
@@ -1976,6 +1978,58 @@
    "x": -21.4,
    "z": 28.1,
    "label": "Change outfit"
+  },
+  {
+   "id": "river_town_box_farm",
+   "kind": "letterbox",
+   "x": -33.8,
+   "z": -27.6,
+   "name": "The farm's letterbox",
+   "item": "river_town_letter",
+   "posted": "Into the farm's letterbox: the seed catalogue. Something in the barn moos.",
+   "empty": "The farm's letterbox. Nothing to post here today."
+  },
+  {
+   "id": "river_town_box_station",
+   "kind": "letterbox",
+   "x": -22.6,
+   "z": -38.6,
+   "name": "The station's letterbox",
+   "item": "river_town_letter",
+   "posted": "Into the station's letterbox: a letter for the station master. He retired in 1987. They still write.",
+   "empty": "The station's letterbox. Nothing to post here today."
+  },
+  {
+   "id": "river_town_box_shack",
+   "kind": "letterbox",
+   "x": -37.2,
+   "z": 30.4,
+   "color": "8a8f94",
+   "name": "Gildo's letterbox (a biscuit tin on a pole)",
+   "item": "river_town_letter",
+   "posted": "Gildo's letterbox is a biscuit tin on a pole. The letter goes in on top of the bait.",
+   "empty": "Gildo's biscuit-tin letterbox. It smells of bait."
+  },
+  {
+   "id": "river_town_box_sawmill",
+   "kind": "letterbox",
+   "x": 45.6,
+   "z": 23.0,
+   "name": "The sawmill's letterbox",
+   "item": "river_town_letter",
+   "posted": "Into the sawmill's letterbox: an invoice, by the look of it. Ines will be thrilled.",
+   "empty": "The sawmill's letterbox. Nothing to post here today."
+  },
+  {
+   "id": "river_town_box_poplars",
+   "kind": "letterbox",
+   "x": 40.2,
+   "z": -11.0,
+   "color": "3f6e45",
+   "name": "The plantation foreman's letterbox",
+   "item": "river_town_letter",
+   "posted": "Into the foreman's tin box at the edge of the poplars. He'll find it when he finds it.",
+   "empty": "The plantation foreman's tin box. Empty, apart from a spider."
   }
  ],
  "nav_nodes": {
