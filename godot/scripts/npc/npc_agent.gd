@@ -26,6 +26,7 @@ var marker_ready: Label3D
 var stare_mark: Label3D
 var visit := {}
 var visit_t := 30.0
+var held := false
 
 func _init(g, d: Dictionary) -> void:
 	game = g; def = d
@@ -115,6 +116,11 @@ func update(dt: float) -> void:
 	character.visible = present
 	body.r = 0.32 if present else 0.0
 	if not present: return
+	if held:
+		marker_offer.visible = false; marker_ready.visible = false
+		character.animate(dt, 0.0)
+		sync()
+		return
 	var a := Schedule.activity_at(def, game.state.time.minute, flags)
 	if visiting() and a.activity == "sleep": end_visit()
 	if not visiting() and a.node != goal: plan_route(a.node)
