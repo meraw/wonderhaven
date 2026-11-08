@@ -109,11 +109,12 @@ static func nav(b: Dictionary) -> Dictionary:
 	var route: Array = b.interior.get("route", [])
 	if route.is_empty() or not b.has("navDoor"): return {"nodes": nodes, "edges": edges}
 	var prev: String = b.navDoor
+	var storey: Array = [float(b.y)] if b.has("y") else []
 	for i in route.size():
 		var name: String = ("%s:in" % b.id) if i == 0 else (("%s:spot" % b.id) if i == route.size() - 1 else "%s:%d" % [b.id, i])
-		nodes[name] = [b.x + float(route[i][0]), b.z + float(route[i][1])]
+		nodes[name] = [b.x + float(route[i][0]), b.z + float(route[i][1])] + storey
 		edges.append([prev, name]); prev = name
 	if route.size() == 1:
-		nodes["%s:spot" % b.id] = [nodes["%s:in" % b.id][0] + 0.01, nodes["%s:in" % b.id][1]]
+		nodes["%s:spot" % b.id] = [nodes["%s:in" % b.id][0] + 0.01, nodes["%s:in" % b.id][1]] + storey
 		edges.append(["%s:in" % b.id, "%s:spot" % b.id])
 	return {"nodes": nodes, "edges": edges}

@@ -333,6 +333,11 @@ func test_the_flat_upstairs():
 		t.ok(Interiors.inside(flat, 3.5, pos) and not Interiors.inside(station, 0.42, pos), "upstairs you're in the flat, not the waiting room")
 		var down := Vector3(16.0, 0.42, -37.5)
 		t.ok(Interiors.inside(station, 0.42, down) and not Interiors.inside(flat, 3.5, down), "downstairs, the waiting room")
+		var spot: Array = Data.layout.nav_nodes["rice_village_station:spot"]
+		t.ok(w.surface_at(spot[0], spot[1]).y > 3.0, "the flat's floor is right over the station's spot, where Matteo reads in the mornings")
+		t.ok(spot.size() > 2 and is_equal_approx(float(spot[2]), 0.42), "so the spot says which storey it's on: the waiting room's (%s)" % str(spot))
+		var at: float = w.surface_at(spot[0], spot[1], float(spot[2])).y
+		t.ok(Interiors.inside(station, 0.42, Vector3(spot[0], at, spot[1])) and at < 1.0, "and a villager put there stands in the waiting room, not up in your flat (y %.2f)" % at)
 	
 		# furnishing it: the pieces stand on the flat's floor
 		var pls := [_pl(1, "bed", 14, -40, 0, BuildGrid.suggest_bottom("bed", 14, -40, 0, 3.6, [])), _pl(2, "table", 17, -39, 0, BuildGrid.suggest_bottom("table", 17, -39, 0, 3.6, [])),

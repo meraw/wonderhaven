@@ -34,7 +34,7 @@ func _init(g, d: Dictionary) -> void:
 	game.add_child(character)
 	var a := Schedule.activity_at(def, game.state.time.minute, game.state.flags)
 	var p := node_pos(a.node)
-	pos = Vector3(p.x, game.walk.surface_at(p.x, p.y).y, p.y)
+	pos = Vector3(p.x, game.walk.surface_at(p.x, p.y, node_storey(a.node)).y, p.y)
 	goal = a.node; activity = a.activity
 	game.walk.dynamic.append(body)
 	marker_offer = _marker("!", Color("ffb93b")); marker_ready = _marker("★", Color("59c27a"))
@@ -57,6 +57,10 @@ func node_pos(node: String) -> Vector2:
 				return Vector2(p.i + 1.0, p.k + (1.0 if int(p.r) % 2 else (-0.7 if int(p.r) == 2 else 1.7)))
 	var a: Array = Data.layout.nav_nodes[node]
 	return Vector2(a[0], a[1])
+
+func node_storey(node: String) -> float:
+	var a: Array = Data.layout.nav_nodes.get(node, [])
+	return float(a[2]) if a.size() > 2 else INF
 
 func visiting() -> bool: return not visit.is_empty()
 
@@ -95,6 +99,8 @@ func teleport_home() -> void:
 	var a := Schedule.activity_at(def, game.state.time.minute, game.state.flags)
 	var p := node_pos(a.node)
 	pos.x = p.x; pos.z = p.y; waypoints = []; goal = a.node; activity = a.activity
+	var storey := node_storey(a.node)
+	if storey != INF: pos.y = game.walk.surface_at(p.x, p.y, storey).y
 
 ## The way to nav node `to`, from where they stand, or after a first dash to `via` (hurrying off: NapGags).
 func plan_route(to: String, via: Vector2 = Vector2.INF) -> void:
