@@ -29,6 +29,7 @@ static func stock(state: Dictionary, npc_id: String) -> Array:
 	for i in lines.size():
 		var s: Dictionary = lines[i]
 		if not meets(state, s.get("requires", {})): continue
+		if s.get("market", false) and not Market.selling(state, npc_id): continue
 		var e := {"i": i, "price": int(s.get("price", 0)), "owned": false}
 		if s.has("items"):
 			var parts: Array = []
@@ -79,7 +80,10 @@ static func buy(state: Dictionary, npc_id: String, i: int) -> Dictionary:
 		"clothes": return {"ok": true, "clothes": line.id, "price": line.price}
 	return {"ok": false, "reason": "unknown"}
 
-static func sell_price(npc_id: String, item: String) -> int: return int(def(npc_id).get("buys", {}).get(item, 0))
+static func sell_price(npc_id: String, item: String, state: Dictionary = {}) -> int:
+	var base := int(def(npc_id).get("buys", {}).get(item, 0))
+	if not state.is_empty() and Market.selling(state, npc_id): return int(ceil(base * float(Market.cfg().get("buys", 1.0))))
+	return base
 
 ## What you could sell here now: [{id, have, price}] for items the shop buys and you have.
 static func sellable(state: Dictionary, npc_id: String) -> Array:
@@ -87,11 +91,11 @@ static func sellable(state: Dictionary, npc_id: String) -> Array:
 	var buys: Dictionary = def(npc_id).get("buys", {})
 	for id in buys:
 		var have := int(state.inventory.get(id, 0))
-		if have > 0: out.append({"id": id, "have": have, "price": int(buys[id])})
+		if have > 0: out.append({"id": id, "have": have, "price": sell_price(npc_id, String(id), state)})
 	return out
 
 static func sell(state: Dictionary, npc_id: String, item: String, n: int) -> Dictionary:
-	var price := sell_price(npc_id, item)
+	var price := sell_price(npc_id, item, state)
 	if not is_open(state, npc_id) or price <= 0: return {"ok": false, "reason": "not_bought"}
 	n = mini(n, int(state.inventory.get(item, 0)))
 	if n <= 0: return {"ok": false, "reason": "none"}

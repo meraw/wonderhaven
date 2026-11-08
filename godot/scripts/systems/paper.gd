@@ -24,8 +24,10 @@ static func headline(rec: Dictionary, data: Dictionary, quests: Array, roll: flo
 static func notes(rec: Dictionary, ctx: Dictionary, data: Dictionary) -> Array:
 	var out: Array = []
 	for n in ctx.get("noticed", []): out.append(String(data.get("noticed", "Noticed: {line}")).replace("{line}", String(n)) if out.is_empty() else String(n))
+	if String(ctx.get("market", "")) != "": out.append(String(ctx.market))
 	var op: Dictionary = rec.get("opened", {}) if rec.get("opened") is Dictionary else {}
 	if not op.is_empty(): out.append(String(data.get("verdict", "")).replace("{grade}", String(op.get("grade", ""))))
+	if String(ctx.get("gossip", "")) != "": out.append(String(ctx.gossip))
 	var change := int(ctx.get("harmony", 0)) - int(rec.get("harmony", 0))
 	if change != 0:
 		out.append(String(data.get("approval", "")).replace("{n}", str(int(ctx.get("harmony", 0)))).replace("{change}", ("+%d" % change) if change > 0 else str(change)))

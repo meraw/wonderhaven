@@ -2,7 +2,7 @@ extends RefCounted
 var t
 var statics: Array
 
-const BRIEFS := ["bridge", "workshop", "fountain", "home", "dock", "lamp"]
+const BRIEFS := ["bridge", "workshop", "fountain", "home", "dock", "lamp", "stones", "tables", "stall", "corner"]
 
 func _init() -> void:
 	statics = WorldStatics.build_statics(WorldStatics.generate_decor())
@@ -14,7 +14,7 @@ func _brief(qid: String) -> Dictionary:
 
 func _plan(o: Dictionary) -> Array:
 	var out: Array = []
-	for pl in Plans.lay_out(o.plan, Data.zone(String(o.zone)), []):
+	for pl in Plans.lay_out(o.plan, Data.zone(String(o.get("zone", ""))), []):
 		pl.uid = out.size() + 1
 		out.append(pl)
 	return out
@@ -58,7 +58,7 @@ func test_monteforchettas_briefs_are_sound():
 		t.ok(fresh.size() <= 1, "%s brings in at most one new kind of check (%s)" % [qid, str(fresh)])
 
 func test_following_each_plan_meets_every_must():
-	for qid in ["bridge", "workshop", "home", "dock"]:
+	for qid in ["bridge", "workshop", "home", "dock", "stones", "tables", "stall", "corner"]:
 		var o := _brief(qid)
 		var r := Commission.evaluate(o, _world(_plan(o)))
 		t.ok(r.done, "%s: its example plan meets every must: %s" % [qid, str(r.musts.map(func(m): return "%s %s" % [m.label, m.ok]))])
@@ -133,3 +133,36 @@ func test_the_permit_stamp():
 	t.eq(Commission.stamp([], c).text, "Approvato", "a brief without wishes")
 	var b := Commission.bonus(all, c)
 	t.ok(b.harmony == 10 and b.hearts == {"fern": 1, "percival": 1}, "each wish met: approval, and a heart from whoever wished it")
+
+func test_every_monteforchetta_building_request_is_a_brief():
+	var briefs: Array = Data.quests.filter(func(q): return Data.quest_island(String(q.id)) == "hearthglow" and q.objectives.any(func(o): return String(o.get("kind", "")) == "commission")).map(func(q): return String(q.id))
+	t.ok(briefs.size() >= 10 and BRIEFS.all(func(id): return briefs.has(id)), "ten briefs to build in Monteforchetta: %s" % str(briefs))
+	t.ok(not Data.quests.any(func(q): return Data.quest_island(String(q.id)) == "hearthglow" and q.objectives.any(func(o): return String(o.get("kind", "")) in ["build", "room", "pieces"])), "no old-style building steps left there")
+	var anywhere: Array = BRIEFS.filter(func(id): return Commission.anywhere(_brief(id)))
+	t.ok(anywhere.size() >= 2, "some can go anywhere in the village (%s)" % str(anywhere))
+
+func test_a_brief_at_a_hangout_counts_what_stands_there():
+	var o := _brief("tables")
+	var near: Array = _plan(o)
+	t.ok(Commission.evaluate(o, {"placements": near}).done, "the example tables outside the bakery meet it")
+	var far: Array = near.map(func(p):
+		var q: Dictionary = p.duplicate()
+		q.i = float(q.i) + 30.0
+		return q)
+	t.ok(not Commission.evaluate(o, {"placements": far}).done, "the same tables across the village don't")
+	t.eq(Commission.site_text(o), "outside the bakery", "the site reads as the place")
+
+func test_anywhere_means_anywhere_but_together():
+	var o := _brief("stall")
+	var counter := {"uid": 1, "id": "counter", "i": 20.0, "k": 10.0, "r": 0, "y": 0.0}
+	var hedges := [{"uid": 2, "id": "hedge", "i": 5.0, "k": 15.0, "r": 0, "y": 0.0}, {"uid": 3, "id": "hedge", "i": 6.0, "k": 15.0, "r": 0, "y": 0.0}]
+	var apart := Commission.evaluate(o, {"placements": [counter] + hedges})
+	t.ok(not apart.done and apart.met == 1, "a counter here and hedges over there aren't one stall (%d of 2)" % apart.met)
+	var moved := hedges.map(func(h):
+		var q: Dictionary = h.duplicate()
+		q.i = float(q.i) + 14.0 if int(q.uid) == 2 else 22.0
+		q.k = 10.0
+		return q)
+	var together := Commission.evaluate(o, {"placements": [counter] + moved + [{"uid": 9, "id": "stoneBlock", "i": -20.0, "k": 0.0, "r": 0, "y": 0.0}]})
+	t.ok(together.done and together.uids.size() == 3 and not together.uids.has(9), "put together, anywhere, they are; a block across the village isn't part of it")
+	t.eq(Commission.site_text(o), "anywhere in the village", "and it says so")

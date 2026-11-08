@@ -29,7 +29,9 @@ func _on_event(type: String, data: Dictionary) -> void:
 	if type == "gain": handle(engine.on_gain(data.items))
 	if type == "rode": event("ride"); event("ride:" + String(data.to))   # a ride between stops, and where to
 	if type == "build":
-		if data.get("action", "") == "place": first_of_kind(data.pl.id)
+		if data.get("action", "") == "place":
+			first_of_kind(data.pl.id)
+			tastes_for(data.pl)
 		handle(engine.refresh())
 		commission_ticks(String(data.get("action", "")) != "load")
 
@@ -40,13 +42,23 @@ func path_across(id: String) -> Dictionary:
 	if r.ok: game.state.crossings[id] = r.path.map(func(c): return [c.x, c.y])
 	return r
 
+func tastes_for(pl: Dictionary) -> void:
+	if not WorkDay.on(Data.island): return
+	for r in Tastes.pleased(game.state, pl, game.npcs.keys()):
+		var a = game.npcs.get(String(r.npc))
+		if a == null or not a.present: continue
+		add_hearts(String(r.npc), 1)
+		game.toast("%s: %s ♥" % [String(a.def.name).get_slice(" ", 0), String(r.line)], "good", 3.2)
+		a.character.play("clap")
+		game.emit_event("taste", {"npc": String(r.npc), "piece": String(pl.id), "line": String(r.line)})
+
 var ticked := {}
 
 func commission_ticks(show: bool = true) -> void:
 	for q in engine.active():
 		if not engine.here(q.id): continue
 		for o in q.objectives:
-			if String(o.get("kind", "")) != "commission" or not engine.is_current(q.id, o): continue
+			if String(o.get("kind", "")) != "commission" or QuestEngine.stage_of(o) > engine.current_stage(q.id): continue
 			var cr := engine.commission(q.id, o)
 			var rows: Array = cr.musts + cr.wishes
 			for i in rows.size():
@@ -369,9 +381,14 @@ func first_of_kind(id: String) -> void:
 ## is still to do before its building step (materials first) if that hasn't come up yet.
 func build_goals(z: Dictionary) -> Dictionary:
 	if z.is_empty(): return {}
+	var found := _goals_for(z, func(_qid, o): return o.get("zone", "") == z.id)
+	if not found.is_empty(): return found
+	return _goals_for(z, func(qid, o): return String(o.get("kind", "")) == "commission" and String(o.get("zone", "")) == "" and engine.is_current(qid, o) and not engine.objective(qid, o).done)
+
+func _goals_for(z: Dictionary, fits: Callable) -> Dictionary:
 	for q in engine.active().filter(func(x): return engine.here(x.id)):
 		var cur := engine.current_stage(q.id)
-		var here: Array = q.objectives.filter(func(o): return o.get("zone", "") == z.id and not o.get("final", false))
+		var here: Array = q.objectives.filter(func(o): return fits.call(q.id, o) and not o.get("final", false))
 		if here.is_empty(): continue
 		var items: Array = []
 		var hint := ""

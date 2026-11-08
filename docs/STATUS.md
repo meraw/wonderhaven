@@ -10,6 +10,72 @@ After a review of how the game plays, the user agreed a new design: building is 
 whether or not anyone asked for it, requests become briefs with checks, and the day becomes a work day you end
 yourself. All of it, and the order it's built in, is in `docs/DESIGN.md`. All seven stages are done for Monteforchetta.
 
+### The village comes alive (Monteforchetta)
+- **Tastes.** Each villager likes some pieces and paint colours (`data/tastes.json`):
+  - Gigia: hedges, flower beds, young trees, fences, greens.
+  - Elio: lamps, yellow.
+  - The Sindaco: statues, pillars, columns, arches, red.
+  - Fede: electric lamps, signs, windmills, blue and lilac.
+  - Ornella: benches, tables, flower beds, counters, pink.
+  - Aldo: benches, roofs, signs, street lights, bus blue.
+
+  A piece they like, or a piece painted their colour, put up within 8 m of their spot (their hangout, or Elio's door)
+  earns a heart and a remark ("Oh, a hedge! You do know me."), once a day each. The morning paper gives away one taste
+  you don't know yet ("Overheard: Gigia can't walk past a hedge without patting it."), and the bag lists the tastes you
+  know under Friends.
+- **The ceremony reacts to tastes**: a villager who likes a piece in what's being opened cheers it with their remark and
+  likes you a heart more.
+- **Market day** every fifth day (day 5, 10, ...), from 8 AM to 7 PM (`data/market.json`):
+  - Gigia, Ornella, Aldo and Fede, in that order, stand at the counters you've built, one each.
+  - At a stall they pay half as much again for what they buy, and sell a market line: Gigia pumpkins, Ornella cheap
+    hazelnut cake, Aldo fabric, Fede copper wire. Their shop option says "Market stall: today's prices".
+  - The paper warns you the morning before and counts the stalls on the day, or says there was nowhere to sell.
+  - Remove a counter and its seller goes home. A market bundle can never be sold back at a profit, even on market day
+    (tested).
+- **Evening music**: at dusk, with the piazza fully lively and you nearby, an accordion waltz plays (`hearthglow_festa`,
+  the place's `gathering` tune) and the gathered villagers clap and wave.
+- **An album of openings** on the approval screen: the day, what was opened, where, and its mark, newest first.
+- Where: `Tastes` (`scripts/systems/tastes.gd`), `Market` (`scripts/systems/market.gd`), `Visits.gathering`,
+  `AudioDirector.song_for(..., festa)`, `Inauguration.remember`; the game's `_update_market` and `festa_now`.
+- **Checked:**
+  - **Tested** (`test_alive`): every villager has tastes, real pieces and paintable colours; a liked piece by their
+    spot pleases them once a day, not across the village or while they're away; gossip one taste at a time, printed
+    with the market line; the ceremony's fan reaction; market days, stalls, sellers, prices, lines and paper; the
+    festa's tune and when it plays; the album, saved.
+  - **Played** (`play_alive`, 9 checks, in `play_all.sh`): a hedge by Gigia's gate pleases her and the bag then lists
+    her tastes; Elio cheers the lamps opened by his door; day 5's paper counts two stalls; the album lists the opening;
+    at 8 AM Gigia and Ornella stand at the two counters; Gigia's stall pays more and sells pumpkins; at 7 PM they go
+    home; at dusk the festa plays at the fully lively piazza. The script moves the clock on to the market's opening
+    and closing instead of waiting.
+  - **Not checked:** hearing the festa (the test machine has no sound); a market with three or four stalls.
+
+### More to build (Monteforchetta, after the redesign)
+- **Four more briefs**, so there's more to build than the main story's six:
+  - **A Plinth for the Sindaco** (his side request) is now a build on the castle steps: three stone pieces, at least
+    two metres tall. Wishes: taller than three metres (the Sindaco), a light on it (Elio), flowers round it (Gigia).
+    It used to be "gather stone and copper wire, hand them over".
+  - **Tables Outside the Bakery** (Ornella, after the crossing): two tables and four seats outside her door.
+    Wishes: something green (Gigia), a sunshade (Ornella).
+  - **A Stall for Gigia's Hazelnuts** (Gigia, after the bus stop), **anywhere in the village**: a counter and two
+    green things round it. Wishes: painted cheerfully (Gigia), a bench for customers (Ornella).
+  - **A Reading Corner** (Fede, after the bus stop), anywhere: a seat, a light and a bookshelf. Wishes: a roof
+    (Fede), a rug (Elio).
+- **New kinds of site.** A brief can name one of the village's places (`hangout`) instead of a build zone, or no site
+  at all: then the pieces that count are the best group built together, each within 3 m of another. A counter here
+  and hedges across the village aren't a stall. Build mode shows a site-less brief in whichever zone you build, when
+  no brief belongs to that zone.
+- **Ticks keep coming after the musts**: a brief's checks stay live once its musts are met, so the last must ticks
+  too and a wish met afterwards still sparkles. Before, the last must's tick was lost.
+- Each brief has an example plan that meets every must (tested), and none brings in more than one new kind of check.
+- **Checked:**
+  - **Tested** (`godot/run_tests.sh`): the ten briefs are sound; every example plan builds and meets its musts; a
+    brief at a hangout counts only what stands there; "anywhere" counts only pieces together.
+  - **Played** (`play_commissions`, 6 checks, in `play_all.sh`): Ornella offers her request in conversation; build
+    mode in the village streets shows her brief with its wishes; two tables and four chairs tick both musts and her
+    permit is stamped; Gigia's stall doesn't count apart and does together; three stacked blocks make the plinth,
+    tall enough for the Sindaco's wish.
+  - **Not checked:** Fede's reading corner in play (tests only).
+
 ### Stage 7: tools and materials (shared; content for Monteforchetta)
 - **Tools have levels.** You start with an old hatchet and an old pick; Elio's shop sells the next one, for lire and
   metal, one level at a time:
