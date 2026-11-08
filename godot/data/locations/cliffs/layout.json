@@ -19,7 +19,9 @@
  "houseStyle": {
   "kit": true,
   "cornice": "efeae0",
-  "shutters": "4f6b43"
+  "shutters": "4f6b43",
+  "quoins": "efeae0",
+  "roofTiles": "slate"
  },
  "decor": {
   "radius": 75,
@@ -223,19 +225,139 @@
    "roof": "#7e8189",
    "door": "E",
    "floors": 3,
-   "kit": true
+   "kit": true,
+   "navDoor": "barDoor",
+   "interior": {
+    "shell": "house",
+    "items": [
+     [
+      "counter",
+      -1.6,
+      -0.5,
+      1,
+      "#8a6a50"
+     ],
+     [
+      "cabinet",
+      -2.35,
+      -2.2,
+      1,
+      "#6f5038"
+     ],
+     [
+      "table",
+      1.2,
+      -1.9,
+      0,
+      "#9a6a45"
+     ],
+     [
+      "chair",
+      1.2,
+      -1.1,
+      2,
+      "#8a6a50"
+     ],
+     [
+      "table",
+      1.2,
+      2.1,
+      0,
+      "#9a6a45"
+     ],
+     [
+      "chair",
+      0.3,
+      2.1,
+      1,
+      "#8a6a50"
+     ],
+     [
+      "lamp",
+      2.35,
+      -2.35,
+      0
+     ]
+    ],
+    "route": [
+     [
+      2.0,
+      0.0
+     ],
+     [
+      -0.6,
+      1.6
+     ],
+     [
+      -2.2,
+      1.6
+     ]
+    ]
+   }
   },
   {
    "id": "cliffs_station",
-   "kind": "cliffs_station",
+   "kind": "cottage",
    "name": "Serenza station",
    "x": -11.5,
    "z": -1.5,
    "w": 11.0,
    "d": 4.0,
-   "h": 3.6,
    "wall": "#efe3c4",
-   "door": "N"
+   "roof": "#7e8189",
+   "door": "N",
+   "floors": 1,
+   "kit": true,
+   "navDoor": "platform",
+   "interior": {
+    "shell": "house",
+    "items": [
+     [
+      "bench",
+      -3.5,
+      1.2,
+      2,
+      "#7a5a3e"
+     ],
+     [
+      "bench",
+      -1.0,
+      1.2,
+      2,
+      "#7a5a3e"
+     ],
+     [
+      "counter",
+      3.5,
+      1.2,
+      2,
+      "#8a6a50"
+     ],
+     [
+      "cabinet",
+      4.8,
+      -1.2,
+      3,
+      "#6f5038"
+     ],
+     [
+      "lamp",
+      -4.8,
+      -1.2,
+      0
+     ]
+    ],
+    "route": [
+     [
+      0.0,
+      -1.0
+     ],
+     [
+      3.5,
+      0.2
+     ]
+    ]
+   }
   },
   {
    "id": "cliffs_church",
@@ -245,20 +367,119 @@
    "z": 29.5,
    "w": 7.0,
    "d": 11.0,
-   "h": 7.5,
+   "h": 6.2,
    "wall": "#a9a59b",
-   "door": "W"
+   "door": "W",
+   "doorOffset": -4.0,
+   "navDoor": "churchDoor",
+   "roof": "#7e8189",
+   "interior": {
+    "shell": "house",
+    "height": 5.0,
+    "items": [
+     [
+      "bench",
+      -1.6,
+      -2.0,
+      0,
+      "#6f5038"
+     ],
+     [
+      "bench",
+      1.6,
+      -2.0,
+      0,
+      "#6f5038"
+     ],
+     [
+      "bench",
+      -1.6,
+      -0.5,
+      0,
+      "#6f5038"
+     ],
+     [
+      "bench",
+      1.6,
+      -0.5,
+      0,
+      "#6f5038"
+     ],
+     [
+      "bench",
+      -1.6,
+      1.0,
+      0,
+      "#6f5038"
+     ],
+     [
+      "bench",
+      1.6,
+      1.0,
+      0,
+      "#6f5038"
+     ],
+     [
+      "bench",
+      -1.6,
+      2.5,
+      0,
+      "#6f5038"
+     ],
+     [
+      "bench",
+      1.6,
+      2.5,
+      0,
+      "#6f5038"
+     ],
+     [
+      "counter",
+      0.0,
+      4.4,
+      0,
+      "#efe9dc"
+     ],
+     [
+      "lamp",
+      -2.3,
+      4.5,
+      0
+     ],
+     [
+      "lamp",
+      2.3,
+      4.5,
+      0
+     ]
+    ],
+    "route": [
+     [
+      -2.5,
+      -4.0
+     ],
+     [
+      0.0,
+      -3.4
+     ],
+     [
+      0.0,
+      3.2
+     ]
+    ]
+   }
   },
   {
    "id": "cliffs_church_tower",
    "kind": "cliffs_church_tower",
    "name": "The bell tower",
-   "x": 25.0,
+   "x": 27.6,
    "z": 25.2,
    "w": 2.6,
    "d": 2.6,
    "h": 15.0,
-   "wall": "#9f9b91"
+   "wall": "#9f9b91",
+   "roof": "#7e8189"
   },
   {
    "id": "cliffs_cellar",
@@ -268,9 +489,75 @@
    "z": -22.5,
    "w": 9.0,
    "d": 5.0,
-   "h": 4.6,
+   "h": 3.6,
    "wall": "#b9ae98",
-   "door": "S"
+   "door": "S",
+   "navDoor": "cellarDoor",
+   "roof": "#7e8189",
+   "interior": {
+    "shell": "house",
+    "items": [
+     [
+      "barrel",
+      -3.6,
+      -1.6,
+      0
+     ],
+     [
+      "barrel",
+      -2.8,
+      -1.6,
+      0
+     ],
+     [
+      "barrel",
+      -2.0,
+      -1.6,
+      0
+     ],
+     [
+      "barrel",
+      -3.6,
+      -0.8,
+      0
+     ],
+     [
+      "workbench",
+      2.8,
+      -1.5,
+      0,
+      "#6f5038"
+     ],
+     [
+      "crate",
+      3.6,
+      1.2,
+      0
+     ],
+     [
+      "crate",
+      3.6,
+      0.4,
+      1
+     ],
+     [
+      "lamp",
+      0.0,
+      -1.8,
+      0
+     ]
+    ],
+    "route": [
+     [
+      0.0,
+      1.6
+     ],
+     [
+      -1.0,
+      0.0
+     ]
+    ]
+   }
   },
   {
    "id": "cliffs_workshop",
@@ -280,9 +567,57 @@
    "z": -22.5,
    "w": 6.0,
    "d": 5.0,
-   "h": 3.6,
+   "h": 3.0,
    "wall": "#c9b28e",
-   "door": "S"
+   "door": "S",
+   "navDoor": "workshopDoor",
+   "roof": "#7e8189",
+   "interior": {
+    "shell": "house",
+    "items": [
+     [
+      "workbench",
+      -1.6,
+      -1.6,
+      0,
+      "#6f5038"
+     ],
+     [
+      "crate",
+      2.0,
+      -1.6,
+      0
+     ],
+     [
+      "crate",
+      2.0,
+      -0.8,
+      1
+     ],
+     [
+      "barrel",
+      2.2,
+      1.4,
+      0
+     ],
+     [
+      "lamp",
+      -2.4,
+      1.5,
+      0
+     ]
+    ],
+    "route": [
+     [
+      0.0,
+      1.6
+     ],
+     [
+      -1.6,
+      -0.6
+     ]
+    ]
+   }
   },
   {
    "id": "cliffs_sanctuary",
@@ -292,9 +627,73 @@
    "z": -57.5,
    "w": 6.0,
    "d": 5.0,
-   "h": 5.2,
+   "h": 4.2,
    "wall": "#f2efe8",
-   "door": "E"
+   "door": "E",
+   "navDoor": "chapelDoor",
+   "roof": "#7e8189",
+   "interior": {
+    "shell": "house",
+    "height": 3.6,
+    "items": [
+     [
+      "counter",
+      -2.2,
+      0.0,
+      1,
+      "#efe9dc"
+     ],
+     [
+      "lamp",
+      -2.35,
+      -1.7,
+      0
+     ],
+     [
+      "lamp",
+      -2.35,
+      1.7,
+      0
+     ]
+    ],
+    "route": [
+     [
+      2.0,
+      0.0
+     ],
+     [
+      -0.8,
+      0.0
+     ]
+    ]
+   }
+  },
+  {
+   "id": "cliffs_hut",
+   "kind": "cliffs_hut",
+   "name": "The hut on terrace E4",
+   "x": 20.5,
+   "z": -40.2,
+   "w": 4.6,
+   "d": 3.2,
+   "h": 2.2,
+   "wall": "#a59a88",
+   "door": "W",
+   "navDoor": "hutDoor",
+   "interior": {
+    "shell": "house",
+    "empty": true,
+    "route": [
+     [
+      -1.4,
+      0.0
+     ],
+     [
+      0.6,
+      0.0
+     ]
+    ]
+   }
   },
   {
    "id": "cliffs_track_w",
@@ -362,10 +761,11 @@
   {
    "id": "cliffs_hut",
    "name": "The hut on terrace E4",
-   "minI": 18,
-   "maxI": 22,
-   "minK": -42,
-   "maxK": -39,
+   "minI": 19,
+   "maxI": 21,
+   "minK": -41,
+   "maxK": -40,
+   "interior": true,
    "unlock": {
     "quest": "cliffs_hut"
    }
@@ -757,7 +1157,7 @@
  ],
  "features": [
   {
-   "id": "cliffs_station",
+   "id": "cliffs_train",
    "kind": "boat",
    "x": -12.0,
    "z": -5.0,
@@ -985,7 +1385,11 @@
   ],
   "churchDoor": [
    18.2,
-   29.5
+   25.6
+  ],
+  "hutDoor": [
+   17.5,
+   -40.2
   ],
   "rocksS": [
    17.6,
@@ -1276,6 +1680,10 @@
    "rockPath"
   ],
   [
+   "rail4",
+   "hutDoor"
+  ],
+  [
    "rockPath",
    "breakwaterE"
   ],
@@ -1465,5 +1873,261 @@
   }
  ],
  "paths": [],
- "props": []
+ "props": [
+  {
+   "id": "cliffs_boat0",
+   "kind": "cliffs_boat",
+   "x": -2.4,
+   "z": 6.5,
+   "w": 1.5,
+   "d": 4.6,
+   "color": "#2f6fa8"
+  },
+  {
+   "id": "cliffs_boat1",
+   "kind": "cliffs_boat",
+   "x": -2.4,
+   "z": 15.5,
+   "w": 1.5,
+   "d": 4.6,
+   "color": "#c0392b"
+  },
+  {
+   "id": "cliffs_boat2",
+   "kind": "cliffs_boat",
+   "x": 2.4,
+   "z": 7.5,
+   "w": 1.5,
+   "d": 4.6,
+   "color": "#f1c40f"
+  },
+  {
+   "id": "cliffs_boat3",
+   "kind": "cliffs_boat",
+   "x": 2.4,
+   "z": 18.0,
+   "w": 1.5,
+   "d": 4.6,
+   "color": "#2e8b57"
+  },
+  {
+   "id": "cliffs_lemon0",
+   "kind": "cliffs_lemon",
+   "x": -44.0,
+   "z": -26.9,
+   "rad": 0.45
+  },
+  {
+   "id": "cliffs_lemon1",
+   "kind": "cliffs_lemon",
+   "x": -40.9,
+   "z": -26.9,
+   "rad": 0.45
+  },
+  {
+   "id": "cliffs_lemon2",
+   "kind": "cliffs_lemon",
+   "x": -37.8,
+   "z": -26.9,
+   "rad": 0.45
+  },
+  {
+   "id": "cliffs_lemon3",
+   "kind": "cliffs_lemon",
+   "x": -34.7,
+   "z": -26.9,
+   "rad": 0.45
+  },
+  {
+   "id": "cliffs_lemon4",
+   "kind": "cliffs_lemon",
+   "x": -31.6,
+   "z": -26.9,
+   "rad": 0.45
+  },
+  {
+   "id": "cliffs_lemon5",
+   "kind": "cliffs_lemon",
+   "x": -28.5,
+   "z": -26.9,
+   "rad": 0.45
+  },
+  {
+   "id": "cliffs_lemon6",
+   "kind": "cliffs_lemon",
+   "x": -25.4,
+   "z": -26.9,
+   "rad": 0.45
+  },
+  {
+   "id": "cliffs_lemon7",
+   "kind": "cliffs_lemon",
+   "x": -22.3,
+   "z": -26.9,
+   "rad": 0.45
+  },
+  {
+   "id": "cliffs_lemon8",
+   "kind": "cliffs_lemon",
+   "x": -19.2,
+   "z": -26.9,
+   "rad": 0.45
+  },
+  {
+   "id": "cliffs_lemon9",
+   "kind": "cliffs_lemon",
+   "x": -16.099999999999998,
+   "z": -26.9,
+   "rad": 0.45
+  },
+  {
+   "id": "cliffs_lemon10",
+   "kind": "cliffs_lemon",
+   "x": -13.0,
+   "z": -26.9,
+   "rad": 0.45
+  },
+  {
+   "id": "cliffs_lemon11",
+   "kind": "cliffs_lemon",
+   "x": -9.899999999999999,
+   "z": -26.9,
+   "rad": 0.45
+  },
+  {
+   "id": "cliffs_lemon12",
+   "kind": "cliffs_lemon",
+   "x": -6.799999999999997,
+   "z": -26.9,
+   "rad": 0.45
+  },
+  {
+   "id": "cliffs_vines0_0",
+   "kind": "cliffs_pergola",
+   "x": 6.0,
+   "z": -30.8,
+   "w": 4.0,
+   "d": 0.7
+  },
+  {
+   "id": "cliffs_vines0_1",
+   "kind": "cliffs_pergola",
+   "x": 10.7,
+   "z": -30.8,
+   "w": 3.4000000000000004,
+   "d": 0.7
+  },
+  {
+   "id": "cliffs_vines0_2",
+   "kind": "cliffs_pergola",
+   "x": 20.0,
+   "z": -30.8,
+   "w": 4.0,
+   "d": 0.7
+  },
+  {
+   "id": "cliffs_vines0_3",
+   "kind": "cliffs_pergola",
+   "x": 25.2,
+   "z": -30.8,
+   "w": 4.0,
+   "d": 0.7
+  },
+  {
+   "id": "cliffs_vines0_4",
+   "kind": "cliffs_pergola",
+   "x": 30.4,
+   "z": -30.8,
+   "w": 4.0,
+   "d": 0.7
+  },
+  {
+   "id": "cliffs_vines0_5",
+   "kind": "cliffs_pergola",
+   "x": 35.6,
+   "z": -30.8,
+   "w": 4.0,
+   "d": 0.7
+  },
+  {
+   "id": "cliffs_vines0_6",
+   "kind": "cliffs_pergola",
+   "x": 40.8,
+   "z": -30.8,
+   "w": 4.0,
+   "d": 0.7
+  },
+  {
+   "id": "cliffs_vines1_0",
+   "kind": "cliffs_pergola",
+   "x": 6.0,
+   "z": -31.9,
+   "w": 4.0,
+   "d": 0.7
+  },
+  {
+   "id": "cliffs_vines1_1",
+   "kind": "cliffs_pergola",
+   "x": 10.7,
+   "z": -31.9,
+   "w": 3.4000000000000004,
+   "d": 0.7
+  },
+  {
+   "id": "cliffs_vines1_2",
+   "kind": "cliffs_pergola",
+   "x": 20.0,
+   "z": -31.9,
+   "w": 4.0,
+   "d": 0.7
+  },
+  {
+   "id": "cliffs_vines1_3",
+   "kind": "cliffs_pergola",
+   "x": 25.2,
+   "z": -31.9,
+   "w": 4.0,
+   "d": 0.7
+  },
+  {
+   "id": "cliffs_vines1_4",
+   "kind": "cliffs_pergola",
+   "x": 30.4,
+   "z": -31.9,
+   "w": 4.0,
+   "d": 0.7
+  },
+  {
+   "id": "cliffs_vines1_5",
+   "kind": "cliffs_pergola",
+   "x": 35.6,
+   "z": -31.9,
+   "w": 4.0,
+   "d": 0.7
+  },
+  {
+   "id": "cliffs_vines1_6",
+   "kind": "cliffs_pergola",
+   "x": 40.8,
+   "z": -31.9,
+   "w": 4.0,
+   "d": 0.7
+  },
+  {
+   "id": "cliffs_cart0",
+   "kind": "cliffs_cart",
+   "x": 13.65,
+   "z": -27.4,
+   "w": 1.0,
+   "d": 1.3
+  },
+  {
+   "id": "cliffs_cart1",
+   "kind": "cliffs_cart",
+   "x": 13.65,
+   "z": -42.7,
+   "w": 1.0,
+   "d": 1.3
+  }
+ ]
 }

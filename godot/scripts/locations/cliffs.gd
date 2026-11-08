@@ -98,10 +98,12 @@ static func paint(x: float, z: float) -> Color:
 	var g := rc.lerp(SCRUB, _ss(0.35, 0.75, patch))
 	return Color(g.r, g.g, g.b, 0.75 if patch > 0.45 else 0.3)
 
+const Buildings := preload("res://scripts/locations/cliffs/buildings.gd")
+const Scenery := preload("res://scripts/locations/cliffs/scenery.gd")
+
+static func dress(village) -> void: Scenery.dress(village)
+
 static func building(b: Dictionary) -> Node3D:
+	if HouseKit.uses(b): return Buildings.kit_house(b)
 	if not String(b.kind).begins_with("cliffs_"): return null
-	var o := Node3D.new()
-	var h := float(b.get("h", 3.0))
-	var mat := P.stone(String(b.get("wall", "#b0a898"))) if String(b.kind) in ["cliffs_church", "cliffs_church_tower", "cliffs_cellar", "cliffs_tunnel_w", "cliffs_tunnel_e", "cliffs_arch", "cliffs_track_w", "cliffs_track_e"] else P.plaster(String(b.get("wall", "#e8dcc4")))
-	o.add_child(P.mi(P.box(float(b.w), h, float(b.d)), mat, Vector3(0, h / 2.0, 0)))
-	return o
+	return Buildings.make(b)
