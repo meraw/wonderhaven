@@ -23,6 +23,9 @@ var bike: Node3D      # the bicycle, shown while they ride
 var rang := false     # rang the bell riding past you (again once you're well apart)
 var marker_offer: Label3D
 var marker_ready: Label3D
+var stare_mark: Label3D
+var visit := {}
+var visit_t := 30.0
 
 func _init(g, d: Dictionary) -> void:
 	game = g; def = d
@@ -34,6 +37,9 @@ func _init(g, d: Dictionary) -> void:
 	goal = a.node; activity = a.activity
 	game.walk.dynamic.append(body)
 	marker_offer = _marker("!", Color("ffb93b")); marker_ready = _marker("★", Color("59c27a"))
+	stare_mark = _marker("?", Color("8a5cff"))
+	var first: Array = Data.needs.get("visits", {}).get("first", [10, 60])
+	visit_t = lerpf(float(first[0]), float(first[1]), randf())
 	sync()
 
 func _marker(text: String, color: Color) -> Label3D:
@@ -51,7 +57,40 @@ func node_pos(node: String) -> Vector2:
 	var a: Array = Data.layout.nav_nodes[node]
 	return Vector2(a[0], a[1])
 
+func visiting() -> bool: return not visit.is_empty()
+
+func seated() -> bool: return visiting() and visit.get("arrived", false) and String(visit.spot.get("pose", "")) == "sit"
+
+func start_visit(v: Dictionary, h: Dictionary) -> void:
+	visit = v
+	visit["arrived"] = false
+	plan_route(Schedule.nearest_node(float(h.x), float(h.z), game.state.flags))
+	waypoints.append_array(v.get("path", []))
+	if v.use and String(v.spot.get("pose", "")) == "sit": waypoints.append(v.spot.at)
+	goal = "visit:" + String(v.hangout)
+
+func _arrive() -> void:
+	visit["arrived"] = true
+	var sp: Dictionary = visit.spot
+	yaw = float(sp.get("yaw", yaw))
+	if seated(): pos = Vector3(sp.at.x, float(sp.y), sp.at.y)
+	if not visit.use:
+		stare_mark.visible = true
+		character.play("shrug")
+	game.visit_arrived(self)
+
+func end_visit() -> void:
+	if seated():
+		var back: Vector2 = visit.spot.approach
+		pos = Vector3(back.x, game.walk.surface_at(back.x, back.y).y, back.y)
+	visit = {}
+	stare_mark.visible = false
+	var every: Array = Data.needs.get("visits", {}).get("every", [60, 150])
+	visit_t = lerpf(float(every[0]), float(every[1]), randf())
+	goal = ""
+
 func teleport_home() -> void:
+	if visiting(): end_visit()
 	var a := Schedule.activity_at(def, game.state.time.minute, game.state.flags)
 	var p := node_pos(a.node)
 	pos.x = p.x; pos.z = p.y; waypoints = []; goal = a.node; activity = a.activity
@@ -77,8 +116,10 @@ func update(dt: float) -> void:
 	body.r = 0.32 if present else 0.0
 	if not present: return
 	var a := Schedule.activity_at(def, game.state.time.minute, flags)
-	if a.node != goal: plan_route(a.node)
+	if visiting() and a.activity == "sleep": end_visit()
+	if not visiting() and a.node != goal: plan_route(a.node)
 	activity = a.activity
+	if visiting() and visit.arrived: activity = String(visit.spot.get("pose", "")) if visit.use else "stare"
 	var speed := 0.0
 	hurry_t = maxf(0.0, hurry_t - dt)
 	var pp: Vector3 = game.player.pos
@@ -109,14 +150,20 @@ func update(dt: float) -> void:
 			elif pd > 12.0: rang = false
 	else:
 		if riding: _ride(false)
+		if visiting() and not visit.arrived: _arrive()
+		if visiting() and visit.arrived and not talking:
+			visit["left"] = float(visit.get("left", 20.0)) - dt
+			if not visit.use: face(Vector3(visit.look.x, 0.0, visit.look.y), dt, 6.0)
+			if float(visit.left) <= 0.0: end_visit()
 		var pd := Vector2(pp.x - pos.x, pp.z - pos.z).length()
+		if seated(): pd = 99.0
 		if pd < 3.2 and activity != "sleep":
 			face(pp, dt, 5.0)
 			if not greeted and game.mode == "explore": greeted = true; character.play("wave"); game.voice(def.get("voice", 1.0), 2)
 		elif pd > 6.0: greeted = false
 	var s: Dictionary = game.walk.surface_at(pos.x, pos.z, pos.y + 0.3)
-	if s.walkable: pos.y = s.y
-	var hold: String = "talk" if talking else ("ride" if riding else ("" if speed > 0.0 else {"garden": "garden", "work": "work", "read": "read", "talk": "talk", "sleep": "sleep"}.get(activity, "")))
+	if s.walkable and not seated(): pos.y = s.y
+	var hold: String = "talk" if talking else ("ride" if riding else ("" if speed > 0.0 else {"garden": "garden", "work": "work", "read": "read", "talk": "talk", "sleep": "sleep", "sit": "sit"}.get(activity, "")))
 	if hold != "":
 		if character.hold != hold: character.play(hold, true)
 	elif character.hold != "": character.stop_hold()

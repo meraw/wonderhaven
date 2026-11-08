@@ -8,7 +8,52 @@ Working title: **Wonderhaven** (to be renamed). The game is moving to a comic, l
 ## The redesign (07/11)
 After a review of how the game plays, the user agreed a new design: building is the core, the game values what you build
 whether or not anyone asked for it, requests become briefs with checks, and the day becomes a work day you end
-yourself. All of it, and the order it's built in, is in `docs/DESIGN.md`. Stages 1 to 3 are done; the rest is still to do.
+yourself. All of it, and the order it's built in, is in `docs/DESIGN.md`. Stages 1 to 4 are done; the rest is still to do.
+
+### Stage 4: villagers use what you build (Monteforchetta)
+- **Visits.** Now and then a villager takes a break from their routine and goes to one of the village's spots to use
+  something you built there:
+  - they sit on a bench, chair or sofa;
+  - stand under a roof;
+  - work at a counter;
+  - read under a lamp;
+  - tend the flowers.
+
+  They walk the village's paths to the nearest spot, then only over ground the walk-up check proved a villager can
+  stand on, so they don't walk through what you built. They stay a while and go back to their routine. Two villagers
+  never take the same seat, and if you remove a piece, whoever is using it gets up and goes. Timings are real seconds,
+  so visits go on while the day waits at dusk. Settings are in `data/needs.json` (`visits`); rules in `Visits`
+  (`scripts/systems/visits.gd`), the walking in `NpcAgent`.
+- **Puzzled stares.** A piece that provides something but can't be used gets visited too: a seat facing a wall, a chair
+  on top of a stack of blocks. The villager stands as close as they can get, shrugs, and stares at it with a purple
+  "?". It changes nothing in the rules (a bench you can walk up to from the side still meets the need); it's there for
+  the joke.
+- **A heart a day**: the first time each day a villager uses something you built, their friendship goes up by one.
+- **Liveliness**: each spot is lively from 0 to 3 once its met needs plus half its charm reach 1, 2.5 and 4. Villagers
+  pick livelier spots more often, and prefer their own (Ornella the bakery door, Gigia her gate, Aldo the bus stop,
+  the Sindaco the castle steps, Fede the piazza). The approval screen and build mode show "lively n/3".
+- **Gathering at dusk**: when the day waits at dusk and the piazza is fully lively, nearly every villager still awake
+  goes there and stays longer.
+- **Not built yet:**
+  - the market day every fifth day;
+  - the evening music when people gather;
+  - villagers' tastes for pieces and colours near their homes.
+- **Checked:**
+  - **Tested** (`godot/run_tests.sh`, 292 passed). `test_visits` covers: liveliness levels; a bench with room in front
+    sat on, from the front; a bench facing blocks still meets the need but gets a stare; a chair on a stack gets a
+    stare; who goes where (the gathering at dusk, a villager's own spot, a taken seat); paths that stay on standable
+    ground.
+  - **Played** (`play_visits`, 9 checks, now in `play_all.sh`; the pieces are placed by the script's setup and the
+    villagers are watched as time passes, with visits sped up six times):
+    - a chair on two blocks on the church steps gets a shrug and a stare;
+    - a bench outside the bakery gets sat on, by Elio in this run, who gains a heart;
+    - removing the bench sends him off;
+    - two flower beds, two lamps and a counter make the piazza fully lively, and the approval screen says so;
+    - at dusk three of the four villagers still awake gathered there.
+  - **All of Monteforchetta's playthroughs pass** (`play_all.sh`: 19 runs).
+  - **Seen** in screenshots: the stare, the villager on the bench, the gathering.
+  - **Not checked:** how often visits feel right at normal speed (every one to two and a half minutes per villager);
+    villagers using pieces indoors or upstairs.
 
 ### Less text on screen (07/11)
 The user found too much text everywhere. Changes, all shared:
