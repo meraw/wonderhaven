@@ -538,7 +538,8 @@ Checked by the headless tests (`test_animation.gd`: stopping eases, the stride s
     through the night for the storm, the first dance and the catfish, and beds and benches keep their wake times. A
     sleep that carries into the next day ends the day: the evening opening and the morning paper.
   - **Its own paper**, *La Voce dell'Argine*, with headlines about the warden and the river instead of the Sindaco
-    (a layout's `paper` block now overrides the shared lines, the way `naps` names the paper).
+    (a layout's `paper` block now overrides the shared lines, the way `naps` names the paper; its verdict on a new build
+    is *La Voce*'s, not the Eco's).
   - **Ermes opens what you build** at the end of the day, in his own words (a layout `inauguration` block with
     Boccapioppo's lines: "Boccapioppo! Tonight, a bench and two lamps in town. I measured it.").
   - **Tastes** for all nine villagers (a heart and a remark for a liked piece or colour near their spot, gossip in the
@@ -556,6 +557,23 @@ Checked by the headless tests (`test_animation.gd`: stopping eases, the stride s
   conversation with him that changes the town (Mattia's photo goes up in the bar), which rebuilds the world where you
   stand; rebuilt at night, by day and inside his shack, it looks the same before and after. Needs a screenshot or a
   description of what changed to go further.
+- **Checked:** **tested** (374 passed): leaving is `1` and comes first, also when turning down an offer
+  (`test_goodbye_is_always_one`); walking sideways off either raised end of the Roman bridge stops at the parapet, and you
+  can still walk across it (`test_you_cant_step_off_the_roman_bridge`); the journey's timing, its caption and its road by
+  Monteforchetta (`test_journey`); a day that doesn't hold runs on through the night and regrows next morning
+  (`test_work_day`); every Boccapioppo building request is a brief whose plan meets its musts and whose wishes can all be
+  met with pieces you can build, and the new sealed check (`test_commission`); tastes, gossip, the market and the paper
+  belong to their place (`test_alive`). **Played:** Boccapioppo's whole playthrough passes (`play_river_town`, 33 checks)
+  with the new briefs: it builds the pontoon bridge, the pumping house's waterwheel, the dance hall, the slipway, the
+  cabin and the levee wall to their musts, and crosses the Roman bridge; Tullio and Wanda give hearts for a pontoon and a
+  lamp near their spots. A separate check in Boccapioppo built a lamp and a bench on the quay and slept on a bench into
+  the next day: Ermes opened the lamp at dusk in his own lines, in front of Boccapioppo's villagers, and the morning
+  paper was *La Voce dell'Argine* ("Warden opens a lamp in town, to the nearest centimetre"), with Ermes's gossip and
+  no Sindaco or Eco (which is how the Eco's verdict line was found and replaced). Travelling shows the journey (screenshots
+  mid-ride and on arrival; `play_map` travels to Toriano through it). Every playthrough of the three villages passes
+  (`play_all.sh`, 28 runs; `play_full2` needed its wood-gathering helper to skip the big oaks the old
+  hatchet can't fell, and passes). **Not checked:** the Gildo glitch (not reproduced); leaving with `1` was only tested,
+  not pressed in a playthrough; the wishes beyond Tullio's and Wanda's weren't met in play.
 
 ## Ornella's boars can always be finished (08/11)
 - **A missing boar** (Monteforchetta, playtest): her request needs three boars fed, but it only counted a feed made on the "Offer a chestnut to each boar" step, while a bakery boar takes a chestnut any time the request is on. Feed one while you're still on the chestnut step (say, with a chestnut left over after feeding the woods boars) and it trotted off to the woods for good, uncounted: two boars left for a step that needs three, and no way to finish. A save stuck like that had all three boars fed and only two counted.
