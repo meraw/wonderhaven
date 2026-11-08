@@ -118,3 +118,40 @@ func test_the_village_core_is_dense_and_clear():
 		t.ok(near_path > 1.3, "%s keeps off the lanes (%.2f m)" % [b.id, near_path])
 		t.ok(near_node > 1.4, "%s leaves every resource spot reachable (%.2f m)" % [b.id, near_node])
 		t.ok(near_square > 0.0, "%s stands round the piazza, not on it" % b.id)
+
+func _building(id: String) -> Dictionary:
+	for b in Data.layout.buildings:
+		if b.id == id: return b
+	return {}
+
+func _coppi(g: Node) -> int:
+	var n := 0
+	for mmi in g.find_children("*", "MultiMeshInstance3D", true, false):
+		if (mmi as MultiMeshInstance3D).material_override is ShaderMaterial: n += (mmi as MultiMeshInstance3D).multimesh.instance_count
+	return n
+
+func test_landmarks_are_restyled_with_the_kit():
+	t.ok(HouseKit.kit_style(), "Monteforchetta builds with the kit")
+	var ws := _building("workshop")
+	var w := Props.workshop(ws)
+	for nm in ["walls", "clutter", "signGear"]: t.ok(w.find_child(nm, true, false) != null, "the workshop keeps its %s" % nm)
+	t.ok(_coppi(w) > 200, "the workshop has a coppi roof (%d tiles)" % _coppi(w))
+	t.ok((w.get_meta("fade_parts", []) as Array).any(func(p): return p[0] is MultiMeshInstance3D), "its coppi fade while you're inside")
+	t.ok(not w.get_meta("glasses", []).is_empty(), "its windows light at night")
+	w.free()
+	var ch := Props.church(_building("odessaHouse"))
+	t.ok(_coppi(ch) > 100, "the church has a coppi roof (%d tiles)" % _coppi(ch))
+	t.ok(ch.get_meta("glasses", []).size() >= 2, "the rose window and side windows glow at night")
+	ch.free()
+	var cb := _building("castle")
+	var c := Props.castle(cb)
+	var room := Interiors.room(cb)
+	var lamps := c.find_children("*", "OmniLight3D", true, false)
+	t.ok(lamps.size() >= 2, "the castle hall has lamps")
+	for l in lamps:
+		var p: Vector3 = (l as OmniLight3D).position + Vector3(cb.x, 0.0, cb.z)
+		t.ok(room.has_point(Vector3(p.x, room.position.y + 1.0, p.z)), "a hall lamp hangs inside the hall")
+		t.ok(not (l as OmniLight3D).shadow_enabled, "and casts no shadows, for speed")
+	t.ok(not c.get_meta("fade_parts", []).is_empty(), "the keep's roof still fades while you're inside")
+	t.ok(not c.get_meta("glasses", []).is_empty(), "the keep's windows and lamps glow at night")
+	c.free()

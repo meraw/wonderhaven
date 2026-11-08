@@ -74,8 +74,8 @@ own cobble colours, and `views.sh` with `measure_views.py` for before-and-after 
      - dry daytime views moved by 2% or less;
      - rain gained contrast and its puddles now mirror the sky and the village;
      - night is 8% brighter than in step one (8% darker than before the conversion);
-     - the castle hall at dawn did not improve. It stays about 20% darker than before the conversion: the old rim
-       light lit shaded rooms, and the rebuilt hall in step three should bring its own light (windows, lamps).
+     - the castle hall at dawn did not improve here: it stayed about 20% darker than before the conversion, because
+       the old rim light lit shaded rooms. Step three fixed it with lamps in the hall.
 
      Before-and-after images: `docs/models/conversion_step2_a.jpg` and `conversion_step2_b.jpg`.
 3. **Buildings and the village:**
@@ -91,7 +91,16 @@ own cobble colours, and `views.sh` with `measure_views.py` for before-and-after 
 
      They were placed clear of every lane, villagers' route, resource spot, building site, bench, sign and hangout,
      with no change to gameplay data. Before and after: `docs/models/conversion_step3_b.jpg`;
-   - the code-built church, castle and workshop restyled.
+   - **done:** the church, castle and workshop restyled with the kit, their shapes and gameplay unchanged:
+     - the church has a gabled front with an arched stone portal and rose window, quoins, a sandstone footing and a
+       coppi roof, and its brick tower has stone quoins, a stone belfry and a tiled spire that takes snow;
+     - the workshop has a coppi roof that fades while you're inside, a stone door frame, kit windows with shutters,
+       a footing and quoins;
+     - the castle has tiled tower roofs that take snow, barred windows in the keep, a footing round the curtain wall,
+       and two wall lamps in the hall with warm lights of their own, which bring the hall at dawn back to about its
+       brightness before the conversion.
+
+     Places without the kit keep the old buildings. Before and after: `docs/models/conversion_step3_c.jpg`.
 4. **Characters:**
    - fabric chosen per garment (knit, denim, leather) instead of knit for everything;
    - hair material;

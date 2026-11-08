@@ -115,10 +115,11 @@ The terrain shader has a realistic variant too (`TerrainBuilder.terrain_code`, a
 - **Screen-space reflections** (Forward+ only) put what stands nearby into the puddles (the noticeboard's post in the
   rain view); off screen, puddles fall back to the sky. Their cost on a real graphics card is not measured yet.
 - **A little ambient fill stays at night** (1.15 instead of 1.0): night had come out 15% darker in step one.
-- **Not fixed: the castle hall at dawn.** It stays about 20% darker than before the conversion, and cooler. The
-  dawn ambient was already at full strength. The loss is the old rim light's warm fill, which reached shaded surfaces
-  too; a room in full shadow at dawn has nothing else. A raised ambient would wash out every daytime shadow. The hall
-  is due to be rebuilt in step three, and lit windows or lamps in the room are the better fix.
+- **The castle hall at dawn** stayed about 20% darker than before the conversion, and cooler, until step three.
+  The dawn ambient was already at full strength: the loss was the old rim light's warm fill, which reached shaded
+  surfaces too, and a room in full shadow at dawn has nothing else. A raised ambient would have washed out every
+  daytime shadow. Step three gives the hall two wall lamps with warm lights of their own (no shadows, 4.6 m reach):
+  at dawn the hall is now about as bright as before the conversion, and warm again.
 
 ## Tried and dropped
 - **Normal maps from the detail textures** (plaster, wood, stone, fabric). Invisible at gentle strengths, and at
