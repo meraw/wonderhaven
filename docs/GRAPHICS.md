@@ -61,6 +61,7 @@ These hold for any cozy, stylised 3D game with a painted look, not only this one
 | ACES tonemapping (white point 4, exposure 0.92; 0.78 in the compatibility renderer), a sun nearly three times the ambient by day, a brighter moon and ambient at night | `terrain.gd` (`build_environment`), `daylight.gd` (`KEYS`) | all |
 | Watercolour-and-pencil icons for the resources, the HUD, the menus and the weather, as a colour font the UI fonts try before the one-colour icon fonts (`tools/icons/`) | `ui_theme.gd` (`drawn_icon_font`), `assets/fonts/WonderhavenIcons.ttf` | all |
 | Build pieces shown as small renders of their own models (ink outline, game lighting) on the build bar and panels | `tests/render_piece_icons.gd`, `assets/icons/pieces/`, `build_mode.gd` (`piece_icon`) | all |
+| Character animation with weight: walking eases in and out, the stride follows the distance walked, squash and stretch on every step and on landing, a lean into the walk and a tip forward on stopping, a bank into turns with the head leading, breathing, a slow shift of weight and glances around when standing, and actions with anticipation, impact and follow-through (a chop winds back, strikes fast, jolts and recovers) | `chibi.gd` (`animate`, `swing_pose`, easing helpers) | all |
 | A layout's own cobblestones (`cobbleColors`: Monteforchetta's warm grey local stone instead of pale granite) | `terrain.gd` (terrain shader `cobble_a`, `cobble_b`) | all |
 | Colour grade that follows the hour and weather | `atmosphere.gd` (environment colour correction) | all |
 | Cloud shadows matching the sky's clouds, soft vignette | `atmosphere.gd` (screen pass) | Forward+ |
@@ -149,6 +150,11 @@ The terrain shader has a realistic variant too (`TerrainBuilder.terrain_code`, a
   how models are made, so it is a project of its own.
 
 ## How it was checked
+- Character animation (08/11): `godot/tests/anim_reel.gd` drives one character through idle, walking, stopping, a
+  walking turn, two chops, a wave, a celebration and a jump at a fixed 30 fps with a tracking camera, and saves every
+  frame (`xvfb-run -a godot --path godot -s res://tests/anim_reel.gd -- --out=<dir>`, then
+  `ffmpeg -framerate 30 -i <dir>/%04d.png reel.mp4`). The same reel was rendered before and after and compared
+  frame by frame; `test_animation.gd` checks the timing and the squashes.
 - Tonemapping and light (07/11): `godot/views.sh` before and after in Forward+ on software Vulkan, measured with
   `godot/measure_views.py`. Contrast rose 15 to 55% in every view; clipped white fell from 6.2% to 0.5% in the sunset
   view and to at most 1.6% elsewhere (bright sky); daytime views are 5 to 11% brighter (the gain is in the

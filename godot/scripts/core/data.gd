@@ -25,6 +25,8 @@ var needs: Dictionary
 var inauguration: Dictionary
 var commissions: Dictionary
 var tools: Dictionary
+var tastes: Dictionary
+var market: Dictionary
 ## The island you're on. `layout` is that island's layout (data/layout.json for Hearthglow, layout_<id>.json or a
 ## location pack's layout for the others); Heightfield follows it. Sailing reloads the scene with the new island.
 var island := "hearthglow"
@@ -62,6 +64,8 @@ func load_all() -> void:
 	inauguration = _read("inauguration")
 	commissions = _read("commissions")
 	tools = _read("tools")
+	tastes = _read("tastes")
+	market = _read("market")
 	var lists := {"islands": islands, "npcs": npcs, "quests": quests, "shops": shops.get("shops", {}), "resources": resources, "order": resource_order, "appearance": appearance}
 	for id in location_ids():
 		var dir := "%s/%s/" % [LOCATIONS, id]

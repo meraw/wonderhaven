@@ -25,6 +25,20 @@ var vis_layer := 1
 ## glossy eyes, kept for comparison renders).
 static var face_style := "bean"
 var face_mat: ShaderMaterial
+var gait := 0.0
+var stride := 0.0
+var lean := 0.0
+var bank := 0.0
+var yaw_rate := 0.0
+var last_yaw := INF
+var look := 0.0
+var look_target := 0.0
+var next_glance := 3.0 + randf() * 4.0
+var was_airborne := false
+var land_age := 9.0
+var impact_age := 9.0
+var impact_amp := 0.0
+var action_prev_p := 0.0
 
 func _init(app: Dictionary = {}) -> void:
 	set_appearance(app)
@@ -315,7 +329,7 @@ func set_talking(v: bool) -> void:
 
 func play(name: String, hold_state: bool = false) -> void:
 	if hold_state: hold = name; action = ""; return
-	action = name; action_t = 0.0
+	action = name; action_t = 0.0; action_prev_p = 0.0
 	if name in ["celebrate", "clap"]: set_mood("happy", ACTION_LENGTH[name])
 	if name == "surprised": set_mood("surprised", 1.2)
 
@@ -497,6 +511,37 @@ func _build_hat(kind: String, color: String, trim: String = "") -> void:
 				_m(P.cyl(0.09, 0.09, 0.07, 24), "c9a06e", g, Vector3(s * 0.13, 0.3, 0.33), Vector3.ONE, Vector3(PI / 2 - 0.5, 0, 0))
 				_m(P.sphere(0.07, 28, 18), P.mat("8fe0ff", "3fa9d6", 0.6), g, Vector3(s * 0.13, 0.31, 0.37), Vector3(1, 1, 0.4))
 
+static func ease_in(x: float) -> float:
+	var c := clampf(x, 0.0, 1.0)
+	return c * c * c
+
+static func ease_out(x: float) -> float:
+	var c := 1.0 - clampf(x, 0.0, 1.0)
+	return 1.0 - c * c * c
+
+static func back_out(x: float, over: float = 1.7) -> float:
+	var c := clampf(x, 0.0, 1.0) - 1.0
+	return 1.0 + (over + 1.0) * c * c * c + over * c * c
+
+static func settle(age: float, amp: float, freq: float, damp: float) -> float:
+	if age < 0.0: return 0.0
+	return amp * exp(-age * damp) * cos(age * freq)
+
+static func swing_pose(p: float) -> Vector2:
+	var back := -3.15
+	var hit := 0.1
+	if p < 0.42:
+		var a := ease_out(p / 0.42)
+		return Vector2(lerpf(-0.4, back, a), -0.12 * a)
+	if p < 0.56:
+		var a := ease_in((p - 0.42) / 0.14)
+		return Vector2(lerpf(back, hit, a), lerpf(-0.12, 0.32, a))
+	var a := ease_out((p - 0.56) / 0.44)
+	return Vector2(lerpf(hit, -0.5, a), lerpf(0.32, 0.0, a))
+
+func _blend(rate: float, dt: float) -> float:
+	return 1.0 - exp(-dt * rate)
+
 func animate(dt: float, speed: float = 0.0, airborne: bool = false) -> void:
 	t += dt
 	next_blink -= dt
@@ -508,24 +553,59 @@ func animate(dt: float, speed: float = 0.0, airborne: bool = false) -> void:
 		mood_t -= dt
 		if mood_t <= 0.0: mood = "neutral"; _refresh_face()
 	if talking: _refresh_face()
-	body.position = Vector3.ZERO; body.rotation = Vector3.ZERO; head.rotation = Vector3.ZERO
-	for p in [arm_l, arm_r, leg_l, leg_r]: p.rotation = Vector3.ZERO
-	var walk := minf(1.0, speed)
-	if walk > 0.05:
-		var f := t * (8.0 + speed * 4.0)
-		leg_l.rotation.x = sin(f) * 0.8 * walk; leg_r.rotation.x = -sin(f) * 0.8 * walk
-		arm_l.rotation.x = -sin(f) * 0.7 * walk; arm_r.rotation.x = sin(f) * 0.7 * walk
-		body.position.y = absf(sin(f)) * 0.07 * walk
-		body.rotation.z = sin(f) * 0.05 * walk; head.rotation.z = -sin(f) * 0.05 * walk
-	else:
-		body.position.y = sin(t * 2.2) * 0.012; head.rotation.z = sin(t * 0.9) * 0.04
-		arm_l.rotation.z = -0.1 - sin(t * 2.2) * 0.03; arm_r.rotation.z = 0.1 + sin(t * 2.2) * 0.03
-	if airborne: leg_l.rotation.x = 0.5; leg_r.rotation.x = -0.3; arm_l.rotation.z = -1.2; arm_r.rotation.z = 1.2
+	body.position = Vector3.ZERO; body.rotation = Vector3.ZERO; body.scale = Vector3.ONE; head.rotation = Vector3.ZERO
+	for limb in [arm_l, arm_r, leg_l, leg_r]: limb.rotation = Vector3.ZERO
+	var prev_gait := gait
+	gait = lerpf(gait, minf(1.0, speed), _blend(9.0, dt))
+	var accel := (gait - prev_gait) / maxf(dt, 0.0001)
+	var yaw := global_rotation.y if is_inside_tree() else rotation.y
+	if last_yaw != INF and dt > 0.0:
+		yaw_rate = lerpf(yaw_rate, clampf(wrapf(yaw - last_yaw, -PI, PI) / dt, -12.0, 12.0), _blend(10.0, dt))
+	last_yaw = yaw
+	lean = lerpf(lean, 0.09 * gait - clampf(accel * 0.02, -0.12, 0.12), _blend(6.0, dt))
+	bank = lerpf(bank, clampf(-yaw_rate * 0.05 * (0.25 + gait), -0.22, 0.22), _blend(8.0, dt))
+	var squash := 0.0
+	if gait > 0.01: stride += dt * (7.5 + speed * 4.0) * clampf(gait * 1.5, 0.0, 1.0)
+	var sw := sin(stride)
+	var up := absf(sw)
+	var arm_sw := sin(stride - 0.4)
+	leg_l.rotation.x = sw * 0.8 * gait; leg_r.rotation.x = -sw * 0.8 * gait
+	arm_l.rotation.x = -arm_sw * 0.7 * gait; arm_r.rotation.x = arm_sw * 0.7 * gait
+	arm_l.rotation.z = -0.1 * (1.0 - gait) - 0.06 * gait; arm_r.rotation.z = -arm_l.rotation.z
+	body.position.y = up * 0.07 * gait
+	squash += (pow(1.0 - up, 6.0) * 0.07 - pow(up, 6.0) * 0.035) * gait
+	body.rotation.x = lean
+	body.rotation.z = sw * 0.05 * gait + bank
+	head.rotation.z = -sw * 0.04 * gait - bank * 0.6
+	head.rotation.x = -lean * 0.5 - cos(stride * 2.0) * 0.025 * gait
+	head.rotation.y = clampf(yaw_rate * 0.07, -0.45, 0.45)
+	var rest := 1.0 - gait
+	if rest > 0.01:
+		var breath := sin(t * 2.2)
+		body.position.y += breath * 0.01 * rest
+		squash -= breath * 0.012 * rest
+		body.rotation.z += sin(t * 0.47) * 0.03 * rest
+		head.rotation.z += sin(t * 0.9) * 0.035 * rest
+		arm_l.rotation.z -= breath * 0.03 * rest; arm_r.rotation.z += breath * 0.03 * rest
+		next_glance -= dt
+		if next_glance <= 0.0:
+			next_glance = 2.5 + randf() * 5.0
+			look_target = 0.0 if randf() < 0.4 else randf_range(-0.55, 0.55)
+		look = lerpf(look, look_target, _blend(5.0, dt))
+		if hold == "" and action == "" and not talking: head.rotation.y += look * rest
+	land_age += dt
+	impact_age += dt
+	if airborne:
+		leg_l.rotation.x = 0.5; leg_r.rotation.x = -0.3; arm_l.rotation.z = -1.2; arm_r.rotation.z = 1.2
+		squash -= 0.06
+	elif was_airborne: land_age = 0.0
+	was_airborne = airborne
+	squash += settle(land_age, 0.16, 12.0, 7.0) + settle(impact_age, impact_amp, 16.0, 9.0)
 	match hold:
 		"sit": body.position.y = -0.2; leg_l.rotation.x = -1.4; leg_r.rotation.x = -1.4; arm_l.rotation.x = -0.3; arm_r.rotation.x = -0.3
-		"ride":   # on the bicycle's saddle: pedalling as fast as you go, hands on the handlebar
+		"ride":
 			var pedal := t * 7.0 * minf(1.0, speed)
-			body.position.y = 0.32; body.rotation.z = 0.0; head.rotation.z = 0.0
+			body.position.y = 0.32; body.rotation.z = bank * 0.5; head.rotation.z = 0.0
 			leg_l.rotation.x = -1.1 + sin(pedal) * 0.45 * minf(1.0, speed); leg_r.rotation.x = -1.1 - sin(pedal) * 0.45 * minf(1.0, speed)
 			arm_l.rotation.x = -1.15; arm_r.rotation.x = -1.15; arm_l.rotation.z = 0.12; arm_r.rotation.z = -0.12
 		"sleep": body.position.y = -0.24; leg_l.rotation.x = -1.4; leg_r.rotation.x = -1.4; head.rotation.x = 0.35; head.rotation.z = 0.25
@@ -536,28 +616,70 @@ func animate(dt: float, speed: float = 0.0, airborne: bool = false) -> void:
 		"garden": body.rotation.x = 0.3; arm_l.rotation.x = -0.9 + sin(t * 4.0) * 0.2; arm_r.rotation.x = arm_l.rotation.x
 		"read": arm_l.rotation.x = -1.1; arm_r.rotation.x = -1.1; arm_l.rotation.z = 0.35; arm_r.rotation.z = -0.35; head.rotation.x = 0.25
 		"talk": arm_r.rotation.x = -0.4 + sin(t * 3.0) * 0.3; arm_r.rotation.z = 0.35; head.rotation.y = sin(t * 1.3) * 0.12
+	if hold != "" and hold != "talk": squash = 0.0
 	if action != "":
 		action_t += dt
-		var p: float = action_t / ACTION_LENGTH.get(action, 1.0)
+		var length: float = ACTION_LENGTH.get(action, 1.0)
+		var p := clampf(action_t / length, 0.0, 1.0)
 		var s := sin(p * PI)
 		match action:
-			"wave": arm_r.rotation.z = 2.6; arm_r.rotation.x = sin(action_t * 12.0) * 0.35; head.rotation.z = 0.12
+			"wave":
+				var raise := back_out(minf(1.0, action_t * 4.0)) * (1.0 - ease_in((p - 0.8) / 0.2))
+				arm_r.rotation.z = 2.6 * raise; arm_r.rotation.x = sin(action_t * 12.0) * 0.35 * raise
+				head.rotation.z = 0.14 * raise; body.rotation.z -= 0.05 * raise
 			"clap":
 				arm_l.rotation.x = -1.3; arm_r.rotation.x = -1.3
 				var c := absf(sin(action_t * 14.0)) * 0.5
-				arm_l.rotation.z = 0.5 - c; arm_r.rotation.z = -0.5 + c; body.position.y += absf(sin(action_t * 7.0)) * 0.05
+				arm_l.rotation.z = 0.5 - c; arm_r.rotation.z = -0.5 + c
+				var hop := absf(sin(action_t * 7.0))
+				body.position.y += hop * 0.05; squash += (1.0 - hop) * 0.04
 			"celebrate":
-				body.position.y += absf(sin(action_t * 6.0)) * 0.35; arm_l.rotation.z = -2.7; arm_r.rotation.z = 2.7
-				arm_l.rotation.x = sin(action_t * 12.0) * 0.2; arm_r.rotation.x = arm_l.rotation.x; body.rotation.y = action_t * 3.4
-			"surprised": body.position.y += s * 0.25; arm_l.rotation.z = -1.5 * s; arm_r.rotation.z = 1.5 * s
-			"nod": head.rotation.x = sin(p * PI * 4.0) * 0.25
-			"shake":   # shaking the water off, like a wet dog
+				if action_t < 0.18:
+					var a := ease_out(action_t / 0.18)
+					squash += 0.14 * a; body.position.y -= 0.05 * a
+					arm_l.rotation.z = -0.6 * a; arm_r.rotation.z = 0.6 * a
+				else:
+					var ct := action_t - 0.18
+					var jump := absf(sin(ct * 6.0))
+					body.position.y += jump * 0.35
+					squash += pow(1.0 - jump, 8.0) * 0.12 - jump * 0.06
+					arm_l.rotation.z = -2.7; arm_r.rotation.z = 2.7
+					arm_l.rotation.x = sin(ct * 12.0) * 0.2; arm_r.rotation.x = arm_l.rotation.x
+					body.rotation.y = ct * 3.4
+			"surprised":
+				if p < 0.15: squash += 0.12 * ease_out(p / 0.15)
+				else:
+					var lift := sin((p - 0.15) / 0.85 * PI)
+					body.position.y += lift * 0.25; squash -= lift * 0.08
+					arm_l.rotation.z = -1.5 * lift; arm_r.rotation.z = 1.5 * lift; head.rotation.x -= 0.15 * lift
+			"nod": head.rotation.x = sin(p * PI * 4.0) * 0.25 * (1.0 - p * 0.5)
+			"shake":
 				body.rotation.y = sin(action_t * 38.0) * 0.35 * s; head.rotation.z = sin(action_t * 30.0) * 0.25 * s
 				arm_l.rotation.z = -0.6 * s; arm_r.rotation.z = 0.6 * s
-			"shrug": arm_l.rotation.z = -0.9 * s; arm_r.rotation.z = 0.9 * s; head.rotation.z = 0.2 * s
-			"chop", "mine": arm_r.rotation.x = -2.8 + p * 3.2; arm_l.rotation.x = -2.4 + p * 2.8; body.rotation.x = 0.25 * s
-			"dig": body.rotation.x = 0.45 * s; arm_r.rotation.x = -0.6 - s; arm_l.rotation.x = -0.6 - s
-			"build": arm_r.rotation.x = -2.8 * s; body.position.y += 0.08 * s
-			"feed": arm_r.rotation.x = -1.2 * s; body.rotation.x = 0.3 * s
-		if p >= 1.0: action = ""
-
+			"shrug":
+				arm_l.rotation.z = -0.9 * s; arm_r.rotation.z = 0.9 * s; head.rotation.z = 0.2 * s
+				body.position.y += 0.03 * s; squash -= 0.03 * s
+			"chop", "mine":
+				var pose := swing_pose(p)
+				arm_r.rotation.x = pose.x; arm_l.rotation.x = pose.x + 0.4; body.rotation.x += pose.y
+				if action_prev_p < 0.56 and p >= 0.56: impact_age = 0.0; impact_amp = 0.09
+			"build":
+				var pose := swing_pose(p)
+				arm_r.rotation.x = pose.x; arm_l.rotation.z = -0.4; body.rotation.x += pose.y * 0.6
+				if action_prev_p < 0.56 and p >= 0.56: impact_age = 0.0; impact_amp = 0.06
+			"dig":
+				if p < 0.3:
+					var a := ease_out(p / 0.3)
+					body.rotation.x -= 0.1 * a; arm_r.rotation.x = -1.3 * a; arm_l.rotation.x = -1.3 * a
+				elif p < 0.5:
+					var a := ease_in((p - 0.3) / 0.2)
+					body.rotation.x += lerpf(-0.1, 0.45, a); arm_r.rotation.x = lerpf(-1.3, -0.3, a); arm_l.rotation.x = arm_r.rotation.x
+				else:
+					var a := ease_out((p - 0.5) / 0.5)
+					body.rotation.x += lerpf(0.45, 0.0, a); arm_r.rotation.x = lerpf(-0.3, 0.0, a); arm_l.rotation.x = arm_r.rotation.x
+				if action_prev_p < 0.5 and p >= 0.5: impact_age = 0.0; impact_amp = 0.08
+			"feed": arm_r.rotation.x = -1.2 * ease_out(s); body.rotation.x += 0.3 * s
+		action_prev_p = p
+		if action_t >= length: action = ""; action_prev_p = 0.0
+	squash = clampf(squash, -0.12, 0.2)
+	body.scale = Vector3(1.0 + squash * 0.5, 1.0 - squash, 1.0 + squash * 0.5)

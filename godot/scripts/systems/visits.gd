@@ -75,8 +75,10 @@ static func options(hs: Array, placements: Array, cells_by: Dictionary, lit: Dic
 					out.append({"hangout": hid, "uid": int(p.uid), "kind": String(kind), "use": spot.get("ok", false), "spot": spot})
 	return out
 
+static func gathering(v: Dictionary, dusk: bool) -> bool: return dusk and level(v, "piazza") >= 3
+
 static func pick(opts: Array, who: String, hs: Array, v: Dictionary, taken: Dictionary, roll: float, dusk: bool) -> Dictionary:
-	var gather := dusk and level(v, "piazza") >= 3
+	var gather := gathering(v, dusk)
 	var pool: Array = []
 	var total := 0.0
 	for o in opts:

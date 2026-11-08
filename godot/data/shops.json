@@ -179,6 +179,13 @@
      "requires": {
       "harmony": 80
      }
+    },
+    {
+     "items": {
+      "pumpkin": 2
+     },
+     "price": 15,
+     "market": true
     }
    ]
   },
@@ -222,6 +229,13 @@
     {
      "blueprint": "streetlight",
      "price": 45
+    },
+    {
+     "items": {
+      "crystal": 2
+     },
+     "price": 50,
+     "market": true
     }
    ]
   },
@@ -256,6 +270,13 @@
        "squirrels"
       ]
      }
+    },
+    {
+     "items": {
+      "pie": 1
+     },
+     "price": 12,
+     "market": true
     }
    ]
   },
@@ -288,6 +309,13 @@
     {
      "blueprint": "statue",
      "price": 70
+    },
+    {
+     "items": {
+      "fabric": 4
+     },
+     "price": 26,
+     "market": true
     }
    ]
   },

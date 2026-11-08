@@ -78,7 +78,7 @@ func _done(o: Dictionary, placements: Array, here: Array) -> bool:
 	return false
 
 func test_the_plans_work():
-	for id in ["bridge", "workshop", "fountain", "home", "dock", "lamp"]:
+	for id in ["bridge", "workshop", "fountain", "home", "dock", "lamp", "stones", "tables", "stall", "corner"]:
 		_build(Data.quest(id), [])
 	# the lamp's plan works beside a fountain built to its plan, and the farmhouse's bed fits the house
 	var piazza: Array = []

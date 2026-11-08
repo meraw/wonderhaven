@@ -447,7 +447,11 @@ func morning_paper(yesterday: Dictionary, noticed: Array = []) -> void:
 		"draft": Drafts.items_text(short) if not drafts.is_empty() and not short.is_empty() else "",
 		"weather": Daylight.slot_weather(Daylight.slot_index({"day": state.time.day, "minute": 12 * 60.0}), Daylight.allowed_here()),
 		"noticed": noticed.map(func(k): return Needs.line(Needs.hangouts(), k))}
+	var gossip := Tastes.gossip(state, randf()) if not Tastes.defs().is_empty() and WorkDay.on(Data.island) else {}
+	ctx["gossip"] = String(gossip.get("text", ""))
+	ctx["market"] = Market.paper_line(int(state.time.day), Market.counters(state.placements).size()) if WorkDay.on(Data.island) else ""
 	var p := MorningPaper.compose(yesterday, ctx, Data.paper, Data.quests, randf())
+	if not gossip.is_empty() and p.notes.has(ctx.gossip): Tastes.learn(state, String(gossip.id))
 	var lines: Array = ["[b]%s[/b]" % p.headline]
 	lines.append_array(p.notes)
 	hud.show_tip({"icon": "📰", "title": p.title, "lines": lines, "seconds": 30.0})
@@ -472,7 +476,7 @@ func refresh_village(ev: Dictionary = {}) -> void:
 		if a.visiting() and not visit_opts.any(func(o): return int(o.uid) == int(a.visit.uid) and bool(o.use) == bool(a.visit.use)): a.end_visit()
 	var r := Needs.settle(state, int(village_score.points))
 	if not quiet: _village_toasts(before, village_score, hs)
-	for u in r.unlocks: story.apply_unlock(u)
+	if not r.unlocks.is_empty(): story.announce_approval()
 	if r.delta != 0: story.handle(story.engine.refresh())
 	hud.render_harmony(); hud.render_tracker()
 	render_needs()
@@ -504,6 +508,10 @@ func _update_visits(dt: float) -> void:
 	var taken := {}
 	for a in npcs.values():
 		if a.visiting() and a.visit.use: taken[int(a.visit.uid)] = true
+	if dusk and Visits.gathering(village_score, dusk):
+		for a in npcs.values():
+			if a.visiting() and a.visit.get("arrived", false) and String(a.visit.hangout) == "piazza" and not a.seated() and randf() < dt * 0.3:
+				a.character.play(["clap", "wave", "celebrate"][randi() % 3])
 	for a in npcs.values():
 		if not a.present or a.talking or a.visiting() or a.activity == "sleep" or a.riding: continue
 		a.visit_t -= dt * rate
@@ -523,6 +531,64 @@ func _update_visits(dt: float) -> void:
 		if v.use: taken[int(v.uid)] = true
 		a.start_visit(v, h)
 		emit_event("visit", {"npc": String(a.def.id), "hangout": String(v.hangout), "kind": String(v.kind), "use": bool(v.use)})
+
+func festa_now() -> bool:
+	if not Visits.gathering(village_score, WorkDay.held(state.time, WorkDay.def(Data.island))): return false
+	var h := Needs.hangout(Needs.hangouts(), "piazza")
+	return not h.is_empty() and Vector2(player.pos.x - float(h.x), player.pos.z - float(h.z)).length() < 28.0
+
+var market_held: Array = []
+
+func _update_market() -> void:
+	if not WorkDay.on(Data.island) or mode in ["title", "creator", "cutscene"]: return
+	var r := Market.record(state)
+	var open := Market.open(state.time)
+	if not open:
+		if not market_held.is_empty(): close_market()
+		return
+	var day := int(state.time.day)
+	var stalls := Market.counters(state.placements)
+	if int(r.get("day", 0)) == day and not market_held.is_empty():
+		var have := {}
+		for p in stalls: have[int(p.uid)] = true
+		if r.get("at", {}).values().all(func(u): return have.has(int(u))): return
+		close_market()
+	if int(r.get("day", 0)) == day and r.get("closed", false): return
+	open_market(stalls)
+
+func open_market(stalls: Array) -> void:
+	var r := Market.record(state)
+	var sellers: Array = npcs.keys().filter(func(id): return npcs[id].present and not npcs[id].talking and npcs[id].activity != "sleep" and not npcs[id].held)
+	var at := Market.assign(sellers, stalls)
+	r["day"] = int(state.time.day)
+	r["at"] = {}
+	r["closed"] = false
+	for id in at:
+		var pl := _find_pl(int(at[id]))
+		var sp := Market.spot(walk, pl)
+		if sp.is_empty(): continue
+		var a = npcs[id]
+		if a.visiting(): a.end_visit()
+		a.held = true
+		a.waypoints = []
+		a.pos = Vector3(float(sp.x), float(sp.y), float(sp.z))
+		a.yaw = float(sp.yaw)
+		a.character.play("work", true)
+		a.sync()
+		r.at[id] = int(at[id])
+		market_held.append(a)
+	if not r.at.is_empty(): emit_event("market", {"sellers": r.at.keys()})
+
+func close_market() -> void:
+	for a in market_held:
+		a.held = false
+		a.character.stop_hold()
+		a.teleport_home()
+		a.sync()
+	market_held = []
+	var r := Market.record(state)
+	r["at"] = {}
+	if not Market.open(state.time): r["closed"] = true
 
 func visit_arrived(a) -> void:
 	emit_event("visit_arrived", {"npc": String(a.def.id), "hangout": String(a.visit.hangout), "use": bool(a.visit.use)})
@@ -617,6 +683,7 @@ func _arrived() -> void:
 	_fade(false)
 	if first and Data.island != "hearthglow": banner(isl.get("name", ""), isl.get("desc", ""), [], 5.0); sfx("fanfare")
 	else: toast("⛵ %s" % isl.get("name", ""), "good", 2.5)
+	story.announce_approval()
 	autosave("travel", true)
 
 func to_title() -> void:
@@ -702,6 +769,7 @@ func load_state(s: Dictionary) -> void:
 ## Villagers go straight to where their routine puts them now (after a sleep, or loading a save). One can land right
 ## where you stand, and you couldn't walk out of them, so you step aside.
 func send_villagers_home() -> void:
+	if not market_held.is_empty(): close_market()
 	for a in npcs.values(): a.teleport_home(); a.sync()
 	var spot := walk.step_aside(player.pos, WalkWorld.PLAYER_RADIUS, player.body)
 	if not spot.is_empty(): player.teleport(spot.x, spot.z)
@@ -1033,6 +1101,7 @@ func _process(dt: float) -> void:
 			if mode == "menu": panels.update(dt)
 	update_bike(dt)
 	_update_visits(dt)
+	_update_market()
 	for a in npcs.values(): a.update(dt)
 	actions.update(dt)
 	cam.update(dt, player.pos)

@@ -1,0 +1,19 @@
+{
+  "_doc": "Market day (Market, scripts/systems/market.gd): every `every` days, from `open` to `close` o'clock, the `sellers` stand at the counters you've built (anything that provides a stall), one each, in this order. While a seller is at a stall they pay `buys` times their usual price for what they buy, and sell the lines marked \"market\" in shops.json. The paper says so: `today` the morning of it ({n} stalls), `none` when there's nowhere to set up, `tomorrow` the morning before.",
+  "every": 5,
+  "open": 8.0,
+  "close": 19.0,
+  "sellers": [
+    "fern",
+    "mabel",
+    "captain",
+    "tilly"
+  ],
+  "buys": 1.5,
+  "label": "Market stall: today's prices",
+  "paper": {
+    "today": "Market day! {n} stalls are up in the village, and they're paying well.",
+    "none": "Market day, but there's no counter in the village to sell from. The sellers went home.",
+    "tomorrow": "Tomorrow is market day: every counter you've built gets a seller."
+  }
+}
