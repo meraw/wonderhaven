@@ -1,7 +1,7 @@
 # Liolivato: design for the olive village
 
-Working id `olive_village`. Agreed with the user on 2026-11-08 in a design interview. **Nothing is built yet.** This doc
-is the plan the build stages follow. The rules every location shares are in `docs/WORLD.md`; `docs/MONTEFORCHETTA.md`
+Working id `olive_village`. Agreed with the user on 2026-11-08 in a design interview. **Stage 1 (ground and map) is built; stages 2 to 4 are
+not.** See "Build status" at the end. This doc is the plan the build stages follow. The rules every location shares are in `docs/WORLD.md`; `docs/MONTEFORCHETTA.md`
 and `docs/locations/river_town.md` are the models this doc follows. Serenza (`docs/locations/cliffs.md`)
 comes just before Liolivato, and the two were kept apart where they overlapped (see "Kept apart from Serenza"). Names,
 amounts and step details can still change in the build; the choices marked *proposed* weren't asked about and are open
@@ -390,3 +390,57 @@ Choices this doc makes that the interview didn't cover. Change any of them in re
 - **Two near-repeats to look at in review:** Tonnarella has a fishmonger called Giobatta "Baciccia" Parodi, two places
   before the Sindaco Giobatta Orengo; and Tonnarella's bench naps include a gull taking your focaccia, close to
   Liolivato's gull taking your farinata.
+
+## Build status
+What exists now, and the choices made while building that the design above didn't settle.
+
+**Stage 1, the ground and the map:**
+- **Where it lives:** the ground shape, its colours, the stream cells, plain-box buildings, the bridge and the far
+  hills are code in `godot/scripts/locations/olive_village.gd`; the map is `godot/data/locations/olive_village/layout.json`
+  and the travel-map entry `location.json`.
+- **Size and height:** 180 m square. The game's water lies at one level, so the torrent runs at sea level in a gorge
+  about 8 m deep at the bridge. The village spur climbs from 8.3 m at the bridge to 13.8 m at the piazza and 26.6 m at
+  the castle; the east bank climbs from the cove to about 30 m at the chestnut woods.
+- **The edges:** the sea along the south, a gully with a stream down the west and the east edges, and a rock crag along
+  the north ridge keep you on the map. Beyond them the location draws far hills that fall to the coast in the south.
+- **The terraces:** on the east bank, level treads 1.8 m apart follow the contours, too tall to step or jump up. The
+  cart track (a smooth gravel slope with hairpins, rideable), the stepped mule track and two paths not in the design
+  cut across them: **a terrace path** of stone steps from the bridge north to Fuco's hut, and **a farm lane** to
+  Bastian's farmhouse. Their edges ease into the treads, so you can step off onto a terrace from any of them.
+- **The fallen terrace:** a 12 m stretch where the wall has slumped into a slope of rubble you can scramble up, with
+  the wall standing either side. Since the rubble already lets you up, stage 3 is likely to check for steps as pieces
+  rather than as a path.
+- **Gambero's steps:** one flight of the mule track (between z 29.5 and 33.5) is gone, and its riser can't be climbed;
+  the cart track is the long way round.
+- **Below the bridge:** a level stone shelf at 0.25 m runs right to the torrent's edge, so a pump there sits beside a
+  waterwheel in flowing water. A ramp climbs from it to the old tank's level ground, gentle enough for pipes (no more
+  than 0.7 m a cell). The tank's inlet is a machine target, `olive_village_tank`.
+- **The bridge:** two ramps and a crown of raised floors (the layout's `floors`) with parapets, the torrent flowing
+  beneath, crowned at 9.9 m. For now it is drawn as stone slabs, parapets and two piers.
+- **The village:** buildings stand on level ground cut into the slope (the piazza, Rosa's osteria, the empty house and
+  the barber shop all at 13.8 m), with slopes between. Nonna Gina's house moved west to keep your plot level.
+- **Buildings** are plain boxes: whitewash with a terracotta roof slab, the church with a green-capped tower, the
+  castle's broken tower, Fuco's stone hut and the tank. Your house is a plot framed by ruined walls.
+- **Build sites:** the jetty (from the pebbles out into the sea), below the bridge (waterwheel, pump, pipes and the
+  tank's inlet), the fallen terrace, your house (opens with Welcome to Liolivato), your terrace (opens at 40
+  inhabitants and grows at 43), the Sandals' terrace, the broom terrace, Gambero's steps, the way from the bridge to the
+  piazza, and the piazza (an open site).
+- **Gathering:** eight chestnut trees in the woods on both ridges, six stone spots (rubble at the fallen terrace and on
+  the abandoned terraces, an old quarry face on the west flank), five flower spots and three fishing spots at the cove.
+  Brambles, basil and Liolivato's own fish come with stage 3.
+- **Benches:** on the piazza, at the bridge's east end, at the cove, on the church square and by the castle.
+- **The map entry** stays hidden until `olive_village_revealed`. The day never holds. The population sign reads 38
+  inhabitants and has its first two milestones (your terrace at 40, growing at 43); the olive tree at 46 and the
+  honours at 50 come with stage 3, with the rewards they need. A first golden look; the weather is clear, fair or a
+  drizzle.
+- **Checked:**
+  - **Tested** (`test_olive_village`, 6 tests): the pack and its map entry; the ground's shape; the map's bounds and
+    the bridge as the only way across (the torrent is water from the crag to the sea); every nav edge walked both ways
+    with real collisions; every building on level ground; the build sites fit their jobs (the jetty reaches the sea,
+    the shelf meets flowing water, pipes can climb to the tank, Gambero's flight can't be climbed, the rubble can).
+  - **Played** (`play_olive_village`, 14 checks), starting as if the earlier places' main stories were done: from the
+    pebbles up the cart track's hairpins, over the bridge's crown at 9.9 m, up to the piazza, the church and the
+    castle, back over to Bastian's farmhouse, up the fallen terrace's rubble, along the terrace path to the broom
+    terrace and Fuco's hut, down the ramp to the shelf by the torrent, to the lower mule track (the collapsed flight
+    stops you) and back to the beach (the sea stops you). Screenshots in both renderers.
+  - **Not checked:** riding the cart track on the bicycle (it is a smooth slope, but no playthrough rides it).
