@@ -322,11 +322,14 @@ func unlock_clothes(ids: Array, quiet: bool = false) -> void:
 
 func add_harmony(n: int) -> void:
 	var s: Dictionary = game.state
-	var due := Needs.raise(s, n)
+	Needs.raise(s, n)
 	game.hud.render_harmony()
 	if n > 0: game.emit_event("harmony", {"n": n})
-	for u in due: apply_unlock(u)
+	announce_approval()
 	handle(engine.refresh())
+
+func announce_approval() -> void:
+	for u in Harmony.due(game.state, Data.island): apply_unlock(u)
 
 ## Points on a location's own meter (LocationMeter), and the milestones they reach. A milestone that waits for
 ## something ("requires": the front page waits for the finale) comes when that's done, if you have the points.
@@ -336,24 +339,24 @@ func add_meter(island: String, n: int) -> void:
 	for u in LocationMeter.waiting(game.state, island):
 		if not due.has(u): due.append(u)
 	for u in due:
+		if not GameState.see_unlock(game.state, String(u.get("id", ""))): continue
 		if u.has("blueprints"): unlock_blueprints(u.blueprints, "", true)
 		if u.has("clothes"): unlock_clothes(u.clothes, true)
 		if u.has("items"): game.give(_ints(u.items), null, true)
 		for f in u.get("flags", []): game.set_flag(f)
 		var mu: Dictionary = u
 		game.get_tree().create_timer(1.8).timeout.connect(func(): game.banner("%s %s" % [m.get("icon", "📈"), m.get("name", "Milestone")], "%s  %s" % [LocationMeter.reading(m, int(mu.at)), mu.title], [mu.desc], 4.0); game.sfx("unlock"))
-		game.state.unlocks_seen.append(u.get("id", ""))
 	if not due.is_empty(): game.build.rebuild_grid()   # a build site there may grow with the meter
 	game.hud.render_harmony()
 	handle(engine.refresh())
 
 func apply_unlock(u: Dictionary) -> void:
+	if not GameState.see_unlock(game.state, String(u.get("id", ""))): return
 	if u.has("blueprints"): unlock_blueprints(u.blueprints, "", true)
 	if u.has("clothes"): unlock_clothes(u.clothes, true)
 	if u.get("allBlueprints", false): unlock_blueprints(Data.pieces.map(func(p): return p.id), "", true)
 	if u.id == "plot": game.build.rebuild_grid()
 	game.get_tree().create_timer(1.8).timeout.connect(func(): game.banner("Approval milestone!", "%d 💖 %s" % [int(u.at), u.title], [u.desc], 4.0); game.sfx("unlock"))
-	game.state.unlocks_seen.append(u.id)
 
 func first_of_kind(id: String) -> void:
 	var types: Array = game.state.stats.types
