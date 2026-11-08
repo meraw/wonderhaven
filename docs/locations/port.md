@@ -103,7 +103,7 @@ shines.
   too. It's skippered by Comandante Marisa "Sirena" Novaro, Liolivato's character (`docs/locations/olive_village.md`),
   and runs between Serenza, Liolivato and Tonnarella.
   - **The landing:** a second departure point at the edge of the west quay, by the harbour office: a feature of kind
-    `boat` (`port_ferry`, `depart_label` "Take the ferry") that waits for `olive_village_revealed`, the flag Serenza's
+    `boat` (`port_ferry_landing`, `depart_label` "Take the ferry") that waits for `olive_village_revealed`, the flag Serenza's
     finale sets and Liolivato's map entry reveals on.
   - **Before that:** the landing is an empty mooring with a faded timetable board.
   - **The travel map** needs nothing new: any departure point reaches any place that's on the map, so the ferry line
@@ -149,12 +149,12 @@ Nine villagers. Ids are `port_<first name>`, for example `port_nicolo`.
 | **Ragioniere Nicolò "Arrotonda" Bruzzone** | The savings bank under the arcades | The bank teller. Older, nervous and buried in coin rolls. He's the face of the changeover, so the town blames him for every new price (his nickname means "he rounds"). Meets your train with the euro starter kit, walks you down the stair lanes counting the steps, and gives Mind the Change and The Queue at the Bank. He would never climb 112 steps. | A grey suit a size too big, black clerk's sleeve guards, a converter on a cord round his neck, coin rolls in every pocket |
 | **Fanalista Gerolamo "Lanternin" Repetto** | The lighthouse, his rowing boat, Rosetta's counter at dawn | The lighthouse keeper for 40 years. Since the storm broke the breakwater he's been stranded at the lighthouse and won't leave it, so every morning he rows in for focaccia, with the gulls as escort, and rows back. Talks to the light like an old dog. Gives the finale. | A navy pea coat with brass buttons, a white beard, a peaked cap, an old oil lantern he still carries |
 | **Comandante Lorenzo "Mugugno" Traverso** | The harbour office and the quays | The harbour master, who sent for the Geometra. Grumbles about everything (the *mugugno* is the old Genoese sailor's right to grumble) and gets it all done. Holds the Navy and its buoy off by letter, and keeps their threat framed on his wall so he can grumble at it. Gives The Broken Breakwater, complains every time you quarry the castle wall, and makes the speech at each inauguration: it starts as a list of complaints and ends in praise. | A navy uniform with gold braid, a white peaked cap, binoculars |
-| **Rosetta "la Sveglia" Canepa** | Her bakery under the arcades | The focaccia baker. Opens at 4 AM and wakes the street with her shutter ("la sveglia" is the alarm clock). At war with the seagulls. Gives Seagulls vs Focaccia and, for the shops of the arcade, The Two-Price Labels. Stays open all night for the finale. | A white coat and cap dusted with flour, an oven paddle |
+| **Rosetta "la Sveglia" Canepa** | Her bakery under the arcades | The focaccia baker. Opens at 4 AM and wakes the street with her shutter ("la sveglia" is the alarm clock). At war with the seagulls. Gives Seagulls vs Focaccia. Stays open all night for the finale. | A white coat and cap dusted with flour, an oven paddle |
 | **Giobatta "Baciccia" Parodi** | His stall at the fish market | The fishmonger, and the town's last holdout: prices everything in lire and swears he'll take them to his grave. Gives in at 75%. Gives The Fish Market. | A rubber apron and boots, a pencil behind his ear, a wad of lire notes |
 | **Nonna Pina Lagomarsino** | Her balcony in the alleys | Lives on the third floor among her basil pots and hasn't come down since the lift stopped. Lowers a basket on a rope for anything she wants; requests, gifts and gossip go up and down in it. Converts every euro to lire, then to 1950s lire. Gives Nonna's Hidden Lire. | A black dress, a flowered housecoat, slippers, the basket on its rope |
 | **Agostino "Su e Giù" Ottonello** | The lift, at its top stop | The public lift's attendant for 30 years ("su e giù": up and down). Everyone rides with him, so he hears everything. Since the storm he has sat by his dead lift every day, in uniform. Gives Up and Down. | A brown attendant's uniform, a peaked cap, white gloves |
 | **Padron Stefano "Lampara" Dellepiane** | His boat on the quay | Skipper of a small boat that fishes anchovies at night under a big lamp (a *lampara*). The dark lighthouse keeps him in harbour. Gives Night of the Lampara. | A yellow oilskin jacket, a wool cap, rubber boots |
-| **Davide "Motorino" Cambiaso** | His uncle's chandlery; the stair lanes | 17. Delivers for his uncle's ship chandlery on a scooter he mostly carries up the stairs, and minds the counter while his uncle is "out the back" (the chandlery's shop opens by talking to him, because shops belong to a villager). No request of his own; he has a say in some wishes. | A huge puffer jacket, a scooter helmet worn everywhere, a cassette Walkman |
+| **Davide "Motorino" Cambiaso** | His uncle's chandlery; the stair lanes | 17. Delivers for his uncle's ship chandlery on a scooter he mostly carries up the stairs, and minds the counter while his uncle is "out the back" (the chandlery's shop opens by talking to him, because shops belong to a villager). Gives The Two-Price Labels, for the shops of the arcade, and has a say in some wishes. | A huge puffer jacket, a scooter helmet worn everywhere, a cassette Walkman |
 | **The player** | | The Geometra, come down from Toriano. Monteforchetta's windbreaker and clipboard, plus Tonnarella's wool cap and fisherman's sweater once earned. | |
 
 **Tastes** (for the shared `Tastes`; the build can tune them):
@@ -214,7 +214,7 @@ the plan and can change in the build.
 | --- | --- | --- |
 | **The Queue at the Bank** (`port_queue`) | Nicolò | After Mind the Change. The whole town is queuing out under the arcade to change their lire. Brief at the bank's stretch of arcade: **musts:** four seats; a roof; a light. **Wishes:** something green (Nonna); a table to fill in the forms on (Nicolò). |
 | **Seagulls vs Focaccia** (`port_seagulls`) | Rosetta | After Mind the Change. The dockers eat breakfast outside her door from 4 AM, in the dark, and the gulls pinch it. Brief at the bakery door: **musts:** two tables and four seats; a roof over them; a light. **Wishes:** something green (Nonna); the bakery's warm yellow (Rosetta). Next dawn the dockers eat under it, and a gull lands on the roof and glares. Unlike Monteforchetta's tables outside the bakery, the roof and the light are the point. |
-| **The Two-Price Labels** (`port_labels`) | Rosetta, for the shops of the arcade | After The Fish Market. The law says every shop must show both prices, and the arcade's shopkeepers argue over every lira. Brief along the arcade: **musts:** a sign by the bakery, the chandlery and the bank (if a must can't carry a site of its own, three signs along the arcade); a lamp so they can be read before dawn. **Wishes:** scooter blue (Davide); something green (Nonna). |
+| **The Two-Price Labels** (`port_labels`) | Davide, for the shops of the arcade | After The Fish Market. The law says every shop must show both prices, and the arcade's shopkeepers argue over every lira. Brief along the arcade: **musts:** a sign by the bakery, the chandlery and the bank (if a must can't carry a site of its own, three signs along the arcade); a lamp so they can be read before dawn. **Wishes:** scooter blue (Davide); something green (Nonna). |
 | **Night of the Lampara** (`port_lampara`) | Stefano | After The Broken Breakwater. Meet him at his boat after 8 PM and fish anchovies under his lamp (a fishing spot on the boat with its own `hours` and `gives`; only what you catch during the step counts). Bring the catch to Baciccia when the fish market opens at dawn. |
 | **Nonna's Hidden Lire** (`port_nonna_lire`) | Nonna Pina, by basket | After Up and Down. Nonna hid tins of lire round town over fifty years: in flowerpots, in walls, under steps. She lowers a note in her basket and lends you a metal detector if you haven't got one (the shared rule: every request that sends you digging gives it). Find five tins, then meet her at the bank, where Nicolò counts them out: a fortune in 1950s notes worth about €38. No deadline: after the finale the bank still changes them ("the Bank of Italy takes lire for ten years; I'll be retired by then"). |
 
@@ -339,7 +339,7 @@ One pull request per stage. Each keeps the game playable and the tests passing.
   before Tonnarella, are unaffected.
 - **Whatever comes next:** Tonnarella's finale sets `port_lighthouse_lit` for the next place's map entry. Serenza's
   entry reveals on it (`docs/locations/cliffs.md`).
-- **Serenza and Liolivato:** Sirena's ferry runs between the three places. Tonnarella's landing (`port_ferry`) waits
+- **Serenza and Liolivato:** Sirena's ferry runs between the three places. Tonnarella's landing (`port_ferry_landing`) waits
   for `olive_village_revealed`, the same flag as Serenza's landing and Liolivato's map entry.
 
 ## Risks
@@ -528,3 +528,88 @@ What exists now, and the choices made while building that the design above didn'
   - **Seen:** the € sign renders in the HUD's font.
   - **Not yet:** no flag is set in play until the changeover meter arrives (stage 3b), so the later steps are only
     unit-tested.
+
+**Stage 3b, the people and the requests:**
+- **Where it lives:** `godot/data/locations/port/`: `npcs.json`, `quests.json`, `shops.json`, `resources.json`,
+  `appearance.json`, `tastes.json`, and the meter, the day and the story blocks in `location.json` and `layout.json`.
+- **The cast:** the nine villagers, in the outfits above made from the shared clothes, with routines that follow the
+  story:
+  - Nicolò waits on the station forecourt, walks you down to the bank, then waits at your street door while you climb.
+  - Gerolamo stays at the lighthouse until the breakwater is mended, then walks to Rosetta's at dawn. During the
+    finale he waits at the lighthouse door after dark.
+  - Nonna Pina sits at her street door, not on her balcony: you can only talk to someone on your own storey. Her
+    basket shows up in a nap gag instead. Once the lift runs she comes down to the bank every morning.
+  - On the night of the lighting, six of them gather on the breakwater, and after it they go to Rosetta's, which stays
+    open all night.
+  - Davide gives The Two-Price Labels (every villager gives at least one request), so Rosetta gives only Seagulls vs
+    Focaccia.
+- **Requests:** the five main and five side requests and the five pieces of washing, as above, with these choices:
+  - Mind the Change ends with Nicolò at your street door once you've climbed the 112 steps: a request is handed in by
+    talking to someone.
+  - The Broken Breakwater: planks on one post across the gap, railings on both sides. Its brief passes as soon as the
+    path is walkable (`port_breakwater_done`, which opens the path over the gap).
+  - Up and Down: the windmill feeds the drive (`port_lift_powered`); Agostino throws the switch in conversation
+    (`port_lift_on`), and the place is built again with the lift's stops when the conversation ends.
+  - Seagulls vs Focaccia: a brief has at most three musts, so the musts are four seats, a roof and a light, and the
+    two tables are Baciccia's wish.
+  - The Two-Price Labels: the signs go in a strip under the arcade (`port_arcade`); a must can't check that a sign is
+    by each shop.
+  - Light the Lighthouse: you hand Gerolamo the panes in the keeper's room, and you light her by talking to him at
+    the lighthouse door after dark. Villagers don't climb the lighthouse stair, which is a ride for the player.
+- **The changeover meter:** main requests 15%, side requests 4%, each piece of washing 1%. Its milestones set the
+  euro flags (10%, 50%, 100%), give the wool cap (25%) and the sweater (75%), set `port_pergola` (75%), and the last
+  one waits for the finale and gives a framed 1,000-lire note (an item, for now).
+- **Gathering:** capers on the walls, mussels on the rocks round the lighthouse and the breakwater, five of Nonna's
+  tins (with the metal detector), the five pieces of washing (`once`), night fishing for anchovies at Stefano's boat,
+  and a catch table for the quays with bream, mullet, scorpionfish, octopus, moray eel, an old boot, a lobster pot and
+  a purse of old lire. The fishing spots now face the sea.
+- **Shops:** Rosetta's treats, Baciccia's mussels, the chandlery (timber, fittings, copper wire, sailcloth, roof
+  tiles, glass panes) and the bank, which changes a purse of old lire.
+- **Day and paper:** nights don't hold; Il Gabbiano; the Comandante's speech; Tonnarella's nap gags, with the gull,
+  the spray and Nonna's basket as lines of text for now.
+- **Hangouts** at the four build sites where people gather: the fish market, the bakery door, the bank's arcade and
+  the bastion. The forecourt, the belvedere and the church square have no build site, so they wait for one.
+- **The ferry landing** on the west quay (`port_ferry_landing`) waits for `olive_village_revealed`.
+- **Shared changes in this stage:**
+  - A place's own `tastes.json` joins the shared tastes (`Data.merge_pack`), as its villagers and requests already do.
+  - Colours written without a leading hash are read for villagers' outfits (`Chibi.sanitize`) and tastes
+    (`Tastes.likes`), as Godot's own colours are.
+- **Not yet** (stage 4):
+  - The gull, the spray and the basket nap gags are lines, not scenes.
+  - The washing doesn't go back on the lines, the pergola isn't built, and the framed note isn't on the wall.
+  - The lantern's broken panes stay broken and there's no beam after the finale.
+  - Gerolamo has no rowing boat for his trips before the breakwater is mended, so he stays at the lighthouse.
+
+**Checked for stage 3b:**
+- **Tested** (`godot/tests/test_port.gd`, 31 tests, plus the shared checks every place goes through):
+  - The nine villagers keep their own outfits, each gives a request and has tastes.
+  - Where people are as the story moves: Nicolò's walk, Gerolamo stranded and then walking to the bakery, Rosetta
+    open all night, Nonna coming down once the lift runs, the crowd on the breakwater, and every spot in every
+    routine reachable on foot.
+  - Ten requests and five pieces of washing; one to three musts and up to three wishes per brief, each wish from
+    someone in town.
+  - The changeover adds up to 100% (85% without the finale), and its milestones switch the whole game to both, euros
+    first and euros only.
+  - Every brief is met by building its ghost plan, piece by piece; the mended breakwater can be walked to the
+    lighthouse, and its railings keep you on it.
+  - Night fishing gives only anchovies, and only at Stefano's boat after dark; every fishing spot casts into the sea.
+  - Nonna's tins need the metal detector; the washing turns up once, when its owner asks.
+  - Every gathering spot is a straight walk from its nearest path spot.
+  - The shops; Tonnarella's tastes match painted pieces.
+- **Played** (`godot/tests/play_port.gd`, RESULT_CHECKS checks): the stage 1 and 2 walk, then, from a fresh arrival off
+  the train, every request with real keys and mouse:
+  - Mind the Change: Nicolò's starter kit (25,000 lire, €12.91), the bank, Rosetta's focaccia, driftwood, the
+    harbour office, the 112 steps, and back down to Nicolò. The HUD shows the changeover at 15%, and prices show both
+    everywhere.
+  - The side requests and the washing: all five pieces found and returned; benches, a roof and a lamp for the queue,
+    tables, chairs, a roof and a lamp outside the bakery, built with the mouse from materials quarried and bought.
+  - The Broken Breakwater: planks on a post across the gap with railings, the three wishes, and a walk across to
+    Gerolamo.
+  - Night of the Lampara: anchovies under the lamp after dark, sold to Baciccia at dawn.
+  - The Fish Market, The Two-Price Labels (euros first at 50%), Up and Down (the place is built again with the lift,
+    and you ride it), Nonna's Hidden Lire (five tins dug up, changed at the bank; the sweater at 75%).
+  - Light the Lighthouse: panes, a windmill on the rock, the town on the breakwater at dusk, lighting her with
+    Gerolamo, midnight at Rosetta's, and in the morning 100%: euros only, in every place, and the framed note.
+- **Seen** in screenshots in both renderers: villagers on the forecourt, at Nonna's door, by the lift and on the
+  quay. From the playthrough, in the compatibility renderer: each build, the lampara at night and Rosetta's at
+  midnight.

@@ -860,7 +860,7 @@
      "belly": 0.7
     }
    },
-   "home": "port_alley_e2",
+   "home": "port_church_door",
    "schedule": [
     [
      5,
@@ -1268,7 +1268,7 @@
      "belly": 0.3
     }
    },
-   "home": "port_top_e",
+   "home": "port_bastion_e",
    "schedule": [
     [
      7,
@@ -1415,18 +1415,6 @@
     ],
     [
      6,
-     12,
-     "port_stefano_boat",
-     "work"
-    ],
-    [
-     12,
-     16,
-     "port_quay_w",
-     "idle"
-    ],
-    [
-     16,
      24,
      "port_stefano_boat",
      "work"
@@ -1444,18 +1432,6 @@
       ],
       [
        6,
-       12,
-       "port_stefano_boat",
-       "work"
-      ],
-      [
-       12,
-       16,
-       "port_quay_w",
-       "idle"
-      ],
-      [
-       16,
        24,
        "port_stefano_boat",
        "work"
@@ -1551,7 +1527,7 @@
      "belly": 0.1
     }
    },
-   "home": "port_laneB2_top",
+   "home": "port_court_entry",
    "schedule": [
     [
      8,

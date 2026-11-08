@@ -2744,6 +2744,14 @@
   "port_crowd_e": [
    1.0,
    26.4
+  ],
+  "port_bastion_e": [
+   50.0,
+   -44.5
+  ],
+  "port_rocks_e1": [
+   60.5,
+   1.0
   ]
  },
  "nav_edges": [
@@ -3007,6 +3015,18 @@
   [
    "port_bakery_door",
    "port_crowd_e"
+  ],
+  [
+   "port_castle_gate",
+   "port_bastion_e"
+  ],
+  [
+   "port_rocks_s",
+   "port_rocks_e1"
+  ],
+  [
+   "port_rocks_e1",
+   "port_rocks_mid"
   ]
  ],
  "paths": [],

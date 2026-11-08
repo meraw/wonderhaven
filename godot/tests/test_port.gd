@@ -505,18 +505,14 @@ func test_the_washing_goes_back_on_the_line():
 func test_every_gathering_spot_can_be_reached_on_foot():
 	_on(func():
 		var w := _walker()
+		var flags := {"port_breakwater_done": true, "port_breakwater_open": true}
 		for n in Data.layout.nodes:
 			if n.kind in ["fish"]: continue
 			var at := Vector2(float(n.x), float(n.z))
-			var near: Array = Data.layout.nav_nodes.keys().filter(func(k): return _node(String(k)).distance_to(at) < 45.0)
-			near.sort_custom(func(a, b): return _node(String(a)).distance_to(at) < _node(String(b)).distance_to(at))
-			var reached := ""
-			for k in near.slice(0, 8):
-				var from := _node(String(k))
-				if _walk(w, from, at.move_toward(from, 1.6)).ok:
-					reached = String(k)
-					break
-			t.ok(reached != "", "%s can be walked to from a path nearby" % n.id))
+			var start := Schedule.nearest_node(at.x, at.y, flags)
+			var from := _node(start)
+			var r := _walk(w, from, at.move_toward(from, 1.6))
+			t.ok(r.ok, "%s is a straight walk from the nearest path spot, %s (stopped at %s)" % [n.id, start, str(r.at)]))
 
 func test_the_shops_of_the_harbour():
 	for id in ["port_rosetta", "port_giobatta", "port_davide", "port_nicolo"]:
