@@ -9,7 +9,11 @@ static func on(island: String) -> bool: return not def(island).is_empty()
 
 static func hold_minute(d: Dictionary) -> float: return float(d.get("holdAt", 20.5)) * 60.0
 
-static func holds(d: Dictionary) -> bool: return not d.is_empty() and bool(d.get("hold", true))
+static func holds(d: Dictionary) -> bool: return not d.is_empty() and bool(d.get("hold", false))
+
+static func dusk(t: Dictionary, d: Dictionary) -> bool:
+	var m := float(t.get("minute", 0.0))
+	return not d.is_empty() and m >= hold_minute(d) - 60.0 and m < hold_minute(d) + 120.0
 
 static func held(t: Dictionary, d: Dictionary) -> bool:
 	return holds(d) and float(t.minute) >= hold_minute(d) - 0.01

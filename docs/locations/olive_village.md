@@ -1,7 +1,7 @@
 # Liolivato: design for the olive village
 
-Working id `olive_village`. Agreed with the user on 2026-11-08 in a design interview. **Stage 1 (ground and map) is built; stages 2 to 4 are
-not.** See "Build status" at the end. This doc is the plan the build stages follow. The rules every location shares are in `docs/WORLD.md`; `docs/MONTEFORCHETTA.md`
+Working id `olive_village`. Agreed with the user on 2026-11-08 in a design interview. **Stages 1 (ground and map) and 2 (buildings and
+scenery) are built; stages 3 and 4 are not.** See "Build status" at the end. This doc is the plan the build stages follow. The rules every location shares are in `docs/WORLD.md`; `docs/MONTEFORCHETTA.md`
 and `docs/locations/river_town.md` are the models this doc follows. Serenza (`docs/locations/cliffs.md`)
 comes just before Liolivato, and the two were kept apart where they overlapped (see "Kept apart from Serenza"). Names,
 amounts and step details can still change in the build; the choices marked *proposed* weren't asked about and are open
@@ -444,3 +444,53 @@ What exists now, and the choices made while building that the design above didn'
     terrace and Fuco's hut, down the ramp to the shelf by the torrent, to the lower mule track (the collapsed flight
     stops you) and back to the beach (the sea stops you). Screenshots in both renderers.
   - **Not checked:** riding the cart track on the bicycle (it is a smooth slope, but no playthrough rides it).
+
+**Stage 2, the buildings and scenery:**
+- **Where it lives:** the location's own models are in `godot/scripts/locations/olive_village/models.gd` and its scenery
+  in `godot/scripts/locations/olive_village/scenery.gd`; the houses come from the shared house kit (`houseStyle` in the
+  layout).
+- **Houses:** whitewash in four slightly different whites, with stone quoins at the corners, green shutters (the empty
+  houses' are shut), curved terracotta roofs and chimneys, two or three storeys on the spur and one or two at the cove.
+  Rosa's osteria and the barber shop have shopfronts with painted signs ("Rosa's", "Barber"); the Sandals' house has a
+  balcony; Gambero's boathouse and Fuco's hut are in bare stone.
+- **The church:** its nave is a whitewashed hall from the house kit, so you can walk in. Its bell tower is a model of
+  its own beside it: whitewash with stone corners, dark belfry openings, and a spire of glazed green, yellow and white
+  tiles that catches the light, the tallest thing in the village.
+- **Other landmarks:** the castle's broken tower among its ruined walls; the wash-house, open-sided under a terracotta
+  roof on four stone pillars, with a long stone basin and a spout (you walk in under its roof; the basin and pillars are
+  solid); the old stone tank, dry for now; the hump-backed bridge as a single tall stone arch springing from the gorge's
+  rock walls, with spandrel walls, parapets and a paved deck; the crumbled jetty, a stump of stones at the water's edge;
+  Sirena's white and blue ferry off the cove; three wooden boats pulled up on the pebbles; and the population sign, a
+  painted board at the bridge's village end reading "LIOLIVATO 38 inhabitants".
+- **The covered alleys:** three passages arch over the alley from the bridge to the piazza, each a stone arch on two
+  piers with a whitewashed room above it. The piers are solid; the passages are clear.
+- **Rooms you can walk into:** Rosa's osteria (counter, shelves, a boxy TV on a cabinet, two card tables), the barber
+  shop and town hall (the barber's chair and basin, the town hall's desk and shelves), the Sandals' house (a sofa, a rug,
+  paintings on every wall), the church (eight pews, the altar and two lamps), Bastian's farmhouse (table and chairs, his
+  workbench, a bed, the calendar on the wall), Gambero's boathouse (workbench, barrel, crate, bed) and the empty house
+  beside the osteria, bare until the finale. Each has a route in from its door. Your house is still the plot framed by
+  ruined walls.
+- **Plants:**
+  - 132 trees in the layout's invisible solid `olive_village_tree` props, drawn by the scenery script: silver-grey
+    olives in rows on the terraces' treads (thinner on the abandoned ones), a few figs, and a handful of olives and figs
+    in the village. The positions were worked out with the real ground shape: on level treads, clear of the walls, the
+    tracks, the build sites, the buildings and the nav paths.
+  - Yellow broom on the upper slopes, the west flank and round the cove; brambles on the highest terraces; red poppies
+    on the abandoned terraces and the west flank; pots of basil either side of every house door; climbing roses on
+    every third house.
+  - Chestnut woods on both ridges and pines in the scrub are the shared decor clusters, in spring greens.
+- **The horizon:** far hills drawn round the map, falling to the coast in the south with Serenza's headland far off to
+  the east; five perched villages on the far ridges; the Alps, snow-capped, along the northern arc (the shared backdrop's
+  `alps`, without its Langhe hills).
+- **The ground:** terrace walls are painted dry-stone grey where the ground steps; the gullies at the map's west and
+  east edges have gentle banks now, instead of tall canyon walls (the crag is applied after them, so it stays sheer).
+- **Checked:**
+  - **Tested** (`test_olive_village`, now 8 tests): all of stage 1's, plus the seven rooms (each enterable, with a spot
+    outside its door, reachable from the beach; the empty house bare), and the landmarks and trees (the spire above every
+    roof, the open wash-house with a solid basin, olives on level treads and off the build sites, three covered
+    passages). Every nav edge, now including the routes into the rooms past their furniture, is walked both ways with
+    real collisions.
+  - **Played** (`play_olive_village`, now 20 checks): stage 1's walk, now also into the osteria, the barber shop, the
+    church, the Sandals' house, Bastian's farmhouse and Gambero's boathouse, each with its roof fading while you're
+    inside. Screenshots in both renderers.
+  - **Not checked:** the glaze on the spire and the look at dusk in Forward+ beyond the screenshots.

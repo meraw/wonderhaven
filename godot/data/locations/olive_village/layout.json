@@ -15,6 +15,19 @@
   "a39a5c",
   "c8b878"
  ],
+ "houseStyle": {
+  "kit": true,
+  "cornice": "e8dfcc",
+  "shutters": "5d7a5a",
+  "quoins": "a39a8a"
+ },
+ "horizon": {
+  "alps": true,
+  "alps_from": 225,
+  "alps_to": 315,
+  "alps_peak": 262,
+  "floor": 2.0
+ },
  "safeSpot": "beach",
  "safeText": "Back on the pebbles at the cove.",
  "decor": {
@@ -22,6 +35,19 @@
   "trees": 30,
   "bushes": 60,
   "flowers": 260,
+  "leaves": [
+   "6f9a3f",
+   "7fae48",
+   "5f8a38",
+   "8fb85a",
+   "9ab85e"
+  ],
+  "bushColors": [
+   "7f9a4a",
+   "6f8f45",
+   "8a9a50",
+   "93a35a"
+  ],
   "woods": [
    {
     "x": 40.0,
@@ -164,8 +190,106 @@
    "z": -18.6,
    "w": 8.0,
    "d": 4.8,
-   "h": 5.5,
-   "door": "S"
+   "h": 6.7,
+   "door": "S",
+   "wall": "f1ece0",
+   "roof": "b8643c",
+   "kit": true,
+   "floors": 2,
+   "shopfront": true,
+   "sign": "Rosa's",
+   "navDoor": "osteria",
+   "interior": {
+    "items": [
+     [
+      "counter",
+      -2.2,
+      -0.6,
+      0,
+      "6a4a30"
+     ],
+     [
+      "bookshelf",
+      -3.6,
+      1.0,
+      1
+     ],
+     [
+      "cabinet",
+      1.0,
+      -2.0,
+      0,
+      "39434d"
+     ],
+     [
+      "table",
+      1.0,
+      0.5,
+      0,
+      "f4f1ea"
+     ],
+     [
+      "chair",
+      1.0,
+      1.3,
+      2,
+      "5d7a5a"
+     ],
+     [
+      "chair",
+      1.8,
+      0.5,
+      3,
+      "5d7a5a"
+     ],
+     [
+      "table",
+      2.9,
+      -1.1,
+      0,
+      "f4f1ea"
+     ],
+     [
+      "chair",
+      2.9,
+      -0.3,
+      2,
+      "5d7a5a"
+     ],
+     [
+      "chair",
+      3.6,
+      -1.1,
+      3,
+      "5d7a5a"
+     ],
+     [
+      "barrel",
+      3.5,
+      1.7
+     ],
+     [
+      "lamp",
+      -3.5,
+      1.9,
+      0
+     ]
+    ],
+    "route": [
+     [
+      0.0,
+      1.6
+     ],
+     [
+      -0.6,
+      -1.7
+     ],
+     [
+      -2.2,
+      -1.7
+     ]
+    ]
+   }
   },
   {
    "id": "olive_village_empty_house",
@@ -175,8 +299,27 @@
    "z": -18.6,
    "w": 4.4,
    "d": 4.8,
-   "h": 5.0,
-   "door": "S"
+   "h": 6.7,
+   "door": "S",
+   "wall": "efe7d6",
+   "roof": "b05f3a",
+   "kit": true,
+   "floors": 2,
+   "navDoor": "emptyDoor",
+   "interior": {
+    "items": [],
+    "route": [
+     [
+      0.0,
+      1.6
+     ],
+     [
+      0.0,
+      0.0
+     ]
+    ],
+    "empty": true
+   }
   },
   {
    "id": "olive_village_barber",
@@ -186,8 +329,77 @@
    "z": -6.0,
    "w": 4.6,
    "d": 6.4,
-   "h": 5.5,
-   "door": "E"
+   "h": 6.7,
+   "door": "E",
+   "wall": "f4efe5",
+   "roof": "bf6c40",
+   "kit": true,
+   "floors": 2,
+   "shopfront": true,
+   "sign": "Barber",
+   "navDoor": "barber",
+   "interior": {
+    "items": [
+     [
+      "chair",
+      -0.9,
+      -1.8,
+      1,
+      "8a2f2f"
+     ],
+     [
+      "washbasin",
+      -1.85,
+      -1.8,
+      1
+     ],
+     [
+      "cabinet",
+      -1.85,
+      -2.85,
+      1
+     ],
+     [
+      "desk",
+      -1.2,
+      1.7,
+      1
+     ],
+     [
+      "chair",
+      -0.3,
+      1.7,
+      3,
+      "6e4428"
+     ],
+     [
+      "bookshelf",
+      -1.85,
+      0.2,
+      1
+     ],
+     [
+      "painting",
+      -0.2,
+      2.95,
+      2
+     ]
+    ],
+    "route": [
+     [
+      1.5,
+      0.0
+     ],
+     [
+      0.3,
+      0.0
+     ],
+     [
+      0.3,
+      -1.8
+     ]
+    ]
+   }
   },
   {
    "id": "olive_village_washhouse",
@@ -198,8 +410,8 @@
    "w": 4.4,
    "d": 3.6,
    "h": 2.8,
-   "door": "W",
-   "wall": "a39a8a"
+   "wall": "a39a8a",
+   "solid": false
   },
   {
    "id": "olive_village_sandals",
@@ -209,19 +421,203 @@
    "z": 11.8,
    "w": 5.0,
    "d": 5.0,
-   "h": 5.0,
-   "door": "N"
+   "h": 6.7,
+   "door": "N",
+   "wall": "ece3d0",
+   "roof": "b8643c",
+   "kit": true,
+   "floors": 2,
+   "balcony": true,
+   "navDoor": "sandals",
+   "interior": {
+    "items": [
+     [
+      "sofa",
+      -1.3,
+      1.6,
+      2,
+      "d9c9a8"
+     ],
+     [
+      "rug",
+      0.0,
+      0.6,
+      0,
+      "c94a44"
+     ],
+     [
+      "table",
+      1.2,
+      0.7,
+      0,
+      "f4f1ea"
+     ],
+     [
+      "chair",
+      1.9,
+      0.7,
+      3,
+      "6f8090"
+     ],
+     [
+      "bookshelf",
+      1.7,
+      2.0,
+      2
+     ],
+     [
+      "painting",
+      -2.3,
+      -0.6,
+      1
+     ],
+     [
+      "painting",
+      2.3,
+      -0.8,
+      3
+     ],
+     [
+      "painting",
+      -1.0,
+      2.3,
+      2
+     ],
+     [
+      "lamp",
+      -2.0,
+      2.0,
+      0
+     ]
+    ],
+    "route": [
+     [
+      0.0,
+      -1.6
+     ],
+     [
+      -0.6,
+      -0.2
+     ]
+    ]
+   }
   },
   {
    "id": "olive_village_church",
    "kind": "church",
    "name": "The church",
-   "x": -34.0,
+   "x": -33.0,
    "z": -32.0,
-   "w": 7.0,
+   "w": 6.0,
    "d": 12.0,
-   "h": 7.0,
-   "door": "S"
+   "h": 4.2,
+   "door": "S",
+   "wall": "f1ece0",
+   "roof": "b8643c",
+   "kit": true,
+   "floors": 1,
+   "chimney": false,
+   "navDoor": "churchDoor",
+   "interior": {
+    "items": [
+     [
+      "bench",
+      -1.3,
+      3.6,
+      2
+     ],
+     [
+      "bench",
+      -1.3,
+      2.2,
+      2
+     ],
+     [
+      "bench",
+      -1.3,
+      0.8,
+      2
+     ],
+     [
+      "bench",
+      -1.3,
+      -0.6,
+      2
+     ],
+     [
+      "bench",
+      1.3,
+      3.6,
+      2
+     ],
+     [
+      "bench",
+      1.3,
+      2.2,
+      2
+     ],
+     [
+      "bench",
+      1.3,
+      0.8,
+      2
+     ],
+     [
+      "bench",
+      1.3,
+      -0.6,
+      2
+     ],
+     [
+      "table",
+      0.0,
+      -4.6,
+      0,
+      "f4f1ea"
+     ],
+     [
+      "lamp",
+      -2.2,
+      -4.9,
+      0
+     ],
+     [
+      "lamp",
+      2.2,
+      -4.9,
+      0
+     ],
+     [
+      "rug",
+      0.0,
+      -3.0,
+      0,
+      "8a2f2f"
+     ]
+    ],
+    "route": [
+     [
+      0.0,
+      5.0
+     ],
+     [
+      0.0,
+      -3.0
+     ]
+    ]
+   }
+  },
+  {
+   "id": "olive_village_belltower",
+   "kind": "belltower",
+   "name": "The bell tower",
+   "x": -38.2,
+   "z": -35.5,
+   "w": 3.0,
+   "d": 3.0,
+   "h": 16.0,
+   "wall": "f1ece0",
+   "roof": "b8643c"
   },
   {
    "id": "olive_village_castle_tower",
@@ -242,8 +638,12 @@
    "z": -6.0,
    "w": 4.6,
    "d": 4.6,
-   "h": 6.0,
-   "door": "E"
+   "h": 9.2,
+   "door": "E",
+   "wall": "efe7d6",
+   "roof": "b05f3a",
+   "kit": true,
+   "floors": 3
   },
   {
    "id": "olive_village_delia",
@@ -253,8 +653,12 @@
    "z": 5.0,
    "w": 4.6,
    "d": 4.6,
-   "h": 5.5,
-   "door": "S"
+   "h": 6.7,
+   "door": "S",
+   "wall": "f4efe5",
+   "roof": "bf6c40",
+   "kit": true,
+   "floors": 2
   },
   {
    "id": "olive_village_gina",
@@ -264,8 +668,12 @@
    "z": 4.5,
    "w": 4.6,
    "d": 4.6,
-   "h": 5.5,
-   "door": "S"
+   "h": 6.7,
+   "door": "S",
+   "wall": "ece3d0",
+   "roof": "b8643c",
+   "kit": true,
+   "floors": 2
   },
   {
    "id": "olive_village_house_4",
@@ -275,8 +683,12 @@
    "z": 9.5,
    "w": 4.6,
    "d": 4.6,
-   "h": 5.0,
-   "door": "W"
+   "h": 6.7,
+   "door": "W",
+   "wall": "f1ece0",
+   "roof": "b8643c",
+   "kit": true,
+   "floors": 2
   },
   {
    "id": "olive_village_house_5",
@@ -286,8 +698,13 @@
    "z": 21.0,
    "w": 4.6,
    "d": 4.6,
-   "h": 5.0,
-   "door": "N"
+   "h": 6.7,
+   "door": "N",
+   "wall": "efe7d6",
+   "roof": "b05f3a",
+   "kit": true,
+   "floors": 2,
+   "shut": true
   },
   {
    "id": "olive_village_house_6",
@@ -297,8 +714,13 @@
    "z": 19.0,
    "w": 4.6,
    "d": 4.6,
-   "h": 5.0,
-   "door": "N"
+   "h": 6.7,
+   "door": "N",
+   "wall": "f4efe5",
+   "roof": "bf6c40",
+   "kit": true,
+   "floors": 2,
+   "shut": true
   },
   {
    "id": "olive_village_house_7",
@@ -308,8 +730,12 @@
    "z": -30.0,
    "w": 4.6,
    "d": 4.6,
-   "h": 6.0,
-   "door": "E"
+   "h": 9.2,
+   "door": "E",
+   "wall": "ece3d0",
+   "roof": "b8643c",
+   "kit": true,
+   "floors": 3
   },
   {
    "id": "olive_village_house_8",
@@ -319,8 +745,12 @@
    "z": -33.0,
    "w": 4.6,
    "d": 4.6,
-   "h": 6.0,
-   "door": "S"
+   "h": 9.2,
+   "door": "S",
+   "wall": "f1ece0",
+   "roof": "b8643c",
+   "kit": true,
+   "floors": 3
   },
   {
    "id": "olive_village_house_9",
@@ -330,8 +760,13 @@
    "z": -31.0,
    "w": 4.6,
    "d": 4.6,
-   "h": 6.0,
-   "door": "S"
+   "h": 6.7,
+   "door": "S",
+   "wall": "efe7d6",
+   "roof": "b05f3a",
+   "kit": true,
+   "floors": 2,
+   "shut": true
   },
   {
    "id": "olive_village_house_10",
@@ -341,8 +776,12 @@
    "z": -46.0,
    "w": 4.6,
    "d": 4.6,
-   "h": 6.0,
-   "door": "S"
+   "h": 9.2,
+   "door": "S",
+   "wall": "f4efe5",
+   "roof": "bf6c40",
+   "kit": true,
+   "floors": 3
   },
   {
    "id": "olive_village_house_11",
@@ -352,8 +791,13 @@
    "z": -46.0,
    "w": 4.6,
    "d": 4.6,
-   "h": 5.0,
-   "door": "E"
+   "h": 6.7,
+   "door": "E",
+   "wall": "ece3d0",
+   "roof": "b8643c",
+   "kit": true,
+   "floors": 2,
+   "shut": true
   },
   {
    "id": "olive_village_tank",
@@ -374,8 +818,73 @@
    "z": 3.6,
    "w": 6.0,
    "d": 5.0,
-   "h": 5.0,
-   "door": "W"
+   "h": 6.7,
+   "door": "W",
+   "wall": "f4efe5",
+   "roof": "bf6c40",
+   "kit": true,
+   "floors": 2,
+   "navDoor": "farmDoor",
+   "interior": {
+    "items": [
+     [
+      "table",
+      0.4,
+      0.4,
+      0,
+      "c49a6c"
+     ],
+     [
+      "chair",
+      0.4,
+      1.2,
+      2,
+      "6e4428"
+     ],
+     [
+      "chair",
+      1.2,
+      0.4,
+      3,
+      "6e4428"
+     ],
+     [
+      "workbench",
+      2.1,
+      -1.7,
+      0
+     ],
+     [
+      "cabinet",
+      0.6,
+      -1.9,
+      0,
+      "8a6a50"
+     ],
+     [
+      "bed",
+      2.0,
+      1.4,
+      3
+     ],
+     [
+      "painting",
+      -0.8,
+      -2.3,
+      0
+     ]
+    ],
+    "route": [
+     [
+      -2.2,
+      0.0
+     ],
+     [
+      -0.8,
+      -0.9
+     ]
+    ]
+   }
   },
   {
    "id": "olive_village_fuco_hut",
@@ -385,9 +894,13 @@
    "z": -67.2,
    "w": 3.0,
    "d": 2.6,
-   "h": 3.0,
+   "h": 4.2,
    "door": "W",
-   "wall": "a39a8a"
+   "wall": "b3aa98",
+   "roof": "b8643c",
+   "kit": true,
+   "floors": 1,
+   "chimney": false
   },
   {
    "id": "olive_village_boathouse",
@@ -397,8 +910,55 @@
    "z": 54.8,
    "w": 4.4,
    "d": 3.6,
-   "h": 3.6,
-   "door": "N"
+   "h": 4.2,
+   "door": "N",
+   "wall": "c9bfae",
+   "roof": "b05f3a",
+   "kit": true,
+   "floors": 1,
+   "navDoor": "boathouse",
+   "interior": {
+    "items": [
+     [
+      "workbench",
+      -1.3,
+      1.1,
+      2
+     ],
+     [
+      "barrel",
+      1.6,
+      1.1
+     ],
+     [
+      "crate",
+      1.6,
+      0.1
+     ],
+     [
+      "bed",
+      -1.4,
+      -0.4,
+      1
+     ],
+     [
+      "lamp",
+      1.7,
+      -1.1,
+      0
+     ]
+    ],
+    "route": [
+     [
+      0.0,
+      -1.0
+     ],
+     [
+      0.4,
+      0.3
+     ]
+    ]
+   }
   },
   {
    "id": "olive_village_sirena",
@@ -408,8 +968,12 @@
    "z": 52.5,
    "w": 4.4,
    "d": 3.6,
-   "h": 4.2,
-   "door": "N"
+   "h": 6.7,
+   "door": "N",
+   "wall": "f4efe5",
+   "roof": "bf6c40",
+   "kit": true,
+   "floors": 2
   },
   {
    "id": "olive_village_cottage",
@@ -419,8 +983,12 @@
    "z": 52.0,
    "w": 4.4,
    "d": 3.6,
-   "h": 4.2,
-   "door": "N"
+   "h": 6.7,
+   "door": "N",
+   "wall": "ece3d0",
+   "roof": "b8643c",
+   "kit": true,
+   "floors": 2
   }
  ],
  "machines": [
@@ -859,6 +1427,10 @@
    33.0,
    1.0
   ],
+  "farmDoor": [
+   34.2,
+   3.6
+  ],
   "tpFallen": [
    16.4,
    -13.8
@@ -928,8 +1500,8 @@
    -19.0
   ],
   "churchDoor": [
-   -34.0,
-   -24.8
+   -33.0,
+   -25.0
   ],
   "westLane": [
    -41.5,
@@ -1044,6 +1616,10 @@
   [
    "farmLane",
    "bastian"
+  ],
+  [
+   "bastian",
+   "farmDoor"
   ],
   [
    "farmLane",
@@ -1399,6 +1975,1384 @@
    "x": 22.0,
    "z": 61.4,
    "s": 0.6
+  },
+  {
+   "kind": "olive_village_block",
+   "x": -9.0,
+   "z": -4.6,
+   "rad": 0.24
+  },
+  {
+   "kind": "olive_village_block",
+   "x": -9.0,
+   "z": -1.4,
+   "rad": 0.24
+  },
+  {
+   "kind": "olive_village_block",
+   "x": -5.0,
+   "z": -4.6,
+   "rad": 0.24
+  },
+  {
+   "kind": "olive_village_block",
+   "x": -5.0,
+   "z": -1.4,
+   "rad": 0.24
+  },
+  {
+   "kind": "olive_village_block",
+   "x": -7.0,
+   "z": -3.0,
+   "w": 3.0,
+   "d": 1.0
+  },
+  {
+   "kind": "olive_village_arch",
+   "x": -4.5,
+   "z": 8.4,
+   "r": -0.8761,
+   "span": 3.1,
+   "depth": 2.6,
+   "solid": false
+  },
+  {
+   "kind": "olive_village_block",
+   "x": -2.5,
+   "z": 7.91,
+   "rad": 0.32
+  },
+  {
+   "kind": "olive_village_block",
+   "x": -3.08,
+   "z": 7.22,
+   "rad": 0.32
+  },
+  {
+   "kind": "olive_village_block",
+   "x": -3.65,
+   "z": 6.52,
+   "rad": 0.32
+  },
+  {
+   "kind": "olive_village_block",
+   "x": -5.35,
+   "z": 10.28,
+   "rad": 0.32
+  },
+  {
+   "kind": "olive_village_block",
+   "x": -5.92,
+   "z": 9.58,
+   "rad": 0.32
+  },
+  {
+   "kind": "olive_village_block",
+   "x": -6.5,
+   "z": 8.89,
+   "rad": 0.32
+  },
+  {
+   "kind": "olive_village_arch",
+   "x": -9.56,
+   "z": 0.9,
+   "r": -1.3102,
+   "span": 3.1,
+   "depth": 2.6,
+   "solid": false
+  },
+  {
+   "kind": "olive_village_block",
+   "x": -7.54,
+   "z": 1.29,
+   "rad": 0.32
+  },
+  {
+   "kind": "olive_village_block",
+   "x": -7.77,
+   "z": 0.42,
+   "rad": 0.32
+  },
+  {
+   "kind": "olive_village_block",
+   "x": -8.0,
+   "z": -0.45,
+   "rad": 0.32
+  },
+  {
+   "kind": "olive_village_block",
+   "x": -11.12,
+   "z": 2.25,
+   "rad": 0.32
+  },
+  {
+   "kind": "olive_village_block",
+   "x": -11.35,
+   "z": 1.38,
+   "rad": 0.32
+  },
+  {
+   "kind": "olive_village_block",
+   "x": -11.58,
+   "z": 0.51,
+   "rad": 0.32
+  },
+  {
+   "kind": "olive_village_arch",
+   "x": -11.6,
+   "z": -3.8,
+   "r": -0.6747,
+   "span": 3.1,
+   "depth": 2.6,
+   "solid": false
+  },
+  {
+   "kind": "olive_village_block",
+   "x": -9.74,
+   "z": -4.68,
+   "rad": 0.32
+  },
+  {
+   "kind": "olive_village_block",
+   "x": -10.44,
+   "z": -5.24,
+   "rad": 0.32
+  },
+  {
+   "kind": "olive_village_block",
+   "x": -11.15,
+   "z": -5.81,
+   "rad": 0.32
+  },
+  {
+   "kind": "olive_village_block",
+   "x": -12.05,
+   "z": -1.79,
+   "rad": 0.32
+  },
+  {
+   "kind": "olive_village_block",
+   "x": -12.76,
+   "z": -2.36,
+   "rad": 0.32
+  },
+  {
+   "kind": "olive_village_block",
+   "x": -13.46,
+   "z": -2.92,
+   "rad": 0.32
+  },
+  {
+   "kind": "olive_village_boat",
+   "x": 31.5,
+   "z": 59.6,
+   "w": 1.2,
+   "d": 3.2,
+   "color": "2f5f8f"
+  },
+  {
+   "kind": "olive_village_boat",
+   "x": 34.5,
+   "z": 59.4,
+   "w": 1.2,
+   "d": 3.2,
+   "color": "c94a44"
+  },
+  {
+   "kind": "olive_village_boat",
+   "x": 13.0,
+   "z": 57.2,
+   "w": 1.2,
+   "d": 3.2,
+   "color": "e2b93b"
+  },
+  {
+   "hue": 0.9,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.05,
+   "tree": "olive",
+   "x": 25.72,
+   "z": 42.49
+  },
+  {
+   "hue": 0.72,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 0.93,
+   "tree": "fig",
+   "x": 48.36,
+   "z": 42.22
+  },
+  {
+   "hue": 0.09,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 0.97,
+   "tree": "olive",
+   "x": 51.59,
+   "z": 42.89
+  },
+  {
+   "hue": 0.18,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.1,
+   "tree": "olive",
+   "x": 56.37,
+   "z": 41.71
+  },
+  {
+   "hue": 0.7,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.03,
+   "tree": "olive",
+   "x": 60.75,
+   "z": 42.64
+  },
+  {
+   "hue": 0.26,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.15,
+   "tree": "fig",
+   "x": 25.39,
+   "z": 38.8
+  },
+  {
+   "hue": 0.35,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 0.89,
+   "tree": "olive",
+   "x": 56.2,
+   "z": 38.01
+  },
+  {
+   "hue": 0.64,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.02,
+   "tree": "olive",
+   "x": 61.51,
+   "z": 38.21
+  },
+  {
+   "hue": 0.15,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 0.99,
+   "tree": "olive",
+   "x": 65.01,
+   "z": 38.91
+  },
+  {
+   "hue": 0.62,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 0.95,
+   "tree": "olive",
+   "x": 69.44,
+   "z": 38.7
+  },
+  {
+   "hue": 0.44,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 0.86,
+   "tree": "olive",
+   "x": 26.38,
+   "z": 34.81
+  },
+  {
+   "hue": 0.07,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 0.97,
+   "tree": "olive",
+   "x": 52.98,
+   "z": 34.17
+  },
+  {
+   "hue": 0.36,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.13,
+   "tree": "olive",
+   "x": 60.58,
+   "z": 34.61
+  },
+  {
+   "hue": 0.21,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 0.9,
+   "tree": "olive",
+   "x": 66.08,
+   "z": 34.45
+  },
+  {
+   "hue": 0.79,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.13,
+   "tree": "olive",
+   "x": 24.98,
+   "z": 30.95
+  },
+  {
+   "hue": 0.64,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 0.96,
+   "tree": "olive",
+   "x": 51.97,
+   "z": 30.33
+  },
+  {
+   "hue": 0.77,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.06,
+   "tree": "olive",
+   "x": 55.98,
+   "z": 32.09
+  },
+  {
+   "hue": 0.8,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 0.96,
+   "tree": "olive",
+   "x": 61.41,
+   "z": 31.45
+  },
+  {
+   "hue": 0.22,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.11,
+   "tree": "olive",
+   "x": 25.19,
+   "z": 27.05
+  },
+  {
+   "hue": 0.72,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.19,
+   "tree": "olive",
+   "x": 61.13,
+   "z": 27.52
+  },
+  {
+   "hue": 0.52,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 0.86,
+   "tree": "olive",
+   "x": 65.7,
+   "z": 26.83
+  },
+  {
+   "hue": 0.77,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 0.86,
+   "tree": "olive",
+   "x": 68.85,
+   "z": 27.39
+  },
+  {
+   "hue": 0.67,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.0,
+   "tree": "olive",
+   "x": 56.77,
+   "z": 24.76
+  },
+  {
+   "hue": 0.27,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.07,
+   "tree": "olive",
+   "x": 59.81,
+   "z": 23.72
+  },
+  {
+   "hue": 0.58,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.17,
+   "tree": "olive",
+   "x": 68.95,
+   "z": 23.8
+  },
+  {
+   "hue": 0.98,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 0.96,
+   "tree": "olive",
+   "x": 25.52,
+   "z": 19.77
+  },
+  {
+   "hue": 0.47,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 0.98,
+   "tree": "olive",
+   "x": 56.95,
+   "z": 20.87
+  },
+  {
+   "hue": 0.01,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.11,
+   "tree": "olive",
+   "x": 61.66,
+   "z": 20.25
+  },
+  {
+   "hue": 0.66,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 0.94,
+   "tree": "olive",
+   "x": 65.67,
+   "z": 20.69
+  },
+  {
+   "hue": 0.84,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 0.93,
+   "tree": "olive",
+   "x": 50.88,
+   "z": 17.51
+  },
+  {
+   "hue": 0.15,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 0.9,
+   "tree": "olive",
+   "x": 57.13,
+   "z": 16.33
+  },
+  {
+   "hue": 0.38,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.07,
+   "tree": "olive",
+   "x": 61.17,
+   "z": 16.95
+  },
+  {
+   "hue": 0.81,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.05,
+   "tree": "olive",
+   "x": 65.18,
+   "z": 17.35
+  },
+  {
+   "hue": 0.73,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.07,
+   "tree": "olive",
+   "x": 69.32,
+   "z": 17.61
+  },
+  {
+   "hue": 0.12,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.03,
+   "tree": "olive",
+   "x": 42.53,
+   "z": 12.36
+  },
+  {
+   "hue": 0.77,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 0.86,
+   "tree": "olive",
+   "x": 47.23,
+   "z": 12.6
+  },
+  {
+   "hue": 0.17,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.18,
+   "tree": "olive",
+   "x": 51.15,
+   "z": 13.45
+  },
+  {
+   "hue": 0.83,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.06,
+   "tree": "olive",
+   "x": 57.07,
+   "z": 12.83
+  },
+  {
+   "hue": 0.07,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.1,
+   "tree": "olive",
+   "x": 61.71,
+   "z": 12.49
+  },
+  {
+   "hue": 0.17,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.2,
+   "tree": "olive",
+   "x": 65.08,
+   "z": 13.41
+  },
+  {
+   "hue": 0.24,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.11,
+   "tree": "olive",
+   "x": 70.52,
+   "z": 13.7
+  },
+  {
+   "hue": 0.84,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.0,
+   "tree": "olive",
+   "x": 25.76,
+   "z": 9.47
+  },
+  {
+   "hue": 0.73,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.12,
+   "tree": "olive",
+   "x": 30.89,
+   "z": 8.81
+  },
+  {
+   "hue": 0.1,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.1,
+   "tree": "olive",
+   "x": 52.48,
+   "z": 9.72
+  },
+  {
+   "hue": 0.96,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 0.95,
+   "tree": "olive",
+   "x": 69.87,
+   "z": 8.87
+  },
+  {
+   "hue": 0.27,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.13,
+   "tree": "olive",
+   "x": 22.16,
+   "z": 6.77
+  },
+  {
+   "hue": 0.0,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.12,
+   "tree": "olive",
+   "x": 25.65,
+   "z": 6.23
+  },
+  {
+   "hue": 0.73,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.14,
+   "tree": "olive",
+   "x": 57.14,
+   "z": 5.87
+  },
+  {
+   "hue": 0.49,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 0.97,
+   "tree": "olive",
+   "x": 60.44,
+   "z": 5.1
+  },
+  {
+   "hue": 0.71,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 0.86,
+   "tree": "olive",
+   "x": 65.82,
+   "z": 5.39
+  },
+  {
+   "hue": 0.95,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 0.98,
+   "tree": "olive",
+   "x": 48.01,
+   "z": 3.08
+  },
+  {
+   "hue": 0.1,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.06,
+   "tree": "olive",
+   "x": 51.16,
+   "z": 2.38
+  },
+  {
+   "hue": 0.55,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 0.95,
+   "tree": "olive",
+   "x": 57.14,
+   "z": -1.07
+  },
+  {
+   "hue": 0.72,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 0.97,
+   "tree": "olive",
+   "x": 61.45,
+   "z": -0.82
+  },
+  {
+   "hue": 0.8,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 0.95,
+   "tree": "olive",
+   "x": 65.33,
+   "z": -1.43
+  },
+  {
+   "hue": 0.54,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 0.9,
+   "tree": "olive",
+   "x": 69.57,
+   "z": -1.81
+  },
+  {
+   "hue": 0.47,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 0.93,
+   "tree": "fig",
+   "x": 26.05,
+   "z": -5.55
+  },
+  {
+   "hue": 0.23,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 0.97,
+   "tree": "olive",
+   "x": 29.56,
+   "z": -5.33
+  },
+  {
+   "hue": 0.44,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 0.87,
+   "tree": "olive",
+   "x": 33.91,
+   "z": -3.92
+  },
+  {
+   "hue": 0.64,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.02,
+   "tree": "olive",
+   "x": 38.6,
+   "z": -3.91
+  },
+  {
+   "hue": 0.78,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.07,
+   "tree": "olive",
+   "x": 44.05,
+   "z": -5.2
+  },
+  {
+   "hue": 0.76,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 0.92,
+   "tree": "olive",
+   "x": 47.49,
+   "z": -4.71
+  },
+  {
+   "hue": 0.89,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 0.91,
+   "tree": "olive",
+   "x": 51.49,
+   "z": -4.9
+  },
+  {
+   "hue": 0.65,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 0.86,
+   "tree": "olive",
+   "x": 55.74,
+   "z": -4.87
+  },
+  {
+   "hue": 0.01,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 0.89,
+   "tree": "olive",
+   "x": 20.4,
+   "z": -8.05
+  },
+  {
+   "hue": 0.25,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.14,
+   "tree": "olive",
+   "x": 35.17,
+   "z": -8.35
+  },
+  {
+   "hue": 0.73,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.17,
+   "tree": "olive",
+   "x": 39.0,
+   "z": -8.27
+  },
+  {
+   "hue": 0.23,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.16,
+   "tree": "olive",
+   "x": 51.86,
+   "z": -8.93
+  },
+  {
+   "hue": 0.06,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 0.97,
+   "tree": "olive",
+   "x": 60.31,
+   "z": -8.05
+  },
+  {
+   "hue": 0.73,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.19,
+   "tree": "olive",
+   "x": 65.56,
+   "z": -8.06
+  },
+  {
+   "hue": 0.89,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.16,
+   "tree": "olive",
+   "x": 69.56,
+   "z": -8.28
+  },
+  {
+   "hue": 0.1,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.11,
+   "tree": "olive",
+   "x": 48.13,
+   "z": -12.06
+  },
+  {
+   "hue": 0.55,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.13,
+   "tree": "olive",
+   "x": 56.61,
+   "z": -12.9
+  },
+  {
+   "hue": 0.43,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.13,
+   "tree": "olive",
+   "x": 60.04,
+   "z": -12.6
+  },
+  {
+   "hue": 0.72,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.08,
+   "tree": "olive",
+   "x": 64.36,
+   "z": -12.07
+  },
+  {
+   "hue": 0.69,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.09,
+   "tree": "fig",
+   "x": 70.16,
+   "z": -11.43
+  },
+  {
+   "hue": 0.12,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.08,
+   "tree": "olive",
+   "x": 21.5,
+   "z": -15.67
+  },
+  {
+   "hue": 0.92,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 0.96,
+   "tree": "olive",
+   "x": 25.37,
+   "z": -15.06
+  },
+  {
+   "hue": 0.67,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 0.97,
+   "tree": "olive",
+   "x": 30.96,
+   "z": -16.45
+  },
+  {
+   "hue": 0.16,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.15,
+   "tree": "olive",
+   "x": 63.88,
+   "z": -15.49
+  },
+  {
+   "hue": 0.42,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 0.95,
+   "tree": "olive",
+   "x": 70.29,
+   "z": -15.08
+  },
+  {
+   "hue": 0.15,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.05,
+   "tree": "olive",
+   "x": 52.82,
+   "z": -18.45
+  },
+  {
+   "hue": 0.47,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 0.89,
+   "tree": "olive",
+   "x": 56.55,
+   "z": -18.62
+  },
+  {
+   "hue": 0.44,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.12,
+   "tree": "olive",
+   "x": 60.26,
+   "z": -19.13
+  },
+  {
+   "hue": 0.15,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 0.88,
+   "tree": "olive",
+   "x": 66.02,
+   "z": -18.75
+  },
+  {
+   "hue": 0.93,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.0,
+   "tree": "fig",
+   "x": 70.25,
+   "z": -18.64
+  },
+  {
+   "hue": 0.17,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 0.92,
+   "tree": "olive",
+   "x": 20.44,
+   "z": -22.76
+  },
+  {
+   "hue": 0.84,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.0,
+   "tree": "olive",
+   "x": 24.29,
+   "z": -21.91
+  },
+  {
+   "hue": 0.21,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.1,
+   "tree": "olive",
+   "x": 30.43,
+   "z": -22.39
+  },
+  {
+   "hue": 0.27,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.08,
+   "tree": "olive",
+   "x": 34.33,
+   "z": -22.22
+  },
+  {
+   "hue": 0.32,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 0.91,
+   "tree": "olive",
+   "x": 38.05,
+   "z": -23.29
+  },
+  {
+   "hue": 0.37,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.05,
+   "tree": "olive",
+   "x": 60.56,
+   "z": -23.22
+  },
+  {
+   "hue": 0.55,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.11,
+   "tree": "olive",
+   "x": 69.78,
+   "z": -23.36
+  },
+  {
+   "hue": 0.18,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.11,
+   "tree": "olive",
+   "x": 34.09,
+   "z": -26.74
+  },
+  {
+   "hue": 0.12,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.13,
+   "tree": "olive",
+   "x": 37.83,
+   "z": -26.73
+  },
+  {
+   "hue": 0.86,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.15,
+   "tree": "olive",
+   "x": 43.38,
+   "z": -27.13
+  },
+  {
+   "hue": 0.96,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.04,
+   "tree": "olive",
+   "x": 47.75,
+   "z": -26.73
+  },
+  {
+   "hue": 0.46,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.19,
+   "tree": "olive",
+   "x": 50.79,
+   "z": -25.61
+  },
+  {
+   "hue": 0.35,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.05,
+   "tree": "olive",
+   "x": 56.88,
+   "z": -26.74
+  },
+  {
+   "hue": 0.64,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 0.91,
+   "tree": "olive",
+   "x": 65.01,
+   "z": -27.0
+  },
+  {
+   "hue": 0.33,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 0.98,
+   "tree": "olive",
+   "x": 21.58,
+   "z": -29.3
+  },
+  {
+   "hue": 0.16,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.06,
+   "tree": "olive",
+   "x": 28.75,
+   "z": -30.43
+  },
+  {
+   "hue": 0.78,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.15,
+   "tree": "olive",
+   "x": 59.59,
+   "z": -33.27
+  },
+  {
+   "hue": 0.4,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 0.92,
+   "tree": "olive",
+   "x": 63.97,
+   "z": -33.95
+  },
+  {
+   "hue": 0.97,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.14,
+   "tree": "olive",
+   "x": 38.66,
+   "z": -36.83
+  },
+  {
+   "hue": 0.37,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 0.9,
+   "tree": "olive",
+   "x": 42.57,
+   "z": -36.7
+  },
+  {
+   "hue": 0.22,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.12,
+   "tree": "olive",
+   "x": 65.0,
+   "z": -37.55
+  },
+  {
+   "hue": 0.38,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 0.91,
+   "tree": "olive",
+   "x": 43.03,
+   "z": -40.77
+  },
+  {
+   "hue": 0.39,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.1,
+   "tree": "olive",
+   "x": 51.7,
+   "z": -41.38
+  },
+  {
+   "hue": 0.25,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.02,
+   "tree": "olive",
+   "x": 57.08,
+   "z": -41.56
+  },
+  {
+   "hue": 0.01,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.09,
+   "tree": "olive",
+   "x": 69.0,
+   "z": -40.9
+  },
+  {
+   "hue": 0.58,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.12,
+   "tree": "olive",
+   "x": 37.65,
+   "z": -45.1
+  },
+  {
+   "hue": 0.73,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.12,
+   "tree": "olive",
+   "x": 43.48,
+   "z": -44.73
+  },
+  {
+   "hue": 0.37,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.0,
+   "tree": "olive",
+   "x": 47.03,
+   "z": -44.59
+  },
+  {
+   "hue": 0.65,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.03,
+   "tree": "olive",
+   "x": 20.49,
+   "z": -47.25
+  },
+  {
+   "hue": 0.04,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.17,
+   "tree": "olive",
+   "x": 57.13,
+   "z": -48.58
+  },
+  {
+   "hue": 0.99,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.04,
+   "tree": "olive",
+   "x": 19.84,
+   "z": -51.93
+  },
+  {
+   "hue": 0.99,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.05,
+   "tree": "olive",
+   "x": 29.17,
+   "z": -51.67
+  },
+  {
+   "hue": 0.0,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.11,
+   "tree": "olive",
+   "x": 37.75,
+   "z": -51.95
+  },
+  {
+   "hue": 0.79,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 0.86,
+   "tree": "olive",
+   "x": 42.8,
+   "z": -51.38
+  },
+  {
+   "hue": 0.24,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 0.97,
+   "tree": "olive",
+   "x": 61.24,
+   "z": -54.41
+  },
+  {
+   "hue": 0.79,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.2,
+   "tree": "olive",
+   "x": 65.14,
+   "z": -54.55
+  },
+  {
+   "hue": 0.09,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 0.91,
+   "tree": "olive",
+   "x": 69.57,
+   "z": -54.66
+  },
+  {
+   "hue": 0.87,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 0.95,
+   "tree": "olive",
+   "x": 21.99,
+   "z": -58.74
+  },
+  {
+   "hue": 0.35,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.11,
+   "tree": "olive",
+   "x": 42.3,
+   "z": -59.54
+  },
+  {
+   "hue": 0.8,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 0.99,
+   "tree": "olive",
+   "x": 65.25,
+   "z": -59.38
+  },
+  {
+   "hue": 0.84,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 0.86,
+   "tree": "olive",
+   "x": 70.6,
+   "z": -59.64
+  },
+  {
+   "hue": 0.4,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.0,
+   "tree": "olive",
+   "x": -36.0,
+   "z": 13.0
+  },
+  {
+   "hue": 0.4,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.0,
+   "tree": "olive",
+   "x": -13.0,
+   "z": 26.0
+  },
+  {
+   "hue": 0.4,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.0,
+   "tree": "fig",
+   "x": -50.0,
+   "z": 10.0
+  },
+  {
+   "hue": 0.4,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.0,
+   "tree": "olive",
+   "x": -56.0,
+   "z": -20.0
+  },
+  {
+   "hue": 0.4,
+   "kind": "olive_village_tree",
+   "rad": 0.3,
+   "s": 1.0,
+   "tree": "olive",
+   "x": -20.0,
+   "z": -42.0
   }
  ]
 }
