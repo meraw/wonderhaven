@@ -960,7 +960,7 @@ func _build_ui() -> void:
 			var d := Data.piece(pl.id)
 			var p := UiTheme.panel(Color(UiTheme.CREAM, 0.97), UiTheme.LILAC)
 			var v := VBoxContainer.new(); p.add_child(v)
-			v.add_child(UiTheme.label("%s %s" % [d.icon, d.name], 16))
+			v.add_child(_piece_title(pl.id, d.name, 16))
 			var desc := UiTheme.label(d.desc, 12, UiTheme.INK2); desc.autowrap_mode = TextServer.AUTOWRAP_WORD; desc.custom_minimum_size.x = 220; v.add_child(desc)
 			if moving.is_empty():
 				var row := HBoxContainer.new(); v.add_child(row)
@@ -1009,7 +1009,7 @@ func _build_ui() -> void:
 		btn.add_theme_stylebox_override("normal", sb); btn.add_theme_stylebox_override("hover", UiTheme.box(Color("fbf8ff"), Color("c9a8ff"), 16, 3, 4, false))
 		var vb := VBoxContainer.new(); vb.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT); vb.alignment = BoxContainer.ALIGNMENT_CENTER; vb.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		vb.add_theme_constant_override("separation", 0)
-		var icon := UiTheme.label(p.icon if unlocked else "🔒", 20); icon.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var icon := piece_icon(pid, 34.0, not unlocked)
 		var nm := UiTheme.label(p.name, 11); nm.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; nm.autowrap_mode = TextServer.AUTOWRAP_WORD; nm.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		var ct := UiTheme.label("not here" if ruled != "" else (_cost_text(p.cost, "\n") if unlocked else "locked"), 10, Color("d55555") if poor or ruled != "" else UiTheme.INK2); ct.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; ct.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		if state().new_blueprints.has(pid): var nw := UiTheme.label("✦ new", 10, UiTheme.PINK_DARK); nw.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; nw.mouse_filter = Control.MOUSE_FILTER_IGNORE; vb.add_child(nw)
@@ -1073,7 +1073,7 @@ func _selected_draft_panel(col: VBoxContainer) -> void:
 	var d := Data.piece(String(dr.id))
 	var p := UiTheme.panel(Color("eef8ff"), Color("8fd3ff")); p.name = "draft_selected"
 	var v := VBoxContainer.new(); p.add_child(v)
-	v.add_child(UiTheme.label("%s %s (drafted)" % [d.icon, d.name], 16))
+	v.add_child(_piece_title(d.id, "%s (drafted)" % d.name, 16))
 	var short := Inventory.missing(state().inventory, d.cost)
 	var l := UiTheme.label(("It needs %s." % _cost_text(d.cost)) + ((" You need %s more." % Drafts.items_text(short)) if not short.is_empty() else ""), 12, UiTheme.INK2)
 	l.autowrap_mode = TextServer.AUTOWRAP_WORD; l.custom_minimum_size.x = 220; v.add_child(l)
@@ -1105,4 +1105,33 @@ func _swatches(current: String, cb: Callable) -> HBoxContainer:
 		b.add_theme_stylebox_override("normal", sb); b.add_theme_stylebox_override("hover", sb); b.add_theme_stylebox_override("pressed", sb)
 		b.pressed.connect(func(): cb.call(col))
 		row.add_child(b)
+	return row
+
+static func piece_icon_path(pid: String) -> String:
+	return "res://assets/icons/pieces/%s.png" % pid
+
+static func piece_icon(pid: String, size: float, locked: bool = false) -> Control:
+	var path := piece_icon_path(pid)
+	if not ResourceLoader.exists(path):
+		var l := UiTheme.label(Data.piece(pid).get("icon", "") if not locked else "🔒", int(size * 0.6))
+		l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		l.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		return l
+	var tr := TextureRect.new()
+	tr.name = "icon_" + pid
+	tr.texture = load(path)
+	tr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	tr.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	tr.custom_minimum_size = Vector2(size, size)
+	tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if locked: tr.self_modulate = Color(0.55, 0.52, 0.6, 0.75)
+	return tr
+
+func _piece_title(pid: String, text: String, size: int) -> Control:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 6)
+	row.add_child(piece_icon(pid, size * 2.4))
+	var l := UiTheme.label(text, size)
+	l.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(l)
 	return row
