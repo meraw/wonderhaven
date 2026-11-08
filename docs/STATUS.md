@@ -538,9 +538,8 @@ Checked by the headless tests (`test_animation.gd`: stopping eases, the stride s
   by a path, two over the river, 70 m and more apart) and the round's steps. **Played**, from the playthrough's own
   checkpoints: the round (`b3`: five letters posted by bike, 251 m ridden), the catfish (`s8b`: it leapt 3.9 m and the
   request finished) and the levee (`s11b`: at midnight the flood stands at 0.45 m over the floodplain while the town is
-  dry; `s11` and `s12` still pass). The flood and the leap were checked in Forward+ screenshots by day and by night.
-  **Not checked:** Boccapioppo's whole playthrough from the start with these three changes (each section was played on
-  its own from the saved state before it).
+  dry; `s11` and `s12` still pass), then Boccapioppo's whole playthrough from the start (36 checks, all passing). The
+  flood and the leap were checked in Forward+ screenshots by day and by night.
 
 ## Playtest fixes: a village map, the Roman bridge, the town's needs, dancing, furniture, naps (08/11)
 - **A map of where you are** (shared): M opens a map of the place you're in, drawn from its layout: the ground and the
