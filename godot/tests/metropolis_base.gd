@@ -70,10 +70,26 @@ func go(id: String, label: String) -> bool:
 	var t0 := Time.get_ticks_msec()
 	var storey := NpcAgent.node_storey(P + id)
 	if storey != INF and storey > 2.0:
-		await storey_to(true)
-		for n in nav_path(P + "terrace_w", P + id):
-			var a: Array = Data.layout.nav_nodes[n]
-			await walk_direct(float(a[0]), float(a[1]), 0.6)
+		note("%s: setting off from %s" % [id, game.player.pos])
+		for attempt in 3:
+			if game.player.pos.y < 2.0: await storey_to(true)
+			if game.player.pos.y < 2.0:
+				note("%s: not up the stair yet, at %s" % [id, game.player.pos])
+				continue
+			var path := nav_path(P + "terrace_w", P + id)
+			var start := 0
+			var best := INF
+			for i in path.size():
+				var q: Array = Data.layout.nav_nodes[path[i]]
+				var dd := Vector2(float(q[0]) - game.player.pos.x, float(q[1]) - game.player.pos.z).length()
+				if dd < best: best = dd; start = i
+			var fell := false
+			for i in range(start, path.size()):
+				var a: Array = Data.layout.nav_nodes[path[i]]
+				await walk_direct(float(a[0]), float(a[1]), 0.6)
+				if game.player.pos.y < 2.0: fell = true; break
+			if not fell: break
+			note("%s: came off the balcony at %s" % [id, game.player.pos])
 	var d := Vector2(game.player.pos.x, game.player.pos.z).distance_to(to)
 	for attempt in 3:
 		if d < 2.5: break
