@@ -41,6 +41,10 @@ func state() -> Dictionary: return game.state
 func now() -> float: return state().time.total
 func node_state(id: String) -> Dictionary: return state().nodes.get(id, {})
 
+const DETECTOR := "metalDetector"
+
+static func has_detector(s: Dictionary) -> bool: return bool(s.get("flags", {}).get(DETECTOR, false))
+
 func ready(n: Dictionary) -> bool:
 	var s := node_state(n.id)
 	if s.get("done", false): return false
@@ -68,7 +72,7 @@ func _register_node(n: Dictionary) -> void:
 	var nd := n
 	var base := {"id": n.id, "x": n.x, "z": n.z, "object": game.village.node_visuals.get(n.id), "available": func(): return ready(nd)}
 	if n.kind == "dig":
-		base.merge({"radius": 0.9, "object": null, "available": func(): return ready(nd) and state().flags.get("hasTool", false),
+		base.merge({"radius": 0.9, "object": null, "available": func(): return ready(nd) and has_detector(state()),
 			"label": func(): return "Dig here, the metal detector is going wild!", "act": func(): dig(nd)}, true)
 		game.add_interactable(base); return
 	base.merge({"radius": 2.0 if n.kind == "mine" else (1.3 if n.kind == "fish" else (2.2 if n.get("big", false) else 1.7)), "label": func(): return node_label(nd), "act": func(): act(nd)}, true)
@@ -451,7 +455,7 @@ func update(dt: float) -> void:
 		for n in Data.layout.nodes:
 			if n.kind == "fragment" and ready(n) and Vector2(n.x - p.x, n.z - p.z).length() < 1.1: catch_fragment(n)
 	var best := INF
-	if s.flags.get("hasTool", false):
+	if has_detector(s):
 		for n in Data.layout.nodes:
 			if n.kind == "dig" and ready(n): best = minf(best, Vector2(n.x - p.x, n.z - p.z).length())
 	hum = 3 if best < 3.0 else (2 if best < 7.0 else (1 if best < 13.0 else 0))
