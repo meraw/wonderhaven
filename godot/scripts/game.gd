@@ -120,7 +120,7 @@ func _ready() -> void:
 		var a := NpcAgent.new(self, d)
 		npcs[d.id] = a
 		var ag := a
-		add_interactable({"id": "npc:" + d.id, "x": func(): return ag.pos.x, "z": func(): return ag.pos.z, "radius": 1.9, "priority": 0.6, "object": null, "sight": true,
+		add_interactable({"id": "npc:" + d.id, "x": func(): return ag.pos.x, "z": func(): return ag.pos.z, "y": func(): return ag.pos.y, "radius": 1.9, "priority": 0.6, "object": null, "sight": true,
 			"available": func(): return ag.present, "label": func(): return "Talk to " + ag.def.name, "act": func(): story.talk(ag)})
 	for f in Data.layout.features:
 		if f.kind == "sign":
@@ -209,11 +209,11 @@ func banner(title: String, sub: String = "", rewards: Array = [], seconds: float
 	banner_box.add_child(t)
 	if sub != "":
 		var sl := UiTheme.label(sub, 20); sp_wrap(sl)
-		var sp := UiTheme.panel(UiTheme.CREAM, UiTheme.LINE, 999 if sub.length() <= 70 else 24); sp.add_child(sl)
-		var cc := CenterContainer.new(); cc.add_child(sp); banner_box.add_child(cc)
+		var sp := UiTheme.panel(UiTheme.CREAM, UiTheme.LINE, 999 if sub.length() <= 70 else 24); sp.add_child(sl); sp.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var cc := CenterContainer.new(); cc.add_child(sp); cc.mouse_filter = Control.MOUSE_FILTER_IGNORE; banner_box.add_child(cc)
 	if not rewards.is_empty():
-		var row := HBoxContainer.new(); row.alignment = BoxContainer.ALIGNMENT_CENTER
-		for r in rewards: var rp := UiTheme.panel(Color("fff7cf"), UiTheme.GOLD, 999); rp.add_child(UiTheme.label(r, 13)); row.add_child(rp)
+		var row := HBoxContainer.new(); row.alignment = BoxContainer.ALIGNMENT_CENTER; row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		for r in rewards: var rp := UiTheme.panel(Color("fff7cf"), UiTheme.GOLD, 999); rp.add_child(UiTheme.label(r, 13)); rp.mouse_filter = Control.MOUSE_FILTER_IGNORE; row.add_child(rp)
 		banner_box.add_child(row)
 	banner_box.scale = Vector2(0.3, 0.3); banner_box.pivot_offset = Vector2(get_viewport().get_visible_rect().size.x / 2.0, 40)
 	var tw := banner_box.create_tween(); tw.tween_property(banner_box, "scale", Vector2.ONE, 0.45).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
@@ -928,7 +928,7 @@ func find_target():
 		var dz := _pos_of(it, "z") - p.z
 		var d := sqrt(dx * dx + dz * dz)
 		if d > it.radius + 0.6: continue
-		if it.has("y") and absf(float(it.y) - p.y) > 1.6: continue   # on another storey (a bed in the flat upstairs)
+		if it.has("y") and absf(_pos_of(it, "y") - p.y) > 1.6: continue   # on another storey (a bed in the flat upstairs)
 		var facing := (dx * fwd.x + dz * fwd.y) / d if d > 0.01 else 1.0
 		if d > 1.0 and facing < 0.1: continue
 		if it.get("sight", false) and not WalkWorld.sight_clear(Vector2(p.x, p.z), Vector2(p.x + dx, p.z + dz), sight_walls): continue   # not through a wall
