@@ -98,6 +98,15 @@ shines.
   `adjust`) once the request's flag is set. Riding to a stop raises `ride:<stop id>`, as elsewhere.
 - **Out to the lighthouse.** Over the breakwater once it's mended. Until then Gerolamo rows in and out, and you can't
   reach the rock.
+- **The ferry to Liolivato.** Once Liolivato is unlocked, the little white ferry on the coast line calls at Tonnarella
+  too. It's skippered by Comandante Marisa "Sirena" Novaro, Liolivato's character (`docs/locations/olive_village.md`),
+  and runs between Serenza, Liolivato and Tonnarella.
+  - **The landing:** a second departure point at the edge of the west quay, by the harbour office: a feature of kind
+    `boat` (`port_ferry`, `depart_label` "Take the ferry") that waits for `olive_village_revealed`, the flag Serenza's
+    finale sets and Liolivato's map entry reveals on.
+  - **Before that:** the landing is an empty mooring with a faded timetable board.
+  - **The travel map** needs nothing new: any departure point reaches any place that's on the map, so the ferry line
+    is how the places describe it. The train stays Tonnarella's main way in and out.
 
 ## The changeover: Tonnarella's progress meter and the euro
 Money is kept as whole coins in saves and rules (one coin is 1,000 lire, `Money`), so the euro only changes how money
@@ -310,6 +319,7 @@ One pull request per stage. Each keeps the game playable and the tests passing.
    - The nine villagers with schedules, greetings, topics, gifts and tastes; Nonna's basket.
    - The ten requests with their briefs and ghost plans, the four shops, Tonnarella's materials, fish and treats, the
      washing, the changeover meter and the clothes.
+   - The ferry landing on the west quay, waiting for `olive_village_revealed`.
    - The euro on screen (the shared change above).
    - `play_port.gd`: a scripted playthrough of every request with real input, starting off the train as if the player
      had come from Toriano (`arrive_as_if_played(["hearthglow", "river_town", "rice_village", "metropolis"])`).
@@ -326,7 +336,10 @@ One pull request per stage. Each keeps the game playable and the tests passing.
 - **Every place:** the euro switch changes how money shows everywhere once you've reached 10% in Tonnarella. Before
   that, every printed amount stays exactly as it is today, so the other places' tests and playthroughs, which start
   before Tonnarella, are unaffected.
-- **Whatever comes next:** Tonnarella's finale sets `port_lighthouse_lit` for the next place's map entry.
+- **Whatever comes next:** Tonnarella's finale sets `port_lighthouse_lit` for the next place's map entry. Serenza's
+  entry reveals on it (`docs/locations/cliffs.md`).
+- **Serenza and Liolivato:** Sirena's ferry runs between the three places. Tonnarella's landing (`port_ferry`) waits
+  for `olive_village_revealed`, the same flag as Serenza's landing and Liolivato's map entry.
 
 ## Risks
 - **Steep ground in three levels.** Stair lanes on the heightfield have to be walkable, and walking and quest checks
