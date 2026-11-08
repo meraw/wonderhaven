@@ -50,7 +50,7 @@
       [
        6,
        11,
-       "churchDoor",
+       "churchRampTop",
        "idle"
       ],
       [
@@ -62,8 +62,8 @@
       [
        13,
        19,
-       "cliffs_cellar:spot",
-       "work"
+       "cellarSq",
+       "idle"
       ],
       [
        19,
@@ -206,7 +206,7 @@
    ],
    "voice": 0.72,
    "appearance": {
-    "skin": "#c98a5e",
+    "skin": "#e9b083",
     "eyeShape": "sleepy",
     "eyeColor": "#3a2a1e",
     "hair": "short",
@@ -250,7 +250,7 @@
     [
      18,
      22,
-     "cliffs_bar:spot",
+     "cliffs_bar:in",
      "idle"
     ]
    ],
@@ -279,7 +279,7 @@
       [
        18,
        22,
-       "cliffs_bar:spot",
+       "cliffs_bar:in",
        "idle"
       ]
      ]
@@ -290,7 +290,7 @@
       [
        6,
        11,
-       "churchDoor",
+       "churchRamp",
        "idle"
       ],
       [
@@ -308,7 +308,7 @@
       [
        20,
        22,
-       "cliffs_bar:spot",
+       "cliffs_bar:in",
        "idle"
       ]
      ]
@@ -445,7 +445,7 @@
     [
      19,
      21,
-     "cliffs_bar:spot",
+     "squareE",
      "idle"
     ]
    ],
@@ -456,7 +456,7 @@
       [
        6,
        11,
-       "churchDoor",
+       "squareE",
        "idle"
       ],
       [
@@ -468,7 +468,7 @@
       [
        13,
        19,
-       "cliffs_cellar:spot",
+       "cliffs_cellar:in",
        "idle"
       ]
      ]
@@ -509,7 +509,7 @@
       [
        18,
        21,
-       "cliffs_bar:spot",
+       "squareE",
        "idle"
       ]
      ]
@@ -804,7 +804,7 @@
     [
      12,
      14,
-     "cliffs_bar:spot",
+     "cliffs_bar:in",
      "idle"
     ],
     [
@@ -827,19 +827,19 @@
       [
        6,
        11,
-       "churchDoor",
+       "rocksS",
        "idle"
       ],
       [
        11,
        13,
-       "square",
+       "squareSW",
        "idle"
       ],
       [
        13,
        19,
-       "cliffs_cellar:spot",
+       "cliffs_cellar:in",
        "idle"
       ],
       [
@@ -862,7 +862,7 @@
       [
        12,
        14,
-       "cliffs_bar:spot",
+       "cliffs_bar:in",
        "idle"
       ],
       [
@@ -1023,13 +1023,13 @@
       [
        6,
        11,
-       "churchDoor",
+       "square",
        "idle"
       ],
       [
        11,
        13,
-       "square",
+       "squareN",
        "idle"
       ],
       [
@@ -1175,19 +1175,19 @@
       [
        6,
        11,
-       "churchDoor",
+       "squareN",
        "idle"
       ],
       [
        11,
        13,
-       "square",
+       "barDoor",
        "idle"
       ],
       [
        13,
        19,
-       "cliffs_cellar:spot",
+       "cellarSq",
        "idle"
       ],
       [

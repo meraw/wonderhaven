@@ -1091,8 +1091,7 @@
    "icon": "🍇",
    "cat": "outdoor",
    "provides": [
-    "green",
-    "shelter"
+    "green"
    ],
    "size": [
     1,
@@ -1110,7 +1109,7 @@
     "cliffs_vine": 1
    },
    "color": "#6f9a3c",
-   "desc": "A chestnut post and a cane frame with a vine trained over it. Shade below, grapes by September."
+   "desc": "A chestnut post and a cane frame with a vine trained over it. Green on a terrace, grapes by September."
   },
   {
    "id": "lemonTree",

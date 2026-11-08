@@ -89,19 +89,19 @@
      "items": {
       "metal": 1
      },
-     "price": 6
+     "price": 10
     },
     {
      "items": {
       "metal": 5
      },
-     "price": 26
+     "price": 48
     },
     {
      "items": {
       "crystal": 1
      },
-     "price": 9
+     "price": 18
     },
     {
      "blueprint": "stairs",
@@ -158,10 +158,6 @@
      "price": 25
     },
     {
-     "blueprint": "bridgeDeck",
-     "price": 15
-    },
-    {
      "clothes": "cliffs_captainCap",
      "price": 30,
      "requires": {
@@ -208,13 +204,13 @@
      "items": {
       "wood": 5
      },
-     "price": 15
+     "price": 18
     },
     {
      "items": {
       "stone": 5
      },
-     "price": 15
+     "price": 18
     },
     {
      "blueprint": "drystoneWall",

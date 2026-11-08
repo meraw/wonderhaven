@@ -995,8 +995,8 @@
      "id": "wood",
      "kind": "gather",
      "item": "wood",
-     "count": 4,
-     "text": "Gather 4 wood for the resting place",
+     "count": 6,
+     "text": "Gather 6 wood for the resting place",
      "stage": 0,
      "hint": {
       "x": -24.0,
@@ -1007,8 +1007,8 @@
      "id": "stone",
      "kind": "gather",
      "item": "stone",
-     "count": 2,
-     "text": "Quarry 2 stone",
+     "count": 6,
+     "text": "Quarry 6 stone",
      "stage": 0,
      "hint": {
       "x": -12.0,
@@ -1029,7 +1029,7 @@
       },
       {
        "check": "provides",
-       "label": "Shade",
+       "label": "Shade: a roof",
        "kind": "shelter"
       },
       {
@@ -1062,7 +1062,7 @@
        "height": 3.0
       }
      ],
-     "buildHint": "A vine pergola gives shade and green at once.",
+     "buildHint": "A roof rests on pillars. Put the bench under it.",
      "hint": {
       "x": -9.0,
       "z": -44.5
@@ -1070,28 +1070,39 @@
      "plan": [
       [
        -10,
-       -45,
+       -46,
        "drystoneWall"
       ],
       [
        -9,
-       -45,
+       -46,
        "drystoneWall"
       ],
       [
-       -10,
-       -44,
-       "bench",
-       0
+       -11,
+       -45,
+       "pillar"
       ],
       [
        -11,
        -44,
-       "vinePergola"
+       "pillar"
+      ],
+      [
+       -11,
+       -45,
+       "roof",
+       0
+      ],
+      [
+       -10,
+       -45,
+       "bench",
+       0
       ],
       [
        -8,
-       -44,
+       -45,
        "vinePergola"
       ]
      ],
@@ -1185,10 +1196,13 @@
      "bench",
      "statue",
      "vinePergola",
-     "drystoneWall"
+     "drystoneWall",
+     "pillar",
+     "roof"
     ],
     "items": {
-     "cliffs_vine": 2
+     "cliffs_vine": 2,
+     "clay": 1
     }
    }
   },
@@ -1584,7 +1598,7 @@
      "stage": 0,
      "hint": {
       "x": 6.0,
-      "z": 33.0
+      "z": 30.0
      }
     },
     {
@@ -1595,8 +1609,8 @@
      "text": "Catch 2 grey mullet",
      "stage": 0,
      "hint": {
-      "x": -8.0,
-      "z": 39.0
+      "x": -7.5,
+      "z": 45.5
      }
     },
     {
@@ -1918,7 +1932,7 @@
       }
      ],
      "wishes": [],
-     "buildHint": "Any green thing counts: a hedge, a flower bed, a vine, a tree.",
+     "buildHint": "Any green thing counts: a vine, a hedge, a flower bed, a tree.",
      "hint": {
       "x": -13.0,
       "z": -32.0
@@ -1927,12 +1941,12 @@
       [
        -14,
        -32,
-       "hedge"
+       "vinePergola"
       ],
       [
        -12,
        -32,
-       "hedge"
+       "vinePergola"
       ]
      ]
     },
@@ -1963,7 +1977,8 @@
     "acceptLabel": "I'll pick them",
     "declineLabel": "Not now",
     "accept": [
-     "Greens grow up on the terraces where nobody's working. Borage along the walls, blue flowers, you can't miss them."
+     "Greens grow up on the terraces where nobody's working. Borage along the walls, blue flowers, you can't miss them.",
+     "And take these two vine cuttings for W2. Settimio gave them to me in 1989. I kept them in a jar. I'm sentimental."
     ],
     "decline": [
      "The pie can wait. The guests can't. But they're not here yet."
@@ -1983,11 +1998,13 @@
    },
    "onAccept": {
     "blueprints": [
+     "vinePergola",
      "hedge",
      "flowerBed"
     ],
     "items": {
-     "wood": 2
+     "wood": 2,
+     "cliffs_vine": 2
     }
    }
   },
@@ -2003,12 +2020,24 @@
      "id": "wood",
      "kind": "gather",
      "item": "wood",
-     "count": 9,
-     "text": "Gather 9 wood",
+     "count": 12,
+     "text": "Gather 12 wood",
      "stage": 0,
      "hint": {
       "x": -36.0,
       "z": -61.0
+     }
+    },
+    {
+     "id": "stone",
+     "kind": "gather",
+     "item": "stone",
+     "count": 4,
+     "text": "Quarry 4 stone for the pillars",
+     "stage": 0,
+     "hint": {
+      "x": -36.0,
+      "z": -44.0
      }
     },
     {
@@ -2034,7 +2063,7 @@
       },
       {
        "check": "provides",
-       "label": "Shade",
+       "label": "Shade: a roof",
        "kind": "shelter"
       }
      ],
@@ -2062,7 +2091,7 @@
        ]
       }
      ],
-     "buildHint": "A vine pergola gives shade.",
+     "buildHint": "A roof rests on pillars: shade for the guests.",
      "hint": {
       "x": 5.0,
       "z": 26.5
@@ -2070,41 +2099,57 @@
      "plan": [
       [
        3,
-       26,
+       27,
        "table"
       ],
       [
        3,
-       27,
+       28,
        "chair",
        0
       ],
       [
        2,
-       26,
+       27,
        "chair",
        1
       ],
       [
        7,
-       26,
+       27,
        "table"
       ],
       [
        7,
-       27,
+       28,
        "chair",
        0
       ],
       [
        8,
-       26,
+       27,
        "chair",
        3
       ],
       [
        5,
-       26,
+       25,
+       "pillar"
+      ],
+      [
+       6,
+       25,
+       "pillar"
+      ],
+      [
+       5,
+       25,
+       "roof",
+       0
+      ],
+      [
+       4,
+       27,
        "vinePergola"
       ]
      ]
@@ -2133,7 +2178,7 @@
     "acceptLabel": "Tables it is",
     "declineLabel": "Later",
     "accept": [
-     "Wood for the tables and chairs. A vine for shade, there's a sapling. Nunzia's tip: lemon trees are very fashionable."
+     "Wood for the tables and chairs, stone for two pillars and a roof for shade. And a vine, there's a sapling. Lemon trees are very fashionable, I hear."
     ],
     "decline": [
      "They'll eat standing up, then. Like Romans. No, Romans lay down. Like Genoese."
@@ -2155,10 +2200,13 @@
     "blueprints": [
      "table",
      "chair",
-     "vinePergola"
+     "vinePergola",
+     "pillar",
+     "roof"
     ],
     "items": {
-     "cliffs_vine": 1
+     "cliffs_vine": 1,
+     "clay": 1
     }
    }
   },

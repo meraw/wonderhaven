@@ -328,12 +328,14 @@ Each is the smallest general version, comes with a test, and is named at the top
 
 | Change | Why | Stage |
 | --- | --- | --- |
-| **Three new building pieces** (the user agreed): a **dry-stone wall** (stone, a tile wide, for terrace walls), a **vine pergola** (wood and a vine sapling; green) and a **lemon tree** (a lemon sapling; green), with their icons and plans. A shared piece may cost a place's own item, as Boccapioppo's sandbags cost its sand | Bringing terraces back | 3 |
-| **A placed piece you can pick from**, once a day (`gives` on a piece): the lemon tree's lemons | The lemon tree | 3 |
-| **A "no taller than" check** for briefs (`lower {height}`), the other side of `taller` | Sturlese's landscape rules | 3 |
-| **Meter points from the world:** a location's code can award points on its meter once per named thing (a terrace), saved, never taken back | Terraces you bring back without a request | 3 |
+| **Three new building pieces** (the user agreed): a **dry-stone wall** (stone, a tile wide, for terrace walls), a **vine pergola** (wood and a vine sapling; green) and a **lemon tree** (a lemon sapling; green), with their icons and plans. A shared piece may cost a place's own item, as Boccapioppo's sandbags cost its sand | Bringing terraces back | 3 (built) |
+| **A placed piece you can pick from**, once a day (`gives` on a piece): the lemon tree's lemons | The lemon tree | 3 (built: `Gardening.pick`, the `pick` interaction) |
+| **A "no taller than" check** for briefs (`lower {height}`), the other side of `taller` | Sturlese's landscape rules | 3 (built) |
+| **Meter points from the world:** a location's code can award points on its meter once per named thing (a terrace), saved, never taken back | Terraces you bring back without a request | 3 (built: a pack's `meter_things(state)`, `LocationMeter.new_things`, `Story.count_world_meter`) |
+| **Tastes from a location's pack** (`tastes.json` beside its villagers), merged like its shops | Serenza's villagers' tastes, without touching `data/tastes.json` | 3 (built) |
+| **Ghost plans stack on high ground:** a plan's pieces stack up to 10 m above the ground under them, not above sea level | Every site in Serenza is 10 to 30 m up | 3 (built) |
 | **A slate roof in the house kit**, chosen per building or per layout, and taller houses (three to five storeys) if the kit's `floors` doesn't already hold up | Serenza's houses; offered to Tonnarella, whose palazzi have slate roofs too | 2 (built: `roofTiles`; taller houses needed no change) |
-| **A garden-bed look for broad beans** | The cellar's seed packets and the beds by your hut | 3 |
+| ~~A garden-bed look for broad beans~~ | Dropped in stage 3: the cellar sells saplings, not seed packets | |
 
 Everything else lives in Serenza's own files (`docs/WORLD.md`): `godot/data/locations/cliffs/`,
 `godot/scripts/locations/cliffs.gd` and helpers in `godot/scripts/locations/cliffs/`, `godot/tests/test_cliffs.gd` and
@@ -529,3 +531,58 @@ the euro switch happening in Serenza itself.
 - **Not yet:** the people, requests, shops and items, the terraces meter, the boats' launch, the monorail running
   (stage 3); the look, the animals, the music and sounds, the trains' horns (stage 4). The terrain still shows the
   low slope in front of each wall that its mesh can't make vertical.
+
+**Stage 3, people, dialogue and requests: built.**
+- **The shared changes** (each with a test): the dry-stone wall, the vine pergola and the lemon tree, with their
+  models and rendered icons (`piece_meshes.gd`, `assets/icons/pieces/`); picking from a placed piece once a day
+  (`Gardening.pickable`/`pick`, the `pick` interaction in `game.gd`); the brief's `lower` check; meter points a
+  location's code awards for what the world shows (`meter_things`, counted after every build and every finished
+  request); tastes from a location's pack; ghost plans that stack relative to the ground under them.
+- **The people** (`npcs.json`): Marta, Settimio, Trenin, Don Aurelio, Capo Horn, Nunzia and Sturlese, each with a
+  routine that changes with the story (Marta meets the train until you've been shown round, Capo Horn moves to the
+  harbour once the boats are launched, Trenin rides the monorail once it runs, Sturlese sleeps in your shelter, and
+  on Easter morning everyone gathers at the church door), greetings that change as the terraces come back, three
+  topics each, gifts (Settimio's straw hat at six hearts) and tastes (`tastes.json`).
+- **The requests** (`quests.json`): the thirteen in the tables above, each building step a brief with musts, wishes
+  from whoever has a say (Sturlese's landscape rules are always wishes) and a ghost plan that meets every must and
+  that the request's gathering and gifts pay for.
+- **The terraces meter** (`location.json`, `cliffs/terraces.gd`): the meter reads "2 of 16 terraces" at the start.
+  Serenza's check counts a terrace back in use once, for good, when something green grows on it and, for the seven
+  terraces with a gap in their wall, the gap is closed (`Validate.sealed` across the breach); E5 and E6 when the
+  monorail runs, W7 when the sanctuary path is open. Requests add 0 points themselves, so nothing counts twice; the
+  flags (`cliffs_terrace_w3` and so on) are what the wall's request waits for. Milestones at 4, 6, 8, 10, 13 and 16.
+- **Shops, items and clothes:** Nunzia's bar, Trenin's workshop, Capo Horn's boat and the cellar (after it reopens);
+  lemons, wild greens, borage, saplings, three fish, six treats, three metal-detector finds and the hiking club's
+  postcard; the straw hat, the white captain's cap and the espadrilles. Six lost things named for Serenza.
+- **The place changing with the story** (`cliffs.gd` `WORLD_FLAGS`, `cliffs/life.gd`): the boats launched at the
+  first dawn after the slipway's done ride at moorings in the harbour; the monorail's rail runs across the slip once
+  it's mended and a cart climbs up and down it by day; the sanctuary bell rings when you pull its rope; a slate plaque
+  goes up by the cellar door at sixteen terraces; the ferry calls once the finale is done.
+- **Ground changed for the requests:** the mule path climbs to a landing on each side of the gully (the gully floor
+  3 m below the upper one); the slip is level with E5, 2 m below E6; a low rock shelf under the church rocks, reached
+  from the rock path, carries the steps down to Don Aurelio's pontoon. Every build site knows its own floor height
+  (`floorY`), as the shared height limit is measured from it.
+- **Paper, openings and naps:** Il Gabbiano's headlines, Marta's openings with slogans and her disposable camera, and
+  two nap gags (the dawn train's horn, Sturlese asleep at the other end of the bench).
+- **Changes from the plan:**
+  - The hut is a ruin whose walls have tumbled to waist height: you roof it on two pillars, hang a door and light a
+    lamp, then plant vines beside it. It isn't a room any more.
+  - The vine pergola is green only. Shade, wherever a brief asks for it, is a roof on pillars, so the shared needs
+    (shelter you can stand under) and the briefs agree.
+  - The milestone at eight terraces gives three vine saplings and forty coins: your plot doesn't grow onto E3, which
+    is an open build site from the start.
+  - The hiking club appears in the finale's lines, not yet as people walking the terraces (stage 4).
+  - A Shelter for the Last Train is offered once the hut is done, not after you first see Sturlese miss the train.
+  - Trenin's rail runs straight across the slip rather than along the path you built.
+  - Terraces don't yet change on the hillside when they come back (brambles cleared, walls mended): the meter and the
+    toasts say so. That's stage 4, with the lizards.
+- **Checked:**
+  - **Tested** (`test_cliffs.gd`, 22 tests): stages 1 and 2's, plus the cast (homes and every routine on the nav
+    graph, pronouns, topics, gifts, tastes, liked items that exist), the requests (thirteen, six main, givers and items
+    that exist, the finale after the other five and opening Liolivato, four shops selling real things), every brief
+    built from its ghost plan with the game's own placement rules and finished by it (and not finished before), the
+    gathering paying for the plans, the wall needing both courses and the whole gap, the slip, the gully, the rocks
+    and the slipway uncrossable before you build, terraces coming back on the meter (wall and green, green alone,
+    flags, once each, never taken back, the readings and milestones), the boats' moorings, the paper, the naps and
+    the hangouts. Shared tests cover the new pieces, picking, `lower`, the meter hook and pack tastes.
+  - **Played** (`play_cliffs.gd`, real input): see the stage 3 pull request.
