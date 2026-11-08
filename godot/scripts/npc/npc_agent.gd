@@ -45,7 +45,7 @@ func _init(g, d: Dictionary) -> void:
 func _marker(text: String, color: Color) -> Label3D:
 	var l := Label3D.new(); l.text = text; l.font_size = 96; l.pixel_size = 0.006; l.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	l.modulate = color; l.outline_modulate = Color.WHITE; l.outline_size = 24; l.no_depth_test = true; l.position.y = 2.15; l.visible = false
-	l.font = UiTheme.main_font()
+	l.font = UiTheme.marker_font()   # a tinted glyph, not the watercolour star
 	character.add_child(l)
 	return l
 

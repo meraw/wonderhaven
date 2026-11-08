@@ -48,6 +48,8 @@ static func build() -> Theme:
 static var _font: Font
 static var _title: Font
 static var _icons: Array[Font] = []
+static var _drawn: FontFile
+static var _marker: Font
 
 ## The interface's icons (the emoji and symbols in labels, buttons and data) come from bundled fonts, not the
 ## computer's: one-colour Noto Emoji, which takes the text's colour so icons match the ink and pink of the theme and
@@ -68,18 +70,40 @@ static func icon_fonts() -> Array[Font]:
 			else: _icons.append(f)
 	return _icons
 
-static func _variant(path: String, weight: int) -> Font:
+## The game's own icons, drawn in watercolour and pencil, at the code points of the emoji the game writes (🪵 is the
+## pair of logs, 💖 the approval rosette): a colour font built by tools/icons/render.cjs from tools/icons/icons.cjs.
+## The UI fonts try it before the one-colour icon fonts, so text and data keep their emoji and show these pictures; a
+## symbol with no drawing (the build pieces, so far) still comes from icon_fonts(). test_icons checks the coverage.
+static func drawn_icon_font() -> FontFile:
+	if _drawn == null:
+		_drawn = load("res://assets/fonts/WonderhavenIcons.ttf")
+		# An emoji inside a line of text belongs to that line's script run (Latin here), and fallback fonts that say
+		# they support the run's script are tried first; without these overrides the icon fonts after this one would
+		# be tried first and the drawings never used.
+		for scr in ["Latn", "Zyyy", "Zsye"]: _drawn.set_script_support_override(scr, true)
+	return _drawn
+
+static func _variant(path: String, weight: int, drawn: bool = true) -> Font:
 	var fv := FontVariation.new()
 	fv.base_font = load(path)
 	var ts := TextServerManager.get_primary_interface()
 	fv.variation_opentype = {ts.name_to_tag("wght"): weight}
-	fv.fallbacks = icon_fonts()
+	var fallbacks: Array[Font] = []
+	if drawn: fallbacks.append(drawn_icon_font())
+	fallbacks.append_array(icon_fonts())
+	fv.fallbacks = fallbacks
 	return fv
 
-## Body text: Nunito (bundled, SIL Open Font License), rounded and easy to read, with the icon fonts as fallback.
+## Body text: Nunito (bundled, SIL Open Font License), rounded and easy to read, with the drawn icons and the icon
+## fonts as fallback.
 static func main_font() -> Font:
 	if _font == null: _font = _variant("res://assets/fonts/Nunito.ttf", 750)
 	return _font
+
+## The body font without the drawn icons, for glyphs drawn in a tint: the "!" and "★" floating over villagers.
+static func marker_font() -> Font:
+	if _marker == null: _marker = _variant("res://assets/fonts/Nunito.ttf", 750, false)
+	return _marker
 
 ## Headings and big numbers: Fredoka (bundled, SIL Open Font License), soft and playful.
 static func title_font() -> Font:

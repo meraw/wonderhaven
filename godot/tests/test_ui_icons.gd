@@ -39,6 +39,8 @@ func test_every_icon_is_in_a_bundled_font():
 
 func test_ui_fonts_fall_back_to_the_icon_fonts_not_the_system():
 	for f in [UiTheme.main_font(), UiTheme.title_font()]:
-		t.eq(f.fallbacks.size(), UiTheme.ICON_FONTS.size(), "the UI font falls back to the bundled icon fonts")
+		# the drawn watercolour icons first (test_icons), then the one-colour icon fonts
+		t.eq(f.fallbacks.size(), UiTheme.ICON_FONTS.size() + 1, "the UI font falls back to the drawn icons and the bundled icon fonts")
+		t.eq(f.fallbacks[0], UiTheme.drawn_icon_font(), "the drawn icons come first")
 		for fb in f.fallbacks: t.ok(not (fb is SystemFont), "no fallback reads the computer's own fonts")
 	t.ok(UiTheme.main_font().has_char(0x1F344), "🍄 (porcini) has a glyph")
