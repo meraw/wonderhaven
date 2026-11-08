@@ -1,6 +1,6 @@
 class_name Commission
 
-const KINDS := ["pieces", "provides", "path", "fed", "lit", "recolored", "material", "kinds", "count", "taller", "sealed"]
+const KINDS := ["pieces", "provides", "path", "fed", "lit", "recolored", "material", "kinds", "count", "taller", "sealed", "view"]
 const BASIC := ["pieces"]
 
 static func cfg() -> Dictionary: return Data.commissions
@@ -104,7 +104,9 @@ static func check(c: Dictionary, o: Dictionary, pieces: Array, ctx: Dictionary) 
 		"path":
 			need = 1
 			var zid := String(c.get("zone", o.get("zone", "")))
-			var r: Dictionary = ctx.path.call(zid) if ctx.has("path") else {"ok": false}
+			var on: Array = c.get("on", [])
+			var r: Dictionary = {"ok": false}
+			if ctx.has("path"): r = ctx.path.call(zid) if on.is_empty() else ctx.path.call(zid, covered(ctx.get("placements", pieces), on))
 			ok = r.get("ok", false)
 			have = 1 if ok else 0
 			var cells := {}
@@ -116,6 +118,16 @@ static func check(c: Dictionary, o: Dictionary, pieces: Array, ctx: Dictionary) 
 			ok = not wall.is_empty() and Validate.sealed(wall, ctx.get("placements", [])).sealed
 			have = 1 if ok else 0
 			hit = pieces.duplicate() if ok else []
+		"view":
+			var to: Array = c.get("to", [0.0, 0.0])
+			var target := Vector2(float(to[0]), float(to[1]))
+			var of: Array = c.get("of", [])
+			var seats: Array = pieces.filter(func(p): return of.has(String(p.id)) if not of.is_empty() else Needs.gives(p, "seat", lamps))
+			var all: Array = ctx.get("placements", pieces)
+			var reach := float(c.get("reach", 40.0))
+			hit = seats.filter(func(p): return sees(p, target, all, reach))
+			have = hit.size()
+			ok = have >= need
 		"fed":
 			need = 1
 			ok = ctx.get("fed", {}).get(String(c.get("target", "")), false)
@@ -124,6 +136,36 @@ static func check(c: Dictionary, o: Dictionary, pieces: Array, ctx: Dictionary) 
 			hit = pieces.filter(func(p): return _has(mech.get("powered", {}), p.uid) or _has(mech.get("watered", {}), p.uid) or _has(mech.get("pumps", {}), p.uid) or _has(mech.get("sources", {}), p.uid))
 	return {"label": String(c.get("label", "")), "check": String(c.get("check", "")), "ok": ok, "have": mini(have, need), "need": need,
 		"uids": hit.map(func(p): return int(p.uid)), "who": String(c.get("who", ""))}
+
+static func covered(placements: Array, ids: Array) -> Dictionary:
+	var out := {}
+	for p in placements:
+		if not ids.has(String(p.id)): continue
+		for cc in BuildGrid.cells(p): out[Vector2i(int(cc.x), int(cc.y))] = true
+	return out
+
+static func sees(seat: Dictionary, target: Vector2, placements: Array, reach: float) -> bool:
+	var b := BuildGrid.bounds(seat)
+	var from := Vector2((float(b.minX) + float(b.maxX)) / 2.0, (float(b.minZ) + float(b.maxZ)) / 2.0)
+	var eye := float(b.bottom) + 1.1
+	var dir := target - from
+	var length := minf(dir.length(), reach)
+	if length <= 0.0: return true
+	dir = dir.normalized()
+	var d := 0.6
+	while d <= length:
+		var p := from + dir * d
+		if Heightfield.height(p.x, p.y) > eye: return false
+		for bd in Data.layout.get("buildings", []):
+			if not bd.get("solid", true) or not bd.has("w"): continue
+			if absf(p.x - float(bd.x)) < float(bd.w) / 2.0 and absf(p.y - float(bd.z)) < float(bd.d) / 2.0: return false
+		for q in placements:
+			if int(q.uid) == int(seat.uid) or not Data.piece(String(q.id)).get("solid", true): continue
+			var qb := BuildGrid.bounds(q)
+			if p.x < float(qb.minX) or p.x > float(qb.maxX) or p.y < float(qb.minZ) or p.y > float(qb.maxZ): continue
+			if float(qb.bottom) < eye and float(qb.top) > eye - 0.3: return false
+		d += 0.25
+	return true
 
 static func _judge(o: Dictionary, pieces: Array, ctx: Dictionary) -> Dictionary:
 	var musts: Array = o.get("musts", []).map(func(c): return check(c, o, pieces, ctx))

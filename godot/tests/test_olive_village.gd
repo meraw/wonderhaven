@@ -199,3 +199,41 @@ func test_landmarks_and_trees():
 		t.ok(dry and level, "every tree is on dry land, and on the terraces it stands on a level tread, clear of the walls")
 		t.ok(off_sites, "no tree stands on a build site")
 		t.ok(Data.layout.props.filter(func(p): return p.kind == "olive_village_arch").size() == 3, "three covered passages arch over the alley from the bridge to the piazza"))
+
+func _pl(id: String, i: int, k: int, uid: int, y = null) -> Dictionary:
+	return {"id": id, "i": i, "k": k, "r": 0, "y": BuildGrid.ground_at(i, k) if y == null else float(y), "uid": uid}
+
+func test_shared_a_path_can_be_made_of_given_pieces():
+	_on(func():
+		var zone := {"minI": -24, "maxI": -20, "minK": 17, "maxK": 17,
+			"endpoints": {"a": {"minI": -24, "maxI": -24, "minK": 17, "maxK": 17}, "b": {"minI": -20, "maxI": -20, "minK": 17, "maxK": 17}}}
+		var w := WalkWorld.new([])
+		t.ok(Validate.path_across(zone, w).ok, "the bare ground can be walked from one end to the other")
+		var gap := {Vector2i(-24, 17): true, Vector2i(-23, 17): true, Vector2i(-21, 17): true, Vector2i(-20, 17): true}
+		t.ok(not Validate.path_across(zone, w, gap).ok, "but not on the given cells when one is missing")
+		gap[Vector2i(-22, 17)] = true
+		t.ok(Validate.path_across(zone, w, gap).ok, "and it can once the gap is filled")
+		var ctx := {"path": func(_zid, only): return Validate.path_across(zone, w, only)}
+		var tiles: Array = []
+		for i in [-24, -23, -21, -20]: tiles.append(_pl("gardenPath", i, 17, 100 + i))
+		var c := {"check": "path", "zone": "zz", "on": ["gardenPath"]}
+		ctx["placements"] = tiles
+		t.ok(not Commission.check(c, {}, tiles, ctx).ok, "a commission's path of paving pieces fails with a tile missing")
+		tiles.append(_pl("gardenPath", -22, 17, 200))
+		ctx["placements"] = tiles
+		t.ok(Commission.check(c, {}, tiles, ctx).ok, "and passes when the paving runs end to end"))
+
+func test_shared_a_view_check_sees_past_open_ground_but_not_walls():
+	_on(func():
+		var seat := _pl("bench", -17, 17, 1)
+		var sea := Vector2(-16.5, 80.0)
+		t.ok(Commission.sees(seat, sea, [seat], 40.0), "from the Sandals' terrace a seat looks out to sea")
+		var wall := _pl("woodWall", -17, 19, 2)
+		t.ok(not Commission.sees(seat, sea, [seat, wall], 40.0), "a wall in front of the seat hides the sea")
+		var high := _pl("woodWall", -17, 19, 3, BuildGrid.ground_at(-17, 17) + 2.6)
+		t.ok(Commission.sees(seat, sea, [seat, high], 40.0), "something above eye height, like a pergola's roof, doesn't")
+		var behind := _pl("bench", -17, 7, 4)
+		t.ok(not Commission.sees(behind, sea, [behind], 40.0), "the Sandals' house stands between a seat behind it and the sea")
+		var c := {"check": "view", "of": ["bench"], "to": [sea.x, sea.y]}
+		t.ok(Commission.check(c, {}, [seat], {"placements": [seat]}).ok, "a view check passes for a seat with the sea in view")
+		t.ok(not Commission.check(c, {}, [seat, wall], {"placements": [seat, wall]}).ok, "and fails when it's walled in"))
