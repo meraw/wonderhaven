@@ -143,7 +143,6 @@
    "lines": [
     "Green spots show where the piece in your hand fits. Click to build; {rotate} turns it.",
     "Short of materials? It goes into your blue draft, to build once you have them.",
-    "Move the view with {move_forward}{move_left}{move_back}{move_right} or the middle mouse button; turn it with {cam_left} {cam_right}, the ⟲ ⟳ buttons or the right mouse button.",
     "Ctrl+Z undoes. Esc leaves."
    ]
   },
