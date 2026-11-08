@@ -71,8 +71,13 @@ func _register_node(n: Dictionary) -> void:
 		base.merge({"radius": 0.9, "object": null, "available": func(): return ready(nd) and state().flags.get("hasTool", false),
 			"label": func(): return "Dig here, the metal detector is going wild!", "act": func(): dig(nd)}, true)
 		game.add_interactable(base); return
-	base.merge({"radius": 2.0 if n.kind == "mine" else (1.3 if n.kind == "fish" else 1.7), "label": func(): return String(nd.get("label", LABELS[nd.kind])), "act": func(): act(nd)}, true)
+	base.merge({"radius": 2.0 if n.kind == "mine" else (1.3 if n.kind == "fish" else (2.2 if n.get("big", false) else 1.7)), "label": func(): return node_label(nd), "act": func(): act(nd)}, true)
 	game.add_interactable(base)
+
+func node_label(n: Dictionary) -> String:
+	if n.get("big", false):
+		return "Fell the big oak" if Tools.fells(state(), n) else "A big oak: too much for your %s" % String(Tools.stats(state(), "axe").get("name", "axe")).to_lower()
+	return String(n.get("label", LABELS[n.kind]))
 
 func _register_feature(f: Dictionary) -> void:
 	match f.kind:
@@ -102,8 +107,14 @@ func _src(n: Dictionary, up: float = 1.0) -> Vector3: return Vector3(n.x, Height
 func act(n: Dictionary) -> void:
 	game.player.yaw = atan2(n.x - game.player.pos.x, n.z - game.player.pos.z); game.player.sync()
 	match n.kind:
-		"chop": pending_node = n; game.start_minigame("chop", Minigames.Chop.new(), _src(n, 0.0))
-		"mine": pending_node = n; game.start_minigame("mine", Minigames.Mine.new(n.get("rich", false), null, String(Data.layout.get("richRock", "metal"))), _src(n, 0.0))
+		"chop":
+			if not Tools.fells(state(), n):
+				var nx := Tools.level_def("axe", 2)
+				game.toast("Too big for your %s. %s sells a %s." % [String(Tools.stats(state(), "axe").get("name", "axe")).to_lower(), String(Data.npc(String(Data.tools.get("seller", ""))).get("name", "")).get_slice(" ", 0), String(nx.get("name", "bigger axe")).to_lower()], "warn", 3.2)
+				game.emit_event("too_big", {"node": String(n.id)})
+				return
+			pending_node = n; game.start_minigame("chop", Minigames.Chop.new(null, Tools.for_node(state(), "chop"), bool(n.get("big", false))), _src(n, 0.0))
+		"mine": pending_node = n; game.start_minigame("mine", Minigames.Mine.new(n.get("rich", false), null, String(Data.layout.get("richRock", "metal")), Tools.for_node(state(), "mine")), _src(n, 0.0))
 		"fish": start_fishing(n)
 		"clay":
 			game.player_char.play("dig"); game.sfx("dig")
@@ -139,7 +150,12 @@ func minigame_done(kind: String, mg) -> void:
 	var n := pending_node; pending_node = {}
 	if kind == "fish": _fishing_done(mg); return
 	if mg == null or n.is_empty(): return
-	game.give(mg.reward(), _src(n))
+	var got: Dictionary = mg.reward()
+	game.give(got, _src(n))
+	if mg.perfect_run():
+		var bonus := int(mg.perfect_bonus)
+		game.toast("✨ Perfect run!%s" % ((" +%d %s" % [bonus, String(Data.resources["wood" if kind == "chop" else "stone"].name).to_lower()]) if bonus > 0 else ""), "good", 2.6)
+		game.emit_event("perfect_run", {"kind": kind, "reward": got})
 	if kind == "chop": state().stats.chopped += 1; game.effects.poof(_src(n), Color("9fdc7a"))
 	else: state().stats.mined += 1
 	game.story.event(kind)   # "chop" or "mine", for requests that count trees pruned or rocks cut
