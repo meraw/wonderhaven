@@ -2,7 +2,7 @@
 
 Working id `olive_village`. Agreed with the user on 2026-11-08 in a design interview. **Nothing is built yet.** This doc
 is the plan the build stages follow. The rules every location shares are in `docs/WORLD.md`; `docs/MONTEFORCHETTA.md`
-and `docs/locations/river_town.md` are the models this doc follows. Serenza (`docs/locations/cliffs.md`, in review)
+and `docs/locations/river_town.md` are the models this doc follows. Serenza (`docs/locations/cliffs.md`)
 comes just before Liolivato, and the two were kept apart where they overlapped (see "Kept apart from Serenza"). Names,
 amounts and step details can still change in the build; the choices marked *proposed* weren't asked about and are open
 to review.
@@ -99,9 +99,9 @@ and the terraces you look down on a wide, hazy sea rather than along a harbour.
 
 ## Getting there and around
 - **Arrival by ferry.** The travel order is Monteforchetta, Boccapioppo, Casalrana, Toriano, Tonnarella, Serenza,
-  Liolivato. Liolivato's map entry reveals on `cliffs_cooperative_saved`, the flag Serenza's finale already sets "for
-  whatever comes next", so nothing in Serenza's files changes. Sirena's ferry brings you from Serenza. Once Liolivato
-  is unlocked, the ferry from Tonnarella calls here too. Since any revealed place can be reached from any departure
+  Liolivato. Serenza's finale sets `olive_village_revealed`, the flag Liolivato's map entry reveals on, and opens
+  Serenza's ferry landing at the end of its breakwater (`cliffs_ferry`, "Take the ferry"), where Sirena's ferry starts
+  calling. Sirena's ferry brings you from there. Once Liolivato is unlocked, the ferry from Tonnarella calls here too. Since any revealed place can be reached from any departure
   point, the shared travel map needs nothing new for this; the ferry line is how the places describe it.
 - **The departure point** is the jetty: a feature of kind `boat` with `depart_label` "Take the ferry". Until the jetty
   is rebuilt the ferry stands off the cove and Gambero carries people to and from it on his shoulders.
@@ -318,7 +318,7 @@ One pull request per stage. Each keeps the game playable and the tests passing.
    - The layout: spawn on the pebbles of the cove, the departure point at the jetty, the nav graph, paths, build zones
      (the jetty, the waterwheel site, the tank, the fallen terrace, your house, the Sandals' terrace, the broom terrace,
      the collapsed steps, the carpet's route, the piazza, the empty house), resource nodes and benches.
-   - A hidden map entry revealed on `cliffs_cooperative_saved`, the meter and a first `look` in `location.json`, with
+   - A hidden map entry revealed on `olive_village_revealed`, the meter and a first `look` in `location.json`, with
      `"day": {"regrow": "overnight", "hold": false}`.
    - Plain boxes for the buildings so the map reads in screenshots.
    - `test_olive_village.gd`: a playable world (the arrival is walkable, every nav spot is reachable, the bridge links
@@ -348,9 +348,9 @@ One pull request per stage. Each keeps the game playable and the tests passing.
      outfits.
 
 ## Agreements needed with other sessions
-- **Serenza (`cliffs`):** Liolivato reveals on `cliffs_cooperative_saved`, which Serenza's finale already sets. Serenza
-  arrives and leaves by train; Liolivato describes the way there as Sirena's ferry. If Serenza wants a ferry at its
-  harbour too, that's for the two to agree.
+- **Serenza (`cliffs`):** agreed with that session. Serenza's finale sets `olive_village_revealed`, which Liolivato's
+  map entry reveals on, and opens Serenza's ferry landing (`cliffs_ferry`) for the ferry to Liolivato; both are in
+  Serenza's files (`docs/locations/cliffs.md`).
 - **Tonnarella (`port`):** its ferry calls at Liolivato once Liolivato is unlocked (a description only: the travel map
   already links every revealed place). Prices show however Tonnarella's changeover left them.
 - **Everyone:** the clock never holds (`docs/WORLD.md`). Monteforchetta still holds today (the `day` block in
