@@ -246,7 +246,7 @@ static func build_statics(decor: Dictionary) -> Array:
 			out.append(_box(pr.x - hw, pr.x + hw, pr.z - hd, pr.z + hd, "prop"))
 		else: out.append({"type": "circle", "x": pr.x, "z": pr.z, "r": float(pr.get("rad", 0.3)), "tag": "prop"})
 	for nd in Data.layout.nodes:
-		if nd.kind in ["chop", "fruit", "shake"]: out.append({"type": "circle", "x": nd.x, "z": nd.z, "r": 0.45, "tag": nd.id})
+		if nd.kind in ["chop", "fruit", "shake"]: out.append({"type": "circle", "x": nd.x, "z": nd.z, "r": 0.75 if nd.get("big", false) else 0.45, "tag": nd.id})
 		elif nd.kind == "mine": out.append({"type": "circle", "x": nd.x, "z": nd.z, "r": 0.75, "tag": nd.id})
 		elif nd.kind == "chest": out.append(_box(nd.x - 0.45, nd.x + 0.45, nd.z - 0.32, nd.z + 0.32, nd.id))
 		elif nd.kind == "bin": out.append({"type": "circle", "x": nd.x, "z": nd.z, "r": 0.65, "tag": nd.id})

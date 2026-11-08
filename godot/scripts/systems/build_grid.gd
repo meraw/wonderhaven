@@ -167,6 +167,13 @@ static func _base_supported(pl: Dictionary, placements: Array, sup: Dictionary, 
 		if h < Heightfield.WALKABLE_MIN: wet = true
 	return absf(pl.y - g) < 0.08 and (not wet or d.get("post", false))
 
+static func reach(id: String) -> int: return int(def(id).get("reach", Data.span_limit))
+
+static func max_reach(spans: Array) -> int:
+	var m := int(Data.span_limit)
+	for p in spans: m = maxi(m, reach(String(p.id)))
+	return m
+
 ## Returns {supported: {uid: true}, chain: {uid: distance}}
 static func compute_support(placements: Array, env: Dictionary = {}) -> Dictionary:
 	var sup := {}
@@ -176,6 +183,7 @@ static func compute_support(placements: Array, env: Dictionary = {}) -> Dictiona
 		for pl in placements:
 			if not sup.has(pl.uid) and _base_supported(pl, placements, sup, env): sup[pl.uid] = true; changed = true
 		var spans := placements.filter(func(p): return def(p.id).get("span", false))
+		var far := max_reach(spans)
 		var dist := {}
 		var queue: Array = []
 		for a in spans:
@@ -183,10 +191,11 @@ static func compute_support(placements: Array, env: Dictionary = {}) -> Dictiona
 		while not queue.is_empty():
 			var p: Dictionary = queue.pop_front()
 			var dd: int = dist[p.uid]
-			if dd >= Data.span_limit: continue
+			if dd >= far: continue
 			for n in spans:
 				if dist.has(n.uid) or absf(n.i - p.i) + absf(n.k - p.k) != 1 or absf(n.y - p.y) > 0.3: continue
 				if not _over_water(n) and not sup.has(n.uid): continue
+				if dd + 1 > reach(String(n.id)): continue
 				dist[n.uid] = dd + 1; queue.append(n)
 		for uid in dist:
 			if not sup.has(uid): sup[uid] = true; chain[uid] = dist[uid]; changed = true
@@ -245,7 +254,7 @@ static func validate_placement(pl: Dictionary, ctx: Dictionary) -> Dictionary:
 			if b.bottom < body.get("y", 0.0) + 1.2 and WalkWorld.circle_box(body.x, body.z, body.r, _shrink(b, 0.05)):
 				return {"ok": false, "reason": ("%s is standing there" % body.name) if body.has("name") else "You're standing there!"}
 	if not _supported(pl, placements, env, ctx, String(zone.get("id", ""))):
-		if d.get("span", false): return {"ok": false, "reason": "Too far from a support — planks reach %d tiles. Add a bridge post, or build out from the other bank" % Data.span_limit}
+		if d.get("span", false): return {"ok": false, "reason": "Too far from a support — %s reach %d tiles. Add a bridge post, or build out from the other bank" % ["planks" if String(pl.id) == "bridgeDeck" else String(d.get("name", "these")).to_lower() + "s", reach(String(pl.id))]}
 		if d.get("attach", "") == "wall": return {"ok": false, "reason": "Paintings hang on walls"}
 		if d.get("needsSupport", false): return {"ok": false, "reason": "Roofs need walls or pillars underneath"}
 		return {"ok": false, "reason": "Needs something solid underneath"}
@@ -267,6 +276,7 @@ static func support_cache(placements: Array, env: Dictionary = {}) -> Dictionary
 	var sup: Dictionary = res.supported
 	var chain: Dictionary = res.chain
 	var spans := placements.filter(func(p): return def(p.id).get("span", false))
+	var far := max_reach(spans)
 	var dist := {}
 	var queue: Array = []
 	for a in spans:
@@ -274,10 +284,11 @@ static func support_cache(placements: Array, env: Dictionary = {}) -> Dictionary
 	while not queue.is_empty():
 		var p: Dictionary = queue.pop_front()
 		var dd: int = dist[p.uid]
-		if dd >= Data.span_limit: continue
+		if dd >= far: continue
 		for n in spans:
 			if dist.has(n.uid) or absf(n.i - p.i) + absf(n.k - p.k) != 1 or absf(n.y - p.y) > 0.3: continue
 			if not _over_water(n) and not sup.has(n.uid): continue
+			if dd + 1 > reach(String(n.id)): continue
 			dist[n.uid] = dd + 1; queue.append(n)
 	return {"supported": sup, "chain": chain, "dist": dist}
 
@@ -285,7 +296,7 @@ static func supported_with(pl: Dictionary, placements: Array, cache: Dictionary,
 	if _base_supported(pl, placements, cache.supported, env): return true
 	if not def(pl.id).get("span", false) or not _over_water(pl): return false
 	for n in placements:
-		if not cache.dist.has(n.uid) or int(cache.dist[n.uid]) >= Data.span_limit: continue
+		if not cache.dist.has(n.uid) or int(cache.dist[n.uid]) >= reach(String(pl.id)): continue
 		if absf(n.i - pl.i) + absf(n.k - pl.k) == 1 and absf(n.y - pl.y) <= 0.3: return true
 	return false
 

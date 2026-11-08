@@ -120,14 +120,14 @@
    "title": "Chopping",
    "lines": [
     "Press {interact} when the needle is in the green. Gold is a perfect swing.",
-    "Three swings fell the tree. It grows back after a while."
+    "Three swings fell the tree, all of them gold for a bonus. A better axe from Elio's fells the big oaks."
    ]
   },
   "mine": {
    "title": "Mining",
    "lines": [
     "Press {interact} when the dark ring lines up with the green circle.",
-    "Rusty-red rocks hold extra metal."
+    "Rusty-red rocks hold extra metal. With a chisel, gold strikes dress cut stone."
    ]
   },
   "fish": {

@@ -10,10 +10,20 @@
    "icon": "🪵",
    "color": "#c98a55"
   },
+  "beam": {
+   "name": "Oak Beams",
+   "icon": "🪚",
+   "color": "#8a5a32"
+  },
   "stone": {
    "name": "Stone",
    "icon": "🪨",
    "color": "#bdb5a8"
+  },
+  "cutstone": {
+   "name": "Cut Stone",
+   "icon": "🧱",
+   "color": "#d8cfbf"
   },
   "metal": {
    "name": "Metal",
@@ -91,7 +101,9 @@
  "order": [
   "coins",
   "wood",
+  "beam",
   "stone",
+  "cutstone",
   "metal",
   "clay",
   "fabric",
