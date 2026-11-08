@@ -1,6 +1,10 @@
 extends RefCounted
 
 const P := preload("../world/palette.gd")
+const Palazzo := preload("port/palazzo.gd")
+const Landmarks := preload("port/landmarks.gd")
+const Scenery := preload("port/scenery.gd")
+const Horizon := preload("port/horizon.gd")
 
 const SEA := -3.0
 const GAP_BED := -1.0
@@ -30,6 +34,9 @@ const GAP_Z := Vector2(54.0, 61.0)
 const ROCK_CENTRE := Vector2(42.0, 82.0)
 const ROCK_RADII := Vector2(11.0, 8.0)
 const SPURS := [Rect2(-46.0, -84.0, 8.0, 9.0), Rect2(50.0, -84.0, 10.0, 8.0)]
+const CARVED := [[Rect2(-9.0, 15.5, 13.0, 6.5), QUAY_H], [Rect2(8.0, 15.5, 12.0, 6.5), QUAY_H], [Rect2(38.0, 77.0, 8.0, 4.5), ROCK_H], [Rect2(39.0, 81.5, 6.0, 6.0), ROCK_H]]
+const LANES := [Rect2(-13.0, -34.0, 4.0, 12.0), Rect2(14.0, -34.0, 4.0, 12.0), Rect2(-13.0, 12.0, 4.0, 10.0), Rect2(4.0, 12.0, 4.0, 10.0), Rect2(44.0, 12.0, 4.0, 10.0)]
+const RAIL := {"z": -81.5, "x0": -38.0, "x1": 50.0, "y": 20.0}
 
 const WORLD_FLAGS := ["port_lift_on"]
 
@@ -82,6 +89,8 @@ static func level(x: float, z: float) -> String:
 	return "sea"
 
 static func height(x: float, z: float) -> float:
+	for c in CARVED:
+		if _inside(c[0], x, z): return float(c[1])
 	match level(x, z):
 		"mountain":
 			var m := mountain(x, z)
@@ -147,32 +156,38 @@ static func _driftwood(n: Dictionary) -> Node3D:
 		g.add_child(piece)
 	return g
 
+static func ground_fn() -> Callable:
+	return func(x: float, z: float) -> float: return height(x, z)
+
+static func base_of(b: Dictionary) -> float:
+	return float(b.y) if b.has("y") else maxf(0.0, height(float(b.x), float(b.z)))
+
 static func building(b: Dictionary) -> Node3D:
+	var base := base_of(b)
+	match String(b.kind):
+		"port_palazzo", "port_room", "port_lift_house", "port_stair_hut": return Palazzo.build(b, base, ground_fn())
+		"port_station": return Landmarks.station(b, base, ground_fn())
+		"port_church": return Landmarks.church(b)
+		"port_castle": return Landmarks.castle(b)
+		"port_lighthouse": return Landmarks.lighthouse(b)
+		"port_lantern": return Landmarks.lantern(b)
+		"port_solid": return Node3D.new()
+	return _plain(b, base)
+
+static func _plain(b: Dictionary, base: float) -> Node3D:
 	var g := Node3D.new()
 	var w := float(b.w)
 	var d := float(b.d)
 	var h := float(b.get("h", 10.0))
-	var base := float(b.get("y", maxf(0.0, height(float(b.x), float(b.z)))))
 	var low := base
 	for fx in [-0.5, -0.25, 0.0, 0.25, 0.5]:
 		for fz in [-0.5, -0.25, 0.0, 0.25, 0.5]:
 			low = minf(low, maxf(SEA, height(float(b.x) + fx * w, float(b.z) + fz * d)))
 	var drop := base - low
-	var wall := Color(String(b.get("wall", "d4a24c")))
 	var total := h + drop
-	g.add_child(P.mi(P.box(w, total, d), P.plaster(wall), Vector3(0.0, total / 2.0 - drop, 0.0)))
-	g.add_child(P.mi(P.box(w, 0.8, d), P.stone(wall.darkened(0.4)), Vector3(0.0, 0.4 - drop, 0.0)))
-	g.add_child(P.mi(P.box(w + 0.4, 0.35, d + 0.4), P.mat(Color(String(b.get("roof", "5d636a")))), Vector3(0.0, h + 0.17, 0.0)))
+	g.add_child(P.mi(P.box(w, total, d), P.plaster(Color(String(b.get("wall", "d4a24c")))), Vector3(0.0, total / 2.0 - drop, 0.0)))
 	return g
 
 static func dress(village: Node3D) -> void:
-	var stone := P.stone(Color("9a958c"))
-	for c in Data.layout.get("harbor_cliffs", []):
-		var w := float(c.maxX) - float(c.minX)
-		var d := float(c.maxZ) - float(c.minZ)
-		var x := (float(c.minX) + float(c.maxX)) / 2.0
-		var z := (float(c.minZ) + float(c.maxZ)) / 2.0
-		var y := height(x, z)
-		var wall := P.mi(P.box(w, 1.0, d), stone, Vector3(x, y + 0.5, z))
-		wall.name = "port_parapet"
-		village.add_child(wall)
+	Scenery.dress(village, ground_fn(), LANES, RAIL)
+	Horizon.dress(village, ground_fn())

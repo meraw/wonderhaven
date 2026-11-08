@@ -133,6 +133,15 @@
     18,
     -41
    ]
+  },
+  {
+   "kind": "slabs",
+   "rect": [
+    24,
+    -47,
+    40,
+    -36
+   ]
   }
  ],
  "buildings": [
@@ -144,9 +153,14 @@
    "z": -73.5,
    "w": 28,
    "d": 7,
-   "h": 10.0,
    "wall": "b9a27f",
-   "roof": "5d636a"
+   "roof": "5d636a",
+   "h": 8.0,
+   "floors": 2,
+   "y": 20.0,
+   "door": "S",
+   "sign": "Tonnarella",
+   "canopy": 2.0
   },
   {
    "id": "port_villa",
@@ -156,9 +170,12 @@
    "z": -61.0,
    "w": 10,
    "d": 18,
-   "h": 12.0,
    "wall": "c98a6a",
-   "roof": "5d636a"
+   "roof": "5d636a",
+   "floors": 4,
+   "y": 20.0,
+   "door": "W",
+   "h": 13.2
   },
   {
    "id": "port_castle",
@@ -168,9 +185,13 @@
    "z": -60.0,
    "w": 30,
    "d": 24,
-   "h": 14.0,
    "wall": "8a8a86",
-   "roof": "77766f"
+   "roof": "5d636a",
+   "h": 9.0,
+   "y": 20.0,
+   "gateX": -11.0,
+   "breachFrom": -6.0,
+   "breachTo": 2.0
   },
   {
    "id": "port_lift_top",
@@ -180,9 +201,14 @@
    "z": -43.5,
    "w": 6,
    "d": 5,
-   "h": 5.0,
    "wall": "c9b48a",
-   "roof": "5d636a"
+   "roof": "5d636a",
+   "floors": 1,
+   "y": 20.0,
+   "door": "S",
+   "sign": "Public Lift",
+   "painted": 0.0,
+   "h": 4.2
   },
   {
    "id": "port_top_block",
@@ -192,9 +218,12 @@
    "z": -43.0,
    "w": 16,
    "d": 10,
-   "h": 10.0,
    "wall": "e0b98a",
-   "roof": "5d636a"
+   "roof": "5d636a",
+   "floors": 3,
+   "y": 20.0,
+   "door": "S",
+   "h": 10.2
   },
   {
    "id": "port_band_a1",
@@ -204,9 +233,15 @@
    "z": -28.0,
    "w": 16,
    "d": 12,
-   "h": 11.0,
    "wall": "d4a24c",
-   "roof": "5d636a"
+   "roof": "5d636a",
+   "floors": 5,
+   "y": 10.0,
+   "door": "S",
+   "party": [
+    "E"
+   ],
+   "h": 16.2
   },
   {
    "id": "port_band_a2",
@@ -216,9 +251,15 @@
    "z": -28.0,
    "w": 17,
    "d": 12,
-   "h": 11.0,
    "wall": "a8473a",
-   "roof": "5d636a"
+   "roof": "5d636a",
+   "floors": 5,
+   "y": 10.0,
+   "door": "S",
+   "party": [
+    "W"
+   ],
+   "h": 16.2
   },
   {
    "id": "port_band_a3",
@@ -228,9 +269,12 @@
    "z": -28.0,
    "w": 23,
    "d": 12,
-   "h": 11.0,
    "wall": "e09a7a",
-   "roof": "5d636a"
+   "roof": "5d636a",
+   "floors": 5,
+   "y": 10.0,
+   "door": "S",
+   "h": 16.2
   },
   {
    "id": "port_band_a4",
@@ -240,9 +284,15 @@
    "z": -28.0,
    "w": 18,
    "d": 12,
-   "h": 11.0,
    "wall": "e9d39a",
-   "roof": "5d636a"
+   "roof": "5d636a",
+   "floors": 5,
+   "y": 10.0,
+   "door": "S",
+   "party": [
+    "E"
+   ],
+   "h": 16.2
   },
   {
    "id": "port_band_a5",
@@ -252,9 +302,15 @@
    "z": -28.0,
    "w": 20,
    "d": 12,
-   "h": 11.0,
    "wall": "d4a24c",
-   "roof": "5d636a"
+   "roof": "5d636a",
+   "floors": 5,
+   "y": 10.0,
+   "door": "S",
+   "party": [
+    "W"
+   ],
+   "h": 16.2
   },
   {
    "id": "port_church",
@@ -264,9 +320,10 @@
    "z": -18.0,
    "w": 14,
    "d": 7.0,
-   "h": 14.0,
    "wall": "efeae0",
-   "roof": "77766f"
+   "roof": "5d636a",
+   "h": 14.0,
+   "y": 10.0
   },
   {
    "id": "port_mid_w1",
@@ -276,9 +333,15 @@
    "z": -12.5,
    "w": 15,
    "d": 19,
-   "h": 18.0,
    "wall": "d4a24c",
-   "roof": "5d636a"
+   "roof": "5d636a",
+   "floors": 6,
+   "y": 10.0,
+   "door": "S",
+   "party": [
+    "N"
+   ],
+   "h": 19.2
   },
   {
    "id": "port_nonna",
@@ -288,9 +351,16 @@
    "z": -12.5,
    "w": 15,
    "d": 19,
-   "h": 16.0,
    "wall": "e09a7a",
-   "roof": "5d636a"
+   "roof": "5d636a",
+   "floors": 5,
+   "y": 10.0,
+   "door": "S",
+   "party": [
+    "N"
+   ],
+   "doorU": -1.0,
+   "h": 16.2
   },
   {
    "id": "port_mid_e1",
@@ -300,9 +370,15 @@
    "z": -12.5,
    "w": 10,
    "d": 19,
-   "h": 18.0,
    "wall": "a8473a",
-   "roof": "5d636a"
+   "roof": "5d636a",
+   "floors": 6,
+   "y": 10.0,
+   "door": "S",
+   "party": [
+    "N"
+   ],
+   "h": 19.2
   },
   {
    "id": "port_home",
@@ -312,9 +388,95 @@
    "z": -8.5,
    "w": 10,
    "d": 11,
-   "h": 20.0,
    "wall": "e9d39a",
-   "roof": "5d636a"
+   "roof": "5d636a",
+   "h": 17.5,
+   "floors": 5,
+   "y": 10.0,
+   "door": "S",
+   "roof_walk": true,
+   "noRoof": true
+  },
+  {
+   "id": "port_flat",
+   "kind": "port_room",
+   "name": "Your flat",
+   "x": 34.0,
+   "z": -11.0,
+   "w": 6,
+   "d": 6,
+   "wall": "e9d39a",
+   "roof": "5d636a",
+   "h": 3.0,
+   "floors": 1,
+   "y": 27.5,
+   "door": "S",
+   "navDoor": "port_roof",
+   "painted": 0.0,
+   "floorColor": "b98a5a",
+   "onRoof": true,
+   "interior": {
+    "items": [
+     [
+      "table",
+      -1.4,
+      -1.4,
+      0
+     ],
+     [
+      "chair",
+      -0.4,
+      -1.4,
+      3
+     ],
+     [
+      "rug",
+      1.0,
+      0.6,
+      0
+     ],
+     [
+      "lamp",
+      2.3,
+      -2.3,
+      0
+     ],
+     [
+      "painting",
+      0.0,
+      -2.75,
+      0
+     ]
+    ],
+    "route": [
+     [
+      0,
+      2.2
+     ],
+     [
+      1.0,
+      -0.6
+     ]
+    ]
+   }
+  },
+  {
+   "id": "port_stair_hut",
+   "kind": "port_stair_hut",
+   "name": "The stairwell",
+   "x": 39.75,
+   "z": -12.75,
+   "w": 2.5,
+   "d": 2.5,
+   "wall": "e9d39a",
+   "roof": "5d636a",
+   "h": 2.6,
+   "floors": 1,
+   "y": 27.5,
+   "door": "S",
+   "painted": 0.0,
+   "chimney": false,
+   "onRoof": true
   },
   {
    "id": "port_mid_e3",
@@ -324,9 +486,15 @@
    "z": -12.5,
    "w": 12,
    "d": 19,
-   "h": 18.0,
    "wall": "d4a24c",
-   "roof": "5d636a"
+   "roof": "5d636a",
+   "floors": 6,
+   "y": 10.0,
+   "door": "S",
+   "party": [
+    "N"
+   ],
+   "h": 19.2
   },
   {
    "id": "port_mid_s1",
@@ -336,9 +504,15 @@
    "z": 7.5,
    "w": 16,
    "d": 9,
-   "h": 16.0,
    "wall": "e09a7a",
-   "roof": "5d636a"
+   "roof": "5d636a",
+   "floors": 5,
+   "y": 10.0,
+   "door": "N",
+   "party": [
+    "S"
+   ],
+   "h": 16.2
   },
   {
    "id": "port_mid_s2",
@@ -348,9 +522,15 @@
    "z": 7.5,
    "w": 14,
    "d": 9,
-   "h": 16.0,
    "wall": "a8473a",
-   "roof": "5d636a"
+   "roof": "5d636a",
+   "floors": 5,
+   "y": 10.0,
+   "door": "N",
+   "party": [
+    "S"
+   ],
+   "h": 16.2
   },
   {
    "id": "port_mid_s3",
@@ -360,9 +540,15 @@
    "z": 7.5,
    "w": 13,
    "d": 9,
-   "h": 16.0,
    "wall": "e9d39a",
-   "roof": "5d636a"
+   "roof": "5d636a",
+   "floors": 5,
+   "y": 10.0,
+   "door": "N",
+   "party": [
+    "S"
+   ],
+   "h": 16.2
   },
   {
    "id": "port_mid_s4",
@@ -372,9 +558,15 @@
    "z": 7.5,
    "w": 18,
    "d": 9,
-   "h": 16.0,
    "wall": "d4a24c",
-   "roof": "5d636a"
+   "roof": "5d636a",
+   "floors": 5,
+   "y": 10.0,
+   "door": "N",
+   "party": [
+    "S"
+   ],
+   "h": 16.2
   },
   {
    "id": "port_mid_s5",
@@ -384,9 +576,15 @@
    "z": 7.5,
    "w": 15,
    "d": 9,
-   "h": 16.0,
    "wall": "e09a7a",
-   "roof": "5d636a"
+   "roof": "5d636a",
+   "floors": 5,
+   "y": 10.0,
+   "door": "N",
+   "party": [
+    "S"
+   ],
+   "h": 16.2
   },
   {
    "id": "port_mid_s6",
@@ -396,9 +594,15 @@
    "z": 7.5,
    "w": 8,
    "d": 9,
-   "h": 16.0,
    "wall": "a8473a",
-   "roof": "5d636a"
+   "roof": "5d636a",
+   "floors": 5,
+   "y": 10.0,
+   "door": "N",
+   "party": [
+    "S"
+   ],
+   "h": 16.2
   },
   {
    "id": "port_band_b1",
@@ -408,9 +612,16 @@
    "z": 17.0,
    "w": 18,
    "d": 10,
-   "h": 16.0,
    "wall": "d4a24c",
-   "roof": "5d636a"
+   "roof": "5d636a",
+   "floors": 6,
+   "y": 1.2,
+   "door": "S",
+   "portico": 3.5,
+   "party": [
+    "E"
+   ],
+   "h": 19.2
   },
   {
    "id": "port_lift_low",
@@ -420,9 +631,18 @@
    "z": 17.0,
    "w": 8,
    "d": 10,
-   "h": 16.0,
    "wall": "c9b48a",
-   "roof": "5d636a"
+   "roof": "5d636a",
+   "floors": 6,
+   "y": 1.2,
+   "door": "S",
+   "portico": 3.5,
+   "party": [
+    "E",
+    "W"
+   ],
+   "sign": "Public Lift",
+   "h": 19.2
   },
   {
    "id": "port_band_b2",
@@ -432,33 +652,248 @@
    "z": 17.0,
    "w": 7,
    "d": 10,
-   "h": 16.0,
    "wall": "e09a7a",
-   "roof": "5d636a"
+   "roof": "5d636a",
+   "floors": 6,
+   "y": 1.2,
+   "door": "S",
+   "portico": 3.5,
+   "party": [
+    "W"
+   ],
+   "h": 19.2
   },
   {
    "id": "port_bakery",
-   "kind": "port_palazzo",
+   "kind": "port_room",
    "name": "Rosetta's bakery",
    "x": -2.5,
-   "z": 17.0,
+   "z": 18.75,
    "w": 13,
-   "d": 10,
-   "h": 16.0,
+   "d": 6.5,
    "wall": "e9d39a",
-   "roof": "5d636a"
+   "roof": "5d636a",
+   "floors": 6,
+   "door": "S",
+   "portico": 3.5,
+   "extendBack": 3.5,
+   "sign": "Canepa Bakery",
+   "navDoor": "port_bakery_door",
+   "floorColor": "d9c9a8",
+   "interior": {
+    "items": [
+     [
+      "oven",
+      -5.0,
+      -2.2,
+      0
+     ],
+     [
+      "oven",
+      -3.8,
+      -2.2,
+      0
+     ],
+     [
+      "counter",
+      1.5,
+      -0.6,
+      0
+     ],
+     [
+      "counter",
+      3.5,
+      -0.6,
+      0
+     ],
+     [
+      "cabinet",
+      4.4,
+      -2.5,
+      0
+     ],
+     [
+      "cabinet",
+      5.6,
+      -2.5,
+      0
+     ],
+     [
+      "crate",
+      -5.4,
+      1.8,
+      0
+     ],
+     [
+      "table",
+      -2.5,
+      1.6,
+      0
+     ],
+     [
+      "chair",
+      -3.4,
+      1.6,
+      1
+     ],
+     [
+      "chair",
+      -1.6,
+      1.6,
+      3
+     ],
+     [
+      "painting",
+      0.0,
+      -2.95,
+      0
+     ]
+    ],
+    "route": [
+     [
+      0,
+      2.4
+     ],
+     [
+      -0.5,
+      -1.8
+     ],
+     [
+      2.5,
+      -1.8
+     ]
+    ]
+   },
+   "h": 19.2
+  },
+  {
+   "id": "port_bakery_back",
+   "kind": "port_solid",
+   "name": "Rosetta's bakery",
+   "x": -2.5,
+   "z": 13.75,
+   "w": 13,
+   "d": 3.5,
+   "wall": "e9d39a",
+   "roof": "5d636a",
+   "floors": 6,
+   "y": 1.2,
+   "h": 19.2
   },
   {
    "id": "port_bank",
-   "kind": "port_palazzo",
+   "kind": "port_room",
    "name": "The savings bank",
    "x": 14.0,
-   "z": 17.0,
+   "z": 18.75,
    "w": 12,
-   "d": 10,
-   "h": 16.0,
+   "d": 6.5,
    "wall": "e0b98a",
-   "roof": "5d636a"
+   "roof": "5d636a",
+   "floors": 6,
+   "door": "S",
+   "portico": 3.5,
+   "extendBack": 3.5,
+   "sign": "Savings Bank",
+   "navDoor": "port_bank_door",
+   "floorColor": "cfc8bd",
+   "interior": {
+    "items": [
+     [
+      "counter",
+      -2.0,
+      -0.8,
+      0
+     ],
+     [
+      "counter",
+      0.0,
+      -0.8,
+      0
+     ],
+     [
+      "counter",
+      2.0,
+      -0.8,
+      0
+     ],
+     [
+      "desk",
+      3.8,
+      -2.4,
+      0
+     ],
+     [
+      "cabinet",
+      -4.8,
+      -2.6,
+      0
+     ],
+     [
+      "cabinet",
+      -3.8,
+      -2.6,
+      0
+     ],
+     [
+      "bench",
+      -4.0,
+      2.4,
+      0
+     ],
+     [
+      "bench",
+      3.6,
+      2.4,
+      0
+     ],
+     [
+      "painting",
+      0.0,
+      -2.95,
+      0
+     ],
+     [
+      "lamp",
+      5.2,
+      1.9,
+      0
+     ]
+    ],
+    "route": [
+     [
+      0,
+      2.4
+     ],
+     [
+      -4.2,
+      0.6
+     ],
+     [
+      -4.2,
+      -1.6
+     ],
+     [
+      -1.0,
+      -1.9
+     ]
+    ]
+   },
+   "h": 19.2
+  },
+  {
+   "id": "port_bank_back",
+   "kind": "port_solid",
+   "name": "The savings bank",
+   "x": 14.0,
+   "z": 13.75,
+   "w": 12,
+   "d": 3.5,
+   "wall": "e0b98a",
+   "roof": "5d636a",
+   "floors": 6,
+   "y": 1.2,
+   "h": 19.2
   },
   {
    "id": "port_chandlery",
@@ -468,21 +903,37 @@
    "z": 17.0,
    "w": 10,
    "d": 10,
-   "h": 16.0,
    "wall": "a8473a",
-   "roof": "5d636a"
+   "roof": "5d636a",
+   "floors": 6,
+   "y": 1.2,
+   "door": "S",
+   "portico": 3.5,
+   "party": [
+    "W",
+    "E"
+   ],
+   "sign": "Cambiaso Ship Chandler",
+   "h": 19.2
   },
   {
    "id": "port_band_b6",
    "kind": "port_palazzo",
-   "name": "A palazzo over the arcades",
+   "name": "A palazzo over the fish market",
    "x": 37.0,
    "z": 17.0,
    "w": 14,
    "d": 10,
-   "h": 16.0,
    "wall": "d4a24c",
-   "roof": "5d636a"
+   "roof": "5d636a",
+   "floors": 6,
+   "y": 1.2,
+   "door": "S",
+   "party": [
+    "W"
+   ],
+   "sign": "Fish Market",
+   "h": 19.2
   },
   {
    "id": "port_band_b7",
@@ -492,21 +943,164 @@
    "z": 17.0,
    "w": 8,
    "d": 10,
-   "h": 16.0,
    "wall": "e09a7a",
-   "roof": "5d636a"
+   "roof": "5d636a",
+   "floors": 6,
+   "y": 1.2,
+   "door": "S",
+   "h": 19.2
   },
   {
    "id": "port_harbour_office",
-   "kind": "port_office",
+   "kind": "port_room",
    "name": "The harbour office",
    "x": -51.0,
    "z": 30.0,
    "w": 10,
    "d": 8,
-   "h": 7.0,
    "wall": "d9c9a8",
-   "roof": "5d636a"
+   "roof": "5d636a",
+   "floors": 2,
+   "door": "E",
+   "sign": "Harbour Office",
+   "navDoor": "port_harbour_office_door",
+   "floorColor": "cfc8bd",
+   "interior": {
+    "items": [
+     [
+      "desk",
+      -2.0,
+      -2.0,
+      0
+     ],
+     [
+      "chair",
+      -2.0,
+      -1.0,
+      2
+     ],
+     [
+      "bookshelf",
+      -4.2,
+      -3.2,
+      0
+     ],
+     [
+      "bookshelf",
+      -3.2,
+      -3.2,
+      0
+     ],
+     [
+      "cabinet",
+      2.0,
+      -3.3,
+      0
+     ],
+     [
+      "bench",
+      -1.0,
+      3.0,
+      2
+     ],
+     [
+      "painting",
+      -4.6,
+      0.0,
+      1
+     ],
+     [
+      "lamp",
+      3.8,
+      3.0,
+      0
+     ],
+     [
+      "table",
+      1.5,
+      0.8,
+      0
+     ]
+    ],
+    "route": [
+     [
+      4.2,
+      0
+     ],
+     [
+      -1.0,
+      -0.2
+     ]
+    ]
+   },
+   "h": 7.2
+  },
+  {
+   "id": "port_keeper",
+   "kind": "port_room",
+   "name": "The keeper's room",
+   "x": 42.0,
+   "z": 79.25,
+   "w": 8,
+   "d": 4.5,
+   "wall": "e6dfd2",
+   "roof": "5d636a",
+   "h": 3.8,
+   "floors": 1,
+   "door": "N",
+   "painted": 0.0,
+   "navDoor": "port_keeper_door",
+   "floorColor": "b8a58a",
+   "interior": {
+    "items": [
+     [
+      "bed",
+      -3.0,
+      0.8,
+      0
+     ],
+     [
+      "oven",
+      2.8,
+      1.4,
+      2
+     ],
+     [
+      "table",
+      0.8,
+      0.6,
+      0
+     ],
+     [
+      "chair",
+      0.8,
+      -0.4,
+      2
+     ],
+     [
+      "bookshelf",
+      -3.2,
+      -1.5,
+      0
+     ],
+     [
+      "barrel",
+      3.3,
+      -1.4,
+      0
+     ]
+    ],
+    "route": [
+     [
+      0,
+      -1.5
+     ],
+     [
+      -1.2,
+      1.0
+     ]
+    ]
+   }
   },
   {
    "id": "port_lighthouse",
@@ -514,24 +1108,154 @@
    "name": "The lighthouse",
    "x": 42.0,
    "z": 84.5,
-   "w": 5.0,
-   "d": 5,
-   "h": 26.0,
+   "w": 6,
+   "d": 6.0,
    "wall": "e6dfd2",
-   "roof": "3a3a3a"
+   "roof": "5d636a",
+   "h": 24.0,
+   "y": 1.6,
+   "roof_walk": true
+  },
+  {
+   "id": "port_lantern",
+   "kind": "port_lantern",
+   "name": "The lantern room",
+   "x": 42.0,
+   "z": 84.5,
+   "w": 3.0,
+   "d": 3,
+   "wall": "cfc8bd",
+   "roof": "5d636a",
+   "h": 2.6,
+   "y": 25.6,
+   "door": "S",
+   "navDoor": "port_gallery",
+   "interior": {
+    "items": [
+     [
+      "pillar",
+      0,
+      0,
+      0
+     ]
+    ],
+    "route": [
+     [
+      0,
+      0.9
+     ],
+     [
+      0.9,
+      0.5
+     ]
+    ]
+   }
   }
  ],
  "floors": [
   {
-   "id": "port_terrace",
+   "id": "port_rail_roof_s",
    "rect": [
-    32,
-    -13,
-    40,
-    -4
+    31,
+    -3.4,
+    41,
+    -3.0
    ],
-   "top": 30.0,
-   "bottom": 29.6
+   "top": 28.6,
+   "bottom": 27.4,
+   "walkable": false,
+   "look": "none"
+  },
+  {
+   "id": "port_rail_roof_e",
+   "rect": [
+    40.6,
+    -11.5,
+    41,
+    -3.4
+   ],
+   "top": 28.6,
+   "bottom": 27.4,
+   "walkable": false,
+   "look": "none"
+  },
+  {
+   "id": "port_rail_roof_w",
+   "rect": [
+    31,
+    -8,
+    31.4,
+    -3.4
+   ],
+   "top": 28.6,
+   "bottom": 27.4,
+   "walkable": false,
+   "look": "none"
+  },
+  {
+   "id": "port_rail_roof_n",
+   "rect": [
+    37,
+    -14,
+    38.5,
+    -13.6
+   ],
+   "top": 28.6,
+   "bottom": 27.4,
+   "walkable": false,
+   "look": "none"
+  },
+  {
+   "id": "port_rail_gallery_n",
+   "rect": [
+    39,
+    81.5,
+    45,
+    81.9
+   ],
+   "top": 26.7,
+   "bottom": 25.5,
+   "walkable": false,
+   "look": "none"
+  },
+  {
+   "id": "port_rail_gallery_s",
+   "rect": [
+    39,
+    87.1,
+    45,
+    87.5
+   ],
+   "top": 26.7,
+   "bottom": 25.5,
+   "walkable": false,
+   "look": "none"
+  },
+  {
+   "id": "port_rail_gallery_w",
+   "rect": [
+    39,
+    81.9,
+    39.4,
+    87.1
+   ],
+   "top": 26.7,
+   "bottom": 25.5,
+   "walkable": false,
+   "look": "none"
+  },
+  {
+   "id": "port_rail_gallery_e",
+   "rect": [
+    44.6,
+    81.9,
+    45,
+    87.1
+   ],
+   "top": 26.7,
+   "bottom": 25.5,
+   "walkable": false,
+   "look": "none"
   }
  ],
  "harbor_cliffs": [
@@ -544,6 +1268,12 @@
   {
    "minX": 59.4,
    "maxX": 60.0,
+   "minZ": -48.0,
+   "maxZ": -34.0
+  },
+  {
+   "minX": -46.0,
+   "maxX": -45.6,
    "minZ": -48.0,
    "maxZ": -34.0
   }
@@ -591,9 +1321,9 @@
   {
    "id": "port_rock",
    "name": "The lighthouse rock",
-   "minI": 33,
+   "minI": 32,
    "maxI": 38,
-   "minK": 79,
+   "minK": 82,
    "maxK": 85
   },
   {
@@ -601,27 +1331,34 @@
    "name": "Outside Rosetta's bakery",
    "minI": -8,
    "maxI": 2,
-   "minK": 24,
-   "maxK": 28
+   "minK": 26,
+   "maxK": 29
   },
   {
    "id": "port_bank_arcade",
-   "name": "The bank's stretch of arcade",
+   "name": "Outside the bank",
    "minI": 8,
    "maxI": 19,
-   "minK": 24,
-   "maxK": 28
+   "minK": 26,
+   "maxK": 29
   },
   {
    "id": "port_terrace",
    "name": "Your roof terrace",
-   "minI": 32,
-   "maxI": 39,
-   "minK": -13,
-   "maxK": -5,
-   "floorY": 30.0,
+   "minI": 31,
+   "maxI": 40,
+   "minK": -8,
+   "maxK": -4,
+   "floorY": 27.5,
    "unlock": {
     "flag": "port_home"
+   },
+   "expanded": {
+    "minI": 31,
+    "maxI": 40,
+    "minK": -14,
+    "maxK": -4,
+    "harmony": 50
    }
   }
  ],
@@ -736,6 +1473,13 @@
    "text": "Tonnarella. Trains for Toriano. The lift to the harbour is out of order: the stairs are to your left."
   },
   {
+   "id": "port_ferry_board",
+   "kind": "sign",
+   "x": -57.6,
+   "z": 40.4,
+   "text": "Coast ferry: Serenza, Liolivato. No service until further notice."
+  },
+  {
    "id": "port_bench_belvedere",
    "kind": "bench",
    "x": -42,
@@ -769,6 +1513,56 @@
    "x": 10,
    "z": 38.5,
    "r": 2
+  },
+  {
+   "id": "port_stairs_street",
+   "kind": "stop",
+   "line": "port_stairs",
+   "name": "Street door",
+   "x": 33.6,
+   "z": -2.2,
+   "ride_label": "Climb the 112 steps",
+   "arrive_text": "109, 110, 111, 112. Home, out of breath."
+  },
+  {
+   "id": "port_stairs_roof",
+   "kind": "stop",
+   "line": "port_stairs",
+   "name": "Your flat",
+   "x": 39.4,
+   "z": -10.9,
+   "y": 27.5,
+   "ride_label": "Go down the 112 steps",
+   "arrive_text": "112 steps down. Your knees counted them too."
+  },
+  {
+   "id": "port_lantern_foot",
+   "kind": "stop",
+   "line": "port_lantern",
+   "name": "Lighthouse door",
+   "x": 40.6,
+   "z": 88.5,
+   "ride_label": "Climb to the lantern",
+   "arrive_text": "Up the spiral stair to the gallery. The whole bay below you."
+  },
+  {
+   "id": "port_lantern_top",
+   "kind": "stop",
+   "line": "port_lantern",
+   "name": "The gallery",
+   "x": 39.8,
+   "z": 86.6,
+   "y": 25.6,
+   "ride_label": "Go back down",
+   "arrive_text": "Down the spiral stair, round and round."
+  },
+  {
+   "id": "port_wardrobe",
+   "kind": "wardrobe",
+   "x": 31.6,
+   "z": -9.1,
+   "y": 27.5,
+   "flag": "port_home"
   }
  ],
  "port_lift_stops": [
@@ -777,8 +1571,8 @@
    "kind": "stop",
    "line": "port_lift",
    "name": "Harbour",
-   "x": -26.5,
-   "z": 25.5,
+   "x": -24.0,
+   "z": 26.6,
    "ride_label": "Take the lift",
    "arrive_text": "The harbour. Agostino holds the door."
   },
@@ -802,6 +1596,99 @@
    "ride_label": "Take the lift",
    "arrive_text": "The castle, at the top. Mind the wind."
   }
+ ],
+ "port_lines": [
+  [
+   -36,
+   -3.0,
+   -36,
+   3.0,
+   14.5
+  ],
+  [
+   -36,
+   -3.0,
+   -36,
+   3.0,
+   17.6
+  ],
+  [
+   -24,
+   -3.0,
+   -24,
+   3.0,
+   13.8
+  ],
+  [
+   22,
+   -3.0,
+   22,
+   3.0,
+   15.0
+  ],
+  [
+   22,
+   -3.0,
+   22,
+   3.0,
+   18.2
+  ],
+  [
+   50,
+   -3.0,
+   50,
+   3.0,
+   14.2
+  ],
+  [
+   40,
+   -3.0,
+   40,
+   3.0,
+   13.6
+  ],
+  [
+   -13,
+   18,
+   -9,
+   18,
+   8.0
+  ],
+  [
+   -13,
+   14,
+   -9,
+   14,
+   11.5
+  ],
+  [
+   4,
+   17,
+   8,
+   17,
+   9.0
+  ],
+  [
+   14,
+   -28,
+   18,
+   -28,
+   19.5
+  ],
+  [
+   -31,
+   -12,
+   -28,
+   -12,
+   15.0
+  ],
+  [
+   28,
+   -8,
+   31,
+   -8,
+   16.0
+  ]
  ],
  "nav_nodes": {
   "port_station": [
@@ -957,12 +1844,24 @@
    64
   ],
   "port_rock": [
-   41,
-   76
+   40.8,
+   73.5
   ],
-  "port_lighthouse_door": [
+  "port_keeper_door": [
    42,
-   80.8
+   76.2
+  ],
+  "port_rock_e": [
+   46.8,
+   76.6
+  ],
+  "port_rock_se": [
+   46.0,
+   88.6
+  ],
+  "port_tower_door": [
+   42,
+   88.6
   ],
   "port_tip": [
    50,
@@ -983,6 +1882,22 @@
   "port_rocks_n": [
    64,
    -46
+  ],
+  "port_roof": [
+   34,
+   -6.4
+  ],
+  "port_roof_e": [
+   38.5,
+   -6.0
+  ],
+  "port_roof_stairs": [
+   38.4,
+   -9.8
+  ],
+  "port_gallery": [
+   42.0,
+   86.6
   ]
  },
  "nav_edges": [
@@ -1189,9 +2104,638 @@
   ],
   [
    "port_rock",
-   "port_lighthouse_door"
+   "port_keeper_door"
+  ],
+  [
+   "port_keeper_door",
+   "port_rock_e"
+  ],
+  [
+   "port_rock_e",
+   "port_rock_se"
+  ],
+  [
+   "port_rock_se",
+   "port_tower_door"
+  ],
+  [
+   "port_roof",
+   "port_roof_e"
+  ],
+  [
+   "port_roof_e",
+   "port_roof_stairs"
   ]
  ],
  "paths": [],
- "props": []
+ "props": [
+  {
+   "id": "port_pillar0",
+   "kind": "port_pillar",
+   "x": -45.55,
+   "z": 25.3,
+   "rad": 0.32,
+   "y": 1.2
+  },
+  {
+   "id": "port_pillar1",
+   "kind": "port_pillar",
+   "x": -42.13,
+   "z": 25.3,
+   "rad": 0.32,
+   "y": 1.2
+  },
+  {
+   "id": "port_pillar2",
+   "kind": "port_pillar",
+   "x": -38.71,
+   "z": 25.3,
+   "rad": 0.32,
+   "y": 1.2
+  },
+  {
+   "id": "port_pillar3",
+   "kind": "port_pillar",
+   "x": -35.29,
+   "z": 25.3,
+   "rad": 0.32,
+   "y": 1.2
+  },
+  {
+   "id": "port_pillar4",
+   "kind": "port_pillar",
+   "x": -31.87,
+   "z": 25.3,
+   "rad": 0.32,
+   "y": 1.2
+  },
+  {
+   "id": "port_pillar5",
+   "kind": "port_pillar",
+   "x": -20.45,
+   "z": 25.3,
+   "rad": 0.32,
+   "y": 1.2
+  },
+  {
+   "id": "port_pillar6",
+   "kind": "port_pillar",
+   "x": -19.55,
+   "z": 25.3,
+   "rad": 0.32,
+   "y": 1.2
+  },
+  {
+   "id": "port_pillar7",
+   "kind": "port_pillar",
+   "x": -16.5,
+   "z": 25.3,
+   "rad": 0.32,
+   "y": 1.2
+  },
+  {
+   "id": "port_pillar8",
+   "kind": "port_pillar",
+   "x": -13.45,
+   "z": 25.3,
+   "rad": 0.32,
+   "y": 1.2
+  },
+  {
+   "id": "port_pillar9",
+   "kind": "port_pillar",
+   "x": -8.55,
+   "z": 25.3,
+   "rad": 0.32,
+   "y": 1.2
+  },
+  {
+   "id": "port_pillar10",
+   "kind": "port_pillar",
+   "x": -4.52,
+   "z": 25.3,
+   "rad": 0.32,
+   "y": 1.2
+  },
+  {
+   "id": "port_pillar11",
+   "kind": "port_pillar",
+   "x": -0.48,
+   "z": 25.3,
+   "rad": 0.32,
+   "y": 1.2
+  },
+  {
+   "id": "port_pillar12",
+   "kind": "port_pillar",
+   "x": 3.55,
+   "z": 25.3,
+   "rad": 0.32,
+   "y": 1.2
+  },
+  {
+   "id": "port_pillar13",
+   "kind": "port_pillar",
+   "x": 8.45,
+   "z": 25.3,
+   "rad": 0.32,
+   "y": 1.2
+  },
+  {
+   "id": "port_pillar14",
+   "kind": "port_pillar",
+   "x": 12.15,
+   "z": 25.3,
+   "rad": 0.32,
+   "y": 1.2
+  },
+  {
+   "id": "port_pillar15",
+   "kind": "port_pillar",
+   "x": 15.85,
+   "z": 25.3,
+   "rad": 0.32,
+   "y": 1.2
+  },
+  {
+   "id": "port_pillar16",
+   "kind": "port_pillar",
+   "x": 19.55,
+   "z": 25.3,
+   "rad": 0.32,
+   "y": 1.2
+  },
+  {
+   "id": "port_pillar17",
+   "kind": "port_pillar",
+   "x": 20.45,
+   "z": 25.3,
+   "rad": 0.32,
+   "y": 1.2
+  },
+  {
+   "id": "port_pillar18",
+   "kind": "port_pillar",
+   "x": 23.48,
+   "z": 25.3,
+   "rad": 0.32,
+   "y": 1.2
+  },
+  {
+   "id": "port_pillar19",
+   "kind": "port_pillar",
+   "x": 26.52,
+   "z": 25.3,
+   "rad": 0.32,
+   "y": 1.2
+  },
+  {
+   "id": "port_pillar20",
+   "kind": "port_pillar",
+   "x": 29.55,
+   "z": 25.3,
+   "rad": 0.32,
+   "y": 1.2
+  },
+  {
+   "kind": "port_palm",
+   "x": -52,
+   "z": 38.5,
+   "id": "port_palm0",
+   "rad": 0.3
+  },
+  {
+   "kind": "port_palm",
+   "x": -40,
+   "z": 38.5,
+   "id": "port_palm1",
+   "rad": 0.3
+  },
+  {
+   "kind": "port_palm",
+   "x": -20,
+   "z": 38.8,
+   "id": "port_palm2",
+   "rad": 0.3
+  },
+  {
+   "kind": "port_palm",
+   "x": -6,
+   "z": 38.8,
+   "id": "port_palm3",
+   "rad": 0.3
+  },
+  {
+   "kind": "port_palm",
+   "x": 22,
+   "z": 38.8,
+   "id": "port_palm4",
+   "rad": 0.3
+  },
+  {
+   "kind": "port_pine",
+   "x": -42,
+   "z": -70,
+   "id": "port_pine0",
+   "rad": 0.35
+  },
+  {
+   "kind": "port_pine",
+   "x": -36,
+   "z": -64,
+   "id": "port_pine1",
+   "rad": 0.35
+  },
+  {
+   "kind": "port_pine",
+   "x": -43,
+   "z": -58,
+   "id": "port_pine2",
+   "rad": 0.35
+  },
+  {
+   "kind": "port_pine",
+   "x": -24,
+   "z": -46,
+   "id": "port_pine3",
+   "rad": 0.35
+  },
+  {
+   "kind": "port_pine",
+   "x": 52,
+   "z": -42,
+   "id": "port_pine4",
+   "rad": 0.35
+  },
+  {
+   "kind": "port_pine",
+   "x": 57,
+   "z": -38,
+   "id": "port_pine5",
+   "rad": 0.35
+  },
+  {
+   "kind": "port_holm",
+   "x": -30,
+   "z": -74,
+   "id": "port_holm0",
+   "rad": 0.4
+  },
+  {
+   "kind": "port_holm",
+   "x": 12,
+   "z": -68,
+   "id": "port_holm1",
+   "rad": 0.4
+  },
+  {
+   "kind": "port_mimosa",
+   "x": 11,
+   "z": -12,
+   "id": "port_mimosa0",
+   "rad": 0.25
+  },
+  {
+   "kind": "port_mimosa",
+   "x": -7,
+   "z": -13,
+   "id": "port_mimosa1",
+   "rad": 0.25
+  },
+  {
+   "kind": "port_mimosa",
+   "x": 41,
+   "z": -20,
+   "id": "port_mimosa2",
+   "rad": 0.25
+  },
+  {
+   "kind": "port_mimosa",
+   "x": 33.5,
+   "z": -20.5,
+   "id": "port_mimosa3",
+   "rad": 0.25
+  },
+  {
+   "kind": "port_mimosa",
+   "x": -26,
+   "z": -66,
+   "id": "port_mimosa4",
+   "rad": 0.25
+  },
+  {
+   "kind": "lamp_post",
+   "x": -12,
+   "z": 38.5,
+   "id": "port_lamp0",
+   "rad": 0.25
+  },
+  {
+   "kind": "lamp_post",
+   "x": 16,
+   "z": 38.5,
+   "id": "port_lamp1",
+   "rad": 0.25
+  },
+  {
+   "kind": "lamp_post",
+   "x": -16,
+   "z": -62,
+   "id": "port_lamp2",
+   "rad": 0.25
+  },
+  {
+   "kind": "lamp_post",
+   "x": -34,
+   "z": -37,
+   "id": "port_lamp3",
+   "rad": 0.25
+  },
+  {
+   "kind": "lamp_post",
+   "x": 8,
+   "z": -2,
+   "id": "port_lamp4",
+   "rad": 0.25
+  },
+  {
+   "kind": "lamp_post",
+   "x": -30,
+   "z": 2,
+   "id": "port_lamp5",
+   "rad": 0.25
+  },
+  {
+   "kind": "lamp_post",
+   "x": 44,
+   "z": 2,
+   "id": "port_lamp6",
+   "rad": 0.25
+  },
+  {
+   "kind": "port_gozzo",
+   "x": -46,
+   "z": 43.8,
+   "id": "port_boat0",
+   "r": 0.1,
+   "y": -0.35,
+   "solid": false,
+   "color": "f2efe6",
+   "trim": "2f6fa0"
+  },
+  {
+   "kind": "port_gozzo",
+   "x": -32,
+   "z": 44.0,
+   "id": "port_boat1",
+   "r": -0.05,
+   "y": -0.35,
+   "solid": false,
+   "color": "e8c86a",
+   "trim": "3f7a4a"
+  },
+  {
+   "kind": "port_lampara",
+   "x": -26,
+   "z": 44.2,
+   "id": "port_boat2",
+   "r": 0.0,
+   "y": -0.35,
+   "solid": false
+  },
+  {
+   "kind": "port_gozzo",
+   "x": -8,
+   "z": 43.8,
+   "id": "port_boat3",
+   "r": 0.08,
+   "y": -0.35,
+   "solid": false,
+   "color": "f2efe6",
+   "trim": "c8302c"
+  },
+  {
+   "kind": "port_gozzo",
+   "x": 4,
+   "z": 44.0,
+   "id": "port_boat4",
+   "r": -0.1,
+   "y": -0.35,
+   "solid": false,
+   "color": "9ac0d8",
+   "trim": "f2efe6"
+  },
+  {
+   "kind": "port_gozzo",
+   "x": 24,
+   "z": 43.9,
+   "id": "port_boat5",
+   "r": 0.04,
+   "y": -0.35,
+   "solid": false,
+   "color": "f2efe6",
+   "trim": "2f6fa0"
+  },
+  {
+   "kind": "port_rowboat",
+   "x": 33.5,
+   "z": 44.0,
+   "id": "port_boat6",
+   "r": 0.3,
+   "y": -0.35,
+   "solid": false
+  },
+  {
+   "kind": "port_bollard",
+   "x": -58.0,
+   "z": 41.6,
+   "id": "port_bollard0",
+   "solid": false
+  },
+  {
+   "kind": "port_bollard",
+   "x": -50.0,
+   "z": 41.6,
+   "id": "port_bollard1",
+   "solid": false
+  },
+  {
+   "kind": "port_bollard",
+   "x": -42.0,
+   "z": 41.6,
+   "id": "port_bollard2",
+   "solid": false
+  },
+  {
+   "kind": "port_bollard",
+   "x": -34.0,
+   "z": 41.6,
+   "id": "port_bollard3",
+   "solid": false
+  },
+  {
+   "kind": "port_bollard",
+   "x": -26.0,
+   "z": 41.6,
+   "id": "port_bollard4",
+   "solid": false
+  },
+  {
+   "kind": "port_bollard",
+   "x": -18.0,
+   "z": 41.6,
+   "id": "port_bollard5",
+   "solid": false
+  },
+  {
+   "kind": "port_bollard",
+   "x": -10.0,
+   "z": 41.6,
+   "id": "port_bollard6",
+   "solid": false
+  },
+  {
+   "kind": "port_bollard",
+   "x": -2.0,
+   "z": 41.6,
+   "id": "port_bollard7",
+   "solid": false
+  },
+  {
+   "kind": "port_bollard",
+   "x": 6.0,
+   "z": 41.6,
+   "id": "port_bollard8",
+   "solid": false
+  },
+  {
+   "kind": "port_bollard",
+   "x": 22.0,
+   "z": 41.6,
+   "id": "port_bollard10",
+   "solid": false
+  },
+  {
+   "kind": "port_bollard",
+   "x": 30.0,
+   "z": 41.6,
+   "id": "port_bollard11",
+   "solid": false
+  },
+  {
+   "kind": "port_mooring",
+   "x": -56.0,
+   "z": 42.6,
+   "id": "port_ferry_mooring",
+   "solid": false
+  },
+  {
+   "kind": "port_payphone",
+   "x": 2.0,
+   "z": -66.0,
+   "id": "port_payphone",
+   "rad": 0.35
+  },
+  {
+   "kind": "port_cannon",
+   "x": 57.5,
+   "z": -46.5,
+   "id": "port_cannon",
+   "w": 0.9,
+   "d": 1.4
+  },
+  {
+   "kind": "port_rubble",
+   "x": 64.0,
+   "z": -60.0,
+   "id": "port_rubble_heap0",
+   "solid": false
+  },
+  {
+   "kind": "port_rubble",
+   "x": 67.0,
+   "z": -57.5,
+   "id": "port_rubble_heap1",
+   "solid": false
+  },
+  {
+   "kind": "port_rubble",
+   "x": 62.5,
+   "z": -50.5,
+   "id": "port_rubble_heap2",
+   "solid": false
+  },
+  {
+   "kind": "port_balcony",
+   "x": -20.5,
+   "z": -3.0,
+   "id": "port_nonna_balcony",
+   "y": 16.6,
+   "w": 3.0,
+   "drop": 6.6,
+   "solid": false
+  },
+  {
+   "kind": "port_fishboxes",
+   "x": 43.5,
+   "z": 25.5,
+   "id": "port_fishboxes",
+   "solid": false
+  },
+  {
+   "kind": "port_flagmast",
+   "x": -45.3,
+   "z": 27.0,
+   "id": "port_flagmast",
+   "rad": 0.12
+  },
+  {
+   "kind": "port_capers",
+   "x": 35.0,
+   "z": -47.9,
+   "id": "port_capers0",
+   "r": 0.0,
+   "solid": false
+  },
+  {
+   "kind": "port_capers",
+   "x": 44.0,
+   "z": -47.9,
+   "id": "port_capers1",
+   "r": 0.0,
+   "solid": false
+  },
+  {
+   "kind": "port_capers",
+   "x": 52.0,
+   "z": -47.9,
+   "id": "port_capers2",
+   "r": 0.0,
+   "solid": false
+  },
+  {
+   "kind": "port_capers",
+   "x": -24.0,
+   "z": -21.9,
+   "id": "port_capers3",
+   "r": 0.0,
+   "solid": false
+  },
+  {
+   "kind": "port_capers",
+   "x": 24.0,
+   "z": -21.9,
+   "id": "port_capers4",
+   "r": 0.0,
+   "solid": false
+  },
+  {
+   "kind": "port_capers",
+   "x": -38.0,
+   "z": -21.9,
+   "id": "port_capers5",
+   "r": 0.0,
+   "solid": false
+  }
+ ]
 }

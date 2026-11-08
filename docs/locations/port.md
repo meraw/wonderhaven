@@ -1,7 +1,8 @@
 # Tonnarella: design for the port
 
-Working id `port`. Agreed with the user on 2026-11-08 in a design interview. **Stage 1 (ground and map) is built;
-stages 2 to 4 are not.** See "Build status" at the end. This doc is the plan the build stages follow. The rules every location shares are in `docs/WORLD.md`; `docs/MONTEFORCHETTA.md`
+Working id `port`. Agreed with the user on 2026-11-08 in a design interview. **Stages 1 (ground and map) and 2
+(buildings and scenery) are built; stages 3 and 4 are not.** See "Build status" at the end. This doc is the plan the
+build stages follow. The rules every location shares are in `docs/WORLD.md`; `docs/MONTEFORCHETTA.md`
 and the other location docs are the models it follows.
 
 ## The concept
@@ -402,7 +403,8 @@ What exists now, and the choices made while building that the design above didn'
   - The rocks and the breakwater come out olive rather than grey, because the shared terrain shading warms all
     ground. That's for the look stage.
   - The HUD still shows the approval rating until the changeover meter arrives with the requests.
-  - There's no horizon backdrop yet: the port across the bay and the city's tiers come with the scenery.
+  - There's no horizon backdrop yet: the port across the bay and the city's tiers come with the scenery. (Done in
+    stage 2.)
 
 **Checked for stage 1:**
 - **Tested** (`godot/tests/test_port.gd`): the pack and its map entry; ids; the three levels, the sea and the
@@ -417,3 +419,82 @@ What exists now, and the choices made while building that the design above didn'
   the lift down to the harbour and up to the church square.
 - **Seen** in screenshots in both renderers: the harbour from the air, the arrival, a stair lane, the church square,
   the breakwater gap and the east rocks.
+
+**Stage 2, the buildings and scenery:**
+- **Where it lives:** `godot/scripts/locations/port/`:
+  - `palazzo.gd`: the palazzi and the rooms.
+  - `landmarks.gd`: the church, castle, station, lighthouse and lantern room.
+  - `scenery.gd`: everything in the streets and the harbour.
+  - `horizon.gd`: the view.
+  - `mats.gd`: the materials they share.
+  - Positions are in the layout: trees, pillars, boats, lamps and the rest are props of Tonnarella's own kinds, and the
+    laundry lines are the layout's `port_lines`.
+- **The palazzi:**
+  - Built on the shared kit's windows, shutters, doors and balconies, under Tonnarella's own grey slate roofs.
+  - About a third of the windows are painted on, with false frames and shutters. Real windows get a painted frame,
+    and some have a pot of basil on the sill.
+  - String courses, a cornice and a stone footing.
+  - A building on a slope stands on the lower level and rises past the upper one. It only has windows where its front
+    isn't buried in the slope.
+- **The arcades:** porticoes 3.5 m deep along the waterfront, on stone pillars placed clear of every path. The fish
+  market's palazzo has no arcade, so its stalls stand in the open.
+- **The landmarks:**
+  - The church in black-and-white stripes, with a rose window, steps and a bell tower.
+  - The castle: curtain walls, round towers, battlements, a keep with its flag, the gate onto the bastion, and the breach
+    in its sea wall above the rubble.
+  - The station, with its clock, its name and a canopy over the platform.
+  - The square lighthouse with a corbelled gallery. On top, the lantern room: glazing with two panes broken by the
+    storm, the lens and a copper cupola.
+- **Rooms you can walk into:**
+  - Rosetta's bakery and the savings bank under the arcades. Their floors are cut level into the slope, and the
+    palazzo above fades while you're inside.
+  - The harbour office, and the keeper's room at the foot of the lighthouse.
+  - Your flat on the palazzo's roof, and the lantern room on top of the tower.
+  - Each has its furniture and a spot for someone to stand.
+- **The 112 steps:**
+  - A ride between two stops on the line `port_stairs`: the street door and the stairwell hut on the roof. The count
+    is in the line you read on arrival.
+  - The lighthouse stair works the same way (`port_lantern`). The lantern room's door faces the gallery's wider south
+    side, and the stair comes out at its south-west corner, so you arrive next to the door.
+  - The roof terrace is the palazzo's flat roof, with railings. Your wardrobe in the flat waits for `port_home`.
+- **In the streets and the harbour:**
+  - Steps on every stair lane, bare laundry lines and Nonna Pina's balcony full of basil, with her basket on its rope.
+  - Parapets and iron railings, lamp posts, a payphone on the forecourt, a cannon by the castle, capers on the walls.
+  - The railway, with its sleepers, rails and a tunnel mouth at each end.
+  - In the harbour: five fishing boats, Stefano's lampara boat with its lamp, and Gerolamo's red rowing boat. Bollards
+    along the quay, fish boxes by the market, and the harbour office's flag.
+  - The ferry's empty mooring, with a faded timetable board (a sign).
+- **Plants:** palms on the quay, umbrella pines and holm oaks round the top, mimosa in bloom in the church square and
+  the little court.
+- **The horizon:**
+  - The far land joins the mountain at the map's edge.
+  - Across the bay, the busy port: quays and moles, container stacks, six gantry cranes, warehouses, two cargo ships and
+    a ferry.
+  - The city climbs the hills in tiers of palazzi, with five forts on the ridges, and the coast runs on east.
+- **Not yet:**
+  - In the default haze, the far city is pale.
+  - The rocks still come out olive.
+  - The lantern isn't lit, and the washing goes back on the lines with the requests.
+  - For rooms on the slope or the rock, the camera's blocker boxes sit 1.2 to 1.6 m low, because they count from the
+    ground at the room's floor.
+
+**Checked for stage 2:**
+- **Tested** (`godot/tests/test_port.gd`, 17 tests, plus the shared checks every place goes through, including that
+  nothing in a room's model lies across the room):
+  - Every building reaches down its slope and stands above it.
+  - Every room has a level floor, a door onto a real spot outside, a spot inside, and its furniture inside it.
+  - The flat is up the 112 steps, with railings round the roof, and the wardrobe is in the flat.
+  - The lantern room stands on the tower, with the stair coming out on the gallery and a railing round it.
+  - Trees and pillars stand clear of buildings and build sites, and the pillars stand under the arcades.
+  - The scenery and the horizon are built: tunnels, Nonna's balcony, cranes, forts, the ferry, the mountains.
+  - Every path, now including the ways into the rooms, is walked both ways.
+- **Played** (`godot/tests/play_port.gd`, 36 checks):
+  - The stage 1 walk.
+  - Up the 112 steps into your flat; the roof's railing holds; down again.
+  - Into the bakery, the bank and the harbour office.
+  - Into the keeper's room, up the lighthouse stair into the lantern room; the gallery's railing holds; down again.
+    The script steps over the breakwater's gap here, because mending it is a request.
+  - The church square at night.
+- **Seen** in screenshots in both renderers: the harbour from the air, the arcades, an alley with Nonna's balcony, the
+  church square, the station, and the view across the bay. In the compatibility renderer, from the playthrough: every
+  room, the roof terrace, the gallery and the square at night.

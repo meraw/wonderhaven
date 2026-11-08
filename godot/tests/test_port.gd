@@ -83,7 +83,7 @@ func test_every_level_is_reached_from_the_station():
 						todo.append(pair[1])
 		for id in ["port_belvedere", "port_castle_gate", "port_square", "port_church_door", "port_nonna_door", "port_home_door", "port_court", "port_bakery_door", "port_bank_door", "port_chandlery_door", "port_harbour_office_door", "port_fishmarket", "port_breakwater_n", "port_rocks_n", "port_lift_bottom"]:
 			t.ok(seen.has(id), "you can walk from the station to %s" % id)
-		for id in ["port_breakwater_s", "port_rock", "port_lighthouse_door"]:
+		for id in ["port_breakwater_s", "port_rock", "port_keeper_door", "port_tower_door"]:
 			t.ok(not seen.has(id), "%s waits for the breakwater" % id)
 		var levels := {}
 		for id in seen: levels[Port.level(_node(id).x, _node(id).y)] = true
@@ -160,10 +160,10 @@ func test_the_build_sites():
 
 func test_the_lift_runs_once_its_flag_is_set():
 	var L := _layout()
-	t.ok(not L.features.any(func(f): return f.kind == "stop"), "no lift stops before the power is back")
+	t.ok(not L.features.any(func(f): return f.kind == "stop" and f.get("line", "") == "port_lift"), "no lift stops before the power is back")
 	Port.adjust(L, {"port_lift_on": true})
 	Port.adjust(L, {"port_lift_on": true})
-	var stops: Array = L.features.filter(func(f): return f.kind == "stop")
+	var stops: Array = L.features.filter(func(f): return f.kind == "stop" and f.get("line", "") == "port_lift")
 	t.eq(stops.size(), 3, "three stops once it runs, added once")
 	t.ok(stops.all(func(f): return f.line == "port_lift"), "all on the lift's line")
 	var others := Travel.stops_on(stops[0], L.features)
@@ -172,17 +172,125 @@ func test_the_lift_runs_once_its_flag_is_set():
 		var levels: Array = stops.map(func(f): return Port.level(f.x, f.z))
 		t.ok(levels.has("quay") and levels.has("middle") and levels.has("top"), "a stop on each level (%s)" % str(levels)))
 
-func test_buildings_reach_down_the_slope():
+func _low_top(o: Node3D) -> Vector2:
+	var low := INF
+	var top := -INF
+	for c in o.find_children("*", "MeshInstance3D", true, false):
+		var mi := c as MeshInstance3D
+		if mi.mesh == null: continue
+		var xf: Transform3D = mi.transform
+		var p: Node = mi.get_parent()
+		while p != null and p != o:
+			if p is Node3D: xf = (p as Node3D).transform * xf
+			p = p.get_parent()
+		var bb := xf * mi.get_aabb()
+		low = minf(low, bb.position.y)
+		top = maxf(top, bb.end.y)
+	return Vector2(low, top)
+
+func test_every_building_reaches_down_its_slope_and_above_it():
 	_on(func():
-		var b: Dictionary = Data.layout.buildings.filter(func(x): return x.id == "port_bakery")[0]
-		var o := Port.building(b)
-		var base := Heightfield.height(b.x, b.z)
-		var low := INF
-		for c in o.get_children():
-			if c is MeshInstance3D: low = minf(low, c.position.y + c.get_aabb().position.y)
-		t.ok(base > Port.QUAY_H + 2.0, "the bakery stands on the slope (%.1f m)" % base)
-		t.ok(base + low <= Port.QUAY_H + 0.05, "its front reaches down to the quay (%.2f m)" % (base + low))
-		o.free())
+		for b in Data.layout.buildings:
+			if b.kind in ["port_solid", "port_lantern"] or b.get("onRoof", false): continue
+			var o: Node3D = Port.building(b)
+			t.ok(o != null and o.get_child_count() > 0, "%s has a model" % b.id)
+			var base := Port.base_of(b)
+			var lo := INF
+			var hi := -INF
+			for fx in [-0.45, 0.0, 0.45]:
+				for fz in [-0.45, 0.0, 0.45]:
+					var g := maxf(Port.SEA, Heightfield.height(float(b.x) + fx * float(b.w), float(b.z) + fz * float(b.d)))
+					lo = minf(lo, g); hi = maxf(hi, g)
+			var lt := _low_top(o)
+			t.ok(base + lt.x <= lo + 0.06, "%s reaches down to the lowest ground under it (%.2f, ground %.2f)" % [b.id, base + lt.x, lo])
+			t.ok(base + lt.y >= hi + 1.5, "%s stands above the highest ground under it (%.2f, ground %.2f)" % [b.id, base + lt.y, hi])
+			o.free())
+
+func test_rooms_you_can_walk_into():
+	_on(func():
+		var rooms: Array = Data.layout.buildings.filter(func(b): return Interiors.enterable(b))
+		var ids: Array = rooms.map(func(b): return b.id)
+		for want in ["port_bakery", "port_bank", "port_harbour_office", "port_keeper", "port_flat", "port_lantern"]:
+			t.ok(ids.has(want), "%s is a room you can walk into" % want)
+		for b in rooms:
+			var base := Port.base_of(b)
+			var room := Interiors.room(b, base)
+			for fx in [-0.4, 0.0, 0.4]:
+				for fz in [-0.4, 0.0, 0.4]:
+					var x: float = float(b.x) + fx * room.size.x
+					var z: float = float(b.z) + fz * room.size.z
+					var floor_y := maxf(Heightfield.height(x, z), WorldStatics.floor_top(x, z))
+					t.ok(absf(floor_y - base) < 0.06, "%s: a level floor at %.2f (%.2f at %.1f, %.1f)" % [b.id, base, floor_y, x, z])
+			t.ok(Data.layout.nav_nodes.has(String(b.navDoor)), "%s: its door opens onto %s" % [b.id, b.navDoor])
+			var door: Array = Data.layout.nav_nodes[b.navDoor]
+			t.ok(not room.has_point(Vector3(door[0], base, door[1])), "%s: the spot outside its door is outside" % b.id)
+			t.ok(Data.layout.nav_nodes.has(String(b.id) + ":spot"), "%s: someone can stand inside" % b.id)
+			for it in Interiors.items(b):
+				t.ok(it.x > room.position.x and it.x < room.end.x and it.z > room.position.z and it.z < room.end.z, "%s: the %s is inside" % [b.id, it.id]))
+
+func test_the_flat_is_up_the_112_steps():
+	_on(func():
+		var stops: Array = Data.layout.features.filter(func(f): return f.kind == "stop" and f.get("line", "") == "port_stairs")
+		t.eq(stops.size(), 2, "the stairs have two ends")
+		var street: Dictionary = stops.filter(func(f): return not f.has("y"))[0]
+		var roof: Dictionary = stops.filter(func(f): return f.has("y"))[0]
+		t.eq(Heightfield.height(street.x, street.z), Port.MID_H, "the street door is in the alleys")
+		t.ok(String(street.arrive_text).contains("112"), "the climb is counted to 112")
+		t.eq(Travel.stops_on(street, Data.layout.features).map(func(f): return f.id), [roof.id], "from the street door the stairs go up to the flat")
+		var flat: Dictionary = Data.layout.buildings.filter(func(b): return b.id == "port_flat")[0]
+		t.eq(float(roof.y), float(flat.y), "the top of the stairs is on the flat's floor")
+		t.eq(WorldStatics.floor_top(36.0, -5.0), float(flat.y), "the roof terrace is the palazzo's roof")
+		var w := _walker()
+		var off := _walk(w, Vector2(38.0, -5.0), Vector2(46.0, -5.0))
+		t.ok(not off.ok and absf(off.y - float(flat.y)) < 0.05, "a railing keeps you on the roof (%s)" % str(off.at))
+		var front := _walk(w, Vector2(36.0, -5.0), Vector2(36.0, 2.0))
+		t.ok(not front.ok and absf(front.y - float(flat.y)) < 0.05, "and on the street side")
+		var wardrobe: Dictionary = Data.layout.features.filter(func(f): return f.kind == "wardrobe")[0]
+		t.eq(wardrobe.get("flag", ""), "port_home", "the wardrobe is yours once the flat is")
+		t.ok(absf(float(wardrobe.x) - float(flat.x)) < float(flat.w) / 2.0 and absf(float(wardrobe.z) - float(flat.z)) < float(flat.d) / 2.0, "and it stands in the flat"))
+
+func test_the_lantern_is_up_the_tower():
+	_on(func():
+		var stops: Array = Data.layout.features.filter(func(f): return f.kind == "stop" and f.get("line", "") == "port_lantern")
+		t.eq(stops.size(), 2, "the lighthouse stair has two ends")
+		var lantern: Dictionary = Data.layout.buildings.filter(func(b): return b.id == "port_lantern")[0]
+		var tower: Dictionary = Data.layout.buildings.filter(func(b): return b.id == "port_lighthouse")[0]
+		t.ok(absf(float(lantern.y) - (float(tower.y) + float(tower.h))) < 0.01, "the lantern room stands on top of the tower")
+		t.ok(stops.any(func(f): return f.has("y") and absf(float(f.y) - float(lantern.y)) < 0.01), "the stair comes out on the gallery")
+		var w := _walker()
+		var off := _walk(w, Vector2(42.0, 82.5), Vector2(42.0, 76.0))
+		t.ok(not off.ok and absf(off.y - float(lantern.y)) < 0.05, "a railing round the gallery (%s)" % str(off.at)))
+
+func test_trees_pillars_and_scenery_stand_clear():
+	_on(func():
+		for pr in Data.layout.props:
+			if not String(pr.kind).begins_with("port_") or not pr.get("solid", true): continue
+			if pr.has("y") and String(pr.kind) != "port_pillar": continue
+			t.ok(not Heightfield.is_water(pr.x, pr.z), "%s stands on dry land" % pr.id)
+			t.ok(not WorldStatics._near_building(pr.x, pr.z, 0.0), "%s isn't inside a building" % pr.id)
+			t.ok(not WorldStatics._in_zone(pr.x, pr.z, 0.0), "%s isn't on a build site" % pr.id)
+		var pillars: Array = Data.layout.props.filter(func(pr): return pr.kind == "port_pillar")
+		t.ok(pillars.size() >= 12, "pillars hold up the arcades (%d)" % pillars.size())
+		for pr in pillars:
+			var under: bool = Data.layout.buildings.any(func(b): return float(b.get("portico", 0.0)) > 0.0 and absf(pr.x - float(b.x)) < float(b.w) / 2.0)
+			t.ok(under and Port.level(pr.x, pr.z) == "quay", "%s stands on the quay under an arcade" % pr.id))
+
+func test_the_scenery_and_the_horizon_are_built():
+	_on(func():
+		var root := Node3D.new()
+		Port.dress(root)
+		var scenery := root.find_child("port_scenery", false, false)
+		var horizon := root.find_child("port_horizon", false, false)
+		t.ok(scenery != null and scenery.get_child_count() > 60, "the scenery is built")
+		t.ok(horizon != null, "the horizon is built")
+		t.ok(root.find_children("port_tunnel*", "", true, false).size() == 2, "the railway runs into a tunnel at each end")
+		t.ok(root.find_child("port_nonna_balcony", true, false) != null, "Nonna Pina's balcony is full of basil")
+		t.ok(root.find_children("port_crane*", "", true, false).size() >= 4, "cranes stand in the port across the bay")
+		t.ok(root.find_children("port_fort*", "", true, false).size() >= 3, "forts stand on the ridges")
+		t.ok(root.find_child("port_ferry", true, false) != null, "a ferry lies in the port")
+		var far: MeshInstance3D = root.find_child("port_far_land", true, false)
+		t.ok(far != null and far.mesh.get_aabb().end.y > 150.0, "the mountains rise behind the city")
+		root.free())
 
 func test_you_arrive_off_the_train_as_if_you_had_played_the_way_here():
 	var s := Progress.as_if_played(EARLIER, "port")
