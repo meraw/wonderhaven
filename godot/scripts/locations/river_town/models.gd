@@ -5,26 +5,21 @@ extends RefCounted
 ## marks the walls the flood reached. Rooms you can walk into are built from the same wall rectangles as their
 ## collision (Interiors.walls), and what is above the room fades while you are inside (Props.fade_parts).
 const P := preload("res://scripts/world/palette.gd")
-const SHUTTER := "#3f5a3a"
+const SHUTTER := "3f5a3a"
 const TIDE := "#8f7d5c"
 const STONE := "#d8cdb8"
 const UPPER := 1.9   # an upper storey's height, above the shared 2.4 m ground floor
 
 ## The model for one of the layout's buildings, or null to use the shared ones.
 static func build(b: Dictionary) -> Node3D:
+	if HouseKit.uses(b): return kit_building(b)
 	match String(b.kind):
-		"house": return town_house(b)
-		"bar": return bar(b)
 		"arcade": return arcade(b)
 		"church": return church(b)
-		"bike_shop": return workshop(b)
-		"keeper_house": return keeper_house(b)
-		"station": return station(b)
 		"farm": return farm(b)
 		"houseboat": return houseboat(b)
 		"shack": return shack(b)
 		"dance_hall": return dance_hall(b)
-		"sawmill": return sawmill_office(b)
 		"pumphouse": return pumphouse(b)
 	return null
 
@@ -49,30 +44,14 @@ static func _ground_floor(g: Node3D, b: Dictionary, wall: Material, floor_color:
 		_add(g, P.rbox(b.w, h, b.d, 0.05), wall, Vector3(0, h / 2.0, 0))
 	return h
 
-## A plinth of pale stone round the foot of the walls, and the flood's tide line on them.
-static func _plinth_and_tide(g: Node3D, b: Dictionary, tide_y: float = 0.62) -> void:
-	var stone := P.stone(STONE)
-	var tide := P.mat(TIDE)
-	for zs in [-1, 1]:
-		_add(g, P.box(b.w + 0.16, 0.34, 0.1), stone, Vector3(0, 0.12, zs * (b.d / 2.0 + 0.03)))
-		_add(g, P.box(b.w + 0.04, 0.07, 0.04), tide, Vector3(0, tide_y, zs * (b.d / 2.0 + 0.01)), Vector3.ZERO, Vector3.ONE, false)
-	for xs in [-1, 1]:
-		_add(g, P.box(0.1, 0.34, b.d + 0.16), stone, Vector3(xs * (b.w / 2.0 + 0.03), 0.12, 0))
-		_add(g, P.box(0.04, 0.07, b.d + 0.04), tide, Vector3(xs * (b.w / 2.0 + 0.01), tide_y, 0), Vector3.ZERO, Vector3.ONE, false)
-
 ## The flood's tide line: a thin dark band round the outside of the walls at height y.
 static func _tide_band(g: Node3D, b: Dictionary, y: float) -> void:
 	var tide := P.mat(TIDE)
-	for zs in [-1, 1]: _add(g, P.box(b.w + 0.04, 0.07, 0.04), tide, Vector3(0, y, zs * (b.d / 2.0 + 0.01)), Vector3.ZERO, Vector3.ONE, false)
-	for xs in [-1, 1]: _add(g, P.box(0.04, 0.07, b.d + 0.04), tide, Vector3(xs * (b.w / 2.0 + 0.01), y, 0), Vector3.ZERO, Vector3.ONE, false)
-
-## An upper storey above the ground floor, with a string course between. Returns its node (it fades with the roof).
-static func _upper(g: Node3D, b: Dictionary, wall: Material, extra_x: float = 0.0, shift_x: float = 0.0) -> Node3D:
-	var n := Node3D.new(); n.name = "upper"; g.add_child(n)
-	var h0 := Interiors.WALL_H
-	_add(n, P.box(b.w + extra_x, UPPER, b.d), wall, Vector3(shift_x, h0 + UPPER / 2.0, 0))
-	_add(n, P.box(b.w + extra_x + 0.12, 0.12, b.d + 0.12), P.stone(STONE), Vector3(shift_x, h0 + 0.02, 0))
-	return n
+	var party: Array = b.get("party", [])
+	for zs in [-1, 1]:
+		if not party.has("N" if zs < 0 else "S"): _add(g, P.box(b.w + 0.04, 0.07, 0.04), tide, Vector3(0, y, zs * (b.d / 2.0 + 0.01)), Vector3.ZERO, Vector3.ONE, false)
+	for xs in [-1, 1]:
+		if not party.has("W" if xs < 0 else "E"): _add(g, P.box(0.04, 0.07, b.d + 0.04), tide, Vector3(xs * (b.w / 2.0 + 0.01), y, 0), Vector3.ZERO, Vector3.ONE, false)
 
 ## Windows with shutters on every side but the door's (and beside the door when the wall is long), on each floor.
 ## Upper-floor windows go on `upper` (so they fade with it while you're in the room below). Returns the glass panes
@@ -94,31 +73,6 @@ static func _windows(g: Node3D, b: Dictionary, floors: int, skip: Array = [], up
 					var wi := Props._window(); Props._on_side(wi, b, s, y, off, -Interiors.WALL_T - 0.03); wi.rotation.y += PI; g.add_child(wi); glasses.append(wi.get_node("glass"))
 	return glasses
 
-## A small balcony with an iron railing and geraniums, on the upper floor of the door side.
-static func _balcony(parent: Node3D, b: Dictionary, side: String) -> void:
-	var n := Node3D.new(); Props._on_side(n, b, side, Interiors.WALL_H + 0.05, 0.0, 0.0); parent.add_child(n)
-	var iron := P.mat("2f3a34")
-	_add(n, P.box(1.7, 0.1, 0.6), P.stone(STONE), Vector3(0, 0, 0.3))
-	_add(n, P.box(1.7, 0.04, 0.04), iron, Vector3(0, 0.7, 0.58))
-	for i in 9: _add(n, P.box(0.02, 0.7, 0.02), iron, Vector3(-0.8 + i * 0.2, 0.35, 0.58), Vector3.ZERO, Vector3.ONE, false)
-	for i in 3:
-		_add(n, P.cyl(0.11, 0.08, 0.18, 8), P.mat("b5653a"), Vector3(-0.5 + i * 0.5, 0.14, 0.35))
-		_add(n, P.sphere(0.15, 8, 6), P.mat("4f8f3f"), Vector3(-0.5 + i * 0.5, 0.3, 0.35), Vector3.ZERO, Vector3(1, 0.7, 1), false)
-		_add(n, P.sphere(0.07, 6, 4), P.mat("d9333f"), Vector3(-0.45 + i * 0.5, 0.4, 0.42), Vector3.ZERO, Vector3.ONE, false)
-
-## The roof: the shared gable roof (terracotta tiles in the roof shader), with a small brick chimney.
-static func _roof(g: Node3D, b: Dictionary, h: float, wall: Material, w: float = -1.0, d: float = -1.0, shift: Vector3 = Vector3.ZERO) -> Node3D:
-	var holder := Node3D.new(); holder.position = shift; g.add_child(holder)
-	var rw: float = b.w if w < 0.0 else w
-	var rd: float = b.d if d < 0.0 else d
-	var roof := Props._gable_roof(holder, rw, rd, h, wall, Props.roof_material(b.roof), Color(b.roof).darkened(0.25))
-	var rise: float = roof.get_meta("rise")
-	var cx := rw * 0.25 if rw >= rd else 0.0
-	var cz := 0.0 if rw >= rd else rd * 0.25
-	_add(holder, P.box(0.5, rise + 0.6, 0.5), P.plaster(b.wall), Vector3(cx, h + rise * 0.55 + 0.2, cz - 0.25 if rw >= rd else cz))
-	_add(holder, P.box(0.66, 0.12, 0.66), P.stone(STONE), Vector3(cx, h + rise + 0.55, cz - 0.25 if rw >= rd else cz))
-	return holder
-
 ## A painted sign board with text, on a side of the building.
 static func _sign(g: Node3D, b: Dictionary, side: String, y: float, text: String, board: String = "#2f5a3e", ink: String = "#fff3d6", width: float = 2.4, offset: float = 0.0) -> Node3D:
 	var n := Node3D.new(); Props._on_side(n, b, side, y, offset, 0.06); g.add_child(n)
@@ -136,179 +90,45 @@ static func _finish(g: Node3D, glasses: Array, over_room: Array, b: Dictionary) 
 
 # ---- the town ----------------------------------------------------------------------------------------------------
 
-## A two-storey town house in Lombard yellow or faded orange, with green shutters, a balcony and a tiled roof.
-static func town_house(b: Dictionary) -> Node3D:
-	var g := Node3D.new()
-	var wall := P.plaster(b.wall)
-	_ground_floor(g, b, wall)
-	var up := _upper(g, b, wall)
-	_plinth_and_tide(g, b)
-	var top := Interiors.WALL_H + UPPER
-	var roof := _roof(g, b, top, wall)
-	var glasses := _windows(g, b, 2, [], up)
-	_balcony(up, b, b.door)
-	Props._door(g, b, "6a4a30")
-	return _finish(g, glasses, [up, roof], b)
+const TIDE_AT := {"keeper_house": 0.92, "station": 0.88, "sawmill": 0.9}
 
-## Rina's bar: two storeys of yellow plaster, a green-and-white awning over the door and the tables, a sign.
-static func bar(b: Dictionary) -> Node3D:
-	var g := Node3D.new()
-	var wall := P.plaster(b.wall)
-	_ground_floor(g, b, wall, "#b9a58a")
-	var up := _upper(g, b, wall)
-	_plinth_and_tide(g, b)
-	var roof := _roof(g, b, Interiors.WALL_H + UPPER, wall)
-	var glasses := _windows(g, b, 2, [], up)
-	Props._door(g, b, "3f5a3a")
-	# the awning, striped, over the whole front
-	var aw := Node3D.new(); Props._on_side(aw, b, b.door, 2.15, 0.0, 0.5); g.add_child(aw)
-	var n := 9; var span: float = b.w * 0.92
-	for i in n:
-		_add(aw, P.box(span / n, 0.05, 1.1), P.fabric(SHUTTER if i % 2 == 0 else "f4f1ea"), Vector3(-span / 2.0 + (i + 0.5) * span / n, 0, 0), Vector3(-0.3, 0, 0))
-	_sign(up, b, b.door, Interiors.WALL_H + 0.35, "BAR", "#2f5a3e", "#fff3d6", 1.6)
-	# a payphone on the corner wall
-	var ph := Node3D.new(); Props._on_side(ph, b, "E", 1.2, 1.2, 0.12); g.add_child(ph)
+static func kit_building(b: Dictionary) -> Node3D:
+	var g := HouseKit.build(b)
+	_tide_band(g, b, float(TIDE_AT.get(String(b.kind), 1.0)))
+	var high: Array = []
+	match String(b.kind):
+		"bar": _bar_extras(g, b)
+		"bike_shop": _wheels(g, b)
+		"keeper_house": high.append(_sign(g, b, b.door, 2.98, "KEEPER'S HOUSE No. 12", "efe6d6", "7a2e2a", 1.7))
+		"station": _station_extras(g, b)
+		"sawmill": _sign(g, b, b.door, 2.46, "GANDINI SAWMILL", "6a4a30", "fff3d6", 3.0)
+	if not high.is_empty() and g.has_meta("fade_parts"): g.set_meta("fade_parts", g.get_meta("fade_parts") + Props.fade_parts(high))
+	return g
+
+static func _bar_extras(g: Node3D, b: Dictionary) -> void:
+	var ph := Node3D.new(); Props._on_side(ph, b, "E", 1.25, 1.2, 0.12); g.add_child(ph)
 	_add(ph, P.rbox(0.5, 0.7, 0.3, 0.05), P.mat("e0782f"), Vector3.ZERO)
 	_add(ph, P.box(0.3, 0.2, 0.04), P.mat("2a2a2a"), Vector3(0, 0.12, 0.16))
 	_add(ph, P.capsule(0.05, 0.3), P.mat("2a2a2a"), Vector3(-0.18, -0.05, 0.18), Vector3(0, 0, 0.2))
-	# Mattia's photo of the monster catfish, framed by the coffee machine once it's been caught (and let go)
-	if Data.world_flags.get("river_town_monster_seen", false) and Interiors.enterable(b):
-		var ph2 := Node3D.new(); ph2.position = Vector3(0.4, 1.6, -b.d / 2.0 + Interiors.WALL_T + 0.03); g.add_child(ph2)
-		_add(ph2, P.box(0.95, 0.7, 0.04), P.wood("6a4a30"), Vector3.ZERO)
-		_add(ph2, P.box(0.82, 0.57, 0.02), P.mat("d9d4c4"), Vector3(0, 0, 0.025), Vector3.ZERO, Vector3.ONE, false)
-		_add(ph2, P.sphere(0.5, 12, 8), P.mat("4a4a42"), Vector3(0.02, -0.05, 0.03), Vector3.ZERO, Vector3(0.62, 0.16, 0.02), false)
-		_add(ph2, P.sphere(0.12, 8, 6), P.mat("6a6a60"), Vector3(-0.15, 0.08, 0.035), Vector3.ZERO, Vector3(0.6, 1.0, 0.1), false)
-		for wsx in [-1, 1]: _add(ph2, P.box(0.22, 0.012, 0.01), P.mat("4a4a42"), Vector3(-0.36, -0.04 + wsx * 0.04, 0.04), Vector3(0, 0, wsx * 0.3), Vector3.ONE, false)
-	return _finish(g, glasses, [up, roof], b)
+	if not (Data.world_flags.get("river_town_monster_seen", false) and Interiors.enterable(b)): return
+	var ph2 := Node3D.new(); ph2.position = Vector3(0.4, 1.6, -b.d / 2.0 + Interiors.WALL_T + 0.03); g.add_child(ph2)
+	_add(ph2, P.box(0.95, 0.7, 0.04), P.wood("6a4a30"), Vector3.ZERO)
+	_add(ph2, P.box(0.82, 0.57, 0.02), P.mat("d9d4c4"), Vector3(0, 0, 0.025), Vector3.ZERO, Vector3.ONE, false)
+	_add(ph2, P.sphere(0.5, 12, 8), P.mat("4a4a42"), Vector3(0.02, -0.05, 0.03), Vector3.ZERO, Vector3(0.62, 0.16, 0.02), false)
+	_add(ph2, P.sphere(0.12, 8, 6), P.mat("6a6a60"), Vector3(-0.15, 0.08, 0.035), Vector3.ZERO, Vector3(0.6, 1.0, 0.1), false)
+	for wsx in [-1, 1]: _add(ph2, P.box(0.22, 0.012, 0.01), P.mat("4a4a42"), Vector3(-0.36, -0.04 + wsx * 0.04, 0.04), Vector3(0, 0, wsx * 0.3), Vector3.ONE, false)
 
-## The arcade: a two-storey orange house whose upper floor reaches out over a covered walk on the piazza side.
-static func arcade(b: Dictionary) -> Node3D:
-	var g := Node3D.new()
-	var wall := P.plaster(b.wall)
-	var depth := 1.7
-	_ground_floor(g, b, wall)
-	_plinth_and_tide(g, b)
-	var up := _upper(g, b, wall, depth, depth / 2.0)
-	_roof(g, b, Interiors.WALL_H + UPPER, wall, b.w + depth, b.d, Vector3(depth / 2.0, 0, 0))
-	var glasses := _windows(g, b, 1, ["E"])
-	# the covered walk: stone columns and arches, a beamed ceiling, shop windows behind
-	var stone := P.stone("e3d6bd")
-	for zl in [-4.3, -1.4, 1.4, 4.3]:
-		_add(g, P.cyl(0.2, 0.22, Interiors.WALL_H, 12), stone, Vector3(b.w / 2.0 + depth - 0.1, Interiors.WALL_H / 2.0, zl))
-		_add(g, P.box(0.5, 0.18, 0.5), stone, Vector3(b.w / 2.0 + depth - 0.1, Interiors.WALL_H - 0.05, zl))
-	_add(g, P.box(0.34, 0.3, b.d + 0.2), stone, Vector3(b.w / 2.0 + depth - 0.1, Interiors.WALL_H + 0.1, 0))
-	for zl in [-2.85, 0.0, 2.85]:   # brackets under the beam between the columns
-		for s in [-1, 1]: _add(g, P.box(0.2, 0.35, 0.5), stone, Vector3(b.w / 2.0 + depth - 0.1, Interiors.WALL_H - 0.2, zl + s * 1.1), Vector3(s * 0.5, 0, 0))
-	_add(g, P.box(depth, 0.1, b.d), P.wood("c49a6c"), Vector3(b.w / 2.0 + depth / 2.0, Interiors.WALL_H - 0.05, 0))
-	for zl in [-2.6, 2.6]:
-		var shop := Props._window(); shop.position = Vector3(b.w / 2.0 + 0.02, 1.3, zl); shop.rotation.y = PI / 2; shop.scale = Vector3(1.8, 1.4, 1); g.add_child(shop)
-		glasses.append(shop.get_node("glass"))
-	var aw := Node3D.new(); aw.position = Vector3(b.w / 2.0 + 0.3, 2.05, 2.6); aw.rotation.y = PI / 2; g.add_child(aw)
-	for i in 6: _add(aw, P.box(0.3, 0.04, 0.6), P.fabric("c0392b" if i % 2 == 0 else "f4f1ea"), Vector3(-0.75 + i * 0.3, 0, 0), Vector3(-0.35, 0, 0))
-	var front := Props._window(SHUTTER); Props._on_side(front, b, "W", 3.4, 0.0); g.add_child(front); glasses.append(front.get_node("glass"))
-	var e := Node3D.new(); e.position = Vector3(b.w / 2.0 + depth + 0.02, Interiors.WALL_H + 1.0, 0); e.rotation.y = PI / 2; g.add_child(e)
-	for zl in [-2.8, 0.0, 2.8]:
-		var w := Props._window(SHUTTER); w.position = Vector3(zl, 0, 0); e.add_child(w); glasses.append(w.get_node("glass"))
-	g.set_meta("glasses", glasses)
-	return g
-
-## The red-brick church, its gable front to the street, with a square bell tower and a clock.
-static func church(b: Dictionary) -> Node3D:
-	var g := Node3D.new()
-	var brick := P.plaster(b.wall)
-	var h := 4.8
-	_add(g, P.rbox(b.w, h, b.d, 0.04), brick, Vector3(0, h / 2.0, 0))
-	_plinth_and_tide(g, b, 0.55)
-	Props._gable_roof(g, b.w, b.d, h, brick, Props.roof_material(b.roof), Color(b.roof).darkened(0.25))
-	var dark := P.mat("3a2a24")
-	# the front: a tall wooden door under a stone arch, a round window above, a little cross on the gable
-	var front := Node3D.new(); front.position = Vector3(b.w / 2.0 + 0.03, 0, 0); front.rotation.y = PI / 2; g.add_child(front)
-	_add(front, P.box(1.5, 2.4, 0.08), P.wood("5a3a24"), Vector3(0, 1.2, 0))
-	var arch := MeshInstance3D.new(); arch.mesh = P.torus(0.82, 0.14, 20); arch.material_override = P.stone(STONE); arch.position = Vector3(0, 2.4, 0.02); arch.rotation.x = PI / 2; front.add_child(arch)
-	_add(front, P.cyl(0.75, 0.75, 0.04, 20), P.wood("5a3a24"), Vector3(0, 2.4, 0.0), Vector3(PI / 2, 0, 0), Vector3(1, 1, 1), false)
-	_add(front, P.torus(0.6, 0.1, 20), P.stone(STONE), Vector3(0, 4.3, 0.05), Vector3(PI / 2, 0, 0))
-	var rose := _add(front, P.cyl(0.55, 0.55, 0.03, 20), P.unique_mat("6a8fbf", "ffcf6b", 0.0), Vector3(0, 4.3, 0.03), Vector3(PI / 2, 0, 0), Vector3.ONE, false)
-	_add(front, P.box(0.08, 0.6, 0.08), P.mat("2f3a34"), Vector3(0, h + Props.roof_rise(b.w, b.d) + 0.55, -0.1))
-	_add(front, P.box(0.36, 0.08, 0.08), P.mat("2f3a34"), Vector3(0, h + Props.roof_rise(b.w, b.d) + 0.65, -0.1))
-	var glasses: Array = [rose]
-	# tall arched windows down the sides
-	for zs in [-1, 1]:
-		for xl in [-3.0, -0.6, 1.8]:
-			_add(g, P.box(0.6, 1.8, 0.05), dark, Vector3(xl, 2.6, zs * (b.d / 2.0 + 0.02)))
-			_add(g, P.cyl(0.3, 0.3, 0.05, 12), dark, Vector3(xl, 3.5, zs * (b.d / 2.0 + 0.02)), Vector3(PI / 2, 0, 0))
-	# the bell tower at the front corner
-	var t := Node3D.new(); t.position = Vector3(b.w / 2.0 - 1.2, 0, -b.d / 2.0 + 1.2); g.add_child(t)
-	var th := 9.6
-	_add(t, P.rbox(2.4, th, 2.4, 0.04), brick, Vector3(0, th / 2.0, 0))
-	for k in 4:
-		var a := k * PI / 2.0
-		var side := Node3D.new(); side.rotation.y = a; t.add_child(side)
-		_add(side, P.box(0.9, 1.4, 0.1), dark, Vector3(0, th - 1.4, 1.2))
-		_add(side, P.cyl(0.45, 0.45, 0.1, 12), dark, Vector3(0, th - 0.7, 1.2), Vector3(PI / 2, 0, 0))
-		_add(side, P.box(2.6, 0.18, 0.1), P.stone(STONE), Vector3(0, th - 2.3, 1.22))
-	_add(t, P.cyl(0.38, 0.5, 0.6, 12), P.mat("b08d3c"), Vector3(0, th - 1.5, 0))
-	_add(t, P.box(2.8, 0.25, 2.8), P.stone(STONE), Vector3(0, th + 0.1, 0))
-	var cap := MeshInstance3D.new(); cap.mesh = P.cone(2.0, 2.2, 4); cap.material_override = Props.roof_material(b.roof)
-	cap.position = Vector3(0, th + 1.3, 0); cap.rotation.y = PI / 4; t.add_child(cap)
-	# the clock, facing the street
-	var clock := Node3D.new(); clock.position = Vector3(1.22, th - 3.2, 0); clock.rotation.y = PI / 2; t.add_child(clock)
-	_add(clock, P.cyl(0.62, 0.62, 0.06, 24), P.mat("f4f1ea"), Vector3.ZERO, Vector3(PI / 2, 0, 0))
-	_add(clock, P.torus(0.62, 0.05, 24), P.mat("2f3a34"), Vector3(0, 0, 0.02), Vector3(PI / 2, 0, 0))
-	_add(clock, P.box(0.05, 0.42, 0.02), P.mat("2f3a34"), Vector3(0, 0.17, 0.05))
-	_add(clock, P.box(0.32, 0.05, 0.02), P.mat("2f3a34"), Vector3(0.13, 0, 0.05))
-	g.set_meta("glasses", glasses)
-	return g
-
-## Primo's bike workshop: one storey in yellow, wheels hung on the front, a sign over the door.
-static func workshop(b: Dictionary) -> Node3D:
-	var g := Node3D.new()
-	var wall := P.plaster(b.wall)
-	_ground_floor(g, b, wall, "#a99a86")
-	_plinth_and_tide(g, b)
-	var roof := _roof(g, b, Interiors.WALL_H, wall)
-	var glasses := _windows(g, b, 1)
-	Props._door(g, b, "3f5a3a")
-	_sign(g, b, b.door, 2.24, "RAMPOLDI CYCLES", "#2f5a3e", "#fff3d6", 2.6)
+static func _wheels(g: Node3D, b: Dictionary) -> void:
 	var iron := P.mat("2f3a34")
-	for off in [-2.2, 2.2]:
-		var wh := Node3D.new(); Props._on_side(wh, b, b.door, 1.75, off, 0.12); g.add_child(wh)
-		_add(wh, P.torus(0.42, 0.035, 24), iron, Vector3.ZERO, Vector3(PI / 2, 0, 0))
-		for k in 4: _add(wh, P.box(0.012, 0.8, 0.012), P.mat("c9c9c9"), Vector3.ZERO, Vector3(0, 0, k * PI / 4.0), Vector3.ONE, false)
-	return _finish(g, glasses, [roof], b)
+	var long: float = b.w if b.door in ["N", "S"] else b.d
+	for off in [-long / 2.0 + 0.45, long / 2.0 - 0.45]:
+		var wh := Node3D.new(); Props._on_side(wh, b, b.door, 1.55, off, 0.12); g.add_child(wh)
+		_add(wh, P.torus(0.4, 0.035, 24), iron, Vector3.ZERO, Vector3(PI / 2, 0, 0))
+		for k in 4: _add(wh, P.box(0.012, 0.76, 0.012), P.mat("c9c9c9"), Vector3.ZERO, Vector3(0, 0, k * PI / 4.0), Vector3.ONE, false)
 
-## The levee warden's keeper's house: two storeys in the river authority's oxblood, pale corner stones, a plaque.
-static func keeper_house(b: Dictionary) -> Node3D:
-	var g := Node3D.new()
-	var wall := P.plaster(b.wall)
-	_ground_floor(g, b, wall, "#c9b08a")
-	var up := _upper(g, b, wall)
-	_plinth_and_tide(g, b, 0.5)
-	var roof := _roof(g, b, Interiors.WALL_H + UPPER, wall)
-	var glasses := _windows(g, b, 2, [], up)
-	Props._door(g, b, "3a4a3f")
-	var stone := P.stone("efe6d6")
-	for c in [[-1, -1], [1, -1], [-1, 1], [1, 1]]:
-		for k in 7:
-			var big := k % 2 == 0
-			var y := 0.3 + k * 0.6
-			var host: Node3D = g if y < Interiors.WALL_H else up
-			_add(host, P.box(0.5 if big else 0.3, 0.3, 0.3 if big else 0.5), stone, Vector3(c[0] * (b.w / 2.0 - (0.2 if big else 0.1)), y, c[1] * (b.d / 2.0 - (0.1 if big else 0.2))))
-	_sign(up, b, b.door, Interiors.WALL_H + 0.42, "KEEPER'S HOUSE No. 12", "#efe6d6", "#7a2e2a", 1.7)
-	return _finish(g, glasses, [up, roof], b)
-
-## The valley railway's little brick station: two storeys, a canopy over the platform, the town's name, a clock.
-static func station(b: Dictionary) -> Node3D:
-	var g := Node3D.new()
-	var brick := P.plaster(b.wall)
-	_ground_floor(g, b, brick)
-	var up := _upper(g, b, brick)
-	_plinth_and_tide(g, b, 0.4)
-	_roof(g, b, Interiors.WALL_H + UPPER, brick)
-	var glasses := _windows(g, b, 2, [], up)
-	Props._door(g, b, "3f5a3a")
-	_sign(up, b, b.door, Interiors.WALL_H + 0.3, "BOCCAPIOPPO", "#efe6d6", "#2f3a34", 3.2)
-	_sign(g, b, "E", 2.2, "BOCCAPIOPPO", "#efe6d6", "#2f3a34", 2.4)
-	# the platform canopy, on thin iron columns, over the track side
+static func _station_extras(g: Node3D, b: Dictionary) -> void:
+	_sign(g, b, b.door, 2.98, "BOCCAPIOPPO", "efe6d6", "2f3a34", 3.2)
+	_sign(g, b, "E", 2.2, "BOCCAPIOPPO", "efe6d6", "2f3a34", 2.4)
 	var iron := P.mat("2f3a34")
 	_add(g, P.box(2.4, 0.1, b.d + 0.6), P.wood("8f8a7e"), Vector3(b.w / 2.0 + 1.2, 2.75, 0), Vector3(0, 0, -0.12))
 	for zl in [-1.6, 1.6]: _add(g, P.cyl(0.06, 0.06, 2.0, 8), iron, Vector3(b.w / 2.0 + 1.8, 1.7, zl))
@@ -318,22 +138,153 @@ static func station(b: Dictionary) -> Node3D:
 		_add(clock, P.cyl(0.24, 0.24, 0.06, 16), P.mat("f4f1ea"), Vector3(s * 0.04, 0, 0), Vector3(0, 0, PI / 2))
 		_add(clock, P.box(0.02, 0.16, 0.02), iron, Vector3(s * 0.08, 0.06, 0))
 	_add(clock, P.box(0.04, 0.3, 0.04), iron, Vector3(0, 0.25, 0))
+
+static func _footing(parts: HouseKit.Parts, w: float, d: float, sides: Array, rng: RandomNumberGenerator, top: float = HouseKit.FOOTING, skip: Dictionary = {}) -> void:
+	var mat := HouseKit.tinted(P.stone(HouseKit.FOOTING_STONE))
+	for s in sides:
+		var length: float = w if s in ["N", "S"] else d
+		var gap: Vector2 = skip.get(s, Vector2(1e9, -1e9))
+		parts.stones(length, top, Landmarks.facade(w, d, s), mat, rng, gap.x, gap.y)
+
+## The arcade: a two-storey orange house whose upper floor reaches out over a covered walk on the piazza side.
+static func arcade(b: Dictionary) -> Node3D:
+	var g := Node3D.new()
+	var rng := Landmarks.seeded(b)
+	var wall := P.plaster(b.wall)
+	var depth := 1.7
+	var wh := Interiors.WALL_H
+	var top := wh + UPPER
+	var uw: float = b.w + depth
+	_add(g, P.box(b.w, wh, b.d), wall, Vector3(0, wh / 2.0, 0))
+	var up := Node3D.new(); up.name = "upper"; up.position.x = depth / 2.0; g.add_child(up)
+	_add(up, P.box(uw, UPPER, b.d), wall, Vector3(0, wh + UPPER / 2.0, 0))
+	_add(up, P.box(uw + 0.12, 0.14, b.d + 0.12), P.plaster("eee2c8"), Vector3(0, wh + 0.02, 0))
+	_add(up, P.box(uw + 0.08, 0.2, b.d + 0.1), P.plaster("eee2c8"), Vector3(0, top - 0.1, 0))
+	Landmarks.kit_roof(up, b.d, uw, top, true, Color(b.roof), wall, rng)
+	var low := HouseKit.Parts.new(g)
+	low.glass_mat = Landmarks.glass_material()
+	var high := HouseKit.Parts.new(up)
+	high.glass_mat = low.glass_mat
+	_footing(low, b.w, b.d, ["N", "S", "E", "W"], rng)
+	for s in ["N", "S", "W"]:
+		var long: float = b.w if s in ["N", "S"] else b.d
+		for u in ([-long * 0.27, long * 0.27] if long > 4.6 else [0.0]):
+			low.window(Landmarks.facade(b.w, b.d, s) * Transform3D(Basis.IDENTITY, Vector3(u, 0.85, 0.0)), 1.0, 1.3, SHUTTER, Landmarks.shutter_state(rng))
+	for u in [-2.6, 2.6]:
+		low.window(Landmarks.facade(b.w, b.d, "E") * Transform3D(Basis.IDENTITY, Vector3(u, 0.55, 0.0)), 1.6, 1.6)
+	for s in ["E", "W"]:
+		for u in [-2.8, 0.0, 2.8]:
+			high.window(Landmarks.facade(uw, b.d, s) * Transform3D(Basis.IDENTITY, Vector3(u, wh + 0.42, 0.0)), 1.0, 1.25, SHUTTER, Landmarks.shutter_state(rng))
+	for s in ["N", "S"]:
+		high.window(Landmarks.facade(uw, b.d, s) * Transform3D(Basis.IDENTITY, Vector3(0.0, wh + 0.42, 0.0)), 1.0, 1.25, SHUTTER, Landmarks.shutter_state(rng))
+	low.flush()
+	high.flush()
+	_tide_band(g, b, 1.0)
+	var stone := P.stone("e3d6bd")
+	for zl in [-4.3, -1.4, 1.4, 4.3]:
+		_add(g, P.cyl(0.2, 0.22, wh, 12), stone, Vector3(b.w / 2.0 + depth - 0.1, wh / 2.0, zl))
+		_add(g, P.box(0.5, 0.18, 0.5), stone, Vector3(b.w / 2.0 + depth - 0.1, wh - 0.05, zl))
+		_add(g, P.box(0.5, 0.16, 0.5), stone, Vector3(b.w / 2.0 + depth - 0.1, 0.08, zl))
+	_add(g, P.box(0.34, 0.3, b.d + 0.2), stone, Vector3(b.w / 2.0 + depth - 0.1, wh + 0.1, 0))
+	for zl in [-2.85, 0.0, 2.85]:
+		for s in [-1, 1]: _add(g, P.box(0.2, 0.35, 0.5), stone, Vector3(b.w / 2.0 + depth - 0.1, wh - 0.2, zl + s * 1.1), Vector3(s * 0.5, 0, 0))
+	_add(g, P.box(depth, 0.1, b.d), P.wood("c49a6c"), Vector3(b.w / 2.0 + depth / 2.0, wh - 0.05, 0))
+	var aw := Node3D.new(); aw.position = Vector3(b.w / 2.0 + 0.3, 2.05, 2.6); aw.rotation.y = PI / 2; g.add_child(aw)
+	for i in 6: _add(aw, P.box(0.3, 0.04, 0.6), P.fabric("c0392b" if i % 2 == 0 else "f4f1ea"), Vector3(-0.75 + i * 0.3, 0, 0), Vector3(-0.35, 0, 0))
+	g.set_meta("glasses", low.glasses + high.glasses)
+	return g
+
+## The red-brick church, its gable front to the street, with a square bell tower and a clock.
+static func church(b: Dictionary) -> Node3D:
+	var g := Node3D.new()
+	var rng := Landmarks.seeded(b)
+	var brick := P.plaster(b.wall)
+	var stone := P.stone(STONE)
+	var h := 4.8
+	_add(g, P.box(b.w, h, b.d), brick, Vector3(0, h / 2.0, 0))
+	var roof := Landmarks.kit_roof(g, b.w, b.d, h, false, Color(b.roof), brick, rng, 0.35)
+	var rise: float = roof.get_meta("rise")
+	var parts := HouseKit.Parts.new(g)
+	parts.glass_mat = Landmarks.glass_material()
+	var door_u := -0.45
+	_footing(parts, b.w, b.d, ["N", "S", "E", "W"], rng, HouseKit.FOOTING, {"E": Vector2(door_u - 1.2, door_u + 1.2)})
+	Landmarks.corner_quoins(parts, b.w, b.d, h, STONE, rng)
+	var fx := Landmarks.facade(b.w, b.d, "E")
+	parts.door(fx * Transform3D(Basis.from_scale(Vector3.ONE * 1.15), Vector3(door_u, 0.0, 0.0)), "5a3a24")
+	for s in ["N", "S"]:
+		for xl in [-3.0, -0.6, 1.8]:
+			parts.window(Landmarks.facade(b.w, b.d, s) * Transform3D(Basis.IDENTITY, Vector3(xl if s == "S" else -xl, 1.7, 0.0)), 0.7, 1.9)
+	parts.flush()
+	var face := Node3D.new(); face.transform = fx; g.add_child(face)
+	var steps := P.stone("d8d0c2")
+	_add(face, P.rbox(2.7, 0.16, 1.1, 0.05), steps, Vector3(door_u, 0.08, 0.7))
+	_add(face, P.rbox(2.2, 0.16, 0.7, 0.05), steps, Vector3(door_u, 0.24, 0.45))
+	_add(face, P.torus(0.6, 0.1, 24), stone, Vector3(door_u, 3.75, 0.05), Vector3(PI / 2, 0, 0))
+	var rose := _add(face, P.cyl(0.55, 0.55, 0.03, 24), P.unique_mat("6a8fbf", "ffcf6b", 0.0), Vector3(door_u, 3.75, 0.03), Vector3(PI / 2, 0, 0), Vector3.ONE, false)
+	rose.name = "glass"
+	var rake := sqrt(pow(b.d / 2.0 + 0.35, 2.0) + rise * rise)
+	var ang := atan2(rise, b.d / 2.0 + 0.35)
+	for s in [-1.0, 1.0]: _add(face, P.box(rake, 0.16, 0.18), stone, Vector3(s * (b.d / 4.0 + 0.17), h + rise / 2.0 + 0.04, 0.06), Vector3(0, 0, -s * ang))
+	_add(face, P.box(b.d + 0.3, 0.2, 0.16), stone, Vector3(0, h + 0.02, 0.06))
+	_add(face, P.box(0.08, 0.6, 0.08), P.mat("2f3a34"), Vector3(0, h + rise + 0.45, 0.0))
+	_add(face, P.box(0.36, 0.08, 0.08), P.mat("2f3a34"), Vector3(0, h + rise + 0.55, 0.0))
+	var glasses: Array = [rose]
+	glasses.append_array(parts.glasses)
+	_tide_band(g, b, 0.95)
+	var dark := P.mat("3a2a24")
+	var t := Node3D.new(); t.position = Vector3(b.w / 2.0 - 1.2, 0, -b.d / 2.0 + 1.2); g.add_child(t)
+	var th := 9.6
+	_add(t, P.box(2.4, th, 2.4), brick, Vector3(0, th / 2.0, 0))
+	var tparts := HouseKit.Parts.new(t)
+	Landmarks.corner_quoins(tparts, 2.4, 2.4, th - 2.3, STONE, rng)
+	_footing(tparts, 2.4, 2.4, ["N", "E", "W"], rng)
+	tparts.flush()
+	for y in [3.4, th - 2.3]: _add(t, P.box(2.56, 0.16, 2.56), stone, Vector3(0, y, 0))
+	for k in 4:
+		var side := Node3D.new(); side.rotation.y = k * PI / 2.0; t.add_child(side)
+		_add(side, P.box(0.9, 1.4, 0.1), dark, Vector3(0, th - 1.4, 1.2))
+		_add(side, P.cyl(0.45, 0.45, 0.1, 12), dark, Vector3(0, th - 0.7, 1.2), Vector3(PI / 2, 0, 0))
+		_add(side, P.box(1.1, 0.12, 0.16), stone, Vector3(0, th - 2.1, 1.24))
+		for s in [-1, 1]: _add(side, P.box(0.14, 2.1, 0.14), stone, Vector3(s * 0.55, th - 1.05, 1.22))
+	_add(t, P.cyl(0.38, 0.5, 0.6, 12), P.mat("b08d3c"), Vector3(0, th - 1.5, 0))
+	_add(t, P.box(2.8, 0.25, 2.8), stone, Vector3(0, th + 0.1, 0))
+	var cap := P.mi(P.cone(2.0, 2.2, 4), HouseKit.tile_material(Color(b.roof)), Vector3(0, th + 1.3, 0))
+	cap.rotation.y = PI / 4
+	t.add_child(cap)
+	_add(t, P.sphere(0.12, 10, 8), P.mat(P.GOLD), Vector3(0, th + 2.45, 0))
+	var clock := Node3D.new(); clock.position = Vector3(1.22, th - 3.2, 0); clock.rotation.y = PI / 2; t.add_child(clock)
+	_add(clock, P.cyl(0.62, 0.62, 0.06, 24), P.mat("f4f1ea"), Vector3.ZERO, Vector3(PI / 2, 0, 0))
+	_add(clock, P.torus(0.62, 0.05, 24), P.mat("2f3a34"), Vector3(0, 0, 0.02), Vector3(PI / 2, 0, 0))
+	_add(clock, P.box(0.05, 0.42, 0.02), P.mat("2f3a34"), Vector3(0, 0.17, 0.05))
+	_add(clock, P.box(0.32, 0.05, 0.02), P.mat("2f3a34"), Vector3(0.13, 0, 0.05))
 	g.set_meta("glasses", glasses)
 	return g
 
 ## A farm courtyard: brick wings round a yard open to the east, a hayloft with a brick lattice, an arched portico.
 static func farm(b: Dictionary) -> Node3D:
 	var g := Node3D.new()
+	var rng := Landmarks.seeded(b)
 	var brick := P.plaster(b.wall)
 	var dark := P.mat("3a2a24")
 	var wing := 3.0
 	var h := 3.4
-	var parts := [[0.0, -b.d / 2.0 + wing / 2.0, b.w, wing], [-b.w / 2.0 + wing / 2.0, 0.0, wing, b.d - wing * 2.0], [0.0, b.d / 2.0 - wing / 2.0, b.w, wing]]
-	for p in parts:
+	var glasses: Array = []
+	var wings := [[0.0, -b.d / 2.0 + wing / 2.0, b.w, wing, "N"], [-b.w / 2.0 + wing / 2.0, 0.0, wing, b.d - wing * 2.0, "W"], [0.0, b.d / 2.0 - wing / 2.0, b.w, wing, "S"]]
+	for p in wings:
 		var n := Node3D.new(); n.position = Vector3(p[0], 0, p[1]); g.add_child(n)
-		_add(n, P.rbox(p[2], h, p[3], 0.04), brick, Vector3(0, h / 2.0, 0))
-		Props._gable_roof(n, p[2], p[3], h, brick, Props.roof_material(b.roof), Color(b.roof).darkened(0.25))
-	# the hayloft lattice on the north wing, facing the yard; the portico's arches on the south wing
+		var pw: float = p[2]
+		var pd: float = p[3]
+		_add(n, P.box(pw, h, pd), brick, Vector3(0, h / 2.0, 0))
+		Landmarks.kit_roof(n, maxf(pw, pd), minf(pw, pd), h, pd > pw, Color(b.roof), brick, rng)
+		var parts := HouseKit.Parts.new(n)
+		parts.glass_mat = Landmarks.glass_material()
+		_footing(parts, pw, pd, ["N", "S", "E", "W"], rng, 0.6)
+		var out: String = p[4]
+		var long: float = pw if out in ["N", "S"] else pd
+		for u in ([-long * 0.3, 0.0, long * 0.3] if long > 6.0 else [0.0]):
+			parts.window(Landmarks.facade(pw, pd, out) * Transform3D(Basis.IDENTITY, Vector3(u, 0.9, 0.0)), 0.9, 1.2, SHUTTER, Landmarks.shutter_state(rng))
+		parts.flush()
+		glasses.append_array(parts.glasses)
 	for i in 8:
 		for j in 3:
 			_add(g, P.box(0.22, 0.16, 0.05), dark, Vector3(-4.6 + i * 1.25 + (j % 2) * 0.3, 2.2 + j * 0.38, -b.d / 2.0 + wing + 0.03))
@@ -341,11 +292,13 @@ static func farm(b: Dictionary) -> Node3D:
 		var x := -3.0 + i * 2.2
 		_add(g, P.box(1.4, 1.7, 0.05), dark, Vector3(x, 0.85, b.d / 2.0 - wing - 0.03))
 		_add(g, P.cyl(0.7, 0.7, 0.05, 14), dark, Vector3(x, 1.7, b.d / 2.0 - wing - 0.03), Vector3(PI / 2, 0, 0))
-	# the yard's gate between brick pillars, closed, and straw in the yard
-	for zs in [-1.6, 1.6]: _add(g, P.box(0.6, 2.2, 0.6), brick, Vector3(b.w / 2.0 - 0.3, 1.1, zs))
+	for zs in [-1.6, 1.6]:
+		_add(g, P.box(0.6, 2.2, 0.6), brick, Vector3(b.w / 2.0 - 0.3, 1.1, zs))
+		_add(g, P.box(0.72, 0.14, 0.72), P.stone(STONE), Vector3(b.w / 2.0 - 0.3, 2.27, zs))
 	for k in 6: _add(g, P.box(0.12, 1.5, 0.3), P.wood("8a6a50"), Vector3(b.w / 2.0 - 0.3, 0.8, -1.25 + k * 0.5))
 	_add(g, P.box(b.w - wing - 0.6, 0.04, b.d - wing * 2.0), P.mat("c9b06a"), Vector3(wing / 2.0, 0.03, 0), Vector3.ZERO, Vector3.ONE, false)
 	for p in [[1.0, -0.8], [3.4, 1.0]]: _add(g, P.cyl(0.6, 0.6, 1.0, 12), P.mat("d9c27a"), Vector3(p[0], 0.5, p[1]), Vector3(0, 0, PI / 2))
+	g.set_meta("glasses", glasses)
 	return g
 
 # ---- the floodplain ----------------------------------------------------------------------------------------------
@@ -504,13 +457,16 @@ static func pumphouse(b: Dictionary) -> Node3D:
 	var h := 2.6
 	_add(g, P.rbox(b.w, h, b.d, 0.04), brick, Vector3(0, h / 2.0, 0))
 	for zs in [-1, 1]: _add(g, P.box(b.w + 0.12, 0.2, 0.12), P.stone(STONE), Vector3(0, h - 0.1, zs * (b.d / 2.0 + 0.02)))
-	_add(g, P.box(b.w + 0.12, 0.3, b.d + 0.12), P.stone(STONE), Vector3(0, 0.15, 0))
+	var parts := HouseKit.Parts.new(g)
+	parts.glass_mat = Landmarks.glass_material()
+	_footing(parts, b.w, b.d, ["N", "S", "E", "W"], Landmarks.seeded(b), 0.6)
 	_tide_band(g, b, 1.1)
 	var roof := Props._gable_roof(g, b.w + 0.3, b.d + 0.3, h, brick, P.mat("8a8f8f"), Color("6f7474"))
 	roof.scale.y = 0.6
 	# the arched window and the door on the quay side, a sign above
-	for off in [-0.9, 0.9]:
-		var w := Props._window("2f3a34"); Props._on_side(w, b, "E", 1.5, off); g.add_child(w)
+	for off in [-0.9, 0.9]: parts.window(Landmarks.facade(b.w, b.d, "E") * Transform3D(Basis.IDENTITY, Vector3(-off, 0.85, 0.0)), 0.8, 1.0, "", "open", true)
+	parts.flush()
+	g.set_meta("glasses", parts.glasses)
 	_sign(g, b, "E", h - 0.45, "PUMPING HOUSE 1934", "#6f7474", "#f4f1ea", 2.4)
 	# the outfall pipe: out of the levee beside the house, across the quay and over its edge into the river
 	var pipe := P.mat("4f5a5a")
@@ -526,19 +482,4 @@ static func pumphouse(b: Dictionary) -> Node3D:
 	_add(fly, P.torus(0.42, 0.06, 20), P.mat("3a3a40"), Vector3.ZERO, Vector3.ZERO)
 	for k in 4: _add(fly, P.box(0.05, 0.05, 0.82), P.mat("3a3a40"), Vector3.ZERO, Vector3(0, k * PI / 4.0, 0))
 	_add(fly, P.cyl(0.08, 0.08, 0.2, 8), P.mat("c0392b"), Vector3.ZERO)
-	return g
-
-# ---- the east bank -----------------------------------------------------------------------------------------------
-
-## The sawmill's office: a small brick hut beside the open shed (the shed itself is scenery you can walk under).
-static func sawmill_office(b: Dictionary) -> Node3D:
-	var g := Node3D.new()
-	var brick := P.plaster(b.wall)
-	_ground_floor(g, b, brick)
-	_plinth_and_tide(g, b, 0.45)
-	_roof(g, b, Interiors.WALL_H, brick)
-	var glasses := _windows(g, b, 1)
-	Props._door(g, b, "6a4a30")
-	_sign(g, b, b.door, Interiors.WALL_H + 0.35, "GANDINI SAWMILL", "#6a4a30", "#fff3d6", 3.2)
-	g.set_meta("glasses", glasses)
 	return g

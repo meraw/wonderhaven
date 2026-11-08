@@ -36,6 +36,11 @@
  },
  "safeSpot": "busStop",
  "safeText": "Back at the bus stop on the levee.",
+ "houseStyle": {
+  "kit": true,
+  "cornice": "eee2c8",
+  "shutters": "3f5a3a"
+ },
  "decor": {
   "radius": 56,
   "trees": 0
@@ -88,6 +93,11 @@
    "d": 4,
    "wall": "#7a2e2a",
    "roof": "#b5653a",
+   "kit": true,
+   "floors": 2,
+   "quoins": "efe6d6",
+   "balcony": false,
+   "doorColor": "3a4a3f",
    "door": "N",
    "navDoor": "ermesDoor",
    "interior": {
@@ -151,6 +161,11 @@
    "d": 4.5,
    "wall": "#e8c77a",
    "roof": "#b5653a",
+   "kit": true,
+   "floors": 2,
+   "shopfront": true,
+   "sign": "Bar",
+   "awning": "3f5a3a",
    "door": "S",
    "navDoor": "barDoor",
    "interior": {
@@ -268,6 +283,11 @@
    "d": 5,
    "wall": "#e8c77a",
    "roof": "#b5653a",
+   "kit": true,
+   "floors": 1,
+   "shopfront": true,
+   "sign": "Rampoldi Cycles",
+   "shopFrame": "2f5a3e",
    "door": "S",
    "navDoor": "workshopDoor",
    "interior": {
@@ -335,6 +355,8 @@
    "d": 5,
    "wall": "#d9935a",
    "roof": "#b5653a",
+   "kit": true,
+   "floors": 2,
    "door": "N",
    "navDoor": "pierinaDoor",
    "interior": {
@@ -405,6 +427,8 @@
    "d": 5,
    "wall": "#e8c77a",
    "roof": "#b5653a",
+   "kit": true,
+   "floors": 2,
    "door": "S",
    "navDoor": "house1Door",
    "interior": {
@@ -477,6 +501,8 @@
    "d": 6,
    "wall": "#d9935a",
    "roof": "#b5653a",
+   "kit": true,
+   "floors": 2,
    "door": "S",
    "navDoor": "house2Door",
    "interior": {
@@ -546,6 +572,8 @@
    "d": 5,
    "wall": "#e8c77a",
    "roof": "#b5653a",
+   "kit": true,
+   "floors": 2,
    "door": "S",
    "navDoor": "house3Door"
   },
@@ -559,6 +587,8 @@
    "d": 6,
    "wall": "#d9935a",
    "roof": "#b5653a",
+   "kit": true,
+   "floors": 2,
    "door": "S",
    "navDoor": "house4Door"
   },
@@ -572,6 +602,8 @@
    "d": 5,
    "wall": "#e8c77a",
    "roof": "#b5653a",
+   "kit": true,
+   "floors": 2,
    "door": "S",
    "navDoor": "house5Door"
   },
@@ -585,6 +617,8 @@
    "d": 5,
    "wall": "#d9935a",
    "roof": "#b5653a",
+   "kit": true,
+   "floors": 2,
    "door": "S",
    "navDoor": "house6Door"
   },
@@ -598,6 +632,8 @@
    "d": 5,
    "wall": "#e8c77a",
    "roof": "#b5653a",
+   "kit": true,
+   "floors": 2,
    "door": "W",
    "navDoor": "house7Door",
    "interior": {
@@ -662,8 +698,154 @@
    "d": 5,
    "wall": "#d9935a",
    "roof": "#b5653a",
+   "kit": true,
+   "floors": 2,
    "door": "E",
    "navDoor": "house8Door"
+  },
+  {
+   "id": "river_town_rowLevee1",
+   "kind": "house",
+   "name": "A house",
+   "x": -30,
+   "z": 14.2,
+   "w": 6,
+   "d": 4.4,
+   "wall": "#e8c77a",
+   "roof": "#b5653a",
+   "kit": true,
+   "floors": 2,
+   "party": [
+    "E"
+   ],
+   "door": "N"
+  },
+  {
+   "id": "river_town_rowLevee2",
+   "kind": "house",
+   "name": "A house",
+   "x": -24,
+   "z": 14.2,
+   "w": 6,
+   "d": 4.4,
+   "wall": "#d9935a",
+   "roof": "#ad5f38",
+   "kit": true,
+   "floors": 3,
+   "party": [
+    "W"
+   ],
+   "door": "N"
+  },
+  {
+   "id": "river_town_levee3",
+   "kind": "house",
+   "name": "A house",
+   "x": -36.5,
+   "z": 14.2,
+   "w": 5,
+   "d": 4.4,
+   "wall": "#efd9a8",
+   "roof": "#bb6b3e",
+   "kit": true,
+   "floors": 2,
+   "door": "N"
+  },
+  {
+   "id": "river_town_rowWest1",
+   "kind": "house",
+   "name": "A house",
+   "x": -40,
+   "z": -6,
+   "w": 5,
+   "d": 5,
+   "wall": "#d8a46a",
+   "roof": "#b5653a",
+   "kit": true,
+   "floors": 2,
+   "party": [
+    "E"
+   ],
+   "door": "N"
+  },
+  {
+   "id": "river_town_rowWest2",
+   "kind": "house",
+   "name": "A house",
+   "x": -35,
+   "z": -6,
+   "w": 5,
+   "d": 5,
+   "wall": "#e8c77a",
+   "roof": "#ad5f38",
+   "kit": true,
+   "floors": 3,
+   "party": [
+    "W"
+   ],
+   "door": "N"
+  },
+  {
+   "id": "river_town_west3",
+   "kind": "house",
+   "name": "A house",
+   "x": -25,
+   "z": -6,
+   "w": 6,
+   "d": 5,
+   "wall": "#c97f55",
+   "roof": "#b5653a",
+   "kit": true,
+   "floors": 2,
+   "door": "N"
+  },
+  {
+   "id": "river_town_rowBack1",
+   "kind": "house",
+   "name": "A house",
+   "x": -32,
+   "z": -22.3,
+   "w": 6,
+   "d": 4.0,
+   "wall": "#e6b98a",
+   "roof": "#bb6b3e",
+   "kit": true,
+   "floors": 2,
+   "party": [
+    "E"
+   ],
+   "door": "N"
+  },
+  {
+   "id": "river_town_rowBack2",
+   "kind": "house",
+   "name": "A house",
+   "x": -26,
+   "z": -22.3,
+   "w": 6,
+   "d": 4.0,
+   "wall": "#e8c77a",
+   "roof": "#b5653a",
+   "kit": true,
+   "floors": 2,
+   "party": [
+    "W"
+   ],
+   "door": "N"
+  },
+  {
+   "id": "river_town_back3",
+   "kind": "house",
+   "name": "A house",
+   "x": -13,
+   "z": -23.5,
+   "w": 5,
+   "d": 4.5,
+   "wall": "#d9935a",
+   "roof": "#ad5f38",
+   "kit": true,
+   "floors": 2,
+   "door": "N"
   },
   {
    "id": "river_town_station",
@@ -675,6 +857,11 @@
    "d": 5,
    "wall": "#a5523a",
    "roof": "#b5653a",
+   "kit": true,
+   "floors": 2,
+   "quoins": "efe6d6",
+   "balcony": false,
+   "doorColor": "3f5a3a",
    "door": "S",
    "navDoor": "stationDoor"
   },
@@ -845,6 +1032,9 @@
    "d": 4,
    "wall": "#a5523a",
    "roof": "#6a5a4a",
+   "kit": true,
+   "floors": 1,
+   "doorColor": "6a4a30",
    "door": "W",
    "navDoor": "sawmillDoor"
   },

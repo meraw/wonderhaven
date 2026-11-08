@@ -6,30 +6,30 @@ const STONE := "d9cdb4"
 const TRIM := "efe4cc"
 const HALL_LIGHT := Color("ffc98a")
 
-static func _rng(b: Dictionary) -> RandomNumberGenerator:
+static func seeded(b: Dictionary) -> RandomNumberGenerator:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = hash("%s|%s|%s" % [b.get("id", ""), b.x, b.z])
 	return rng
 
-static func _side(w: float, d: float, side: String) -> Transform3D:
+static func facade(w: float, d: float, side: String) -> Transform3D:
 	match side:
 		"N": return Transform3D(Basis(Vector3.UP, PI), Vector3(0, 0, -d / 2.0))
 		"E": return Transform3D(Basis(Vector3.UP, PI / 2.0), Vector3(w / 2.0, 0, 0))
 		"W": return Transform3D(Basis(Vector3.UP, -PI / 2.0), Vector3(-w / 2.0, 0, 0))
 	return Transform3D(Basis.IDENTITY, Vector3(0, 0, d / 2.0))
 
-static func _glass() -> StandardMaterial3D:
+static func glass_material() -> StandardMaterial3D:
 	var m := P.unique_mat(HouseKit.GLASS, "ffcf6b", 0.0)
 	if P.real:
 		m.roughness = 0.12
 		m.metallic_specular = 0.6
 	return m
 
-static func _state(rng: RandomNumberGenerator) -> String:
+static func shutter_state(rng: RandomNumberGenerator) -> String:
 	var r := rng.randf()
 	return "open" if r < 0.6 else ("shut" if r < 0.75 else ("ajar" if r < 0.9 else "half"))
 
-static func _quoins(parts: HouseKit.Parts, w: float, d: float, top: float, col: String, rng: RandomNumberGenerator) -> void:
+static func corner_quoins(parts: HouseKit.Parts, w: float, d: float, top: float, col: String, rng: RandomNumberGenerator) -> void:
 	var mat := HouseKit.tinted(P.stone(Color(col)))
 	var y := 0.78
 	var k := 0
@@ -42,7 +42,7 @@ static func _quoins(parts: HouseKit.Parts, w: float, d: float, top: float, col: 
 		y += 0.37
 		k += 1
 
-static func _roof(parent: Node3D, length: float, span: float, h: float, along_z: bool, color: Color, wall: Material, rng: RandomNumberGenerator, overhang: float = HouseKit.SIDE_OVERHANG) -> Node3D:
+static func kit_roof(parent: Node3D, length: float, span: float, h: float, along_z: bool, color: Color, wall: Material, rng: RandomNumberGenerator, overhang: float = HouseKit.SIDE_OVERHANG) -> Node3D:
 	var node := Node3D.new()
 	node.name = "roof"
 	if along_z: node.rotation.y = PI / 2.0
@@ -63,7 +63,7 @@ static func workshop(b: Dictionary) -> Node3D:
 	var t := 0.35
 	var hw: float = b.w / 2.0
 	var hd: float = b.d / 2.0
-	var rng := _rng(b)
+	var rng := seeded(b)
 	var wall_mat := P.plaster(b.wall)
 	var g0: float = b.doorAt - b.z - b.doorWidth / 2.0
 	var g1: float = b.doorAt - b.z + b.doorWidth / 2.0
@@ -86,7 +86,7 @@ static func workshop(b: Dictionary) -> Node3D:
 		Props._add(g, P.box(0.03, 0.065, b.d - 0.3), P.wood("c49a6c"), Vector3(x, 0.035, 0), Vector3.ZERO, Vector3.ONE, false)
 		x += 0.9
 	var along_z: bool = b.d > b.w
-	var roof := _roof(g, maxf(b.w, b.d), minf(b.w, b.d), h, along_z, Color(b.roof), wall_mat, rng)
+	var roof := kit_roof(g, maxf(b.w, b.d), minf(b.w, b.d), h, along_z, Color(b.roof), wall_mat, rng)
 	g.set_meta("fade_parts", Props.fade_parts([roof]))
 	var trim := P.plaster(TRIM)
 	for zs in [-1, 1]: Props._add(g, P.box(b.w + 0.06, 0.16, t + 0.06), trim, Vector3(0, h - 0.08, zs * (hd - t / 2.0)))
@@ -95,17 +95,17 @@ static func workshop(b: Dictionary) -> Node3D:
 	var gear := Props._add(g, P.torus(0.22, 0.07, 10), P.mat(P.GOLD), Vector3(hw + 0.17, 2.25, b.doorAt - b.z - 1.6), Vector3(0, 0, PI / 2))
 	gear.name = "signGear"
 	var parts := HouseKit.Parts.new(g)
-	parts.glass_mat = _glass()
+	parts.glass_mat = glass_material()
 	var hs: Dictionary = Data.layout.get("houseStyle", {})
 	var shutter := String(hs.get("shutters", HouseKit.SHUTTER_KEY)).trim_prefix("#")
 	for side in ["S", "N"]:
-		for u in [-1.8, 1.8]: parts.window(_side(b.w, b.d, side) * Transform3D(Basis.IDENTITY, Vector3(u, 0.85, 0.0)), 1.0, 1.3, shutter, _state(rng))
+		for u in [-1.8, 1.8]: parts.window(facade(b.w, b.d, side) * Transform3D(Basis.IDENTITY, Vector3(u, 0.85, 0.0)), 1.0, 1.3, shutter, shutter_state(rng))
 	var footing := HouseKit.tinted(P.stone(HouseKit.FOOTING_STONE))
-	parts.stones(b.w, HouseKit.FOOTING, _side(b.w, b.d, "S"), footing, rng)
-	parts.stones(b.w, HouseKit.FOOTING, _side(b.w, b.d, "N"), footing, rng)
-	parts.stones(b.d, HouseKit.FOOTING, _side(b.w, b.d, "W"), footing, rng)
-	parts.stones(b.d, HouseKit.FOOTING, _side(b.w, b.d, "E"), footing, rng, -g1 - 0.2, -g0 + 0.2)
-	if hs.has("quoins"): _quoins(parts, b.w, b.d, h, String(hs.quoins), rng)
+	parts.stones(b.w, HouseKit.FOOTING, facade(b.w, b.d, "S"), footing, rng)
+	parts.stones(b.w, HouseKit.FOOTING, facade(b.w, b.d, "N"), footing, rng)
+	parts.stones(b.d, HouseKit.FOOTING, facade(b.w, b.d, "W"), footing, rng)
+	parts.stones(b.d, HouseKit.FOOTING, facade(b.w, b.d, "E"), footing, rng, -g1 - 0.2, -g0 + 0.2)
+	if hs.has("quoins"): corner_quoins(parts, b.w, b.d, h, String(hs.quoins), rng)
 	parts.flush()
 	g.set_meta("glasses", parts.glasses)
 	var clutter := Node3D.new()
@@ -117,7 +117,7 @@ static func workshop(b: Dictionary) -> Node3D:
 
 static func church(b: Dictionary) -> Node3D:
 	var g := Node3D.new()
-	var rng := _rng(b)
+	var rng := seeded(b)
 	var tower_w := 2.4
 	var nave_w: float = b.w - tower_w
 	var h := 4.6
@@ -130,18 +130,18 @@ static func church(b: Dictionary) -> Node3D:
 	var front: String = "N" if b.door == "N" else "S"
 	var back: String = "S" if front == "N" else "N"
 	var sgn := -1.0 if front == "N" else 1.0
-	var roof := _roof(nave, b.d, nave_w, h, true, roof_col, wall, rng, 0.35)
+	var roof := kit_roof(nave, b.d, nave_w, h, true, roof_col, wall, rng, 0.35)
 	var rise: float = roof.get_meta("rise")
 	var parts := HouseKit.Parts.new(nave)
-	var glass := _glass()
+	var glass := glass_material()
 	parts.glass_mat = glass
 	var footing := HouseKit.tinted(P.stone(HouseKit.FOOTING_STONE))
-	parts.stones(nave_w, HouseKit.FOOTING, _side(nave_w, b.d, front), footing, rng, -1.0, 1.0)
-	parts.stones(nave_w, HouseKit.FOOTING, _side(nave_w, b.d, back), footing, rng)
-	parts.stones(b.d, HouseKit.FOOTING, _side(nave_w, b.d, "W"), footing, rng)
-	parts.stones(b.d, HouseKit.FOOTING, _side(nave_w, b.d, "E"), footing, rng)
-	_quoins(parts, nave_w, b.d, h, STONE, rng)
-	var fx := _side(nave_w, b.d, front)
+	parts.stones(nave_w, HouseKit.FOOTING, facade(nave_w, b.d, front), footing, rng, -1.0, 1.0)
+	parts.stones(nave_w, HouseKit.FOOTING, facade(nave_w, b.d, back), footing, rng)
+	parts.stones(b.d, HouseKit.FOOTING, facade(nave_w, b.d, "W"), footing, rng)
+	parts.stones(b.d, HouseKit.FOOTING, facade(nave_w, b.d, "E"), footing, rng)
+	corner_quoins(parts, nave_w, b.d, h, STONE, rng)
+	var fx := facade(nave_w, b.d, front)
 	parts.put(HouseKit.part_mesh("door_arched", {"6e4428": "6b3a22"}), fx * Transform3D(Basis.from_scale(Vector3.ONE * 1.2), Vector3.ZERO))
 	parts.put(HouseKit.part_mesh("door_arched", {}, true), fx * Transform3D(Basis.from_scale(Vector3.ONE * 1.2), Vector3.ZERO), false, glass, Color.WHITE, false)
 	var face := Node3D.new()
@@ -163,7 +163,7 @@ static func church(b: Dictionary) -> Node3D:
 		for zz in [-b.d * 0.22, b.d * 0.22]:
 			if side == "E" and zz * sgn < 0.0: continue
 			var u: float = zz if side == "W" else -zz
-			parts.window(_side(nave_w, b.d, side) * Transform3D(Basis.IDENTITY, Vector3(u, 1.7, 0.0)), 0.7, 1.9)
+			parts.window(facade(nave_w, b.d, side) * Transform3D(Basis.IDENTITY, Vector3(u, 1.7, 0.0)), 0.7, 1.9)
 	parts.flush()
 	var glasses: Array = [rose]
 	glasses.append_array(parts.glasses)
@@ -175,9 +175,9 @@ static func church(b: Dictionary) -> Node3D:
 	var th := 8.4
 	Props._add(tw, P.box(tower_w, th, tower_w), brick, Vector3(0, th / 2.0, 0))
 	var tparts := HouseKit.Parts.new(tw)
-	_quoins(tparts, tower_w, tower_w, th, STONE, rng)
-	tparts.stones(tower_w, HouseKit.FOOTING, _side(tower_w, tower_w, "E"), footing, rng)
-	tparts.stones(tower_w, HouseKit.FOOTING, _side(tower_w, tower_w, back), footing, rng)
+	corner_quoins(tparts, tower_w, tower_w, th, STONE, rng)
+	tparts.stones(tower_w, HouseKit.FOOTING, facade(tower_w, tower_w, "E"), footing, rng)
+	tparts.stones(tower_w, HouseKit.FOOTING, facade(tower_w, tower_w, back), footing, rng)
 	tparts.flush()
 	for y in [3.0, 6.0]: Props._add(tw, P.box(tower_w + 0.16, 0.16, tower_w + 0.16), P.stone(STONE), Vector3(0, y, 0))
 	var clock := Node3D.new()
@@ -192,7 +192,7 @@ static func church(b: Dictionary) -> Node3D:
 	var pier := P.stone(STONE)
 	for c in [[-1, -1], [1, -1], [-1, 1], [1, 1]]: Props._add(tw, P.box(0.4, 2.0, 0.4), pier, Vector3(c[0] * (tower_w / 2.0 - 0.2), th + 1.0, c[1] * (tower_w / 2.0 - 0.2)))
 	for s in ["N", "S", "E", "W"]:
-		var sx := _side(tower_w, tower_w, s)
+		var sx := facade(tower_w, tower_w, s)
 		var arch := Node3D.new()
 		arch.transform = sx
 		tw.add_child(arch)
@@ -208,7 +208,7 @@ static func church(b: Dictionary) -> Node3D:
 
 static func castle(b: Dictionary) -> Node3D:
 	var g := Node3D.new()
-	var rng := _rng(b)
+	var rng := seeded(b)
 	var light := P.stone("eadfcd")
 	var keep_mat := P.stone(b.wall)
 	for r in Interiors.walls(b):
@@ -252,19 +252,19 @@ static func castle(b: Dictionary) -> Node3D:
 	Props._add(g, P.box(0.02, 1.6, 0.9) if di.out.y == 0.0 else P.box(0.9, 1.6, 0.02), P.fabric("2f5f9e"), Vector3(gate_c.x, 3.4, gate_c.y))
 	Props._add(g, P.sphere(0.25, 4, 2), P.mat(P.GOLD), Vector3(gate_c.x * 1.01, 3.5, gate_c.y * 1.01))
 	var parts := HouseKit.Parts.new(g)
-	parts.glass_mat = _glass()
+	parts.glass_mat = glass_material()
 	var footing := HouseKit.tinted(P.stone(HouseKit.FOOTING_STONE))
 	var door_side := String(b.get("door", "S"))
 	for s in ["N", "S", "E", "W"]:
 		var length: float = b.w if s in ["N", "S"] else b.d
-		if s == door_side: parts.stones(length, 0.6, _side(b.w, b.d, s), footing, rng, -Interiors.DOOR_W / 2.0 - 0.2, Interiors.DOOR_W / 2.0 + 0.2)
-		else: parts.stones(length, 0.6, _side(b.w, b.d, s), footing, rng)
+		if s == door_side: parts.stones(length, 0.6, facade(b.w, b.d, s), footing, rng, -Interiors.DOOR_W / 2.0 - 0.2, Interiors.DOOR_W / 2.0 + 0.2)
+		else: parts.stones(length, 0.6, facade(b.w, b.d, s), footing, rng)
 	var kw: float = b.w - 2.0
 	var kd: float = b.d - 2.0
 	for s in ["N", "S", "E", "W"]:
 		if s == door_side: continue
 		var length: float = kw if s in ["N", "S"] else kd
-		for u in [-length / 4.0, length / 4.0]: parts.window(_side(kw, kd, s) * Transform3D(Basis.IDENTITY, Vector3(u, 2.95, 0.0)), 0.75, 0.95, "", "open", true)
+		for u in [-length / 4.0, length / 4.0]: parts.window(facade(kw, kd, s) * Transform3D(Basis.IDENTITY, Vector3(u, 2.95, 0.0)), 0.75, 0.95, "", "open", true)
 	var out := Vector3(di.out.x, 0.0, di.out.y)
 	var inner: float = (kw if di.out.y == 0.0 else kd) / 2.0 - 0.35
 	var along := Vector3(-out.z, 0.0, out.x)

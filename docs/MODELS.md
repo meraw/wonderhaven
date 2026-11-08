@@ -125,16 +125,28 @@ each, and most of that was the same windows, shutters and tiles repeated.
 
   Repeated parts are drawn as instances, so a house is 20 to 27 draw batches and 13,000 to 24,000 triangles.
 - **In the layout:** a place opts in with `"kit": true` in its `houseStyle`, which applies to its cottages, shops and
-  huts. A building can set:
+  huts. A building of any other kind joins in with `"kit": true` of its own (Boccapioppo's houses, bar and station,
+  Casalrana's houses); a location script that draws its own buildings gets it from `HouseKit.build` and adds what the
+  place needs on top. A building can set:
   - `floors`;
   - `balcony` (true or false);
   - `shutters` and `doorColor`;
   - `sign` and `shopFrame` (a shop, or a building with `shopfront`);
-  - `party`: sides shared with a neighbour, which get no windows, footing or overhang, for attached rows.
+  - `party`: sides shared with a neighbour, which get no windows, footing or overhang, for attached rows;
+  - `gallery`: a long wooden gallery along the upper floor on the door side, as on a Po-plain farmhouse, and
+    `galleryStair` (`"left"` or `"right"`, seen from the front) for a stair up to it at one end;
+  - `shut`: every shutter closed and no light at night, for an empty house;
+  - `chimney: false` for a house without one (it then gives no smoke).
+- **Kit parts for other buildings:** `HouseKit.Parts` lays windows, doors, chimneys, galleries, footings and coppi
+  roofs on any model, and `Landmarks` has the helpers the restyled landmarks share (`kit_roof`, `facade`,
+  `corner_quoins`, `glass_material`, `shutter_state`, `seeded`). Boccapioppo's church, arcade, farm and pumping house
+  and every Casalrana building with a roof use them.
 - **Monteforchetta's core** has sixteen kit houses: the six story buildings and ten without a room inside. The ten
   were placed with a clearance check against the layout's lanes, villagers' routes, resource spots, building sites,
   benches, signs and hangouts, and the slope; `tests/test_house_kit.gd` keeps them off lanes and resource spots and
   checks every shared wall has a neighbour.
+- **Boccapioppo and Casalrana** (08/11) have 23 and 10 kit houses, nine and six of them added without a room inside,
+  placed with the same check; the same test covers them.
 - **What the game needed** (see "Putting a Blender building in the game for real" above):
   - collision and walking still come from the footprint;
   - rooms you walk into keep `Interiors`' walls and doorway, and everything above them fades while you're inside

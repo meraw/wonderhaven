@@ -114,8 +114,40 @@ own cobble colours, and `views.sh` with `measure_views.py` for before-and-after 
 
      Before and after: `docs/models/conversion_step4_6.jpg`.
 5. **Other locations.** Boccapioppo, Toriano and Casalrana get the new materials through `Palette` automatically.
-   Their own buildings and shaders are their owners' to convert, the same way: `HouseKit` and `Landmarks` are there
-   for them (`"kit": true` in a layout's `houseStyle`).
+   Boccapioppo and Casalrana are now converted the way Monteforchetta was (08/11); Toriano is not yet.
+   - **Houses from the kit:** both places opt in with `"kit": true` in their `houseStyle`, and each house says
+     `"kit": true` in the layout, whatever its kind. The location's own script still draws it, so a kit house keeps
+     what the place adds on top:
+     - Boccapioppo: its nine houses, Rina's bar (a shopfront with its sign and green awning, the payphone, the
+       catfish photo), Primo's workshop (a one-storey shop with wheels hung either side), Ermes's oxblood house (pale
+       quoins, the keeper's plaque), the station (pale quoins, its canopy, platform, clock and name boards) and the
+       sawmill's office. Every one keeps the flood's tide line, now above the stone footing.
+     - Casalrana: Paletta's cottage, the presbytery, the farm office and Cascina Grande, which has a long wooden
+       gallery along its upper floor with a stair at its west end (`gallery`, `galleryStair`).
+   - **Landmarks restyled with kit parts,** their shapes, rooms, doors and named parts unchanged:
+     - Boccapioppo: the church (coppi roof, kit windows, an arched door, a rose window, stone copings, quoins and a
+       footing; the bell tower with quoins, stone piers in the belfry and a tiled spire that takes snow), the arcade
+       (coppi roof, kit windows with shutters on both floors, shop windows under the walk), the farm courtyard
+       (coppi on all three wings, kit windows facing out, footings) and the pumping house (a footing, barred kit
+       windows; its tin roof stays tin).
+     - Casalrana: every building with a roof gets coppi laid tile by tile (the station, church, mill, machine shed,
+       barn, cowshed and the farm workers' houses), and its windows, doors and chimneys come from the kit: shutters
+       in faded green, open arched doorways into the rooms you walk into, a stone footing in place of the painted
+       plinth. The bell tower's spire takes snow. The farm workers' houses stay shut up: every shutter closed, no
+       light at night, a plain door for each family, and their gallery and stair rebuilt from kit parts.
+     - Wood and tin stay as they were: Boccapioppo's houseboat, shack and dance hall, Casalrana's rice dryer.
+   - **A denser core:** nine more kit houses in Boccapioppo (two attached pairs along the lanes under the levee and
+     in the west of town, a pair and a single behind the north row of houses, and three on their own) and six in
+     Casalrana (a row of three framing the crossroads lane, an attached pair facing the lane south of the square, a
+     railway cottage by the crossing). They were placed with the same clearance check as Monteforchetta's: off
+     lanes, villagers' routes, resource spots, building sites, features, trees and the square, on level ground.
+     No gameplay data moved.
+   - **Characters:** every villager in both places has a build of their own, from their description: in
+     Boccapioppo a round old fisherman and his lanky nephew, a long-faced boatman, a wiry ex-racer, a stocky warden
+     and sawmill owner, a short and steady postwoman; in Casalrana a round station master and priest, a big farm
+     manager, a small 81-year-old nonna, a ten-year-old trainspotter and a tall railway inspector.
+   - Before and after: `docs/models/conversion_step5_a.jpg` (Boccapioppo), `conversion_step5_b.jpg` (Casalrana) and
+     `conversion_step5_c.jpg` (both casts).
 6. **Performance.** Done as far as it can be from here:
    - **a quality setting:** Settings has "Simpler graphics, for slower computers". It turns off screen-space
      reflections, contact shadows (SSAO) and multisample anti-aliasing, and gives the sun two shadow cascades out to
