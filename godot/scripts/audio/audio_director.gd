@@ -66,7 +66,8 @@ static func loop_steps(s: Dictionary) -> int:
 	var bl := int(s.get("bar", 16))
 	return maxi(int(s.get("length", 0)), int(ceil((last + 8) / float(bl))) * bl)
 const INSTRUMENTS := ["marimba", "glock", "pluck", "pad", "kick", "hat", "blip", "chirp", "hiss", "thud", "flute", "rhodes", "bell", "horn", "rasp", "whistle",
-	"guitar", "piano", "bass", "saw", "strings", "snare", "clap", "openhat", "accordion", "clarinet", "upright", "cluck", "bawk", "purr"]
+	"guitar", "piano", "bass", "saw", "strings", "snare", "clap", "openhat", "accordion", "clarinet", "upright", "cluck", "bawk", "purr",
+	"mandolin", "brass", "tuba"]
 ## Sounds of a place, for its location code (play(kind, note, volume)): "bell" a church bell with its hum and minor
 ## third, ringing long; "horn" a reedy horn (two at once make a train's two-tone horn); "rasp" a harsh, falling croak;
 ## "whistle" a note that slides up and back (a bird's call).
@@ -133,7 +134,7 @@ static func synth(kind: String, midi: int) -> AudioStreamWAV:
 	var f := freq(midi)
 	var length: float = {"marimba": 0.6, "glock": 1.2, "pluck": 0.45, "pad": 2.4, "kick": 0.25, "hat": 0.06, "blip": 0.09, "hiss": 1.6, "chirp": 0.07, "cluck": 0.13, "bawk": 0.34, "purr": 0.9, "thud": 0.3, "flute": 0.9, "rhodes": 1.4,
 		"bell": 3.6, "horn": 0.9, "rasp": 0.4, "whistle": 0.36, "guitar": 1.3, "piano": 1.6, "bass": 0.45, "saw": 0.42, "strings": 2.6, "snare": 0.22,
-		"clap": 0.2, "openhat": 0.3, "accordion": 0.8, "clarinet": 0.9, "upright": 0.7}.get(kind, 0.5)
+		"clap": 0.2, "openhat": 0.3, "accordion": 0.8, "clarinet": 0.9, "upright": 0.7, "mandolin": 0.9, "brass": 0.8, "tuba": 0.6}.get(kind, 0.5)
 	var n := int(RATE * length)
 	var data := PackedByteArray(); data.resize(n * 2)
 	var lp := 0.0
@@ -292,6 +293,25 @@ static func synth(kind: String, midi: int) -> AudioStreamWAV:
 				lp += ((rng.randf() * 2.0 - 1.0) - lp) * 0.1
 				v = ((sin(TAU * f * t) + 0.45 * sin(TAU * 2.0 * f * t) * exp(-t * 6.0) + 0.2 * sin(TAU * 3.0 * f * t) * exp(-t * 12.0)) * exp(-t * 3.2) * 0.75
 					+ lp * exp(-t * 60.0) * 0.3) * minf(1.0, t / 0.006) * minf(1.0, (length - t) / 0.08)
+			"mandolin":
+				var tick := fmod(t, 1.0 / 12.5)
+				var stroke := exp(-tick * 22.0) * (0.55 + 0.45 * exp(-t * 2.5))
+				var body := 0.0
+				for h in range(1, 7):
+					var fade := exp(-tick * h * 6.0)
+					body += (sin(TAU * f * h * t) + sin(TAU * f * 1.003 * h * t)) * fade / pow(h, 1.3)
+				v = body * stroke * minf(1.0, t / 0.002) * minf(1.0, (length - t) / 0.1) * 0.22
+			"brass":
+				var vbb := 1.0 + 0.004 * sin(TAU * 5.2 * t) * minf(1.0, t / 0.25)
+				phase += f * vbb / RATE
+				var sawb := fmod(phase, 1.0) * 2.0 - 1.0
+				var open := 0.06 + 0.22 * minf(1.0, t / 0.04) * (0.6 + 0.4 * exp(-t * 6.0))
+				lp += (sawb - lp) * open; prev += (lp - prev) * open
+				v = prev * minf(1.0, t / 0.025) * (0.8 + 0.2 * exp(-t * 4.0)) * minf(1.0, (length - t) / 0.12) * 0.8
+			"tuba":
+				lp += ((rng.randf() * 2.0 - 1.0) - lp) * 0.05
+				v = ((sin(TAU * f * t) + 0.5 * sin(TAU * 2.0 * f * t) + 0.22 * sin(TAU * 3.0 * f * t) + 0.08 * sin(TAU * 4.0 * f * t)) * 0.55
+					+ lp * exp(-t * 30.0) * 0.25) * minf(1.0, t / 0.035) * (0.75 + 0.25 * exp(-t * 5.0)) * minf(1.0, (length - t) / 0.1)
 		var s := int(clampf(v, -1.0, 1.0) * 32000.0)
 		data.encode_s16(i * 2, s)
 	var w := AudioStreamWAV.new(); w.format = AudioStreamWAV.FORMAT_16_BITS; w.mix_rate = play_rate; w.stereo = false; w.data = data
@@ -509,7 +529,7 @@ static func step_events(s: Dictionary, step: int, soft: float = 0.0) -> Array:
 			if beat == 4 or beat == 12: out.append(["snare", 60, 0.16, 0.0])
 			if beat % 2 == 0: out.append(["hat", 60, 0.05, 0.0])
 	var ms := step % loop
-	var lv: float = {"glock": 0.25, "flute": 0.3, "rhodes": 0.32, "piano": 0.34, "saw": 0.2, "guitar": 0.3}.get(s.lead, 0.4) * float(s.get("lead_vol", 1.0))
+	var lv: float = {"glock": 0.25, "flute": 0.3, "rhodes": 0.32, "piano": 0.34, "saw": 0.2, "guitar": 0.3, "mandolin": 0.32, "brass": 0.3}.get(s.lead, 0.4) * float(s.get("lead_vol", 1.0))
 	for m in s.melody:
 		if int(m[0]) == ms: out.append([s.lead, R + int(m[1]), lv * lerpf(1.0, 0.75, soft), 0.0])
 	return out

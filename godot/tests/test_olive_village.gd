@@ -1,6 +1,10 @@
 extends RefCounted
 var t
 const OV := preload("../scripts/locations/olive_village.gd")
+const AudioDirector := preload("../scripts/audio/audio_director.gd")
+const Sounds := preload("../scripts/locations/olive_village/sounds.gd")
+const Ferry := preload("../scripts/locations/olive_village/ferry.gd")
+const Animals := preload("../scripts/locations/olive_village/animals.gd")
 const ID := "olive_village"
 const STEP := 0.5
 
@@ -425,4 +429,145 @@ func test_the_rebuilt_flight_carries_the_mule_track():
 		t.ok(not _walks(w, a, b), "before it's rebuilt you can't walk up the mule track")
 		w.surfaces = BuildGrid.surfaces_for(built)
 		t.ok(_walks(w, a, b) and _walks(w, b, a), "once it is, the straight way between the spots either side runs over it, both ways"))
+
+
+func test_the_music():
+	var m: Dictionary = Data.island_def(ID).get("music", {})
+	var songs: Dictionary = m.get("songs", {})
+	for part in ["dawn", "morning", "afternoon", "evening", "night"]:
+		t.ok(songs.has(String(m.parts.get(part, ""))), "Liolivato has its own tune for the %s" % part)
+	var heard := {}
+	for id in songs:
+		var s: Dictionary = songs[id]
+		var used: Array = [s.lead, s.get("pad_inst", "pad"), s.get("bass_inst", "pluck")]
+		if String(s.arp) != "": used.append(s.arp)
+		for c in s.get("comp", []): used.append(c.get("inst", "guitar"))
+		for k in used:
+			t.ok(k in AudioDirector.INSTRUMENTS, "%s plays a real instrument (%s)" % [id, k])
+			heard[k] = true
+		t.ok(String(s.drums) in ["", "full", "light", "pop", "dance", "ballad"], "%s has a known drum pattern" % id)
+		var last := -1
+		var sorted := true
+		for n in s.melody:
+			sorted = sorted and int(n[0]) > last
+			last = int(n[0])
+		t.ok(sorted and last < AudioDirector.loop_steps(s), "%s's melody is in order and fits its loop" % id)
+		var loudest := 0.0
+		for st in AudioDirector.loop_steps(s):
+			var sum := 0.0
+			for e in AudioDirector.step_events(s, st): sum += float(e[2])
+			loudest = maxf(loudest, sum)
+		t.ok(loudest < 1.6, "%s never piles up too loud (%.2f)" % [id, loudest])
+	t.ok(heard.has("mandolin") and heard.has("guitar") and heard.has("accordion"), "acoustic guitar and mandolin, with a soft accordion")
+	var band: Dictionary = songs.get("olive_village_band", {})
+	t.ok(band.get("lead", "") == "brass" and band.get("bass_inst", "") == "tuba", "the festa's band: trumpets and a tuba")
+	t.eq(AudioDirector.song_for("evening", false, m, {}), "olive_village_evening", "an evening serenade before the festa")
+	t.eq(AudioDirector.song_for("evening", false, m, {"olive_village_festa_night": true}), "olive_village_band", "and the band in the evenings once it has come")
+	t.eq(AudioDirector.song_for("morning", false, m, {"olive_village_festa_night": true}), "olive_village_morning", "the mornings stay as they were")
+
+func test_the_cast_dresses_the_part():
+	_on(func():
+		var A: Dictionary = Data.appearance
+		var mine: Array = A.variants.keys().filter(func(k): return String(k).begins_with("olive_village_"))
+		t.eq(mine.size(), 7, "Liolivato has seven clothes of its own")
+		var given := {}
+		for n in _people():
+			for g in n.get("gifts", []):
+				for c in g.get("clothes", []): given[c] = true
+		for u in LocationMeter.def(ID).milestones:
+			for c in u.get("clothes", []): given[c] = true
+		var worn := {}
+		for n in _people():
+			var a: Dictionary = n.appearance
+			var kept := Chibi.sanitize(a)
+			for slot in ["top", "bottom", "shoes", "hat", "accessory"]:
+				t.eq(kept[slot], a[slot], "%s keeps their %s (%s)" % [n.id, slot, a[slot]])
+			worn[String(a.hat)] = true
+			var days: Array = [n.schedule]
+			for w in n.get("when", []): days.append(w.schedule)
+			for d in days:
+				for e in d:
+					if e.size() > 4:
+						t.ok(A.HATS.has(String(e[4])), "%s puts on a real hat for a job (%s)" % [n.id, e[4]])
+						worn[String(e[4])] = true
+		for k in mine:
+			t.ok(A.locked.has(k) and given.has(k), "%s is locked until a friend or the sign gives it" % k)
+			t.ok(worn.has(k) or k == "olive_village_geometraCap", "and someone here wears %s" % k)
+		var at := func(hour: float, flags: Dictionary) -> String: return String(Schedule.activity_at(Data.npc("olive_village_giobatta"), hour * 60.0, flags).hat)
+		var w := {"olive_village_tour": true, "olive_village_welcomed": true}
+		t.eq(at.call(7.5, w), "olive_village_sacristanBeret", "the Sindaco rings the bells in his sacristan's beret")
+		t.eq(at.call(9.0, w), "olive_village_barberCap", "cuts hair in his barber's cap")
+		t.eq(at.call(14.5, w), "", "and meets the ferry in his everyday timetable cap")
+		t.eq(String(Data.npc("olive_village_giobatta").appearance.hat), "olive_village_timetableCap", "which is the one he wears when nothing else is called for")
+		var r := Chibi.resolve({"hat": "olive_village_skipperCap"})
+		t.ok(r.hat == "captain" and r.hatColor == "1f2f4f" and r.get("hatTrim", "") == "f4f1ea", "Sirena's skipper's cap is a navy captain's cap with a white band"))
+
+func test_the_sounds_of_the_place():
+	_on(func():
+		var at := func(x: float, z: float, y: float = -99.0) -> Vector2: return Sounds.levels(Vector3(x, Heightfield.height(x, z) if y < -50.0 else y, z))
+		var cove: Vector2 = at.call(23.0, 57.0)
+		var bridge: Vector2 = at.call(6.65, 12.0, 9.9)
+		var shelf: Vector2 = at.call(12.0, 23.0)
+		var piazza: Vector2 = at.call(-20.0, -6.0)
+		var castle: Vector2 = at.call(-43.0, -58.0)
+		t.ok(cove.x > 0.8 and cove.y < cove.x * 0.5, "waves drag on the pebbles at the cove, the torrent's mouth faint beside them (%s)" % cove)
+		t.ok(bridge.y > 0.5 and bridge.x < 0.3, "the torrent rushes under the bridge (%s)" % bridge)
+		t.ok(shelf.y > bridge.y, "louder still down by the water below it (%s)" % shelf)
+		t.ok(piazza.x < 0.1 and piazza.y < 0.1 and castle == Vector2.ZERO, "and the piazza and the castle are out of earshot of both (%s, %s)" % [piazza, castle])
+		var late := true
+		for h in range(Sounds.BELL_FROM, Sounds.BELL_TO + 1): late = late and Sounds.bell_minute(h) - h * 60 >= 2 and Sounds.bell_minute(h) - h * 60 <= 7
+		t.ok(late, "the bells ring every hour from seven to nine, always a few minutes late")
+		t.ok(Sounds.strikes(15) == 3 and Sounds.strikes(12) == 12 and Sounds.strikes(7) == 7, "striking the hour")
+		t.eq(Sounds.bell_due(Sounds.bell_minute(9) - 1.0, Sounds.bell_minute(9) + 0.5), 9, "the nine o'clock bells come as the clock passes their minute")
+		t.eq(Sounds.bell_due(400.0, 900.0), -1, "but not after a nap that skips the hour")
+		t.ok(not Sounds.bells_silent({}) and Sounds.bells_silent({"olive_village_hive_plans": true}), "the swarm in the bell tower silences them")
+		t.ok(not Sounds.bells_silent({"olive_village_hive_plans": true, "olive_village_swarm_done": true}), "until it's fetched down")
+		var hives := Vector3(52.0, 25.2, -55.0)
+		t.ok(Sounds.bee_level(hives, 11.0) > 0.8 and Sounds.bee_level(hives, 23.0) == 0.0, "bees hum by the hives by day, not at night")
+		var tower := Vector3(-36.0, 20.0, -30.0)
+		t.ok(Sounds.swift_level(tower, 19.5) > 0.5 and Sounds.swift_level(tower, 13.0) == 0.0, "swifts scream round the bell tower in the evening"))
+
+func test_the_ferry_comes_and_goes():
+	_on(func():
+		var j := {"olive_village_jetty_done": true}
+		var s: Dictionary = Ferry.at(8 * 60.0, {})
+		t.ok(s.shown and not s.moving and s.pos == Ferry.OFF_COVE, "before the jetty the ferry stands off the cove in the morning")
+		t.eq(Ferry.at(8 * 60.0, j).pos, OV.MOORED, "once the jetty is built it ties up there")
+		var out: Dictionary = Ferry.at(10 * 60 + 11.0, j)
+		var d: float = out.pos.distance_to(OV.MOORED)
+		t.ok(out.shown and out.moving and d > 1.0 and d < Ferry.FAR.distance_to(OV.MOORED), "at five past ten it sails for Tonnarella")
+		t.ok(not Ferry.at(12 * 60.0, j).shown, "and is away at midday")
+		t.ok(Ferry.at(14 * 60 + 50.0, j).moving and not Ferry.at(16 * 60.0, j).moving and Ferry.at(16 * 60.0, j).pos == OV.MOORED, "back at five to three, to stay the night")
+		var festa := {"olive_village_jetty_done": true, "olive_village_festa_ready": true}
+		t.ok(not Ferry.at(19 * 60.0, festa).shown and Ferry.at(20 * 60 + 30.0, festa).pos == OV.MOORED, "on the festa's evening it fetches the band, back at eight")
+		t.ok(Ferry.at(19 * 60.0, j).shown, "and only then")
+		t.ok(Ferry.horn_due(604.0, 606.0, j) and not Ferry.horn_due(600.0, 603.0, j), "Sirena's horn as it leaves")
+		t.ok(not Ferry.horn_due(500.0, 700.0, j), "not when you sleep through it")
+		t.ok(Heightfield.is_water(OV.MOORED.x, OV.MOORED.z) and Heightfield.is_water(Ferry.OFF_COVE.x, Ferry.OFF_COVE.z), "it floats where it waits"))
+
+func test_the_animals_live_where_they_should():
+	_on(func():
+		var spots: Array = Animals.lizard_spots()
+		t.ok(spots.size() >= 8, "lizards sun themselves on the terrace walls (%d)" % spots.size())
+		for sp in spots:
+			var above := Heightfield.height(sp.x, sp.z - 0.12)
+			var below := Heightfield.height(sp.x, sp.z + 0.2)
+			t.ok(above > sp.y + 0.3 and below < sp.y - 0.3, "a lizard at (%.1f, %.1f) clings to a wall face" % [sp.x, sp.z])
+		var tops: Array = Animals.tower_tops()
+		t.ok(tops[0].y > Heightfield.height(-20.0, -6.0) + 10.0, "swifts wheel round the top of the bell tower")
+		var seats: Array = Animals.gull_seats()
+		t.ok(seats.size() >= 4 and seats.all(func(q): return q.y > Heightfield.WATER_Y), "gulls sit on the boats and the old jetty post (%d)" % seats.size())
+		t.ok(Animals.swifts_out(7.0) and Animals.swifts_out(19.0) and not Animals.swifts_out(23.0), "the swifts are out by day and roost at night")
+		t.ok(Animals.swarm_shown({"olive_village_hive_plans": true}) and not Animals.swarm_shown({}), "the swarm buzzes at the tower window while it's there")
+		var cats: Array = Data.layout.get("wildlife", {}).get("cats", [])
+		t.ok(cats.size() >= 5, "cats asleep on the warm steps (%d)" % cats.size())
+		for c in cats:
+			t.ok(Heightfield.height(c[0], c[1]) > 0.4, "a cat at (%.1f, %.1f) is on dry ground" % [c[0], c[1]])
+			for n in Data.layout.nav_nodes:
+				var q: Array = Data.layout.nav_nodes[n]
+				t.ok(Vector2(q[0] - c[0], q[1] - c[1]).length() > 1.5, "the cat at (%.1f, %.1f) isn't in the way at %s" % [c[0], c[1], n])
+		var a = Animals.new()
+		a.build()
+		t.ok(a.swifts.size() == 12 and a.gulls.size() == seats.size() + 2 and a.lizards.size() == spots.size(), "they're all there (%d swifts, %d gulls, %d lizards)" % [a.swifts.size(), a.gulls.size(), a.lizards.size()])
+		a.free())
 

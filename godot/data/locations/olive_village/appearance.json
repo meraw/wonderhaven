@@ -1,0 +1,12 @@
+{
+ "_comment": "Liolivato's own clothes (stage 4): shapes the wardrobe already has, in Liolivato's colours (Data.merge_variants, Chibi.resolve). The Sindaco wears a cap for each of his jobs; Gambero, Sirena and Fuco wear theirs. Each is a friend's gift, and the Geometra cap comes with the sign at 50.",
+ "variants": {
+  "olive_village_timetableCap": {"slot": "hat", "base": "captain", "color": "2f3a5a", "trim": "e2b93b", "label": "Timetable cap", "unlock": "Become good friends with the Sindaco"},
+  "olive_village_barberCap": {"slot": "hat", "base": "drivercap", "color": "f4f1ea", "label": "Barber's cap", "unlock": "Become the Sindaco's best friend"},
+  "olive_village_sacristanBeret": {"slot": "hat", "base": "beret", "color": "1f1f24", "label": "Sacristan's beret", "unlock": "Become the Sindaco's best friend"},
+  "olive_village_geometraCap": {"slot": "hat", "base": "drivercap", "color": "e2b93b", "label": "Geometra cap", "unlock": "Bring Liolivato's sign to 50"},
+  "olive_village_woolCap": {"slot": "hat", "base": "beanie", "color": "8a2f2f", "label": "Fisherman's woollen cap", "unlock": "Become good friends with Gambero"},
+  "olive_village_skipperCap": {"slot": "hat", "base": "captain", "color": "1f2f4f", "trim": "f4f1ea", "label": "Skipper's cap", "unlock": "Become good friends with Sirena"},
+  "olive_village_beeHat": {"slot": "hat", "base": "sunhat", "color": "f4f1ea", "label": "Beekeeper's hat", "unlock": "Become good friends with Fuco"}
+ }
+}

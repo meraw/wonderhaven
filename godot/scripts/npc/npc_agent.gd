@@ -27,10 +27,12 @@ var stare_mark: Label3D
 var visit := {}
 var visit_t := 30.0
 var held := false
+var hat_on := ""
 
 func _init(g, d: Dictionary) -> void:
 	game = g; def = d
 	character = Chibi.new(d.appearance); character.name = d.id
+	hat_on = String(character.appearance.get("hat", "none"))
 	game.add_child(character)
 	var a := Schedule.activity_at(def, game.state.time.minute, game.state.flags)
 	var p := node_pos(a.node)
@@ -132,6 +134,11 @@ func update(dt: float) -> void:
 		sync()
 		return
 	var a := Schedule.activity_at(def, game.state.time.minute, flags)
+	var want := String(a.get("hat", ""))
+	if want == "": want = String(def.appearance.get("hat", "none"))
+	if want != hat_on:
+		hat_on = want
+		character.wear_hat(want)
 	if visiting() and a.activity == "sleep": end_visit()
 	if not visiting() and a.node != goal: plan_route(a.node)
 	activity = a.activity
