@@ -1103,8 +1103,9 @@ func _process(dt: float) -> void:
 		if screens: screens.update(dt)
 		_tick_shot(); return
 	if mode in ["explore", "build"]:
-		if Input.is_action_pressed("cam_left"): cam.yaw += 1.8 * dt
-		if Input.is_action_pressed("cam_right"): cam.yaw -= 1.8 * dt
+		var shortcut: bool = Input.is_key_pressed(KEY_CTRL) or Input.is_key_pressed(KEY_META)
+		if not shortcut and Input.is_action_pressed("cam_left"): cam.yaw += 1.8 * dt
+		if not shortcut and Input.is_action_pressed("cam_right"): cam.yaw -= 1.8 * dt
 		var look := Vector2(Input.get_joy_axis(0, JOY_AXIS_RIGHT_X), Input.get_joy_axis(0, JOY_AXIS_RIGHT_Y))
 		if look.length() > 0.15: cam.rotate_by(look.x * 2.4 * dt * settings.sensitivity, look.y * 1.6 * dt)
 	_update_world_time(dt)
