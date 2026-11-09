@@ -1,7 +1,7 @@
 # Serenza: design for the cliff village
 
-Working id `cliffs`. Agreed with the user on 2026-11-08 in a design interview. **Stages 1 (ground and map) and 2 (buildings and
-scenery) are built; stages 3 and 4 are not.** See "Status" at the end. This doc is
+Working id `cliffs`. Agreed with the user on 2026-11-08 in a design interview. **All four stages are built: ground and map,
+buildings and scenery, people, dialogue and requests, look and ambient life.** See "Status" at the end. This doc is
 the plan the build stages follow. The rules every location shares are in `docs/WORLD.md`; `docs/MONTEFORCHETTA.md`
 and the other location docs are the models it follows. Tonnarella (`docs/locations/port.md`) comes just before
 Serenza, and the two were kept apart where they overlapped (see "Agreements needed with other sessions").
@@ -593,3 +593,46 @@ the euro switch happening in Serenza itself.
     flags, once each, never taken back, the readings and milestones), the boats' moorings, the plaque, the paper, the naps
     and the hangouts, fishing spots on the water's edge, and request sites that leave the villagers' routes open. Shared tests cover the new pieces, picking, `lower`, the meter hook and pack tastes.
   - **Played** (`play_cliffs.gd`, real input): see the stage 3 pull request.
+
+**Stage 4, look and ambient life: built** (helpers `cliffs/animals.gd`, `cliffs/sounds.gd`, `cliffs/hikers.gd`).
+- **No shared changes.** Everything uses what the game already has: the look block, a layout's `valley_fog` (here the
+  sea fog), lamp posts, window glass lit at night, a location's music block and the place sounds.
+- **The look** (`location.json`): a clear Mediterranean sky, a pale blue-grey haze along the coast, weather clear, fair,
+  drizzle and mist, with fog on about one early morning in three (`mist` 0.3).
+- **Sea fog** (layout `valley_fog`): fills the ravine up to the station (9.5 m): a little on any early morning, thick
+  on a misty one, burning off by eleven, a wisp at night.
+- **Night lights:** fifteen lamp posts along the station lane, the main street, the stair through the terraces, the
+  square, the harbour and the church; the houses' windows; and windows lit in the next villages along the coast.
+- **Terraces coming back on the hillside:** each terrace's brambles are a group of their own, gone the moment it comes
+  back (from the meter's flag, without a rebuild) and left out of every rebuild after.
+- **Animals** (`cliffs/animals.gd`): gulls on the boats (on their runners or afloat), the quay, the breakwater and the
+  church ridge, flapping up when you come within 3 m and settling again after twenty seconds, and three wheeling over
+  the sea; two wall lizards on each terrace's wall, out from nine to six only on terraces in use (four on W1 and E2
+  when you arrive, twenty by Easter), darting away as you pass; swallows from six to eight over the harbour, the church
+  tower and the station, four when you arrive and two more for each main request done, sixteen by the vote.
+- **Hikers** (`cliffs/hikers.gd`): after the vote, eight walkers in red anoraks, boots and rucksacks walk a loop from
+  the platform up the stair to the sanctuary, down the mule path, through the terraces to the square, out along the
+  breakwater and back, from nine to five. They are only for looking at.
+- **Music** (`location.json` `music`): sparse tunes in the game's own synthesiser: a flute dawn, a marimba morning
+  (also for building), a clarinet afternoon, a Rhodes evening and a glockenspiel night; and a brighter Easter tune in
+  the mornings from the resting place being built until the vote.
+- **Sounds** (`cliffs/sounds.gd`): the sea, louder near the water and quiet up on the terraces; gulls crying over the
+  harbour by day; every train's two-tone horn as it comes out of the tunnel, and its rumble while it's near; the
+  monorail cart's engine once it runs; swallows twittering near where they fly. Church bells only for big moments: the
+  sanctuary bell when you ring it, peals every quarter hour on Easter morning until the vote, and a long peal from the
+  church and the sanctuary at the vote. No hourly bells.
+- **Clothes:** Settimio wears his straw hat and Nunzia her espadrilles, the same ones they give you.
+- **Changes from the plan:**
+  - Drizzle instead of afternoon showers, as the shared weather has it.
+  - Swallows wheel over three spots rather than nesting under the eaves.
+  - The platform and the harbour square no longer ask you for light after dusk: their lamp posts light them. The
+    church rocks and the sanctuary forecourt still do.
+- **Checked:**
+  - **Tested** (`test_cliffs.gd`, 31 tests): stages 1 to 3's, plus the lamp posts (on walkable ground, clear of every
+    path, and no hangout with a lamp post asking for light), the sea fog's spec and the misty mornings, brambles hidden by a terrace's flag and cleared live by the flag
+    event, the animals (hours, terraces in use, swallows growing with the main requests, every lizard on a wall face,
+    every gull's seat above the water), the train horns (once per train, as it leaves the tunnel), the sea and the
+    gulls by distance, the Easter peals, the hikers' loop (on the nav graph, through the sanctuary and the breakwater,
+    only after the vote and by day, dressed for it), the music (a tune for each part of the day, real instruments,
+    melodies that fit, the Easter tune and back) and the cast's clothes.
+  - **Played** (`play_cliffs.gd`, real input): see the stage 4 pull request.

@@ -247,7 +247,7 @@
     "bottomColor": "#4a4a6a",
     "shoes": "boots",
     "shoesColor": "#3a2a1e",
-    "hat": "sunhat",
+    "hat": "cliffs_strawHat",
     "hatColor": "#d9c27a",
     "accessory": "backpack",
     "body": {
@@ -1054,7 +1054,7 @@
     "topColor": "#ff8fab",
     "bottom": "dress",
     "bottomColor": "#ffd166",
-    "shoes": "sandals",
+    "shoes": "cliffs_espadrilles",
     "shoesColor": "#c9a27a",
     "hat": "none",
     "hatColor": "#ffffff",

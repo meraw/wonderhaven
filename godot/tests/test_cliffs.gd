@@ -4,6 +4,7 @@ var t
 const ID := "cliffs"
 const C := preload("res://scripts/locations/cliffs.gd")
 const G := preload("res://scripts/locations/cliffs/ground_data.gd")
+const AudioDirector := preload("res://scripts/audio/audio_director.gd")
 
 const TERRACE_TOP := -26.0
 const TERRACE_DEPTH := 4.0
@@ -277,8 +278,13 @@ func test_the_village_builds():
 			for part in ["steps", "monorail", "plants", "station_canopy", "rubble", "far_coast", "next_villages"]:
 				t.ok(sc.get_node_or_null(part) != null, "the scenery has its %s" % part)
 			for pr in Data.layout.props:
-				t.ok(sc.get_node_or_null("%s_model" % pr.id) != null, "%s is drawn" % pr.id)
+				if String(pr.kind).begins_with(ID + "_"): t.ok(sc.get_node_or_null("%s_model" % pr.id) != null, "%s is drawn" % pr.id)
+				else: t.ok(v.objects.has(pr.id), "%s stands in the village" % pr.id)
 		t.ok(v.get_node_or_null("cliffs_trains") != null, "the trains run")
+		for part in ["cliffs_animals", "cliffs_sounds", "cliffs_hikers"]:
+			t.ok(v.get_node_or_null(part) != null, "Serenza has its %s" % part)
+		t.ok(v.window_mats.size() >= 10, "windows light up at night, the far coast's too (%d)" % v.window_mats.size())
+		t.ok(v.valley_fog != null, "sea fog can fill the ravine")
 		v.free())
 
 func test_rooms_you_can_walk_into():
@@ -570,3 +576,172 @@ func test_villagers_never_share_a_spot():
 		var after: Dictionary = {}
 		for f in story: after[f] = true
 		for n in cast: t.ok(day_of.call(n, after) != day_of.call(n, after.merged({"cliffs_easterDone": false}, true)) or not n.get("when", []).any(func(w): return w.flag == "cliffs_restBuilt"), "%s goes back to a normal day after Easter" % n.name))
+
+func test_night_lights_and_sea_fog():
+	_here(func():
+		var lamps: Array = Data.layout.props.filter(func(p): return String(p.kind) == "lamp_post")
+		t.ok(lamps.size() >= 12, "lamp posts along the main street, the stairs, the square and the harbour (%d)" % lamps.size())
+		for l in lamps:
+			t.ok(C.walkable_area(float(l.x), float(l.z)), "%s stands where people walk" % l.id)
+			t.ok(Heightfield.height(float(l.x), float(l.z)) > Heightfield.WATER_Y, "%s is on dry land" % l.id)
+		for h in Data.layout.hangouts:
+			var lit: bool = lamps.any(func(l): return Vector2(float(l.x) - float(h.x), float(l.z) - float(h.z)).length() < float(h.r) + 2.0)
+			if lit: t.ok(not h.needs.has("light"), "%s has a lamp post, so it doesn't ask you for light" % h.name)
+		var fog: Dictionary = Data.layout.valley_fog
+		t.ok(float(fog.y) > 8.0 and float(fog.y) < 11.0, "the sea fog fills the ravine up to the station")
+		t.ok(float(fog.morning) > float(fog.evening) and float(fog.day) == 0.0, "thickest in the morning, gone by day")
+		var look: Dictionary = Data.island_def(ID).get("look", {})
+		t.ok(look.get("weather", []).has("mist") and float(look.get("mist", 0.0)) > 0.0, "some mornings the fog rolls in from the sea"))
+
+func test_the_terraces_look_like_they_come_back():
+	_here(func():
+		var Scenery: Script = load("res://scripts/locations/cliffs/scenery.gd")
+		var Life: Script = load("res://scripts/locations/cliffs/life.gd")
+		var v := Node3D.new()
+		var root := Node3D.new()
+		v.add_child(root)
+		var rng := RandomNumberGenerator.new()
+		rng.seed = 2002
+		Scenery.plants(root, C, rng, {"cliffs_terrace_w3": true})
+		var w3: Node3D = root.find_child("brambles_w3", true, false)
+		var e1: Node3D = root.find_child("brambles_e1", true, false)
+		t.ok(w3 != null and not w3.visible, "W3, planted and walled, has lost its brambles")
+		t.ok(e1 != null and e1.visible and e1.get_child_count() > 0, "E1, still wild, keeps them")
+		var life = Life.new()
+		v.add_child(life)
+		life.setup(null, v)
+		life._on_event("flag", {"flag": "cliffs_terrace_w2", "value": true})
+		t.ok(e1.visible, "another terrace coming back leaves E1's brambles")
+		life._on_event("flag", {"flag": "cliffs_terrace_e1", "value": true})
+		t.ok(not e1.visible, "and they go the moment E1 comes back")
+		v.free())
+
+func test_animals():
+	_here(func():
+		var A: Script = load("res://scripts/locations/cliffs/animals.gd")
+		var T: Script = load("res://scripts/locations/cliffs/terraces.gd")
+		t.ok(A.basking(12.0) and not A.basking(7.5) and not A.basking(19.0), "lizards bask on the walls from nine to six")
+		t.ok(A.swallows_out(7.0) and not A.swallows_out(21.0), "swallows are out from six to eight")
+		var mains: Array = Data.quests.filter(func(q): return String(q.id).begins_with(ID + "_") and q.get("main", false)).map(func(q): return String(q.id))
+		mains.sort()
+		var listed: Array = A.MAIN.duplicate()
+		listed.sort()
+		t.eq(listed, mains, "the swallows count Serenza's main requests")
+		var arrived := {"flags": {}, "quests": {}}
+		t.eq(A.in_use(arrived), ["w1", "e2"], "only W1 and E2 are tended when you arrive")
+		var later := {"flags": {"cliffs_terrace_w3": true, "cliffs_terrace_e1": true}, "quests": {}}
+		t.eq(A.in_use(later).size(), 4, "every terrace that comes back is in use")
+		t.eq(A.swallow_count(arrived), 4, "a few swallows when you arrive")
+		var all := {"quests": {}}
+		for q in A.MAIN: all.quests[q] = {"status": "done"}
+		t.eq(A.swallow_count(all), 16, "sixteen once every main request is done")
+		var spots := {}
+		for id in T.TENDED + T.ORDER:
+			var list: Array = A.wall_spots(String(id))
+			spots[id] = list.size()
+			for s in list:
+				var drop := Heightfield.height(s.x, s.z - 0.5) - Heightfield.height(s.x, s.z + 0.5)
+				t.ok(drop >= 1.0, "a lizard on %s clings to a wall face (%.1f m)" % [id, drop])
+		var at_first := 0
+		var with_two := 0
+		for id in spots:
+			if A.in_use(arrived).has(id): at_first += int(spots[id])
+			if A.in_use(later).has(id): with_two += int(spots[id])
+		t.ok(at_first >= 2, "lizards on the tended terraces from the start (%d)" % at_first)
+		t.ok(with_two > at_first, "more once terraces come back (%d)" % with_two)
+		var seats: Array = A.gull_seats()
+		t.ok(seats.size() >= 6, "gulls sit on the boats, the quay and the breakwater (%d)" % seats.size())
+		for s in seats: t.ok(s.y > Heightfield.WATER_Y, "a gull's seat is above the water (%.1f)" % s.y)
+		var v := Node3D.new()
+		var an = A.new()
+		v.add_child(an)
+		an.build(v, later)
+		t.eq(an.swallows.size(), 16, "sixteen swallows are ready")
+		t.eq(an.gulls.size(), seats.size() + 3, "a gull on every seat and three wheeling over the sea")
+		var walls := 0
+		for id in spots: walls += int(spots[id])
+		t.eq(an.lizards.size(), walls, "a lizard for every wall spot")
+		v.free())
+
+func test_sounds():
+	_here(func():
+		var S: Script = load("res://scripts/locations/cliffs/sounds.gd")
+		var Trains: Script = load("res://scripts/locations/cliffs/trains.gd")
+		var horns := 0
+		var m := 290.0
+		while m < 1410.0:
+			if not S.horn_due(m, m + 0.05).is_empty(): horns += 1
+			m += 0.05
+		t.eq(horns, Trains.departures().size(), "every train sounds its horn once, coming out of the tunnel")
+		t.ok(S.horn_due(600.0, 640.0).is_empty(), "no horn after a long jump in time")
+		t.ok(S.sea_level(Vector3(0.0, 1.0, 30.0)) > 0.8, "the sea is loud on the quay")
+		t.ok(S.sea_level(Vector3(0.0, 24.0, -59.5)) == 0.0, "and silent up on the top band")
+		t.ok(S.gull_level(Vector3(2.0, 1.0, 40.0), 12.0) > 0.8 and S.gull_level(Vector3(2.0, 1.0, 40.0), 23.0) == 0.0, "gulls cry over the harbour by day")
+		var easter := {"cliffs_restBuilt": true}
+		t.ok(S.peal_due(easter, 434.0, 435.5), "on Easter morning the church peals every quarter hour")
+		t.ok(not S.peal_due(easter, 436.0, 437.0), "between quarters it's quiet")
+		t.ok(not S.peal_due(easter, 734.0, 735.5), "only in the morning")
+		t.ok(not S.peal_due({"cliffs_restBuilt": true, "cliffs_easterDone": true}, 434.0, 435.5), "and only until the vote")
+		t.ok(not S.peal_due({}, 434.0, 435.5), "not before the rest stop is built"))
+
+func test_hikers_after_easter():
+	_here(func():
+		var H: Script = load("res://scripts/locations/cliffs/hikers.gd")
+		var flags := {"cliffs_monorailRuns": true, "cliffs_sanctuaryPath": true, "cliffs_easterDone": true}
+		var ids: Array = H.loop(flags)
+		t.ok(ids.size() > 20, "the hikers' loop runs through the village (%d spots)" % ids.size())
+		t.eq(ids[0], ids[ids.size() - 1], "and back to the platform")
+		for r in H.ROUTE: t.ok(ids.has(r), "it passes %s" % r)
+		var edges := {}
+		for e in Data.layout.nav_edges:
+			edges[String(e[0]) + ">" + String(e[1])] = true
+			edges[String(e[1]) + ">" + String(e[0])] = true
+		var linked := true
+		for i in range(1, ids.size()): linked = linked and edges.has(String(ids[i - 1]) + ">" + String(ids[i]))
+		t.ok(linked, "along the village's own paths")
+		t.ok(H.loop({}).is_empty() or not H.loop({}).has("muleGullyS"), "the mule path is closed to them until it's mended")
+		t.ok(H.shown(flags, 600.0) and not H.shown(flags, 1100.0) and not H.shown(flags, 420.0), "hikers walk from nine to five")
+		t.ok(not H.shown({}, 600.0), "only once Easter has put Serenza back on the map")
+		for i in H.COUNT:
+			var a := Chibi.sanitize(H.appearance(i + 2))
+			t.ok(a.top == "windbreaker" and a.accessory == "backpack" and a.shoes == "boots", "hiker %d wears an anorak, boots and a rucksack" % i))
+
+func test_the_music():
+	_here(func():
+		var m: Dictionary = Data.island_def(ID).get("music", {})
+		var songs: Dictionary = m.get("songs", {})
+		for part in ["dawn", "morning", "afternoon", "evening", "night", "build"]:
+			t.ok(songs.has(String(m.parts.get(part, ""))), "Serenza has its own tune for the %s" % part)
+		for id in songs:
+			var s: Dictionary = songs[id]
+			var used: Array = [s.lead, s.get("pad_inst", "pad"), s.get("bass_inst", "pluck")]
+			if String(s.arp) != "": used.append(s.arp)
+			for k in used: t.ok(k in AudioDirector.INSTRUMENTS, "%s plays a real instrument (%s)" % [id, k])
+			var last := -1
+			var sorted := true
+			for n in s.melody:
+				sorted = sorted and int(n[0]) > last
+				last = int(n[0])
+			t.ok(sorted and last < AudioDirector.loop_steps(s), "%s's melody is in order and fits its loop" % id)
+			var loudest := 0.0
+			for st in AudioDirector.loop_steps(s):
+				var sum := 0.0
+				for e in AudioDirector.step_events(s, st): sum += float(e[2])
+				loudest = maxf(loudest, sum)
+			t.ok(loudest < 1.6, "%s never piles up too loud (%.2f)" % [id, loudest])
+		t.eq(AudioDirector.song_for("morning", false, m, {}), "cliffs_morning", "a plain morning")
+		t.eq(AudioDirector.song_for("morning", false, m, {"cliffs_restBuilt": true}), "cliffs_easter", "Easter's tune once the rest stop is built")
+		t.eq(AudioDirector.song_for("evening", false, m, {"cliffs_restBuilt": true}), "cliffs_evening", "in the mornings only")
+		t.eq(AudioDirector.song_for("morning", false, m, {"cliffs_restBuilt": true, "cliffs_easterDone": true}), "cliffs_morning", "and back after the vote")
+		for w in m.get("when", []):
+			var f := String(w.flag)
+			var set_by := Data.quests.any(func(q): return JSON.stringify(q).contains("\"" + f + "\""))
+			t.ok(set_by, "%s is set by a request" % f))
+
+func test_the_cast_dresses_in_serenza():
+	_here(func():
+		var settimio: Dictionary = Data.npc("cliffs_settimio")
+		var nunzia: Dictionary = Data.npc("cliffs_nunzia")
+		t.eq(String(Chibi.sanitize(settimio.appearance).hat), "cliffs_strawHat", "Settimio wears his straw hat")
+		t.eq(String(Chibi.sanitize(nunzia.appearance).shoes), "cliffs_espadrilles", "Nunzia her espadrilles")
+		t.eq(String(Chibi.resolve(Chibi.sanitize(settimio.appearance)).hat), "sunhat", "drawn as a sun hat in straw"))
