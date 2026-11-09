@@ -57,6 +57,15 @@ func test_wind_follows_weather():
 	t.eq(Atmosphere.wind_at(3, 10.0, {}), Atmosphere.wind_at(3, 10.0, {}), "wind is a pure function of the clock")
 	t.ok(Atmosphere.wind_at(3, 10.0, {}) != Atmosphere.wind_at(4, 10.0, {}), "the wind changes from day to day")
 
+func test_a_places_wind_can_follow_the_weather():
+	t.eq(Atmosphere.wind_scale({}, "clear"), 1.0, "no wind in the look: the usual wind")
+	t.eq(Atmosphere.wind_scale({"wind": 1.6}, "drizzle"), 1.6, "one number: the same in all weathers")
+	var lk := {"wind": {"clear": 2.0, "drizzle": 0.7, "default": 1.2}}
+	t.eq(Atmosphere.wind_scale(lk, "clear"), 2.0, "a weather of its own")
+	t.eq(Atmosphere.wind_scale(lk, "drizzle"), 0.7, "another")
+	t.eq(Atmosphere.wind_scale(lk, "fog"), 1.2, "and the default for the rest")
+	t.eq(Atmosphere.wind_scale({"wind": {"clear": 2.0}}, "fog"), 1.0, "without a default, the usual wind")
+
 func test_ambient_life_follows_the_hour():
 	var noon := Atmosphere.life_at(12.0, Daylight.WEATHER.clear)
 	var night := Atmosphere.life_at(23.0, Daylight.WEATHER.clear)

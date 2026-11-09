@@ -185,15 +185,12 @@ static func lantern(b: Dictionary) -> Node3D:
 	var glass := P.unique_mat("8fb3c4", "fff1b8", 0.0)
 	glass.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	glass.albedo_color = Color(0.7, 0.85, 0.95, 0.35)
-	var missing: Array = b.get("brokenPanes", [1, 4])
-	var pane := 0
-	for r in Interiors.walls(b):
-		var w := float(r.maxX) - float(r.minX)
-		var d := float(r.maxZ) - float(r.minZ)
-		var c := Vector3((float(r.minX) + float(r.maxX)) / 2.0 - float(b.x), 0, (float(r.minZ) + float(r.maxZ)) / 2.0 - float(b.z))
+	for pn in lantern_panes(b):
+		var w: float = pn.w
+		var d: float = pn.d
+		var c: Vector3 = pn.c
 		_box(g, w, 1.0, d, P.stone("cfc8bd"), c + Vector3(0, 0.5, 0))
-		if not missing.has(pane): Props._add(g, P.box(w * 0.96, 1.3, d * 0.96), glass, c + Vector3(0, 1.65, 0), Vector3.ZERO, Vector3.ONE, false)
-		pane += 1
+		if not pn.broken: Props._add(g, P.box(w * 0.96, 1.3, d * 0.96), glass, c + Vector3(0, 1.65, 0), Vector3.ZERO, Vector3.ONE, false)
 		_box(g, maxf(w, 0.08) if w > d else 0.08, 0.08, maxf(d, 0.08) if d > w else 0.08, bronze, c + Vector3(0, 2.33, 0))
 	for cx in [-1.0, 1.0]:
 		for cz in [-1.0, 1.0]:
@@ -212,6 +209,18 @@ static func lantern(b: Dictionary) -> Node3D:
 	g.set_meta("glasses", [])
 	g.set_meta("fade_parts", Props.fade_parts(over))
 	return g
+
+static func lantern_panes(b: Dictionary) -> Array:
+	var broken: Array = b.get("brokenPanes", [1, 4])
+	var out: Array = []
+	var pane := 0
+	for r in Interiors.walls(b):
+		var w := float(r.maxX) - float(r.minX)
+		var d := float(r.maxZ) - float(r.minZ)
+		var c := Vector3((float(r.minX) + float(r.maxX)) / 2.0 - float(b.x), 0, (float(r.minZ) + float(r.maxZ)) / 2.0 - float(b.z))
+		out.append({"c": c, "w": w, "d": d, "broken": broken.has(pane)})
+		pane += 1
+	return out
 
 static func flag_mast(parent: Node3D, pos: Vector3, height: float = 6.0) -> void:
 	Props._add(parent, P.cyl(0.06, 0.09, height, 8), P.mat("e8e4dc"), pos + Vector3(0, height / 2.0, 0))

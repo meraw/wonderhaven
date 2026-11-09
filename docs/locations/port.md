@@ -287,8 +287,8 @@ Each is the smallest general version, comes with a test, and is named at the top
 | Change | Why | Stage |
 | --- | --- | --- |
 | **The euro on screen:** `Money` shows lire, both with lire first, both with euros first, or euros only, chosen by story flags (which Tonnarella's milestones set), with a place able to show both from arrival. One rate, rounded to the cent. Before any flag is set, every printed amount stays exactly as it is today (tested). | The changeover, in every place | 3a (done) |
-| **A mandolin voice** in the music synth, if the existing plucked voice doesn't pass for one | The music | 4, optional |
-| **Wind that changes with the weather**, only if the look block's wind can't make tramontana days windier than scirocco days | The look | 4, optional |
+| **A mandolin voice** in the music synth, if the existing plucked voice doesn't pass for one | The music | 4, not made: the plucked voice, played fast, stands in |
+| **Wind that changes with the weather**, only if the look block's wind can't make tramontana days windier than scirocco days | The look | 4 (done: it couldn't, so a look's `wind` can be given per weather) |
 
 Everything else lives in Tonnarella's own files (`docs/WORLD.md`): `godot/data/locations/port/`,
 `godot/scripts/locations/port.gd` and helpers in `godot/scripts/locations/port/`, `godot/tests/test_port.gd` and
@@ -613,3 +613,54 @@ What exists now, and the choices made while building that the design above didn'
 - **Seen** in screenshots in both renderers: villagers on the forecourt, at Nonna's door, by the lift and on the
   quay. From the playthrough, in the compatibility renderer: each build, the lampara at night and Rosetta's at
   midnight.
+
+**Stage 4, the look and ambient life:**
+- **Where it lives:** `godot/scripts/locations/port/life.gd`, a node the place adds when it's built, which follows the
+  story and the clock every frame; `godot/scripts/locations/port/sounds.gd`; the `music` and `look` blocks in
+  `location.json`; the cats and the nap gags in the layout.
+- **The lighthouse:**
+  - Gerolamo's two new panes appear in the lantern once you've handed him the glass.
+  - From the night of the lighting the lens glows, and after dark two beams sweep the bay once every eleven seconds:
+    two white flashes. The shared lighthouse beam only turns for a building of the shared kind, so Tonnarella builds
+    its own the same way.
+  - On those nights three lampara boats go out under the beam with their lamps lit.
+- **The washing:** each piece you return fills its owner's lines with the neighbourhood's washing, their own piece
+  among it: Nonna's lemon tablecloth over her alley, the Comandante's shirt, Baciccia's long johns, Rosetta's apron
+  and Agostino's gloves. With all five back, all thirteen lines in town are full, swaying in the wind.
+- **The roof terrace and the flat:** the pergola with its vine at 75%, and the framed 1,000-lire note on the flat's
+  wall at 100%.
+- **Animals:**
+  - Gulls wheel over the harbour and the bay; more stand on the bollards and the fish boxes, and take off when you
+    come close, coming back when you've gone.
+  - Two flocks of pigeons peck about the church square, clatter up when you walk into them and land at the other end.
+  - Six alley cats you can stroke (the shared `wildlife` cats): by the fish market, on the church steps, at Nonna's
+    door, on a stair lane, on the fish boxes and under the arcade.
+- **Nap gags as scenes:** a gull on the back of the bench making off with your focaccia (a sight gag, no words), a
+  wave soaking you, and Nonna's basket on its rope beside you.
+- **Music** (original, in the shared synthesiser):
+  - Dawn: a waltz on the nylon-string guitar.
+  - Morning and afternoon: the plucked voice standing in for a mandolin, with guitar strums and a shaker.
+  - Evening: an accordion waltz over guitar strums. Night: slow guitar.
+  - Once the lighthouse is lit, every part of the day gets a fuller version, and the night of the lighting has its own
+    tune: accordion, guitar, strings and soft drums.
+  - The synthesiser has no mandolin and no brushes: the plucked voice and its soft "ballad" drums stand in.
+- **Sounds:** waves on the rocks, boats knocking at the quay, gulls by the sea by day, cranes clanking across the
+  bay, a ship's horn from the port every two and a half hours from 6:00 to 23:00, and the evening ferry's long blast
+  at 19:00.
+- **Look:**
+  - Tramontana days blow hardest: clear days are windiest and the drizzly scirocco days calmest (a shared change: a
+    look's `wind` can be given per weather).
+  - The daytime sky leans a harder blue.
+  - The rocks and the breakwater are painted a cooler grey, so they come out grey under the shared terrain's warm
+    shading instead of olive.
+  - At night the port across the bay and the city's tiers show their lights, and the shared lamps and windows glow in
+    the alleys.
+  - Mimosa fluff drifts down from the mimosa trees (the shared falling leaves only come from the decor's trees).
+- **Shared change in this stage:** `godot/scripts/world/atmosphere.gd`: a look's `wind` can be a number, as before,
+  or a strength for each weather with a default (`Atmosphere.wind_scale`). Tested in `test_atmosphere.gd`.
+- **Not yet:**
+  - The far city is still pale in the default haze: a look's haze can only be brought closer.
+  - For rooms on the slope or the rock, the camera's blocker boxes still sit a little low.
+  - Gerolamo has no rowing boat.
+  - The spray nap gag splashes and leaves a puddle, but you don't drip.
+

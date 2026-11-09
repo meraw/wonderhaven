@@ -30,10 +30,7 @@
    },
    "gull": {
     "weight": 3,
-    "lines": [
-     "You fell asleep holding a slice of focaccia. You are no longer holding a slice of focaccia.",
-     "A gull stands on the back of the bench, chewing. You check your pockets. Your focaccia is gone."
-    ]
+    "visual": true
    },
    "spray": {
     "weight": 2,
@@ -182,6 +179,41 @@
    "who": "port_agostino"
   }
  ],
+ "wildlife": {
+  "cats": [
+   [
+    41.5,
+    33.0,
+    2.5
+   ],
+   [
+    2.5,
+    -12.4,
+    0.0
+   ],
+   [
+    -23.0,
+    1.6,
+    1.6
+   ],
+   [
+    16.6,
+    -26.0,
+    3.1
+   ],
+   [
+    43.5,
+    25.5,
+    4.0,
+    1.75
+   ],
+   [
+    -14.0,
+    24.6,
+    2.0
+   ]
+  ]
+ },
  "decor": {
   "radius": 300,
   "trees": 0,
