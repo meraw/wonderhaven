@@ -527,7 +527,14 @@ Checked by the headless tests (`test_animation.gd`: stopping eases, the stride s
   it's fully lively, the festa music, and the lamps tip (now "Dusk: the lamps come on": the evening goes on as long as
   you like, and sleeping ends the day). The opening ceremony still plays at dusk when you end the day.
 - **Beds and benches everywhere** offer "Sleep until tomorrow morning" (which ends the day) as well as their wake times.
-- **Checked:** see the PR.
+- **Checked:** **tested** (432 passed): no day holds unless it asks, Monteforchetta's doesn't, dusk is the evening
+  around 8:30. **Played:** all of Monteforchetta's playthroughs pass without the hold (24 runs: the sleep one naps to 9 PM
+  and watches the clock run on with the new dusk tip, sleeps until tomorrow morning from a bench and from your own bed;
+  the opening ceremony still plays at dusk; the piazza still gathers at dusk), and Casalrana's three.
+- **Ines's log by the Roman bridge** (Boccapioppo): the same run missed one of Ines's runaway logs. It lay on the bank
+  just behind the bridge's west parapet, which has been solid since the fix for falling off the bridge, so coming
+  along the bridge you walked into the wall. It now lies on the open bank, and a test keeps anything you can pick up
+  more than 1.2 m from a parapet. From the same saved state all twelve logs and lost things are found.
 
 ## The sawmill's letterbox moves to the yard gate (08/11)
 - **A letterbox you couldn't reach** (Boccapioppo): after the merge with main, Boccapioppo's playthrough posted only four

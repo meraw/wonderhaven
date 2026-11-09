@@ -549,3 +549,17 @@ func test_pierinas_far_round_takes_you_the_length_of_the_map():
 		for k in spots:
 			var p: Array = L.nav_nodes[k]
 			t.ok(Vector2(float(p[0]) - float(a.x), float(p[1]) - float(a.z)).length() > 2.5, "%s isn't where %s stands about (%s), so you can reach it" % [a.id, spots[k], k])
+
+func test_nothing_to_pick_up_hides_behind_the_roman_bridges_parapets():
+	var L: Dictionary = Data.read_layout("river_town")
+	var walls: Array = L.props.filter(func(p): return String(p.get("kind", "")) == "river_town_parapet")
+	t.ok(walls.size() == 4, "the bridge's four solid parapet ends")
+	for n in L.nodes:
+		var p := Vector2(float(n.x), float(n.z))
+		for w in walls:
+			var half := Vector2(float(w.w), float(w.d)) / 2.0
+			var c := Vector2(float(w.x), float(w.z))
+			var near := Vector2(clampf(p.x, c.x - half.x, c.x + half.x), clampf(p.y, c.y - half.y, c.y + half.y))
+			t.ok(near.distance_to(p) > 1.2, "%s isn't tucked behind a parapet (%.1f m)" % [n.id, near.distance_to(p)])
+	var log2: Dictionary = L.nodes.filter(func(n): return n.id == "river_town_log2")[0]
+	t.ok(RT.height(float(log2.x), float(log2.z)) > Heightfield.WATER_Y + 0.2, "the log by the Roman bridge lies on the dry bank")

@@ -1804,8 +1804,8 @@
   {
    "id": "river_town_log2",
    "kind": "fragment",
-   "x": 23.2,
-   "z": -46.3,
+   "x": 20.6,
+   "z": -47.2,
    "gives": {
     "river_town_log": 1
    },
