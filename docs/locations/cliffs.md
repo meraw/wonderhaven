@@ -332,8 +332,8 @@ Each is the smallest general version, comes with a test, and is named at the top
 | **A placed piece you can pick from**, once a day (`gives` on a piece): the lemon tree's lemons | The lemon tree | 3 (built: `Gardening.pick`, the `pick` interaction) |
 | **A "no taller than" check** for briefs (`lower {height}`), the other side of `taller` | Sturlese's landscape rules | 3 (built) |
 | **Meter points from the world:** a location's code can award points on its meter once per named thing (a terrace), saved, never taken back | Terraces you bring back without a request | 3 (built: a pack's `meter_things(state)`, `LocationMeter.new_things`, `Story.count_world_meter`) |
-| **Tastes from a location's pack** (`tastes.json` beside its villagers), merged like its shops | Serenza's villagers' tastes, without touching `data/tastes.json` | 3 (built) |
-| **Ghost plans stack on high ground:** a plan's pieces stack up to 10 m above the ground under them, not above sea level | Every site in Serenza is 10 to 30 m up | 3 (built) |
+| **Tastes from a location's pack** (`tastes.json` beside its villagers), merged like its shops | Serenza's villagers' tastes, without touching `data/tastes.json` | 3 (built by Tonnarella's stage 3, the same change) |
+| **Ghost plans stack on high ground:** a plan's pieces stack from the site's floor height (`floorY`), not from sea level | Every site in Serenza is 10 to 30 m up | 3 (built by Liolivato's stage 3; every Serenza site has a `floorY`) |
 | **A slate roof in the house kit**, chosen per building or per layout, and taller houses (three to five storeys) if the kit's `floors` doesn't already hold up | Serenza's houses; offered to Tonnarella, whose palazzi have slate roofs too | 2 (built: `roofTiles`; taller houses needed no change) |
 | ~~A garden-bed look for broad beans~~ | Dropped in stage 3: the cellar sells saplings, not seed packets | |
 
@@ -537,7 +537,8 @@ the euro switch happening in Serenza itself.
   models and rendered icons (`piece_meshes.gd`, `assets/icons/pieces/`); picking from a placed piece once a day
   (`Gardening.pickable`/`pick`, the `pick` interaction in `game.gd`); the brief's `lower` check; meter points a
   location's code awards for what the world shows (`meter_things`, counted after every build and every finished
-  request); tastes from a location's pack; ghost plans that stack relative to the ground under them.
+  request). Tastes from a location's pack and ghost plans that stack from a site's floor height arrived from
+  Tonnarella's and Liolivato's stage 3 with the same changes, and Serenza uses theirs.
 - **The people** (`npcs.json`): Marta, Settimio, Trenin, Don Aurelio, Capo Horn, Nunzia and Sturlese, each with a
   routine that changes with the story (Marta meets the train until you've been shown round, Capo Horn moves to the
   harbour once the boats are launched, Trenin rides the monorail once it runs, Sturlese sleeps in your shelter, and

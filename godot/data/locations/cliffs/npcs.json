@@ -45,6 +45,35 @@
    ],
    "when": [
     {
+     "flag": "cliffs_easterDone",
+     "schedule": [
+      [
+       7,
+       9,
+       "platform",
+       "idle"
+      ],
+      [
+       9,
+       12,
+       "square",
+       "idle"
+      ],
+      [
+       12,
+       18,
+       "cliffs_cellar:spot",
+       "work"
+      ],
+      [
+       18,
+       22,
+       "square",
+       "idle"
+      ]
+     ]
+    },
+    {
      "flag": "cliffs_restBuilt",
      "schedule": [
       [
@@ -56,7 +85,7 @@
       [
        11,
        13,
-       "square",
+       "squareE",
        "idle"
       ],
       [
@@ -120,7 +149,7 @@
       [
        12,
        17,
-       "cellarSq",
+       "cellarSqE",
        "idle"
       ],
       [
@@ -289,14 +318,8 @@
      "schedule": [
       [
        6,
-       11,
-       "gatherB",
-       "idle"
-      ],
-      [
-       11,
        13,
-       "square",
+       "gatherB",
        "idle"
       ],
       [
@@ -451,6 +474,47 @@
    ],
    "when": [
     {
+     "flag": "cliffs_easterDone",
+     "schedule": [
+      [
+       7,
+       10,
+       "cliffs_workshop:spot",
+       "work"
+      ],
+      [
+       10,
+       12,
+       "rail6",
+       "work"
+      ],
+      [
+       12,
+       13,
+       "cellarSq",
+       "idle"
+      ],
+      [
+       13,
+       16,
+       "cliffs_workshop:spot",
+       "work"
+      ],
+      [
+       16,
+       18,
+       "railTop",
+       "idle"
+      ],
+      [
+       18,
+       21,
+       "squareE",
+       "idle"
+      ]
+     ]
+    },
+    {
      "flag": "cliffs_restBuilt",
      "schedule": [
       [
@@ -462,7 +526,7 @@
       [
        11,
        13,
-       "square",
+       "street18",
        "idle"
       ],
       [
@@ -822,6 +886,35 @@
    ],
    "when": [
     {
+     "flag": "cliffs_easterDone",
+     "schedule": [
+      [
+       7,
+       12,
+       "breakwaterMid",
+       "work"
+      ],
+      [
+       12,
+       14,
+       "cliffs_bar:in",
+       "idle"
+      ],
+      [
+       14,
+       18,
+       "squareE",
+       "work"
+      ],
+      [
+       18,
+       21,
+       "breakwaterMid",
+       "idle"
+      ]
+     ]
+    },
+    {
      "flag": "cliffs_restBuilt",
      "schedule": [
       [
@@ -1140,35 +1233,76 @@
     [
      8,
      10,
-     "platform",
+     "platformW",
      "idle"
     ],
     [
      10,
      12,
-     "square",
+     "squareN",
      "idle"
     ],
     [
      12,
      14,
-     "cellarSq",
+     "workshopDoor",
      "idle"
     ],
     [
      14,
      17,
-     "street8",
+     "street18",
      "idle"
     ],
     [
      17,
      21,
-     "platform",
+     "platformW",
      "idle"
     ]
    ],
    "when": [
+    {
+     "flag": "cliffs_easterDone",
+     "schedule": [
+      [
+       8,
+       10,
+       "platformW",
+       "idle"
+      ],
+      [
+       10,
+       12,
+       "squareN",
+       "idle"
+      ],
+      [
+       12,
+       14,
+       "workshopDoor",
+       "idle"
+      ],
+      [
+       14,
+       17,
+       "street18",
+       "idle"
+      ],
+      [
+       17,
+       20,
+       "platformW",
+       "idle"
+      ],
+      [
+       20,
+       24,
+       "shelter",
+       "idle"
+      ]
+     ]
+    },
     {
      "flag": "cliffs_restBuilt",
      "schedule": [
@@ -1193,7 +1327,7 @@
       [
        19,
        21,
-       "platform",
+       "platformW",
        "idle"
       ]
      ]
@@ -1204,31 +1338,31 @@
       [
        8,
        10,
-       "platform",
+       "platformW",
        "idle"
       ],
       [
        10,
        12,
-       "square",
+       "squareN",
        "idle"
       ],
       [
        12,
        14,
-       "cellarSq",
+       "workshopDoor",
        "idle"
       ],
       [
        14,
        17,
-       "street8",
+       "street18",
        "idle"
       ],
       [
        17,
        20,
-       "platform",
+       "platformW",
        "idle"
       ],
       [

@@ -164,9 +164,25 @@ func start_node() -> String:
 		if String(id).contains(":") != (room != "") or (room != "" and not String(id).begins_with(room + ":")): continue
 		if room == "" and not level_ok(a[0], a[1]): continue
 		if line_clear(here, Vector2(a[0], a[1])): return String(id)
+	for id in ids.slice(0, 14):
+		var a: Array = Data.layout.nav_nodes[id]
+		if room == "" and not String(id).contains(":") and level_ok(a[0], a[1]): return String(id)
 	return Schedule.nearest_node(p.x, p.z, game.state.flags)
 
+func leave_hut() -> void:
+	var p: Vector3 = game.player.pos
+	if p.x < 18.9 or p.x > 22.1 or p.z < -42.0 or p.z > -39.8 or absf(p.y - 18.0) > 0.6: return
+	for pl in game.state.placements:
+		if String(pl.id) == "doorWall" and int(pl.i) == 19 and int(pl.k) == -41 and not pl.get("state", {}).get("open", false):
+			await walk_direct(19.5, -40.6, 0.3, 10.0)
+			await face_and_press("pl:%d" % int(pl.uid), 19.5, -39.9)
+			await frames(6)
+	await walk_direct(19.5, -40.3, 0.3, 10.0)
+	await walk_direct(19.5, -38.9, 0.4, 10.0)
+	note("out of the hut through its door, at %s" % where())
+
 func walk_to(x: float, z: float, tol: float = 0.8) -> bool:
+	await leave_hut()
 	var f: Dictionary = game.state.flags
 	var p: Vector3 = game.player.pos
 	var path := Schedule.find_path(start_node(), level_node(x, z), f)

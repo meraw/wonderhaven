@@ -547,3 +547,26 @@ func test_build_sites_leave_the_routes_open():
 						crossed.append("%s-%s" % [e[0], e[1]])
 						break
 			t.eq(crossed, [], "what you build at %s can't block a route villagers walk" % z.name))
+
+func test_villagers_never_share_a_spot():
+	_here(func():
+		var cast: Array = Data.npcs.filter(func(n): return n.get("island", "") == ID)
+		var story := ["cliffs_welcomed", "cliffs_wallBuilt", "cliffs_monorailRuns", "cliffs_cellarOpen", "cliffs_boats_launched",
+			"cliffs_sanctuaryPath", "cliffs_shelterBuilt", "cliffs_swimDone", "cliffs_restBuilt", "cliffs_easterDone"]
+		var day_of := func(n: Dictionary, flags: Dictionary) -> Array:
+			for w in n.get("when", []):
+				if flags.get(w.flag, false): return w.schedule
+			return n.schedule
+		for step in story.size() + 1:
+			var flags := {}
+			for f in story.slice(0, step): flags[f] = true
+			var shared: Array = []
+			for a in cast.size():
+				for b in range(a + 1, cast.size()):
+					for e in day_of.call(cast[a], flags):
+						for f in day_of.call(cast[b], flags):
+							if String(e[2]) == String(f[2]) and maxf(e[0], f[0]) < minf(e[1], f[1]): shared.append("%s and %s at %s" % [cast[a].id, cast[b].id, e[2]])
+			t.eq(shared, [], "no two villagers stand on one spot (so you can always talk to the one you want), %s" % (story[step - 1] if step > 0 else "on arrival"))
+		var after: Dictionary = {}
+		for f in story: after[f] = true
+		for n in cast: t.ok(day_of.call(n, after) != day_of.call(n, after.merged({"cliffs_easterDone": false}, true)) or not n.get("when", []).any(func(w): return w.flag == "cliffs_restBuilt"), "%s goes back to a normal day after Easter" % n.name))
