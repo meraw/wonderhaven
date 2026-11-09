@@ -124,6 +124,12 @@ static func _rests_on(pl: Dictionary, q: Dictionary) -> bool:
 	if absf(q.y + def(q.id).h - pl.y) > 0.05: return false
 	return overlap2(rect_of(d, pl, [0, 0, d.size[0], d.size[1]]), bounds(q), 0.05)
 
+static func rests_on(pl: Dictionary, q: Dictionary) -> bool: return _rests_on(pl, q)
+
+static func meet_at_a_corner(a: Dictionary, b: Dictionary) -> bool:
+	if not def(a.id).get("edge", false) or not def(b.id).get("edge", false): return false
+	return is_equal_approx(float(a.i), float(b.i)) and is_equal_approx(float(a.k), float(b.k)) and posmod(int(a.r) - int(b.r), 2) == 1
+
 static func _over_water(pl: Dictionary) -> bool:
 	for c in cells(pl):
 		if ground_at(c.x, c.y) < Heightfield.WALKABLE_MIN: return true
@@ -243,7 +249,7 @@ static func validate_placement(pl: Dictionary, ctx: Dictionary) -> Dictionary:
 		if not on_piece and _over_water(pl): return {"ok": false, "reason": "That would sink! Use bridge planks and posts over water"}
 	for q in placements:
 		if q.uid == pl.uid: continue
-		if overlap3(b, bounds(q)): return {"ok": false, "reason": "Bumps into the %s" % String(def(q.id).name).to_lower()}
+		if overlap3(b, bounds(q)) and not meet_at_a_corner(pl, q): return {"ok": false, "reason": "Bumps into the %s" % String(def(q.id).name).to_lower()}
 	var flags: Dictionary = ctx.get("flags", {})
 	for s in ctx.get("statics", []):
 		if s.has("flag") and flags.get(s.flag, false): continue

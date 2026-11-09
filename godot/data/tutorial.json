@@ -141,7 +141,7 @@
    "title": "How building works",
    "seconds": 40,
    "lines": [
-    "Green spots show where the piece in your hand fits. Click to build; {rotate} turns it.",
+    "Green spots show where the piece in your hand fits. Click to build, or hold and drag for a row; {rotate} turns it.",
     "Short of materials? It goes into your blue draft, to build once you have them.",
     "Ctrl+Z undoes. Esc leaves."
    ]
