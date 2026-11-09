@@ -103,7 +103,9 @@ func walk_around() -> void:
 	ok = await go("top0")
 	check("c7", "Up the stair through the terraces to the pines at the top", ok and y_near(27.0), where())
 	await shot("top-of-the-terraces")
-	ok = await go("sanctuary")
+	for wp in [Vector2(-15.0, -59.6), Vector2(-30.0, -59.6), Vector2(-44.0, -59.6), Vector2(-47.8, -59.4), Vector2(-48.6, -57.8)]:
+		await walk_direct(wp.x, wp.y, 0.5, 30.0)
+	ok = at(-48.6, -57.8, 1.0)
 	check("c8", "Along the top to the sanctuary", ok and y_near(29.5), where())
 	await shot("sanctuary")
 	ok = await enter("cliffs_sanctuary", "chapel")
