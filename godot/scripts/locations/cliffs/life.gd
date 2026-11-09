@@ -19,9 +19,21 @@ func setup(g, v: Node3D) -> void:
 	village = v
 	scenery = load("res://scripts/locations/cliffs/scenery.gd")
 	cart = v.find_child("cliffs_cart1_model", true, false)
+	if g != null and g.has_signal("game_event"): g.game_event.connect(_on_event)
 	if g == null or not g.has_method("add_interactable"): return
 	g.add_interactable({"id": "cliffs_bell", "x": BELL.x, "z": BELL.y, "radius": 1.8, "priority": 0.7,
 		"label": func(): return "Ring the sanctuary bell", "act": func(): ring()})
+
+func _on_event(type: String, data: Dictionary) -> void:
+	if type != "flag" or not bool(data.get("value", true)): return
+	var f := String(data.get("flag", ""))
+	if not f.begins_with("cliffs_terrace_"): return
+	clear_brambles(f.trim_prefix("cliffs_terrace_"))
+
+func clear_brambles(id: String) -> void:
+	if village == null or scenery == null: return
+	var group: Node3D = village.find_child(scenery.bramble_group(id), true, false)
+	if group != null: group.visible = false
 
 func ring() -> void:
 	if game == null: return
