@@ -15,6 +15,9 @@ func spot(id: String) -> Vector2:
 func go(id: String) -> bool:
 	var p := spot(id)
 	await walk_to(p.x, p.y, 0.6)
+	if not at(p.x, p.y, 1.6) or absf(Heightfield.height(p.x, p.y) - game.player.pos.y) > 0.6:
+		note("not at %s yet (at %s): walking round again" % [id, where()])
+		await walk_to(p.x, p.y, 0.6)
 	return at(p.x, p.y, 1.6)
 
 func y_near(v: float, tol: float = 0.4) -> bool: return absf(game.player.pos.y - v) < tol
