@@ -625,9 +625,11 @@ the euro switch happening in Serenza itself.
 - **Changes from the plan:**
   - Drizzle instead of afternoon showers, as the shared weather has it.
   - Swallows wheel over three spots rather than nesting under the eaves.
+  - The platform and the harbour square no longer ask you for light after dusk: their lamp posts light them. The
+    church rocks and the sanctuary forecourt still do.
 - **Checked:**
   - **Tested** (`test_cliffs.gd`, 31 tests): stages 1 to 3's, plus the lamp posts (on walkable ground, clear of every
-    path), the sea fog's spec and the misty mornings, brambles hidden by a terrace's flag and cleared live by the flag
+    path, and no hangout with a lamp post asking for light), the sea fog's spec and the misty mornings, brambles hidden by a terrace's flag and cleared live by the flag
     event, the animals (hours, terraces in use, swallows growing with the main requests, every lizard on a wall face,
     every gull's seat above the water), the train horns (once per train, as it leaves the tunnel), the sea and the
     gulls by distance, the Easter peals, the hikers' loop (on the nav graph, through the sanctuary and the breakwater,

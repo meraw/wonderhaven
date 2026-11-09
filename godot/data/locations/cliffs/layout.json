@@ -2732,8 +2732,7 @@
    "z": -4.6,
    "r": 3.0,
    "needs": [
-    "green",
-    "light"
+    "green"
    ]
   },
   {
@@ -2745,8 +2744,7 @@
    "r": 4.5,
    "needs": [
     "seat",
-    "green",
-    "light"
+    "green"
    ],
    "who": "cliffs_nunzia"
   },

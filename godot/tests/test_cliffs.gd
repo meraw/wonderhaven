@@ -584,6 +584,9 @@ func test_night_lights_and_sea_fog():
 		for l in lamps:
 			t.ok(C.walkable_area(float(l.x), float(l.z)), "%s stands where people walk" % l.id)
 			t.ok(Heightfield.height(float(l.x), float(l.z)) > Heightfield.WATER_Y, "%s is on dry land" % l.id)
+		for h in Data.layout.hangouts:
+			var lit: bool = lamps.any(func(l): return Vector2(float(l.x) - float(h.x), float(l.z) - float(h.z)).length() < float(h.r) + 2.0)
+			if lit: t.ok(not h.needs.has("light"), "%s has a lamp post, so it doesn't ask you for light" % h.name)
 		var fog: Dictionary = Data.layout.valley_fog
 		t.ok(float(fog.y) > 8.0 and float(fog.y) < 11.0, "the sea fog fills the ravine up to the station")
 		t.ok(float(fog.morning) > float(fog.evening) and float(fog.day) == 0.0, "thickest in the morning, gone by day")
