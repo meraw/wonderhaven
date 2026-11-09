@@ -14,6 +14,7 @@ var selected_draft := -1
 var draft_only := false
 var version := 0
 var draft_root := Node3D.new()
+var marks := MachineMarks.new()
 var draft_nodes := {}
 var spots_root := Node3D.new()
 var spot_mesh := MeshInstance3D.new()
@@ -55,6 +56,7 @@ func setup(g) -> void:
 	grid_root.name = "BuildGrid"; grid_root.visible = false
 	game.add_child(grid_root); game.add_child(plan_root)
 	draft_root.name = "Drafts"; game.add_child(draft_root)
+	game.add_child(marks)
 	spots_root.name = "BuildSpots"; game.add_child(spots_root)
 	var spot_mat := Palette.glow_mat(Color("5dff9a"), 0.34)
 	spot_mat.cull_mode = BaseMaterial3D.CULL_DISABLED
@@ -100,6 +102,7 @@ func open(zone_id: String = "") -> bool:
 	rebuild_grid(); refresh_plan(); refresh_hangouts()
 	grid_root.visible = true
 	hangout_root.visible = true
+	marks.visible = true
 	game.cam.set_mode("build")
 	game.player_char.play("build", true); game.player_char.show_staff(true)
 	# with a plan to follow here, its next piece is already in your hand, turned the way its outline is
@@ -119,6 +122,7 @@ func close() -> void:
 	_clear_ghost(); sel_box.visible = false; grid_root.visible = false
 	spots_root.visible = false; spot_key = ""; _show_fills(true)
 	hangout_root.visible = false
+	marks.visible = false; marks.show_ghost({})
 	game.cam.set_mode("explore")
 	game.player_char.stop_hold()
 	if ui: ui.queue_free(); ui = null
@@ -380,6 +384,20 @@ func _draft_reason(real_reason: String) -> String:
 	return real_reason.to_lower() if real_reason.contains("standing there") else "it rests on drafted pieces"
 
 func evaluate(c: Dictionary) -> Dictionary:
+	var out := _evaluate(c)
+	if out.get("ok", false) and Data.piece(c.id).has("mech"):
+		out["mech"] = Mechanics.explain(out.pl, state().placements, game.machine_targets())
+	return out
+
+func _mech_text() -> String:
+	var m: Dictionary = check.get("mech", {})
+	if m.is_empty(): return ""
+	var text := String(m.text)
+	var out := ". " + text.left(1).to_upper() + text.substr(1)
+	if String(m.get("reached", "")) != "": return out + ". " + String(m.reached)
+	return out + ("" if m.get("ok", false) else " (R turns it)")
+
+func _evaluate(c: Dictionary) -> Dictionary:
 	var pl := {"uid": _moving_uid(), "id": c.id, "i": c.i, "k": c.k, "r": c.r, "y": c.y}
 	if not moving.is_empty():
 		if moving.pl.has("color"): pl["color"] = moving.pl.color
@@ -459,9 +477,12 @@ func update(dt: float) -> void:
 			ghost_key = key
 			_render_status()
 		ghost.visible = not _settled()
+		marks.show_ghost(check.get("pl", {}) if ghost.visible else {})
 	else:
 		if ghost: ghost.visible = false
+		marks.show_ghost({})
 		if not check.is_empty(): check = {}; ghost_key = ""; _render_status()   # (so coming back to the same cell checks it again)
+	marks.refresh(state().placements, game.mech, game.machine_targets(), focus, version)
 	var center := Vector2(hover.point.x, hover.point.z) if not hover.is_empty() else Vector2(focus.x, focus.z)
 	_update_spots(center)
 	_near_labels()
@@ -1060,9 +1081,10 @@ func _status_text() -> String:
 	if check.is_empty(): return "%s: it can go on the glowing spots" % d.name
 	if not check.ok: return check.reason
 	match check.get("kind", ""):
-		"draft": return "Click to draft the %s: %s" % [String(d.name).to_lower(), check.why]
-		"build_draft": return "Click to build the drafted %s (%s)" % [String(d.name).to_lower(), _cost_text(d.cost)]
-	return "Click to build the %s (%s)%s" % [String(d.name).to_lower(), _cost_text(d.cost), _drag_hint(d)]
+		"draft": return "Click to draft the %s: %s%s" % [String(d.name).to_lower(), check.why, _mech_text()]
+		"build_draft": return "Click to build the drafted %s (%s)%s" % [String(d.name).to_lower(), _cost_text(d.cost), _mech_text()]
+	var mt := _mech_text()
+	return "Click to build the %s (%s)%s" % [String(d.name).to_lower(), _cost_text(d.cost), mt if mt != "" else _drag_hint(d)]
 
 func _drag_hint(d: Dictionary) -> String:
 	if _knows_dragging() or d.get("attach", "") == "wall": return ""
@@ -1155,6 +1177,11 @@ func _build_ui() -> void:
 			var v := VBoxContainer.new(); p.add_child(v)
 			v.add_child(_piece_title(pl.id, d.name, 16))
 			var desc := UiTheme.label(d.desc, 12, UiTheme.INK2); desc.autowrap_mode = TextServer.AUTOWRAP_WORD; desc.custom_minimum_size.x = 220; v.add_child(desc)
+			if moving.is_empty() and d.has("mech"):
+				var ex := Mechanics.explain(pl, state().placements, game.machine_targets())
+				var t := String(ex.text)
+				var how := UiTheme.label(("✔ " if ex.ok else "✖ ") + t.left(1).to_upper() + t.substr(1) + ("" if ex.ok else ". ⟳ turns it."), 12, Color("2f8a52") if ex.ok else Color("b34a4a"))
+				how.name = "mech_state"; how.autowrap_mode = TextServer.AUTOWRAP_WORD; how.custom_minimum_size.x = 220; v.add_child(how)
 			if moving.is_empty():
 				var row := HBoxContainer.new(); v.add_child(row)
 				row.add_child(UiTheme.button("✋ Move", func(): start_move(pl.uid)))

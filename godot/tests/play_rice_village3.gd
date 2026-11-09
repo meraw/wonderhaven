@@ -130,10 +130,18 @@ func stairs() -> void:
 func mill() -> void:
 	await talk_for(P + "silvia", P + "mill")
 	check(130, "Silvia wants the old mill turning again, now the canal is full", status("mill") == "active", status("mill"))
-	await gather_for("chop", "mill", "wood", 6, "wood", 10, 24)
+	await gather_for("chop", "mill", "wood", 10, "wood", 10, 24)
 	await buy("battista", "metal", 1)
-	check(131, "chop wood and buy metal", progress("mill", "wood") >= 6 and progress("mill", "metal") >= 2, "wood %d metal %d" % [progress("mill", "wood"), progress("mill", "metal")])
+	check(131, "chop wood and buy metal", progress("mill", "wood") >= 10 and progress("mill", "metal") >= 2, "wood %d metal %d" % [progress("mill", "wood"), progress("mill", "metal")])
 	await walk_to(-36.0, -9.0, 1.0)
+	await open_build(P + "mill")
+	var planned: bool = game.build.site_plan().get("objective", "") == "drive" and game.build.item_id == "waterwheel"
+	var arrow: bool = game.build.marks.target_marks.get_node_or_null("target_" + P + "mill") != null
+	var drive: Dictionary = Data.quest(P + "mill").objectives.filter(func(o): return o.id == "drive")[0]
+	var steps: Array = game.story._zone_items(P + "mill", drive)
+	await leave_build()
+	var asks_shafts: bool = steps.any(func(r): return String(r.label).contains("shafts")) and not steps.any(func(r): return String(r.label).contains("pump"))
+	check(134, "at the mill the plan glows, an orange arrow marks the drive on its wall, and the list asks for shafts, not a pump", planned and arrow and asks_shafts, "plan %s arrow %s steps %s" % [planned, arrow, steps.map(func(r): return r.label)])
 	var row := [["waterwheel", -39, -13, 1]]
 	for i in range(-38, -32): row.append(["shaft", i, -13, 1])
 	var placed := await build(P + "mill", row)
