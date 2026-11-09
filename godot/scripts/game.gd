@@ -1193,6 +1193,8 @@ func _update_hotkeys() -> void:
 ## Sky, light, fog and rain follow the clock: keyframed colours through dawn, day, dusk and night, the sun and
 ## moon crossing the sky, and weather that drifts between clear, fair, cloudy, drizzle, rain and morning mist.
 var weather_now: Dictionary = {}
+var sun_hold := SunHold.new()
+var _sun_cam_xf := Transform3D()
 var look_here: Dictionary = {}   # the look block of the place you're on (its map entry)
 var _look_island := ""
 func _update_world_time(dt: float) -> void:
@@ -1219,7 +1221,10 @@ func _update_world_time(dt: float) -> void:
 	var grey := clampf((clouds - 0.4) * 1.1, 0.0, 0.7)
 	sun.light_energy = look.sun_energy * weather_now.sun
 	sun.light_color = look.sun_color.lerp(Color("d8dde2"), grey * 0.6)
-	var ld := Daylight.light_dir(h)
+	var cam_xf: Transform3D = camera.global_transform if camera and camera.is_inside_tree() else _sun_cam_xf
+	var view_moving := mode in ["cutscene", "menu"] or SunHold.view_moving(_sun_cam_xf, cam_xf, dt)
+	_sun_cam_xf = cam_xf
+	var ld := sun_hold.step(Daylight.light_dir(h), view_moving, dt)
 	sun.global_transform.basis = Basis.looking_at(-ld, Vector3.UP if absf(ld.y) < 0.99 else Vector3.FORWARD)
 	var e: Environment = env.environment
 	e.ambient_light_energy = look.ambient_energy * lerpf(1.0, 0.92, grey) * Palette.ambient_gain(nt)

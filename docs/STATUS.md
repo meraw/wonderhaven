@@ -5,6 +5,35 @@ Working title: **Wonderhaven** (to be renamed). The game is moving to a comic, l
 - **Godot 4 (`godot/`)** is the game. See `godot/README.md`. Its content (`godot/data/*.json`) is edited directly.
 - **Web / Three.js (`index.html`, `src/`)** is the original prototype, **frozen**: kept as it was, no longer updated. Everything added since the Godot port (interiors, shops, staged requests, the guided day, the look) exists only in Godot.
 
+## Shadows no longer shimmer while you talk (09/11)
+Reported: "the light is glitching while I talk to Battista the first time" (Windows PC; shadows jump or shimmer).
+- **The cause.** The clock never stops (one game minute a second), and the sun's direction was set from it every
+  frame, so the sun turned a tiny bit each frame and the shadow map was redrawn at a new angle each time: shadow edges
+  crawled. While you walk the motion hides it. In a conversation the camera holds still and close to two characters,
+  so it shows, and Barba Tista's first conversation is a long one. It was not his: every conversation, and every still
+  view, did the same.
+- **The fix** (shared, every place): the shadow-casting light holds still while the camera does. It follows the sun
+  at once while the camera moves; with a still view it waits until it is 6° behind (about half a minute of game
+  clock) and then catches up over about a second. A jump of the clock (sleeping, loading a save, a test setting the
+  hour) snaps it straight to the sun. The sky's sun disc, cloud shadows and the shader globals still follow the clock
+  every frame. Where: `SunHold` (`scripts/systems/sun_hold.gd`), used by `_update_world_time` in `game.gd`.
+- **How it was found.** Battista's first conversation was recorded frame by frame (Forward+ and compatibility, in the
+  fields in the morning and in the machine shed in the afternoon) and the frames compared on still ground away from
+  the characters. With the sun's direction frozen, the frame-to-frame change fell from 0.33 to 0.008 (109 sharply
+  changed pixels a frame to 5); with the dialogue portrait switched off instead it hardly changed (68), so the
+  portrait's second camera was not the cause.
+- **Checked:**
+  - **Tested** (`godot/run_tests.sh`, 516 passed, 510 before). `test_sun_hold` (6 tests): the first frame shows the
+    sun where it is; ten seconds of talking at 60 frames a second never move the light; over a minute and a half it
+    stays within the hold and moves on under a tenth of the frames; a moving camera catches up in the same frame; an
+    hour's nap and a save at another hour snap it; a camera easing its last millimetres counts as still, walking and
+    turning do not.
+  - **Played**: the same recorded conversation with the fix, Forward+: the change on still ground is 0.032 (2 sharply
+    changed pixels a frame), as with the sun frozen. `play_rice_village` (30 checks) passes. `npm test` and
+    `npm run build` pass.
+  - **Not checked on a real graphics card**: all of the above ran on software rendering (llvmpipe). The cause is the
+    same on any card, but whether the shimmer is gone on the reporter's Windows PC is for them to confirm.
+
 ## Building by dragging, corners that close, and fixes found on the way (09/11)
 The request was open ("improve my game"), so the work went to the centre of the design, building. All of it is shared:
 it works the same in every place.
