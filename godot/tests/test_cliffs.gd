@@ -170,7 +170,9 @@ func test_water_where_the_design_puts_it():
 		for k in range(31, 35):
 			t.ok(Heightfield.is_water(-0.5, k + 0.5), "the old slipway is broken: water at z %d" % k)
 		for n in Data.layout.nodes:
-			if n.kind == "fish": t.ok(Heightfield.is_water(n.x, n.z), "%s is in the water" % n.id))
+			if n.kind == "fish":
+				var f := float(n.get("facing", PI))
+				t.ok(not Heightfield.is_water(n.x, n.z) and Heightfield.is_water(n.x + sin(f) * 3.0, n.z + cos(f) * 3.0), "%s stands on the edge with water in front" % n.id))
 
 func test_build_sites():
 	_here(func():
@@ -520,3 +522,19 @@ func test_paper_naps_and_openings():
 		for h in Data.layout.hangouts: t.ok(_stand(w, float(h.x), float(h.z)), "%s is somewhere you can stand" % h.name)
 		var fish: Array = Data.layout.fish
 		t.ok(fish.any(func(f): return f.get("item", "") == "cliffs_bream") and fish.any(func(f): return f.get("item", "") == "cliffs_mullet"), "sea bream and grey mullet bite in the harbour"))
+
+func test_build_sites_leave_the_routes_open():
+	_here(func():
+		for zid in ["cliffs_tables", "cliffs_shelter", "cliffs_slipway", "cliffs_swim", "cliffs_hut", "cliffs_wall"]:
+			var z := Data.zone(zid)
+			var crossed: Array = []
+			for e in Data.layout.nav_edges:
+				var a: Array = Data.layout.nav_nodes[e[0]]
+				var b: Array = Data.layout.nav_nodes[e[1]]
+				var n := maxi(1, int(Vector2(a[0], a[1]).distance_to(Vector2(b[0], b[1])) / 0.25))
+				for s in n + 1:
+					var p := Vector2(a[0], a[1]).lerp(Vector2(b[0], b[1]), float(s) / n)
+					if p.x > float(z.minI) - 0.3 and p.x < float(z.maxI) + 1.3 and p.y > float(z.minK) - 0.3 and p.y < float(z.maxK) + 1.3:
+						crossed.append("%s-%s" % [e[0], e[1]])
+						break
+			t.eq(crossed, [], "what you build at %s can't block a route villagers walk" % z.name))

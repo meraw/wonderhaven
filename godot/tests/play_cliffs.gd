@@ -14,7 +14,7 @@ func spot(id: String) -> Vector2:
 
 func go(id: String) -> bool:
 	var p := spot(id)
-	await walk_to(p.x, p.y, 1.0)
+	await walk_to(p.x, p.y, 0.6)
 	return at(p.x, p.y, 1.6)
 
 func y_near(v: float, tol: float = 0.4) -> bool: return absf(game.player.pos.y - v) < tol
@@ -231,7 +231,7 @@ func step_done(qid: String, oid: String) -> bool:
 	return game.story.engine.objective(P + qid, step(qid, oid)).done
 
 var _game_id := 0
-func talk(id: String, accept: bool = true) -> bool:
+func talk(id: String, accept: bool = true, want: String = "") -> bool:
 	_game_id = game.get_instance_id()
 	for attempt in 14:
 		var a = game.npcs[id]
@@ -254,7 +254,9 @@ func talk(id: String, accept: bool = true) -> bool:
 			var idx := -1
 			if accept:
 				for i in ui.choices.size():
-					if str(ui.choices[i].label).begins_with("✨") or ui.choices[i].kind == "pay" or ui.choices[i].kind == "yes": idx = i; break
+					var c: Dictionary = ui.choices[i]
+					var offer: bool = c.kind == "offer" or str(c.label).begins_with("✨")
+					if c.kind == "pay" or c.kind == "yes" or (offer and want != "" and String(c.get("id", "")) == want): idx = i; break
 			if idx < 0:
 				for i in ui.choices.size():
 					if ui.choices[i].kind == "bye": idx = i
@@ -376,7 +378,7 @@ func open_build(zone_id: String) -> void:
 	for i in 40:
 		if game.build.current_zone.get("id", "") == zone_id: break
 		game.build.cycle_zone(1); await frames(2)
-	game.cam.yaw = 0.35; game.cam.pitch = 1.05; game.cam.dist = 15
+	game.cam.yaw = 0.35; game.cam.pitch = 1.35; game.cam.dist = 24
 	await frames(6)
 	if game.build.current_zone.get("id", "") != zone_id: note("build mode didn't reach %s (at %s)" % [zone_id, game.build.current_zone.get("id", "")])
 
@@ -387,11 +389,23 @@ func place_at(i: float, k: float, y: float = 0.1, r: int = -1) -> String:
 			await tap(KEY_R)
 	game.build.focus = Vector3(i + 0.5, y, k + 0.5)
 	await settle()
-	var p: Vector2 = game.camera.unproject_position(Vector3(i + 0.5, y, k + 0.5))
+	var target := Vector3(i + 0.5, y, k + 0.5)
+	for turn in 4:
+		if view_clear(target): break
+		game.cam.yaw += PI / 2.0
+		await settle()
+	var p: Vector2 = game.camera.unproject_position(target)
 	mouse_move(p); await frames(4)
 	var status: String = game.build.status_label.text if game.build.status_label else ""
 	await click(p); await frames(3)
 	return status
+
+func view_clear(target: Vector3) -> bool:
+	var eye: Vector3 = game.camera.global_position
+	for n in range(1, 24):
+		var q := target.lerp(eye, n / 24.0)
+		if q.y < Heightfield.height(q.x, q.z) + 0.05: return false
+	return true
 
 func _click_spot(e: Array, ghost: Dictionary) -> Vector3:
 	var id := String(e[2])
@@ -428,10 +442,11 @@ func plant(zone_id: String, id: String, i: int, k: int) -> bool:
 	await select_piece(id)
 	var before: int = game.state.placements.size()
 	var y := BuildGrid.ground_at(i, k)
-	await place_at(i, k, y, 0)
+	var status := await place_at(i, k, y, 0)
 	var ok: bool = game.state.placements.size() > before
+	var cand: Dictionary = game.build.candidate() if not ok else {}
 	await leave_build()
-	note("planted %s at %d, %d in %s: %s" % [id, i, k, zone_id, ok])
+	note("planted %s at %d, %d in %s: %s %s%s" % [id, i, k, zone_id, ok, status, "" if ok else " hover %s cand %s vines %d" % [str(game.build.hover.get("point", "")), str(cand), inv("cliffs_vine")]])
 	return ok
 
 func requests() -> void:
@@ -450,7 +465,7 @@ func requests() -> void:
 		SaveSystem.write("cl_" + SECTIONS[k], game.snapshot())
 
 func sec_welcome() -> void:
-	await talk(P + "marta")
+	await talk(P + "marta", true, P + "welcome")
 	var accepted: bool = qs("welcome") == "active"
 	await talk(P + "nunzia")
 	await talk(P + "giacomo")
@@ -466,7 +481,7 @@ func sec_welcome() -> void:
 
 func sec_hut() -> void:
 	await daytime()
-	await talk(P + "settimio")
+	await talk(P + "settimio", true, P + "hut")
 	var accepted: bool = qs("hut") == "active" and game.state.blueprints.has("vinePergola") and inv("cliffs_vine") >= 2
 	await go("plotE4")
 	await walk_direct(24.1, -40.9, 0.3, 15.0)
@@ -494,16 +509,17 @@ func sec_hut() -> void:
 
 func sec_wall() -> void:
 	await daytime()
-	await talk(P + "settimio")
+	await talk(P + "settimio", true, P + "wall")
 	var accepted: bool = qs("wall") == "active" and game.state.blueprints.has("drystoneWall")
 	await gather_more("mine", func(): return inv("stone") >= 12 and step_done("wall", "stone"))
 	await daytime()
 	await talk(P + "settimio")
 	await go("tW3w")
+	await walk_direct(-27.5, -36.0, 0.3, 15.0)
 	var placed := await build_plan("wall", "wall")
 	var sealed: bool = must_met("wall", "wall", 0) and must_met("wall", "wall", 1)
 	await shot("the-first-wall")
-	var w3 := await plant("cliffs_terrace_w3", "vinePergola", -22, -36)
+	var w3 := await plant("cliffs_terrace_w3", "vinePergola", -16, -36)
 	await go("tW4w")
 	var w4 := await plant("cliffs_terrace_w4", "vinePergola", -22, -40)
 	var back: bool = terrace("w3") and terrace("w4")
@@ -515,7 +531,7 @@ func sec_wall() -> void:
 
 func sec_monorail() -> void:
 	await daytime()
-	await talk(P + "mario")
+	await talk(P + "mario", true, P + "monorail")
 	var accepted: bool = qs("monorail") == "active"
 	await buy("mario", "metal", 1)
 	await gather_more("chop", func(): return inv("wood") >= 6, TREES)
@@ -536,7 +552,7 @@ func sec_monorail() -> void:
 
 func sec_cellar() -> void:
 	await daytime()
-	await talk(P + "marta")
+	await talk(P + "marta", true, P + "cellar")
 	var accepted: bool = qs("cellar") == "active"
 	await gather_more("chop", func(): return inv("wood") >= 10, TREES)
 	await walk_to(spot("cliffs_cellar:spot").x, spot("cliffs_cellar:spot").y, 0.6)
@@ -553,7 +569,7 @@ func sec_cellar() -> void:
 
 func sec_boats() -> void:
 	await daytime()
-	await talk(P + "giacomo")
+	await talk(P + "giacomo", true, P + "boats")
 	var accepted: bool = qs("boats") == "active"
 	await top_up("wood", 9)
 	await walk_to(-0.5, 28.6, 0.6)
@@ -582,7 +598,7 @@ func sec_boats() -> void:
 
 func sec_path() -> void:
 	await daytime()
-	await talk(P + "aurelio")
+	await talk(P + "aurelio", true, P + "path")
 	var accepted: bool = qs("path") == "active"
 	await top_up("wood", 8)
 	await top_up("stone", 6)
@@ -606,7 +622,7 @@ func sec_path() -> void:
 
 func sec_herbs() -> void:
 	await daytime()
-	await talk(P + "nunzia")
+	await talk(P + "nunzia", true, P + "herbs")
 	var accepted: bool = qs("herbs") == "active"
 	await gather_item("cliffs_greens", 8)
 	await gather_item("cliffs_borage", 3)
@@ -623,11 +639,11 @@ func sec_herbs() -> void:
 
 func sec_tables() -> void:
 	await daytime()
-	await talk(P + "nunzia")
+	await talk(P + "nunzia", true, P + "tables")
 	var accepted: bool = qs("tables") == "active"
 	await top_up("wood", 12)
 	await top_up("stone", 4)
-	await walk_to(5.5, 29.6, 0.6)
+	await walk_to(5.5, 26.8, 0.6)
 	var placed := await build_plan("tables", "tables")
 	await shot("tables-for-the-guests")
 	await talk(P + "nunzia")
@@ -636,22 +652,23 @@ func sec_tables() -> void:
 
 func sec_lunch() -> void:
 	await daytime()
-	await talk(P + "giacomo")
+	await talk(P + "giacomo", true, P + "lunch")
 	var accepted: bool = qs("lunch") == "active"
-	var fish: Array = ["cliffs_fish0", "cliffs_fish1", "cliffs_fish3"]
+	var fish: Array = ["cliffs_fish0", "cliffs_fish1", "cliffs_fish2", "cliffs_fish3"]
 	for n in 30:
 		if inv("cliffs_bream") >= 3 and inv("cliffs_mullet") >= 2: break
 		await gather_node(fish[n % fish.size()])
 	var caught: bool = inv("cliffs_bream") >= 3 and inv("cliffs_mullet") >= 2
+	var catch_text := "bream=%d mullet=%d" % [inv("cliffs_bream"), inv("cliffs_mullet")]
 	await daytime()
 	await talk(P + "nunzia")
 	if qs("lunch") != "done": await talk(P + "nunzia")
 	check("e3", "Fish for the Easter Lunch: three sea bream and two grey mullet caught off the harbour, handed to Nunzia, and the espadrilles",
-		accepted and caught and qs("lunch") == "done" and game.state.clothes_owned.has("cliffs_espadrilles"), "bream=%d mullet=%d %s" % [inv("cliffs_bream"), inv("cliffs_mullet"), qs("lunch")])
+		accepted and caught and qs("lunch") == "done" and game.state.clothes_owned.has("cliffs_espadrilles"), "caught %s, %s" % [catch_text, qs("lunch")])
 
 func sec_swim() -> void:
 	await daytime()
-	await talk(P + "aurelio")
+	await talk(P + "aurelio", true, P + "swim")
 	var accepted: bool = qs("swim") == "active"
 	await top_up("wood", 9)
 	await top_up("stone", 2)
@@ -674,12 +691,14 @@ func sec_swim() -> void:
 
 func sec_shelter() -> void:
 	await daytime()
-	await talk(P + "fulvio")
+	await talk(P + "fulvio", true, P + "shelter")
 	var accepted: bool = qs("shelter") == "active"
 	await top_up("wood", 7)
 	await top_up("stone", 4)
 	if inv("flowers") < 2: await gather_more("flowers", func(): return inv("flowers") >= 2, ["cliffs_broom0", "cliffs_broom1", "cliffs_broom2"])
+	await gather_more("clay", func(): return inv("clay") >= 1)
 	await go("shelter")
+	await walk_direct(-18.6, 2.6, 0.3, 10.0)
 	var placed := await build_plan("shelter", "shelter")
 	await shot("the-shelter")
 	if hour() < 20.0: await nap_until(21)
@@ -689,11 +708,12 @@ func sec_shelter() -> void:
 
 func sec_easter() -> void:
 	await daytime()
-	await talk(P + "marta")
+	await talk(P + "marta", true, P + "easter")
 	var accepted: bool = qs("easter") == "active"
 	var ten: bool = step_done("easter", "terraces")
 	await top_up("wood", 6)
 	await top_up("stone", 6)
+	await gather_more("clay", func(): return inv("clay") >= 1)
 	await go("halfway")
 	var placed := await build_plan("easter", "rest")
 	var rest: bool = flag("restBuilt")

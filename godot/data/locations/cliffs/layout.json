@@ -855,8 +855,8 @@
    "name": "The harbour square",
    "minI": 2,
    "maxI": 9,
-   "minK": 25,
-   "maxK": 28,
+   "minK": 28,
+   "maxK": 30,
    "floorY": 0.9,
    "unlock": {
     "quest": "cliffs_tables"
@@ -1345,26 +1345,30 @@
   {
    "id": "cliffs_fish0",
    "kind": "fish",
-   "x": 6.0,
-   "z": 34.0
+   "x": 10.6,
+   "z": 30.5,
+   "facing": 0.0
   },
   {
    "id": "cliffs_fish1",
    "kind": "fish",
-   "x": -8.0,
-   "z": 40.0
+   "x": 2.0,
+   "z": 45.4,
+   "facing": 3.141593
   },
   {
    "id": "cliffs_fish2",
    "kind": "fish",
-   "x": 27.5,
-   "z": 42.5
+   "x": 16.0,
+   "z": 47.6,
+   "facing": 0.0
   },
   {
    "id": "cliffs_fish3",
    "kind": "fish",
    "x": -24.0,
-   "z": 45.0
+   "z": 36.0,
+   "facing": 0.0
   }
  ],
  "features": [
@@ -1386,7 +1390,7 @@
   {
    "id": "cliffs_bench_square",
    "kind": "bench",
-   "x": 7.0,
+   "x": -5.0,
    "z": 29.5,
    "r": 2
   },
@@ -1444,8 +1448,8 @@
    2.0
   ],
   "shelter": [
-   -20.0,
-   0.2
+   -18.6,
+   0.6
   ],
   "doorW1": [
    -2.9,
@@ -1732,8 +1736,8 @@
    -37.2
   ],
   "tW3w": [
-   -26.0,
-   -37.2
+   -23.5,
+   -36.4
   ],
   "tW4": [
    -8.0,
