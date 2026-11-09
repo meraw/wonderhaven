@@ -12,7 +12,7 @@
    "greet": "Offcuts by the bundle, and patterns for the cosy things. Bring me fabric or winter flowers and I'll pay. A collection doesn't sew itself.",
    "requires": {"quests": ["metropolis_welcome"]},
    "buys": {"fabric": 2, "flowers": 3},
-   "stock": [{"items": {"fabric": 4}, "price": 22}, {"blueprint": "rug", "price": 30}, {"blueprint": "painting", "price": 30}, {"blueprint": "sofa", "price": 60, "requires": {"quests": ["metropolis_chiara"]}}, {"clothes": "metropolis_woolhat", "price": 25}]
+   "stock": [{"items": {"fabric": 4}, "price": 22}, {"blueprint": "rug", "price": 30}, {"blueprint": "painting", "price": 30}, {"blueprint": "sofa", "price": 60, "requires": {"quests": ["metropolis_chiara"]}}, {"blueprint": "armchair", "price": 30}, {"blueprint": "mirror", "price": 30}, {"blueprint": "pottedPlant", "price": 15}, {"blueprint": "sideTable", "price": 20}, {"blueprint": "credenza", "price": 45}, {"blueprint": "piano", "price": 70}, {"clothes": "metropolis_woolhat", "price": 25}]
   },
   "metropolis_gennaro": {
    "name": "Gennaro's chestnuts", "label": "A cone of chestnuts",
