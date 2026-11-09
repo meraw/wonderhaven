@@ -30,6 +30,7 @@ const FALLEN := Rect2(34.0, -20.0, 12.0, 6.0)
 const FALLEN_TOP := -18.0
 const MULE_GAP := Vector2(30.0, 33.0)
 const PIT_DEPTH := 1.2
+const LANDING := 0.75
 const PIAZZA := Vector3(-20.0, 13.8, -6.0)
 const PIAZZA_R := 8.5
 const PAD_EDGE := 2.0
@@ -168,9 +169,16 @@ static func _east_ground(p: Vector2, s: float) -> float:
 		h = lerpf(ramp_level(p), h, ss(PATH_HALF, PATH_HALF + BLEND, dr))
 	var dst := stairs_dist(p)
 	if in_mule_gap(p): return pit_level()
+	if in_mule_landing(p): return landing_level()
 	if dst < PATH_HALF + BLEND:
 		h = lerpf(stairs(s), h, ss(PATH_HALF, PATH_HALF + BLEND, dst))
 	return h
+
+static func in_mule_landing(p: Vector2) -> bool:
+	return p.y > MULE_GAP.x - LANDING and p.y <= MULE_GAP.x and line_dist(p, MULE) < PATH_HALF + BLEND
+
+static func landing_level() -> float:
+	return stairs(east_slope(20.0, MULE_GAP.x - LANDING))
 
 static func pit_level() -> float:
 	return stairs(east_slope(20.0, MULE_GAP.y)) - PIT_DEPTH

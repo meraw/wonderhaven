@@ -397,3 +397,18 @@ func test_the_rebuilt_terrace_can_be_climbed():
 		t.ok(Validate.sealed(Data.zone("olive_village_wall"), built).sealed, "the rebuilt wall closes the gap")
 		t.ok(Validate.path_across(climb, w).ok, "and its stairs take you up from the rubble onto the terrace"))
 
+func test_the_rebuilt_flight_carries_the_mule_track():
+	_on(func():
+		var o: Dictionary = Data.quest("olive_village_steps").objectives.filter(func(x): return x.has("plan"))[0]
+		var built: Array = []
+		for pl in Plans.lay_out(o.plan, Data.zone(String(o.zone)), []):
+			pl.uid = built.size() + 1
+			built.append(pl)
+		var w := WalkWorld.new(WorldStatics.build_statics(WorldStatics.generate_decor()), func(_f): return true)
+		w.floors = WorldStatics.floors()
+		var a: Array = Data.layout.nav_nodes.mule1
+		var b: Array = Data.layout.nav_nodes.mule2
+		t.ok(not _walks(w, a, b), "before it's rebuilt you can't walk up the mule track")
+		w.surfaces = BuildGrid.surfaces_for(built)
+		t.ok(_walks(w, a, b) and _walks(w, b, a), "once it is, the straight way between the spots either side runs over it, both ways"))
+

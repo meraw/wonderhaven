@@ -1449,6 +1449,9 @@
    "x": -38.2,
    "z": -33.4,
    "item": "olive_village_swarm",
+   "gives": {
+    "olive_village_swarm": 1
+   },
    "label": "Coax the swarm into the box",
    "hours": [
     5,
@@ -1636,11 +1639,11 @@
    50.0
   ],
   "mule1": [
-   20.2,
+   20.5,
    38.6
   ],
   "mule2": [
-   19.7,
+   20.5,
    27.0
   ],
   "mule3": [
