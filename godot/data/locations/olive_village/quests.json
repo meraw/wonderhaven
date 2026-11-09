@@ -1948,12 +1948,24 @@
      "id": "stone",
      "kind": "gather",
      "item": "stone",
-     "count": 12,
+     "count": 6,
      "stage": 0,
-     "text": "Quarry 12 stone (the rubble on the abandoned terraces)",
+     "text": "Quarry 6 stone (the rubble on the abandoned terraces)",
      "hint": {
       "x": 26,
       "z": -46
+     }
+    },
+    {
+     "id": "wood",
+     "kind": "gather",
+     "item": "wood",
+     "count": 2,
+     "stage": 0,
+     "text": "Chop 2 wood for the stairs",
+     "hint": {
+      "x": 28,
+      "z": -74
      }
     },
     {
@@ -1978,14 +1990,14 @@
       {
        "check": "pieces",
        "who": "olive_village_delia",
-       "label": "In stone, like it was: six blocks",
+       "label": "Stone under it, like it was: four blocks",
        "any": [
         "stoneBlock"
        ],
-       "count": 6
+       "count": 4
       }
      ],
-     "buildHint": "Stone blocks stack. Build a step at a time, each no higher than you can climb.",
+     "buildHint": "A course of stone blocks across the gap, then stairs up the last step.",
      "hint": {
       "x": 20,
       "z": 31
@@ -1993,13 +2005,7 @@
      "plan": [
       [
        20,
-       30,
-       "stoneBlock",
-       0
-      ],
-      [
-       20,
-       30,
+       32,
        "stoneBlock",
        0
       ],
@@ -2011,20 +2017,14 @@
       ],
       [
        20,
-       31,
+       30,
        "stoneBlock",
        0
       ],
       [
        20,
-       32,
-       "stoneBlock",
-       0
-      ],
-      [
-       20,
-       32,
-       "stoneBlock",
+       30,
+       "stairs",
        0
       ]
      ]
@@ -2072,7 +2072,8 @@
    },
    "onAccept": {
     "blueprints": [
-     "stoneBlock"
+     "stoneBlock",
+     "stairs"
     ]
    }
   },

@@ -146,6 +146,10 @@ func test_build_sites_fit_their_jobs():
 		var w := WalkWorld.new([])
 		w.floors = WorldStatics.floors()
 		t.ok(not Validate.path_across(Data.zone("olive_village_steps"), w).get("ok", false), "a flight of the mule track has collapsed: Gambero's steps can't be climbed")
+		var pit := OV.pit_level()
+		var below := Heightfield.height(20.5, OV.MULE_GAP.y + 0.2) - pit
+		var above := Heightfield.height(20.2, OV.MULE_GAP.x - 0.2) - pit
+		t.ok(below > WalkWorld.STEP_UP and below < 1.25 and above > 1.4, "fall into the gap and you can jump out on the downhill side (%.2f m), never up the uphill one (%.2f m)" % [below, above])
 		t.ok(Validate.path_across(Data.zone("olive_village_wall"), w).get("ok", false), "the fallen terrace's wall has come down into a slope of rubble")
 		t.ok(not _walks(w, [30.0, -12.0], [30.0, -22.0]), "beside the gap the terrace wall still stands")
 		for id in ["olive_village_house", "olive_village_sunset", "olive_village_plot", "olive_village_hives"]:

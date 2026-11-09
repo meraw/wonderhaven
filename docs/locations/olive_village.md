@@ -542,10 +542,11 @@ What exists now, and the choices made while building that the design above didn'
   - *Fuco's Swarm* (from 43): three hives with flowers, then the box at dawn (5 to 9) at the bell tower's lowest window,
     the swarm carried to the hives, and the Sindaco rings the bells again. Wishes: a roof against the breeze (the
     Sindaco), a painted hive (Hannelore).
-  - *Gambero's Steps:* stone blocks stacked two high rebuild the collapsed flight (`path`); the pit is 1.45 m below the
-    flight's low end, so two blocks meet both ends within a step. Once it's done, villagers take the short way
-    (a nav edge that waits for the flag, walked over the path you built). Delia's wish is six stone blocks, since a
-    bench (Gambero's wish) would clash with "all in stone".
+  - *Gambero's Steps:* a course of stone blocks across the gap and stairs up the last step rebuild the collapsed flight
+    (`path`). The gap fills exactly three grid rows, 1.2 m below the flight's low end and 1.5 m or more below its
+    high end: fall in and you can jump out downhill, never up. Once it's done, villagers take the short way (a nav edge that waits for the flag, walked over
+    the path you built). Delia's wish is four stone blocks, since a bench (Gambero's wish) would clash with "all in
+    stone".
   - *The lost things:* the Sindaco's sacristan's beret, Klaus's guidebook (for Hannelore), Bastian's grafting glove
     (not his pruning knife: the shared lost-thing models have a glove), Sirena's binoculars, and under the brambles Gina's
     sister's key, the 1962 radio (Gambero), Delia's sister's postcard and Davide's tin boat (Rosa). Ten coins each and
