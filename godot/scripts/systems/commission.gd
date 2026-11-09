@@ -106,7 +106,8 @@ static func check(c: Dictionary, o: Dictionary, pieces: Array, ctx: Dictionary) 
 			var zid := String(c.get("zone", o.get("zone", "")))
 			var on: Array = c.get("on", [])
 			var r: Dictionary = {"ok": false}
-			if ctx.has("path"): r = ctx.path.call(zid) if on.is_empty() else ctx.path.call(zid, covered(ctx.get("placements", pieces), on))
+			var only: Dictionary = {} if on.is_empty() else covered(ctx.get("placements", pieces), on)
+			if ctx.has("path") and (on.is_empty() or not only.is_empty()): r = ctx.path.call(zid) if on.is_empty() else ctx.path.call(zid, only)
 			ok = r.get("ok", false)
 			have = 1 if ok else 0
 			var cells := {}

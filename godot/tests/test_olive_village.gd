@@ -218,6 +218,8 @@ func test_shared_a_path_can_be_made_of_given_pieces():
 		var tiles: Array = []
 		for i in [-24, -23, -21, -20]: tiles.append(_pl("gardenPath", i, 17, 100 + i))
 		var c := {"check": "path", "zone": "zz", "on": ["gardenPath"]}
+		ctx["placements"] = []
+		t.ok(not Commission.check(c, {}, [], ctx).ok, "with none of the paving pieces down at all, it fails too (it doesn't fall back to the bare ground)")
 		ctx["placements"] = tiles
 		t.ok(not Commission.check(c, {}, tiles, ctx).ok, "a commission's path of paving pieces fails with a tile missing")
 		tiles.append(_pl("gardenPath", -22, 17, 200))
@@ -349,12 +351,16 @@ func test_requests_and_the_sign():
 			var node := Data.node_def("olive_village_lost_" + key)
 			t.ok(node.kind == "fragment" and node.get("once", false) and node.gives.has("olive_village_" + key), "%s lies somewhere to be found once" % key)
 			t.ok(q.onAccept.flags.has(String(node.flag)), "and turns up once %s has asked about it" % q.giver)
+		var near := func(n: Dictionary) -> Array:
+			var cells: Array = [_cell(n.x, n.z)]
+			if n.kind == "fish":
+				for dx in range(-4, 5):
+					for dz in range(-4, 5): cells.append(_cell(n.x + dx * STEP, n.z + dz * STEP))
+			return cells
 		var targets: Array = []
-		for n in Data.layout.nodes:
-			if n.has("gives") or n.has("flag"): targets.append(_cell(n.x, n.z))
+		for n in Data.layout.nodes: targets.append_array(near.call(n))
 		var r := _reach(true, targets)
-		for n in Data.layout.nodes:
-			if n.has("gives") or n.has("flag"): t.ok(r.found.has(_cell(n.x, n.z)), "%s can be reached on foot" % n.id))
+		for n in Data.layout.nodes: t.ok(near.call(n).any(func(c): return r.found.has(c)), "%s can be reached on foot (a fishing spot from the shore beside it)" % n.id))
 
 func test_tastes_and_shops():
 	_on(func():

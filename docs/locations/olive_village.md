@@ -1,7 +1,7 @@
 # Liolivato: design for the olive village
 
-Working id `olive_village`. Agreed with the user on 2026-11-08 in a design interview. **Stages 1 (ground and map) and 2 (buildings and
-scenery) are built; stages 3 and 4 are not.** See "Build status" at the end. This doc is the plan the build stages follow. The rules every location shares are in `docs/WORLD.md`; `docs/MONTEFORCHETTA.md`
+Working id `olive_village`. Agreed with the user on 2026-11-08 in a design interview. **Stages 1 (ground and map), 2 (buildings and
+scenery) and 3 (people, dialogue and requests) are built; stage 4 is not.** See "Build status" at the end. This doc is the plan the build stages follow. The rules every location shares are in `docs/WORLD.md`; `docs/MONTEFORCHETTA.md`
 and `docs/locations/river_town.md` are the models this doc follows. Serenza (`docs/locations/cliffs.md`)
 comes just before Liolivato, and the two were kept apart where they overlapped (see "Kept apart from Serenza"). Names,
 amounts and step details can still change in the build; the choices marked *proposed* weren't asked about and are open
@@ -293,7 +293,9 @@ Each is the smallest general version, comes with a test, and is named at the top
 | **A path over given pieces only:** the `path` check takes an optional list of pieces the path must run over (`"on": [...]`) | A carpet with no gaps from the bridge to the piazza; also rug runners or a red carpet | 3 |
 | **A view check:** nothing solid stands between a piece on the site (a seat) and a target point | The Sandals' sea view; reusable ("the statue can be seen from the piazza") | 3 |
 | **Two new synth voices** in `AudioDirector`: a tremolo-plucked mandolin and a brass section (trumpet and tuba) | The music and the festa's band; any location can use them | 4 |
-| **Tastes from a location pack**, if the shared `tastes.json` can't take them the way Boccapioppo's did | The cast's tastes | 3 |
+| **Tastes from a location pack**, if the shared `tastes.json` can't take them the way Boccapioppo's did | The cast's tastes | 3 (not needed: they went into `tastes.json`) |
+| **Colours written without a leading hash** count: a villager's clothes and skin (`Chibi.sanitize`) and a favourite paint colour (`Tastes.likes`, compared as colours) | Liolivato's files write colours without one | 3 |
+| **Ghost plans on a raised site** rest on what's under them: `Plans.lay_out` looks for supports from the site's `floorY`, not from 0 m (a roof's ghost sat on the ground 10 m up) | Every site in Liolivato is 10 to 25 m up | 3 |
 | **A per-area camera pitch**, only if the terraces don't show the sea without it | The sea seen from above | 4 |
 
 Already in the game and reused as they are: a location's own meter (`LocationMeter`), the zone path and sealed checks,
@@ -494,3 +496,76 @@ What exists now, and the choices made while building that the design above didn'
     church, the Sandals' house, Bastian's farmhouse and Gambero's boathouse, each with its roof fading while you're
     inside. Screenshots in both renderers.
   - **Not checked:** the glaze on the spire and the look at dusk in Forward+ beyond the screenshots.
+
+**Stage 3, the people, dialogue and requests:**
+- **Where it lives:** `npcs.json`, `quests.json`, `shops.json` and `resources.json` in `godot/data/locations/olive_village/`;
+  the cast's tastes in the shared `godot/data/tastes.json`; the sign's milestones in `location.json`; the story's marks on
+  the place in `olive_village.gd` (`WORLD_FLAGS`, `adjust`) and `olive_village/scenery.gd`.
+- **The cast:** the ten villagers with routines, greetings that change with the story, three topics each, two gifts
+  each and a sleepy line; Davide, Chiara, Luca and Sara arrive on the festa night (`present`) and move into the house
+  beside the osteria. The Sindaco waits on the pebbles until you take his welcome, then in the barber shop until you
+  sign, then keeps his days (the bells at seven, haircuts, lunch on the piazza, the afternoon ferry). Gambero plays cards
+  at the osteria every afternoon; the nonnas do the washing side by side. From the festa night on, the village comes to
+  the piazza every evening and dances under your lights. No two villagers ever stand on the same spot. Their clothes are
+  the shared pieces in their colours; the outfits in "Proposed, not asked" are stage 4.
+- **Tastes**, from the paint palette: the Sindaco signs, statues and streetlights, red; Klaus old stonework, orange;
+  Hannelore paintings, flower beds and lamps, sky blue; Bastian trees, fences and garden paths, green; Gina benches and
+  flower beds, white; Delia stairs and railings, dark slate; Rosa tables, chairs, counters and lamps, pink; Gambero
+  benches, railings and lanterns, dark slate; Sirena signposts and streetlights, white; Fuco flower beds, hedges and
+  beehives, yellow.
+- **Shops:** Rosa sells the four treats and buys basil and fish; the Sindaco sells metal, copper wire, clay, stone,
+  wood and plans (Liolivato has no clay to dig, so he sells it); Fuco sells broom and chestnut honey and candles and buys
+  flowers; Gambero sells sailcloth and buys the sea's junk (a flip-flop, half a deckchair, a soggy guidebook).
+- **Gathering:** chestnut wood on both ridges, stone from the rubble and the old quarry, flowers on the terraces and
+  the west flank, basil from the pots and Bastian's rows, brambles on the high terraces (a little wood, once each), the
+  cove's own fish (red mullet, scorpionfish, cuttlefish, a rare moray), and the eight lost things.
+- **The requests**, each building step a brief with musts, wishes and a ghost plan that works:
+  - *Welcome to Liolivato:* thank Gambero for the ride ashore, gather a little chestnut wood and terrace stone, meet the
+    Sandals, and sign for your house in the barber's chair (1,000 lire, about €0.52): 39.
+  - *The Jetty:* pontoons out from the pebbles to deep water, with a lantern on a second pontoon at the end (on the last
+    one it stood in the way); the ferry ties up there afterwards.
+  - *Water for the Terraces:* waterwheel, pump, pipes up the ramp, the tank fills. Wishes: a seat to watch the wheel
+    (Klaus), flowers by it (Gina); "the wheel in wood" was dropped, since a material wish covers the whole site and the
+    pump and pipes aren't wood.
+  - *The Fallen Terrace:* the wall with no gap (`sealed`) and stairs as a piece, since the rubble already lets you up.
+    Delia's wish is a thick wall (sixteen stone blocks) rather than "all in stone", which would clash with the wooden
+    stairs; Bastian's is a young olive tree on top.
+  - *A Roof for 1,000 Lire:* four walls with a door, a roof and a bed. Klaus's wish is something in stone (the old
+    crooked walls are scenery, so they always stand). The plan furnishes the room before the roof goes on: once it's
+    on, you can't point inside.
+  - *The Festa:* Rosa's quiet favour (two beds, a table and a lamp in the empty house, paid with her 240), a carpet of 26
+    petal tiles from the bridge through the covered alleys to the piazza (`path` over petal tiles only), the piazza set
+    with tables, four seats and two lights, then the evening after eight: the Sindaco hears the band's tuba on the cart
+    track, and Davide's family walks up behind it. The band itself and its music are stage 4.
+  - *The Sandals' Sunset:* a seat, a roof and the sea in view (`view`), all wood and stone; the plan puts the bench in
+    before the roof.
+  - *Fuco's Swarm* (from 43): three hives with flowers, then the box at dawn (5 to 9) at the bell tower's lowest window,
+    the swarm carried to the hives, and the Sindaco rings the bells again. Wishes: a roof against the breeze (the
+    Sindaco), a painted hive (Hannelore).
+  - *Gambero's Steps:* stone blocks stacked two high rebuild the collapsed flight (`path`); the pit is 1.45 m below the
+    flight's low end, so two blocks meet both ends within a step. Once it's done, villagers take the short way
+    (a nav edge that waits for the flag, walked over the path you built). Delia's wish is six stone blocks, since a
+    bench (Gambero's wish) would clash with "all in stone".
+  - *The lost things:* the Sindaco's sacristan's beret, Klaus's guidebook (for Hannelore), Bastian's grafting glove
+    (not his pruning knife: the shared lost-thing models have a glove), Sirena's binoculars, and under the brambles Gina's
+    sister's key, the 1962 radio (Gambero), Delia's sister's postcard and Davide's tin boat (Rosa). Ten coins each and
+    nothing on the sign.
+- **The sign:** 38, then +1 for each main and side request and +4 for the festa: 47 without the side requests, 50 with
+  everything. Milestones: 40 your terrace, 43 the beehive plans (and Fuco's swarm) and a bigger terrace, 46 an old olive
+  tree of your own with a tag, 50 (after the festa) a free haircut for life. The painted board by the bridge reads the
+  same number, worked out from the requests' flags.
+- **The place changes with the story:** the board's number, Sirena's ferry moored beside the jetty, water in the tank,
+  strings of coloured bulbs over the piazza from the festa night on, your olive tree.
+- **A fix to the shared path-over-pieces check (stage 3a):** with none of the given pieces down yet, it searched the
+  bare ground of the whole site instead of failing. That passed the petal carpet with no carpet, and once the festa was
+  taken on, it cost about 0.6 s a frame (the live checks run every frame). Now it fails at once.
+- **Build sites** each have a `floorY` at their ground level: the shared height limit counts from it, and on a site 10
+  to 25 m up nothing could be built without it.
+- **Checked:**
+  - **Tested** (`test_olive_village`, now 14 tests; `test_plans`): stage 2's, plus the people and their days (homes and
+    spots, nobody where the ferry leaves you, the Sindaco's welcome, Gambero's cards, Fuco at dawn, the festa evening, no
+    two villagers on one spot at any hour of the story), the requests and the sign (counts, the 47 and 50, milestones,
+    the board's text, what each step needs is in Liolivato and every gathering spot can be reached on foot), tastes
+    and shops; every request's ghost plan built piece by piece finishes its step. A flood with real collisions (trees,
+    buildings, props) also reached all 44 gathering spots, checked once while building (too slow for the suite).
+

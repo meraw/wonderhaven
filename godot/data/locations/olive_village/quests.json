@@ -877,7 +877,7 @@
        ]
       }
      ],
-     "buildHint": "Walls stand on cell edges; the roof rests on top of them. The old crooked walls can stay.",
+     "buildHint": "Walls stand on cell edges. Furnish it before the roof goes on: the roof rests on top of the walls.",
      "hint": {
       "x": -22,
       "z": 12
@@ -932,12 +932,6 @@
        0
       ],
       [
-       -23,
-       11,
-       "roof",
-       0
-      ],
-      [
        -22,
        11,
        "bed",
@@ -965,6 +959,12 @@
        -22,
        14,
        "flowerBed",
+       0
+      ],
+      [
+       -23,
+       11,
+       "roof",
        0
       ]
      ]
@@ -1660,7 +1660,7 @@
        "kind": "green"
       }
      ],
-     "buildHint": "Pillars hold the roof up. Face the bench south, to the sea.",
+     "buildHint": "Pillars hold the roof up. Put the bench in first, facing south to the sea, then the roof.",
      "hint": {
       "x": -17,
       "z": 17
@@ -1680,14 +1680,14 @@
       ],
       [
        -18,
-       16,
-       "roof",
+       17,
+       "bench",
        0
       ],
       [
        -18,
-       17,
-       "bench",
+       16,
+       "roof",
        0
       ]
      ]
