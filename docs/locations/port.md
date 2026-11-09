@@ -664,3 +664,27 @@ What exists now, and the choices made while building that the design above didn'
   - Gerolamo has no rowing boat.
   - The spray nap gag splashes and leaves a puddle, but you don't drip.
 
+**Checked for stage 4:**
+- **Tested** (`godot/tests/test_port.gd`, 37 tests, plus the shared checks; `test_atmosphere.gd` for the wind):
+  - The lantern dark, then glazed, then lit, with the beam only after dark and once round every eleven seconds.
+  - Each piece of washing fills its own lines, and all five fill every line in town.
+  - The gulls and pigeons keep their distance and land where you aren't; the boats go out only at night under the
+    beam.
+  - The music: a tune of Tonnarella's own for every part of the day, fuller once the lighthouse is lit, the finale's
+    own tune on the night of the lighting, all on instruments the synthesiser knows and never too loud on one step.
+  - The sounds: a ship's horn a few times a day but never at night, the ferry once at seven, the waves loudest on the
+    rocks.
+  - The cats on dry ground, the nap gags, tramontana days windier than scirocco days, the rocks painted cool.
+- **Played** (`godot/tests/play_port.gd`, 117 checks: 37 on the stage 1 and 2 walk, 80 on the requests and the
+  look), with real keys and mouse:
+  - Tonnarella's own music on arrival, and six cats about town.
+  - The pigeons clattering up in the church square, and a gull taking off from a bollard as you come close.
+  - The washing back on every line once all five pieces are returned.
+  - Waking on a quay bench to the gull making off with your focaccia.
+  - The pergola at 75%, the lantern's new panes, the beam and the lampara boats on the night of the lighting, the
+    finale's tune, the framed note on the flat's wall, and the fuller tunes afterwards.
+- **Seen** in screenshots in both renderers: the beam over the bay at night, the washing over Nonna's alley, the
+  pigeons and a cat in the church square, the pergola on the roof terrace, and the grey east rocks.
+- **Not heard:** the music and the sounds were only checked as data and by which tune the game asks for; a cloud
+  session has no speakers.
+
