@@ -1,6 +1,7 @@
 extends "full_base.gd"
 
 const Port := preload("../scripts/locations/port.gd")
+const Life := preload("../scripts/locations/port/life.gd")
 const EARLIER := ["hearthglow", "river_town", "rice_village", "metropolis"]
 
 var n := 0
@@ -219,6 +220,8 @@ func fresh_arrival() -> void:
 	note("arrived as if %s were played: %s, %d plans, off the 10 AM train" % [str(EARLIER), Money.lire(inv("coins")), game.state.blueprints.size()])
 
 func who(id: String) -> String: return PP + id
+func life() -> Node: return game.village.get_node_or_null("port_life") if game.get("village") != null else null
+func song() -> String: return String(game.audio.song) if game.get("audio") != null else ""
 func status(qid: String) -> String: return String(game.state.quests.get(PP + qid, {}).get("status", ""))
 func done(qid: String) -> bool: return status(qid) == "done"
 func step_done(qid: String, oid: String) -> bool: return game.state.quests.get(PP + qid, {}).get("done", {}).has(oid)
@@ -427,6 +430,17 @@ func step_welcome() -> void:
 	await ride("port_stairs_roof", "port_stairs_street", Vector2(38.6, -9.9))
 	await chat("nicolo")
 	check("welcome_done", "Nicolò counted the steps from the street: welcome home", done("welcome") and flag("port_welcomed") and flag("port_home"), status("welcome"))
+	check("music_own", "Tonnarella plays its own music", song().begins_with("port_"), song())
+	var cats: Array = game.get_node("Animals").cats if game.has_node("Animals") else []
+	check("cats", "alley cats about town", cats.size() == Data.layout.wildlife.cats.size(), "%d cats" % cats.size())
+	var lf := life()
+	var spot0: int = int(lf.pigeons[0].spot)
+	var at0: Vector2 = Life.PIGEON_SPOTS[spot0]
+	await walk_to(at0.x + 6.0, at0.y + 2.0, 0.8)
+	await walk_direct(at0.x, at0.y, 0.8, 8.0)
+	await frames(20)
+	check("pigeons", "the pigeons in the church square clatter up as you walk into them, and land elsewhere", String(lf.pigeons[0].state) == "flying" or int(lf.pigeons[0].spot) != spot0, "%s, spot %d" % [lf.pigeons[0].state, int(lf.pigeons[0].spot)])
+	await shot("pigeons-and-the-church")
 	check("welcome_meter", "15% of the changeover, and prices in both everywhere", meter() == 15 and flag("port_euro_both") and Money.mode_for(game.state.flags, "hearthglow") == "both",
 		"%d%%, %s" % [meter(), Money.mode_for(game.state.flags, "hearthglow")])
 	check("hud_meter", "the HUD shows the changeover", game.hud.harmony_label.text == "15%", "%s %s" % [game.hud.harmony_title.text, game.hud.harmony_label.text])
@@ -442,6 +456,18 @@ func step_errands() -> void:
 	for w in WASH_OWNERS:
 		await chat_until(WASH_OWNERS[w], func(): return done("wash_" + w))
 		check("back_" + w, "%s, back on the line" % Data.node_def("port_wash_" + w).name, done("wash_" + w), status("wash_" + w))
+	var lf := life()
+	check("washing_up", "the washing goes back on the lines all over town", lf.washing.values().all(func(g): return (g as Node3D).visible), "%d lines" % lf.washing.size())
+	await walk_to(-30.0, 0.0, 0.8)
+	game.cam.yaw = -1.2; game.cam.pitch = 0.08; game.cam.dist = 5.0
+	await frames(6)
+	await shot("washing-over-the-alley")
+	var g0: Dictionary = lf.perched[3]
+	var home: Vector3 = g0.home
+	await walk_to(home.x + 4.0, home.z - 6.0, 0.8)
+	await walk_direct(home.x, home.z - 1.2, 0.6, 8.0)
+	await frames(10)
+	check("gull_flies", "a gull on a bollard takes off when you come close", String(g0.state) == "flying", String(g0.state))
 	var queue := plan_of("queue", 1.2, {"roof": 3.4})
 	var gulls := plan_of("seagulls", 1.2, {"roof": 3.4})
 	var need := cost_of(queue + gulls)
@@ -501,7 +527,14 @@ func step_breakwater() -> void:
 func step_lampara() -> void:
 	await chat("stefano")
 	check("lampara_on", "Stefano asks you out under the lampara", status("lampara") == "active" and flag("port_lampara_on"), status("lampara"))
+	var seen: Array = []
+	var watch := func(n: Node): seen.append(String(n.name))
+	game.nap_gags.child_entered_tree.connect(watch)
+	game.shot_cfg["napgag"] = "gull"
 	if hour() < 20.0 and hour() > 5.0: await sleep_until("bench_quay1", 21)
+	game.shot_cfg.erase("napgag")
+	if game.nap_gags.child_entered_tree.is_connected(watch): game.nap_gags.child_entered_tree.disconnect(watch)
+	check("nap_gull", "napping on the quay, you wake to a gull making off with your focaccia", seen.has("port_nap_gull"), str(seen))
 	check("lampara_night", "night falls over the harbour", hour() >= 20.0 or hour() < 4.0, Clock.text(game.state.time))
 	for k in 12:
 		if step_done("lampara", "fish"): break
@@ -591,6 +624,7 @@ func step_nonna() -> void:
 	await chat_until("pina", func(): return done("nonna_lire"))
 	check("nonna_done", "a fortune in 1956 notes: thirty-eight euros", done("nonna_lire"), "%s, %d%%" % [status("nonna_lire"), meter()])
 	check("baciccia_gives_in", "75%: Baciccia frames his last note, and the fisherman's sweater is yours", meter() >= 75 and game.state.clothes_owned.has("port_sweater"), "%d%%" % meter())
+	check("pergola", "and a vine goes up on your roof terrace", life().pergola.visible)
 
 func step_lighthouse() -> void:
 	await chat("gerolamo")
@@ -605,6 +639,7 @@ func step_lighthouse() -> void:
 	check("light_materials", "four glass panes, sailcloth and driftwood", step_done("lighthouse", "glass") and step_done("lighthouse", "wood") and step_done("lighthouse", "fabric"), "glass %d" % inv("port_glass"))
 	await chat("gerolamo")
 	check("light_panes", "Gerolamo takes the panes up to glaze the lantern", step_done("lighthouse", "panes"), str(game.state.quests.get(PP + "lighthouse", {}).get("done", {}).keys()))
+	check("light_glazed", "and the lantern's broken panes are glazed", life().panes.size() == 2 and life().panes.all(func(m): return (m as Node3D).visible), "%d panes" % life().panes.size())
 	await walk_to(36.0, 80.0, 0.8)
 	await open_zone("rock", 0.0)
 	var placed := await put_all(plan)
@@ -623,9 +658,17 @@ func step_lighthouse() -> void:
 	check("light_crowd", "the town gathers on the breakwater at dusk", crowd >= 4, "%d on the breakwater" % crowd)
 	await chat("gerolamo")
 	check("light_lit", "after dark you light her with Gerolamo", step_done("lighthouse", "night") and flag("port_finale_night"), Clock.text(game.state.time))
+	await frames(10)
+	check("light_beam", "her beam sweeps the bay, and the lampara boats go out under it", life().beam.visible and life().boats.all(func(b): return (b.obj as Node3D).visible), "beam %s" % life().beam.visible)
+	var wanted: String = String(game.audio.want_song) if game.get("audio") != null else ""
+	check("finale_tune", "the night of the lighting has its own tune", wanted == "port_finale", "%s, fading in from %s" % [wanted, song()])
 	await chat("rosetta")
 	check("light_lire", "the last lire are spent at Rosetta's, open all night", step_done("lighthouse", "lire"), Clock.text(game.state.time))
 	await shot("rosettas-at-midnight")
+	await walk_to(-36.0, 39.0, 0.8)
+	game.cam.yaw = -2.2; game.cam.pitch = 0.05; game.cam.dist = 6.0
+	await frames(6)
+	await shot("the-beam-over-the-bay")
 	await chat_until("gerolamo", func(): return done("lighthouse"))
 	check("light_done", "the lighthouse is lit", done("lighthouse") and flag("port_lighthouse_lit"), status("lighthouse"))
 
@@ -634,7 +677,8 @@ func finale_checks() -> void:
 	check("changeover_complete", "everything done: 100% of the changeover", meter() == 100 and game.hud.harmony_label.text == "100%", "%d%%, HUD %s" % [meter(), game.hud.harmony_label.text])
 	check("last_lira", "the last lira: euros only, in every place", flag("port_euro_only") and Money.mode() == "euro" and Money.mode_for(game.state.flags, "hearthglow") == "euro" and not wallet().contains("lire"),
 		"wallet %s" % wallet())
-	check("framed_note", "a framed 1,000-lire note for your wall", inv("port_last_note") == 1)
+	check("framed_note", "a framed 1,000-lire note for your wall, and it hangs in your flat", inv("port_last_note") == 1 and life().note.visible)
+	check("music_after", "after the lighting the town's tunes are fuller", song().ends_with("_full"), song())
 	var all := Data.quests.filter(func(q): return Data.quest_island(q.id) == "port")
 	check("every_request", "every one of Tonnarella's 15 requests is done", all.all(func(q): return String(game.state.quests.get(q.id, {}).get("status", "")) == "done"),
 		str(all.filter(func(q): return String(game.state.quests.get(q.id, {}).get("status", "")) != "done").map(func(q): return q.id)))

@@ -2,6 +2,7 @@ extends RefCounted
 var t
 
 const Port := preload("../scripts/locations/port.gd")
+const Landmarks := preload("../scripts/locations/port/landmarks.gd")
 const EARLIER := ["hearthglow", "river_town", "rice_village", "metropolis"]
 
 func _on(fn: Callable) -> void:
@@ -532,3 +533,116 @@ func test_tonnarellas_tastes_match_painted_pieces():
 	t.eq(Tastes.likes("port_giobatta", {"id": "counter", "i": 34.0, "k": 26.0, "r": 0, "y": 1.2}), "piece", "Baciccia likes a counter")
 	t.eq(Tastes.likes("port_giobatta", {"id": "bench", "i": 34.0, "k": 26.0, "r": 0, "y": 1.2, "color": sea_green}), "colour", "and anything painted sea green from the palette")
 	t.eq(Tastes.likes("port_giobatta", {"id": "bench", "i": 34.0, "k": 26.0, "r": 0, "y": 1.2}), "", "but not a plain bench")
+
+const Life := preload("../scripts/locations/port/life.gd")
+
+func test_the_lantern_is_glazed_then_lit():
+	t.eq(Life.lantern_state({}), {"glazed": false, "lit": false, "beam": false}, "dark, with two panes broken, until Gerolamo glazes it")
+	t.eq(Life.lantern_state({"port_glazed": true}), {"glazed": true, "lit": false, "beam": false}, "glazed, still dark")
+	t.eq(Life.lantern_state({"port_glazed": true, "port_finale_night": true, "night": true}), {"glazed": true, "lit": true, "beam": true}, "lit on the finale night, the beam sweeping the bay")
+	t.eq(Life.lantern_state({"port_lighthouse_lit": true}).beam, false, "by day the lamp glows but there's no beam to see")
+	t.eq(Life.lantern_state({"port_lighthouse_lit": true, "night": true}).beam, true, "and every night after")
+	t.ok(is_equal_approx(Life.beam_angle(0.0), Life.beam_angle(Life.BEAM_PERIOD)), "the beam goes round once every eleven seconds")
+	t.ok(is_equal_approx(Life.beam_angle(Life.BEAM_PERIOD / 4.0), TAU / 4.0), "at a steady speed")
+	var b: Dictionary = Data.read_layout("port").buildings.filter(func(x): return x.id == "port_lantern")[0]
+	var broken: Array = Landmarks.lantern_panes(b).filter(func(p): return p.broken)
+	t.eq(broken.size(), 2, "two panes for Gerolamo to glaze")
+
+func test_the_washing_goes_back_on_its_lines():
+	t.eq(Life.washing_up({}), [], "bare lines until the washing comes back")
+	var lines: Array = Data.read_layout("port").port_lines
+	var all: Array = []
+	for w in Life.WASHING:
+		t.ok(Data.quest("port_wash_" + w).rewards.flags.has("port_wash_%s_done" % w), "bringing back the %s sets its flag" % w)
+		var up := Life.washing_up({"port_wash_%s_done" % w: true})
+		t.eq(up.size(), Life.WASHING[w].size(), "the %s fills its own lines" % w)
+		all.append_array(up)
+	all.sort()
+	var every: Array = range(lines.size())
+	t.eq(all, every, "with all five back, every line in town has washing on it")
+
+func test_the_animals_keep_their_distance():
+	t.ok(Life.gull_flees(Vector2(0, 0), Vector2(2.0, 0)), "a gull on a bollard flies off when you come close")
+	t.ok(not Life.gull_flees(Vector2(0, 0), Vector2(6.0, 0)), "and stays put when you don't")
+	t.ok(Life.pigeons_flee(Vector2(0, 0), Vector2(3.0, 0)), "the pigeons clatter up at your feet")
+	var spot := Life.next_pigeon_spot(0, Life.PIGEON_SPOTS[1])
+	t.ok(spot != 0 and spot != 1, "and land wherever you aren't (%d)" % spot)
+	_on(func():
+		for s in Life.PIGEON_SPOTS:
+			t.eq(Port.level(s.x, s.y), "middle", "the pigeons' spot %s is in the church square" % str(s))
+		for r in Life.GULL_RINGS:
+			var c: Vector2 = r[0]
+			t.ok(float(r[2]) > 6.0, "gulls circle high over %s" % str(c)))
+	t.ok(not Life.boats_out({"port_lighthouse_lit": true}), "no lampara boats out by day")
+	t.ok(Life.boats_out({"port_lighthouse_lit": true, "night": true}), "but at night under the beam they go out")
+	t.ok(not Life.boats_out({"night": true}), "and never while the lighthouse is dark")
+
+const PortSounds := preload("../scripts/locations/port/sounds.gd")
+const AudioDirector := preload("../scripts/audio/audio_director.gd")
+
+func test_tonnarellas_own_music():
+	var music: Dictionary = Data.island_def("port").get("music", {})
+	var loud := func(s: Dictionary) -> float:
+		var sum := 0.0
+		for st in AudioDirector.loop_steps(s):
+			for e in AudioDirector.step_events(s, st): sum += float(e[2])
+		return sum / AudioDirector.loop_steps(s)
+	var lit := {"port_lighthouse_lit": true}
+	for part in ["dawn", "morning", "afternoon", "evening", "night"]:
+		var before := AudioDirector.song_for(part, false, music)
+		var after := AudioDirector.song_for(part, false, music, lit)
+		t.ok(before.begins_with("port_") and after.begins_with("port_") and before != after, "%s: %s, then %s once the light is back" % [part, before, after])
+		t.ok(loud.call(AudioDirector.song_def(after, music)) > loud.call(AudioDirector.song_def(before, music)), "%s is fuller once the lighthouse is lit" % part)
+	t.eq(AudioDirector.song_for("evening", false, music, {"port_finale_night": true}), "port_finale", "the night of the lighting has its own tune")
+	t.eq(AudioDirector.song_for("night", false, music, {"port_finale_night": true, "port_lighthouse_lit": true}), "port_night_full", "and afterwards the nights go back to their own")
+	t.eq(AudioDirector.song_def("port_dawn", music).lead, "guitar", "a nylon-string guitar at dawn")
+	t.eq(AudioDirector.song_def("port_evening", music).lead, "accordion", "the accordion in the evening")
+	for id in music.songs:
+		var s: Dictionary = music.songs[id]
+		var insts: Array = [s.lead, s.get("pad_inst", "pad"), s.get("bass_inst", "pluck")] + ([s.arp] if s.arp != "" else []) + s.get("comp", []).map(func(c): return c.inst)
+		t.ok(insts.all(func(i): return i in AudioDirector.INSTRUMENTS), "%s plays known instruments %s" % [id, insts])
+		t.ok(s.drums in ["", "full", "light", "pop", "dance", "ballad"], "%s has a known drum pattern" % id)
+		var last := -1
+		var sorted := true
+		for m in s.melody:
+			if int(m[0]) < last: sorted = false
+			last = int(m[0])
+		t.ok(sorted, "%s's melody is in order" % id)
+		var peak := 0.0
+		for st in AudioDirector.loop_steps(s):
+			var sum := 0.0
+			for e in AudioDirector.step_events(s, st): sum += float(e[2])
+			peak = maxf(peak, sum)
+		t.ok(peak < 1.6, "%s never stacks too many loud notes on one step (%.2f)" % [id, peak])
+
+func test_the_sea_and_the_port_across_the_bay():
+	var horns := 0
+	for m in range(0, 24 * 60):
+		if PortSounds.horn_due(float(m), float(m + 1)): horns += 1
+	t.ok(horns >= 5 and horns <= 8, "a ship's horn from the port now and then through the day (%d)" % horns)
+	t.ok(not PortSounds.horn_due(2.0 * 60.0, 2.0 * 60.0 + 31.0), "never in the small hours")
+	t.ok(PortSounds.ferry_due(18.0 * 60.0 + 59.0, 19.0 * 60.0 + 1.0), "the evening ferry's long blast at seven")
+	t.ok(not PortSounds.ferry_due(19.0 * 60.0 + 1.0, 19.0 * 60.0 + 2.0), "once")
+	t.ok(PortSounds.nearest_rocks(Vector2(64.0, -20.0)) < 1.0, "the waves are loudest on the rocks")
+	t.ok(PortSounds.by_distance(PortSounds.nearest_rocks(Vector2(-8.0, -65.0)), 4.0, 45.0) == 0.0, "and out of earshot up at the station")
+
+func test_the_cats_and_the_naps():
+	_on(func():
+		var cats: Array = Data.layout.get("wildlife", {}).get("cats", [])
+		t.ok(cats.size() >= 5, "alley cats about town (%d)" % cats.size())
+		for c in cats:
+			var y: float = float(c[3]) if c.size() > 3 else Heightfield.height(float(c[0]), float(c[1]))
+			t.ok(not Heightfield.is_water(float(c[0]), float(c[1])), "a cat at %s is on dry ground" % str(c))
+			t.ok(y > Heightfield.WALKABLE_MIN, "and not in the sea")
+		var naps := Data.naps_here()
+		t.eq(naps.get("paper", ""), "Il Gabbiano", "the paper you wake under is Il Gabbiano")
+		t.ok(naps.gags.gull.get("visual", false), "the gull who eats your focaccia is a sight gag")
+		for g in ["spray", "basket"]: t.ok(not naps.gags[g].get("lines", []).is_empty(), "the %s gag has its lines" % g))
+	t.eq(Life.nap_scene("bench", "gull"), "gull", "waking on a bench, the gull is there")
+	t.eq(Life.nap_scene("bed", "gull"), "", "but never at home in bed")
+	t.eq(Life.nap_scene("bench", "newspaper"), "", "the shared gags keep their own scenes")
+	var lk: Dictionary = Data.island_def("port").look
+	t.ok(Atmosphere.wind_scale(lk, "clear") > Atmosphere.wind_scale(lk, "drizzle") * 2.0, "tramontana days blow far harder than scirocco days")
+	_on(func():
+		var rock := Heightfield.paint(64.0, -20.0)
+		t.ok(rock.b > rock.r, "the rocks are painted a cool grey, to come out grey under the warm sun (%s)" % str(rock)))

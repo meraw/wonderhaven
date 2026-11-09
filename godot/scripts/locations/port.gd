@@ -5,6 +5,7 @@ const Palazzo := preload("port/palazzo.gd")
 const Landmarks := preload("port/landmarks.gd")
 const Scenery := preload("port/scenery.gd")
 const Horizon := preload("port/horizon.gd")
+const Life := preload("port/life.gd")
 
 const SEA := -3.0
 const GAP_BED := -1.0
@@ -39,6 +40,7 @@ const LANES := [Rect2(-13.0, -34.0, 4.0, 12.0), Rect2(14.0, -34.0, 4.0, 12.0), R
 const RAIL := {"z": -81.5, "x0": -38.0, "x1": 50.0, "y": 20.0}
 
 const WORLD_FLAGS := ["port_lift_on"]
+const WARMTH := Vector3(0.95, 0.98, 1.1)
 
 static func _inside(r: Rect2, x: float, z: float) -> bool:
 	return x >= r.position.x and x < r.end.x and z >= r.position.y and z < r.end.y
@@ -125,11 +127,13 @@ static func paint(x: float, z: float) -> Color:
 			return Color(g.r, g.g, g.b, 0.7)
 		"band_a", "band_b", "middle": return _bare(Color("c4bba9"))
 		"quay": return _bare(Color("cfc7b5"))
-		"rocks", "rock": return _bare(Color("b3ada1").lerp(Color("9c968a"), n))
-		"breakwater", "gap": return _bare(Color("bdb7ab"))
+		"rocks", "rock": return _bare(cool(Color("c8c4ba").lerp(Color("aca89e"), n)))
+		"breakwater", "gap": return _bare(cool(Color("bdb7ab")))
 	return _bare(Color("8c9a8f"))
 
 static func _bare(c: Color) -> Color: return Color(c.r, c.g, c.b, 0.0)
+
+static func cool(c: Color) -> Color: return Color(c.r * WARMTH.x, c.g * WARMTH.y, minf(1.0, c.b * WARMTH.z))
 
 static func is_stream_cell(_i: float, _k: float) -> bool: return false
 
@@ -191,3 +195,7 @@ static func _plain(b: Dictionary, base: float) -> Node3D:
 static func dress(village: Node3D) -> void:
 	Scenery.dress(village, ground_fn(), LANES, RAIL)
 	Horizon.dress(village, ground_fn())
+	var life := Life.new()
+	life.name = "port_life"
+	village.add_child(life)
+	life.setup(village.get_parent(), village)

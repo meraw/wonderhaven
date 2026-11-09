@@ -33,6 +33,11 @@ static func wind_at(day: int, hour: float, w: Dictionary) -> Vector3:
 	var strength := 0.55 + 0.35 * float(w.get("clouds", 0.25)) + 0.6 * float(w.get("rain", 0.0))
 	return Vector3(cos(a), sin(a), strength)
 
+static func wind_scale(lk: Dictionary, weather: String) -> float:
+	var v = lk.get("wind", 1.0)
+	if v is Dictionary: return float(v.get(weather, v.get("default", 1.0)))
+	return float(v)
+
 ## Colour grade keyframes: [hour, shadow tint (what black becomes), highlight tint (what white becomes)].
 ## Cool, lifted shadows and warm highlights by day; rosy at dawn and dusk; blue moonlight at night.
 const GRADE := [
@@ -205,7 +210,7 @@ func _process(dt: float) -> void:
 	var night := Daylight.nightness(h)
 	var sunlit := (1.0 - night) * float(w.get("sun", 1.0))
 	var wind := wind_at(int(s.time.get("day", 0)), h, w)
-	wind.z *= float(look.get("wind", 1.0))
+	wind.z *= wind_scale(look, String(w.get("type", "")))
 	var gust := 0.5 + 0.5 * sin(game.time * 0.13) * sin(game.time * 0.071 + 1.3)
 	var wd := Vector2(wind.x, wind.y)
 	# Clouds drift downwind (the sky and the cloud shadows read this, so they move together).
