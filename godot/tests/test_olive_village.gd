@@ -345,7 +345,7 @@ func test_requests_and_the_sign():
 			for o in q.objectives:
 				if o.has("npc"): t.ok(people.has(String(o.npc)), "%s: %s is someone who lives here" % [q.id, o.npc])
 				if o.kind == "gather" and String(o.item).begins_with("olive_village_"):
-					t.ok(Data.layout.nodes.any(func(n): return n.get("gives", {}).has(o.item)), "%s: something in Liolivato gives %s" % [q.id, o.item])
+					t.ok(Data.layout.nodes.any(func(n): return n.get("gives", {}).has(o.item) or (n.kind == "forage" and n.get("item", "") == o.item)), "%s: something in Liolivato gives %s" % [q.id, o.item])
 				if o.kind == "commission": t.ok(not Data.zone(String(o.zone)).is_empty(), "%s builds on a real site (%s)" % [q.id, o.zone])
 		var swarm: Dictionary = Data.node_def("olive_village_swarm")
 		t.ok(swarm.hours.map(func(h): return int(h)) == [5, 9] and swarm.flag == "olive_village_swarm_ready", "the swarm can only be fetched at dawn, once Fuco has handed you the box")
@@ -381,3 +381,19 @@ func test_tastes_and_shops():
 		var rosa: Dictionary = Shop.def("olive_village_rosa")
 		t.ok(rosa.buys.has("olive_village_basil") and rosa.buys.has("olive_village_mullet"), "Rosa buys basil for her pesto, and fish")
 		t.ok(Shop.def("olive_village_giobatta").stock.any(func(l): return l.get("items", {}).has("clay")), "there's no clay here: the Sindaco sells it"))
+
+func test_the_rebuilt_terrace_can_be_climbed():
+	_on(func():
+		var o: Dictionary = Data.quest("olive_village_terrace").objectives.filter(func(x): return x.has("plan"))[0]
+		var built: Array = []
+		for pl in Plans.lay_out(o.plan, Data.zone(String(o.zone)), []):
+			pl.uid = built.size() + 1
+			built.append(pl)
+		var w := WalkWorld.new(WorldStatics.build_statics(WorldStatics.generate_decor()), func(_f): return false)
+		w.floors = WorldStatics.floors()
+		w.surfaces = BuildGrid.surfaces_for(built)
+		var climb := {"minI": 38, "maxI": 42, "minK": -22, "maxK": -14,
+			"endpoints": {"a": {"minI": 38, "maxI": 42, "minK": -14, "maxK": -14}, "b": {"minI": 38, "maxI": 42, "minK": -21, "maxK": -21}}}
+		t.ok(Validate.sealed(Data.zone("olive_village_wall"), built).sealed, "the rebuilt wall closes the gap")
+		t.ok(Validate.path_across(climb, w).ok, "and its stairs take you up from the rubble onto the terrace"))
+

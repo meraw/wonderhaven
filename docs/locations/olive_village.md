@@ -527,7 +527,9 @@ What exists now, and the choices made while building that the design above didn'
   - *Water for the Terraces:* waterwheel, pump, pipes up the ramp, the tank fills. Wishes: a seat to watch the wheel
     (Klaus), flowers by it (Gina); "the wheel in wood" was dropped, since a material wish covers the whole site and the
     pump and pipes aren't wood.
-  - *The Fallen Terrace:* the wall with no gap (`sealed`) and stairs as a piece, since the rubble already lets you up.
+  - *The Fallen Terrace:* the wall with no gap (`sealed`) and stairs as a piece, since the rubble already lets you up
+    before the wall is rebuilt. The plan has two flights, one on the rubble and one in the wall line, and the terrace
+    is level right behind the wall, so you can still walk up once it stands (a test builds the plan and checks both).
     Delia's wish is a thick wall (sixteen stone blocks) rather than "all in stone", which would clash with the wooden
     stairs; Bastian's is a young olive tree on top.
   - *A Roof for 1,000 Lire:* four walls with a door, a roof and a bed. Klaus's wish is something in stone (the old
@@ -539,7 +541,8 @@ What exists now, and the choices made while building that the design above didn'
     track, and Davide's family walks up behind it. The band itself and its music are stage 4.
   - *The Sandals' Sunset:* a seat, a roof and the sea in view (`view`), all wood and stone; the plan puts the bench in
     before the roof.
-  - *Fuco's Swarm* (from 43): three hives with flowers, then the box at dawn (5 to 9) at the bell tower's lowest window,
+  - *Fuco's Swarm* (from 43): three hives with flowers behind them, then the box at dawn (5 to 9) at the bell tower's
+    lowest window (a foraging spot whose `item` is the swarm),
     the swarm carried to the hives, and the Sindaco rings the bells again. Wishes: a roof against the breeze (the
     Sindaco), a painted hive (Hannelore).
   - *Gambero's Steps:* a course of stone blocks across the gap and stairs up the last step rebuild the collapsed flight
@@ -548,7 +551,7 @@ What exists now, and the choices made while building that the design above didn'
     the path you built). Delia's wish is four stone blocks, since a bench (Gambero's wish) would clash with "all in
     stone".
   - *The lost things:* the Sindaco's sacristan's beret, Klaus's guidebook (for Hannelore), Bastian's grafting glove
-    (not his pruning knife: the shared lost-thing models have a glove), Sirena's binoculars, and under the brambles Gina's
+    on the fallen terrace (not his pruning knife: the shared lost-thing models have a glove), Sirena's binoculars, and under the brambles Gina's
     sister's key, the 1962 radio (Gambero), Delia's sister's postcard and Davide's tin boat (Rosa). Ten coins each and
     nothing on the sign.
 - **The sign:** 38, then +1 for each main and side request and +4 for the festa: 47 without the side requests, 50 with

@@ -561,9 +561,9 @@
      "id": "stone",
      "kind": "gather",
      "item": "stone",
-     "count": 24,
+     "count": 22,
      "stage": 0,
-     "text": "Quarry 24 stone (the rubble below the fallen terrace, and the old quarry face on the west flank)",
+     "text": "Quarry 22 stone (the rubble below the fallen terrace, and the old quarry face on the west flank)",
      "hint": {
       "x": 40,
       "z": -12
@@ -573,9 +573,9 @@
      "id": "wood",
      "kind": "gather",
      "item": "wood",
-     "count": 2,
+     "count": 4,
      "stage": 0,
-     "text": "Chop 2 wood for the steps",
+     "text": "Chop 4 wood for two flights of steps",
      "hint": {
       "x": 28,
       "z": -74
@@ -619,7 +619,7 @@
        "count": 16
       }
      ],
-     "buildHint": "Stone blocks along the terrace edge, end to end with no gap. Stairs on the low side.",
+     "buildHint": "Stone blocks along the terrace edge, end to end with no gap, and two flights of stairs up through it: one on the rubble, one in the wall.",
      "hint": {
       "x": 40,
       "z": -18
@@ -662,12 +662,6 @@
        0
       ],
       [
-       40,
-       -18,
-       "stoneBlock",
-       0
-      ],
-      [
        41,
        -18,
        "stoneBlock",
@@ -700,6 +694,12 @@
       [
        40,
        -17,
+       "stairs",
+       0
+      ],
+      [
+       40,
+       -18,
        "stairs",
        0
       ]

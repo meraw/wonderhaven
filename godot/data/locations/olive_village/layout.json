@@ -1448,9 +1448,7 @@
    "kind": "forage",
    "x": -38.2,
    "z": -33.4,
-   "gives": {
-    "olive_village_swarm": 1
-   },
+   "item": "olive_village_swarm",
    "label": "Coax the swarm into the box",
    "hours": [
     5,
@@ -1488,8 +1486,8 @@
   {
    "id": "olive_village_lost_glove",
    "kind": "fragment",
-   "x": 46.0,
-   "z": -24.0,
+   "x": 44.0,
+   "z": -21.5,
    "gives": {
     "olive_village_glove": 1
    },

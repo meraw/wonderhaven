@@ -27,6 +27,7 @@ const GULLY_BANK := 9.0
 const SHELF := Rect2(9.9, 18.0, 4.1, 10.0)
 const SHELF_H := 0.25
 const FALLEN := Rect2(34.0, -20.0, 12.0, 6.0)
+const FALLEN_TOP := -18.0
 const MULE_GAP := Vector2(30.0, 33.0)
 const PIT_DEPTH := 1.2
 const PIAZZA := Vector3(-20.0, 13.8, -6.0)
@@ -150,6 +151,7 @@ static func ramp_level(p: Vector2) -> float:
 
 static func fallen_level(p: Vector2) -> float:
 	var low := terraced(smooth(p.x, FALLEN.end.y))
+	if p.y < FALLEN_TOP: return low + TERRACE_STEP
 	var t := (FALLEN.end.y - p.y) / FALLEN.size.y
 	return lerpf(low, low + TERRACE_STEP, ss(0.15, 0.85, t))
 
