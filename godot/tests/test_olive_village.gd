@@ -395,7 +395,10 @@ func test_the_rebuilt_terrace_can_be_climbed():
 		var climb := {"minI": 38, "maxI": 42, "minK": -22, "maxK": -14,
 			"endpoints": {"a": {"minI": 38, "maxI": 42, "minK": -14, "maxK": -14}, "b": {"minI": 38, "maxI": 42, "minK": -21, "maxK": -21}}}
 		t.ok(Validate.sealed(Data.zone("olive_village_wall"), built).sealed, "the rebuilt wall closes the gap")
-		t.ok(Validate.path_across(climb, w).ok, "and its stairs take you up from the rubble onto the terrace"))
+		t.ok(Validate.path_across(climb, w).ok, "and its stairs take you up from the rubble onto the terrace")
+		var foot: Array = Data.layout.nav_nodes.fallenStair
+		var top: Array = Data.layout.nav_nodes.fallenTop
+		t.ok(_walks(w, foot, top) and _walks(w, top, foot), "straight up the stairs from the spot below to the spot on top, and back"))
 
 func test_the_rebuilt_flight_carries_the_mule_track():
 	_on(func():

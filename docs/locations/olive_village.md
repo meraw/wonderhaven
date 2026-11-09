@@ -547,8 +547,9 @@ What exists now, and the choices made while building that the design above didn'
     Sindaco), a painted hive (Hannelore).
   - *Gambero's Steps:* a course of stone blocks across the gap and stairs up the last step rebuild the collapsed flight
     (`path`). The gap fills exactly three grid rows, 1.2 m below the flight's low end and 1.5 m or more below its
-    high end: fall in and you can jump out downhill, never up. Once it's done, villagers take the short way (a nav edge that waits for the flag, walked over
-    the path you built). Delia's wish is four stone blocks, since a bench (Gambero's wish) would clash with "all in
+    high end: fall in and you can jump out downhill, never up. Just above it the track has a flat landing level with
+    the stairs' top, so you walk straight off them. Once it's done, villagers take the short way (a nav edge that waits
+    for the flag, walked over the path you built). Delia's wish is four stone blocks, since a bench (Gambero's wish) would clash with "all in
     stone".
   - *The lost things:* the Sindaco's sacristan's beret, Klaus's guidebook (for Hannelore), Bastian's grafting glove
     on the fallen terrace (not his pruning knife: the shared lost-thing models have a glove), Sirena's binoculars, and under the brambles Gina's
