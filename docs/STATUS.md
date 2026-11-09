@@ -55,7 +55,7 @@ it works the same in every place.
     chestnut. Petting (cats, hens, ducks) is now only offered when nothing else is in reach in front of you
     (`Prompts`, `scripts/systems/prompts.gd`; `"ambient": true` on an interactable).
 - **Checked:**
-  - **Tested** (`godot/run_tests.sh`, 503 passed; 490 before). `test_build_stroke` (10 tests) covers: a shaky
+  - **Tested** (`godot/run_tests.sh`, 503 passed, 490 before; 510 after merging main). `test_build_stroke` (10 tests) covers: a shaky
     click; a fast sweep's path; paving kept on the ground and off what's there; big pieces edge to edge; a fence's
     straight row on each of its four edges; railings kept on a bridge's deck and a chair not dropped off its side;
     floor tiles not piled on floor tiles, and a second course of blocks; walls meeting at a corner while a second wall
