@@ -536,6 +536,13 @@ Toriano had caught up with everything else ("Toriano catches up"); what Boccapio
 - **Not changed:** the north end of number 14's west balcony ("noticed, not changed" in "Toriano catches up"): a probe
   walking off it in sixteen directions from five spots never drops into the courtyard, so the step-off couldn't be
   reproduced and no wall was added.
+- **Checked:** **tested** (454 passed): Toriano's spots are in its open streets, reachable and every need there can be
+  met, Monteforchetta's needs aren't listed, no approval moves; the map's label rules. **Played:** all of Toriano's
+  playthroughs pass with the spots and streets in place (`play_metropolis` 37 checks, `play_metropolis_story` 41,
+  `play_metropolis_side` 50), and `play_ui_shots`. **Seen:** in Toriano the needs card lists "The cathedral square ·
+  something green", "The Duomo's steps · somewhere to sit" and "The Duomo tram stop · somewhere to sit", and the map
+  shows the villagers by name with the backdrop unlabelled. **Not checked:** building at one of Toriano's spots and
+  meeting its need in a playthrough (the tests place pieces at every spot).
 
 ## Monteforchetta's clock no longer holds at dusk (08/11)
 - **The rule now** (from the user, for every location): the clock never holds. Monteforchetta's day runs on past
