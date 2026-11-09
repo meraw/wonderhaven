@@ -1011,8 +1011,7 @@ func _pos_of(it: Dictionary, key: String) -> float:
 func find_target():
 	var p := player.pos
 	var fwd := player.forward()
-	var best = null
-	var best_score := INF
+	var options: Array = []
 	for it in interactables:
 		if not it.available.call(): continue
 		var dx := _pos_of(it, "x") - p.x
@@ -1023,9 +1022,9 @@ func find_target():
 		var facing := (dx * fwd.x + dz * fwd.y) / d if d > 0.01 else 1.0
 		if d > 1.0 and facing < 0.1: continue
 		if it.get("sight", false) and not WalkWorld.sight_clear(Vector2(p.x, p.z), Vector2(p.x + dx, p.z + dz), sight_walls): continue   # not through a wall
-		var score: float = d - facing * 0.8 - it.priority
-		if score < best_score: best_score = score; best = it
-	return best
+		options.append({"it": it, "score": Prompts.score(d, facing, it.priority), "ambient": it.get("ambient", false)})
+	var chosen := Prompts.choose(options)
+	return options[chosen].it if chosen >= 0 else null
 
 func _set_highlight(obj, on: bool) -> void:
 	if obj == null or not is_instance_valid(obj): return
