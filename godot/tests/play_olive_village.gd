@@ -90,6 +90,32 @@ func walk_around() -> void:
 	check("o14", "the sea stops you at the water's edge", game.player.pos.z < OV.shore(game.player.pos.x) + 0.5 and not Heightfield.is_water(game.player.pos.x, game.player.pos.z), "at z %.1f" % game.player.pos.z)
 	await shot("sea")
 
+var _stuck_shots := 0
+func close_ui() -> void:
+	for n in 80:
+		if game.mode == "dialogue":
+			var ui: DialogueUI = game.dialogue
+			if ui.choices.is_empty(): await tap(KEY_E)
+			else:
+				var kinds: Array = ui.choices.map(func(c): return c.kind)
+				await tap(game.dialogue.key_for(kinds.find("bye") if kinds.has("bye") else 0))
+		elif game.panels.current != "": await tap(KEY_ESCAPE)
+		else: return
+		await frames(4)
+
+func walk_direct(x: float, z: float, tol: float = 0.8, max_s: float = 40.0) -> bool:
+	if game.mode == "dialogue" or game.panels.current != "":
+		note("a conversation or panel was still open (mode %s, panel '%s'): closing it before walking" % [game.mode, game.panels.current])
+		await close_ui()
+	var before: Vector3 = game.player.pos
+	var ok: bool = await super.walk_direct(x, z, tol, max_s)
+	if not ok and game.player.pos.distance_to(before) < 0.05:
+		note("frozen at %s: mode %s, panel '%s', sitting %s, dialogue choices %d" % [game.player.pos, game.mode, game.panels.current, not game.sitting.is_empty(), game.dialogue.choices.size() if game.mode == "dialogue" else -1])
+		if _stuck_shots < 2:
+			_stuck_shots += 1
+			await shot("frozen")
+	return ok
+
 func qs(id: String) -> String: return String(game.state.quests.get(P + id, {}).get("status", ""))
 func stage(id: String) -> int: return game.story.engine.current_stage(P + id)
 func pts() -> int: return LocationMeter.points(game.state, "olive_village")

@@ -567,10 +567,12 @@ What exists now, and the choices made while building that the design above didn'
 - **Build sites** each have a `floorY` at their ground level: the shared height limit counts from it, and on a site 10
   to 25 m up nothing could be built without it.
 - **Checked:**
-  - **Tested** (`test_olive_village`, now 14 tests; `test_plans`): stage 2's, plus the people and their days (homes and
+  - **Tested** (`test_olive_village`, now 16 tests; `test_plans`): stage 2's, plus the people and their days (homes and
     spots, nobody where the ferry leaves you, the Sindaco's welcome, Gambero's cards, Fuco at dawn, the festa evening, no
-    two villagers on one spot at any hour of the story), the requests and the sign (counts, the 47 and 50, milestones,
-    the board's text, what each step needs is in Liolivato and every gathering spot can be reached on foot), tastes
-    and shops; every request's ghost plan built piece by piece finishes its step. A flood with real collisions (trees,
+    two villagers on one spot at any hour of the story, nobody standing for hours on the petal carpet's way), the
+    requests and the sign (counts, the 47 and 50, milestones, the board's text, what each step needs is in Liolivato and
+    every gathering spot can be reached on foot), tastes and shops, the heights of Gambero's gap, the rebuilt terrace
+    (sealed, and climbable straight up its stairs) and the rebuilt flight (the mule track walks over it both ways);
+    every request's ghost plan built piece by piece finishes its step. A flood with real collisions (trees,
     buildings, props) also reached all 44 gathering spots, checked once while building (too slow for the suite).
 
