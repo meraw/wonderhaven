@@ -5,6 +5,34 @@ Working title: **Wonderhaven** (to be renamed). The game is moving to a comic, l
 - **Godot 4 (`godot/`)** is the game. See `godot/README.md`. Its content (`godot/data/*.json`) is edited directly.
 - **Web / Three.js (`index.html`, `src/`)** is the original prototype, **frozen**: kept as it was, no longer updated. Everything added since the Godot port (interiors, shops, staged requests, the guided day, the look) exists only in Godot.
 
+## Playtest fixes: the donkey, the ceremony's comments, the regional train (09/11)
+Reported in play: "those donkeys are BUSTED"; "I can't properly read the comments of the villagers during a reveal
+of new things ceremony"; "finding the button to take the regionale train in Casalrana is super fickle".
+- **The donkey.** Casalrana's donkey stood 0.9 m from a cow, so the two bodies went through each other: his head was
+  inside the cow, and his mane, which wasn't fixed to his head, floated over his back as a black slab. He now has his
+  own spot at the paddock's west rail (46.2, 1.0), facing the path where you stand to scratch his ears, clear of the
+  herd, and his own model (`_donkey`, `rice_village/wildlife.gd`): a neck carrying the head, long ears with dark tips
+  and a mane that move with it, a pale muzzle and belly, the dark stripe and shoulder cross, a slimmer body. He lowers
+  his whole neck to graze (`graze` on a herd animal: how far its head goes down).
+- **The ceremony's comments.** After the ribbon, every villager's comment appeared at once as floating text over their
+  heads, on one unwrapped line each, overlapping, and gone after 2.6 s. Now the crowd cheers together, then whoever has
+  something to say speaks in turn, the one thanking you first: their line goes in the caption box under their name,
+  wrapped, with a "!" over their head. Each line (the Sindaco's too) stays up for its reading time (2.6 to 6 s by its
+  length, `InaugurationScene.reading_time`), and E moves on to the next one sooner. Shared: every place's ceremony.
+- **The regional train.** The platform's departure point was one invisible spot (8.5, −42.9) with a 2.6 m reach that
+  you also had to face. A departure point can now take an `area` (a rectangle, `layout.json`): anywhere inside it the
+  departure is where you stand, so E works facing any way; outside it, it is the nearest edge, with a short reach.
+  Casalrana's covers the whole platform (x 5 to 34). It comes after a villager you face at arm's length (priority
+  −0.5), so talking to Paletta on the platform still works. Shared: `WorldActions.area_point`, any place's stop.
+- **Checked:**
+  - **Tested** (`godot/run_tests.sh`, 521 passed, 516 before): `test_inauguration` (+2: who speaks and in what order; reading times),
+    `test_departure_area` (3: on the platform, off it, and against a villager or a sign close by).
+  - **Played**: `play_inauguration` (11 checks; i5 now waits for Ornella's thanks in the caption under her name) and
+    looked at the ribbon-cut and puzzled-crowd shots. `play_rice_village` (+5, checks 40 to 44): no train before the
+    platform is reached; on it after the finale, facing the track and facing away, and at the back facing along it,
+    the prompt is the train; E opens the travel map; at the station's front door it is out of reach. The donkey was
+    looked at in screenshots from the path, from the side and from behind (Forward+).
+
 ## Shadows no longer shimmer while you talk (09/11)
 Reported: "the light is glitching while I talk to Battista the first time" (Windows PC; shadows jump or shimmer).
 - **The cause.** The clock never stops (one game minute a second), and the sun's direction was set from it every

@@ -12,6 +12,8 @@ var clock := 0.0
 var ui: Control
 var caption: PanelContainer
 var caption_text: Label
+var caption_who: Label
+var advanced := false
 var ribbon: Node3D
 var cam_from := Vector3.ZERO
 var cam_to := Vector3.ZERO
@@ -90,7 +92,7 @@ func _play(st: Dictionary, f: Dictionary, lines: Array, reacts: Array, speaker, 
 		if skipping: break
 		_say(speaker, String(lines[i]))
 		if i == lines.size() - 1: game.player_char.play("shrug")
-		await _wait(clampf(1.4 + String(lines[i]).length() * 0.045, 2.4, 4.6))
+		await _wait_line(String(lines[i]))
 	speaker.character.stop_hold()
 	caption.visible = false
 	if not skipping: await _cut(st, speaker)
@@ -136,6 +138,35 @@ func _wait(seconds: float) -> void:
 		push = minf(1.0, push + dt / 14.0)
 		game.cam.cinema = {"pos": cam_from.lerp(cam_to, smoothstep(0.0, 1.0, push)), "look": look}
 
+static func reading_time(text: String) -> float:
+	return clampf(1.6 + text.length() * 0.05, 2.6, 6.0)
+
+static func speaking_order(reacts: Array) -> Array:
+	var first: Array = []
+	var rest: Array = []
+	for r in reacts:
+		if String(r.get("line", "")) == "": continue
+		if r.get("heart", false): first.append(r)
+		else: rest.append(r)
+	return first + rest
+
+func _wait_line(text: String) -> void:
+	var tree := get_tree()
+	var need := reading_time(text)
+	var t := 0.0
+	advanced = false
+	while t < need and not skipping:
+		await tree.process_frame
+		var dt := minf(tree.root.get_process_delta_time(), 0.1)
+		t += dt
+		clock += dt
+		if clock > 0.4 and Input.is_action_just_pressed("pause"): skipping = true
+		if t > 0.6 and (Input.is_action_just_pressed("interact") or Input.is_action_just_pressed("ui_accept") or Input.is_action_just_pressed("jump")):
+			advanced = true
+			break
+		push = minf(1.0, push + dt / 14.0)
+		game.cam.cinema = {"pos": cam_from.lerp(cam_to, smoothstep(0.0, 1.0, push)), "look": look}
+
 func _frame(st: Dictionary) -> void:
 	look = st.look
 	var pick := Vector3.INF
@@ -160,6 +191,7 @@ func _frame(st: Dictionary) -> void:
 	game.cam.cinema = {"pos": cam_from, "look": look}
 
 func _say(speaker, text: String) -> void:
+	caption_who.text = String(speaker.def.get("name", ""))
 	caption_text.text = text
 	caption.visible = true
 	speaker.character.play("talk", true)
@@ -185,15 +217,31 @@ func _react(reacts: Array, mood: String) -> void:
 		if a == null: continue
 		a.character.play(String(r.anim))
 		if String(r.anim) == "shrug": a.stare_mark.visible = true
-		if String(r.line) != "": _bubble(a, String(r.line))
-		if r.heart: game.effects.hearts(a.pos + Vector3(0, 1.8, 0), 4)
 	game.player_char.play("celebrate" if mood != "puzzled" else "shrug")
 	if game.audio:
 		if mood == "puzzled":
 			for i in 3: game.audio.play("chirp", 90, 0.1, -1, 0.4 + i * 0.5)
 		else:
 			for i in 14: game.audio.play("clap", 58 + randi() % 10, 0.2, -1, randf() * 1.6)
-	await _wait(2.4)
+	await _wait(0.3)
+	for r in speaking_order(reacts):
+		if skipping: return
+		var a = by.get(String(r.npc))
+		if a == null: continue
+		_bubble(a, "!")
+		a.character.play(String(r.anim))
+		if r.heart: game.effects.hearts(a.pos + Vector3(0, 1.8, 0), 4)
+		caption_who.text = String(a.def.get("name", ""))
+		caption_text.text = String(r.line)
+		caption.visible = true
+		game.voice(float(a.def.get("voice", 1.0)), clampi(String(r.line).split(" ").size() / 2, 2, 8))
+		await _wait_line(String(r.line))
+		var say: Node = a.character.get_node_or_null("say")
+		if say:
+			a.character.remove_child(say)
+			say.queue_free()
+	caption.visible = false
+	await _wait(0.6)
 
 func _bubble(a, text: String) -> void:
 	var l := Label3D.new()
@@ -210,7 +258,7 @@ func _bubble(a, text: String) -> void:
 	l.position = Vector3(0, 2.3, 0)
 	a.character.add_child(l)
 	var tw := l.create_tween()
-	tw.tween_interval(2.6)
+	tw.tween_interval(8.0)
 	tw.tween_callback(l.queue_free)
 
 func _mat(col: Color) -> StandardMaterial3D:
@@ -305,12 +353,17 @@ func _build_ui(c: Dictionary, who: String) -> void:
 	var col := VBoxContainer.new()
 	col.add_theme_constant_override("separation", 2)
 	caption.add_child(col)
-	col.add_child(UiTheme.label(who, 14, UiTheme.PINK_DARK))
+	caption_who = UiTheme.label(who, 14, UiTheme.PINK_DARK)
+	caption_who.name = "speaker"
+	col.add_child(caption_who)
 	caption_text = UiTheme.label("", 19)
 	caption_text.name = "speech"
 	caption_text.autowrap_mode = TextServer.AUTOWRAP_WORD
 	caption_text.custom_minimum_size.x = 560
 	col.add_child(caption_text)
+	var more := UiTheme.label("▼ %s" % Controls.key_label("interact"), 13, UiTheme.INK2)
+	more.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	col.add_child(more)
 	var skip := UiTheme.button("%s · %s" % [String(c.get("skip", "Skip")), Controls.key_label("pause")], func(): skipping = true)
 	skip.name = "inauguration_skip"
 	skip.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT)

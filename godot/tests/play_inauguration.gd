@@ -116,8 +116,14 @@ func play() -> void:
 	var rib: Node3D = game.ceremony.ribbon
 	var cut: bool = rib != null and absf(rib.get_node("half_l").rotation.z) > 1.0 and absf(rib.get_node("half_r").rotation.z) > 1.0
 	var mabel = game.npcs.get("mabel")
-	var thanks: bool = mabel != null and mabel.held and mabel.character.get_node_or_null("say") != null
-	check("i5", "The ribbon is cut, the crowd cheers and Ornella thanks you", cut and thanks, "ribbon cut %s, Ornella says '%s'" % [cut, mabel.character.get_node("say").text if thanks else "-"])
+	var thanks_line := ""
+	for n in 60:
+		if mabel != null and mabel.character.get_node_or_null("say") != null and game.ceremony.caption.visible and game.ceremony.caption_who.text == String(mabel.def.name):
+			thanks_line = game.ceremony.caption_text.text
+			break
+		await frames(1)
+	var thanks: bool = mabel != null and mabel.held and thanks_line != ""
+	check("i5", "The ribbon is cut, the crowd cheers and Ornella thanks you", cut and thanks, "ribbon cut %s, Ornella says '%s' in the caption, under her name" % [cut, thanks_line if thanks else "-"])
 	var card_ok := false
 	for n in 200:
 		var cn: Node = game.ceremony.ui.find_child("grade", true, false) if game.ceremony.ui else null

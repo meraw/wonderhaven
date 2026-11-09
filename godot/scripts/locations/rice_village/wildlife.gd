@@ -171,9 +171,9 @@ static func _clear_mat(col: String) -> StandardMaterial3D:
 
 func _build_farm() -> void:
 	# the herd: three white Piedmontese cows, the ox with his long horns, and the donkey
-	var spots := [[Vector2(47.0, -1.6), 0.4, "cow"], [Vector2(49.4, 0.8), 2.6, "cow"], [Vector2(47.4, 3.6), -1.2, "cow"], [Vector2(49.6, 4.4), 3.6, "ox"], [Vector2(46.3, -2.2), 1.4, "donkey"]]   # the donkey by the fence, to have his ears scratched
+	var spots := [[Vector2(47.0, -1.6), 0.4, "cow"], [Vector2(49.4, 0.8), 2.6, "cow"], [Vector2(47.4, 3.6), -1.2, "cow"], [Vector2(49.6, 4.4), 3.6, "ox"], [Vector2(46.2, 1.0), -PI / 2.0, "donkey"]]   # the donkey by the fence, to have his ears scratched
 	for s in spots:
-		var a := _beast(s[2])
+		var a := _donkey() if s[2] == "donkey" else _beast(s[2])
 		a.obj.position = _ground(s[0]); a.obj.rotation.y = s[1]
 		a["ph"] = herd.size() * 1.9; a["kind"] = s[2]
 		add_child(a.obj); herd.append(a)
@@ -236,6 +236,36 @@ func _beast(kind: String) -> Dictionary:
 	tail.add_child(P.mi(P.cyl(0.02, 0.02, 0.6, 4), hide, Vector3(0, -0.3, 0)))
 	tail.add_child(P.mi(P.sphere(0.05, 6, 4), dark, Vector3(0, -0.6, 0)))
 	return {"obj": o, "head": head, "tail": tail}
+
+func _donkey() -> Dictionary:
+	var o := Node3D.new(); o.name = "rice_village_donkey"
+	var coat := P.fabric("958b80"); var pale := P.mat("e2dcd2"); var dark := P.mat("3a3330")
+	o.add_child(P.mi(P.rbox(0.5, 0.52, 1.1, 0.18), coat, Vector3(0, 0.86, 0)))
+	o.add_child(P.mi(P.rbox(0.42, 0.14, 0.78, 0.06), pale, Vector3(0, 0.62, 0.02)))
+	o.add_child(P.mi(P.box(0.04, 0.02, 1.0), dark, Vector3(0, 1.125, -0.02)))
+	o.add_child(P.mi(P.box(0.5, 0.02, 0.06), dark, Vector3(0, 1.12, 0.3)))
+	for x in [-0.15, 0.15]:
+		for z in [-0.4, 0.4]:
+			o.add_child(P.mi(P.cyl(0.055, 0.045, 0.6, 6), coat, Vector3(x, 0.3, z)))
+			o.add_child(P.mi(P.cyl(0.05, 0.055, 0.07, 6), dark, Vector3(x, 0.035, z)))
+	var pivot := Node3D.new(); pivot.position = Vector3(0, 1.0, 0.44); o.add_child(pivot)
+	var neck := Node3D.new(); neck.rotation.x = 0.55; pivot.add_child(neck)
+	neck.add_child(P.mi(P.rbox(0.22, 0.52, 0.26, 0.09), coat, Vector3(0, 0.22, 0)))
+	neck.add_child(P.mi(P.box(0.05, 0.5, 0.07), dark, Vector3(0, 0.26, -0.13)))
+	var head := Node3D.new(); head.position = Vector3(0, 0.46, 0.02); head.rotation.x = 0.85; neck.add_child(head)
+	head.add_child(P.mi(P.rbox(0.22, 0.24, 0.42, 0.09), coat, Vector3(0, 0, 0.12)))
+	head.add_child(P.mi(P.rbox(0.2, 0.19, 0.16, 0.07), pale, Vector3(0, -0.02, 0.33)))
+	head.add_child(P.mi(P.box(0.05, 0.08, 0.1), dark, Vector3(0, 0.15, 0.0)))
+	for s in [-1, 1]:
+		head.add_child(P.mi(P.sphere(0.028, 6, 4), dark, Vector3(s * 0.11, 0.06, 0.1)))
+		head.add_child(P.mi(P.sphere(0.018, 6, 4), dark, Vector3(s * 0.05, -0.01, 0.41)))
+		var ear := Node3D.new(); ear.position = Vector3(s * 0.07, 0.11, -0.04); ear.rotation = Vector3(-0.35, 0.0, -s * 0.28); head.add_child(ear)
+		ear.add_child(P.mi(P.cyl(0.022, 0.05, 0.32, 6), coat, Vector3(0, 0.16, 0)))
+		ear.add_child(P.mi(P.sphere(0.024, 6, 4), dark, Vector3(0, 0.32, 0)))
+	var tail := Node3D.new(); tail.position = Vector3(0, 1.02, -0.56); o.add_child(tail)
+	tail.add_child(P.mi(P.cyl(0.018, 0.018, 0.5, 4), coat, Vector3(0, -0.25, 0)))
+	tail.add_child(P.mi(P.sphere(0.05, 6, 4), dark, Vector3(0, -0.52, 0)))
+	return {"obj": o, "head": pivot, "tail": tail, "graze": 1.5}
 
 func _hen(col: String) -> Dictionary:
 	var o := Node3D.new()
@@ -375,7 +405,7 @@ func _farm(dt: float) -> void:
 		# graze (head down), lift the head and chew, swish the tail
 		var cyc := fmod(t * 0.12 + a.ph, 1.0)
 		var down := smoothstep(0.1, 0.2, cyc) * (1.0 - smoothstep(0.55, 0.65, cyc))
-		(a.head as Node3D).rotation.x = down * 0.85 + sin(t * 3.0 + a.ph) * 0.03 * (1.0 - down)
+		(a.head as Node3D).rotation.x = down * float(a.get("graze", 0.85)) + sin(t * 3.0 + a.ph) * 0.03 * (1.0 - down)
 		(a.tail as Node3D).rotation.z = sin(t * 1.7 + a.ph) * 0.35
 		if a.get("purr", 0.0) > 0.0:
 			a.purr -= dt; (a.head as Node3D).rotation.x = -0.15
