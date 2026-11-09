@@ -122,10 +122,24 @@ func musts_text(id: String, step: String) -> String:
 	var r: Dictionary = game.story.engine.commission(P + id, step_of(id, step))
 	return ", ".join(r.musts.map(func(m): return "%s %s" % [m.label, "ok" if m.ok else "no"]))
 
+func meet(id: String) -> void:
+	var a = game.npcs[id]
+	var g := String(a.goal)
+	if g == "" or not Data.layout.nav_nodes.has(g): return
+	var p: Array = Data.layout.nav_nodes[g]
+	if Vector2(a.pos.x - p[0], a.pos.z - p[1]).length() < 2.5: return
+	note("%s is on the way to %s: meeting them there" % [id, g])
+	await walk_to(p[0], p[1], 1.5)
+	for n in 400:
+		a = game.npcs[id]
+		if Vector2(a.pos.x - p[0], a.pos.z - p[1]).length() < 2.5 or String(a.goal) != g: return
+		await frames(5)
+
 var _game_id := 0
 func talk(id: String, accept: bool = true) -> bool:
 	_game_id = game.get_instance_id()
 	for attempt in 6:
+		if attempt > 0: await meet(id)
 		var a = game.npcs[id]
 		await walk_to(a.pos.x, a.pos.z, 1.5)
 		a = game.npcs[id]
@@ -174,6 +188,7 @@ func settle_world() -> bool:
 
 func choose(id: String, want: String) -> bool:
 	for attempt in 6:
+		if attempt > 0: await meet(P + id)
 		var a = game.npcs[P + id]
 		await walk_to(a.pos.x, a.pos.z, 1.5)
 		a = game.npcs[P + id]
