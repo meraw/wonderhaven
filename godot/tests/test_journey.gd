@@ -29,3 +29,7 @@ func test_the_road_goes_through_monteforchetta():
 func test_the_village_map_names_the_places_that_matter():
 	t.ok(VillageMap.named("Rina's bar", "bar") and VillageMap.named("The church", "church"), "named places get a label")
 	t.ok(not VillageMap.named("A house", "house") and not VillageMap.named("House on the south lane", "house") and not VillageMap.named("", "house"), "plain houses don't, so the map stays readable")
+	t.ok(not VillageMap.named("B Nw1", "block") and not VillageMap.named("D 1", "block") and not VillageMap.named("S 11", "block") and not VillageMap.named("Opera W", "wing"), "nor a city's numbered blocks and wings")
+	t.ok(VillageMap.named("Teatro Civico", "theatre") and VillageMap.named("Number 14", "tenement") and VillageMap.named("Franco's bar", "bar"), "but Toriano's real places do")
+	t.ok(not VillageMap.named("City", "backdrop"), "the city's backdrop ring isn't a place")
+	t.eq([VillageMap.short_name("Signor Augusto Viganò"), VillageMap.short_name("Vigile Rocco Spreafico"), VillageMap.short_name("Don Remo Avetta"), VillageMap.short_name("Nonna Pierina Avondo"), VillageMap.short_name("Ermes \"Centimetro\" Vercesi")], ["Augusto", "Rocco", "Remo", "Nonna", "Ermes"], "villagers go by their names, not their titles")

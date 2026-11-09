@@ -78,6 +78,15 @@
       "Well built, and on time, which in this city is a miracle. Cut the ribbon."
     ]
   },
+  "hangouts": [
+    {"id": "metropolis_square", "name": "The cathedral square", "at": "in the cathedral square", "x": -10.0, "z": 4.0, "r": 4.5, "needs": ["green", "seat", "light"]},
+    {"id": "metropolis_steps", "name": "The Duomo's steps", "at": "on the Duomo's steps", "x": 10.0, "z": -3.0, "r": 3.0, "needs": ["seat", "light"], "who": "metropolis_vale"},
+    {"id": "metropolis_tramstop", "name": "The Duomo tram stop", "at": "at the Duomo tram stop", "x": -10.0, "z": 27.0, "r": 3.0, "needs": ["seat", "light"], "who": "metropolis_ambrogio"},
+    {"id": "metropolis_quay", "name": "The bars' quay", "at": "on the Naviglio by Franco's", "x": -117.5, "z": 126.0, "r": 3.0, "needs": ["seat", "stall", "light"], "who": "metropolis_franco"},
+    {"id": "metropolis_park", "name": "The Parco dei Platani", "at": "in the park", "x": -100.0, "z": -110.0, "r": 4.5, "needs": ["green", "seat"], "who": "metropolis_ottavio"},
+    {"id": "metropolis_gate", "name": "The castle gate", "at": "at the castle gate", "x": -86.0, "z": -76.0, "r": 3.0, "needs": ["light", "seat"], "who": "metropolis_gennaro"},
+    {"id": "metropolis_opera_steps", "name": "The opera's steps", "at": "on the opera's steps", "x": -10.0, "z": -126.0, "r": 3.5, "needs": ["light", "green"], "who": "metropolis_gino"}
+  ],
   "decor": {"radius": 400, "trees": 30, "bushes": 24, "flowers": 160, "grass": 700, "area": [-152, -152, -88, -98]},
   "ground": [
     {"kind": "asphalt", "rect": [-186.0, -186.0, 186.0, 186.0]},
@@ -385,7 +394,12 @@
     {"id": "metropolis_flat", "name": "Your flat", "minI": -29, "maxI": -25, "minK": 108, "maxK": 111, "floorY": 3.5, "unlock": {"flag": "metropolis_rented"}},
     {"id": "metropolis_window", "name": "Chiara's shop window", "minI": -9, "maxI": -6, "minK": -79, "maxK": -76, "unlock": {"quest": "metropolis_chiara"}},
     {"id": "metropolis_courtyard", "name": "The courtyard at number 14", "minI": -43, "maxI": -33, "minK": 106, "maxK": 119, "unlock": {"flag": "metropolis_home"}},
-    {"id": "metropolis_roof_terrace", "name": "Your roof terrace at number 14", "minI": -52, "maxI": -40, "minK": 121, "maxK": 126, "floorY": 3.5, "unlock": {"flag": "metropolis_home"}, "expanded": {"minI": -52, "maxI": -24, "minK": 121, "maxK": 126, "harmony": 70}}
+    {"id": "metropolis_roof_terrace", "name": "Your roof terrace at number 14", "minI": -52, "maxI": -40, "minK": 121, "maxK": 126, "floorY": 3.5, "unlock": {"flag": "metropolis_home"}, "expanded": {"minI": -52, "maxI": -24, "minK": 121, "maxK": 126, "harmony": 70}},
+    {"id": "metropolis_streets_square", "name": "The cathedral square and its streets", "open": true, "minI": -40, "maxI": 14, "minK": -26, "maxK": 34},
+    {"id": "metropolis_streets_quay", "name": "The bars' quay", "open": true, "minI": -124, "maxI": -104, "minK": 110, "maxK": 132},
+    {"id": "metropolis_streets_park", "name": "The Parco dei Platani", "open": true, "wild": true, "minI": -136, "maxI": -90, "minK": -128, "maxK": -98},
+    {"id": "metropolis_streets_gate", "name": "Before the castle gate", "open": true, "minI": -94, "maxI": -78, "minK": -94, "maxK": -60},
+    {"id": "metropolis_streets_opera", "name": "The opera's forecourt", "open": true, "minI": -30, "maxI": 10, "minK": -132, "maxK": -100}
   ],
   "nodes": [
     {"id": "metropolis_plane_park1", "kind": "chop", "x": -146.0, "z": -106.0, "label": "Prune the plane tree"},

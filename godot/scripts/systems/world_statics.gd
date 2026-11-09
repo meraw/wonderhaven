@@ -22,6 +22,7 @@ static func _near_building(x: float, z: float, pad: float) -> bool:
 
 static func _in_zone(x: float, z: float, pad: float) -> bool:
 	for zn in Data.layout.zones:
+		if zn.get("wild", false): continue
 		var e: Dictionary = zn.get("expanded", zn)
 		if x > e.minI - pad and x < e.maxI + 1 + pad and z > e.minK - pad and z < e.maxK + 1 + pad: return true
 	return false
