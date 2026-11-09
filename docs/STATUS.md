@@ -520,6 +520,23 @@ Checked by the headless tests (`test_animation.gd`: stopping eases, the stride s
 - **Standing still is alive:** breathing, a slow shift of weight, and now and then a glance to one side.
 - **Actions have anticipation and follow-through:** chopping and mining wind the tool back over the shoulder, strike fast and jolt on impact; hammering and digging do the same; the wave overshoots and lowers; celebrating crouches before the jumps and squashes on each landing; surprise squashes before it jumps.
 
+## Toriano gets spots that want things, open streets and the new furniture (09/11)
+Toriano had caught up with everything else ("Toriano catches up"); what Boccapioppo and Casalrana got since was missing:
+- **Seven spots that want things** (`hangouts`): the cathedral square, the Duomo's steps (Vale), the Duomo tram stop
+  (Ambrogio), the bars' quay on the Naviglio (Franco), the Parco dei Platani (Ottavio), the castle gate (Gennaro) and
+  the opera's steps (Gino), each wanting two or three of a seat, light, something green, shelter or a counter, noticed a
+  few at a time in *La Sera* and listed by place. Toriano keeps its column inches, so they don't move Monteforchetta's
+  approval.
+- **Open streets to build in** round each: the square and its streets, the quay, the park, the castle gate and the
+  opera's forecourt. The park's zone is `"wild": true`, so its trees and bushes grow where they did (a build zone
+  normally keeps the scattered decor out, and moving the park's trees had put one on the pond path).
+- **The new furniture**: Chiara sells the armchair, mirror, potted plant, side table, credenza and piano.
+- **The map** in Toriano labels its real places, not the numbered blocks or the backdrop ring, and villagers go by their
+  names, not their titles (Augusto, not Signor).
+- **Not changed:** the north end of number 14's west balcony ("noticed, not changed" in "Toriano catches up"): a probe
+  walking off it in sixteen directions from five spots never drops into the courtyard, so the step-off couldn't be
+  reproduced and no wall was added.
+
 ## Monteforchetta's clock no longer holds at dusk (08/11)
 - **The rule now** (from the user, for every location): the clock never holds. Monteforchetta's day runs on past
   8:30 PM into the night like the other places'; no `day` block holds unless it asks with `"hold": true`.

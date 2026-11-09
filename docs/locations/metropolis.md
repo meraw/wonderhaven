@@ -24,6 +24,9 @@ and ambient life.**
     a stone stair up from the courtyard, and a low back wing whose roof is your terrace (the build plot).
   - **Its rooms:** Augusto's lodge and Ragioniere Sala's office at street level; Elvira's, Simone's and your flat off
     the balcony; a shared WC at the end of it.
+- **Spots that want things** (09/11): seven `hangouts` (the cathedral square, the Duomo's steps, the tram stop, the
+  bars' quay, the park, the castle gate, the opera's steps) with open streets to build in round them (`metropolis_streets_*`;
+  the park's is `"wild"` so its trees stay put); see `docs/STATUS.md`.
 - **Rooms you can walk into:** the nave (pews, pillars, the altar), Franco's bar, Chiara's workshop, the Cathedral
   Works office, and the tenement's rooms. Your flat is empty for the Balcony Flat request.
 - **Roof terraces:** the Duomo's aisle roofs are marble terraces 6.3 m up with parapets, and a gap where the
