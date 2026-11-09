@@ -45,6 +45,10 @@ var ui: Control
 var status_label: Label
 var sel_box: MeshInstance3D
 var pad_cursor: Label
+var stroke := {}
+var last_built := {}
+var painting := false
+var ui_dirty := false
 
 func setup(g) -> void:
 	game = g
@@ -108,6 +112,7 @@ func open(zone_id: String = "") -> bool:
 	return true
 
 func close() -> void:
+	end_stroke()
 	if not moving.is_empty(): cancel_move()
 	var zone_was: Dictionary = current_zone
 	active = false; item_id = ""; selected = -1; selected_draft = -1
@@ -276,18 +281,18 @@ func show_help() -> void:
 	_build_ui()
 
 # ---- Raycast cursor (maths against the heightfield and piece boxes; no physics needed)
-func pick(screen: Vector2) -> Dictionary:
+func pick(screen: Vector2, pieces: bool = true) -> Dictionary:
 	var cam: Camera3D = game.camera
 	var o := cam.project_ray_origin(screen)
 	var d := cam.project_ray_normal(screen)
 	var best_t := INF
 	var hit := {}
-	for pl in state().placements:
+	for pl in (state().placements if pieces else []):
 		if not moving.is_empty() and pl.uid == moving.pl.uid: continue
 		var b := BuildGrid.bounds(pl)
 		var r := _ray_box(o, d, Vector3(b.minX, b.bottom, b.minZ), Vector3(b.maxX, b.top, b.maxZ))
 		if not r.is_empty() and r.t < best_t: best_t = r.t; hit = {"point": o + d * r.t, "normal": r.n, "uid": pl.uid}
-	for dr in Drafts.of(state()):
+	for dr in (Drafts.of(state()) if pieces else []):
 		var b := BuildGrid.bounds(dr)
 		var r := _ray_box(o, d, Vector3(b.minX, b.bottom, b.minZ), Vector3(b.maxX, b.top, b.maxZ))
 		if not r.is_empty() and r.t < best_t: best_t = r.t; hit = {"point": o + d * r.t, "normal": r.n, "uid": int(dr.uid), "draft": true}
@@ -339,6 +344,7 @@ func _cell_for(d: Dictionary, r: int, p: Vector3) -> Vector2:
 	return Vector2(floor(p.x - fp.x / 2.0 + 0.5), floor(p.z - fp.y / 2.0 + 0.5))
 
 func candidate() -> Dictionary:
+	if stroke.has("a") and moving.is_empty(): return _stroke_candidate()
 	var id: String = moving.pl.id if not moving.is_empty() else item_id
 	if id == "" or hover.is_empty(): return {}
 	var d := Data.piece(id)
@@ -434,7 +440,11 @@ func update(dt: float) -> void:
 	if is_instance_valid(plan_marker): plan_marker.position.y = float(plan_marker.get_meta("y0")) + 0.12 * sin(game.time * 4.0)
 	_gamepad_cursor(dt)
 	var over_ui := _over_ui(mouse)
-	hover = {} if over_ui else pick(mouse)
+	hover = {} if over_ui else _hover_at(mouse)
+	if not stroke.is_empty(): _stroke_step()
+	if not last_built.is_empty() and _moved_on():
+		last_built = {}
+		ghost_key = ""
 	var c := candidate()
 	if not c.is_empty():
 		var key := "%s|%s|%s|%d|%.2f|%d|%s|%d|%s" % [c.id, c.i, c.k, c.r, c.y, state().placements.size(), str(state().inventory), version, draft_only]
@@ -448,7 +458,7 @@ func update(dt: float) -> void:
 			PieceMeshes.set_ghost(ghost, "draft" if check.get("kind", "") in ["draft", "drafted"] else ("ok" if check.ok else "bad"))
 			ghost_key = key
 			_render_status()
-		ghost.visible = true
+		ghost.visible = not _settled()
 	else:
 		if ghost: ghost.visible = false
 		if not check.is_empty(): check = {}; ghost_key = ""; _render_status()   # (so coming back to the same cell checks it again)
@@ -560,7 +570,10 @@ func _gamepad_cursor(dt: float) -> void:
 			var cats: Array = Data.categories.map(func(c): return c.id)
 			category = cats[(cats.find(category) + pair[1] + cats.size()) % cats.size()]; item_id = ""; _build_ui()
 		elif not Input.is_joy_button_pressed(0, pair[0]): set_meta(key, false)
-	if Input.is_joy_button_pressed(0, JOY_BUTTON_A) and not get_meta("pad_a", false): set_meta("pad_a", true); click()
+	if Input.is_joy_button_pressed(0, JOY_BUTTON_A) and not get_meta("pad_a", false):
+		set_meta("pad_a", true)
+		if can_press(): press(true)
+		else: click()
 	elif not Input.is_joy_button_pressed(0, JOY_BUTTON_A): set_meta("pad_a", false)
 	if Input.is_joy_button_pressed(0, JOY_BUTTON_B) and not get_meta("pad_b", false):
 		set_meta("pad_b", true)
@@ -574,14 +587,127 @@ func handle_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo and (event.ctrl_pressed or event.meta_pressed or Input.is_key_pressed(KEY_CTRL)):
 		if event.physical_keycode == KEY_Z: undo()
 		if event.physical_keycode == KEY_Y: redo()
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT and can_press(): press(false)
 	if event is InputEventMouseButton and not event.pressed:
-		if event.button_index == MOUSE_BUTTON_LEFT and not game.drag_moved: click()
+		if event.button_index == MOUSE_BUTTON_LEFT:
+			if not stroke.is_empty(): end_stroke(true)
+			elif not game.drag_moved: click()
 		if event.button_index == MOUSE_BUTTON_RIGHT and not game.drag_moved:
 			if not moving.is_empty(): cancel_move()
 			elif item_id != "" or selected != -1 or selected_draft != -1: _let_go()
 
 func _let_go() -> void:
+	end_stroke()
 	item_id = ""; selected = -1; selected_draft = -1; _build_ui()
+
+func can_press() -> bool: return active and item_id != "" and moving.is_empty()
+
+func press(pad: bool = false) -> void:
+	end_stroke()
+	history.begin_group()
+	stroke = {"from": mouse, "pad": pad, "go": false, "n": 0, "done": {}}
+	if check.is_empty(): return
+	var pl: Dictionary = check.get("pl", {})
+	if not pl.is_empty() and Data.piece(String(pl.id)).get("attach", "") != "wall":
+		stroke["a"] = BuildStroke.anchor(pl, _design(), BuildGrid.zone_at(Data.layout.zones, float(pl.i), float(pl.k), _progress()))
+		stroke["last"] = Vector2i.ZERO
+	if _paintable() and place(): _stroke_laid(Vector2i.ZERO)
+
+func _stroke_laid(cell: Vector2i) -> void:
+	stroke.done[cell] = true
+	stroke["n"] = int(stroke.n) + 1
+
+func _note_built() -> void: last_built = {"at": mouse, "view": game.camera.global_transform, "id": item_id}
+
+func _moved_on() -> bool:
+	if BuildStroke.started(last_built.at, mouse): return true
+	var was: Transform3D = last_built.view
+	var now: Transform3D = game.camera.global_transform
+	return now.origin.distance_to(was.origin) > 0.05 or now.basis.z.dot(was.basis.z) < 0.9999
+
+func _settled() -> bool:
+	if last_built.is_empty() or check.is_empty() or check.ok or not moving.is_empty(): return false
+	return String(check.get("kind", "")) == "bad" and String(last_built.id) == item_id
+
+func end_stroke(released: bool = false) -> void:
+	if stroke.is_empty(): return
+	var dragged := _dragging()
+	var laid := int(stroke.get("n", 0))
+	stroke = {}
+	painting = false
+	if released and laid == 0 and can_press(): place()
+	elif laid > 0: _note_built()
+	history.end_group()
+	ghost_key = ""
+	if dragged: _learned_dragging()
+	if ui_dirty and active: _build_ui()
+	else: _render_status()
+
+func _learned_dragging() -> void:
+	var seen: Array = state().get("tutorial", {}).get("seen", [])
+	if not seen.has("drag"): seen.append("drag")
+
+func _knows_dragging() -> bool: return "drag" in state().get("tutorial", {}).get("seen", [])
+
+func _design() -> Array: return Drafts.design(state().placements, Drafts.of(state()))
+
+func _progress() -> float: return LocationMeter.progress(state(), Data.island)
+
+func _hover_at(screen: Vector2) -> Dictionary:
+	if not stroke.has("a"): return pick(screen)
+	if stroke.a.ground: return pick(screen, false)
+	return _pick_level(screen, float(stroke.a.y))
+
+func _pick_level(screen: Vector2, y: float) -> Dictionary:
+	var cam: Camera3D = game.camera
+	var o := cam.project_ray_origin(screen)
+	var d := cam.project_ray_normal(screen)
+	if absf(d.y) < 0.001: return {}
+	var along := (y - o.y) / d.y
+	if along <= 0.0: return {}
+	return {"point": o + d * along, "uid": -1, "hit_y": y, "draft": false}
+
+func _stroke_candidate() -> Dictionary:
+	if hover.is_empty(): return {}
+	var a: Dictionary = stroke.a
+	var cell := BuildStroke.cell_at(a, hover.point.x, hover.point.z)
+	if stroke.done.has(cell): return {}
+	return BuildStroke.candidate(a, cell, _design(), Data.layout.zones, _progress())
+
+func _dragging() -> bool: return stroke.get("go", false) and int(stroke.get("n", 0)) > 1
+
+func _paintable() -> bool:
+	return not check.is_empty() and check.ok and String(check.get("kind", "")) in ["build", "draft", "build_draft"]
+
+func _stroke_step() -> void:
+	var held: bool = Input.is_joy_button_pressed(0, JOY_BUTTON_A) if stroke.pad else Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT)
+	if not can_press() or (stroke.has("a") and String(stroke.a.id) != item_id):
+		end_stroke()
+		return
+	if not held:
+		end_stroke(true)
+		return
+	if not stroke.go:
+		if not BuildStroke.started(stroke.from, mouse): return
+		stroke["go"] = true
+	if hover.is_empty() or not stroke.has("a"): return
+	painting = true
+	_stroke_paint()
+	painting = false
+	if ui_dirty: _build_ui()
+
+func _stroke_paint() -> void:
+	var a: Dictionary = stroke.a
+	var cell := BuildStroke.cell_at(a, hover.point.x, hover.point.z)
+	if cell == stroke.last: return
+	for step in BuildStroke.line(stroke.last, cell):
+		if stroke.done.has(step): continue
+		var c := BuildStroke.candidate(a, step, _design(), Data.layout.zones, _progress())
+		if c.is_empty(): continue
+		check = evaluate(c)
+		ghost_key = ""
+		if _paintable() and place(): _stroke_laid(step)
+	stroke["last"] = cell
 
 func click() -> void:
 	if not moving.is_empty(): drop_move(); return
@@ -607,32 +733,37 @@ func _new_piece(from: Dictionary) -> Dictionary:
 	if d.get("door", false): pl["state"] = {"open": false}
 	return pl
 
-func place() -> void:
-	if check.is_empty(): return
-	if check.get("kind", "") == "drafted": game.toast(check.reason); return
-	if not check.ok: game.toast(check.reason, "warn"); game.sfx("error"); return
+func place() -> bool:
+	if check.is_empty(): return false
+	if check.get("kind", "") == "drafted": game.toast(check.reason); return false
+	if not check.ok: game.toast(check.reason, "warn"); game.sfx("error"); return false
 	if check.get("kind", "") == "draft":
 		var dpl := _new_piece(check.pl)
 		_add_drafts([dpl])
 		history.push({"type": "drafts_add", "pls": [dpl.duplicate(true)]}); ghost_key = ""
 		game.sfx("select")
-		_build_ui(); return
+		_note_built()
+		_build_ui(); return true
 	if check.get("kind", "") == "build_draft":
 		var dr := Drafts.find(Drafts.of(state()), int(check.draft_uid))
-		if dr.is_empty(): return
-		var built := _build_one(dr)
-		if built.ok: history.push({"type": "drafts_build", "pls": [dr.duplicate(true)]}); ghost_key = ""
-		else: game.toast(built.reason, "warn")
-		_build_ui(); return
+		if dr.is_empty(): return false
+		var made := _build_one(dr)
+		if made.ok:
+			history.push({"type": "drafts_build", "pls": [dr.duplicate(true)]}); ghost_key = ""
+			_note_built()
+		else: game.toast(made.reason, "warn")
+		_build_ui(); return made.ok
 	var pl := _new_piece(check.pl)
 	var planned := next_plan_piece()
 	var r: Dictionary = game.commit_place(pl, true)
 	if r.ok:
 		history.push({"type": "place", "pl": pl.duplicate(true)}); ghost_key = ""
+		_note_built()
 		# you built the plan's next piece: if the one after is the same kind, it comes turned the way its outline is
 		var nx := next_plan_piece()
 		if not planned.is_empty() and Plans.built(planned, state().placements) and not nx.is_empty() and String(nx.id) == item_id: rotation = int(nx.r)
 		_build_ui()
+	return r.ok
 
 func remove_target() -> void:
 	var draft_uid: int = selected_draft if selected_draft != -1 else (int(hover.uid) if selected == -1 and not hover.is_empty() and hover.get("draft", false) else -1)
@@ -706,9 +837,11 @@ func set_color(c: String) -> void:
 		color = c; _build_ui()
 
 func undo() -> void:
+	end_stroke()
 	var r := history.undo(apply_cmd)
 	game.toast("Undone" if r.ok else r.reason, "" if r.ok else "warn"); game.sfx("undo"); _build_ui()
 func redo() -> void:
+	end_stroke()
 	var r := history.redo(apply_cmd)
 	game.toast("Redone" if r.ok else r.reason, "" if r.ok else "warn"); game.sfx("undo"); _build_ui()
 
@@ -885,6 +1018,25 @@ func refresh_drafts() -> void:
 		draft_root.add_child(g); draft_nodes[int(dr.uid)] = g
 	if game.hud: game.hud.render_tracker()
 
+func pick_same(uid: int) -> void:
+	var pl := _find(uid)
+	if pl.is_empty(): return
+	var id := String(pl.id)
+	if not state().blueprints.has(id):
+		game.toast("Locked — " + game.blueprint_hint(id), "warn")
+		return
+	if not moving.is_empty(): cancel_move()
+	item_id = id
+	rotation = int(pl.r)
+	color = String(pl.get("color", ""))
+	category = String(Data.piece(id).cat)
+	selected = -1
+	selected_draft = -1
+	ghost_key = ""
+	state().new_blueprints.erase(id)
+	game.sfx("select")
+	_build_ui()
+
 func select_item(id: String) -> void:
 	if not state().blueprints.has(id): game.toast("Locked — " + game.blueprint_hint(id), "warn"); return
 	if not moving.is_empty(): cancel_move()
@@ -903,18 +1055,24 @@ func _status_text() -> String:
 		if selected_draft != -1: return "A drafted piece: build it, or remove it from the draft"
 		return "Piece selected" if selected != -1 else "Pick a piece from the catalog, or click a placed piece to edit it"
 	var d := Data.piece(item_id)
+	if _dragging(): return "Dragging: %d placed. Let go to finish." % int(stroke.n)
+	if _settled() or (int(stroke.get("n", 0)) > 0 and check.is_empty()): return "%s built" % d.name
 	if check.is_empty(): return "%s: it can go on the glowing spots" % d.name
 	if not check.ok: return check.reason
 	match check.get("kind", ""):
 		"draft": return "Click to draft the %s: %s" % [String(d.name).to_lower(), check.why]
 		"build_draft": return "Click to build the drafted %s (%s)" % [String(d.name).to_lower(), _cost_text(d.cost)]
-	return "Click to build the %s (%s)" % [String(d.name).to_lower(), _cost_text(d.cost)]
+	return "Click to build the %s (%s)%s" % [String(d.name).to_lower(), _cost_text(d.cost), _drag_hint(d)]
+
+func _drag_hint(d: Dictionary) -> String:
+	if _knows_dragging() or d.get("attach", "") == "wall": return ""
+	return ", or hold and drag for a row"
 
 func _render_status() -> void:
 	if status_label == null: return
 	status_label.text = _status_text()
 	var drafting: bool = not check.is_empty() and check.get("kind", "") in ["draft", "drafted"]
-	var bad: bool = not check.is_empty() and not check.ok and not drafting
+	var bad: bool = not check.is_empty() and not check.ok and not drafting and not _dragging() and not _settled()
 	var sp: PanelContainer = status_label.get_parent()
 	sp.add_theme_stylebox_override("panel", UiTheme.box(Color("fff3f3") if bad else (Color("eef8ff") if drafting else Color.WHITE), Color("ffb3b3") if bad else (Color("8fd3ff") if drafting else Color("cfe8d4")), 999, 3, 6, false))
 	status_label.add_theme_color_override("font_color", Color("b34a4a") if bad else (Color("2f6f9e") if drafting else Color("2f8a52")))
@@ -931,6 +1089,10 @@ static func _cost_text(cost: Dictionary, money_sep: String = " ") -> String:
 	return out
 
 func _build_ui() -> void:
+	if painting:
+		ui_dirty = true
+		return
+	ui_dirty = false
 	if ui: ui.queue_free()
 	if not active: return
 	ui = Control.new(); ui.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT); ui.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -963,7 +1125,7 @@ func _build_ui() -> void:
 	var keys := [Controls.key_label("rotate"), Controls.key_label("recolor"), Controls.key_label("move_piece"), Controls.key_label("remove"), Controls.key_label("draft_only"), Controls.key_label("pause"), Controls.key_label("build")]
 	# with a request checklist above it, the controls shrink to two lines so the column stays clear of the catalog
 	var hl := UiTheme.label(("%s rotate · %s colour · %s move · %s remove\nCtrl+Z undo · %s draft only · %s leave" % [keys[0], keys[1], keys[2], keys[3], keys[4], keys[5]]) if not goals.is_empty() else
-		("Left click — build, draft or select\nRight click — cancel · right-drag — turn view\n%s rotate · %s colour · %s move\n%s remove · Ctrl+Z undo · Ctrl+Y redo\nWASD pan · wheel zoom · %s draft only\n%s / %s leave build mode\nThe clock waits while you build" % keys), 12, UiTheme.INK2)
+		("Left click — build, draft or select\nHold and drag — build a row\nRight click — cancel · right-drag — turn view\n%s rotate · %s colour · %s move\n%s remove · Ctrl+Z undo · Ctrl+Y redo\nWASD pan · wheel zoom · %s draft only\n%s / %s leave build mode\nThe clock waits while you build" % keys), 12, UiTheme.INK2)
 	help.add_child(hl); help.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	# Right column: goals or the selected piece, then the controls (the left side holds the guide and tip cards)
 	var right := VBoxContainer.new(); right.anchor_left = 1; right.anchor_right = 1; right.offset_left = -268; right.offset_right = -14; right.offset_top = 160
@@ -998,8 +1160,13 @@ func _build_ui() -> void:
 				row.add_child(UiTheme.button("✋ Move", func(): start_move(pl.uid)))
 				row.add_child(UiTheme.button("⟳", rotate_piece))
 				row.add_child(UiTheme.button("🗑", remove_target))
-				if d.get("colorable", false): v.add_child(_swatches(pl.get("color", d.color), set_color))
+				if d.get("colorable", false): v.add_child(_swatches(pl.get("color", d.color), set_color, true))
 				if d.get("mech", {}).get("switch", false): v.add_child(UiTheme.button("Switch off" if pl.get("state", {}).get("on", false) else "Switch on", func(): game.toggle_lever(pl.uid); _build_ui()))
+				var again := UiTheme.button("Build another like it", func(): pick_same(pl.uid))
+				again.name = "pick_same"
+				again.add_theme_font_size_override("font_size", UiTheme.px(13))
+				again.tooltip_text = "Puts the same piece in your hand, turned and painted the same way"
+				v.add_child(again)
 				v.add_child(UiTheme.label("Removing refunds " + _cost_text(d.cost), 12, UiTheme.INK2))
 			else: v.add_child(UiTheme.label("Click to put it down · R rotate · right click to cancel", 12, UiTheme.INK2))
 			right.add_child(p)
@@ -1130,8 +1297,10 @@ static func _turn_matters(d: Dictionary) -> bool:
 	var sz: Array = d.get("size", [1, 1])
 	return int(sz[0]) != int(sz[1]) or d.get("edge", false) or d.has("mech") or d.has("box") or d.get("attach", "") == "wall"
 
-func _swatches(current: String, cb: Callable) -> HBoxContainer:
-	var row := HBoxContainer.new(); row.add_theme_constant_override("separation", 4)
+func _swatches(current: String, cb: Callable, wrap: bool = false) -> Container:
+	var row: Container = HFlowContainer.new() if wrap else HBoxContainer.new()
+	row.name = "swatches"
+	for gap in ["separation", "h_separation", "v_separation"]: row.add_theme_constant_override(gap, 4)
 	for c in Data.palette:
 		var col: String = c
 		var b := Button.new(); b.custom_minimum_size = Vector2(22, 22); b.name = "sw_" + col.substr(1)

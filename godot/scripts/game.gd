@@ -1011,8 +1011,7 @@ func _pos_of(it: Dictionary, key: String) -> float:
 func find_target():
 	var p := player.pos
 	var fwd := player.forward()
-	var best = null
-	var best_score := INF
+	var options: Array = []
 	for it in interactables:
 		if not it.available.call(): continue
 		var dx := _pos_of(it, "x") - p.x
@@ -1023,9 +1022,9 @@ func find_target():
 		var facing := (dx * fwd.x + dz * fwd.y) / d if d > 0.01 else 1.0
 		if d > 1.0 and facing < 0.1: continue
 		if it.get("sight", false) and not WalkWorld.sight_clear(Vector2(p.x, p.z), Vector2(p.x + dx, p.z + dz), sight_walls): continue   # not through a wall
-		var score: float = d - facing * 0.8 - it.priority
-		if score < best_score: best_score = score; best = it
-	return best
+		options.append({"it": it, "score": Prompts.score(d, facing, it.priority), "ambient": it.get("ambient", false)})
+	var chosen := Prompts.choose(options)
+	return options[chosen].it if chosen >= 0 else null
 
 func _set_highlight(obj, on: bool) -> void:
 	if obj == null or not is_instance_valid(obj): return
@@ -1104,8 +1103,9 @@ func _process(dt: float) -> void:
 		if screens: screens.update(dt)
 		_tick_shot(); return
 	if mode in ["explore", "build"]:
-		if Input.is_action_pressed("cam_left"): cam.yaw += 1.8 * dt
-		if Input.is_action_pressed("cam_right"): cam.yaw -= 1.8 * dt
+		var shortcut: bool = Input.is_key_pressed(KEY_CTRL) or Input.is_key_pressed(KEY_META)
+		if not shortcut and Input.is_action_pressed("cam_left"): cam.yaw += 1.8 * dt
+		if not shortcut and Input.is_action_pressed("cam_right"): cam.yaw -= 1.8 * dt
 		var look := Vector2(Input.get_joy_axis(0, JOY_AXIS_RIGHT_X), Input.get_joy_axis(0, JOY_AXIS_RIGHT_Y))
 		if look.length() > 0.15: cam.rotate_by(look.x * 2.4 * dt * settings.sensitivity, look.y * 1.6 * dt)
 	_update_world_time(dt)

@@ -36,7 +36,7 @@ func setup(g) -> void:
 		var x0: float = [-26.0, -10.0, 14.0, 24.0][n]
 		var duck := {"obj": d, "x0": x0, "ph": n * 1.7, "x": x0, "z": Heightfield.river_center(x0), "peck": 0.0}
 		ducks.append(duck)
-		game.add_interactable({"id": "duck%d" % n, "x": func(): return duck.x, "z": func(): return duck.z, "radius": 3.6, "object": d,
+		game.add_interactable({"id": "duck%d" % n, "x": func(): return duck.x, "z": func(): return duck.z, "radius": 3.6, "object": d, "ambient": true,
 			"available": func(): return game.state.inventory.get("fruit", 0) > 0, "label": func(): return "Toss a hazelnut to the duck", "act": func(): pet(duck, "duck")})
 	for n in 3:
 		var c := Node3D.new()
@@ -50,7 +50,7 @@ func setup(g) -> void:
 		var home: Array = [[12.5, -4.2], [14.0, -6.5], [8.5, -5.0]][n]
 		var ch := {"obj": c, "head": head, "home": Vector2(home[0], home[1]), "x": home[0], "z": home[1], "ph": n * 2.1, "yaw": 0.0, "peck": 0.0}
 		chickens.append(ch)
-		game.add_interactable({"id": "chicken%d" % n, "x": func(): return ch.x, "z": func(): return ch.z, "radius": 1.1, "object": c, "label": func(): return "Pet the chicken", "act": func(): pet(ch, "chicken")})
+		game.add_interactable({"id": "chicken%d" % n, "x": func(): return ch.x, "z": func(): return ch.z, "radius": 1.1, "object": c, "ambient": true, "label": func(): return "Pet the chicken", "act": func(): pet(ch, "chicken")})
 
 func _wildlife(W: Dictionary) -> void:
 	var woods: Array = Data.layout.get("decor", {}).get("woods", [])
@@ -72,7 +72,7 @@ func _wildlife(W: Dictionary) -> void:
 		o.position = Vector3(spot[0], y, spot[1]); o.rotation.y = float(spot[2])
 		var cat := {"obj": o, "tail": o.get_node("tail"), "head": o.get_node("head"), "yaw": float(spot[2]), "ph": i * 1.9, "peck": 0.0}
 		cats.append(cat)
-		game.add_interactable({"id": "cat%d" % i, "x": float(spot[0]), "z": float(spot[1]), "radius": 1.2, "object": o, "label": func(): return "Pet the cat", "act": func(): pet(cat, "cat")})
+		game.add_interactable({"id": "cat%d" % i, "x": float(spot[0]), "z": float(spot[1]), "radius": 1.2, "object": o, "ambient": true, "label": func(): return "Pet the cat", "act": func(): pet(cat, "cat")})
 	var spots: Array = W.get("crows", [])
 	for i in spots.size():
 		var o := _crow(); add_child(o)

@@ -5,6 +5,102 @@ Working title: **Wonderhaven** (to be renamed). The game is moving to a comic, l
 - **Godot 4 (`godot/`)** is the game. See `godot/README.md`. Its content (`godot/data/*.json`) is edited directly.
 - **Web / Three.js (`index.html`, `src/`)** is the original prototype, **frozen**: kept as it was, no longer updated. Everything added since the Godot port (interiors, shops, staged requests, the guided day, the look) exists only in Godot.
 
+## Building by dragging, corners that close, and fixes found on the way (09/11)
+The request was open ("improve my game"), so the work went to the centre of the design, building. All of it is shared:
+it works the same in every place.
+- **Hold and drag builds a row.** With a piece in your hand, hold the left button and drag: a piece goes down on every
+  tile the cursor crosses. The bus stop's twelve paving stones, or the Sindaco's eight railings, are one stroke
+  instead of one click each; a room with a floor, four walls, a roof and a hedge round it is eight strokes instead of
+  sixty-three clicks. A click still builds one piece (it now goes down when you press, not when you let go).
+  - **It stays on the level it began on.** Paving begun on the ground lies on the ground, and passes over a tile that
+    already has something instead of stacking on it. Railings begun on a bridge deck stay on the deck, walls begun on
+    a floor stop at the floor's end, and nothing dragged off the side of a deck or a platform is dropped below. A
+    second course of stone blocks, begun on a block, is laid along the blocks under it.
+  - **Fences, walls and railings run straight** along the edge they began on, however the hand wobbles. To turn a
+    corner, let go and start the next side. Tile pieces (paving, hedges, floors) follow the cursor anywhere, round
+    corners and in a zigzag.
+  - **Big pieces go edge to edge**: platforms and roofs every two tiles, benches end to end.
+  - **A fast sweep leaves no gap**: every tile between one frame's cursor and the next is filled.
+  - **The row is set by where you press**, even if that first spot is taken: a row begun on a tile that already has a
+    fence carries on along the same edge from the next free tile.
+  - **Nothing is refused out loud mid-drag.** A tile where the piece doesn't fit is passed over without a toast. If
+    the whole press built nothing, letting go says why, as a click always did. What you can't afford goes into your
+    draft, as with a click, and dragging along drafted pieces builds them.
+  - **A shaky click isn't a drag**: the cursor has to travel 12 pixels and reach another tile first.
+  - **One drag is one undo** (and one redo).
+  - **What you see**: the status line counts as you go ("Dragging: 6 placed. Let go to finish."). Until you've dragged
+    once it also says you can ("Click to build the fence (🪵1), or hold and drag for a row"); the "How building works"
+    card and the ❓ key list say so too.
+  - **Gamepad**: holding A while the cursor moves does the same. It shares the mouse's code but was not tried on a
+    controller.
+  - Where: the rules are in `BuildStroke` (`scripts/systems/build_stroke.gd`); `History` groups a drag's pieces into
+    one step; `BuildMode.press`, `_stroke_step` and `end_stroke` are the interactive part.
+- **Walls meet at a tile's corner.** Two edge pieces (walls, fences, railings) on different edges of the same tile
+  used to bump into each other where their ends cross, so a room built on its own floor couldn't close its corners:
+  the second wall of each corner was refused, and the only way round was to stand it on the tile outside. They may
+  now meet (`BuildGrid.meet_at_a_corner`). Two on the same edge still bump, and furniture still needs a tile clear of
+  walls.
+- **Build another like it.** A selected piece's panel has a button that puts the same piece in your hand, turned and
+  painted the same way.
+- **After you build, the status says so.** With the cursor still on the piece just built, the status line turned red
+  ("Bumps into the fence") and a red outline covered the new piece. It now says "Fence built", and the outline stays
+  away until the cursor or the view moves. Pieces that stack (blocks, paving) still show the next one on top.
+- **Fixes**, each found while playing the above:
+  - **Ctrl+Z turned the view.** Z is also "turn camera right", so every undo in build mode swung the camera for as
+    long as the key was down (a fifth of a second turned it 20°). The camera keys now wait while Ctrl or Cmd is held.
+  - **Two colours couldn't be clicked.** A selected piece's twelve colour swatches were in one row, wider than their
+    panel, and the last two ran off the right edge of the window. They wrap onto two rows.
+  - **The bakery cat took the boars' prompt.** `play_boars` failed one run in three here: the cat sits 1.2 m from one
+    of Ornella's boars, and depending on where the boar had wandered, E petted the cat instead of offering the
+    chestnut. Petting (cats, hens, ducks) is now only offered when nothing else is in reach in front of you
+    (`Prompts`, `scripts/systems/prompts.gd`; `"ambient": true` on an interactable).
+- **Checked:**
+  - **Tested** (`godot/run_tests.sh`, 503 passed, 490 before; 510 after merging main). `test_build_stroke` (10 tests) covers: a shaky
+    click; a fast sweep's path; paving kept on the ground and off what's there; big pieces edge to edge; a fence's
+    straight row on each of its four edges; railings kept on a bridge's deck and a chair not dropped off its side;
+    floor tiles not piled on floor tiles, and a second course of blocks; walls meeting at a corner while a second wall
+    on the same edge, a fence on a walled edge and a table on a walled tile still bump; one undo for a drag; a drag
+    that can't be undone whole being put back. `test_prompts` (3 tests) covers petting giving way, with the bakery
+    cat's and boar's real positions. Each rule was also switched off in turn to see its test fail (eleven changes,
+    each caught).
+  - **Played** (`play_build_rows`, 26 checks, in `play_all.sh`; real mouse presses, moves and releases):
+    - a click lays one stone and the status mentions dragging; a click with a 5-pixel slip lays one;
+    - a drag paves six tiles flat on the ground while the status counts; one undo and one redo; the view doesn't
+      turn; the hint is gone afterwards;
+    - dragging back over the row adds only the free tile and stacks nothing; a sweep made in a single frame leaves
+      no gap;
+    - a fence dragged in a zigzag comes out straight; afterwards the status says "Fence built" with no outline over
+      it, and both come back when the cursor moves on;
+    - with 2 wood a five-tile drag builds two and drafts three, and with wood again a drag along the drafts builds
+      them;
+    - "Build another like it" gives the same turn and paint; all twelve swatches are inside the window;
+    - a row begun on a tile that has a fence carries on along the same edge; two fences meet at one tile's corner;
+    - railings dragged along the washout's bridge stand on its deck, one a plank; planks dragged out from the bank
+      stop at their reach with nothing drafted past it;
+    - on the farmhouse plot, one zigzag stroke floors a room of 24 tiles, four strokes wall it in with every corner
+      closed and every wall on the floor (6, 4, 4, 6), two strokes roof it (six roofs edge to edge), one stroke runs
+      13 hedges along the front and round the corner, and three undos take the hedge and roofs off again. For the
+      roofs the script looks for a point on the walls where the first roof fits, as a player does by watching the
+      outline.
+  - **All of Monteforchetta's playthroughs pass** (`play_all.sh`: 25 runs, 260 checks). Before the change the same
+    set passed apart from `play_boars`, which lost the prompt to the cat in one run of three. The set caught a
+    mistake on the way: the first "Fence built" went by where the cursor was on the screen, so with the view moved
+    under a still cursor (as the playthroughs point) it hid the reason a different tile was refused; `play_build`,
+    `play_build_clarity` and `play_full` failed on it until it also watched the view.
+  - **Two other places were played too**, after merging main, because the click and the corner rule are shared:
+    Casalrana's `play_rice_village` (30 checks) and Boccapioppo's `play_river_town` (36 checks) both pass.
+  - **Seen** in the playthrough's screenshots: the paving mid-drag with the counting status, the straight fence, the
+    selected piece's panel with two rows of swatches and the new button, the railings along the bridge, the walled
+    room with its corners closed, and the roofed house with its hedge.
+  - **Not checked:** how dragging feels with a real mouse at full frame rate, a trackpad, a gamepad; whether 12
+    pixels is the right threshold on a high-resolution screen; the other places' remaining playthroughs (their
+    owners' to run: a click now builds on the press, and walls may meet at a corner, in every place).
+- **Noticed, not changed:** aiming at the last few centimetres of a floor tile's edge from the side you're looking
+  from hits the tile's side face, so the wall goes on the grass beside the floor (the outline shows it before you
+  click); a piece aimed at through a roof goes on the floor underneath; the paint in your hand stays for whatever you
+  pick up next, as it does after choosing a swatch, so after "Build another like it" on a pink fence the next walls
+  are pink too (copying an unpainted piece clears it).
+
 ## The redesign (07/11)
 After a review of how the game plays, the user agreed a new design: building is the core, the game values what you build
 whether or not anyone asked for it, requests become briefs with checks, and the day becomes a work day you end
