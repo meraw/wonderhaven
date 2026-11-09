@@ -186,8 +186,11 @@ func night_and_fog() -> void:
 	var thick: float = float((fog.material_override as ShaderMaterial).get_shader_parameter("amount")) if fog else 0.0
 	check("n3", "On a misty morning the sea fog fills the ravine up to the station", fog != null and fog.visible and thick > 0.6, "%.2f" % thick)
 	game.shot_cfg.erase("weather")
-	game.player.teleport(Data.layout.spawn.x, Data.layout.spawn.z)
+	s.time.minute = 10 * 60.0
+	game.player.teleport(0.0, 26.0)
 	await frames(10)
+	var back := await go("platform")
+	check("n4", "Back up the main street and the station lane to the platform", back and y_near(10.0), where())
 
 func room_at(x: float, z: float) -> String:
 	for b in Data.layout.buildings:
