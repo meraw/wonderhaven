@@ -87,12 +87,14 @@ it works the same in every place.
     mistake on the way: the first "Fence built" went by where the cursor was on the screen, so with the view moved
     under a still cursor (as the playthroughs point) it hid the reason a different tile was refused; `play_build`,
     `play_build_clarity` and `play_full` failed on it until it also watched the view.
+  - **Two other places were played too**, after merging main, because the click and the corner rule are shared:
+    Casalrana's `play_rice_village` (30 checks) and Boccapioppo's `play_river_town` (36 checks) both pass.
   - **Seen** in the playthrough's screenshots: the paving mid-drag with the counting status, the straight fence, the
     selected piece's panel with two rows of swatches and the new button, the railings along the bridge, the walled
     room with its corners closed, and the roofed house with its hedge.
   - **Not checked:** how dragging feels with a real mouse at full frame rate, a trackpad, a gamepad; whether 12
-    pixels is the right threshold on a high-resolution screen; the other places' playthroughs (their owners' to
-    run: a click now builds on the press, and walls may meet at a corner, in every place).
+    pixels is the right threshold on a high-resolution screen; the other places' remaining playthroughs (their
+    owners' to run: a click now builds on the press, and walls may meet at a corner, in every place).
 - **Noticed, not changed:** aiming at the last few centimetres of a floor tile's edge from the side you're looking
   from hits the tile's side face, so the wall goes on the grass beside the floor (the outline shows it before you
   click); a piece aimed at through a roof goes on the floor underneath; the paint in your hand stays for whatever you
