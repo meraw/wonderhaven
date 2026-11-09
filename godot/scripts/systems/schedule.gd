@@ -12,8 +12,8 @@ static func schedule_for(npc: Dictionary, flags: Dictionary) -> Array:
 static func activity_at(npc: Dictionary, minute: float, flags: Dictionary) -> Dictionary:
 	var h := minute / 60.0
 	for e in schedule_for(npc, flags):
-		if h >= e[0] and h < e[1]: return {"node": e[2], "activity": e[3]}
-	return {"node": npc.home, "activity": "sleep"}
+		if h >= e[0] and h < e[1]: return {"node": e[2], "activity": e[3], "hat": String(e[4]) if e.size() > 4 else ""}
+	return {"node": npc.home, "activity": "sleep", "hat": ""}
 
 ## Where villagers walk between two nav spots joined across a build zone the player bridged: a layout's
 ## "crossings" [{a, b, zone}] name the spot on the zone's endpoint a side and the one on its b side, and the path the

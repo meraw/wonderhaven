@@ -25,7 +25,7 @@
     "bottomColor": "3a3a40",
     "shoes": "boots",
     "shoesColor": "2a2a2a",
-    "hat": "captain",
+    "hat": "olive_village_timetableCap",
     "hatColor": "2f3a5a",
     "accessory": "sash",
     "body": {
@@ -51,13 +51,15 @@
        7,
        8,
        "churchDoor",
-       "work"
+       "work",
+       "olive_village_sacristanBeret"
       ],
       [
        8,
        12,
        "olive_village_barber:spot",
-       "work"
+       "work",
+       "olive_village_barberCap"
       ],
       [
        12,
@@ -75,7 +77,8 @@
        15,
        19,
        "olive_village_barber:spot",
-       "work"
+       "work",
+       "olive_village_barberCap"
       ],
       [
        19,
@@ -98,13 +101,15 @@
        7,
        8,
        "churchDoor",
-       "work"
+       "work",
+       "olive_village_sacristanBeret"
       ],
       [
        8,
        12,
        "olive_village_barber:spot",
-       "work"
+       "work",
+       "olive_village_barberCap"
       ],
       [
        12,
@@ -122,7 +127,8 @@
        15,
        19,
        "olive_village_barber:spot",
-       "work"
+       "work",
+       "olive_village_barberCap"
       ],
       [
        19,
@@ -139,13 +145,15 @@
        7,
        8,
        "churchDoor",
-       "work"
+       "work",
+       "olive_village_sacristanBeret"
       ],
       [
        8,
        12,
        "olive_village_barber:spot",
-       "work"
+       "work",
+       "olive_village_barberCap"
       ],
       [
        12,
@@ -163,7 +171,8 @@
        15,
        19,
        "olive_village_barber:spot",
-       "work"
+       "work",
+       "olive_village_barberCap"
       ],
       [
        19,
@@ -180,7 +189,8 @@
        0,
        24,
        "olive_village_barber:spot",
-       "idle"
+       "idle",
+       "olive_village_barberCap"
       ]
      ]
     }
@@ -254,6 +264,21 @@
      "hearts": 6,
      "blueprint": "streetlight",
      "line": "The province sent plans for a streetlight in 1979. I've been waiting for a Geometra worthy of them."
+    },
+    {
+     "hearts": 8,
+     "clothes": [
+      "olive_village_timetableCap"
+     ],
+     "line": "My spare timetable cap. Wear it at the jetty at ferry times and people will ask you when the ferry's coming. Make something up. I do."
+    },
+    {
+     "hearts": 10,
+     "clothes": [
+      "olive_village_barberCap",
+      "olive_village_sacristanBeret"
+     ],
+     "line": "Two of my caps. With you about, I can be the Sindaco, and you can be the barber and the sacristan. Don't cut anyone's hair."
     }
    ]
   },
@@ -1274,7 +1299,7 @@
     "bottomColor": "3a4a5a",
     "shoes": "boots",
     "shoesColor": "2a2a2a",
-    "hat": "beanie",
+    "hat": "olive_village_woolCap",
     "hatColor": "8a2f2f",
     "accessory": "beard",
     "body": {
@@ -1409,6 +1434,13 @@
      "hearts": 6,
      "blueprint": "railLantern",
      "line": "A lantern for a jetty post. The fishermen used to hang them so the boats could find home."
+    },
+    {
+     "hearts": 8,
+     "clothes": [
+      "olive_village_woolCap"
+     ],
+     "line": "My spare woollen cap. My mother knitted it in 1968. The fish have never complained."
     }
    ]
   },
@@ -1436,7 +1468,7 @@
     "bottomColor": "f4f1ea",
     "shoes": "boots",
     "shoesColor": "2a2a2a",
-    "hat": "captain",
+    "hat": "olive_village_skipperCap",
     "hatColor": "1f2f4f",
     "accessory": "none",
     "body": {
@@ -1564,6 +1596,13 @@
      "hearts": 6,
      "blueprint": "signpost",
      "line": "Signposts! Ports need signposts. People get off a boat and stand there looking lost. It's bad for business."
+    },
+    {
+     "hearts": 8,
+     "clothes": [
+      "olive_village_skipperCap"
+     ],
+     "line": "A skipper's cap, my old one. Wear it on the jetty and toot at people. TOOT. Like that."
     }
    ]
   },
@@ -1591,7 +1630,7 @@
     "bottomColor": "f4f1ea",
     "shoes": "boots",
     "shoesColor": "6a5a40",
-    "hat": "sunhat",
+    "hat": "olive_village_beeHat",
     "hatColor": "f4f1ea",
     "accessory": "none",
     "body": {
@@ -1731,6 +1770,13 @@
      "hearts": 6,
      "blueprint": "hedge",
      "line": "Hedges for the hives, out of the wind. Plant them and the bees will thank you. Quietly."
+    },
+    {
+     "hearts": 8,
+     "clothes": [
+      "olive_village_beeHat"
+     ],
+     "line": "My spare hat, veil and all. The bees know you now, but it's polite to dress for them."
     }
    ]
   },

@@ -3,7 +3,7 @@ extends "full_base.gd"
 const OV := preload("../scripts/locations/olive_village.gd")
 const PLACES := ["hearthglow", "river_town", "rice_village", "metropolis", "port", "cliffs"]
 const P := "olive_village_"
-const SECTIONS := ["welcome", "jetty", "water", "terrace", "roof", "sunset", "steps", "swarm", "lost", "festa"]
+const SECTIONS := ["welcome", "jetty", "water", "terrace", "roof", "sunset", "steps", "swarm", "lost", "festa", "life"]
 const SELLER := {"wood": "giobatta", "stone": "giobatta", "metal": "giobatta", "crystal": "giobatta", "clay": "giobatta", "fabric": "giacomo"}
 const LOST := {"cap": "giobatta", "guidebook": "hannelore", "glove": "bastian", "binoculars": "marisa", "key": "gina", "radio": "giacomo", "postcard": "delia", "tinboat": "rosa"}
 
@@ -350,6 +350,15 @@ func turn_view(angle: float) -> void:
 		mouse_move(mid, Vector2(px / steps, 0)); await frames(1)
 	mouse_button(mid, MOUSE_BUTTON_RIGHT, false); await frames(2)
 
+func tilt_view(angle: float) -> void:
+	var mid: Vector2 = game.get_viewport().get_visible_rect().size / 2.0
+	var px := angle / (0.0055 * float(game.settings.sensitivity)) * (-1.0 if game.settings.invert_y else 1.0)
+	var steps := maxi(1, int(ceil(absf(px) / 20.0)))
+	mouse_button(mid, MOUSE_BUTTON_RIGHT, true); await frames(1)
+	for s in steps:
+		mouse_move(mid, Vector2(0, px / steps)); await frames(1)
+	mouse_button(mid, MOUSE_BUTTON_RIGHT, false); await frames(2)
+
 func aims_for(id: String, i: float, k: float, r: int, y: float) -> Array:
 	var fp := BuildGrid.footprint(Data.piece(id), r)
 	var c := Vector3(i + fp.x / 2.0, y + 0.02, k + fp.y / 2.0)
@@ -424,7 +433,7 @@ func requests() -> void:
 	else:
 		note("requests: day %d %s, coins %d" % [int(game.state.time.day), Clock.text(game.state.time), Shop.coins(game.state)])
 		await daytime()
-	var k1 := SECTIONS.find(String(game.shot_cfg.get("to", "festa")))
+	var k1 := SECTIONS.find(String(game.shot_cfg.get("to", "life")))
 	for k in range(maxi(k0, 0), (k1 if k1 >= 0 else SECTIONS.size() - 1) + 1):
 		note("section %s: day %d %s, coins %d" % [SECTIONS[k], int(game.state.time.day), Clock.text(game.state.time), Shop.coins(game.state)])
 		await call("sec_" + SECTIONS[k])
@@ -686,7 +695,100 @@ func sec_festa() -> void:
 		qs("festa") == "done" and pts() == 12 and reading() == "50 inhabitants" and sign_text() == "Liolivato. 50 inhabitants." and flag("free_haircut") and Data.world_flags.has(P + "festa_night"),
 		"%s, %s, sign '%s', haircut %s" % [qs("festa"), reading(), sign_text(), flag("free_haircut")])
 
+func heard(kind: String, midi: int, until_h: float, max_s: float = 200.0) -> bool:
+	if game.audio == null: return false
+	var s: AudioStreamWAV = game.audio._gen(kind, midi)
+	var t0 := Time.get_ticks_msec()
+	while hour() < until_h and Time.get_ticks_msec() - t0 < max_s * 1000.0:
+		if game.audio.pool.any(func(pl): return pl.playing and pl.stream == s): return true
+		await frames(1)
+	return false
+
+func wears(id: String) -> bool:
+	var a = game.npcs[P + "giobatta"]
+	return a.hat_on == P + id and String(a.character.appearance.hat) == P + id and a.character.head.get_node_or_null("hat") != null
+
+func hat_now() -> String:
+	return String(game.npcs[P + "giobatta"].hat_on)
+
+func song() -> String:
+	return String(game.audio.want_song) if game.audio else "(no audio)"
+
+func off_berth(ferry: Node3D) -> float:
+	return Vector2(ferry.boat.position.x - OV.MOORED.x, ferry.boat.position.z - OV.MOORED.z).length()
+
+func sec_life() -> void:
+	var ferry: Node3D = game.find_child("olive_village_ferry", true, false)
+	var animals: Node3D = game.find_child("olive_village_animals", true, false)
+	if ferry == null or animals == null:
+		check("l0", "The ferry and the animals are in the place", false, "ferry %s, animals %s" % [ferry, animals])
+		return
+	await nap_until(6)
+	var bell := await heard("bell", 60, 7.2)
+	await wait_until(7.25)
+	var beret := wears("sacristanBeret")
+	var hat_early := hat_now()
+	await wait_until(8.1)
+	var cap := wears("barberCap")
+	var morning := song()
+	var swifts: bool = animals.swifts.all(func(sw): return sw.obj.visible)
+	var swarm: bool = not animals.swarm.visible
+	check("l1", "Morning: the bells ring seven, the Sindaco opens the church in his sacristan's beret, then cuts hair in his white barber's cap, to the mandolin's morning tune, with the swifts out round the towers",
+		bell and beret and cap and morning == P + "morning" and swifts and swarm,
+		"bell %s, at 7 %s, at 8 %s, song %s, swifts %s, swarm gone %s" % [bell, hat_early, hat_now(), morning, swifts, swarm])
+	var near := spot("tp2")
+	var liz: Dictionary = animals.lizards[0]
+	for l in animals.lizards:
+		if Vector2(l.home.x - near[0], l.home.z - near[1]).length() < Vector2(liz.home.x - near[0], liz.home.z - near[1]).length(): liz = l
+	var reached := await go("tp2")
+	var home: Vector3 = liz.home
+	await walk_direct(home.x, home.z + 1.0, 1.0, 20.0)
+	await frames(6)
+	var close := Vector2(game.player.pos.x - home.x, game.player.pos.z - home.z).length()
+	var darted: bool = float(liz.dart) > 0.0 or float(liz.hide) > 0.0
+	check("l2", "A lizard sunning on a terrace wall darts off and hides when you come close", reached and darted, "%.1f m from it, dart %.2f, hide %.1f" % [close, float(liz.dart), float(liz.hide)])
+	await go("beach")
+	var gull: Dictionary = {}
+	for q in animals.gulls:
+		if q.ring: continue
+		if gull.is_empty() or Vector2(q.seat.x - game.player.pos.x, q.seat.z - game.player.pos.z).length() < Vector2(gull.seat.x - game.player.pos.x, gull.seat.z - game.player.pos.z).length(): gull = q
+	await wait(2.0)
+	var lifted: bool = float(gull.flying) > 0.0 and gull.obj.position.y > gull.seat.y + 0.8
+	var circling: bool = animals.gulls.filter(func(q): return q.ring).all(func(q): return q.obj.position.y > 5.0)
+	var sea := await heard("hiss", 48, hour() + 0.25)
+	check("l3", "At the cove the gull on the post takes off as you come down, two more wheel over the water, and the sea hisses on the pebbles", lifted and circling and sea,
+		"gull up %.1f m, flying %.1f, circling %s, sea %s" % [gull.obj.position.y - gull.seat.y, float(gull.flying), circling, sea])
+	if hour() < 9.0 or hour() >= 10.0: await nap_until(9)
+	await walk_to(24.5, 58.6, 0.5)
+	await walk_direct(24.5, 60.4, 0.35, 10.0)
+	await walk_direct(24.5, 70.5, 0.4, 30.0)
+	await wait_until(10.0)
+	var moored: bool = ferry.boat.visible and off_berth(ferry) < 1.0
+	var horn := await heard("horn", 57, 10.15)
+	await wait_until(10.15)
+	var leaving: bool = ferry.boat.visible and off_berth(ferry) > 3.0
+	var out_at := off_berth(ferry)
+	var away := atan2(game.player.pos.x - ferry.boat.position.x, game.player.pos.z - ferry.boat.position.z) - 0.5
+	await turn_view(wrapf(game.cam.yaw - away, -PI, PI))
+	await tilt_view(0.2 - game.cam.pitch)
+	await frames(20)
+	await shot("ferry-leaving")
+	await wait_until(10.35)
+	var gone: bool = not ferry.boat.visible
+	check("l4", "The ferry: moored at your jetty at ten, it sounds its horn at five past, pulls out to sea and is gone over the horizon",
+		moored and horn and leaving and gone, "moored %s, horn %s, %.1f m out at 10:09, gone %s" % [moored, horn, out_at, gone])
+	await nap_until(18)
+	await wait_until(18.05)
+	var evening := song()
+	var festa_horn := await heard("horn", 57, 18.6)
+	await wait_until(20.05)
+	var back: bool = ferry.boat.visible and off_berth(ferry) < 1.0
+	check("l5", "Evening: the brass band plays on the piazza every night after the festa, and the festa ferry goes out at half past six and is back at your jetty by eight",
+		evening == P + "band" and festa_horn and back, "song %s, horn %s, ferry %.1f m from the jetty, shown %s" % [evening, festa_horn, off_berth(ferry), ferry.boat.visible])
+
 func view(x: float, z: float, yaw: float, pitch: float, dist: float, h: float, name: String) -> void:
+	var only := String(game.shot_cfg.get("only", ""))
+	if only != "" and not name in only.split(","): return
 	game.state.time.minute = h * 60.0
 	game.player.teleport(x, z)
 	for a in game.npcs.values(): a.teleport_home()
@@ -695,6 +797,17 @@ func view(x: float, z: float, yaw: float, pitch: float, dist: float, h: float, n
 	game.cam.update(0.016, game.player.pos); game.cam.snap()
 	await wait(2.5)
 	await shot(name)
+
+func still(at: Vector3, look: Vector3, h: float, name: String) -> void:
+	var only := String(game.shot_cfg.get("only", ""))
+	if only != "" and not name in only.split(","): return
+	game.state.time.minute = h * 60.0
+	game.player.teleport(at.x, at.z + 4.0)
+	for a in game.npcs.values(): a.teleport_home()
+	game.cam.cinema = {"pos": at, "look": look}
+	await wait(2.5)
+	await shot(name)
+	game.cam.cinema = {}
 
 func story_at(flags: Array) -> void:
 	for f in flags: game.state.flags[P + f] = true
@@ -711,6 +824,10 @@ func story_at(flags: Array) -> void:
 
 func shots() -> void:
 	game.shot_cfg["weather"] = "clear"
+	await view(24.0, -30.0, PI, 0.45, 9.0, 16.5, "terraces-and-the-sea")
+	await view(-20.0, -6.0, 2.4, 0.5, 30.0, 17.5, "village-golden-afternoon")
+	await view(21.0, 58.5, 3.06, 0.55, 18.0, 8.0, "the-cove-in-the-morning")
+	await still(Vector3(-30.0, Heightfield.height(-30.0, -16.0) + 1.8, -16.0), Vector3(-38.2, Heightfield.height(-38.2, -35.5) + 15.5, -35.5), 19.5, "swifts-at-the-bell-tower")
 	await view(-20.0, 0.0, 0.0, 0.45, 16.0, 21.5, "festa-before")
 	await story_at(["welcomed", "jetty_done", "water_done", "terrace_done", "roof_done", "sunset_done", "swarm_done", "steps_done", "own_olive", "festa_ready", "festa_night", "festa_done"])
 	await view(-3.5, 16.5, 0.15, 0.3, 5.0, 11.0, "sign-fifty")

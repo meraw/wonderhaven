@@ -232,9 +232,9 @@ func test_pop_instruments_play_in_tune():
 	# the rate it plays back at, is within a few cents of the note. The plucked guitar especially, whose loop length
 	# would otherwise be rounded to whole samples.
 	var ad = AudioDirector.new()
-	for inst in ["guitar", "piano", "bass", "saw", "strings"]:
+	for inst in ["guitar", "piano", "bass", "saw", "strings", "mandolin", "brass", "tuba"]:
 		for midi in [45, 62, 69, 81]:
-			if inst == "bass" and midi > 62: continue
+			if inst in ["bass", "tuba"] and midi > 62: continue
 			var w: AudioStreamWAV = ad._gen(inst, midi)
 			var n := mini(w.data.size() / 2, 6000)
 			var x := PackedFloat32Array(); x.resize(n)
@@ -287,6 +287,22 @@ func test_dance_hall_instruments_and_waltz_bars():
 	t.eq(AudioDirector.loop_steps(waltz), 12, "and it loops on whole bars")
 	var hb: Array = AudioDirector.step_events(AudioDirector.SONGS.hearthglow, 8).filter(func(e): return e[0] == "pluck" and int(e[1]) < 60)
 	t.eq(hb.size(), 1, "a 16-step song keeps its second bass note on step 8")
+
+func test_mandolin_and_brass_band_instruments():
+	for k in ["mandolin", "brass", "tuba"]:
+		for midi in ([38, 45, 52] if k == "tuba" else [60, 72, 84]):
+			var w := AudioDirector.synth(k, midi)
+			var peak := 0
+			for i in range(0, w.data.size(), 2): peak = maxi(peak, absi(w.data.decode_s16(i)))
+			t.ok(k in AudioDirector.INSTRUMENTS and peak > 3000 and peak < 32000, "the %s sounds at %d without clipping (peak %d)" % [k, midi, peak])
+	var w := AudioDirector.synth("mandolin", 69)
+	var strokes := 0
+	var was_loud := false
+	for i in range(0, w.data.size(), 2 * 220):
+		var loud := absi(w.data.decode_s16(i)) > 2500
+		if loud and not was_loud: strokes += 1
+		was_loud = loud
+	t.ok(strokes >= 6, "the mandolin's note is picked over and over, tremolo (%d strokes)" % strokes)
 
 ## The speakers are looked after: nothing reaches them above -1 dB (a limiter on the master bus, added once however
 ## often the scene reloads), and the scripts that start the game for playthroughs and screenshots start it without a

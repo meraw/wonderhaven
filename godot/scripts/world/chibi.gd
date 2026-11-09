@@ -482,8 +482,19 @@ func _build_hair(style: String, color: String, hat: String = "none") -> void:
 		"short":
 			for s in [-1, 1]: lock.call(Vector3(s * 0.38, 0.0, 0.05), Vector3(0.6, 1.1, 0.9), Vector3(0, 0, s * 0.2))
 
+func wear_hat(id: String) -> void:
+	if id != "none" and not Data.appearance.HATS.has(id): return
+	var old := head.get_node_or_null("hat")
+	if old:
+		head.remove_child(old)
+		old.queue_free()
+	appearance["hat"] = id
+	var a := resolve(appearance)
+	if String(a.hat) != "none": _build_hat(String(a.hat), String(a.hatColor), String(a.get("hatTrim", "")))
+	apply_layer()
+
 func _build_hat(kind: String, color: String, trim: String = "") -> void:
-	var g := Node3D.new(); g.position.y = HEAD_R * 0.92; head.add_child(g)
+	var g := Node3D.new(); g.name = "hat"; g.position.y = HEAD_R * 0.92; head.add_child(g)
 	match kind:
 		"beret": _m(P.sphere(0.36, 28, 18), color, g, Vector3(0.06, 0.36, 0), Vector3(1.1, 0.4, 1.1), Vector3(0, 0, -0.25))
 		"beanie":

@@ -1,6 +1,9 @@
 extends RefCounted
 
 const Models := preload("models.gd")
+const Sounds := preload("sounds.gd")
+const Ferry := preload("ferry.gd")
+const Animals := preload("animals.gd")
 
 const OLIVE_LEAVES := [Color("c2c9b0"), Color("b5bea3"), Color("cbd2bb"), Color("aeb89c")]
 const FIG_LEAVES := [Color("5f8f3c"), Color("6e9a46"), Color("7aa64e")]
@@ -26,6 +29,13 @@ static func dress(village: Node3D) -> void:
 	hill_villages(village, ov)
 	if Data.world_flags.has("olive_village_festa_night"): festa_lights(village, c)
 	if Data.world_flags.has("olive_village_own_olive"): own_olive(village, c)
+	var snd: Node = Sounds.new()
+	snd.name = "olive_village_sounds"
+	village.add_child(snd)
+	village.add_child(Ferry.new())
+	var animals: Node3D = Animals.new()
+	animals.build()
+	village.add_child(animals)
 
 static func mm(village: Node3D, mesh: Mesh, mat: Material, xforms: Array, colors: Array = [], shadow: bool = true) -> void:
 	if xforms.is_empty(): return
@@ -240,14 +250,6 @@ static func doorsteps(village: Node3D) -> void:
 	mm(village, Foliage.flower_head(), Foliage.plant_material(0.02, -1.0, false, true), blooms, bloom_cols, false)
 
 static func cove(village: Node3D, c: Dictionary) -> void:
-	var ferry := Models.ferry()
-	ferry.position = Vector3(19.5, Heightfield.WATER_Y - 0.15, 76.0)
-	ferry.rotation.y = 0.35
-	if Data.world_flags.has("olive_village_jetty_done"):
-		var moor: Vector3 = c.MOORED
-		ferry.position = Vector3(moor.x, Heightfield.WATER_Y - 0.15, moor.z)
-		ferry.rotation.y = PI
-	village.add_child(ferry)
 	var stump := Models.jetty_stump()
 	stump.position = Vector3(22.0, Heightfield.height(22.0, 60.4), 60.4)
 	village.add_child(stump)

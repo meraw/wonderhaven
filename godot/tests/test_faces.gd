@@ -36,6 +36,23 @@ func test_villagers_have_bodies_of_their_own():
 	var mayor: Dictionary = Data.npcs.filter(func(n): return n.id == "percival")[0]
 	t.ok(float(mayor.appearance.body.belly) > 0.5, "the Sindaco has his round belly")
 
+func test_a_character_can_change_hats():
+	var c := Chibi.new({"hat": "beret", "hatColor": "1f1f24"})
+	var tag := Label3D.new()
+	c.add_child(tag)
+	c.wear_hat("captain")
+	var hats := c.head.get_children().filter(func(n): return String(n.name) == "hat").size()
+	t.ok(hats == 1 and c.appearance.hat == "captain", "a villager puts on another hat: one hat on the head (%d)" % hats)
+	t.ok(is_instance_valid(tag) and tag.get_parent() == c, "and the rest of them stays as it was")
+	c.wear_hat("none")
+	t.ok(c.head.get_node_or_null("hat") == null, "or takes it off")
+	c.wear_hat("no_such_hat")
+	t.eq(c.appearance.hat, "none", "a hat that doesn't exist is ignored")
+	c.free()
+	var npc := {"home": "h", "schedule": [[8, 12, "a", "work", "beret"], [12, 14, "b", "idle"]]}
+	t.eq(Schedule.activity_at(npc, 9 * 60.0, {}).hat, "beret", "a routine can say which hat goes with a job")
+	t.eq(Schedule.activity_at(npc, 13 * 60.0, {}).hat, "", "and the others leave the usual one on")
+
 func test_colours_written_without_a_hash_are_kept():
 	var a := Chibi.sanitize({"skin": "f2c9a0", "hairColor": "pink"})
 	t.eq(a.skin, "f2c9a0", "a skin colour written without its hash is kept")

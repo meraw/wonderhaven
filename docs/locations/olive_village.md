@@ -1,7 +1,7 @@
 # Liolivato: design for the olive village
 
 Working id `olive_village`. Agreed with the user on 2026-11-08 in a design interview. **Stages 1 (ground and map), 2 (buildings and
-scenery) and 3 (people, dialogue and requests) are built; stage 4 is not.** See "Build status" at the end. This doc is the plan the build stages follow. The rules every location shares are in `docs/WORLD.md`; `docs/MONTEFORCHETTA.md`
+scenery), 3 (people, dialogue and requests) and 4 (look and ambient life) are built.** See "Build status" at the end. This doc is the plan the build stages follow. The rules every location shares are in `docs/WORLD.md`; `docs/MONTEFORCHETTA.md`
 and `docs/locations/river_town.md` are the models this doc follows. Serenza (`docs/locations/cliffs.md`)
 comes just before Liolivato, and the two were kept apart where they overlapped (see "Kept apart from Serenza"). Names,
 amounts and step details can still change in the build; the choices marked *proposed* weren't asked about and are open
@@ -292,11 +292,12 @@ Each is the smallest general version, comes with a test, and is named at the top
 | **A beehive piece** (agreed with the user): a wooden hive | Fuco's swarm; anyone can keep bees | 3 |
 | **A path over given pieces only:** the `path` check takes an optional list of pieces the path must run over (`"on": [...]`) | A carpet with no gaps from the bridge to the piazza; also rug runners or a red carpet | 3 |
 | **A view check:** nothing solid stands between a piece on the site (a seat) and a target point | The Sandals' sea view; reusable ("the statue can be seen from the piazza") | 3 |
-| **Two new synth voices** in `AudioDirector`: a tremolo-plucked mandolin and a brass section (trumpet and tuba) | The music and the festa's band; any location can use them | 4 |
+| **New synth voices** in `AudioDirector`: a tremolo-plucked mandolin, a brass lead and a tuba (three instruments, so the band's bass has its own voice) | The music and the festa's band; any location can use them | 4 |
 | **Tastes from a location pack**, if the shared `tastes.json` can't take them the way Boccapioppo's did | The cast's tastes | 3 (not needed: they went into `tastes.json`) |
 | **Colours written without a leading hash** count: a villager's clothes and skin (`Chibi.sanitize`) and a favourite paint colour (`Tastes.likes`, compared as colours) | Liolivato's files write colours without one | 3 (Tonnarella's work made the same change first; Liolivato kept its tests) |
 | **Ghost plans on a raised site** rest on what's under them: `Plans.lay_out` looks for supports from the site's `floorY`, not from 0 m (a roof's ghost sat on the ground 10 m up) | Every site in Liolivato is 10 to 25 m up | 3 |
-| **A per-area camera pitch**, only if the terraces don't show the sea without it | The sea seen from above | 4 |
+| **A per-area camera pitch**, only if the terraces don't show the sea without it | The sea seen from above | 4 (not needed: the shared camera shows the sea from the terraces) |
+| **A hat for the hour:** a schedule entry can name a hat (a fifth element) that the villager wears while doing it, and puts back their own after (`Schedule.activity_at`, `NpcAgent`, `Chibi.wear_hat`) | The Sindaco's cap for each job; any villager with a work uniform | 4 |
 
 Already in the game and reused as they are: a location's own meter (`LocationMeter`), the zone path and sealed checks,
 water and power reaching a target (`fed:`), room checklists, fishing catches per location (`fish`), lost things per
@@ -587,3 +588,60 @@ What exists now, and the choices made while building that the design above didn'
   - **Not checked:** wishes beyond what the plans happen to meet; selling to the shops; fishing at the cove; the
     villagers' days beyond the steps the requests need; the band and its music (stage 4).
 
+
+**Stage 4, the look and ambient life:**
+- **The look:** warmer light and softer warm shade, less wind (the olives barely stir), a warm tint to the sky and a
+  soft golden haze that thickens with distance, so the sea from the terraces fades into the sky. Fireflies, motes and
+  pale petals were already in the look block. **The camera pitch hook wasn't needed:** with the shared camera the sea
+  already fills the view from the terraces (the "terraces-and-the-sea" screenshot).
+- **Animals** (`animals.gd`, with the shared cats):
+  - six cats asleep on warm steps in the alleys, by the church, at the castle and at the cove, where you can pet them;
+  - fourteen lizards on the terrace walls, found by scanning the ground for tall risers; each darts off when you come
+    within 2.5 m and hides for a while;
+  - twelve swifts wheeling round the bell tower and the castle from dawn to dark, faster and tighter at dusk;
+  - gulls on the boats and on the post by the jetty, which fly up and circle when you come close, and two more always
+    wheeling over the cove;
+  - Fuco's swarm, a cloud of dots buzzing at the bell tower's window while the bells are silent.
+- **The ferry** (`ferry.gd`) comes and goes: off the cove until the jetty is built, at the jetty after. It leaves at
+  10:05, is out of sight from 10:17, and is back by 14:55. From the festa on it also takes the band home at 18:30 and is
+  back at 20:00. Its two-note horn sounds at every departure and arrival, louder the closer you are.
+- **Music** (`location.json`): a theme for each part of the day: mandolin and guitar with an accordion at dawn, a sunny
+  mandolin walk in the morning, a lazy accordion afternoon (also the building tune), a minor serenade in the evening, a
+  quiet guitar at night. From the festa night on, the evening belongs to the brass band (brass lead, tuba bass,
+  off-beat brass chords, full drums).
+- **Sounds** (`sounds.gd`):
+  - waves on the pebbles at the cove and the torrent under the bridge, each louder as you get close;
+  - the church bells at a few minutes past each hour from 7 to 21 (a different few minutes each hour), striking the
+    hour, silent while the swarm is in the tower;
+  - swifts screaming at dawn and dusk near the towers, and bees humming by the hives by day.
+  The crickets at night are the shared night chirps.
+- **Outfits:** seven new caps and hats (`appearance.json`): the Sindaco's peaked timetable cap, white barber's cap and
+  black sacristan's beret, a gold surveyor's cap, Gambero's woollen cap, Sirena's skipper's cap and Fuco's veiled hat.
+  The Sindaco wears the beret at the church door at 7 and the barber's cap in his shop, and his timetable cap the rest of
+  the day. The caps are locked for the player: villagers give theirs at 8 hearts (the Sindaco's barber's cap and beret at
+  10), and the surveyor's cap comes with the free haircut at 50. The rest of the cast's clothes were already set in
+  stage 3 from the shared wardrobe.
+- **Changes to shared code:** the mandolin, brass and tuba voices (`AudioDirector`, tested in `test_daylight`) and a hat
+  for the hour (`Schedule`, `NpcAgent`, `Chibi.wear_hat`, tested in `test_faces`).
+- **Not built:** Sirena's short toot for everyone she knows (only the ferry's horn sounds).
+- **Checked:**
+  - **Tested** (`test_olive_village`, now 21 tests): stage 3's, plus the music (a song for every part of the day, real
+    instruments and drum patterns, melodies that fit their loops, never too loud at once, guitar, mandolin and
+    accordion, the band's brass and tuba taking the evenings after the festa night while the mornings stay), the
+    cast's outfits (seven caps, everyone's clothes kept as written, real hats for the jobs, each cap locked until a
+    friend or the sign gives it and worn by someone, the Sindaco's caps by the hour), the sounds (the sea and the
+    torrent louder close by and out of earshot in the piazza and at the castle, the bells' minutes and strokes, no
+    bells after a nap that skips the hour, silent with the swarm, the bees' and swifts' hours), the ferry (where it
+    waits, leaving, away, back, the festa run, the horn, afloat at both berths) and the animals (each lizard on a wall
+    face, swifts at the tower top, gulls on dry seats, the swifts' and the swarm's times, cats on dry ground and out of
+    the paths, all of them built). `test_daylight` checks the new voices are in tune, loud enough and don't clip, and
+    the mandolin's tremolo; `test_faces` checks a villager can change hats.
+  - **Played** (`play_olive_village`, now 36 checks): stage 3's, then a day in the finished village (`life`): the bells
+    ring seven, the Sindaco opens the church in his beret and then cuts hair in his barber's cap, to the morning tune,
+    with the swifts out; a lizard darts off as you walk up to it; the gull on the post takes off as you come down to the
+    cove, two more wheel over the water, and the sea is heard; the ferry is at your jetty at ten, sounds its horn,
+    pulls out and is gone; in the evening the band plays and the festa ferry is back by eight. Screenshots of the look
+    (the terraces and the sea, a golden afternoon in the village, the cove in the morning, the swifts at the bell tower)
+    in both renderers.
+  - **Not checked:** what the music and sounds sound like (only that they play, are in tune and don't clip); petting
+    the cats (shared, tested elsewhere); the swifts' and gulls' flight beyond their positions.
