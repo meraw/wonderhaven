@@ -46,6 +46,16 @@ static func make(id: String, color: String = "") -> Node3D:
 			_b(g, P.rbox(0.99, 0.12, 0.99, 0.02), t, 0, 0.06, 0)
 			for x in [-0.25, 0.25]: _b(g, P.box(0.02, 0.122, 0.95), P.wood("b98a5a"), x, 0.061, 0)
 		"stoneBlock": _b(g, P.rbox(0.99, 0.99, 0.99, 0.06), t, 0, 0.5, 0)
+		"drystoneWall":
+			var dk := P.stone("8a857c")
+			for row in 4:
+				var y := 0.125 + row * 0.25
+				var xs: Array = [-0.335, 0.0, 0.335] if row % 2 == 0 else [-0.375, 0.0, 0.375]
+				var ws: Array = [0.32, 0.32, 0.32] if row % 2 == 0 else [0.24, 0.48, 0.24]
+				for n in 3:
+					var depth := 0.97 - 0.03 * ((row + n) % 3)
+					var tilt := 0.04 * float(((row * 3 + n) % 5) - 2)
+					_b(g, P.rbox(float(ws[n]) - 0.01, 0.23, depth, 0.05), dk if (row + n) % 3 == 1 else t, float(xs[n]), y, 0, Vector3(0, 0, tilt))
 		"sandbags":   # two layers of sacks, laid crosswise like a real sandbag wall
 			for x in [-0.24, 0.24]: _b(g, P.rbox(0.47, 0.25, 0.96, 0.11), t, x, 0.125, 0)
 			for z in [-0.24, 0.24]: _b(g, P.rbox(0.96, 0.25, 0.47, 0.11), t, 0, 0.375, z)
@@ -208,6 +218,27 @@ static func make(id: String, color: String = "") -> Node3D:
 			for x in [-0.72, 0.72]: _b(g, P.box(0.07, 0.72, 0.07), t, x, 0.36, 0.3)
 			_b(g, P.box(0.4, 0.28, 0.01), P.mat("fffaf0"), 0, 1.0, 0.11, Vector3(-0.25, 0, 0))
 		"tree": _b(g, P.cyl(0.12, 0.17, 1.1, 7), P.mat(P.TRUNK), 0, 0.55, 0); _b(g, P.sphere(0.7, 9, 7), t, 0, 1.6, 0); _b(g, P.sphere(0.45, 9, 7), t, 0.3, 2.1, 0.1); _b(g, P.sphere(0.42, 9, 7), t, -0.35, 1.4, 0.25)
+		"vinePergola":
+			_b(g, P.cyl(0.06, 0.08, 2.15, 7), dark, 0, 1.075, 0)
+			_b(g, P.cyl(0.035, 0.05, 2.0, 6), P.mat(P.TRUNK), 0.09, 1.0, 0.04, Vector3(0, 0, 0.05))
+			for z in [-0.4, 0.4]: _b(g, P.box(0.94, 0.045, 0.045), dark, 0, 2.12, z)
+			for x in [-0.4, 0.0, 0.4]: _b(g, P.box(0.04, 0.04, 0.94), dark, x, 2.16, 0)
+			for gi in 3:
+				for gk in 3:
+					_b(g, P.sphere(0.2, 7, 5), t, -0.3 + gi * 0.3, 2.24 + 0.03 * float((gi + gk) % 2), -0.3 + gk * 0.3, Vector3.ZERO, Vector3(1.0, 0.5, 1.0))
+			var grape := P.mat("5b2f5e")
+			for c in [[-0.28, 0.22], [0.25, -0.18], [0.05, 0.3]]:
+				for n in 3: _b(g, P.sphere(0.035, 5, 4), grape, float(c[0]) + 0.03 * (n - 1), 2.02 - 0.05 * n, float(c[1]))
+		"lemonTree":
+			_b(g, P.cyl(0.06, 0.1, 0.95, 7), P.mat(P.TRUNK), 0, 0.47, 0)
+			_b(g, P.sphere(0.5, 9, 7), t, 0, 1.45, 0); _b(g, P.sphere(0.36, 9, 7), t, 0.2, 1.82, 0.06); _b(g, P.sphere(0.34, 9, 7), t, -0.22, 1.3, 0.18)
+			var fruit := Node3D.new(); fruit.name = "fruit"; g.add_child(fruit)
+			var lemon := P.mat("f2d03b")
+			for n in 10:
+				var a := n * 2.39
+				var fy := 1.15 + float(n % 4) * 0.2
+				var fr := sqrt(maxf(0.04, 0.25 - pow(fy - 1.45, 2.0))) + 0.035
+				_b(fruit, P.sphere(0.08, 6, 4), lemon, cos(a) * fr, fy, sin(a) * fr, Vector3.ZERO, Vector3(1.0, 0.85, 1.0))
 		"flowerBed":
 			_b(g, P.rbox(0.9, 0.2, 0.9), P.wood("a0623a"), 0, 0.1, 0); _b(g, P.box(0.8, 0.04, 0.8), P.wood("7a4a2a"), 0, 0.21, 0)
 			for n in 8: var a := n * 0.8; var r := 0.12 + (n % 3) * 0.1; _b(g, P.sphere(0.07, 6, 4), t if n % 2 else P.mat("ffffff"), cos(a) * r, 0.32, sin(a) * r)

@@ -100,6 +100,23 @@ static func paint(x: float, z: float) -> Color:
 
 const Buildings := preload("res://scripts/locations/cliffs/buildings.gd")
 const Scenery := preload("res://scripts/locations/cliffs/scenery.gd")
+const Terraces := preload("res://scripts/locations/cliffs/terraces.gd")
+const WORLD_FLAGS := ["cliffs_boats_launched", "cliffs_monorailRuns", "cliffs_plaque"]
+const MOORINGS := [Vector2(-6.0, 36.5), Vector2(-3.0, 39.5), Vector2(4.0, 37.5), Vector2(9.5, 36.5)]
+
+static func meter_things(state: Dictionary) -> Array: return Terraces.things(state)
+
+static func adjust(layout: Dictionary, flags: Dictionary) -> void:
+	if not flags.get("cliffs_boats_launched", false): return
+	var n := 0
+	for pr in layout.get("props", []):
+		if String(pr.get("kind", "")) != "cliffs_boat" or n >= MOORINGS.size(): continue
+		var m: Vector2 = MOORINGS[n]
+		pr["x"] = m.x
+		pr["z"] = m.y
+		pr["afloat"] = true
+		pr["solid"] = false
+		n += 1
 
 static func dress(village) -> void: Scenery.dress(village)
 

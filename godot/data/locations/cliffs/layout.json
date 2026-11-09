@@ -499,51 +499,26 @@
     "items": [
      [
       "barrel",
-      -3.6,
-      -1.6,
+      -3.85,
+      -1.85,
       0
      ],
      [
       "barrel",
-      -2.8,
-      -1.6,
+      -3.1,
+      -1.85,
       0
      ],
      [
       "barrel",
-      -2.0,
-      -1.6,
+      -3.85,
+      -1.1,
       0
      ],
      [
       "barrel",
-      -3.6,
-      -0.8,
-      0
-     ],
-     [
-      "workbench",
-      2.8,
-      -1.5,
-      0,
-      "#6f5038"
-     ],
-     [
-      "crate",
-      3.6,
-      1.2,
-      0
-     ],
-     [
-      "crate",
-      3.6,
-      0.4,
-      1
-     ],
-     [
-      "lamp",
-      0.0,
-      -1.8,
+      -3.85,
+      1.6,
       0
      ]
     ],
@@ -669,33 +644,6 @@
    }
   },
   {
-   "id": "cliffs_hut",
-   "kind": "cliffs_hut",
-   "name": "The hut on terrace E4",
-   "x": 20.5,
-   "z": -40.2,
-   "w": 4.6,
-   "d": 3.2,
-   "h": 2.2,
-   "wall": "#a59a88",
-   "door": "W",
-   "navDoor": "hutDoor",
-   "interior": {
-    "shell": "house",
-    "empty": true,
-    "route": [
-     [
-      -1.4,
-      0.0
-     ],
-     [
-      0.6,
-      0.0
-     ]
-    ]
-   }
-  },
-  {
    "id": "cliffs_track_w",
    "kind": "cliffs_track_w",
    "name": "The railway",
@@ -762,10 +710,10 @@
    "id": "cliffs_hut",
    "name": "The hut on terrace E4",
    "minI": 19,
-   "maxI": 21,
-   "minK": -41,
-   "maxK": -40,
-   "interior": true,
+   "maxI": 20,
+   "minK": -42,
+   "maxK": -41,
+   "floorY": 18.0,
    "unlock": {
     "quest": "cliffs_hut"
    }
@@ -773,12 +721,28 @@
   {
    "id": "cliffs_wall",
    "name": "The fallen wall under W4",
-   "minI": -31,
-   "maxI": -24,
+   "minI": -30,
+   "maxI": -26,
    "minK": -40,
    "maxK": -37,
+   "floorY": 16.0,
    "unlock": {
     "quest": "cliffs_wall"
+   },
+   "seal": 18.5,
+   "endpoints": {
+    "a": {
+     "minI": -30,
+     "maxI": -26,
+     "minK": -37,
+     "maxK": -37
+    },
+    "b": {
+     "minI": -30,
+     "maxI": -26,
+     "minK": -40,
+     "maxK": -40
+    }
    }
   },
   {
@@ -788,6 +752,7 @@
    "maxI": 16,
    "minK": -50,
    "maxK": -43,
+   "floorY": 18.5,
    "unlock": {
     "quest": "cliffs_monorail"
    },
@@ -813,6 +778,7 @@
    "maxI": -47,
    "minK": -40,
    "maxK": -35,
+   "floorY": 17.0,
    "unlock": {
     "quest": "cliffs_path"
    },
@@ -837,7 +803,8 @@
    "minI": -3,
    "maxI": 1,
    "minK": 30,
-   "maxK": 34,
+   "maxK": 32,
+   "floorY": 0.0,
    "unlock": {
     "quest": "cliffs_boats"
    },
@@ -851,10 +818,11 @@
     "b": {
      "minI": -3,
      "maxI": 1,
-     "minK": 34,
-     "maxK": 34
+     "minK": 32,
+     "maxK": 32
     }
-   }
+   },
+   "spanY": 0.9
   },
   {
    "id": "cliffs_swim",
@@ -862,7 +830,8 @@
    "minI": 22,
    "maxI": 25,
    "minK": 36,
-   "maxK": 41,
+   "maxK": 42,
+   "floorY": 0.0,
    "unlock": {
     "quest": "cliffs_swim"
    },
@@ -882,12 +851,62 @@
    }
   },
   {
+   "id": "cliffs_tables",
+   "name": "The harbour square",
+   "minI": 2,
+   "maxI": 9,
+   "minK": 28,
+   "maxK": 30,
+   "floorY": 0.9,
+   "unlock": {
+    "quest": "cliffs_tables"
+   }
+  },
+  {
+   "id": "cliffs_shelter",
+   "name": "The end of the platform",
+   "minI": -21,
+   "maxI": -20,
+   "minK": -1,
+   "maxK": 1,
+   "floorY": 10.0,
+   "unlock": {
+    "quest": "cliffs_shelter"
+   }
+  },
+  {
+   "id": "cliffs_halfway",
+   "name": "The halfway spot",
+   "minI": -13,
+   "maxI": -4,
+   "minK": -46,
+   "maxK": -43,
+   "floorY": 20.0,
+   "unlock": {
+    "quest": "cliffs_easter"
+   }
+  },
+  {
+   "id": "cliffs_cellar",
+   "name": "The growers' cellar",
+   "minI": -11,
+   "maxI": -6,
+   "minK": -24,
+   "maxK": -21,
+   "floorY": 10.0,
+   "interior": true,
+   "unlock": {
+    "quest": "cliffs_cellar"
+   }
+  },
+  {
    "id": "cliffs_plot",
    "name": "Your terrace (E4)",
    "minI": 24,
    "maxI": 43,
    "minK": -42,
    "maxK": -39,
+   "floorY": 18.0,
    "unlock": {
     "flag": "cliffs_homePlot"
    }
@@ -898,7 +917,8 @@
    "minI": 18,
    "maxI": 43,
    "minK": -30,
-   "maxK": -27
+   "maxK": -27,
+   "floorY": 12.0
   },
   {
    "id": "cliffs_terrace_w2",
@@ -906,7 +926,8 @@
    "minI": -44,
    "maxI": -5,
    "minK": -34,
-   "maxK": -31
+   "maxK": -31,
+   "floorY": 14.0
   },
   {
    "id": "cliffs_terrace_w3",
@@ -914,7 +935,8 @@
    "minI": -44,
    "maxI": -5,
    "minK": -38,
-   "maxK": -35
+   "maxK": -35,
+   "floorY": 16.0
   },
   {
    "id": "cliffs_terrace_e3",
@@ -922,7 +944,8 @@
    "minI": 18,
    "maxI": 43,
    "minK": -38,
-   "maxK": -35
+   "maxK": -35,
+   "floorY": 15.5
   },
   {
    "id": "cliffs_terrace_w4",
@@ -930,7 +953,8 @@
    "minI": -44,
    "maxI": -5,
    "minK": -42,
-   "maxK": -39
+   "maxK": -39,
+   "floorY": 17.5
   },
   {
    "id": "cliffs_terrace_w5",
@@ -938,7 +962,8 @@
    "minI": -44,
    "maxI": -14,
    "minK": -46,
-   "maxK": -43
+   "maxK": -43,
+   "floorY": 19.5
   },
   {
    "id": "cliffs_terrace_e5",
@@ -946,7 +971,8 @@
    "minI": 18,
    "maxI": 43,
    "minK": -46,
-   "maxK": -43
+   "maxK": -43,
+   "floorY": 20.0
   },
   {
    "id": "cliffs_terrace_w6",
@@ -954,7 +980,8 @@
    "minI": -44,
    "maxI": -5,
    "minK": -50,
-   "maxK": -47
+   "maxK": -47,
+   "floorY": 21.5
   },
   {
    "id": "cliffs_terrace_e6",
@@ -962,7 +989,8 @@
    "minI": 18,
    "maxI": 43,
    "minK": -50,
-   "maxK": -47
+   "maxK": -47,
+   "floorY": 22.0
   },
   {
    "id": "cliffs_terrace_w7",
@@ -970,7 +998,8 @@
    "minI": -44,
    "maxI": -5,
    "minK": -54,
-   "maxK": -51
+   "maxK": -51,
+   "floorY": 24.0
   },
   {
    "id": "cliffs_terrace_e7",
@@ -978,7 +1007,8 @@
    "minI": 18,
    "maxI": 43,
    "minK": -54,
-   "maxK": -51
+   "maxK": -51,
+   "floorY": 23.5
   },
   {
    "id": "cliffs_terrace_w8",
@@ -986,7 +1016,8 @@
    "minI": -44,
    "maxI": -5,
    "minK": -58,
-   "maxK": -55
+   "maxK": -55,
+   "floorY": 25.5
   },
   {
    "id": "cliffs_terrace_e8",
@@ -994,7 +1025,8 @@
    "minI": 18,
    "maxI": 43,
    "minK": -58,
-   "maxK": -55
+   "maxK": -55,
+   "floorY": 25.5
   }
  ],
  "nodes": [
@@ -1101,58 +1133,242 @@
    "z": -37.0
   },
   {
-   "id": "cliffs_wild0",
+   "id": "cliffs_bramble0",
+   "kind": "chop",
+   "x": 23.2,
+   "z": -41.5,
+   "once": true,
+   "label": "Cut back the brambles",
+   "gives": {
+    "wood": 1
+   }
+  },
+  {
+   "id": "cliffs_bramble1",
+   "kind": "chop",
+   "x": 23.2,
+   "z": -40.3,
+   "once": true,
+   "label": "Cut back the brambles",
+   "gives": {
+    "wood": 1
+   }
+  },
+  {
+   "id": "cliffs_bramble2",
+   "kind": "chop",
+   "x": 18.0,
+   "z": -41.75,
+   "once": true,
+   "label": "Cut back the brambles",
+   "gives": {
+    "wood": 1
+   }
+  },
+  {
+   "id": "cliffs_greens0",
    "kind": "flowers",
    "x": -40.0,
-   "z": -47.5
+   "z": -31.5,
+   "gives": {
+    "cliffs_greens": 2
+   },
+   "label": "Pick wild greens"
   },
   {
-   "id": "cliffs_wild1",
+   "id": "cliffs_greens1",
+   "kind": "flowers",
+   "x": -24.0,
+   "z": -32.5,
+   "gives": {
+    "cliffs_greens": 2
+   },
+   "label": "Pick wild greens"
+  },
+  {
+   "id": "cliffs_greens2",
    "kind": "flowers",
    "x": -8.0,
-   "z": -36.5
+   "z": -36.5,
+   "gives": {
+    "cliffs_greens": 2
+   },
+   "label": "Pick wild greens"
   },
   {
-   "id": "cliffs_wild2",
+   "id": "cliffs_greens3",
+   "kind": "flowers",
+   "x": 36.0,
+   "z": -36.5,
+   "gives": {
+    "cliffs_greens": 2
+   },
+   "label": "Pick wild greens"
+  },
+  {
+   "id": "cliffs_greens4",
    "kind": "flowers",
    "x": 40.0,
-   "z": -44.5
+   "z": -44.5,
+   "gives": {
+    "cliffs_greens": 2
+   },
+   "label": "Pick wild greens"
   },
   {
-   "id": "cliffs_wild3",
+   "id": "cliffs_borage0",
+   "kind": "flowers",
+   "x": -36.0,
+   "z": -40.5,
+   "gives": {
+    "cliffs_borage": 1
+   },
+   "label": "Pick borage"
+  },
+  {
+   "id": "cliffs_borage1",
    "kind": "flowers",
    "x": 8.0,
-   "z": -52.5
+   "z": -52.5,
+   "gives": {
+    "cliffs_borage": 1
+   },
+   "label": "Pick borage"
   },
   {
-   "id": "cliffs_wild4",
+   "id": "cliffs_borage2",
    "kind": "flowers",
    "x": -30.0,
-   "z": -56.0
+   "z": -48.5,
+   "gives": {
+    "cliffs_borage": 1
+   },
+   "label": "Pick borage"
+  },
+  {
+   "id": "cliffs_broom0",
+   "kind": "flowers",
+   "x": -40.0,
+   "z": -55.5,
+   "label": "Pick broom and rosemary"
+  },
+  {
+   "id": "cliffs_broom1",
+   "kind": "flowers",
+   "x": 30.0,
+   "z": -56.0,
+   "label": "Pick broom and rosemary"
+  },
+  {
+   "id": "cliffs_broom2",
+   "kind": "flowers",
+   "x": -20.0,
+   "z": -52.5,
+   "label": "Pick broom and rosemary"
+  },
+  {
+   "id": "cliffs_lost0",
+   "kind": "fragment",
+   "x": -34.0,
+   "z": -28.5,
+   "once": true
+  },
+  {
+   "id": "cliffs_lost1",
+   "kind": "fragment",
+   "x": 5.0,
+   "z": -40.5,
+   "once": true
+  },
+  {
+   "id": "cliffs_lost2",
+   "kind": "fragment",
+   "x": 28.0,
+   "z": -48.5,
+   "once": true
+  },
+  {
+   "id": "cliffs_lost3",
+   "kind": "fragment",
+   "x": -16.0,
+   "z": -56.5,
+   "once": true
+  },
+  {
+   "id": "cliffs_lost4",
+   "kind": "fragment",
+   "x": -25.0,
+   "z": 36.0,
+   "once": true
+  },
+  {
+   "id": "cliffs_lost5",
+   "kind": "fragment",
+   "x": 22.0,
+   "z": 31.5,
+   "once": true
+  },
+  {
+   "id": "cliffs_find0",
+   "kind": "dig",
+   "x": -22.0,
+   "z": 33.0,
+   "flag": "metalDetector",
+   "gives": {
+    "cliffs_coin": 1,
+    "coins": 3
+   },
+   "name": "an old coin: five lire, 1951"
+  },
+  {
+   "id": "cliffs_find1",
+   "kind": "dig",
+   "x": 38.0,
+   "z": -52.0,
+   "flag": "metalDetector",
+   "gives": {
+    "cliffs_button": 1
+   },
+   "name": "a brass button off a sailor's coat"
+  },
+  {
+   "id": "cliffs_find2",
+   "kind": "dig",
+   "x": -50.0,
+   "z": -44.5,
+   "flag": "metalDetector",
+   "gives": {
+    "cliffs_medal": 1
+   },
+   "name": "a pilgrim's medal of the sanctuary"
   },
   {
    "id": "cliffs_fish0",
    "kind": "fish",
-   "x": 6.0,
-   "z": 34.0
+   "x": 10.6,
+   "z": 30.5,
+   "facing": 0.0
   },
   {
    "id": "cliffs_fish1",
    "kind": "fish",
-   "x": -8.0,
-   "z": 40.0
+   "x": 2.0,
+   "z": 45.4,
+   "facing": 3.141593
   },
   {
    "id": "cliffs_fish2",
    "kind": "fish",
-   "x": 27.5,
-   "z": 42.5
+   "x": 16.0,
+   "z": 47.6,
+   "facing": 0.0
   },
   {
    "id": "cliffs_fish3",
    "kind": "fish",
    "x": -24.0,
-   "z": 45.0
+   "z": 36.0,
+   "facing": 0.0
   }
  ],
  "features": [
@@ -1174,7 +1390,7 @@
   {
    "id": "cliffs_bench_square",
    "kind": "bench",
-   "x": 7.0,
+   "x": -5.0,
    "z": 29.5,
    "r": 2
   },
@@ -1200,18 +1416,18 @@
    "r": 0
   },
   {
-   "id": "cliffs_bench_halfway",
-   "kind": "bench",
-   "x": -11.0,
-   "z": -43.0,
-   "r": 0
-  },
-  {
    "id": "cliffs_bench_sanctuary",
    "kind": "bench",
    "x": -49.5,
    "z": -53.5,
    "r": 1
+  },
+  {
+   "id": "cliffs_wardrobe",
+   "kind": "wardrobe",
+   "x": 21.5,
+   "z": -41.2,
+   "flag": "cliffs_hutHome"
   }
  ],
  "nav_nodes": {
@@ -1220,16 +1436,60 @@
    -5.0
   ],
   "platformW": [
-   -19.0,
+   -18.4,
    -5.0
   ],
   "laneTop": [
-   -19.0,
-   2.0
+   -18.4,
+   2.2
   ],
   "laneBottom": [
    -4.6,
    2.0
+  ],
+  "shelter": [
+   -18.6,
+   0.6
+  ],
+  "gatherA": [
+   -3.5,
+   23.0
+  ],
+  "gatherB": [
+   -6.0,
+   27.0
+  ],
+  "gatherC": [
+   4.0,
+   23.0
+  ],
+  "gatherD": [
+   7.0,
+   23.5
+  ],
+  "doorW1": [
+   -2.9,
+   19.6
+  ],
+  "doorW2": [
+   -2.9,
+   11.0
+  ],
+  "doorE2": [
+   2.9,
+   10.8
+  ],
+  "doorE3": [
+   2.9,
+   2.8
+  ],
+  "hut": [
+   19.5,
+   -38.9
+  ],
+  "plotE4": [
+   30.0,
+   -39.6
   ],
   "street2": [
    0.0,
@@ -1388,8 +1648,12 @@
    25.6
   ],
   "hutDoor": [
-   17.5,
-   -40.2
+   17.6,
+   -40.9
+  ],
+  "hutS": [
+   18.3,
+   -38.7
   ],
   "rocksS": [
    17.6,
@@ -1474,6 +1738,78 @@
   "rail8": [
    15.0,
    -57.0
+  ],
+  "tW2": [
+   -8.0,
+   -33.2
+  ],
+  "tW2w": [
+   -26.0,
+   -33.2
+  ],
+  "tW3": [
+   -8.0,
+   -37.2
+  ],
+  "tW3w": [
+   -23.5,
+   -36.4
+  ],
+  "tW4": [
+   -8.0,
+   -41.2
+  ],
+  "tW4w": [
+   -26.0,
+   -41.2
+  ],
+  "tW6": [
+   -8.0,
+   -49.2
+  ],
+  "tW6w": [
+   -26.0,
+   -49.2
+  ],
+  "tW7": [
+   -8.0,
+   -53.2
+  ],
+  "tW7w": [
+   -26.0,
+   -53.2
+  ],
+  "tW8": [
+   -8.0,
+   -57.2
+  ],
+  "tW8w": [
+   -26.0,
+   -57.2
+  ],
+  "tE1": [
+   24.0,
+   -29.2
+  ],
+  "tE3": [
+   24.0,
+   -37.2
+  ],
+  "tE5": [
+   24.0,
+   -45.2
+  ],
+  "tE6": [
+   24.0,
+   -49.2
+  ],
+  "tE7": [
+   24.0,
+   -53.2
+  ],
+  "tE8": [
+   24.0,
+   -57.2
   ]
  },
  "nav_edges": [
@@ -1684,6 +2020,54 @@
    "hutDoor"
   ],
   [
+   "hutDoor",
+   "hutS"
+  ],
+  [
+   "hutS",
+   "hut"
+  ],
+  [
+   "hut",
+   "plotE4"
+  ],
+  [
+   "platformW",
+   "shelter"
+  ],
+  [
+   "squareN",
+   "gatherA"
+  ],
+  [
+   "square",
+   "gatherB"
+  ],
+  [
+   "squareN",
+   "gatherC"
+  ],
+  [
+   "squareE",
+   "gatherD"
+  ],
+  [
+   "doorW1",
+   "street18"
+  ],
+  [
+   "doorW2",
+   "streetLane"
+  ],
+  [
+   "doorE2",
+   "streetLane"
+  ],
+  [
+   "doorE3",
+   "street2"
+  ],
+  [
    "rockPath",
    "breakwaterE"
   ],
@@ -1722,6 +2106,78 @@
   [
    "stair7",
    "stair8"
+  ],
+  [
+   "stair2",
+   "tW2"
+  ],
+  [
+   "tW2",
+   "tW2w"
+  ],
+  [
+   "stair3",
+   "tW3"
+  ],
+  [
+   "tW3",
+   "tW3w"
+  ],
+  [
+   "stair4",
+   "tW4"
+  ],
+  [
+   "tW4",
+   "tW4w"
+  ],
+  [
+   "stair6",
+   "tW6"
+  ],
+  [
+   "tW6",
+   "tW6w"
+  ],
+  [
+   "stair7",
+   "tW7"
+  ],
+  [
+   "tW7",
+   "tW7w"
+  ],
+  [
+   "stair8",
+   "tW8"
+  ],
+  [
+   "tW8",
+   "tW8w"
+  ],
+  [
+   "rail1",
+   "tE1"
+  ],
+  [
+   "rail3",
+   "tE3"
+  ],
+  [
+   "rail5",
+   "tE5"
+  ],
+  [
+   "rail6",
+   "tE6"
+  ],
+  [
+   "rail7",
+   "tE7"
+  ],
+  [
+   "rail8",
+   "tE8"
   ],
   [
    "rail1",
@@ -2114,6 +2570,30 @@
    "d": 0.7
   },
   {
+   "id": "cliffs_ruin0",
+   "kind": "cliffs_ruin",
+   "x": 18.85,
+   "z": -40.875,
+   "w": 0.3000000000000007,
+   "d": 2.25
+  },
+  {
+   "id": "cliffs_ruin1",
+   "kind": "cliffs_ruin",
+   "x": 22.15,
+   "z": -40.875,
+   "w": 0.3000000000000007,
+   "d": 2.25
+  },
+  {
+   "id": "cliffs_ruin2",
+   "kind": "cliffs_ruin",
+   "x": 21.0,
+   "z": -39.875,
+   "w": 2.0,
+   "d": 0.25
+  },
+  {
    "id": "cliffs_cart0",
    "kind": "cliffs_cart",
    "x": 13.65,
@@ -2128,6 +2608,311 @@
    "z": -42.7,
    "w": 1.0,
    "d": 1.3
+  }
+ ],
+ "hangouts": [
+  {
+   "id": "cliffs_platform",
+   "name": "The station platform",
+   "at": "on the platform",
+   "x": -14.0,
+   "z": -4.6,
+   "r": 3.0,
+   "needs": [
+    "green",
+    "light"
+   ]
+  },
+  {
+   "id": "cliffs_square",
+   "name": "The harbour square",
+   "at": "on the harbour square",
+   "x": -1.0,
+   "z": 26.0,
+   "r": 4.5,
+   "needs": [
+    "seat",
+    "green",
+    "light"
+   ],
+   "who": "cliffs_nunzia"
+  },
+  {
+   "id": "cliffs_rocks",
+   "name": "The church rocks",
+   "at": "on the church rocks",
+   "x": 24.0,
+   "z": 33.5,
+   "r": 3.0,
+   "needs": [
+    "seat",
+    "light"
+   ],
+   "who": "cliffs_aurelio"
+  },
+  {
+   "id": "cliffs_cellarDoor",
+   "name": "The cellar door",
+   "at": "by the cellar door",
+   "x": -5.5,
+   "z": -19.6,
+   "r": 2.5,
+   "needs": [
+    "seat",
+    "green"
+   ],
+   "who": "cliffs_settimio"
+  },
+  {
+   "id": "cliffs_halfway",
+   "name": "The halfway spot",
+   "at": "at the halfway spot",
+   "x": -8.5,
+   "z": -44.5,
+   "r": 3.0,
+   "needs": [
+    "seat",
+    "shelter",
+    "green"
+   ]
+  },
+  {
+   "id": "cliffs_forecourt",
+   "name": "The sanctuary forecourt",
+   "at": "outside the sanctuary",
+   "x": -50.0,
+   "z": -55.0,
+   "r": 3.0,
+   "needs": [
+    "seat",
+    "light"
+   ],
+   "who": "cliffs_aurelio"
+  }
+ ],
+ "naps": {
+  "paper": "Il Gabbiano",
+  "gags": {
+   "newspaper": {
+    "weight": 3,
+    "lines": [
+     "You wake up under yesterday's {paper}. A gull is reading the back page.",
+     "Somebody tucked you in with the {paper}. The wind off the sea takes it back, page by page.",
+     "You slept under the {paper}'s tide tables. The tide came in. The paper went out."
+    ]
+   },
+   "umbrella": {
+    "weight": 1,
+    "lines": [
+     "Somebody left Nunzia's spare umbrella open beside the bench. It kept the gulls off, mostly."
+    ]
+   },
+   "train": {
+    "weight": 2,
+    "lines": [
+     "The first train bursts out of the tunnel with its horn full on. You are awake. So is the whole coast.",
+     "A horn from the tunnel, a rush of wind, a carriage full of commuters staring at you. Good morning, Serenza."
+    ]
+   },
+   "sturlese": {
+    "weight": 2,
+    "lines": [
+     "Ragionier Sturlese is asleep at the other end of the bench, his briefcase for a pillow. He missed the last train. Again.",
+     "You share the bench with Sturlese, who snores in triplicate. His briefcase is stamped RECEIVED."
+    ]
+   },
+   "stared": {
+    "weight": 3,
+    "visual": true
+   },
+   "rain": {
+    "visual": true
+   }
+  }
+ },
+ "paper": {
+  "done": [
+   "{title}: done, and Marta has faxed a press release to forty numbers",
+   "{title} finished. Il Gabbiano's reporter came down on the 8:10 to see",
+   "Geometra completes {title}; Presidente Crovara says it'll do. For now"
+  ],
+  "built": [
+   "{n} new pieces on the cliff overnight; the gulls have inspected every one",
+   "Geometra puts up {n} pieces in Serenza. Ragionier Sturlese has measured them all",
+   "{n} new pieces in Serenza, and not one of them taller than the bell tower"
+  ],
+  "opened": [
+   "Marta Bonanni launches {what} {place}, with slogans",
+   "Ribbon cut on {what} {place}. Settimio grumbled from the back, approvingly",
+   "{What} {place}: a disposable camera flashes, a press release is faxed to nobody"
+  ],
+  "quiet": [
+   "Quiet day in Serenza. The 14:30 was on time, which made the news",
+   "Nothing built yesterday. Capo Horn told a story instead, about Cape Horn",
+   "Slow news day: a gull stole a focaccia outside Nunzia's bar"
+  ],
+  "approval": "",
+  "verdict": "Il Gabbiano's verdict on the new build in Serenza: {grade}.",
+  "regrown": "Overnight the brambles crept back, the lemons ripened and the wall-stone heaps settled again."
+ },
+ "inauguration": {
+  "speaker": "cliffs_marta",
+  "place": "in Serenza",
+  "open": [
+   "Serenza! Tonight we launch {what} {place}. Smile for the camera!",
+   "Gather round, everyone: {what} {place}. I've written a slogan.",
+   "Ladies and gentlemen, and Nonno: {What} {place}. Press release to follow."
+  ],
+  "body": {
+   "need": [
+    "You kept saying: \u201c{noticed}\u201d Well, now you've got it."
+   ],
+   "own": [
+    "Right where you wanted it. You're welcome."
+   ],
+   "art": [
+    "What's it for? It's for the photographs.",
+    "It does nothing at all, beautifully. Very nineties."
+   ],
+   "tall": [
+    "Not taller than the bell tower. Ragionier Sturlese checked."
+   ],
+   "colour": [
+    "A colour! On a cliff full of colours. It fits right in."
+   ],
+   "many": [
+    "{n} pieces in a day. In Toriano that's a whole agency's week."
+   ],
+   "single": [
+    "One {piece}. Small, but on the coast that's a landmark."
+   ],
+   "plain": [
+    "It stands. On this cliff, that's a selling point.",
+    "Solid work. Nonno tapped it with his stick and said nothing, which is a compliment."
+   ]
+  },
+  "close": [
+   "The Geometra built it, I wrote the slogan. Scissors!",
+   "Click! That's the cover of the brochure. Cut the ribbon!",
+   "Nonno, put your hat back on. Cut the ribbon!"
+  ]
+ },
+ "lost": [
+  "Ragionier Sturlese's season ticket",
+  "Marta's Walkman, the tape still in it",
+  "Nunzia's umbrella, inside out",
+  "a cassette: Hits of the Summer of '97",
+  "Capo Horn's photograph of his ship",
+  "Trenin's left work glove"
+ ],
+ "fish": [
+  {
+   "id": "cliffs_bream",
+   "name": "Sea Bream",
+   "weight": 4.0,
+   "pull": 0.65,
+   "node": "cliffs_fish0",
+   "item": "cliffs_bream",
+   "caught": "A sea bream, silver and gold!"
+  },
+  {
+   "id": "cliffs_mullet",
+   "name": "Grey Mullet",
+   "weight": 3.5,
+   "pull": 0.7,
+   "node": "cliffs_fish0",
+   "item": "cliffs_mullet",
+   "caught": "A grey mullet, fat from the harbour."
+  },
+  {
+   "id": "cliffs_octopus",
+   "name": "Little Octopus",
+   "weight": 0.8,
+   "pull": 0.9,
+   "node": "cliffs_fish0",
+   "item": "cliffs_octopus",
+   "caught": "A little octopus! It waves all eight arms at you."
+  },
+  {
+   "id": "cliffs_bream",
+   "name": "Sea Bream",
+   "weight": 4.0,
+   "pull": 0.65,
+   "node": "cliffs_fish1",
+   "item": "cliffs_bream",
+   "caught": "A sea bream, silver and gold!"
+  },
+  {
+   "id": "cliffs_mullet",
+   "name": "Grey Mullet",
+   "weight": 3.5,
+   "pull": 0.7,
+   "node": "cliffs_fish1",
+   "item": "cliffs_mullet",
+   "caught": "A grey mullet, fat from the harbour."
+  },
+  {
+   "id": "cliffs_octopus",
+   "name": "Little Octopus",
+   "weight": 0.8,
+   "pull": 0.9,
+   "node": "cliffs_fish1",
+   "item": "cliffs_octopus",
+   "caught": "A little octopus! It waves all eight arms at you."
+  },
+  {
+   "id": "cliffs_bream",
+   "name": "Sea Bream",
+   "weight": 4.0,
+   "pull": 0.65,
+   "node": "cliffs_fish2",
+   "item": "cliffs_bream",
+   "caught": "A sea bream, silver and gold!"
+  },
+  {
+   "id": "cliffs_mullet",
+   "name": "Grey Mullet",
+   "weight": 3.5,
+   "pull": 0.7,
+   "node": "cliffs_fish2",
+   "item": "cliffs_mullet",
+   "caught": "A grey mullet, fat from the harbour."
+  },
+  {
+   "id": "cliffs_octopus",
+   "name": "Little Octopus",
+   "weight": 0.8,
+   "pull": 0.9,
+   "node": "cliffs_fish2",
+   "item": "cliffs_octopus",
+   "caught": "A little octopus! It waves all eight arms at you."
+  },
+  {
+   "id": "cliffs_bream",
+   "name": "Sea Bream",
+   "weight": 4.0,
+   "pull": 0.65,
+   "node": "cliffs_fish3",
+   "item": "cliffs_bream",
+   "caught": "A sea bream, silver and gold!"
+  },
+  {
+   "id": "cliffs_mullet",
+   "name": "Grey Mullet",
+   "weight": 3.5,
+   "pull": 0.7,
+   "node": "cliffs_fish3",
+   "item": "cliffs_mullet",
+   "caught": "A grey mullet, fat from the harbour."
+  },
+  {
+   "id": "cliffs_octopus",
+   "name": "Little Octopus",
+   "weight": 0.8,
+   "pull": 0.9,
+   "node": "cliffs_fish3",
+   "item": "cliffs_octopus",
+   "caught": "A little octopus! It waves all eight arms at you."
   }
  ]
 }

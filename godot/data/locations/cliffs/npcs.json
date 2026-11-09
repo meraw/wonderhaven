@@ -1,0 +1,1438 @@
+{
+ "_comment": "Serenza's villagers (docs/locations/cliffs.md): routines, greetings, topics and gifts.",
+ "npcs": [
+  {
+   "id": "cliffs_marta",
+   "name": "Marta Bonanni",
+   "pronoun": "she",
+   "title": "Back from the agency in Toriano",
+   "likes": [
+    "cliffs_coffee",
+    "cliffs_lemoncake",
+    "cliffs_wine"
+   ],
+   "voice": 1.2,
+   "appearance": {
+    "skin": "#f8cfa8",
+    "eyeShape": "sparkle",
+    "eyeColor": "#3a2a1e",
+    "hair": "ponytail",
+    "hairColor": "#3b2a20",
+    "mouth": "grin",
+    "top": "jacket",
+    "topColor": "#6cc4ff",
+    "bottom": "skirt",
+    "bottomColor": "#b59cff",
+    "shoes": "sneakers",
+    "shoesColor": "#ffffff",
+    "hat": "none",
+    "hatColor": "#ffffff",
+    "accessory": "discman",
+    "body": {
+     "height": 1.0,
+     "width": 0.95,
+     "belly": 0.0
+    }
+   },
+   "home": "doorW2",
+   "schedule": [
+    [
+     0,
+     24,
+     "platform",
+     "idle"
+    ]
+   ],
+   "when": [
+    {
+     "flag": "cliffs_easterDone",
+     "schedule": [
+      [
+       7,
+       9,
+       "platform",
+       "idle"
+      ],
+      [
+       9,
+       12,
+       "square",
+       "idle"
+      ],
+      [
+       12,
+       18,
+       "cliffs_cellar:spot",
+       "work"
+      ],
+      [
+       18,
+       22,
+       "square",
+       "idle"
+      ]
+     ]
+    },
+    {
+     "flag": "cliffs_restBuilt",
+     "schedule": [
+      [
+       6,
+       11,
+       "gatherA",
+       "idle"
+      ],
+      [
+       11,
+       13,
+       "squareE",
+       "idle"
+      ],
+      [
+       13,
+       19,
+       "cellarSqE",
+       "idle"
+      ],
+      [
+       19,
+       22,
+       "square",
+       "idle"
+      ]
+     ]
+    },
+    {
+     "flag": "cliffs_cellarOpen",
+     "schedule": [
+      [
+       7,
+       9,
+       "platform",
+       "idle"
+      ],
+      [
+       9,
+       12,
+       "square",
+       "idle"
+      ],
+      [
+       12,
+       18,
+       "cliffs_cellar:spot",
+       "work"
+      ],
+      [
+       18,
+       22,
+       "square",
+       "idle"
+      ]
+     ]
+    },
+    {
+     "flag": "cliffs_welcomed",
+     "schedule": [
+      [
+       7,
+       9,
+       "platform",
+       "idle"
+      ],
+      [
+       9,
+       12,
+       "square",
+       "idle"
+      ],
+      [
+       12,
+       17,
+       "cellarSqE",
+       "idle"
+      ],
+      [
+       17,
+       22,
+       "square",
+       "idle"
+      ]
+     ]
+    }
+   ],
+   "greetings": [
+    {
+     "flag": "cliffs_easterDone",
+     "lines": [
+      "Serenza: where Easter comes up the hill. That's the slogan now. Nonno hates it. He's using it.",
+      "The hiking club booked again for next year. I faxed them the confirmation twice, to be sure."
+     ]
+    },
+    {
+     "flag": "cliffs_welcomed",
+     "lines": [
+      "Geometra! I've got a slogan for you: 'Serenza. It's Steep. It's Worth It.' No? I'm workshopping it.",
+      "Nonno's speaking to me again. Mostly to say I'm wrong. That's progress.",
+      "My mobile has one bar of signal up by the sanctuary. One bar! I'm basically in Toriano."
+     ]
+    },
+    {
+     "lines": [
+      "You're the Geometra! Off the 8:10, right on time. Well, eleven minutes late. On time for Serenza."
+     ]
+    }
+   ],
+   "sleepy": [
+    "Zzz… Serenza… bottled sunshine… no… terraced sunshine…"
+   ],
+   "topics": [
+    {
+     "id": "letter",
+     "label": "Why did you write to the province?",
+     "lines": [
+      "Because Nonno wouldn't. The cooperative votes in April whether to close. Twelve growers, average age seventy-four.",
+      "If the terraces go back to brambles, the walls fall, the hill slides, and Serenza ends up in the harbour. Slowly. Then quickly.",
+      "So I wrote. On agency letterhead. I may have implied the agency was involved. The agency was not involved."
+     ]
+    },
+    {
+     "id": "toriano",
+     "label": "What did you do in Toriano?",
+     "lines": [
+      "Advertising. Biscuits, mostly. I wrote 'Crunchy on Monday, crunchy on Friday'. You've heard it. Everyone's heard it.",
+      "Then my grandmother died and I came back for the funeral, and stayed for the terraces. The biscuits can crunch without me."
+     ]
+    },
+    {
+     "id": "nonno",
+     "label": "How do you get on with Settimio?",
+     "lines": [
+      "We argue every day. Breakfast, lunch, the bar in the evening. It's how we say good morning.",
+      "He thinks a fax machine is the devil's typewriter. I think he's the most stubborn man on the Riviera. We're both right."
+     ]
+    }
+   ],
+   "gifts": [
+    {
+     "hearts": 4,
+     "items": {
+      "cliffs_wine": 2
+     },
+     "line": "Two bottles of the sweet wine. Unlabelled. For now. I have designs."
+    }
+   ]
+  },
+  {
+   "id": "cliffs_settimio",
+   "name": "Presidente Settimio \"Gerla\" Crovara",
+   "pronoun": "he",
+   "title": "President of the growers' cooperative",
+   "likes": [
+    "cliffs_wine",
+    "cliffs_focaccia",
+    "cliffs_lemon"
+   ],
+   "voice": 0.72,
+   "appearance": {
+    "skin": "#e9b083",
+    "eyeShape": "sleepy",
+    "eyeColor": "#3a2a1e",
+    "hair": "short",
+    "hairColor": "#f2f2f2",
+    "mouth": "calm",
+    "top": "shirt",
+    "topColor": "#f4f1e8",
+    "bottom": "pants",
+    "bottomColor": "#4a4a6a",
+    "shoes": "boots",
+    "shoesColor": "#3a2a1e",
+    "hat": "sunhat",
+    "hatColor": "#d9c27a",
+    "accessory": "backpack",
+    "body": {
+     "height": 0.92,
+     "width": 1.0,
+     "belly": 0.3
+    }
+   },
+   "home": "doorW1",
+   "schedule": [
+    [
+     6,
+     11,
+     "E2",
+     "work"
+    ],
+    [
+     11,
+     13,
+     "W1",
+     "work"
+    ],
+    [
+     13,
+     18,
+     "cellarSq",
+     "idle"
+    ],
+    [
+     18,
+     22,
+     "cliffs_bar:in",
+     "idle"
+    ]
+   ],
+   "when": [
+    {
+     "flag": "cliffs_easterDone",
+     "schedule": [
+      [
+       6,
+       11,
+       "E2",
+       "work"
+      ],
+      [
+       11,
+       13,
+       "W1",
+       "work"
+      ],
+      [
+       13,
+       18,
+       "cellarSq",
+       "idle"
+      ],
+      [
+       18,
+       22,
+       "cliffs_bar:in",
+       "idle"
+      ]
+     ]
+    },
+    {
+     "flag": "cliffs_restBuilt",
+     "schedule": [
+      [
+       6,
+       13,
+       "gatherB",
+       "idle"
+      ],
+      [
+       13,
+       20,
+       "cliffs_cellar:spot",
+       "idle"
+      ],
+      [
+       20,
+       22,
+       "cliffs_bar:in",
+       "idle"
+      ]
+     ]
+    }
+   ],
+   "greetings": [
+    {
+     "flag": "cliffs_easterDone",
+     "lines": [
+      "The cooperative stays open. I voted for it. Don't tell Marta I enjoyed it.",
+      "Sixty years I've carried that basket up these steps. Now I've got company. It's annoying. It's good."
+     ]
+    },
+    {
+     "flag": "cliffs_wallBuilt",
+     "lines": [
+      "The wall's holding. I went and kicked it this morning. It'll do. For now.",
+      "The lizards are on your stones. Lizards don't sit on bad walls."
+     ]
+    },
+    {
+     "flag": "cliffs_welcomed",
+     "lines": [
+      "Hm. The Geometra. Still here.",
+      "Mind where you step. That's a vine, not a weed.",
+      "My granddaughter writes to the province. I write to nobody. The terraces don't read."
+     ]
+    },
+    {
+     "lines": [
+      "Who are you? The Geometra? Marta's doing, I suppose. Hm."
+     ]
+    }
+   ],
+   "sleepy": [
+    "Zzz… the wall under W4… hold, you… hold…"
+   ],
+   "topics": [
+    {
+     "id": "basket",
+     "label": "Why do they call you Gerla?",
+     "lines": [
+      "Gerla. The basket on your back. Grapes down, manure up. Every day since I was nine.",
+      "Nobody else carries one now. They've got the monorail, when it runs. I've got knees. Mine still run."
+     ]
+    },
+    {
+     "id": "walls",
+     "label": "How do you build a dry-stone wall?",
+     "lines": [
+      "No mortar. Just stones, the right way round. Big ones at the bottom, long side into the hill, and lean it back a little.",
+      "Every stone has one place it wants to sit. You find it. If you don't, the wall tells you. In winter. All over the vines."
+     ]
+    },
+    {
+     "id": "cooperative",
+     "label": "What's the vote about?",
+     "lines": [
+      "Twelve of us left. Average age seventy-four, and that's with Marta lowering it.",
+      "In April we vote whether to sell the cellar and let the terraces go. I've voted no for thirty years. Nobody's ever asked twice."
+     ]
+    }
+   ],
+   "gifts": [
+    {
+     "hearts": 4,
+     "items": {
+      "cliffs_vine": 2
+     },
+     "line": "Two vine cuttings. From the old Bosco on E2. Don't drown them."
+    },
+    {
+     "hearts": 6,
+     "clothes": [
+      "cliffs_strawHat"
+     ],
+     "line": "My spare hat. Fifty summers. The holes are where the sun gets in. Wear it on the terraces."
+    }
+   ]
+  },
+  {
+   "id": "cliffs_mario",
+   "name": "Mario \"Trenin\" Cozzani",
+   "pronoun": "he",
+   "title": "Perito meccanico, keeper of the monorail",
+   "likes": [
+    "cliffs_focaccia",
+    "cliffs_coffee",
+    "metal"
+   ],
+   "voice": 1.0,
+   "appearance": {
+    "skin": "#e9b083",
+    "eyeShape": "round",
+    "eyeColor": "#3a2a1e",
+    "hair": "curly",
+    "hairColor": "#7a4a2a",
+    "mouth": "smile",
+    "top": "overalls",
+    "topColor": "#2f5fa8",
+    "bottom": "pants",
+    "bottomColor": "#2f5fa8",
+    "shoes": "boots",
+    "shoesColor": "#2b2b30",
+    "hat": "beanie",
+    "hatColor": "#e85d75",
+    "accessory": "none",
+    "body": {
+     "height": 1.02,
+     "width": 1.05,
+     "belly": 0.4
+    }
+   },
+   "home": "cliffs_workshop:spot",
+   "schedule": [
+    [
+     7,
+     12,
+     "cliffs_workshop:spot",
+     "work"
+    ],
+    [
+     12,
+     13,
+     "cellarSq",
+     "idle"
+    ],
+    [
+     13,
+     19,
+     "cliffs_workshop:spot",
+     "work"
+    ],
+    [
+     19,
+     21,
+     "squareE",
+     "idle"
+    ]
+   ],
+   "when": [
+    {
+     "flag": "cliffs_easterDone",
+     "schedule": [
+      [
+       7,
+       10,
+       "cliffs_workshop:spot",
+       "work"
+      ],
+      [
+       10,
+       12,
+       "rail6",
+       "work"
+      ],
+      [
+       12,
+       13,
+       "cellarSq",
+       "idle"
+      ],
+      [
+       13,
+       16,
+       "cliffs_workshop:spot",
+       "work"
+      ],
+      [
+       16,
+       18,
+       "railTop",
+       "idle"
+      ],
+      [
+       18,
+       21,
+       "squareE",
+       "idle"
+      ]
+     ]
+    },
+    {
+     "flag": "cliffs_restBuilt",
+     "schedule": [
+      [
+       6,
+       11,
+       "gatherC",
+       "idle"
+      ],
+      [
+       11,
+       13,
+       "street18",
+       "idle"
+      ],
+      [
+       13,
+       19,
+       "cliffs_workshop:spot",
+       "idle"
+      ]
+     ]
+    },
+    {
+     "flag": "cliffs_monorailRuns",
+     "schedule": [
+      [
+       7,
+       10,
+       "cliffs_workshop:spot",
+       "work"
+      ],
+      [
+       10,
+       12,
+       "rail6",
+       "work"
+      ],
+      [
+       12,
+       13,
+       "cellarSq",
+       "idle"
+      ],
+      [
+       13,
+       16,
+       "cliffs_workshop:spot",
+       "work"
+      ],
+      [
+       16,
+       18,
+       "railTop",
+       "idle"
+      ],
+      [
+       18,
+       21,
+       "squareE",
+       "idle"
+      ]
+     ]
+    }
+   ],
+   "greetings": [
+    {
+     "flag": "cliffs_monorailRuns",
+     "lines": [
+      "Zia Pina's been up and down six times today. She's never been happier. She's a cart.",
+      "Listen to that engine. Brrrrrr-tak. That's a contented motor, that is."
+     ]
+    },
+    {
+     "flag": "cliffs_welcomed",
+     "lines": [
+      "Geometra! Come in, mind the sump. Zia Pina, say hello. She doesn't. She's shy.",
+      "Seven carts, seven aunts. I'm out of aunts. The next cart will have to be an uncle."
+     ]
+    },
+    {
+     "lines": [
+      "Oh! A visitor. Hello. Don't touch the red one, she bites."
+     ]
+    }
+   ],
+   "sleepy": [
+    "Zzz… brrrrr-tak… brrrrr-tak… good girl…"
+   ],
+   "topics": [
+    {
+     "id": "monorail",
+     "label": "What's the monorail?",
+     "lines": [
+      "One rail, up the hill, and a little cart with an engine that sits on it like a hen. You load the cart at the bottom and it climbs.",
+      "Every terrace on the coast had one once. Grapes down, stakes up. Without it you need a gerla. And knees like the Presidente's."
+     ]
+    },
+    {
+     "id": "aunts",
+     "label": "Why are the carts named after aunts?",
+     "lines": [
+      "Zia Pina, Zia Rosa, Zia Carmela… My mother had six sisters and a cousin she counted as one.",
+      "They all climbed these terraces with baskets. Now the carts do it for them. It seemed only fair."
+     ]
+    },
+    {
+     "id": "trenin",
+     "label": "Why do they call you Trenin?",
+     "lines": [
+      "Trenin. Little train. Because when I was six I made engine noises all the way up the steps. I still do. Quietly."
+     ]
+    }
+   ],
+   "gifts": [
+    {
+     "hearts": 4,
+     "items": {
+      "metal": 3
+     },
+     "line": "Spare parts. Clean ones. Well, cleaner."
+    }
+   ]
+  },
+  {
+   "id": "cliffs_aurelio",
+   "name": "Don Aurelio Natale",
+   "pronoun": "he",
+   "title": "Priest of the church on the rocks",
+   "likes": [
+    "cliffs_focaccia",
+    "cliffs_pie",
+    "cliffs_medal"
+   ],
+   "voice": 0.88,
+   "appearance": {
+    "skin": "#f8cfa8",
+    "eyeShape": "happy",
+    "eyeColor": "#2f6fdf",
+    "hair": "short",
+    "hairColor": "#7a4a2a",
+    "mouth": "smile",
+    "top": "longcoat",
+    "topColor": "#2b2b38",
+    "bottom": "pants",
+    "bottomColor": "#2b2b38",
+    "shoes": "boots",
+    "shoesColor": "#2b2b30",
+    "hat": "none",
+    "hatColor": "#ffffff",
+    "accessory": "scarf",
+    "body": {
+     "height": 1.05,
+     "width": 0.95,
+     "belly": 0.2
+    }
+   },
+   "home": "cliffs_church:spot",
+   "schedule": [
+    [
+     5,
+     7,
+     "rocksS",
+     "idle"
+    ],
+    [
+     7,
+     12,
+     "cliffs_church:spot",
+     "work"
+    ],
+    [
+     12,
+     14,
+     "square",
+     "idle"
+    ],
+    [
+     14,
+     17,
+     "sanctuary",
+     "idle"
+    ],
+    [
+     17,
+     20,
+     "cliffs_church:spot",
+     "work"
+    ]
+   ],
+   "when": [
+    {
+     "flag": "cliffs_easterDone",
+     "schedule": [
+      [
+       5,
+       7,
+       "rocksS",
+       "idle"
+      ],
+      [
+       7,
+       12,
+       "cliffs_church:spot",
+       "work"
+      ],
+      [
+       12,
+       14,
+       "square",
+       "idle"
+      ],
+      [
+       14,
+       17,
+       "sanctuary",
+       "idle"
+      ],
+      [
+       17,
+       20,
+       "cliffs_church:spot",
+       "work"
+      ]
+     ]
+    },
+    {
+     "flag": "cliffs_restBuilt",
+     "schedule": [
+      [
+       5,
+       13,
+       "churchDoor",
+       "idle"
+      ],
+      [
+       13,
+       17,
+       "sanctuary",
+       "idle"
+      ],
+      [
+       17,
+       20,
+       "cliffs_church:spot",
+       "work"
+      ]
+     ]
+    }
+   ],
+   "greetings": [
+    {
+     "flag": "cliffs_swimDone",
+     "lines": [
+      "Fourteen degrees this morning! Bracing. Come in one day. No? One day.",
+      "The sea's cold, the Lord is warm, and the towel is in between."
+     ]
+    },
+    {
+     "flag": "cliffs_welcomed",
+     "lines": [
+      "Good morning, Geometra. Or afternoon. On the rocks I lose track. The sea doesn't keep hours.",
+      "The ship paintings in the church were all left by sailors who came home. The sea painted the rest."
+     ]
+    },
+    {
+     "lines": [
+      "Welcome! You've come to the right village. It's the only one between those two tunnels."
+     ]
+    }
+   ],
+   "sleepy": [
+    "Zzz… et cum spiritu… brrr, cold this morning…"
+   ],
+   "topics": [
+    {
+     "id": "swim",
+     "label": "You swim every morning?",
+     "lines": [
+      "Every morning of the year. Christmas, Epiphany, the day of the storm in '87. The sea and I have an arrangement.",
+      "There was an iron ladder down the rocks. It rusted away last winter. Now I climb in like a crab and out like a seal."
+     ]
+    },
+    {
+     "id": "procession",
+     "label": "What happens at Easter?",
+     "lines": [
+      "The procession! From the church on the rocks, up the main street, under the arch, through the terraces and up to the sanctuary.",
+      "Every grower walks behind the statue. Fewer every year. And the mule path's broken in the gully. The old ladies can't climb that."
+     ]
+    },
+    {
+     "id": "paintings",
+     "label": "Who painted the ships in the church?",
+     "lines": [
+      "Sailors who survived a storm, mostly. A promise to the Madonna: get me home and I'll paint you my ship.",
+      "Capo Horn has promised me one eleven times. Or fourteen. It depends who's listening."
+     ]
+    }
+   ],
+   "gifts": [
+    {
+     "hearts": 4,
+     "items": {
+      "cliffs_focaccia": 2
+     },
+     "line": "Focaccia from Nunzia. Blessed, so it doesn't count as gluttony."
+    }
+   ]
+  },
+  {
+   "id": "cliffs_giacomo",
+   "name": "Capitano Giacomo \"Capo Horn\" Rollandi",
+   "pronoun": "he",
+   "title": "Retired merchant captain",
+   "likes": [
+    "cliffs_anchovies",
+    "cliffs_button",
+    "cliffs_bream"
+   ],
+   "voice": 0.78,
+   "appearance": {
+    "skin": "#e9b083",
+    "eyeShape": "round",
+    "eyeColor": "#2f6fdf",
+    "hair": "short",
+    "hairColor": "#f2f2f2",
+    "mouth": "calm",
+    "top": "jacket",
+    "topColor": "#2b2b48",
+    "bottom": "pants",
+    "bottomColor": "#2b2b38",
+    "shoes": "boots",
+    "shoesColor": "#2a2a2a",
+    "hat": "captain",
+    "hatColor": "#2b2b48",
+    "accessory": "beard",
+    "body": {
+     "height": 1.0,
+     "width": 1.1,
+     "belly": 0.6
+    }
+   },
+   "home": "doorE2",
+   "schedule": [
+    [
+     7,
+     12,
+     "street8",
+     "work"
+    ],
+    [
+     12,
+     14,
+     "cliffs_bar:in",
+     "idle"
+    ],
+    [
+     14,
+     18,
+     "street8",
+     "work"
+    ],
+    [
+     18,
+     21,
+     "breakwaterMid",
+     "idle"
+    ]
+   ],
+   "when": [
+    {
+     "flag": "cliffs_easterDone",
+     "schedule": [
+      [
+       7,
+       12,
+       "breakwaterMid",
+       "work"
+      ],
+      [
+       12,
+       14,
+       "cliffs_bar:in",
+       "idle"
+      ],
+      [
+       14,
+       18,
+       "squareE",
+       "work"
+      ],
+      [
+       18,
+       21,
+       "breakwaterMid",
+       "idle"
+      ]
+     ]
+    },
+    {
+     "flag": "cliffs_restBuilt",
+     "schedule": [
+      [
+       6,
+       11,
+       "rocksS",
+       "idle"
+      ],
+      [
+       11,
+       13,
+       "squareSW",
+       "idle"
+      ],
+      [
+       13,
+       19,
+       "laneE",
+       "idle"
+      ],
+      [
+       19,
+       21,
+       "breakwaterMid",
+       "idle"
+      ]
+     ]
+    },
+    {
+     "flag": "cliffs_boats_launched",
+     "schedule": [
+      [
+       7,
+       12,
+       "breakwaterMid",
+       "work"
+      ],
+      [
+       12,
+       14,
+       "cliffs_bar:in",
+       "idle"
+      ],
+      [
+       14,
+       18,
+       "squareE",
+       "work"
+      ],
+      [
+       18,
+       21,
+       "breakwaterMid",
+       "idle"
+      ]
+     ]
+    }
+   ],
+   "greetings": [
+    {
+     "flag": "cliffs_boats_launched",
+     "lines": [
+      "Look at them, riding at their moorings. Like the Pacific Fleet. A very small Pacific Fleet.",
+      "Did I ever tell you about Cape Horn? The fourth time? No? Sit down."
+     ]
+    },
+    {
+     "flag": "cliffs_welcomed",
+     "lines": [
+      "Ahoy, Geometra! Mind the nets. They've been mended since Tuesday and they've only got worse.",
+      "Eleven times round Cape Horn. Or fourteen. Once you've done it eleven times you stop counting properly."
+     ]
+    },
+    {
+     "lines": [
+      "Ahoy there! New face on the cliff. Welcome aboard. Well, ashore."
+     ]
+    }
+   ],
+   "sleepy": [
+    "Zzz… fifty-six degrees south… hard to starboard… zzz…"
+   ],
+   "topics": [
+    {
+     "id": "horn",
+     "label": "Why Capo Horn?",
+     "lines": [
+      "Cape Horn. The bottom of the world. Waves like apartment blocks and an albatross for every one.",
+      "I've rounded it eleven times. Or fourteen. The other three were in a dream, but a very wet one."
+     ]
+    },
+    {
+     "id": "boats",
+     "label": "Why are the boats in the street?",
+     "lines": [
+      "Every winter the village hauls its boats up out of the storms. Every spring we slide them back down the slipway.",
+      "Only the slipway crumbled. So the boats are in the main street, and I'm mending nets beside them, and the street is mostly boat."
+     ]
+    },
+    {
+     "id": "sea",
+     "label": "Do you miss the sea?",
+     "lines": [
+      "It's right there. I look at it every day. It looks back. We have an understanding: I don't go out, and it doesn't come in."
+     ]
+    }
+   ],
+   "gifts": [
+    {
+     "hearts": 4,
+     "items": {
+      "cliffs_anchovies": 3
+     },
+     "line": "Salted anchovies. My mother's recipe. My mother's jar, too."
+    }
+   ]
+  },
+  {
+   "id": "cliffs_nunzia",
+   "name": "Nunzia Lercari",
+   "pronoun": "she",
+   "title": "Runs the bar on the harbour square",
+   "likes": [
+    "cliffs_greens",
+    "cliffs_borage",
+    "cliffs_lemon"
+   ],
+   "voice": 1.1,
+   "appearance": {
+    "skin": "#f8cfa8",
+    "eyeShape": "round",
+    "eyeColor": "#3c9a4a",
+    "hair": "bun",
+    "hairColor": "#d9a35a",
+    "mouth": "smile",
+    "top": "tunic",
+    "topColor": "#ff8fab",
+    "bottom": "dress",
+    "bottomColor": "#ffd166",
+    "shoes": "sandals",
+    "shoesColor": "#c9a27a",
+    "hat": "none",
+    "hatColor": "#ffffff",
+    "accessory": "glasses",
+    "body": {
+     "height": 0.96,
+     "width": 1.1,
+     "belly": 0.5
+    }
+   },
+   "home": "cliffs_bar:spot",
+   "schedule": [
+    [
+     6,
+     11,
+     "cliffs_bar:spot",
+     "work"
+    ],
+    [
+     11,
+     12,
+     "stair2",
+     "idle"
+    ],
+    [
+     12,
+     23,
+     "cliffs_bar:spot",
+     "work"
+    ]
+   ],
+   "when": [
+    {
+     "flag": "cliffs_easterDone",
+     "schedule": [
+      [
+       6,
+       11,
+       "cliffs_bar:spot",
+       "work"
+      ],
+      [
+       11,
+       12,
+       "stair2",
+       "idle"
+      ],
+      [
+       12,
+       23,
+       "cliffs_bar:spot",
+       "work"
+      ]
+     ]
+    },
+    {
+     "flag": "cliffs_restBuilt",
+     "schedule": [
+      [
+       6,
+       11,
+       "gatherD",
+       "idle"
+      ],
+      [
+       11,
+       13,
+       "gatherC",
+       "idle"
+      ],
+      [
+       13,
+       23,
+       "cliffs_bar:spot",
+       "work"
+      ]
+     ]
+    }
+   ],
+   "greetings": [
+    {
+     "flag": "cliffs_easterDone",
+     "lines": [
+      "The hiking club wrote in the guest book. Eight pages. One each. Very neat handwriting. Schoolteachers.",
+      "Coffee? I've got a new tablecloth and I'm dying to spill something on it."
+     ]
+    },
+    {
+     "flag": "cliffs_welcomed",
+     "lines": [
+      "Geometra! Coffee? Of course coffee. Sit. You look tired. It's the steps. Everyone looks tired here.",
+      "Did you hear? No? Sit down, I'll tell you. Don't tell anyone I told you.",
+      "Eleven days to my first Easter guests. Twelve. I counted wrong. I'll count again."
+     ]
+    },
+    {
+     "lines": [
+      "A new face! Sit, sit. I'm Nunzia. This is the bar. That's the payphone. That's Marta's fax. It's very loud."
+     ]
+    }
+   ],
+   "sleepy": [
+    "Zzz… table four… two coffees and a focaccia… zzz…"
+   ],
+   "topics": [
+    {
+     "id": "guests",
+     "label": "Who's coming for Easter?",
+     "lines": [
+      "A hiking club! From Toriano! Eight retired schoolteachers in matching red anoraks. They wrote on headed paper.",
+      "My first guests in the rooms upstairs since 1991. I've aired the mattresses twice. I'll do it again."
+     ]
+    },
+    {
+     "id": "phone",
+     "label": "Is that the village's only phone?",
+     "lines": [
+      "The payphone. The only one between the tunnels. Everybody's business goes through that phone, and I'm standing right next to it.",
+      "I don't listen. I just hear. There's a difference, and I'll explain it to you sometime."
+     ]
+    },
+    {
+     "id": "pie",
+     "label": "What's the Easter pie?",
+     "lines": [
+      "Torta di erbe. Wild greens off the terraces, borage, eggs, a little cheese, and pastry so thin you can read the paper through it.",
+      "My grandmother made it with greens from every terrace. Now there are brambles where the greens were."
+     ]
+    }
+   ],
+   "gifts": [
+    {
+     "hearts": 4,
+     "items": {
+      "cliffs_lemoncake": 2
+     },
+     "line": "Lemon cake, from the bottom shelf. The good shelf. Don't tell the guests."
+    }
+   ]
+  },
+  {
+   "id": "cliffs_fulvio",
+   "name": "Ragioniere Fulvio Sturlese",
+   "pronoun": "he",
+   "title": "Clerk of the comune",
+   "likes": [
+    "cliffs_coffee",
+    "cliffs_focaccia",
+    "cliffs_lemoncake"
+   ],
+   "voice": 0.95,
+   "appearance": {
+    "skin": "#ffe3cc",
+    "eyeShape": "wide",
+    "eyeColor": "#3a2a1e",
+    "hair": "short",
+    "hairColor": "#3b2a20",
+    "mouth": "o",
+    "top": "suit",
+    "topColor": "#7e8189",
+    "bottom": "pants",
+    "bottomColor": "#4a4a6a",
+    "shoes": "sneakers",
+    "shoesColor": "#ffffff",
+    "hat": "none",
+    "hatColor": "#ffffff",
+    "accessory": "glasses",
+    "body": {
+     "height": 1.04,
+     "width": 0.9,
+     "belly": 0.1
+    }
+   },
+   "home": "cliffs_station:spot",
+   "schedule": [
+    [
+     8,
+     10,
+     "platformW",
+     "idle"
+    ],
+    [
+     10,
+     12,
+     "squareN",
+     "idle"
+    ],
+    [
+     12,
+     14,
+     "workshopDoor",
+     "idle"
+    ],
+    [
+     14,
+     17,
+     "street18",
+     "idle"
+    ],
+    [
+     17,
+     21,
+     "platformW",
+     "idle"
+    ]
+   ],
+   "when": [
+    {
+     "flag": "cliffs_easterDone",
+     "schedule": [
+      [
+       8,
+       10,
+       "platformW",
+       "idle"
+      ],
+      [
+       10,
+       12,
+       "squareN",
+       "idle"
+      ],
+      [
+       12,
+       14,
+       "workshopDoor",
+       "idle"
+      ],
+      [
+       14,
+       17,
+       "street18",
+       "idle"
+      ],
+      [
+       17,
+       20,
+       "platformW",
+       "idle"
+      ],
+      [
+       20,
+       24,
+       "shelter",
+       "idle"
+      ]
+     ]
+    },
+    {
+     "flag": "cliffs_restBuilt",
+     "schedule": [
+      [
+       6,
+       11,
+       "squareSW",
+       "idle"
+      ],
+      [
+       11,
+       13,
+       "barDoor",
+       "idle"
+      ],
+      [
+       13,
+       19,
+       "workshopDoor",
+       "idle"
+      ],
+      [
+       19,
+       21,
+       "platformW",
+       "idle"
+      ]
+     ]
+    },
+    {
+     "flag": "cliffs_shelterBuilt",
+     "schedule": [
+      [
+       8,
+       10,
+       "platformW",
+       "idle"
+      ],
+      [
+       10,
+       12,
+       "squareN",
+       "idle"
+      ],
+      [
+       12,
+       14,
+       "workshopDoor",
+       "idle"
+      ],
+      [
+       14,
+       17,
+       "street18",
+       "idle"
+      ],
+      [
+       17,
+       20,
+       "platformW",
+       "idle"
+      ],
+      [
+       20,
+       24,
+       "shelter",
+       "idle"
+      ]
+     ]
+    }
+   ],
+   "greetings": [
+    {
+     "flag": "cliffs_shelterBuilt",
+     "lines": [
+      "I missed the 21:40 again. The shelter is very comfortable. I have filed a note of thanks.",
+      "Good morning. I have slept in a structure within the regulations. A first."
+     ]
+    },
+    {
+     "flag": "cliffs_welcomed",
+     "lines": [
+      "Good day. Ragionier Sturlese, comune of the next town. I have forms. I always have forms.",
+      "Dry stone only. Slate roofs only. Nothing taller than the bell tower. I don't make the rules. I photocopy them.",
+      "If you'll excuse me, the 17:52 waits for no clerk. Neither does the 21:40, as it happens."
+     ]
+    },
+    {
+     "lines": [
+      "You must be the Geometra. I have a form for that. Several."
+     ]
+    }
+   ],
+   "sleepy": [
+    "Zzz… in triplicate… stamped… received…"
+   ],
+   "topics": [
+    {
+     "id": "rules",
+     "label": "What are the landscape rules?",
+     "lines": [
+      "Three rules, Geometra. Dry stone walls only. Slate roofs only. Nothing taller than the bell tower.",
+      "I write them on every brief. Then I stamp the permit anyway. The rules are the rules, but the stamp is the stamp."
+     ]
+    },
+    {
+     "id": "train",
+     "label": "Do you really miss the last train?",
+     "lines": [
+      "One day in three. It's statistically consistent. The 21:40 leaves at 21:40 and I arrive at 21:41.",
+      "I have run for it in these shoes four hundred and twelve times. I keep a record. It's very thorough."
+     ]
+    },
+    {
+     "id": "stamp",
+     "label": "What's in the briefcase?",
+     "lines": [
+      "Forms, stamps, an ink pad, a sandwich and a timetable. In that order. The sandwich moves up when I'm hungry."
+     ]
+    }
+   ],
+   "gifts": [
+    {
+     "hearts": 4,
+     "items": {
+      "coins": 25
+     },
+     "line": "A refund. You overpaid a stamp duty you didn't owe. I noticed. I always notice."
+    }
+   ]
+  }
+ ]
+}

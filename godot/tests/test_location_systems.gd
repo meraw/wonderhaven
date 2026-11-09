@@ -191,6 +191,24 @@ func test_a_milestone_can_wait_for_a_request():
 		s.unlocks_seen.append("zz_front")
 		t.eq(LocationMeter.waiting(s, "zz_paper"), [], "and comes only once"))
 
+func test_points_on_a_meter_for_what_the_world_shows():
+	var s := GameState.new_game()
+	var things := [{"flag": "zz_a", "text": "A"}, {"flag": "zz_b", "text": "B", "points": 2}, {"flag": "zz_a", "text": "A again"}, {"text": "no flag"}]
+	t.eq(LocationMeter.new_things(s, things).map(func(x): return x.flag), ["zz_a", "zz_b"], "each thing counts once, by its flag")
+	s.flags["zz_a"] = true
+	t.eq(LocationMeter.new_things(s, things).map(func(x): return x.flag), ["zz_b"], "a thing already counted isn't counted again")
+	s.flags["zz_b"] = true
+	t.eq(LocationMeter.new_things(s, things), [], "nothing new, nothing to add")
+
+func test_a_placed_piece_you_can_pick_from_once_a_day():
+	var tree := {"uid": 900, "id": "lemonTree", "i": 0.0, "k": 0.0, "r": 0, "y": 0.0}
+	t.ok(Gardening.pickable(tree, 3), "a lemon tree has lemons to pick")
+	t.eq(Gardening.pick(tree, 3), Data.piece("lemonTree").gives, "picking gives what the piece says")
+	t.ok(not Gardening.pickable(tree, 3) and Gardening.pick(tree, 3).is_empty(), "and nothing more that day")
+	t.ok(Gardening.pickable(tree, 4), "the next day there are more")
+	t.eq(int(SaveSystem.deserialize(SaveSystem.serialize({"placements": [tree]})).get("placements", [{}])[0].get("state", {}).get("picked", -1)), 3, "the day it was picked is saved with the piece")
+	t.ok(not Gardening.pickable({"uid": 901, "id": "bench", "i": 0.0, "k": 0.0, "r": 0, "y": 0.0}, 3), "a piece that gives nothing can't be picked")
+
 func test_build_sites_grow_with_a_place_s_meter():
 	_with_meter(func():
 		var s := GameState.new_game()

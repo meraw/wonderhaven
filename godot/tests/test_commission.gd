@@ -86,6 +86,10 @@ func test_checks():
 	var stack := [{"uid": 5, "id": "stoneBlock", "i": 4.0, "k": 2.0, "r": 0, "y": 0.0}, {"uid": 6, "id": "stoneBlock", "i": 4.0, "k": 2.0, "r": 0, "y": 1.0}, {"uid": 7, "id": "chair", "i": 4.0, "k": 2.0, "r": 0, "y": 2.0}]
 	var tall := Commission.check({"check": "taller", "height": 2.5}, o, stack, ctx)
 	t.ok(tall.ok and tall.uids == [7], "a chair on two blocks is taller than two and a half metres, and the chair is the top")
+	var low := Commission.check({"check": "lower", "height": 3.0}, o, stack, ctx)
+	t.ok(low.ok and low.uids == [7], "and no taller than three metres, with the chair at the top")
+	t.ok(not Commission.check({"check": "lower", "height": 2.5}, o, stack, ctx).ok, "but taller than two and a half")
+	t.ok(not Commission.check({"check": "lower", "height": 3.0}, o, [], ctx).ok, "nothing built isn't low, it's nothing")
 	var lit := Commission.check({"check": "lit"}, o, [{"uid": 8, "id": "poweredLamp"}], {"lamps": {8: true}})
 	t.ok(lit.ok and lit.uids == [8], "a lit electric lamp")
 	t.ok(not Commission.check({"check": "path"}, {"zone": "bridge"}, [], {}).ok, "no walk world, no path")

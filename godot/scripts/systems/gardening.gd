@@ -39,3 +39,14 @@ static func action(gardens: Dictionary, id: String, inv: Dictionary, seed: Strin
 	if p.stage < 0: return "plant" if inv.get(seed, 0) > 0 else "need_seeds"
 	if p.stage >= 3: return "harvest"
 	return "growing" if p.watered else "water"
+
+static func pickable(pl: Dictionary, day: int) -> bool:
+	var gives: Dictionary = Data.piece(String(pl.get("id", ""))).get("gives", {})
+	return not gives.is_empty() and int(pl.get("state", {}).get("picked", -1)) != day
+
+static func pick(pl: Dictionary, day: int) -> Dictionary:
+	if not pickable(pl, day): return {}
+	var st: Dictionary = pl.get("state", {})
+	st["picked"] = day
+	pl["state"] = st
+	return Data.piece(String(pl.id)).gives.duplicate()

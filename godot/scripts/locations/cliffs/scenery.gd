@@ -3,6 +3,16 @@ extends RefCounted
 const P := preload("res://scripts/world/palette.gd")
 const G := preload("res://scripts/locations/cliffs/ground_data.gd")
 const Trains := preload("res://scripts/locations/cliffs/trains.gd")
+const Life := preload("res://scripts/locations/cliffs/life.gd")
+const SLIP_S := -43.8
+const SLIP_N := -49.4
+
+static func rail_ground(z: float) -> float:
+	if Data.world_flags.get("cliffs_monorailRuns", false) and z < SLIP_S and z > SLIP_N:
+		var a := Heightfield.height(13.6, SLIP_S)
+		var b := Heightfield.height(13.6, SLIP_N)
+		return lerpf(a, b, (z - SLIP_S) / (SLIP_N - SLIP_S))
+	return Heightfield.height(13.6, z)
 
 const STEP_KINDS := [3, 10, 11, 15]
 const WALL_STONE := "a39a8a"
@@ -36,9 +46,14 @@ static func dress(village: Node3D) -> void:
 	station(root)
 	rubble(root, rng)
 	far_coast(root, C, rng)
+	plaque(root)
 	var tr := Trains.new()
 	tr.setup(game)
 	village.add_child(tr)
+	var life := Life.new()
+	life.name = "cliffs_life"
+	village.add_child(life)
+	life.setup(game, village)
 
 static func wall_pieces(C, a: Vector2, b: Vector2, side: Vector2, water_ok: bool) -> Array:
 	var out: Array = []
@@ -146,11 +161,12 @@ static func monorail(root: Node3D) -> void:
 	var leg := HouseKit.tinted(P.mat("6a6d72"))
 	var x := 13.35
 	var z := -26.6
-	var prev := Vector3(x, Heightfield.height(13.6, z) + 0.42, z)
+	var runs: bool = Data.world_flags.get("cliffs_monorailRuns", false)
+	var prev := Vector3(x, rail_ground(z) + 0.42, z)
 	while z > -60.8:
 		z -= 0.6
-		var p := Vector3(x, Heightfield.height(13.6, z) + 0.42, z)
-		var broken := z < -43.8 and z > -49.4
+		var p := Vector3(x, rail_ground(z) + 0.42, z)
+		var broken := z < SLIP_S and z > SLIP_N and not runs
 		if not broken:
 			var mid := (prev + p) / 2.0
 			var dv := p - prev
@@ -160,10 +176,11 @@ static func monorail(root: Node3D) -> void:
 				var g := Heightfield.height(13.6, z)
 				parts.put(HouseKit.unit_box(), Transform3D(Basis.from_scale(Vector3(0.06, p.y - g, 0.06)), Vector3(x, (p.y + g) / 2.0, z)), false, leg, Color.WHITE)
 		prev = p
-	for k in 3:
-		var bz := -44.0 - k * 0.5
-		var g2 := Heightfield.height(13.6, bz)
-		Props._add(node, P.box(0.08, 0.12, 0.7), rail, Vector3(x + 0.2 * k, g2 + 0.1, bz), Vector3(0.3 * k, 0.4 * k, 0.2))
+	if not runs:
+		for k in 3:
+			var bz := -44.0 - k * 0.5
+			var g2 := Heightfield.height(13.6, bz)
+			Props._add(node, P.box(0.08, 0.12, 0.7), rail, Vector3(x + 0.2 * k, g2 + 0.1, bz), Vector3(0.3 * k, 0.4 * k, 0.2))
 	parts.flush()
 
 static func props(root: Node3D) -> void:
@@ -175,7 +192,9 @@ static func props(root: Node3D) -> void:
 			"cliffs_lemon": o = lemon_tree(int(absf(pr.x * 7.0)))
 			"cliffs_pergola": o = pergola(float(pr.w), float(pr.d), int(absf(pr.x * 3.0 + pr.z)))
 			"cliffs_cart": o = cart()
+			"cliffs_ruin": o = ruin(float(pr.w), float(pr.d), int(absf(pr.x * 5.0 + pr.z)))
 		if o == null: continue
+		if pr.get("afloat", false): pos.y = Heightfield.WATER_Y - 0.52
 		o.position = pos
 		o.rotation.y = float(pr.get("r", 0.0))
 		o.name = "%s_model" % pr.get("id", pr.kind)
@@ -244,6 +263,39 @@ static func pergola(w: float, d: float, seed: int) -> Node3D:
 		parts.put(blob, Transform3D(Basis(Vector3.UP, rng.randf() * TAU) * Basis.from_scale(Vector3(0.3, 0.12, 0.24)), Vector3(x, 0.93 + rng.randf_range(0.0, 0.06), z)), false, leaf, col)
 	parts.flush()
 	return g
+
+static func ruin(w: float, d: float, seed: int) -> Node3D:
+	var g := Node3D.new()
+	var rng := RandomNumberGenerator.new()
+	rng.seed = seed
+	var stone := P.stone("a59a88")
+	var dark := P.stone("8a8070")
+	var along_x := w >= d
+	var length := w if along_x else d
+	var n := maxi(1, int(roundf(length / 0.42)))
+	for row in 3:
+		for i in n:
+			if row == 2 and rng.randf() < 0.45: continue
+			if row == 1 and rng.randf() < 0.15: continue
+			var t := -length / 2.0 + (i + 0.5) * length / n + (0.1 if row % 2 == 1 else 0.0)
+			if absf(t) > length / 2.0 - 0.12: continue
+			var h := 0.3 + rng.randf() * 0.06
+			var size := Vector3(length / n - 0.03, h - 0.02, minf(w, d) + 0.04)
+			var pos := Vector3(t, 0.16 + row * 0.32, 0.0)
+			if not along_x:
+				size = Vector3(size.z, size.y, size.x)
+				pos = Vector3(0.0, pos.y, t)
+			Props._add(g, P.rbox(size.x, size.y, size.z, 0.04), dark if rng.randf() < 0.3 else stone, pos, Vector3(0, rng.randf_range(-0.05, 0.05), 0))
+	return g
+
+static func plaque(root: Node3D) -> void:
+	if not Data.world_flags.get("cliffs_plaque", false): return
+	var g := Node3D.new()
+	g.name = "cliffs_plaque"
+	Props._add(g, P.box(0.62, 0.42, 0.05), P.stone("4f535b"), Vector3(0, 0, 0))
+	for i in 3: Props._add(g, P.box(0.44 - i * 0.08, 0.035, 0.06), P.mat("e8e2d6"), Vector3(0, 0.1 - i * 0.09, 0))
+	g.position = Vector3(-7.2, 11.6, -19.72)
+	root.add_child(g)
 
 static func cart() -> Node3D:
 	var g := Node3D.new()

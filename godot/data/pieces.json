@@ -188,6 +188,23 @@
    "desc": "Stack them to build upward."
   },
   {
+   "id": "drystoneWall",
+   "name": "Dry-Stone Wall",
+   "icon": "🪨",
+   "cat": "structure",
+   "size": [
+    1,
+    1
+   ],
+   "h": 1,
+   "walkable": true,
+   "cost": {
+    "stone": 1
+   },
+   "color": "#a8a297",
+   "desc": "Stones fitted together without mortar, the way the terraces were built. Stack them for a taller wall."
+  },
+  {
    "id": "sandbags",
    "name": "Sandbags",
    "icon": "🧱",
@@ -1067,6 +1084,61 @@
    "color": "#5cb85c",
    "colorable": true,
    "desc": "Planted big, so it looks grown already. Nobody asks how."
+  },
+  {
+   "id": "vinePergola",
+   "name": "Vine Pergola",
+   "icon": "🍇",
+   "cat": "outdoor",
+   "provides": [
+    "green"
+   ],
+   "size": [
+    1,
+    1
+   ],
+   "h": 2.3,
+   "box": [
+    0.4,
+    0.4,
+    0.6,
+    0.6
+   ],
+   "cost": {
+    "wood": 1,
+    "cliffs_vine": 1
+   },
+   "color": "#6f9a3c",
+   "desc": "A chestnut post and a cane frame with a vine trained over it. Green on a terrace, grapes by September."
+  },
+  {
+   "id": "lemonTree",
+   "name": "Lemon Tree",
+   "icon": "🍋",
+   "cat": "outdoor",
+   "provides": [
+    "green"
+   ],
+   "size": [
+    1,
+    1
+   ],
+   "h": 2.2,
+   "box": [
+    0.35,
+    0.35,
+    0.65,
+    0.65
+   ],
+   "interact": "pick",
+   "gives": {
+    "cliffs_lemon": 2
+   },
+   "cost": {
+    "cliffs_lemon_sapling": 1
+   },
+   "color": "#4f8a3a",
+   "desc": "A young lemon tree, already fruiting. Pick its lemons once a day."
   },
   {
    "id": "flowerBed",

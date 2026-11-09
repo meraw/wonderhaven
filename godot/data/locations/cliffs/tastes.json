@@ -1,0 +1,114 @@
+{
+ "_comment": "Serenza's villagers' tastes (Tastes, data/tastes.json; merged from this pack).",
+ "tastes": {
+  "cliffs_marta": {
+   "near": "cliffs_square",
+   "pieces": [
+    "signpost",
+    "enamelSign",
+    "poweredLamp",
+    "streetlight"
+   ],
+   "colours": [
+    "#3fb5a3",
+    "#b59cff"
+   ],
+   "line": "A {piece}! That's going straight into the brochure.",
+   "gossip": "Overheard: Marta Bonanni photographs every signpost on the coast. Teal and purple are her colours: 'very now'."
+  },
+  "cliffs_settimio": {
+   "near": "cliffs_cellarDoor",
+   "pieces": [
+    "drystoneWall",
+    "vinePergola",
+    "stoneBlock"
+   ],
+   "colours": [
+    "#a8a297",
+    "#cfc8bd"
+   ],
+   "line": "Hm. A {piece}. That's proper work, that is.",
+   "gossip": "Overheard: Presidente Crovara pats every dry-stone wall he passes, like a dog. Stone grey is the only colour he trusts."
+  },
+  "cliffs_mario": {
+   "near": [
+    9.5,
+    -19.5
+   ],
+   "pieces": [
+    "gear",
+    "shaft",
+    "lever",
+    "workbench"
+   ],
+   "colours": [
+    "#e85d75",
+    "#c0392b"
+   ],
+   "line": "Ooh, a {piece}. Zia Pina would approve. She's a cart.",
+   "gossip": "Overheard: Trenin can't walk past a gear without turning it. He paints everything cart red."
+  },
+  "cliffs_aurelio": {
+   "near": "cliffs_rocks",
+   "pieces": [
+    "bench",
+    "flowerBed",
+    "statue"
+   ],
+   "colours": [
+    "#ffffff",
+    "#f4f1e8"
+   ],
+   "line": "A {piece}. The Lord sees it, and so do I. Thank you.",
+   "gossip": "Overheard: Don Aurelio blesses every new bench in the parish. White, he says, is the colour of a clean conscience and a dry towel."
+  },
+  "cliffs_giacomo": {
+   "near": [
+    0.0,
+    30.0
+   ],
+   "pieces": [
+    "railing",
+    "pontoon",
+    "bridgeDeck",
+    "signpost"
+   ],
+   "colours": [
+    "#2f5fa8",
+    "#6cc4ff"
+   ],
+   "line": "A {piece}! Shipshape. Reminds me of Valparaiso.",
+   "gossip": "Overheard: Capo Horn judges a harbour by its railings. Sea blue, of course. 'Any other colour sinks.'"
+  },
+  "cliffs_nunzia": {
+   "near": "cliffs_square",
+   "pieces": [
+    "table",
+    "chair",
+    "lemonTree",
+    "roof"
+   ],
+   "colours": [
+    "#ffd166",
+    "#f2d03b"
+   ],
+   "line": "A {piece}! My guests will love it. I love it. Coffee?",
+   "gossip": "Overheard: Nunzia counts tables the way other people count sheep. Lemon yellow, please."
+  },
+  "cliffs_fulvio": {
+   "near": "cliffs_platform",
+   "pieces": [
+    "fence",
+    "gardenPath",
+    "pillar",
+    "signpost"
+   ],
+   "colours": [
+    "#4a4a6a",
+    "#7e8189"
+   ],
+   "line": "A {piece}. Within the regulations. I'll note it.",
+   "gossip": "Overheard: Ragionier Sturlese measures every fence post he sees. Slate grey is the only colour in the landscape rules."
+  }
+ }
+}
