@@ -1,0 +1,183 @@
+{
+ "_comment": "Liolivato's shops.",
+ "shops": {
+  "olive_village_rosa": {
+   "name": "Rosa's Osteria",
+   "label": "Something to eat",
+   "greet": "Sit down. The farinata's just out of the oven, and the payphone's broken.",
+   "requires": {
+    "quests": [
+     "olive_village_welcome"
+    ]
+   },
+   "buys": {
+    "olive_village_basil": 3,
+    "olive_village_mullet": 5,
+    "olive_village_scorpionfish": 6,
+    "olive_village_cuttlefish": 5,
+    "olive_village_moray": 12
+   },
+   "stock": [
+    {
+     "items": {
+      "olive_village_sardenaira": 1
+     },
+     "price": 6
+    },
+    {
+     "items": {
+      "olive_village_stuffed": 1
+     },
+     "price": 5
+    },
+    {
+     "items": {
+      "olive_village_farinata": 1
+     },
+     "price": 4
+    },
+    {
+     "items": {
+      "olive_village_beans": 1
+     },
+     "price": 5
+    }
+   ]
+  },
+  "olive_village_giobatta": {
+   "name": "The Everything Shop",
+   "label": "Let's trade",
+   "greet": "Hardware, tobacco, stamps, haircuts and the town seal. Which cap shall I put on?",
+   "requires": {
+    "quests": [
+     "olive_village_welcome"
+    ]
+   },
+   "buys": {},
+   "stock": [
+    {
+     "items": {
+      "metal": 2
+     },
+     "price": 20
+    },
+    {
+     "items": {
+      "metal": 5
+     },
+     "price": 48
+    },
+    {
+     "items": {
+      "crystal": 1
+     },
+     "price": 18
+    },
+    {
+     "items": {
+      "clay": 3
+     },
+     "price": 15
+    },
+    {
+     "items": {
+      "stone": 5
+     },
+     "price": 16
+    },
+    {
+     "items": {
+      "wood": 5
+     },
+     "price": 16
+    },
+    {
+     "blueprint": "pillar",
+     "price": 20
+    },
+    {
+     "blueprint": "stoneArch",
+     "price": 30
+    },
+    {
+     "blueprint": "bench",
+     "price": 20
+    },
+    {
+     "blueprint": "fence",
+     "price": 15
+    },
+    {
+     "blueprint": "enamelSign",
+     "price": 25
+    },
+    {
+     "blueprint": "railing",
+     "price": 15
+    }
+   ]
+  },
+  "olive_village_ilario": {
+   "name": "Fuco's Honey",
+   "label": "Honey and candles",
+   "greet": "Broom honey, chestnut honey, candles. The bees made them. I watched.",
+   "requires": {
+    "quests": [
+     "olive_village_welcome"
+    ]
+   },
+   "buys": {
+    "flowers": 2
+   },
+   "stock": [
+    {
+     "items": {
+      "olive_village_honey": 1
+     },
+     "price": 4
+    },
+    {
+     "items": {
+      "olive_village_chestnut_honey": 1
+     },
+     "price": 6
+    },
+    {
+     "items": {
+      "olive_village_candle": 2
+     },
+     "price": 5
+    }
+   ]
+  },
+  "olive_village_giacomo": {
+   "name": "Gambero's Nets",
+   "label": "Let's trade",
+   "greet": "Sailcloth, and I'll take whatever the sea gives you that isn't fish.",
+   "requires": {
+    "quests": [
+     "olive_village_welcome"
+    ]
+   },
+   "buys": {
+    "olive_village_flipflop": 1,
+    "olive_village_deckchair": 2,
+    "olive_village_soggy_guide": 1
+   },
+   "stock": [
+    {
+     "items": {
+      "fabric": 3
+     },
+     "price": 9
+    },
+    {
+     "items": {
+      "fabric": 6
+     },
+     "price": 17
+    }
+   ]
+  }
+ }
+}

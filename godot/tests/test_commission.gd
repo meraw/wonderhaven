@@ -23,11 +23,11 @@ func _world(placements: Array) -> Dictionary:
 	var F: Dictionary = Data.layout.get("fountain", {})
 	var targets: Array = [{"id": "fountain", "cell": F.inlet.cell, "side": F.inlet.side, "type": "water"}] if F.has("inlet") else []
 	var m := Mechanics.solve(placements, targets)
-	var path := func(zone_id: String) -> Dictionary:
+	var path := func(zone_id: String, only: Dictionary = {}) -> Dictionary:
 		var w := WalkWorld.new(statics, func(_f): return false)
 		w.floors = WorldStatics.floors()
 		w.surfaces = BuildGrid.surfaces_for(placements)
-		return Validate.path_across(Data.zone(zone_id), w)
+		return Validate.path_across(Data.zone(zone_id), w, only)
 	return {"placements": placements, "lamps": m.lamps, "fed": m.fed, "mech": m, "path": path}
 
 func _ancestors(qid: String) -> Array:

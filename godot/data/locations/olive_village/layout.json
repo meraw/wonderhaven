@@ -1010,7 +1010,7 @@
    "minI": 20,
    "maxI": 24,
    "minK": 58,
-   "maxK": 71,
+   "maxK": 72,
    "endpoints": {
     "a": {
      "minI": 20,
@@ -1021,8 +1021,8 @@
     "b": {
      "minI": 20,
      "maxI": 24,
-     "minK": 71,
-     "maxK": 71
+     "minK": 72,
+     "maxK": 72
     }
    }
   },
@@ -1054,7 +1054,9 @@
      "minK": -20,
      "maxK": -20
     }
-   }
+   },
+   "seal": 16.6,
+   "floorY": 15.0
   },
   {
    "id": "olive_village_house",
@@ -1064,8 +1066,9 @@
    "minK": 9,
    "maxK": 14,
    "unlock": {
-    "quest": "olive_village_welcome"
-   }
+    "quest": "olive_village_roof"
+   },
+   "floorY": 10.0
   },
   {
    "id": "olive_village_plot",
@@ -1074,6 +1077,7 @@
    "maxI": -20,
    "minK": 16,
    "maxK": 20,
+   "floorY": 10.0,
    "unlock": {
     "flag": "olive_village_plot"
    },
@@ -1091,7 +1095,8 @@
    "minI": -19,
    "maxI": -15,
    "minK": 15,
-   "maxK": 19
+   "maxK": 19,
+   "floorY": 10.0
   },
   {
    "id": "olive_village_hives",
@@ -1099,7 +1104,8 @@
    "minI": 48,
    "maxI": 57,
    "minK": -59,
-   "maxK": -54
+   "maxK": -54,
+   "floorY": 25.2
   },
   {
    "id": "olive_village_steps",
@@ -1121,7 +1127,8 @@
      "minK": 29,
      "maxK": 29
     }
-   }
+   },
+   "floorY": 4.0
   },
   {
    "id": "olive_village_carpet",
@@ -1129,7 +1136,51 @@
    "minI": -11,
    "maxI": 0,
    "minK": -6,
-   "maxK": 13
+   "maxK": 13,
+   "endpoints": {
+    "a": {
+     "minI": -2,
+     "maxI": 0,
+     "minK": 11,
+     "maxK": 13
+    },
+    "b": {
+     "minI": -11,
+     "maxI": -10,
+     "minK": -5,
+     "maxK": -4
+    }
+   },
+   "floorY": 10.0
+  },
+  {
+   "id": "olive_village_davide",
+   "name": "The empty house",
+   "minI": -12,
+   "maxI": -10,
+   "minK": -20,
+   "maxK": -18,
+   "interior": true,
+   "floorY": 13.8
+  },
+  {
+   "id": "olive_village_church_square",
+   "name": "The church square",
+   "minI": -38,
+   "maxI": -29,
+   "minK": -24,
+   "maxK": -16,
+   "open": true,
+   "floorY": 19.5
+  },
+  {
+   "id": "olive_village_cove",
+   "name": "The cove",
+   "minI": 25,
+   "maxI": 35,
+   "minK": 55,
+   "maxK": 59,
+   "open": true
   },
   {
    "id": "olive_village_piazza",
@@ -1138,7 +1189,8 @@
    "maxI": -12,
    "minK": -14,
    "maxK": 2,
-   "open": true
+   "open": true,
+   "floorY": 13.8
   }
  ],
  "nodes": [
@@ -1276,6 +1328,241 @@
    "x": 44.0,
    "z": 60.0,
    "facing": 0
+  },
+  {
+   "id": "olive_village_basil0",
+   "kind": "flowers",
+   "x": 30.5,
+   "z": 8.0,
+   "gives": {
+    "olive_village_basil": 2
+   },
+   "label": "Pick basil"
+  },
+  {
+   "id": "olive_village_basil1",
+   "kind": "flowers",
+   "x": 26.0,
+   "z": -6.0,
+   "gives": {
+    "olive_village_basil": 2
+   },
+   "label": "Pick basil"
+  },
+  {
+   "id": "olive_village_basil2",
+   "kind": "flowers",
+   "x": -14.0,
+   "z": 3.5,
+   "gives": {
+    "olive_village_basil": 2
+   },
+   "label": "Pick basil"
+  },
+  {
+   "id": "olive_village_basil3",
+   "kind": "flowers",
+   "x": -36.0,
+   "z": -1.0,
+   "gives": {
+    "olive_village_basil": 2
+   },
+   "label": "Pick basil"
+  },
+  {
+   "id": "olive_village_brambles0",
+   "kind": "chop",
+   "x": 30.0,
+   "z": -50.0,
+   "gives": {
+    "wood": 1
+   },
+   "label": "Clear the brambles",
+   "once": true
+  },
+  {
+   "id": "olive_village_brambles1",
+   "kind": "chop",
+   "x": 44.0,
+   "z": -46.0,
+   "gives": {
+    "wood": 1
+   },
+   "label": "Clear the brambles",
+   "once": true
+  },
+  {
+   "id": "olive_village_brambles2",
+   "kind": "chop",
+   "x": 60.0,
+   "z": -56.0,
+   "gives": {
+    "wood": 1
+   },
+   "label": "Clear the brambles",
+   "once": true
+  },
+  {
+   "id": "olive_village_brambles3",
+   "kind": "chop",
+   "x": 68.0,
+   "z": -40.0,
+   "gives": {
+    "wood": 1
+   },
+   "label": "Clear the brambles",
+   "once": true
+  },
+  {
+   "id": "olive_village_flowers5",
+   "kind": "flowers",
+   "x": 40.0,
+   "z": -38.0
+  },
+  {
+   "id": "olive_village_flowers6",
+   "kind": "flowers",
+   "x": 54.0,
+   "z": -44.0
+  },
+  {
+   "id": "olive_village_flowers7",
+   "kind": "flowers",
+   "x": 36.0,
+   "z": -58.0
+  },
+  {
+   "id": "olive_village_flowers8",
+   "kind": "flowers",
+   "x": -62.0,
+   "z": 12.0
+  },
+  {
+   "id": "olive_village_flowers9",
+   "kind": "flowers",
+   "x": -55.0,
+   "z": 40.0
+  },
+  {
+   "id": "olive_village_swarm",
+   "kind": "forage",
+   "x": -38.2,
+   "z": -33.4,
+   "item": "olive_village_swarm",
+   "gives": {
+    "olive_village_swarm": 1
+   },
+   "label": "Coax the swarm into the box",
+   "hours": [
+    5,
+    9
+   ],
+   "flag": "olive_village_swarm_ready",
+   "once": true
+  },
+  {
+   "id": "olive_village_lost_cap",
+   "kind": "fragment",
+   "x": -29.5,
+   "z": -22.5,
+   "gives": {
+    "olive_village_cap": 1
+   },
+   "flag": "olive_village_lost_cap_asked",
+   "once": true,
+   "name": "the Sindaco's fourth cap",
+   "look": "hat"
+  },
+  {
+   "id": "olive_village_lost_guidebook",
+   "kind": "fragment",
+   "x": 19.0,
+   "z": -45.0,
+   "gives": {
+    "olive_village_guidebook": 1
+   },
+   "flag": "olive_village_lost_guidebook_asked",
+   "once": true,
+   "name": "Klaus's guidebook, full of bookmarks",
+   "look": "page"
+  },
+  {
+   "id": "olive_village_lost_glove",
+   "kind": "fragment",
+   "x": 44.0,
+   "z": -21.5,
+   "gives": {
+    "olive_village_glove": 1
+   },
+   "flag": "olive_village_lost_glove_asked",
+   "once": true,
+   "name": "Bastian's grafting glove",
+   "look": "glove"
+  },
+  {
+   "id": "olive_village_lost_binoculars",
+   "kind": "fragment",
+   "x": 40.0,
+   "z": 58.0,
+   "gives": {
+    "olive_village_binoculars": 1
+   },
+   "flag": "olive_village_lost_binoculars_asked",
+   "once": true,
+   "name": "Sirena's binoculars",
+   "look": "glasses"
+  },
+  {
+   "id": "olive_village_lost_key",
+   "kind": "fragment",
+   "x": 31.5,
+   "z": -51.5,
+   "gives": {
+    "olive_village_key": 1
+   },
+   "flag": "olive_village_lost_key_asked",
+   "once": true,
+   "name": "the key to a house nobody lives in",
+   "look": "keys"
+  },
+  {
+   "id": "olive_village_lost_radio",
+   "kind": "fragment",
+   "x": 45.5,
+   "z": -47.5,
+   "gives": {
+    "olive_village_radio": 1
+   },
+   "flag": "olive_village_lost_radio_asked",
+   "once": true,
+   "name": "a transistor radio from the sixties",
+   "look": "walkman"
+  },
+  {
+   "id": "olive_village_lost_postcard",
+   "kind": "fragment",
+   "x": 61.5,
+   "z": -57.5,
+   "gives": {
+    "olive_village_postcard": 1
+   },
+   "flag": "olive_village_lost_postcard_asked",
+   "once": true,
+   "name": "an old postcard from Tonnarella",
+   "look": "card"
+  },
+  {
+   "id": "olive_village_lost_tinboat",
+   "kind": "fragment",
+   "x": 66.5,
+   "z": -41.5,
+   "gives": {
+    "olive_village_tinboat": 1
+   },
+   "flag": "olive_village_lost_tinboat_asked",
+   "once": true,
+   "name": "a child's tin boat",
+   "look": "trophy"
   }
  ],
  "features": [
@@ -1352,11 +1639,11 @@
    50.0
   ],
   "mule1": [
-   20.2,
+   20.5,
    38.6
   ],
   "mule2": [
-   19.7,
+   20.5,
    27.0
   ],
   "mule3": [
@@ -1439,8 +1726,12 @@
    40.0,
    -10.4
   ],
+  "fallenStair": [
+   40.5,
+   -15.0
+  ],
   "fallenTop": [
-   40.0,
+   40.5,
    -21.5
   ],
   "tp2": [
@@ -1522,6 +1813,70 @@
   "yourHouse": [
    -22.25,
    8.6
+  ],
+  "westRow": [
+   -27.5,
+   9.0
+  ],
+  "ginaDoor": [
+   -31.0,
+   7.6
+  ],
+  "deliaDoor": [
+   -39.0,
+   8.1
+  ],
+  "swarmSpot": [
+   -38.5,
+   -32.8
+  ],
+  "pebbles": [
+   26.0,
+   56.8
+  ],
+  "landing": [
+   20.6,
+   57.4
+  ],
+  "washIn": [
+   -8.2,
+   -2.0
+  ],
+  "washSide": [
+   -8.2,
+   -4.0
+  ],
+  "piazzaN": [
+   -20.0,
+   -11.0
+  ],
+  "piazzaS": [
+   -20.0,
+   -1.5
+  ],
+  "piazzaW": [
+   -25.5,
+   -6.0
+  ],
+  "piazzaNW": [
+   -24.5,
+   -10.5
+  ],
+  "piazzaSW": [
+   -24.5,
+   -2.0
+  ],
+  "piazzaSE": [
+   -15.5,
+   -2.0
+  ],
+  "piazzaNE": [
+   -15.5,
+   -12.5
+  ],
+  "emptyBack": [
+   -9.4,
+   -17.6
   ]
  },
  "nav_edges": [
@@ -1631,6 +1986,10 @@
   ],
   [
    "fallenFoot",
+   "fallenStair"
+  ],
+  [
+   "fallenStair",
    "fallenTop"
   ],
   [
@@ -1712,6 +2071,75 @@
   [
    "sandals",
    "yourHouse"
+  ],
+  [
+   "yourHouse",
+   "westRow"
+  ],
+  [
+   "westRow",
+   "ginaDoor"
+  ],
+  [
+   "ginaDoor",
+   "deliaDoor"
+  ],
+  [
+   "westLane",
+   "swarmSpot"
+  ],
+  [
+   "beach",
+   "pebbles"
+  ],
+  [
+   "beach",
+   "landing"
+  ],
+  [
+   "wash",
+   "washIn"
+  ],
+  [
+   "wash",
+   "washSide"
+  ],
+  [
+   "piazza",
+   "piazzaN"
+  ],
+  [
+   "piazza",
+   "piazzaS"
+  ],
+  [
+   "piazza",
+   "piazzaW"
+  ],
+  [
+   "piazza",
+   "piazzaNW"
+  ],
+  [
+   "piazza",
+   "piazzaSW"
+  ],
+  [
+   "piazza",
+   "piazzaSE"
+  ],
+  [
+   "piazza",
+   "piazzaNE"
+  ],
+  [
+   "olive_village_empty_house:spot",
+   "emptyBack"
+  ],
+  [
+   "mule1",
+   "mule2",
+   "olive_village_steps_done"
   ]
  ],
  "paths": [
@@ -1777,6 +2205,13 @@
     -62.0
    ]
   ]
+ ],
+ "crossings": [
+  {
+   "a": "mule1",
+   "b": "mule2",
+   "zone": "olive_village_steps"
+  }
  ],
  "floors": [
   {
@@ -1909,6 +2344,246 @@
    "walkable": false
   }
  ],
+ "fish": [
+  {
+   "id": "olive_village_mullet",
+   "name": "red mullet",
+   "weight": 4.0,
+   "pull": 0.5,
+   "item": "olive_village_mullet"
+  },
+  {
+   "id": "olive_village_scorpionfish",
+   "name": "scorpionfish",
+   "weight": 2.0,
+   "pull": 0.6,
+   "item": "olive_village_scorpionfish"
+  },
+  {
+   "id": "olive_village_cuttlefish",
+   "name": "cuttlefish",
+   "weight": 2.0,
+   "pull": 0.4,
+   "item": "olive_village_cuttlefish"
+  },
+  {
+   "id": "olive_village_moray",
+   "name": "moray eel",
+   "weight": 0.5,
+   "pull": 0.9,
+   "item": "olive_village_moray"
+  },
+  {
+   "id": "olive_village_flipflop",
+   "name": "flip-flop",
+   "weight": 1.5,
+   "pull": 0.2,
+   "item": "",
+   "caught": "A flip-flop. Somebody went home with one foot bare."
+  },
+  {
+   "id": "olive_village_deckchair",
+   "name": "deckchair",
+   "weight": 0.8,
+   "pull": 0.5,
+   "item": "",
+   "caught": "Half a deckchair. The comfortable half is still out there."
+  },
+  {
+   "id": "olive_village_soggy_guide",
+   "name": "soggy guidebook",
+   "weight": 0.8,
+   "pull": 0.3,
+   "item": "",
+   "caught": "A soggy German guidebook. It recommends this very spot."
+  }
+ ],
+ "hangouts": [
+  {
+   "id": "olive_village_piazza",
+   "name": "The piazza",
+   "at": "on the piazza",
+   "x": -20.0,
+   "z": -6.0,
+   "r": 3.0,
+   "needs": [
+    "seat",
+    "light"
+   ],
+   "who": "olive_village_rosa"
+  },
+  {
+   "id": "olive_village_osteria",
+   "name": "Rosa's door",
+   "at": "outside Rosa's osteria",
+   "x": -17.0,
+   "z": -13.0,
+   "r": 2.0,
+   "needs": [
+    "seat",
+    "shelter"
+   ],
+   "who": "olive_village_rosa"
+  },
+  {
+   "id": "olive_village_washhouse",
+   "name": "The wash-house",
+   "at": "by the wash-house",
+   "x": -9.0,
+   "z": 1.0,
+   "r": 2.0,
+   "needs": [
+    "seat",
+    "green"
+   ],
+   "who": "olive_village_gina"
+  },
+  {
+   "id": "olive_village_bridge",
+   "name": "The bridge",
+   "at": "at the bridge's village end",
+   "x": -1.5,
+   "z": 11.0,
+   "r": 2.0,
+   "needs": [
+    "light",
+    "seat"
+   ],
+   "who": "olive_village_giobatta"
+  },
+  {
+   "id": "olive_village_church",
+   "name": "The church steps",
+   "at": "on the church square",
+   "x": -32.0,
+   "z": -21.0,
+   "r": 2.5,
+   "needs": [
+    "seat",
+    "green"
+   ],
+   "who": "olive_village_delia"
+  },
+  {
+   "id": "olive_village_cove",
+   "name": "The cove",
+   "at": "on the pebbles at the cove",
+   "x": 27.0,
+   "z": 56.5,
+   "r": 2.0,
+   "needs": [
+    "seat",
+    "shelter"
+   ],
+   "who": "olive_village_marisa"
+  }
+ ],
+ "naps": {
+  "paper": "At the wash-house",
+  "gags": {
+   "haircut": {
+    "weight": 3,
+    "lines": [
+     "You wake up with a new haircut. The Sindaco was passing with his scissors and couldn't help himself.",
+     "Somebody has trimmed your fringe in the night. A comb lies on the bench, and the Sindaco is whistling across the square.",
+     "Your hair is shorter on one side. On the other side, a note: 'Back after the bells. G.'"
+    ]
+   },
+   "cat": {
+    "weight": 3,
+    "lines": [
+     "A cat has slept on your chest all night, and it has no plans to move.",
+     "You wake under a warm weight: a cat, purring, settled in for the morning.",
+     "Three cats share the bench with you. You have the smallest part of it."
+    ]
+   },
+   "gull": {
+    "weight": 2,
+    "lines": [
+     "You wake just in time to see a gull fly off with the farinata you'd saved for breakfast.",
+     "A gull is standing on your knee, eating your breakfast. It looks at you as if you're the one in the way.",
+     "Something tugs at your bag: a gull, leaving with the last of your farinata."
+    ]
+   },
+   "stared": {
+    "weight": 3,
+    "visual": true
+   },
+   "rain": {
+    "visual": true
+   }
+  }
+ },
+ "paper": {
+  "done": [
+   "{title}: done, says Nonna Gina; Nonna Delia says 'it could have gone worse'",
+   "{title} finished. Gina told everyone at the wash-house before it was",
+   "The Geometra finishes {title}. Delia checked the corners twice"
+  ],
+  "built": [
+   "{n} new pieces yesterday, counts Gina; Delia counted one fewer",
+   "The Geometra put up {n} pieces. The cats have already tried all of them",
+   "{n} new pieces in Liolivato. The Sandals photographed every one"
+  ],
+  "opened": [
+   "The Sindaco opened {what} {place}, in his best cap",
+   "{What} {place}: the Sindaco cut the ribbon, then gave the ribbon a trim",
+   "Ribbon cut on {what} {place}. The bells rang, a little late"
+  ],
+  "quiet": [
+   "Nothing built yesterday. Gina had to talk about the weather",
+   "Quiet day. Delia says that's how she likes them",
+   "Slow news at the wash-house: a cat sat in a basin"
+  ],
+  "approval": "",
+  "verdict": "Nonna Delia's verdict on the new build: {grade}.",
+  "regrown": "Overnight the chestnuts, the broom and the rubble came back."
+ },
+ "inauguration": {
+  "speaker": "olive_village_giobatta",
+  "place": "in Liolivato",
+  "open": [
+   "Liolivato! Tonight I give you {what} {place}. Hats off. Not mine, I have four.",
+   "Citizens, all thirty-eight of you: behold {what} {place}.",
+   "Gather round {what} {place}, and mind the cats."
+  ],
+  "body": {
+   "need": [
+    "For years you told me: \u201c{noticed}\u201d Well, here it is.",
+    "\u201c{noticed}\u201d Not any more. Your Sindaco listens."
+   ],
+   "own": [
+    "Right outside my barber shop. Very convenient.",
+    "Where I can see it from my chair, between customers."
+   ],
+   "art": [
+    "It has a certain... look. The Sandals will photograph it.",
+    "Bold. Very bold. I approve, as your Sindaco."
+   ],
+   "tall": [
+    "Tall! You can see it from the bell tower.",
+    "Taller than my ladder, and I have a long ladder."
+   ],
+   "colour": [
+    "What colours. The nonnas are speechless, which never happens.",
+    "Such colour. I'll wear my brightest cap to match."
+   ],
+   "many": [
+    "{n} pieces in a day. The Geometra doesn't sleep. On a bed, at least."
+   ],
+   "single": [
+    "One {piece}. Small, but ours."
+   ],
+   "plain": [
+    "It stands. In Liolivato, that's a good start."
+   ]
+  },
+  "close": [
+   "I'll put it on the sign. Not the number, the number's for people. Scissors!",
+   "My idea, of course. The Geometra held the ladder.",
+   "Remember this at the next election. Not that anyone else stands."
+  ]
+ },
  "props": [
   {
    "kind": "ruin_wall",

@@ -105,6 +105,7 @@ func test_every_nav_edge_can_be_walked():
 		var w := WalkWorld.new(statics, func(_f): return true)
 		w.floors = WorldStatics.floors()
 		for e in Data.layout.nav_edges:
+			if e.size() > 2: continue
 			var a: Array = Data.layout.nav_nodes[e[0]]
 			var b: Array = Data.layout.nav_nodes[e[1]]
 			t.ok(_walks(w, a, b) and _walks(w, b, a), "you can walk %s to %s and back" % [e[0], e[1]])
@@ -145,6 +146,10 @@ func test_build_sites_fit_their_jobs():
 		var w := WalkWorld.new([])
 		w.floors = WorldStatics.floors()
 		t.ok(not Validate.path_across(Data.zone("olive_village_steps"), w).get("ok", false), "a flight of the mule track has collapsed: Gambero's steps can't be climbed")
+		var pit := OV.pit_level()
+		var below := Heightfield.height(20.5, OV.MULE_GAP.y + 0.2) - pit
+		var above := Heightfield.height(20.2, OV.MULE_GAP.x - 0.2) - pit
+		t.ok(below > WalkWorld.STEP_UP and below < 1.25 and above > 1.4, "fall into the gap and you can jump out on the downhill side (%.2f m), never up the uphill one (%.2f m)" % [below, above])
 		t.ok(Validate.path_across(Data.zone("olive_village_wall"), w).get("ok", false), "the fallen terrace's wall has come down into a slope of rubble")
 		t.ok(not _walks(w, [30.0, -12.0], [30.0, -22.0]), "beside the gap the terrace wall still stands")
 		for id in ["olive_village_house", "olive_village_sunset", "olive_village_plot", "olive_village_hives"]:
@@ -199,3 +204,225 @@ func test_landmarks_and_trees():
 		t.ok(dry and level, "every tree is on dry land, and on the terraces it stands on a level tread, clear of the walls")
 		t.ok(off_sites, "no tree stands on a build site")
 		t.ok(Data.layout.props.filter(func(p): return p.kind == "olive_village_arch").size() == 3, "three covered passages arch over the alley from the bridge to the piazza"))
+
+func _pl(id: String, i: int, k: int, uid: int, y = null) -> Dictionary:
+	return {"id": id, "i": i, "k": k, "r": 0, "y": BuildGrid.ground_at(i, k) if y == null else float(y), "uid": uid}
+
+func test_shared_a_path_can_be_made_of_given_pieces():
+	_on(func():
+		var zone := {"minI": -24, "maxI": -20, "minK": 17, "maxK": 17,
+			"endpoints": {"a": {"minI": -24, "maxI": -24, "minK": 17, "maxK": 17}, "b": {"minI": -20, "maxI": -20, "minK": 17, "maxK": 17}}}
+		var w := WalkWorld.new([])
+		t.ok(Validate.path_across(zone, w).ok, "the bare ground can be walked from one end to the other")
+		var gap := {Vector2i(-24, 17): true, Vector2i(-23, 17): true, Vector2i(-21, 17): true, Vector2i(-20, 17): true}
+		t.ok(not Validate.path_across(zone, w, gap).ok, "but not on the given cells when one is missing")
+		gap[Vector2i(-22, 17)] = true
+		t.ok(Validate.path_across(zone, w, gap).ok, "and it can once the gap is filled")
+		var ctx := {"path": func(_zid, only): return Validate.path_across(zone, w, only)}
+		var tiles: Array = []
+		for i in [-24, -23, -21, -20]: tiles.append(_pl("gardenPath", i, 17, 100 + i))
+		var c := {"check": "path", "zone": "zz", "on": ["gardenPath"]}
+		ctx["placements"] = []
+		t.ok(not Commission.check(c, {}, [], ctx).ok, "with none of the paving pieces down at all, it fails too (it doesn't fall back to the bare ground)")
+		ctx["placements"] = tiles
+		t.ok(not Commission.check(c, {}, tiles, ctx).ok, "a commission's path of paving pieces fails with a tile missing")
+		tiles.append(_pl("gardenPath", -22, 17, 200))
+		ctx["placements"] = tiles
+		t.ok(Commission.check(c, {}, tiles, ctx).ok, "and passes when the paving runs end to end"))
+
+func test_shared_a_view_check_sees_past_open_ground_but_not_walls():
+	_on(func():
+		var seat := _pl("bench", -17, 17, 1)
+		var sea := Vector2(-16.5, 80.0)
+		t.ok(Commission.sees(seat, sea, [seat], 40.0), "from the Sandals' terrace a seat looks out to sea")
+		var wall := _pl("woodWall", -17, 19, 2)
+		t.ok(not Commission.sees(seat, sea, [seat, wall], 40.0), "a wall in front of the seat hides the sea")
+		var high := _pl("woodWall", -17, 19, 3, BuildGrid.ground_at(-17, 17) + 2.6)
+		t.ok(Commission.sees(seat, sea, [seat, high], 40.0), "something above eye height, like a pergola's roof, doesn't")
+		var behind := _pl("bench", -17, 7, 4)
+		t.ok(not Commission.sees(behind, sea, [behind], 40.0), "the Sandals' house stands between a seat behind it and the sea")
+		var c := {"check": "view", "of": ["bench"], "to": [sea.x, sea.y]}
+		t.ok(Commission.check(c, {}, [seat], {"placements": [seat]}).ok, "a view check passes for a seat with the sea in view")
+		t.ok(not Commission.check(c, {}, [seat, wall], {"placements": [seat, wall]}).ok, "and fails when it's walled in"))
+
+func test_shared_the_petal_carpet_and_the_beehive():
+	var carpet := Data.piece("petalCarpet")
+	var hive := Data.piece("beehive")
+	t.ok(carpet.get("walkable", false) and not carpet.get("solid", true) and carpet.get("colorable", false), "the petal carpet is a flat tile you walk on, in any colour")
+	t.ok(int(carpet.get("cost", {}).get("flowers", 0)) > 0, "it's laid with the flowers you gather")
+	t.ok(hive.get("solid", true) and int(hive.get("cost", {}).get("wood", 0)) > 0, "the beehive is a solid wooden box")
+	for id in ["petalCarpet", "beehive"]:
+		var mesh := PieceMeshes.make(id)
+		t.ok(mesh.get_child_count() > 0, "%s has a model" % id)
+		mesh.free()
+
+func _people() -> Array:
+	return Data.npcs.filter(func(n): return Data.npc_island(String(n.id)) == ID)
+
+func test_people_and_their_days():
+	_on(func():
+		var people := _people()
+		t.eq(people.size(), 14, "ten villagers live in Liolivato, and Davide's family of four comes at the festa")
+		var visitors: Array = people.filter(func(n): return n.has("present"))
+		t.ok(visitors.size() == 4 and visitors.all(func(n): return n.present == "olive_village_festa_night"), "the family is only there from the festa night on")
+		var sp: Dictionary = Data.layout.spawn
+		for n in people:
+			t.ok(Data.layout.nav_nodes.has(n.home), "%s has a home here (%s)" % [n.id, n.home])
+			t.ok(Chibi.sanitize(n.appearance).skin == n.appearance.skin and Chibi.sanitize(n.appearance).top == n.appearance.top, "%s keeps the colours and clothes written for them" % n.id)
+			var days: Array = [n.schedule]
+			for w in n.get("when", []): days.append(w.schedule)
+			for d in days:
+				for e in d:
+					t.ok(Data.layout.nav_nodes.has(e[2]), "%s's day takes them to a real spot (%s)" % [n.id, e[2]])
+					var at_spot: Array = Data.layout.nav_nodes.get(e[2], [0, 0])
+					t.ok(Vector2(at_spot[0] - sp.x, at_spot[1] - sp.z).length() > 1.5, "%s never stands where the ferry leaves you (%s)" % [n.id, e[2]])
+					t.ok(not Schedule.find_path("beach", e[2], {}).is_empty(), "%s can walk to %s" % [n.id, e[2]])
+		var at := func(npc: String, hour: float, flags: Dictionary) -> Dictionary: return Schedule.activity_at(Data.npc("olive_village_" + npc), hour * 60.0, flags)
+		var w := {"olive_village_tour": true, "olive_village_welcomed": true}
+		t.eq(at.call("giobatta", 23.0, {}).node, "pebbles", "the Sindaco waits on the pebbles for the new Geometra, at any hour")
+		t.eq(at.call("giobatta", 23.0, {"olive_village_tour": true}).node, "olive_village_barber:spot", "then in the barber shop with the papers")
+		t.eq(at.call("giobatta", 7.5, w).node, "churchDoor", "once you're settled he rings the bells in the morning")
+		t.eq(at.call("giacomo", 16.0, w).node, "olive_village_osteria:in", "Gambero plays cards at the osteria in the afternoon")
+		t.eq(at.call("ilario", 7.0, w).activity, "work", "Fuco is up with his bees at dawn, for the swarm")
+		var ready: Dictionary = w.duplicate(); ready["olive_village_festa_ready"] = true
+		t.eq(at.call("giobatta", 21.0, ready).node, "piazza", "on the festa's evening the Sindaco waits on the piazza for the band")
+		var night: Dictionary = ready.duplicate(); night["olive_village_festa_night"] = true
+		var piazza := ["piazza", "piazzaN", "piazzaS", "piazzaE", "piazzaW", "piazzaNW", "piazzaNE", "piazzaSW", "piazzaSE"]
+		var dancing := people.filter(func(n): return piazza.has(String(at.call(String(n.id).trim_prefix("olive_village_"), 21.0, night).node))).size()
+		t.ok(dancing >= 9, "after the festa the village comes to the piazza in the evening (%d)" % dancing)
+		var carpet: Dictionary = {}
+		for o in Data.quest("olive_village_festa").objectives:
+			for e in o.get("plan", []):
+				if String(e[2]) == "petalCarpet": carpet[Vector2i(int(e[0]), int(e[1]))] = true
+		for n in people:
+			var days: Array = [n.schedule]
+			for wd in n.get("when", []): days.append(wd.schedule)
+			for d in days:
+				for e in d:
+					var sp2: Array = Data.layout.nav_nodes[e[2]]
+					t.ok(float(e[1]) - float(e[0]) < 2.0 or not carpet.has(Vector2i(floori(sp2[0]), floori(sp2[1]))), "%s doesn't spend hours standing on the petal carpet's way (%s)" % [n.id, e[2]])
+		for flags in [{}, {"olive_village_tour": true}, w, {"olive_village_tour": true, "olive_village_welcomed": true, "olive_village_water_done": true}, ready, night]:
+			for h in 24:
+				var taken := {}
+				for n in people:
+					if n.has("present") and not flags.get(n.present, false): continue
+					var spot: String = at.call(String(n.id).trim_prefix("olive_village_"), h + 0.5, flags).node
+					t.ok(not taken.has(spot), "%s and %s don't share %s at %d:30" % [taken.get(spot, ""), n.id, spot, h])
+					taken[spot] = n.id)
+
+func test_requests_and_the_sign():
+	_on(func():
+		var mine: Array = Data.quests.filter(func(q): return Data.quest_island(String(q.id)) == ID)
+		t.eq(mine.size(), 17, "six main requests, three side requests and eight lost things")
+		var main: Array = mine.filter(func(q): return q.get("main", false))
+		var lost: Array = mine.filter(func(q): return String(q.id).contains("_lost_"))
+		t.eq(main.size(), 6, "six of them tell the main story")
+		t.eq(lost.size(), 8, "eight are lost things")
+		var total := 0
+		var without := 0
+		for q in mine:
+			var want := 0 if lost.has(q) else (4 if q.id == "olive_village_festa" else 1)
+			t.eq(int(q.rewards.get("meter", 0)), want, "%s brings %d to the sign" % [q.id, want])
+			total += int(q.rewards.get("meter", 0))
+			if q.get("main", false): without += int(q.rewards.get("meter", 0))
+		var m: Dictionary = LocationMeter.def(ID)
+		t.eq(LocationMeter.reading(m, total), "50 inhabitants", "everything together brings the sign to 50")
+		t.eq(LocationMeter.reading(m, without), "47 inhabitants", "without the side requests it stops at 47")
+		var by_at := {}
+		for u in m.milestones: by_at[int(u.at)] = u
+		t.ok(by_at[2].flags.has("olive_village_plot"), "at 40 a strip of terrace is yours")
+		t.ok(by_at[5].blueprints.has("beehive") and by_at[5].flags.has("olive_village_hive_plans"), "at 43 the beehive plans, so Fuco can ask about his swarm")
+		t.ok(by_at[8].flags.has("olive_village_own_olive"), "at 46 an olive tree of your own")
+		t.ok(by_at[12].requires.quests.has("olive_village_festa") and by_at[12].flags.has("olive_village_free_haircut"), "at 50 the honours, which wait for the festa")
+		var all := {}
+		for f in OV.SIGN: all[f] = true
+		t.eq(OV.sign_points(all), total, "the sign by the bridge counts the same as the meter")
+		var done := {}
+		for q in mine:
+			for f in q.rewards.get("flags", []): done[f] = true
+		t.eq(OV.sign_points(done), total, "and every request that counts sets the flag the sign reads")
+		Data.apply_world_flags({"olive_village_welcomed": true})
+		var sign: Array = Data.layout.features.filter(func(f): return f.id == "olive_village_sign")
+		t.eq(String(sign[0].text), "Liolivato. 39 inhabitants.", "signing for your house makes it 39, on the sign")
+		Data.apply_world_flags({})
+		t.eq(String(Data.layout.features.filter(func(f): return f.id == "olive_village_sign")[0].text), "Liolivato. 38 inhabitants.", "before that it reads 38")
+		var festa: Dictionary = Data.quest("olive_village_festa")
+		for id in ["olive_village_jetty", "olive_village_water", "olive_village_terrace", "olive_village_roof"]:
+			t.ok(festa.requires.quests.has(id), "the festa waits for %s" % id)
+		t.ok(Data.quest("olive_village_swarm").requires.flags.has("olive_village_hive_plans"), "Fuco asks about his swarm once you have the beehive plans")
+		var people: Array = _people().map(func(n): return String(n.id))
+		for q in mine:
+			t.ok(people.has(String(q.giver)), "%s is given by someone who lives here" % q.id)
+			for o in q.objectives:
+				if o.has("npc"): t.ok(people.has(String(o.npc)), "%s: %s is someone who lives here" % [q.id, o.npc])
+				if o.kind == "gather" and String(o.item).begins_with("olive_village_"):
+					t.ok(Data.layout.nodes.any(func(n): return n.get("gives", {}).has(o.item) or (n.kind == "forage" and n.get("item", "") == o.item)), "%s: something in Liolivato gives %s" % [q.id, o.item])
+				if o.kind == "commission": t.ok(not Data.zone(String(o.zone)).is_empty(), "%s builds on a real site (%s)" % [q.id, o.zone])
+		var swarm: Dictionary = Data.node_def("olive_village_swarm")
+		t.ok(swarm.hours.map(func(h): return int(h)) == [5, 9] and swarm.flag == "olive_village_swarm_ready", "the swarm can only be fetched at dawn, once Fuco has handed you the box")
+		t.ok(Data.quest("olive_village_swarm").objectives.any(func(o): return o.get("onDone", {}).get("flags", []).has("olive_village_swarm_ready")), "and he hands it over in the request")
+		for q in lost:
+			var key := String(q.id).trim_prefix("olive_village_lost_")
+			var node := Data.node_def("olive_village_lost_" + key)
+			t.ok(node.kind == "fragment" and node.get("once", false) and node.gives.has("olive_village_" + key), "%s lies somewhere to be found once" % key)
+			t.ok(q.onAccept.flags.has(String(node.flag)), "and turns up once %s has asked about it" % q.giver)
+		var near := func(n: Dictionary) -> Array:
+			var cells: Array = [_cell(n.x, n.z)]
+			if n.kind == "fish":
+				for dx in range(-4, 5):
+					for dz in range(-4, 5): cells.append(_cell(n.x + dx * STEP, n.z + dz * STEP))
+			return cells
+		var targets: Array = []
+		for n in Data.layout.nodes: targets.append_array(near.call(n))
+		var r := _reach(true, targets)
+		for n in Data.layout.nodes: t.ok(near.call(n).any(func(c): return r.found.has(c)), "%s can be reached on foot (a fishing spot from the shore beside it)" % n.id))
+
+func test_tastes_and_shops():
+	_on(func():
+		var villagers: Array = _people().filter(func(n): return not n.has("present"))
+		for n in villagers:
+			var tt := Tastes.of(String(n.id))
+			t.ok(not tt.is_empty() and Tastes.near_pos(String(n.id)) != Vector2.INF, "%s has tastes and a spot" % n.id)
+			for p in tt.get("pieces", []): t.ok(not Data.piece(String(p)).is_empty(), "%s likes a real piece (%s)" % [n.id, p])
+			for c in tt.get("colours", []):
+				t.ok(Data.palette.any(func(pc): return Color(String(pc)).is_equal_approx(Color(String(c)))), "%s likes a colour you can paint (%s)" % [n.id, c])
+		t.eq(Tastes.here().size(), villagers.size(), "in Liolivato only its own villagers' tastes count")
+		var mine: Array = Data.shops.shops.keys().filter(func(id): return String(id).begins_with("olive_village_"))
+		t.eq(mine.size(), 4, "four shops: Rosa's osteria, the Sindaco's everything shop, Fuco's honey and Gambero's nets")
+		var rosa: Dictionary = Shop.def("olive_village_rosa")
+		t.ok(rosa.buys.has("olive_village_basil") and rosa.buys.has("olive_village_mullet"), "Rosa buys basil for her pesto, and fish")
+		t.ok(Shop.def("olive_village_giobatta").stock.any(func(l): return l.get("items", {}).has("clay")), "there's no clay here: the Sindaco sells it"))
+
+func test_the_rebuilt_terrace_can_be_climbed():
+	_on(func():
+		var o: Dictionary = Data.quest("olive_village_terrace").objectives.filter(func(x): return x.has("plan"))[0]
+		var built: Array = []
+		for pl in Plans.lay_out(o.plan, Data.zone(String(o.zone)), []):
+			pl.uid = built.size() + 1
+			built.append(pl)
+		var w := WalkWorld.new(WorldStatics.build_statics(WorldStatics.generate_decor()), func(_f): return false)
+		w.floors = WorldStatics.floors()
+		w.surfaces = BuildGrid.surfaces_for(built)
+		var climb := {"minI": 38, "maxI": 42, "minK": -22, "maxK": -14,
+			"endpoints": {"a": {"minI": 38, "maxI": 42, "minK": -14, "maxK": -14}, "b": {"minI": 38, "maxI": 42, "minK": -21, "maxK": -21}}}
+		t.ok(Validate.sealed(Data.zone("olive_village_wall"), built).sealed, "the rebuilt wall closes the gap")
+		t.ok(Validate.path_across(climb, w).ok, "and its stairs take you up from the rubble onto the terrace")
+		var foot: Array = Data.layout.nav_nodes.fallenStair
+		var top: Array = Data.layout.nav_nodes.fallenTop
+		t.ok(_walks(w, foot, top) and _walks(w, top, foot), "straight up the stairs from the spot below to the spot on top, and back"))
+
+func test_the_rebuilt_flight_carries_the_mule_track():
+	_on(func():
+		var o: Dictionary = Data.quest("olive_village_steps").objectives.filter(func(x): return x.has("plan"))[0]
+		var built: Array = []
+		for pl in Plans.lay_out(o.plan, Data.zone(String(o.zone)), []):
+			pl.uid = built.size() + 1
+			built.append(pl)
+		var w := WalkWorld.new(WorldStatics.build_statics(WorldStatics.generate_decor()), func(_f): return true)
+		w.floors = WorldStatics.floors()
+		var a: Array = Data.layout.nav_nodes.mule1
+		var b: Array = Data.layout.nav_nodes.mule2
+		t.ok(not _walks(w, a, b), "before it's rebuilt you can't walk up the mule track")
+		w.surfaces = BuildGrid.surfaces_for(built)
+		t.ok(_walks(w, a, b) and _walks(w, b, a), "once it is, the straight way between the spots either side runs over it, both ways"))
+

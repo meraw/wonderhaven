@@ -27,7 +27,10 @@ const GULLY_BANK := 9.0
 const SHELF := Rect2(9.9, 18.0, 4.1, 10.0)
 const SHELF_H := 0.25
 const FALLEN := Rect2(34.0, -20.0, 12.0, 6.0)
-const MULE_GAP := Vector2(29.5, 33.5)
+const FALLEN_TOP := -18.0
+const MULE_GAP := Vector2(30.0, 33.0)
+const PIT_DEPTH := 1.2
+const LANDING := 0.75
 const PIAZZA := Vector3(-20.0, 13.8, -6.0)
 const PIAZZA_R := 8.5
 const PAD_EDGE := 2.0
@@ -149,6 +152,7 @@ static func ramp_level(p: Vector2) -> float:
 
 static func fallen_level(p: Vector2) -> float:
 	var low := terraced(smooth(p.x, FALLEN.end.y))
+	if p.y < FALLEN_TOP: return low + TERRACE_STEP
 	var t := (FALLEN.end.y - p.y) / FALLEN.size.y
 	return lerpf(low, low + TERRACE_STEP, ss(0.15, 0.85, t))
 
@@ -164,9 +168,20 @@ static func _east_ground(p: Vector2, s: float) -> float:
 	if dr < PATH_HALF + BLEND:
 		h = lerpf(ramp_level(p), h, ss(PATH_HALF, PATH_HALF + BLEND, dr))
 	var dst := stairs_dist(p)
-	if dst < PATH_HALF + BLEND and not in_mule_gap(p):
+	if in_mule_gap(p): return pit_level()
+	if in_mule_landing(p): return landing_level()
+	if dst < PATH_HALF + BLEND:
 		h = lerpf(stairs(s), h, ss(PATH_HALF, PATH_HALF + BLEND, dst))
 	return h
+
+static func in_mule_landing(p: Vector2) -> bool:
+	return p.y > MULE_GAP.x - LANDING and p.y <= MULE_GAP.x and line_dist(p, MULE) < PATH_HALF + BLEND
+
+static func landing_level() -> float:
+	return stairs(east_slope(20.0, MULE_GAP.x - LANDING))
+
+static func pit_level() -> float:
+	return stairs(east_slope(20.0, MULE_GAP.y)) - PIT_DEPTH
 
 static func _pads(p: Vector2, h: float) -> float:
 	var dp := maxf(0.0, p.distance_to(Vector2(PIAZZA.x, PIAZZA.z)) - PIAZZA_R)
@@ -269,6 +284,28 @@ static func paint(x: float, z: float) -> Color:
 	if z < -66.0: return _grown(C_WOODS.lerp(C_WOODS.darkened(0.15), n), 1.0)
 	if x < RIDGE_X - 8.0 or z > 26.0: return _grown(C_SCRUB.lerp(C_SCRUB.darkened(0.1), n), 0.9)
 	return _grown(C_VILLAGE.lerp(C_TERRACE[0], n * 0.5), 0.45)
+
+const WORLD_FLAGS := ["olive_village_welcomed", "olive_village_jetty_done", "olive_village_water_done", "olive_village_terrace_done",
+	"olive_village_roof_done", "olive_village_sunset_done", "olive_village_swarm_done", "olive_village_steps_done",
+	"olive_village_festa_night", "olive_village_festa_done", "olive_village_own_olive"]
+const SIGN := {"olive_village_welcomed": 1, "olive_village_jetty_done": 1, "olive_village_water_done": 1, "olive_village_terrace_done": 1,
+	"olive_village_roof_done": 1, "olive_village_sunset_done": 1, "olive_village_swarm_done": 1, "olive_village_steps_done": 1,
+	"olive_village_festa_done": 4}
+const MOORED := Vector3(26.6, 0.0, 69.5)
+const OWN_OLIVE := Vector2(-18.6, 21.0)
+
+static func sign_points(flags: Dictionary) -> int:
+	var n := 0
+	for f in SIGN:
+		if flags.get(f, false): n += int(SIGN[f])
+	return n
+
+static func sign_text(flags: Dictionary) -> String:
+	return "Liolivato. %s." % LocationMeter.reading(LocationMeter.def("olive_village"), sign_points(flags))
+
+static func adjust(layout: Dictionary, flags: Dictionary) -> void:
+	for f in layout.features:
+		if f.id == "olive_village_sign": f.text = sign_text(flags)
 
 const Models := preload("olive_village/models.gd")
 const Scenery := preload("olive_village/scenery.gd")

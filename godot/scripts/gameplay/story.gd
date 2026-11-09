@@ -37,8 +37,8 @@ func _on_event(type: String, data: Dictionary) -> void:
 
 func path_ok(id: String) -> bool: return path_across(id).ok
 
-func path_across(id: String) -> Dictionary:
-	var r := Validate.path_across(Data.zone(id), game.walk)
+func path_across(id: String, only: Dictionary = {}) -> Dictionary:
+	var r := Validate.path_across(Data.zone(id), game.walk, only)
 	if r.ok: game.state.crossings[id] = r.path.map(func(c): return [c.x, c.y])
 	return r
 
