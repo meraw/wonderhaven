@@ -824,7 +824,7 @@ func story_at(flags: Array) -> void:
 
 func shots() -> void:
 	game.shot_cfg["weather"] = "clear"
-	await view(24.0, -30.0, PI, 0.45, 9.0, 16.5, "terraces-and-the-sea")
+	await view(24.0, -30.0, PI, 0.2, 9.0, 16.5, "terraces-and-the-sea")
 	await view(-20.0, -6.0, 2.4, 0.5, 30.0, 17.5, "village-golden-afternoon")
 	await view(21.0, 58.5, 3.06, 0.55, 18.0, 8.0, "the-cove-in-the-morning")
 	await still(Vector3(-30.0, Heightfield.height(-30.0, -16.0) + 1.8, -16.0), Vector3(-38.2, Heightfield.height(-38.2, -35.5) + 15.5, -35.5), 19.5, "swifts-at-the-bell-tower")
@@ -836,7 +836,7 @@ func shots() -> void:
 	await view(-20.0, 0.0, 0.0, 0.45, 16.0, 21.5, "festa-night")
 	await view(-6.0, 6.0, 0.6, 1.0, 26.0, 17.0, "petal-carpet")
 	await view(-21.0, 17.5, 0.0, 0.5, 13.0, 16.0, "your-house-and-the-sandals-seat")
-	await view(-18.6, 18.5, PI, 0.35, 7.0, 17.0, "your-olive-tree")
+	await still(Vector3(-13.0, Heightfield.height(OV.OWN_OLIVE.x, OV.OWN_OLIVE.y) + 4.0, OV.OWN_OLIVE.y + 6.5), Vector3(OV.OWN_OLIVE.x, Heightfield.height(OV.OWN_OLIVE.x, OV.OWN_OLIVE.y) + 1.6, OV.OWN_OLIVE.y), 17.0, "your-olive-tree")
 	await view(52.0, -52.5, 0.0, 0.5, 12.0, 11.0, "hives")
 	await view(20.0, 37.0, 0.0, 0.6, 12.0, 11.0, "gamberos-steps")
 	await view(40.0, -10.5, 0.0, 0.55, 14.0, 11.0, "terrace-wall")

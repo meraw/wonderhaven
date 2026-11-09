@@ -296,7 +296,7 @@ Each is the smallest general version, comes with a test, and is named at the top
 | **Tastes from a location pack**, if the shared `tastes.json` can't take them the way Boccapioppo's did | The cast's tastes | 3 (not needed: they went into `tastes.json`) |
 | **Colours written without a leading hash** count: a villager's clothes and skin (`Chibi.sanitize`) and a favourite paint colour (`Tastes.likes`, compared as colours) | Liolivato's files write colours without one | 3 (Tonnarella's work made the same change first; Liolivato kept its tests) |
 | **Ghost plans on a raised site** rest on what's under them: `Plans.lay_out` looks for supports from the site's `floorY`, not from 0 m (a roof's ghost sat on the ground 10 m up) | Every site in Liolivato is 10 to 25 m up | 3 |
-| **A per-area camera pitch**, only if the terraces don't show the sea without it | The sea seen from above | 4 (not needed: the shared camera shows the sea from the terraces) |
+| **A per-area camera pitch**, only if the terraces don't show the sea without it | The sea seen from above | 4 (not needed: the shared camera, tilted low, shows the sea from the terraces) |
 | **A hat for the hour:** a schedule entry can name a hat (a fifth element) that the villager wears while doing it, and puts back their own after (`Schedule.activity_at`, `NpcAgent`, `Chibi.wear_hat`) | The Sindaco's cap for each job; any villager with a work uniform | 4 |
 
 Already in the game and reused as they are: a location's own meter (`LocationMeter`), the zone path and sealed checks,
@@ -592,8 +592,9 @@ What exists now, and the choices made while building that the design above didn'
 **Stage 4, the look and ambient life:**
 - **The look:** warmer light and softer warm shade, less wind (the olives barely stir), a warm tint to the sky and a
   soft golden haze that thickens with distance, so the sea from the terraces fades into the sky. Fireflies, motes and
-  pale petals were already in the look block. **The camera pitch hook wasn't needed:** with the shared camera the sea
-  already fills the view from the terraces (the "terraces-and-the-sea" screenshot).
+  pale petals were already in the look block. **The camera pitch hook wasn't needed:** tilted low, which the shared
+  camera already allows, the sea stretches across the horizon behind the olive terraces (the "terraces-and-the-sea"
+  screenshot); at the default tilt it shows as a band above the cove's roofs.
 - **Animals** (`animals.gd`, with the shared cats):
   - six cats asleep on warm steps in the alleys, by the church, at the castle and at the cove, where you can pet them;
   - fourteen lizards on the terrace walls, found by scanning the ground for tall risers; each darts off when you come
@@ -642,6 +643,7 @@ What exists now, and the choices made while building that the design above didn'
     cove, two more wheel over the water, and the sea is heard; the ferry is at your jetty at ten, sounds its horn,
     pulls out and is gone; in the evening the band plays and the festa ferry is back by eight. Screenshots of the look
     (the terraces and the sea, a golden afternoon in the village, the cove in the morning, the swifts at the bell tower)
-    in both renderers.
+    in both renderers. Stage 3's screenshot of your olive tree had the camera inside your house, behind its wall; it's
+    now taken from outside.
   - **Not checked:** what the music and sounds sound like (only that they play, are in tune and don't clip); petting
     the cats (shared, tested elsewhere); the swifts' and gulls' flight beyond their positions.
