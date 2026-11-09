@@ -575,4 +575,15 @@ What exists now, and the choices made while building that the design above didn'
     (sealed, and climbable straight up its stairs) and the rebuilt flight (the mule track walks over it both ways);
     every request's ghost plan built piece by piece finishes its step. A flood with real collisions (trees,
     buildings, props) also reached all 44 gathering spots, checked once while building (too slow for the suite).
+  - **Played** (`play_olive_village`, now 31 checks, all passing in one run of about 17 minutes): stage 2's walk, which
+    now also jumps back out of Gambero's gap, then every request with real key and mouse input, starting as if the
+    earlier places were done. It gathers with the minigames (chestnut, stone, flowers, the swarm at dawn), buys the
+    rest through the shop panels, and builds every ghost plan by pointing and clicking: the jetty (then walks to its end
+    and the ferry moors), the waterwheel, pump and pipes, the terrace wall and its stairs, your house with the roof put
+    on last, the Sandals' seat with the sea in view, the flight on the mule track (then walks up it), the hives, the
+    empty house's beds, table and lamp, the 26-tile petal carpet and the piazza. The eight lost things are found and
+    given back. On the festa's evening the Sindaco hears the band, Davide's family arrives, and the sign reads 50.
+    Screenshots of the story's states in both renderers.
+  - **Not checked:** wishes beyond what the plans happen to meet; selling to the shops; fishing at the cove; the
+    villagers' days beyond the steps the requests need; the band and its music (stage 4).
 
