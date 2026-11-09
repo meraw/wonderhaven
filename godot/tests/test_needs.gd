@@ -175,9 +175,9 @@ func test_the_paper_leads_with_what_was_noticed():
 	var p := MorningPaper.compose({"quests": [], "built": 0, "harmony": 5}, {"day": 3, "harmony": 5, "noticed": ["Nowhere to sit outside the bakery.", "It's dark on the church steps after dusk."], "weather": "rain"}, Data.paper, [], 0.0)
 	t.ok(p.notes.size() == 3 and String(p.notes[0]).contains("outside the bakery") and String(p.notes[1]).contains("church steps"), "noticed needs come first: %s" % str(p.notes))
 
-func test_boccapioppo_and_casalrana_have_spots_that_want_things():
+func test_boccapioppo_casalrana_and_toriano_have_spots_that_want_things():
 	var home := statics
-	for id in ["river_town", "rice_village"]:
+	for id in ["river_town", "rice_village", "metropolis"]:
 		Data.use_island(id)
 		statics = WorldStatics.build_statics(WorldStatics.generate_decor())
 		var hs := Needs.hangouts()

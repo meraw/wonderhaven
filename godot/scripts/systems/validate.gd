@@ -5,10 +5,11 @@ class_name Validate
 ## stood on at more than one height (the ground under a floor, the floor itself), and a step between cells may climb
 ## a ramp (stairs) as long as it rises a little at a time, the way you'd walk it. The endpoints may lie just outside
 ## the build site, on the ground it joins (a quay, a roof terrace).
-static func path_across(zone: Dictionary, walk: WalkWorld) -> Dictionary:
+static func path_across(zone: Dictionary, walk: WalkWorld, only: Dictionary = {}) -> Dictionary:
 	var in_rect := func(r: Dictionary, i: int, k: int) -> bool: return i >= r.minI and i <= r.maxI and k >= r.minK and k <= r.maxK
 	var in_zone := func(i: int, k: int) -> bool: return in_rect.call(zone, i, k) or in_rect.call(zone.endpoints.a, i, k) or in_rect.call(zone.endpoints.b, i, k)
 	var stand_at := func(i: int, k: int, from_y: float):
+		if not only.is_empty() and not only.has(Vector2i(i, k)): return null
 		var s := walk.surface_at(i + 0.5, k + 0.5, from_y)
 		if not s.walkable or s.y - from_y > WalkWorld.STEP_UP + 1e-6 or walk.blocked(i + 0.5, k + 0.5, s.y, 0.28): return null
 		return s.y
@@ -48,6 +49,7 @@ static func path_across(zone: Dictionary, walk: WalkWorld) -> Dictionary:
 		for dv in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]:
 			var n: Vector2i = c + dv
 			if not in_zone.call(n.x, n.y): continue
+			if not only.is_empty() and not only.has(n): continue
 			var ny = stand_at.call(n.x, n.y, y)
 			var mx := (c.x + n.x) / 2.0 + 0.5
 			var mz := (c.y + n.y) / 2.0 + 0.5

@@ -21,9 +21,11 @@ static func dress(village: Node3D) -> void:
 	trees(village)
 	plants(village, ov, c)
 	doorsteps(village)
-	cove(village)
-	population_sign(village)
+	cove(village, c)
+	population_sign(village, ov)
 	hill_villages(village, ov)
+	if Data.world_flags.has("olive_village_festa_night"): festa_lights(village, c)
+	if Data.world_flags.has("olive_village_own_olive"): own_olive(village, c)
 
 static func mm(village: Node3D, mesh: Mesh, mat: Material, xforms: Array, colors: Array = [], shadow: bool = true) -> void:
 	if xforms.is_empty(): return
@@ -237,10 +239,14 @@ static func doorsteps(village: Node3D) -> void:
 	mm(village, Foliage.bush(), Foliage.plant_material(0.02, 0.2), bushes, bushes.map(func(_l): return Color("4c7a3a")))
 	mm(village, Foliage.flower_head(), Foliage.plant_material(0.02, -1.0, false, true), blooms, bloom_cols, false)
 
-static func cove(village: Node3D) -> void:
+static func cove(village: Node3D, c: Dictionary) -> void:
 	var ferry := Models.ferry()
 	ferry.position = Vector3(19.5, Heightfield.WATER_Y - 0.15, 76.0)
 	ferry.rotation.y = 0.35
+	if Data.world_flags.has("olive_village_jetty_done"):
+		var moor: Vector3 = c.MOORED
+		ferry.position = Vector3(moor.x, Heightfield.WATER_Y - 0.15, moor.z)
+		ferry.rotation.y = PI
 	village.add_child(ferry)
 	var stump := Models.jetty_stump()
 	stump.position = Vector3(22.0, Heightfield.height(22.0, 60.4), 60.4)
@@ -257,12 +263,12 @@ static func cove(village: Node3D) -> void:
 		boat.rotation.y = float(b.get("r", 0.0))
 		village.add_child(boat)
 
-static func population_sign(village: Node3D) -> void:
+static func population_sign(village: Node3D, ov: Script) -> void:
 	for f in Data.layout.features:
 		if f.id != "olive_village_sign": continue
 		var post: Node3D = village.objects.get(f.id)
 		if post: post.visible = false
-		var reading := LocationMeter.reading(LocationMeter.def(Data.island), 0)
+		var reading := LocationMeter.reading(LocationMeter.def(Data.island), ov.sign_points(Data.world_flags))
 		var board := Models.sign_board("LIOLIVATO\n" + reading)
 		board.position = Vector3(f.x, Heightfield.height(f.x, f.z), f.z)
 		board.rotation.y = float(f.get("rot", 0.0))
@@ -286,3 +292,58 @@ static func hill_villages(village: Node3D, ov: Script) -> void:
 		walls.append(Transform3D(Basis.IDENTITY.scaled(Vector3(2.2, 12.0, 2.2)), Vector3(c.x, ty + 5.5, c.y)))
 	mm(village, Palette.box(1, 1, 1), Palette.plaster(Color("efe7d6")), walls, [], false)
 	mm(village, Palette.box(1, 1, 1), Palette.mat(Color("b8643c")), roofs, [], false)
+
+static func festa_lights(village: Node3D, c: Dictionary) -> void:
+	var p: Vector3 = c.PIAZZA
+	var r: float = float(c.PIAZZA_R) - 0.6
+	var tops: Array = []
+	var posts: Array = []
+	for k in 6:
+		var a := TAU * k / 6.0 + 0.3
+		var base := Vector3(p.x + cos(a) * r, Heightfield.height(p.x + cos(a) * r, p.z + sin(a) * r), p.z + sin(a) * r)
+		tops.append(base + Vector3(0, 3.8, 0))
+		posts.append(Transform3D(Basis.IDENTITY, base + Vector3(0, 1.9, 0)))
+	mm(village, Palette.cyl(0.05, 0.06, 3.8, 6), tint_mat(), posts, posts.map(func(_t): return Color("5a4a3a")))
+	var spans: Array = []
+	for k in 6:
+		spans.append([tops[k], tops[(k + 1) % 6]])
+	for k in 3:
+		spans.append([tops[k], tops[k + 3]])
+	var bulbs: Array = []
+	var cols: Array = []
+	var hues := [Color("fff1c0"), Color("ff8f6a"), Color("ffd166"), Color("9fe0a0"), Color("8fc8ff")]
+	for s in spans:
+		var a: Vector3 = s[0]
+		var b: Vector3 = s[1]
+		var n := int(a.distance_to(b) / 0.7)
+		for i in range(1, n):
+			var t := float(i) / n
+			bulbs.append(Transform3D(Basis.IDENTITY, a.lerp(b, t) - Vector3(0, 0.9 * sin(PI * t), 0)))
+			cols.append(hues[(i + bulbs.size()) % hues.size()])
+	var glow := StandardMaterial3D.new()
+	glow.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	glow.vertex_color_use_as_albedo = true
+	glow.vertex_color_is_srgb = true
+	mm(village, Palette.sphere(0.07, 8, 6), glow, bulbs, cols, false)
+	var lamp := OmniLight3D.new()
+	lamp.light_color = Color("ffd9a0")
+	lamp.light_energy = 1.4
+	lamp.omni_range = 13.0
+	lamp.position = Vector3(p.x, p.y + 3.4, p.z)
+	village.add_child(lamp)
+
+static func own_olive(village: Node3D, c: Dictionary) -> void:
+	var at: Vector2 = c.OWN_OLIVE
+	var y := Heightfield.height(at.x, at.y)
+	mm(village, Palette.cyl(0.12, 0.24, 1.6, 7), tint_mat(), [Transform3D(Basis.from_euler(Vector3(0.12, 0.6, 0.08)).scaled(Vector3(1, 1.3, 1)), Vector3(at.x, y + 1.0, at.y))], [Color("6f6355")])
+	mm(village, canopy("olive"), Foliage.plant_material(0.015, 1.0), [Transform3D(Basis.IDENTITY.scaled(Vector3.ONE * 1.3), Vector3(at.x, y - 0.05, at.y))], [OLIVE_LEAVES[0]])
+	var tag := Palette.mi(Palette.box(0.32, 0.18, 0.02), Palette.mat(Color("f4f1ea")), Vector3(at.x + 0.28, y + 1.15, at.y + 0.24))
+	village.add_child(tag)
+	var label := Label3D.new()
+	label.text = "Geometra"
+	label.font_size = 32
+	label.pixel_size = 0.004
+	label.modulate = Color("3a2a1e")
+	label.outline_size = 0
+	label.position = Vector3(at.x + 0.28, y + 1.15, at.y + 0.26)
+	village.add_child(label)

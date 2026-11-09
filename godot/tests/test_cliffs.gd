@@ -378,11 +378,11 @@ func _build_plan(qid: String, o: Dictionary, placements: Array, here: Array) -> 
 	return true
 
 func _brief(o: Dictionary, placements: Array, here: Array) -> Dictionary:
-	var path := func(zone_id: String) -> Dictionary:
+	var path := func(zone_id: String, only: Dictionary = {}) -> Dictionary:
 		var w := WalkWorld.new(here, func(_f): return false)
 		w.floors = WorldStatics.floors()
 		w.surfaces = BuildGrid.surfaces_for(placements)
-		return Validate.path_across(Data.zone(zone_id), w)
+		return Validate.path_across(Data.zone(zone_id), w, only)
 	var m := Mechanics.solve(placements, Data.layout.get("machines", []))
 	return Commission.evaluate(o, {"placements": placements, "lamps": m.lamps, "fed": m.fed, "mech": m, "path": path})
 
