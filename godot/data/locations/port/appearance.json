@@ -1,0 +1,18 @@
+{
+ "variants": {
+  "port_woolcap": {
+   "slot": "hat",
+   "base": "beanie",
+   "color": "2b3a55",
+   "label": "Fisherman's wool cap",
+   "unlock": "Reach 25% of the changeover in Tonnarella"
+  },
+  "port_sweater": {
+   "slot": "top",
+   "base": "sweater",
+   "color": "1f2f4a",
+   "label": "Navy fisherman's sweater",
+   "unlock": "Reach 75% of the changeover in Tonnarella"
+  }
+ }
+}

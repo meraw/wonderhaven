@@ -1,0 +1,149 @@
+{
+ "tastes": {
+  "port_nicolo": {
+   "near": [
+    14.0,
+    27.5
+   ],
+   "pieces": [
+    "table",
+    "enamelSign",
+    "signpost"
+   ],
+   "colours": [
+    "4a4a6a"
+   ],
+   "line": "A {piece}! Square, sensible, properly accounted for. I approve, Geometra.",
+   "gossip": "Overheard at the bank: Nicolò likes tables, enamel signs and signposts outside the bank, in sober slate grey."
+  },
+  "port_gerolamo": {
+   "near": [
+    40.5,
+    66.0
+   ],
+   "pieces": [
+    "lamp",
+    "railLantern",
+    "railing",
+    "streetlight"
+   ],
+   "colours": [
+    "ffffff"
+   ],
+   "line": "A {piece}. A light and a rail: everything a sailor needs. Bless you.",
+   "gossip": "Overheard on the breakwater: Gerolamo loves lamps, rail lanterns, railings and streetlights out along it, in lighthouse white."
+  },
+  "port_lorenzo": {
+   "near": [
+    38.5,
+    48.0
+   ],
+   "pieces": [
+    "stoneBlock",
+    "column",
+    "pillar",
+    "railing"
+   ],
+   "colours": [
+    "4a4a6a"
+   ],
+   "line": "A {piece}. I looked for something to complain about. I'm still looking.",
+   "gossip": "Overheard at the harbour office: the Comandante likes stone blocks, columns, pillars and railings by the breakwater's root, in navy."
+  },
+  "port_rosetta": {
+   "near": [
+    -3.0,
+    27.5
+   ],
+   "pieces": [
+    "table",
+    "bench",
+    "flowerBed"
+   ],
+   "colours": [
+    "ffd166"
+   ],
+   "line": "Oh, a {piece}, right by my door! The dockers will love it. The gulls too, sadly.",
+   "gossip": "Overheard at the bakery: Rosetta wants tables, benches and flower beds outside her door, in the bakery's warm yellow."
+  },
+  "port_giobatta": {
+   "near": [
+    36.0,
+    27.5
+   ],
+   "pieces": [
+    "counter",
+    "enamelSign",
+    "signpost"
+   ],
+   "colours": [
+    "3fb5a3"
+   ],
+   "line": "A {piece}! That's worth a thousand lire. Two. Don't tell anyone I said two.",
+   "gossip": "Overheard at the fish market: Baciccia likes counters, enamel signs and signposts round his stall, in sea green."
+  },
+  "port_pina": {
+   "near": [
+    13.5,
+    27.5
+   ],
+   "pieces": [
+    "flowerBed",
+    "hedge",
+    "tree"
+   ],
+   "colours": [
+    "7bd389",
+    "5cb85c"
+   ],
+   "line": "Something green! A {piece}. Now put basil in it.",
+   "gossip": "Overheard from a balcony: Nonna Pina wants flower beds, hedges and trees by the arcades, in any green at all."
+  },
+  "port_agostino": {
+   "near": [
+    31.0,
+    -42.0
+   ],
+   "pieces": [
+    "bench",
+    "lamp"
+   ],
+   "colours": [
+    "c98a55"
+   ],
+   "line": "A {piece}, up by the lift. Thirty years I've wanted one of those here.",
+   "gossip": "Overheard on the bastion: Agostino likes benches and lamps by the top stop, in a good honest brown."
+  },
+  "port_stefano": {
+   "near": [
+    40.0,
+    58.0
+   ],
+   "pieces": [
+    "railing",
+    "railLantern",
+    "pontoon"
+   ],
+   "colours": [
+    "ffd166"
+   ],
+   "line": "A {piece} out on the water. Now that's seamanship.",
+   "gossip": "Overheard on the quay: Stefano likes railings, rail lanterns and pontoons out on the breakwater, in oilskin yellow."
+  },
+  "port_davide": {
+   "near": [
+    10.0,
+    23.0
+   ],
+   "pieces": [
+    "signpost",
+    "streetlight"
+   ],
+   "colours": [
+    "6cc4ff"
+   ],
+   "line": "Sick, a {piece}! Can I lean the scooter on it? I'm leaning the scooter on it.",
+   "gossip": "Overheard by the chandlery: Davide likes signposts and streetlights under the arcade, in scooter blue."
+  }
+ }
+}

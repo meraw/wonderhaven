@@ -115,8 +115,8 @@ static func merge_pack(lists: Dictionary, id: String, pack: Dictionary) -> void:
 	for k in res.get("order", res.get("resources", {}).keys()):
 		if not lists.order.has(k): lists.order.append(k)
 	if lists.has("appearance"): merge_variants(lists.appearance, pack.get("appearance", {}).get("variants", {}))
+	var ts: Dictionary = pack.get("tastes", {}).get("tastes", {})
 	if lists.has("tastes"):
-		var ts: Dictionary = pack.get("tastes", {}).get("tastes", {})
 		for k in ts:
 			if not lists.tastes.has(k): lists.tastes[k] = ts[k]
 

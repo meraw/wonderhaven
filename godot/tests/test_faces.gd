@@ -47,3 +47,11 @@ func test_clothes_are_cut_from_their_own_fabric():
 	t.ok(not _textures(trainers).has(Palette.material_texture("denim_albedo")), "trousers aren't denim")
 	trainers.free()
 	t.ok(Chibi.hair_code().contains("specular_schlick_ggx") and not Chibi.hair_code().contains("RIM ="), "hair has real specular and no painted rim")
+
+func test_colours_are_read_with_or_without_the_hash():
+	var D: Dictionary = Data.appearance["default"]
+	t.eq(Chibi.sanitize({"topColor": "1f2f4a"}).topColor, "1f2f4a", "a villager's colour written without the hash is kept")
+	t.eq(Chibi.sanitize({"topColor": D.hatColor}).topColor, D.hatColor, "one written with it is kept too")
+	t.eq(Chibi.sanitize({"topColor": "navy"}).topColor, D.topColor, "a word that isn't a colour falls back to the default")
+	t.eq(Chibi.sanitize({"topColor": "1f2f4a0"}).topColor, D.topColor, "so does a code of the wrong length")
+	t.eq(Color(String(Chibi.resolve(Chibi.sanitize({"topColor": "1f2f4a"})).topColor)), Color(0x1f / 255.0, 0x2f / 255.0, 0x4a / 255.0), "and it draws in that colour")
