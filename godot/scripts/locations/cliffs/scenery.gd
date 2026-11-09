@@ -4,6 +4,9 @@ const P := preload("res://scripts/world/palette.gd")
 const G := preload("res://scripts/locations/cliffs/ground_data.gd")
 const Trains := preload("res://scripts/locations/cliffs/trains.gd")
 const Life := preload("res://scripts/locations/cliffs/life.gd")
+const Animals := preload("res://scripts/locations/cliffs/animals.gd")
+const Sounds := preload("res://scripts/locations/cliffs/sounds.gd")
+const Hikers := preload("res://scripts/locations/cliffs/hikers.gd")
 const SLIP_S := -43.8
 const SLIP_N := -49.4
 
@@ -42,7 +45,7 @@ static func dress(village: Node3D) -> void:
 	steps(root, C)
 	monorail(root)
 	props(root)
-	plants(root, C, rng)
+	plants(root, C, rng, game.state.flags if game != null and game.get("state") is Dictionary else {})
 	station(root)
 	rubble(root, rng)
 	far_coast(root, C, rng)
@@ -54,6 +57,15 @@ static func dress(village: Node3D) -> void:
 	life.name = "cliffs_life"
 	village.add_child(life)
 	life.setup(game, village)
+	var animals := Animals.new()
+	animals.build(village, game.state if game != null and game.get("state") is Dictionary else {})
+	village.add_child(animals)
+	var sounds := Sounds.new()
+	sounds.setup(game, village)
+	village.add_child(sounds)
+	var hikers := Hikers.new()
+	hikers.setup(game)
+	village.add_child(hikers)
 
 static func wall_pieces(C, a: Vector2, b: Vector2, side: Vector2, water_ok: bool) -> Array:
 	var out: Array = []
@@ -317,7 +329,9 @@ static func far_from_things(x: float, z: float, d: float) -> bool:
 		if Vector2(p[0] - x, p[1] - z).length() < d * 0.8: return false
 	return true
 
-static func plants(root: Node3D, C, rng: RandomNumberGenerator) -> void:
+static func bramble_group(id: String) -> String: return "brambles_" + id
+
+static func plants(root: Node3D, C, rng: RandomNumberGenerator, flags: Dictionary = {}) -> void:
 	var node := Node3D.new()
 	node.name = "plants"
 	root.add_child(node)
@@ -326,6 +340,12 @@ static func plants(root: Node3D, C, rng: RandomNumberGenerator) -> void:
 	var green := HouseKit.tinted(P.mat("ffffff"))
 	for n in range(1, 9):
 		for side: float in [-1.0, 1.0]:
+			var id := ("w" if side < 0.0 else "e") + str(n)
+			var group := Node3D.new()
+			group.name = bramble_group(id)
+			group.visible = not flags.get("cliffs_terrace_" + id, false)
+			node.add_child(group)
+			var gparts := HouseKit.Parts.new(group)
 			var placed := 0
 			var tries := 0
 			while placed < 12 and tries < 60:
@@ -337,8 +357,9 @@ static func plants(root: Node3D, C, rng: RandomNumberGenerator) -> void:
 				for k in 3:
 					var s := rng.randf_range(0.35, 0.6)
 					var col := Color("4f5e2e").lerp(Color("7a6a3e"), rng.randf() * 0.6)
-					parts.put(blob, Transform3D(Basis.from_scale(Vector3(s * 1.4, s, s * 1.2)), Vector3(x + rng.randf_range(-0.4, 0.4), y + s * 0.35, z + rng.randf_range(-0.3, 0.3))), false, green, col)
+					gparts.put(blob, Transform3D(Basis.from_scale(Vector3(s * 1.4, s, s * 1.2)), Vector3(x + rng.randf_range(-0.4, 0.4), y + s * 0.35, z + rng.randf_range(-0.3, 0.3))), false, green, col)
 				placed += 1
+			gparts.flush()
 	var half := Data.map_size() / 2.0 - 2.0
 	var scrub := 0
 	var tries2 := 0
@@ -513,6 +534,14 @@ static func far_coast(root: Node3D, C, rng: RandomNumberGenerator) -> void:
 	var wall := HouseKit.tinted(P.plaster("ffffff"))
 	var roof := HouseKit.tinted(P.mat("ffffff"))
 	var colours := ["e9b9a6", "f1d27a", "d97b5e", "f3c9a0", "e6a3a0", "ebc96e", "efe3c4"]
+	var glass := StandardMaterial3D.new()
+	glass.resource_name = "far_coast_glass"
+	glass.albedo_color = Color("3b404a")
+	glass.emission_enabled = true
+	glass.emission = Color("ffd38a")
+	glass.emission_energy_multiplier = 0.0
+	var village = root.get_parent()
+	if village != null and village.get("window_mats") is Array: village.window_mats.append(glass)
 	for vx in [102.2, 135.3, -96.2, -129.3]:
 		var tip: float = C.coast(vx)
 		for k in 14:
@@ -526,6 +555,15 @@ static func far_coast(root: Node3D, C, rng: RandomNumberGenerator) -> void:
 			var c := Color(String(colours[rng.randi() % colours.size()]))
 			parts.put(HouseKit.unit_box(), Transform3D(Basis.from_scale(Vector3(w, h, d)), Vector3(x, y - 1.0 + h / 2.0, z)), false, wall, c)
 			parts.put(HouseKit.unit_box(), Transform3D(Basis.from_scale(Vector3(w + 0.3, 0.5, d + 0.3)), Vector3(x, y - 1.0 + h + 0.25, z)), false, roof, Color("6f727a"))
+			for wi in 1 + rng.randi() % 3:
+				var wx := x + rng.randf_range(-w / 2.0 + 0.8, w / 2.0 - 0.8)
+				var wy := y - 1.0 + rng.randf_range(1.6, h - 1.2)
+				parts.put(HouseKit.unit_box(), Transform3D(Basis.from_scale(Vector3(0.7, 0.9, 0.06)), Vector3(wx, wy, z + d / 2.0 + 0.04)), false, glass, Color.WHITE, false)
+			var facing := -signf(vx)
+			for wi in 1 + rng.randi() % 2:
+				var wz := z + rng.randf_range(-d / 2.0 + 0.7, d / 2.0 - 0.7)
+				var wy := y - 1.0 + rng.randf_range(1.6, h - 1.2)
+				parts.put(HouseKit.unit_box(), Transform3D(Basis.from_scale(Vector3(0.06, 0.9, 0.7)), Vector3(x + facing * (w / 2.0 + 0.04), wy, wz)), false, glass, Color.WHITE, false)
 		var ty := far_height(C, vx, tip - 6.0, half)
 		parts.put(HouseKit.unit_box(), Transform3D(Basis.from_scale(Vector3(2.2, 14.0, 2.2)), Vector3(vx + 3.0, ty + 6.0, tip - 6.0)), false, wall, Color("b9b2a4"))
 	parts.flush()

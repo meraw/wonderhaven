@@ -74,6 +74,11 @@ func shots() -> void:
 	await view(0.0, 29.0, PI - 0.3, 0.6, 22.0, 10.5, "boats-launched")
 	await view(0.0, 10.0, 0.25, 0.5, 14.0, 10.0, "the-street-opened-up")
 	await view(19.0, -45.5, PI / 2.0, 0.75, 16.0, 12.0, "the-monorail-running")
+	await view(0.0, 24.0, 0.35, 0.6, 22.0, 22.0, "serenza-at-night")
+	await view(16.0, 46.5, -PI / 2.0 + 0.25, 0.12, 8.0, 22.0, "the-next-villages-at-night")
+	game.shot_cfg["weather"] = "mist"
+	await view(0.0, -45.0, PI, 0.5, 30.0, 6.5, "sea-fog-in-the-ravine")
+	game.shot_cfg["weather"] = "clear"
 
 func walk_around() -> void:
 	var s: Dictionary = game.state
@@ -86,6 +91,7 @@ func walk_around() -> void:
 	ok = await go("square")
 	check("c3", "Down the station lane and the main street to the harbour square", ok and y_near(0.9), where())
 	await shot("harbour-square")
+	await gulls_fly_up()
 	ok = await enter("cliffs_bar", "nunzias-bar")
 	check("r2", "Into Nunzia's bar", ok, where())
 	ok = await go("ferry")
@@ -103,6 +109,7 @@ func walk_around() -> void:
 	ok = await go("top0")
 	check("c7", "Up the stair through the terraces to the pines at the top", ok and y_near(27.0), where())
 	await shot("top-of-the-terraces")
+	animals_on_arrival()
 	for wp in [Vector2(-15.0, -59.6), Vector2(-30.0, -59.6), Vector2(-44.0, -59.6), Vector2(-47.8, -59.4), Vector2(-48.6, -57.8)]:
 		await walk_direct(wp.x, wp.y, 0.5, 30.0)
 	ok = at(-48.6, -57.8, 1.0)
@@ -129,7 +136,57 @@ func walk_around() -> void:
 	var regional: Node3D = trains.models.regional if trains else null
 	check("t1", "At 8:11 the morning regional stands at the platform", regional != null and regional.visible and absf(regional.position.x + 12.0) < 0.1, str(regional.position) if regional else "")
 	await shot("the-8-10-regional")
+	await night_and_fog()
 	s.time.minute = 10 * 60.0
+	await frames(10)
+
+func animals() -> Node: return game.village.get_node_or_null("cliffs_animals")
+
+func gulls_fly_up() -> void:
+	var an := animals()
+	if an == null:
+		check("a1", "Gulls sit on the quay and fly up as you come close", false, "no animals")
+		return
+	var seat := Vector3(-7.0, 0.95, 30.85)
+	var gull: Dictionary = {}
+	for q in an.gulls:
+		if not q.ring and (q.seat as Vector3).distance_to(seat) < 0.1: gull = q
+	var sitting: bool = not gull.is_empty() and float(gull.flying) <= 0.0 and (gull.obj as Node3D).position.distance_to(seat) < 0.05
+	await walk_direct(seat.x, seat.z - 1.0, 0.5, 15.0)
+	await wait(1.2)
+	var up: bool = not gull.is_empty() and float(gull.flying) > 0.0 and (gull.obj as Node3D).position.y > seat.y + 0.5
+	check("a1", "A gull sits on the quay and flaps up as you come close", sitting and up, "sitting=%s up=%s %s" % [sitting, up, where()])
+	await shot("gull-flies-up")
+
+func animals_on_arrival() -> void:
+	var an := animals()
+	if an == null:
+		check("a2", "Lizards bask on the tended terraces' walls", false, "no animals")
+		return
+	var shown: Array = an.lizards.filter(func(l): return (l.obj as Node3D).visible)
+	var tended: bool = shown.all(func(l): return String(l.terrace) in ["w1", "e2"])
+	check("a2", "By day lizards bask on the walls of W1 and E2, the only terraces still tended", shown.size() >= 2 and tended,
+		"%d shown at %s" % [shown.size(), Clock.text(game.state.time)])
+	var swallows: int = an.swallows.filter(func(sw): return (sw.obj as Node3D).visible).size()
+	check("a3", "A few swallows over the village when you arrive", swallows == 4, "%d" % swallows)
+
+func night_and_fog() -> void:
+	var s: Dictionary = game.state
+	s.time.minute = 22 * 60.0
+	await wait(4.0)
+	var lit: Array = game.village.lamps.filter(func(l): return (l.get_node("light") as OmniLight3D).visible)
+	check("n1", "At night the lamp posts light the main street, the stairs, the square and the harbour", lit.size() >= 15 and game.village.lamp_glow > 0.8, "%d lit" % lit.size())
+	var far: Array = game.village.window_mats.filter(func(m): return String(m.resource_name) == "far_coast_glass")
+	check("n2", "And windows glow in the next villages along the coast", far.size() == 1 and float(far[0].emission_energy_multiplier) > 1.0, "%d" % far.size())
+	await view(0.0, 24.0, 0.35, 0.6, 22.0, 22.0, "serenza-at-night")
+	await view(16.0, 46.5, -PI / 2.0 + 0.25, 0.12, 8.0, 22.0, "the-next-villages-at-night")
+	game.shot_cfg["weather"] = "mist"
+	await view(0.0, -45.0, PI, 0.5, 30.0, 6.5, "sea-fog-in-the-ravine")
+	var fog: MeshInstance3D = game.village.valley_fog
+	var thick: float = float((fog.material_override as ShaderMaterial).get_shader_parameter("amount")) if fog else 0.0
+	check("n3", "On a misty morning the sea fog fills the ravine up to the station", fog != null and fog.visible and thick > 0.6, "%.2f" % thick)
+	game.shot_cfg.erase("weather")
+	game.player.teleport(Data.layout.spawn.x, Data.layout.spawn.z)
 	await frames(10)
 
 func room_at(x: float, z: float) -> String:
@@ -752,3 +809,29 @@ func sec_easter() -> void:
 	await go("ferry")
 	var ferry: bool = game.interactables.any(func(it): return String(it.get("id", "")) == "cliffs_ferry" and (not it.has("available") or it.available.call()))
 	check("f2", "After the finale the ferry calls at the landing", ferry, where())
+	await after_the_finale()
+
+func after_the_finale() -> void:
+	var an := animals()
+	var T: Script = load("res://scripts/locations/cliffs/terraces.gd")
+	var gone := true
+	var bad := ""
+	for id in T.ORDER:
+		var g: Node3D = game.village.find_child("brambles_" + String(id), true, false)
+		if g == null or g.visible == terrace(String(id)):
+			gone = false
+			bad += String(id) + " "
+	check("f3", "The brambles are gone from every terrace that came back, and only from those", gone, bad)
+	var A: Script = load("res://scripts/locations/cliffs/animals.gd")
+	var use: Array = A.in_use(game.state)
+	var basking: int = an.lizards.filter(func(l): return use.has(String(l.terrace))).size() if an else 0
+	check("f4", "Lizards now bask on the walls of every terrace in use (%d terraces)" % use.size(), use.size() >= 10 and basking == 2 * use.size(), "%d lizards" % basking)
+	var swallows: int = an.swallows.filter(func(sw): return (sw.obj as Node3D).visible).size() if an else 0
+	check("f5", "And swallows fill the sky over the harbour", swallows == 16, "%d at %s" % [swallows, Clock.text(game.state.time)])
+	await wait(2.0)
+	var hk: Node = game.village.get_node_or_null("cliffs_hikers")
+	var walking: Array = hk.walkers.filter(func(w): return (w.chibi as Node3D).visible) if hk else []
+	check("f6", "Walkers in red anoraks come for the path after Easter", walking.size() == 8, "%d at %s" % [walking.size(), Clock.text(game.state.time)])
+	if not walking.is_empty():
+		var c: Node3D = walking[0].chibi
+		await view(c.position.x, c.position.z, 0.6, 0.45, 9.0, hour(), "hikers-on-the-path")
