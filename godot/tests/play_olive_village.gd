@@ -544,7 +544,8 @@ func sec_steps() -> void:
 	await talk(P + "giacomo")
 	var acc: bool = qs("steps") == "active"
 	await quarry_some(1)
-	await top_up("stone", 12)
+	await top_up("stone", 6)
+	await top_up("wood", 2)
 	await go("mule1")
 	await open_build(P + "steps")
 	var placed := await build_plan("steps", "build")
