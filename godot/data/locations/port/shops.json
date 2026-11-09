@@ -1,0 +1,133 @@
+{
+ "shops": {
+  "port_rosetta": {
+   "name": "Canepa Bakery",
+   "label": "Focaccia, please",
+   "greet": "Focaccia from the oven, onion focaccia, farinata on Fridays and every other day, and a greens pie. Capers off the old walls I'll buy, for the focaccia with capers. Watch the door: the gulls queue too.",
+   "requires": {
+    "quests": [
+     "port_welcome"
+    ]
+   },
+   "buys": {
+    "port_caper": 3
+   },
+   "stock": [
+    {
+     "items": {
+      "port_focaccia": 1
+     },
+     "price": 4
+    },
+    {
+     "items": {
+      "port_focaccia_onion": 1
+     },
+     "price": 5
+    },
+    {
+     "items": {
+      "port_farinata": 1
+     },
+     "price": 6
+    },
+    {
+     "items": {
+      "port_greens_pie": 1
+     },
+     "price": 9
+    }
+   ]
+  },
+  "port_giobatta": {
+   "name": "Baciccia's stall",
+   "label": "What's fresh?",
+   "greet": "Prices in lire, as God intended. Mussels by the bag. Whatever you catch, I'll buy: fish, anchovies, mussels, even capers for the sauce.",
+   "requires": {
+    "quests": [
+     "port_welcome"
+    ]
+   },
+   "buys": {
+    "fish": 5,
+    "port_anchovy": 3,
+    "port_mussel": 3,
+    "port_caper": 3
+   },
+   "stock": [
+    {
+     "items": {
+      "port_mussel": 2
+     },
+     "price": 8
+    }
+   ]
+  },
+  "port_davide": {
+   "name": "Cambiaso Ship Chandler",
+   "label": "What've you got?",
+   "greet": "My uncle's out the back. He's always out the back. Fittings, copper wire, rope and sailcloth, timber, roof tiles, and glass panes for the lighthouse, if anyone ever fixes it. I'll take old boots and lobster pots: Uncle collects them. Don't ask.",
+   "requires": {
+    "quests": [
+     "port_welcome"
+    ]
+   },
+   "buys": {
+    "port_boot": 2,
+    "port_lobster_pot": 6
+   },
+   "stock": [
+    {
+     "items": {
+      "wood": 4
+     },
+     "price": 18
+    },
+    {
+     "items": {
+      "metal": 1
+     },
+     "price": 12
+    },
+    {
+     "items": {
+      "crystal": 1
+     },
+     "price": 20
+    },
+    {
+     "items": {
+      "fabric": 2
+     },
+     "price": 10
+    },
+    {
+     "items": {
+      "clay": 1
+     },
+     "price": 6
+    },
+    {
+     "items": {
+      "port_glass": 1
+     },
+     "price": 8
+    }
+   ]
+  },
+  "port_nicolo": {
+   "name": "The savings bank",
+   "label": "Change some lire",
+   "greet": "Lire to change? Bring them. Wet ones too. Especially wet ones: nobody else will touch them. One euro, one thousand nine hundred and thirty-six lire and twenty-seven cents. I dream about it.",
+   "requires": {
+    "quests": [
+     "port_welcome"
+    ]
+   },
+   "buys": {
+    "port_lire_purse": 30
+   },
+   "stock": []
+  }
+ }
+}

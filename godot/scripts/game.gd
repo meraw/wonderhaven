@@ -67,8 +67,11 @@ var outline: MeshInstance3D
 var outline_override := ""   # look-dev renders force outlines on or off without touching saved settings
 var interact_cooldown := 0.0
 
+func money_flags() -> Dictionary: return state.get("flags", {})
+
 func _ready() -> void:
 	settings = SaveSystem.load_settings()
+	Money.flags_source = Callable(self, "money_flags")
 	for a in OS.get_cmdline_user_args():   # look-dev overrides, read before any character is built
 		if a.begins_with("--face="): Chibi.face_style = a.trim_prefix("--face=")
 		if a.begins_with("--outline="): outline_override = a.trim_prefix("--outline=")
