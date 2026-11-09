@@ -1260,6 +1260,48 @@
    "desc": "Stepping stones."
   },
   {
+   "id": "petalCarpet",
+   "name": "Petal Carpet",
+   "icon": "🌸",
+   "cat": "outdoor",
+   "size": [
+    1,
+    1
+   ],
+   "h": 0.04,
+   "walkable": true,
+   "solid": false,
+   "cost": {
+    "flowers": 1
+   },
+   "color": "ff8fab",
+   "colorable": true,
+   "desc": "Flower petals laid in a carpet for a festa."
+  },
+  {
+   "id": "beehive",
+   "name": "Beehive",
+   "icon": "🐝",
+   "cat": "outdoor",
+   "size": [
+    1,
+    1
+   ],
+   "h": 1.0,
+   "box": [
+    0.15,
+    0.15,
+    0.85,
+    0.85
+   ],
+   "cost": {
+    "wood": 2
+   },
+   "color": "ffd166",
+   "colorable": true,
+   "desc": "A wooden hive. Bees not included."
+  },
+  {
    "id": "pond",
    "name": "Little Pond",
    "icon": "💧",

@@ -1,0 +1,157 @@
+{
+ "_comment": "Liolivato's own materials, fish, treats, sea junk and lost things.",
+ "resources": {
+  "olive_village_basil": {
+   "name": "Basil",
+   "icon": "🌿",
+   "color": "5a8f3c"
+  },
+  "olive_village_mullet": {
+   "name": "Red Mullet",
+   "icon": "🐟",
+   "color": "e86f5c"
+  },
+  "olive_village_scorpionfish": {
+   "name": "Scorpionfish",
+   "icon": "🐡",
+   "color": "d9824a"
+  },
+  "olive_village_cuttlefish": {
+   "name": "Cuttlefish",
+   "icon": "🦑",
+   "color": "c9b8a8"
+  },
+  "olive_village_moray": {
+   "name": "Moray Eel",
+   "icon": "🐍",
+   "color": "6a5a30"
+  },
+  "olive_village_sardenaira": {
+   "name": "Sardenaira",
+   "icon": "🍕",
+   "color": "d9533c",
+   "treat": 3
+  },
+  "olive_village_stuffed": {
+   "name": "Stuffed Vegetables",
+   "icon": "🫑",
+   "color": "6f9a3f",
+   "treat": 2
+  },
+  "olive_village_farinata": {
+   "name": "Farinata",
+   "icon": "🥞",
+   "color": "e8c06a",
+   "treat": 2
+  },
+  "olive_village_beans": {
+   "name": "Broad Beans and Sheep's Cheese",
+   "icon": "🫛",
+   "color": "8fb85a",
+   "treat": 2
+  },
+  "olive_village_honey": {
+   "name": "Broom Honey",
+   "icon": "🍯",
+   "color": "f2c41c",
+   "treat": 1
+  },
+  "olive_village_chestnut_honey": {
+   "name": "Chestnut Honey",
+   "icon": "🍯",
+   "color": "8a5a2a",
+   "treat": 2
+  },
+  "olive_village_candle": {
+   "name": "Beeswax Candle",
+   "icon": "🕯️",
+   "color": "f4e9c8"
+  },
+  "olive_village_swarm": {
+   "name": "Swarm in a Box",
+   "icon": "🐝",
+   "color": "e2b93b"
+  },
+  "olive_village_flipflop": {
+   "name": "Flip-Flop",
+   "icon": "🩴",
+   "color": "6cc4ff"
+  },
+  "olive_village_deckchair": {
+   "name": "Half a Deckchair",
+   "icon": "🪑",
+   "color": "e86f5c"
+  },
+  "olive_village_soggy_guide": {
+   "name": "Soggy Guidebook",
+   "icon": "📘",
+   "color": "3a6fb5"
+  },
+  "olive_village_cap": {
+   "name": "The Sindaco's fourth cap",
+   "icon": "🧢",
+   "color": "e8c06a"
+  },
+  "olive_village_guidebook": {
+   "name": "Klaus's guidebook",
+   "icon": "📕",
+   "color": "e8c06a"
+  },
+  "olive_village_glove": {
+   "name": "Bastian's grafting glove",
+   "icon": "🧤",
+   "color": "e8c06a"
+  },
+  "olive_village_binoculars": {
+   "name": "Sirena's binoculars",
+   "icon": "🔭",
+   "color": "e8c06a"
+  },
+  "olive_village_key": {
+   "name": "An old house key",
+   "icon": "🗝️",
+   "color": "e8c06a"
+  },
+  "olive_village_radio": {
+   "name": "Transistor Radio",
+   "icon": "📻",
+   "color": "e8c06a"
+  },
+  "olive_village_postcard": {
+   "name": "Postcard from Tonnarella",
+   "icon": "💌",
+   "color": "e8c06a"
+  },
+  "olive_village_tinboat": {
+   "name": "Tin Boat",
+   "icon": "⛵",
+   "color": "e8c06a"
+  }
+ },
+ "order": [
+  "olive_village_basil",
+  "olive_village_mullet",
+  "olive_village_scorpionfish",
+  "olive_village_cuttlefish",
+  "olive_village_moray",
+  "olive_village_sardenaira",
+  "olive_village_stuffed",
+  "olive_village_farinata",
+  "olive_village_beans",
+  "olive_village_honey",
+  "olive_village_chestnut_honey",
+  "olive_village_candle",
+  "olive_village_swarm",
+  "olive_village_flipflop",
+  "olive_village_deckchair",
+  "olive_village_soggy_guide",
+  "olive_village_cap",
+  "olive_village_guidebook",
+  "olive_village_glove",
+  "olive_village_binoculars",
+  "olive_village_key",
+  "olive_village_radio",
+  "olive_village_postcard",
+  "olive_village_tinboat"
+ ]
+}

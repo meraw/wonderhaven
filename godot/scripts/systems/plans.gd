@@ -14,7 +14,7 @@ static func lay_out(entries: Array, zone: Dictionary, built_pieces: Array = []) 
 		var e: Array = entries[n]
 		var id := String(e[2])
 		var i := float(e[0]); var k := float(e[1]); var r: int = int(e[3]) if e.size() > 3 else 0
-		var pl := {"uid": -1 - n, "id": id, "i": i, "k": k, "r": r, "y": BuildGrid.suggest_bottom(id, i, k, r, 10.0, built_pieces + out, zone)}
+		var pl := {"uid": -1 - n, "id": id, "i": i, "k": k, "r": r, "y": BuildGrid.suggest_bottom(id, i, k, r, float(zone.get("floorY", 0.0)) + 10.0, built_pieces + out, zone)}
 		if e.size() > 4: pl["color"] = String(e[4])
 		out.append(pl)
 	return out

@@ -149,6 +149,8 @@ static func tank(b: Dictionary) -> Node3D:
 	for sx in [-1.0, 1.0]:
 		root.add_child(Palette.mi(Palette.box(0.3, h + 0.6, d), stone, Vector3(sx * (w / 2.0 - 0.15), h / 2.0 - 0.3, 0)))
 	root.add_child(Palette.mi(Palette.box(w - 0.6, 0.06, d - 0.6), Palette.mat(Color("8f8270")), Vector3(0, 0.12, 0)))
+	if Data.world_flags.has("olive_village_water_done"):
+		root.add_child(Palette.mi(Palette.box(w - 0.62, 0.04, d - 0.62), Palette.mat(Color("4aa3b8")), Vector3(0, h - 0.3, 0)))
 	return root
 
 static func profile(floors: Array, x: float) -> float:

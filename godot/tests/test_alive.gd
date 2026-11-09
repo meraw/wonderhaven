@@ -32,6 +32,12 @@ func test_a_liked_piece_near_their_spot_wins_a_heart_once_a_day():
 	t.eq(Tastes.likes("fern", bench), "colour", "a chair painted her green counts too")
 	t.eq(Tastes.pleased(s, bench, ["mabel"]), [], "but not while she's not here to see it")
 
+func test_a_favourite_colour_counts_however_it_is_written():
+	var gate := Tastes.near_pos("fern")
+	var bare := {"uid": 6, "id": "chair", "i": floor(gate.x), "k": floor(gate.y) - 1.0, "r": 0, "y": 0.0, "color": "5cb85c"}
+	t.eq(Tastes.likes("fern", bare), "colour", "her green written without its hash is still her green")
+	t.eq(Tastes.likes("fern", bare.merged({"color": "zz"}, true)), "", "and something that isn't a colour matches nothing")
+
 func test_the_paper_gives_tastes_away_one_at_a_time():
 	var s := _state()
 	var g := Tastes.gossip(s, 0.0)

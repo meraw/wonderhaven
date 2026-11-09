@@ -98,7 +98,7 @@ func entries() -> Array:
 		n += 1
 		if not npc.present: continue
 		var mark: String = game.story.marker_for(String(id)) if game.story else ""
-		var first := String(npc.def.name).get_slice(" ", 0)
+		var first := short_name(String(npc.def.name))
 		var note := " has a request" if mark == "offer" else (" is waiting to hear from you" if mark == "ready" else "")
 		out.append({"kind": "villager", "id": String(id), "label": String(npc.def.name) + note, "short": first, "mark": mark, "colour": DOTS[(n - 1) % DOTS.size()], "at": to_screen(Vector2(npc.pos.x, npc.pos.z))})
 	var tg: Dictionary = game.guide.target() if game.guide else {}
@@ -107,10 +107,20 @@ func entries() -> Array:
 	return out
 
 static func named(name: String, kind: String) -> bool:
-	if name == "" or kind.ends_with("_track") or kind.begins_with("rice_village_wall"): return false
+	if name == "" or kind == "backdrop" or kind.ends_with("_track") or kind.begins_with("rice_village_wall"): return false
 	for generic in ["A ", "An ", "House ", "Houses ", "Terrace ", "Row "]:
 		if name.begins_with(generic): return false
-	return true
+	var code := RegEx.new()
+	code.compile("^([A-Z][a-z]? [A-Z]?[a-z]?[0-9]+|[A-Za-z]+ [NSEW])$")
+	return code.search(name) == null
+
+const TITLES := ["Signor", "Signora", "Signorina", "Vigile", "Architetto", "Maestro", "Ragioniere", "Ingegner", "Dottor", "Capostazione", "Don"]
+
+static func short_name(full: String) -> String:
+	var words := full.split(" ", false)
+	for w in words:
+		if not TITLES.has(w): return w
+	return full
 
 var _taken: Array = []
 

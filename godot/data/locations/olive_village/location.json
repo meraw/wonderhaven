@@ -70,7 +70,37 @@
     "at": 5,
     "id": "olive_village_sign_43",
     "title": "Forty-three, and two of them are German.",
-    "desc": "Your terrace grows."
+    "desc": "The beehive plans, so Fuco can ask for help with his swarm, and your terrace grows.",
+    "blueprints": [
+     "beehive"
+    ],
+    "flags": [
+     "olive_village_hive_plans"
+    ]
+   },
+   {
+    "at": 8,
+    "id": "olive_village_sign_46",
+    "title": "We'll need a second card table.",
+    "desc": "An old olive tree of your own on your terrace, with your name on a tag.",
+    "flags": [
+     "olive_village_own_olive"
+    ]
+   },
+   {
+    "at": 12,
+    "id": "olive_village_sign_50",
+    "title": "Fifty. Fetch the good paint.",
+    "desc": "A free haircut for life, and a fifth cap on the Sindaco's rack with 'Geometra' on it.",
+    "requires": {
+     "quests": [
+      "olive_village_festa"
+     ]
+    },
+    "waits": "the festa",
+    "flags": [
+     "olive_village_free_haircut"
+    ]
    }
   ]
  }
