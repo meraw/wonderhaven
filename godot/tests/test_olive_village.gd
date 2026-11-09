@@ -290,6 +290,17 @@ func test_people_and_their_days():
 		var piazza := ["piazza", "piazzaN", "piazzaS", "piazzaE", "piazzaW", "piazzaNW", "piazzaNE", "piazzaSW", "piazzaSE"]
 		var dancing := people.filter(func(n): return piazza.has(String(at.call(String(n.id).trim_prefix("olive_village_"), 21.0, night).node))).size()
 		t.ok(dancing >= 9, "after the festa the village comes to the piazza in the evening (%d)" % dancing)
+		var carpet: Dictionary = {}
+		for o in Data.quest("olive_village_festa").objectives:
+			for e in o.get("plan", []):
+				if String(e[2]) == "petalCarpet": carpet[Vector2i(int(e[0]), int(e[1]))] = true
+		for n in people:
+			var days: Array = [n.schedule]
+			for wd in n.get("when", []): days.append(wd.schedule)
+			for d in days:
+				for e in d:
+					var sp2: Array = Data.layout.nav_nodes[e[2]]
+					t.ok(float(e[1]) - float(e[0]) < 2.0 or not carpet.has(Vector2i(floori(sp2[0]), floori(sp2[1]))), "%s doesn't spend hours standing on the petal carpet's way (%s)" % [n.id, e[2]])
 		for flags in [{}, {"olive_village_tour": true}, w, {"olive_village_tour": true, "olive_village_welcomed": true, "olive_village_water_done": true}, ready, night]:
 			for h in 24:
 				var taken := {}

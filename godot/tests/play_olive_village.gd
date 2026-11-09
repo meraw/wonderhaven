@@ -631,7 +631,11 @@ func sec_festa() -> void:
 	await go("bridgeW")
 	await open_build(P + "carpet")
 	var carpet := await build_plan("festa", "carpet")
-	var carpet_ok: bool = musts_met("festa", "carpet") or game.story.engine.objective(P + "festa", step_of("festa", "carpet")).done
+	var carpet_ok := false
+	for n in 60:
+		carpet_ok = musts_met("festa", "carpet") or game.story.engine.objective(P + "festa", step_of("festa", "carpet")).done
+		if carpet_ok: break
+		await wait(1.0)
 	await shot("petal-carpet")
 	await leave_build()
 	await go("piazzaS")

@@ -319,7 +319,7 @@
     [
      17,
      19,
-     "bridgeW",
+     "bridgeE",
      "idle"
     ],
     [
@@ -360,7 +360,7 @@
       [
        17,
        19,
-       "bridgeW",
+       "bridgeE",
        "idle"
       ],
       [
@@ -506,7 +506,7 @@
     [
      17,
      19,
-     "gate",
+     "westRow",
      "idle"
     ],
     [
@@ -547,7 +547,7 @@
       [
        17,
        19,
-       "gate",
+       "westRow",
        "idle"
       ],
       [
@@ -852,7 +852,7 @@
     [
      7,
      12,
-     "wash",
+     "washSide",
      "work"
     ],
     [
@@ -881,7 +881,7 @@
       [
        7,
        12,
-       "wash",
+       "washSide",
        "work"
       ],
       [
