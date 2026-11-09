@@ -924,7 +924,7 @@ static func _cost_text(cost: Dictionary, money_sep: String = " ") -> String:
 	var parts: Array = []
 	var money := ""
 	for k in cost:
-		if k == "coins": money = "%s%s" % [Data.resources[k].icon, Money.group(int(cost[k]) * Money.LIRE_PER_COIN)]
+		if k == "coins": money = "%s%s" % [Data.resources[k].icon, Money.short(int(cost[k]))]
 		else: parts.append("%s%d" % [Data.resources[k].icon, int(cost[k])])
 	var out := " ".join(parts)
 	if money != "": out = money if out == "" else out + money_sep + money

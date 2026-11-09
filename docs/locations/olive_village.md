@@ -294,7 +294,7 @@ Each is the smallest general version, comes with a test, and is named at the top
 | **A view check:** nothing solid stands between a piece on the site (a seat) and a target point | The Sandals' sea view; reusable ("the statue can be seen from the piazza") | 3 |
 | **Two new synth voices** in `AudioDirector`: a tremolo-plucked mandolin and a brass section (trumpet and tuba) | The music and the festa's band; any location can use them | 4 |
 | **Tastes from a location pack**, if the shared `tastes.json` can't take them the way Boccapioppo's did | The cast's tastes | 3 (not needed: they went into `tastes.json`) |
-| **Colours written without a leading hash** count: a villager's clothes and skin (`Chibi.sanitize`) and a favourite paint colour (`Tastes.likes`, compared as colours) | Liolivato's files write colours without one | 3 |
+| **Colours written without a leading hash** count: a villager's clothes and skin (`Chibi.sanitize`) and a favourite paint colour (`Tastes.likes`, compared as colours) | Liolivato's files write colours without one | 3 (Tonnarella's work made the same change first; Liolivato kept its tests) |
 | **Ghost plans on a raised site** rest on what's under them: `Plans.lay_out` looks for supports from the site's `floorY`, not from 0 m (a roof's ghost sat on the ground 10 m up) | Every site in Liolivato is 10 to 25 m up | 3 |
 | **A per-area camera pitch**, only if the terraces don't show the sea without it | The sea seen from above | 4 |
 

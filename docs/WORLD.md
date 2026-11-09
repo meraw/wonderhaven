@@ -9,7 +9,7 @@ Shared rules for everyone building a location, people and Claude sessions alike,
   Liguria at a glance.
 - **Era:** the late 1990s, before smartphones. Payphones, newsstands, beige computers with dial-up modems,
   cassettes, boxy TVs, scooters and small boxy cars.
-- **Money:** lire. The switch to the euro happens later, in a location the user hasn't chosen yet.
+- **Money:** lire, until Tonnarella's changeover switches the whole game to euros, step by step (`docs/locations/port.md`, "The changeover"). Amounts the game prints go through `Money`, which follows the flags a place's map entry names in its `currency` block. Lines of text that name a sum in lire stay as written.
 - **Language:** plain English. Italian is used only for names and for job titles and honorifics: Sindaco,
   Geometra, Perito, Ragioniere, Commendatore, Nonna. No stock exclamations: they read as cringe.
 - **Names:** realistic regional names, made into characters with nicknames and titles. Piedmont surnames often end

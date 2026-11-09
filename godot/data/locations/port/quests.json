@@ -1,0 +1,1996 @@
+{
+ "quests": [
+  {
+   "id": "port_welcome",
+   "title": "Mind the Change",
+   "giver": "port_nicolo",
+   "main": true,
+   "type": "request",
+   "description": "Ragioniere Bruzzone of the savings bank meets your train with a euro starter kit. Follow him down the stair lanes to the bank, try Rosetta's focaccia, gather driftwood on the rocks, meet the harbour master, and climb the 112 steps to your flat.",
+   "requires": {},
+   "onAccept": {
+    "flags": [
+     "port_nicolo_met"
+    ],
+    "items": {
+     "coins": 25
+    }
+   },
+   "objectives": [
+    {
+     "id": "bank",
+     "kind": "talk",
+     "npc": "port_nicolo",
+     "stage": 0,
+     "text": "Follow Nicolò down the stair lanes to the savings bank under the arcades",
+     "lines": [
+      "Ninety-four steps from the top to the church square, sixty-one from the square to the arcades. I counted them on the way down. I always do.",
+      "That was the castle up there, with its sea wall in the sea since February. And Agostino, by his lift. He sits there every day in his uniform, in case it starts again. It won't. The storm took the power.",
+      "The striped church, the laundry lines with nothing on them, the storm took the washing too, and the yellow palazzo with the green shutters: that's yours. Top floor. One hundred and twelve steps. I won't be climbing them with you.",
+      "And this is the bank. My bank. Well, the bank's bank. Go and see Rosetta next door, she'll feed you. Everyone who arrives in Tonnarella gets fed. It's the law. Not a real law. A better one."
+     ],
+     "hint": {
+      "x": 14,
+      "z": 23.6
+     }
+    },
+    {
+     "id": "focaccia",
+     "kind": "talk",
+     "npc": "port_rosetta",
+     "stage": 1,
+     "text": "Try a slice of focaccia at Rosetta's bakery, next door to the bank",
+     "lines": [
+      "The new Geometra! Here, focaccia, still hot. Oil, salt, holes. Take it outside and eat it looking at the sea, that's the proper way.",
+      "Careful, careful, hold it close, there's a gull on the, oh. Oh no. Well. That's your welcome. Everybody's first slice goes to the gulls. It's tradition. Have another, quick, eat it inside.",
+      "Traverso wants you, by the way. The harbour master. He'll want driftwood for something. He always wants something. The storm piled the old timber on the rocks under the castle."
+     ],
+     "hint": {
+      "x": -2.5,
+      "z": 23.6
+     },
+     "onDone": {
+      "items": {
+       "port_focaccia": 1
+      }
+     }
+    },
+    {
+     "id": "driftwood",
+     "kind": "gather",
+     "item": "wood",
+     "count": 4,
+     "stage": 2,
+     "text": "Gather 4 driftwood on the rocks below the castle (round the end of the quays)",
+     "hint": {
+      "x": 63,
+      "z": 0
+     },
+     "fresh": true
+    },
+    {
+     "id": "harbour",
+     "kind": "talk",
+     "npc": "port_lorenzo",
+     "stage": 3,
+     "text": "Bring the driftwood to the harbour office at the west end of the quays",
+     "lines": [
+      "Traverso. Comandante. Harbour master. You've brought wood. Good. I'll complain about the quality later.",
+      "Look out there. The breakwater. The storm took the middle out of it in February, seven metres of it, and now nobody can walk out to the lighthouse. Not even its keeper. Gerolamo's been stuck out there since, the old fool. He rows in for focaccia.",
+      "And the lighthouse is dark. The Navy has written. If she isn't lit by spring, they'll switch her off for good and put a buoy in the bay. A buoy! It's on my wall. I grumble at it.",
+      "That's why I sent for you. Tomorrow we start. Tonight, go home. Up the 112 steps. Nicolò will be waiting at your door to count them for you."
+     ],
+     "hint": {
+      "x": -45,
+      "z": 30
+     },
+     "onDone": {
+      "flags": [
+       "port_lorenzo_met"
+      ]
+     }
+    },
+    {
+     "id": "steps",
+     "kind": "event",
+     "event": "ride:port_stairs_roof",
+     "count": 1,
+     "stage": 4,
+     "text": "Climb the 112 steps to your flat (the street door of the yellow palazzo, on the alley east of the church)",
+     "hint": {
+      "x": 33.6,
+      "z": -2.2
+     }
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "port_nicolo",
+     "text": "Come back down and tell Nicolò you made it",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "meter": 15,
+    "items": {
+     "coins": 20
+    },
+    "flags": [
+     "port_welcomed",
+     "port_home"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "Geometra! Welcome to Tonnarella. Bruzzone, Ragioniere, savings bank. I've brought you a euro starter kit: twelve euros ninety-one. That's twenty-five thousand lire exactly. I counted it twice.",
+     "Well, three times. Four. It's a nervous time for coins.",
+     "The lift to the harbour is out, since the storm. So we walk. Down the stair lanes, to the bank. I'll show you everything on the way. I'll count the steps. You look at things."
+    ],
+    "acceptLabel": "Lead the way, Ragioniere",
+    "declineLabel": "Give me a minute",
+    "accept": [
+     "Splendid. Here's your kit. Coins, notes, a little converter. Keep it in your left pocket. Lire in the right. Never mix pockets. That way madness lies.",
+     "Follow me. Mind the first step. It's the worst one. No, the second one is. I'll tell you which as we go."
+    ],
+    "decline": [
+     "Of course. Look at the view. The whole bay. On a tramontana day you can see Corsica. Or a cloud shaped like Corsica."
+    ],
+    "progress": [
+     "The bank, Rosetta's, the driftwood, the harbour office, then the 112 steps. In that order. Order is everything."
+    ],
+    "complete": [
+     "You climbed them? All of them? I counted from down here: 112. Same as always. That's the nice thing about steps. They don't change their rate.",
+     "Welcome home, Geometra. The flat is yours, the roof terrace too. Build what you like up there. The gulls will inspect it."
+    ]
+   }
+  },
+  {
+   "id": "port_breakwater",
+   "title": "The Broken Breakwater",
+   "giver": "port_lorenzo",
+   "main": true,
+   "type": "request",
+   "description": "The February storm took seven metres out of the middle of the breakwater, and nobody can walk out to the lighthouse. Gather driftwood and stone, then bridge the gap from the quay end to the lighthouse rock, with railings along it.",
+   "requires": {
+    "quests": [
+     "port_welcome"
+    ]
+   },
+   "onAccept": {
+    "blueprints": [
+     "bridgeDeck",
+     "bridgePost",
+     "railing",
+     "stoneBlock"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "wood",
+     "kind": "gather",
+     "item": "wood",
+     "count": 15,
+     "stage": 0,
+     "text": "Gather 15 driftwood on the rocks below the castle (the sea throws up more overnight)",
+     "hint": {
+      "x": 63,
+      "z": 0
+     }
+    },
+    {
+     "id": "stone",
+     "kind": "gather",
+     "item": "stone",
+     "count": 2,
+     "stage": 0,
+     "text": "Quarry 2 stone from the castle's fallen sea wall (the Comandante will complain)",
+     "hint": {
+      "x": 64,
+      "z": -52
+     }
+    },
+    {
+     "id": "bridge",
+     "kind": "commission",
+     "stage": 1,
+     "text": "Bridge the gap in the breakwater: walkable from the quay end to the lighthouse rock, with railings along it",
+     "zone": "port_breakwater",
+     "musts": [
+      {
+       "check": "path",
+       "label": "Walkable from the quay end to the lighthouse rock"
+      },
+      {
+       "check": "pieces",
+       "any": [
+        "railing"
+       ],
+       "label": "Railings along it",
+       "count": 4
+      }
+     ],
+     "wishes": [
+      {
+       "check": "pieces",
+       "any": [
+        "stoneBlock",
+        "pillar",
+        "column"
+       ],
+       "label": "Some stone in it, like the old one",
+       "who": "port_lorenzo"
+      },
+      {
+       "check": "provides",
+       "kind": "light",
+       "label": "A lamp at the end, for the walk home",
+       "who": "port_gerolamo"
+      },
+      {
+       "check": "provides",
+       "kind": "seat",
+       "label": "Somewhere to sit and fish from",
+       "who": "port_stefano"
+      }
+     ],
+     "buildHint": "Planks reach two tiles out from the breakwater's top. Stand a post in the gap's bed and lay a plank on it, then reach on from there. R turns railings to the plank's edge.",
+     "hint": {
+      "x": 39.5,
+      "z": 57
+     },
+     "onDone": {
+      "flags": [
+       "port_breakwater_done"
+      ]
+     },
+     "plan": [
+      [
+       39,
+       53,
+       "bridgeDeck",
+       0
+      ],
+      [
+       39,
+       54,
+       "bridgeDeck",
+       0
+      ],
+      [
+       39,
+       55,
+       "bridgeDeck",
+       0
+      ],
+      [
+       39,
+       57,
+       "bridgePost",
+       0
+      ],
+      [
+       39,
+       57,
+       "bridgeDeck",
+       0
+      ],
+      [
+       39,
+       56,
+       "bridgeDeck",
+       0
+      ],
+      [
+       39,
+       58,
+       "bridgeDeck",
+       0
+      ],
+      [
+       39,
+       59,
+       "bridgeDeck",
+       0
+      ],
+      [
+       39,
+       61,
+       "bridgeDeck",
+       0
+      ],
+      [
+       39,
+       60,
+       "bridgeDeck",
+       0
+      ],
+      [
+       39,
+       55,
+       "railing",
+       1
+      ],
+      [
+       39,
+       55,
+       "railing",
+       3
+      ],
+      [
+       39,
+       58,
+       "railing",
+       1
+      ],
+      [
+       39,
+       58,
+       "railing",
+       3
+      ]
+     ]
+    },
+    {
+     "id": "gerolamo",
+     "kind": "talk",
+     "npc": "port_gerolamo",
+     "stage": 2,
+     "text": "Walk out to the lighthouse and tell Gerolamo the way is open",
+     "lines": [
+      "Who's that? On foot? On my rock? Nobody has walked onto this rock since February. The gulls are furious. Look at them.",
+      "You mended it. You mended the breakwater. Forty years I've walked to Rosetta's along there, and since the storm I've rowed it. My shoulders send their thanks. My shoulders are seventy-three.",
+      "Tomorrow morning I'm walking to the bakery. With the gulls. They'll have to walk too. Tell Traverso. He'll pretend not to be pleased."
+     ],
+     "hint": {
+      "x": 42,
+      "z": 76.2
+     }
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "port_lorenzo",
+     "text": "Tell the Comandante the lighthouse can be reached",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "meter": 15,
+    "items": {
+     "coins": 30
+    },
+    "flags": [
+     "port_breakwater_open",
+     "port_breakwater_done"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "Geometra. A complaint, and a request. The complaint: the breakwater has a hole in it. The request: fill it.",
+     "Seven metres gone, between the quay end and the lighthouse rock. The sea runs through it at every tide. Planks on posts will do; it doesn't need to be beautiful, it needs to be there. And railings. Nobody falls in on my watch. Not again.",
+     "Driftwood's on the rocks under the castle, all the timber the storm broke. And a little stone from the castle's fallen wall, though I want it noted that it's a protected monument."
+    ],
+    "acceptLabel": "I'll bridge the gap",
+    "declineLabel": "Not today",
+    "accept": [
+     "Good. Here are the plans for planks, posts and railings, and for a proper stone block, if you want to do it the old way.",
+     "The posts stand in the bed of the gap. The planks reach out two tiles from anything solid. You'll work it out. You're a Geometra. It's in the name."
+    ],
+    "decline": [
+     "The sea's had seven metres since February. It can wait another day. I can't, but I'll grumble instead."
+    ],
+    "progress": [
+     "Driftwood from the rocks, stone from the wall, then planks across the gap, posts in its bed, railings along it."
+    ],
+    "complete": [
+     "He walked to the bakery? Gerolamo? On his feet? With the gulls behind him like a procession? I'll believe it when I see it. I saw it. I'm still not sure I believe it.",
+     "Good work. I've nothing to complain about, which is a terrible feeling. Give me a day. I'll find something."
+    ]
+   }
+  },
+  {
+   "id": "port_fishmarket",
+   "title": "The Fish Market",
+   "giver": "port_giobatta",
+   "main": true,
+   "type": "request",
+   "description": "The storm tore the roof off Baciccia's stalls at the end of the arcades. Gather wood and stone, then build him a fish market: three counters to sell from, a roof, and a sign with the prices.",
+   "requires": {
+    "quests": [
+     "port_breakwater"
+    ]
+   },
+   "onAccept": {
+    "blueprints": [
+     "counter",
+     "pillar",
+     "roof",
+     "enamelSign",
+     "signpost"
+    ],
+    "items": {
+     "clay": 1,
+     "metal": 1
+    }
+   },
+   "objectives": [
+    {
+     "id": "wood",
+     "kind": "gather",
+     "item": "wood",
+     "count": 10,
+     "stage": 0,
+     "text": "Gather 10 driftwood for the counters and the roof",
+     "hint": {
+      "x": 63,
+      "z": 0
+     }
+    },
+    {
+     "id": "stone",
+     "kind": "gather",
+     "item": "stone",
+     "count": 7,
+     "stage": 0,
+     "text": "Quarry 7 stone from the castle's fallen wall, for the counter tops and pillars",
+     "hint": {
+      "x": 64,
+      "z": -52
+     }
+    },
+    {
+     "id": "market",
+     "kind": "commission",
+     "stage": 1,
+     "text": "Build Baciccia a fish market at the end of the arcades: three counters, a roof, and a sign with the prices",
+     "zone": "port_fishmarket",
+     "musts": [
+      {
+       "check": "provides",
+       "kind": "stall",
+       "label": "Three counters to sell from",
+       "count": 3
+      },
+      {
+       "check": "provides",
+       "kind": "shelter",
+       "label": "A roof over the market"
+      },
+      {
+       "check": "pieces",
+       "any": [
+        "enamelSign",
+        "signpost"
+       ],
+       "label": "A sign with the prices"
+      }
+     ],
+     "wishes": [
+      {
+       "check": "provides",
+       "kind": "light",
+       "label": "A light for the dawn sale",
+       "who": "port_stefano"
+      },
+      {
+       "check": "provides",
+       "kind": "seat",
+       "label": "A seat for the old men who come to watch",
+       "who": "port_agostino"
+      },
+      {
+       "check": "recolored",
+       "label": "Painted sea green",
+       "who": "port_giobatta"
+      }
+     ],
+     "buildHint": "A roof needs something to rest on, like two pillars under its back edge.",
+     "hint": {
+      "x": 34,
+      "z": 27
+     },
+     "plan": [
+      [
+       31,
+       26,
+       "counter",
+       0
+      ],
+      [
+       33,
+       26,
+       "counter",
+       0
+      ],
+      [
+       35,
+       26,
+       "counter",
+       0
+      ],
+      [
+       33,
+       28,
+       "pillar",
+       0
+      ],
+      [
+       34,
+       28,
+       "pillar",
+       0
+      ],
+      [
+       33,
+       28,
+       "roof",
+       0
+      ],
+      [
+       37,
+       26,
+       "enamelSign",
+       0
+      ]
+     ]
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "port_giobatta",
+     "text": "Tell Baciccia his market is ready",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "meter": 15,
+    "items": {
+     "coins": 30
+    },
+    "flags": [
+     "port_fishmarket_done"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "You! The Geometra. You fixed Gerolamo's walk. Now fix my roof. The storm took it and put it in the harbour. I've seen it. It's in four pieces. A crab lives in one.",
+     "Three counters, a roof, and a sign with my prices. In lire. And in euros, underneath, small. Smaller. Smaller than that."
+    ],
+    "acceptLabel": "Three counters and a roof",
+    "declineLabel": "Not now, Baciccia",
+    "accept": [
+     "Bravo. Here: plans for counters, pillars, roofs and signs. A roof tile I fished out of the harbour, and an old tin sign for the metal.",
+     "Wood from the rocks, stone from the castle, and don't tell Traverso I said castle."
+    ],
+    "decline": [
+     "Fine. I'll keep selling off the boxes, under the sky, like a pirate. A pirate with very fresh fish."
+    ],
+    "progress": [
+     "Three counters, a roof, a sign. And if the sign says euros, write it small."
+    ],
+    "complete": [
+     "Look at it. A roof! Counters! A sign! I've hung a fish over the euro side. A nice big mullet. Nobody will read it now.",
+     "Thank you, Geometra. Come by at dawn. First sale of the day, I give a good price. In lire, of course."
+    ]
+   }
+  },
+  {
+   "id": "port_lift",
+   "title": "Up and Down",
+   "giver": "port_agostino",
+   "main": true,
+   "type": "request",
+   "description": "The storm cut the public lift's power, and Agostino has sat by it every day since. The tramontana blows on the castle bastion: build a windmill there and carry its power to the lift's drive in the machine room's east wall.",
+   "requires": {
+    "quests": [
+     "port_fishmarket"
+    ]
+   },
+   "onAccept": {
+    "blueprints": [
+     "windmill",
+     "shaft",
+     "lamp",
+     "bench"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "wood",
+     "kind": "gather",
+     "item": "wood",
+     "count": 6,
+     "stage": 0,
+     "text": "Gather 6 driftwood for a windmill and a shaft",
+     "hint": {
+      "x": 63,
+      "z": 0
+     }
+    },
+    {
+     "id": "fabric",
+     "kind": "gather",
+     "item": "fabric",
+     "count": 2,
+     "stage": 0,
+     "text": "Buy 2 sailcloth at the chandlery, for the sails",
+     "hint": {
+      "x": 25,
+      "z": 23.6
+     }
+    },
+    {
+     "id": "power",
+     "kind": "commission",
+     "stage": 1,
+     "text": "On the castle bastion, carry wind power to the lift's drive in the machine room's east wall",
+     "zone": "port_bastion",
+     "musts": [
+      {
+       "check": "fed",
+       "target": "port_lift",
+       "label": "Wind power reaches the lift's drive"
+      }
+     ],
+     "wishes": [
+      {
+       "check": "provides",
+       "kind": "light",
+       "label": "A light at the top stop for evening riders",
+       "who": "port_pina"
+      },
+      {
+       "check": "provides",
+       "kind": "seat",
+       "label": "A bench to wait on",
+       "who": "port_agostino"
+      }
+     ],
+     "buildHint": "Windmills push power out of one side; R turns them. A shaft carries it in a line. The drive is the cell against the machine room's east wall.",
+     "hint": {
+      "x": 25.5,
+      "z": -43.5
+     },
+     "onDone": {
+      "flags": [
+       "port_lift_powered"
+      ]
+     },
+     "plan": [
+      [
+       26,
+       -44,
+       "windmill",
+       1
+      ],
+      [
+       25,
+       -44,
+       "shaft",
+       1
+      ]
+     ]
+    },
+    {
+     "id": "switch",
+     "kind": "talk",
+     "npc": "port_agostino",
+     "stage": 2,
+     "text": "Tell Agostino the power's on",
+     "lines": [
+      "Power? In the drive? I can hear it. That hum. Thirty years I've listened to that hum, and since February I've listened to nothing.",
+      "Right. Gloves. Cap. Key. Doors closing. Going down.",
+      "It works. It works! Come on, Geometra, all three stops, the castle, the church, the harbour. You're riding with me. Everybody rides with me."
+     ],
+     "hint": {
+      "x": 19.5,
+      "z": -39.8
+     },
+     "onDone": {
+      "flags": [
+       "port_lift_on"
+      ]
+     }
+    },
+    {
+     "id": "ride",
+     "kind": "event",
+     "event": "ride:port_lift_harbour",
+     "count": 1,
+     "stage": 3,
+     "text": "Ride the lift down to the harbour (the stop by the machine room)",
+     "hint": {
+      "x": 21,
+      "z": -38.8
+     }
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "port_agostino",
+     "text": "Ride back up and thank Agostino",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "meter": 15,
+    "items": {
+     "coins": 35
+    },
+    "flags": [
+     "port_lift_done"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "Geometra. Do you have a minute? I have thirty years of minutes, all spent in this uniform.",
+     "The lift. The storm cut the power in February, and the company says it'll be two years before they fix the line. Two years! Nonna Pina hasn't been down to the harbour since.",
+     "My uncle always said the tramontana on the bastion could run the whole town. A windmill up there, its power to the drive in the machine room's east wall. He was never wrong about wind. About horses, often. About wind, never."
+    ],
+    "acceptLabel": "Let's get it going",
+    "declineLabel": "Not today",
+    "accept": [
+     "Thank you. Here are the plans: windmill, shaft, and a lamp and bench while you're at it. The sails need sailcloth: Davide at the chandlery has some. Wood from the rocks.",
+     "The drive's in the machine room's east wall. You'll hear it when it turns. I'll hear it from anywhere."
+    ],
+    "decline": [
+     "I'll be here. I'm always here. It's the job, even without the job."
+    ],
+    "progress": [
+     "A windmill on the bastion, power to the drive in the machine room's east wall. Then we ride."
+    ],
+    "complete": [
+     "Thirty-one seconds, top to bottom. Same as always. I timed it twice. I timed it four times.",
+     "Nonna Pina's coming down tomorrow, she said. In her good coat. Thank you, Geometra. Going up?"
+    ]
+   }
+  },
+  {
+   "id": "port_lighthouse",
+   "title": "Light the Lighthouse",
+   "giver": "port_gerolamo",
+   "main": true,
+   "type": "request",
+   "description": "The lighthouse has been dark since the storm, and the Navy wants to switch her off for good. Buy glass panes for the lantern, then on the lighthouse rock build a windmill to drive her turning gear. After dark, light her with Gerolamo.",
+   "requires": {
+    "quests": [
+     "port_lift"
+    ]
+   },
+   "onAccept": {
+    "blueprints": [
+     "windmill",
+     "shaft"
+    ],
+    "flags": [
+     "port_glazing"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "glass",
+     "kind": "gather",
+     "item": "port_glass",
+     "count": 4,
+     "stage": 0,
+     "text": "Buy 4 glass panes at the chandlery, for the lantern",
+     "hint": {
+      "x": 25,
+      "z": 23.6
+     }
+    },
+    {
+     "id": "wood",
+     "kind": "gather",
+     "item": "wood",
+     "count": 6,
+     "stage": 0,
+     "text": "Gather 6 driftwood for a windmill and a shaft",
+     "hint": {
+      "x": 63,
+      "z": 0
+     }
+    },
+    {
+     "id": "fabric",
+     "kind": "gather",
+     "item": "fabric",
+     "count": 2,
+     "stage": 0,
+     "text": "Buy 2 sailcloth at the chandlery, for the sails",
+     "hint": {
+      "x": 25,
+      "z": 23.6
+     }
+    },
+    {
+     "id": "panes",
+     "kind": "pay",
+     "npc": "port_gerolamo",
+     "stage": 1,
+     "items": {
+      "port_glass": 4
+     },
+     "text": "Give Gerolamo the panes, to glaze the lantern",
+     "hint": {
+      "x": 42,
+      "z": 76.2
+     },
+     "lines": [
+      "Four panes. Clear as gin. I'll take them up tonight and glaze her myself. My grandfather glazed her in 1911. My hands remember how.",
+      "Now she needs to turn. The old motor's drowned. Wind, Geometra. On the rock. There's a drive in the west wall of the tower."
+     ],
+     "onDone": {
+      "flags": [
+       "port_glazed"
+      ]
+     }
+    },
+    {
+     "id": "turn",
+     "kind": "commission",
+     "stage": 2,
+     "text": "On the lighthouse rock, carry wind power to the turning gear in the tower's west wall",
+     "zone": "port_rock",
+     "musts": [
+      {
+       "check": "fed",
+       "target": "port_lighthouse",
+       "label": "Wind power drives the lighthouse's turning gear"
+      }
+     ],
+     "wishes": [
+      {
+       "check": "pieces",
+       "any": [
+        "railing"
+       ],
+       "label": "A railing round the rock",
+       "who": "port_lorenzo"
+      },
+      {
+       "check": "provides",
+       "kind": "seat",
+       "label": "A bench to watch the beam from",
+       "who": "port_gerolamo"
+      },
+      {
+       "check": "provides",
+       "kind": "light",
+       "label": "A light for the walk out",
+       "who": "port_stefano"
+      }
+     ],
+     "buildHint": "A windmill west of the tower, turned so it pushes east, and a shaft into the drive against the tower's west wall.",
+     "hint": {
+      "x": 37.5,
+      "z": 84.5
+     },
+     "onDone": {
+      "flags": [
+       "port_lighthouse_ready"
+      ]
+     },
+     "plan": [
+      [
+       37,
+       84,
+       "windmill",
+       3
+      ],
+      [
+       38,
+       84,
+       "shaft",
+       1
+      ]
+     ]
+    },
+    {
+     "id": "night",
+     "kind": "talk",
+     "npc": "port_gerolamo",
+     "stage": 3,
+     "text": "After dark (8 PM to 3 AM), meet Gerolamo at the lighthouse door and light her",
+     "lines": [
+      "There you are. Look behind you: the whole town's on the breakwater. Nicolò brought a torch. Baciccia brought a chair. Nonna Pina came down in the lift in her good coat.",
+      "Up we go. One hundred and twenty steps, round and round. I've climbed them every night for forty years, and every night since February to a dark lantern. Not tonight.",
+      "The panes are in. The gear is turning, I can feel it in the floor. Now, the lamp. Steady, old girl. Steady.",
+      "There. There she is. Two white flashes every eleven seconds. Look at the beam on the water, all the way to the point. And there go Stefano's boats under it, with their lamps, like a string of pearls.",
+      "Go on down, Geometra. Rosetta's opened the bakery for the night. Everyone's spending their last lire on focaccia. I'll stay up here a while. We have a lot to talk about, she and I."
+     ],
+     "hint": {
+      "x": 42,
+      "z": 88.6
+     },
+     "hours": [
+      20,
+      3
+     ],
+     "onDone": {
+      "flags": [
+       "port_finale_night"
+      ]
+     }
+    },
+    {
+     "id": "lire",
+     "kind": "talk",
+     "npc": "port_rosetta",
+     "stage": 4,
+     "text": "Spend the night's last lire at Rosetta's: she's open all night",
+     "lines": [
+      "Come in, come in, it's midnight and the whole town's here. Last night of lire, they say, at least in this shop. Baciccia's paying in thousand-lire notes and crying a little.",
+      "Here, on the house. A slice of focaccia for the Geometra who lit the lighthouse. The gulls are asleep for once. Eat it slowly."
+     ],
+     "hint": {
+      "x": -2.5,
+      "z": 23.6
+     },
+     "hours": [
+      21,
+      5
+     ]
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "port_gerolamo",
+     "text": "In the morning, see Gerolamo",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "meter": 15,
+    "items": {
+     "coins": 50
+    },
+    "flags": [
+     "port_lighthouse_lit"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "Geometra. Sit down. Not there, that's the cat's. There.",
+     "She's been dark since February. Forty years I kept her lit, and my father before me, and his father before him. The storm smashed four panes in the lantern and drowned the motor that turns the lens.",
+     "The Navy says spring, or a buoy. I say: glass from the chandlery, four panes, and a windmill on the rock to turn her. Then, one night, we light her. Together."
+    ],
+    "acceptLabel": "Let's light her",
+    "declineLabel": "Not yet",
+    "accept": [
+     "Good. Davide at the chandlery has panes. Bring me four. And the plans for a windmill and a shaft: the turning gear's drive is in the tower's west wall.",
+     "When she's ready, come back after dark. I'll be at the door. I'm always at the door after dark."
+    ],
+    "decline": [
+     "She's waited since February. She's patient. I'm less patient, but I'm older, so it evens out."
+    ],
+    "progress": [
+     "Four panes for the lantern, a windmill on the rock for the gear. Then after dark, at the lighthouse door."
+    ],
+    "complete": [
+     "Morning, Geometra. Did you sleep? I didn't. I sat up there all night and watched her go round. Two flashes. Eleven seconds. Two flashes.",
+     "The Navy's written again. No buoy. Traverso has framed it next to the first. He's grumbling at both of them now. He's never been happier.",
+     "Il Gabbiano has us on the front page: 'Tonnarella Lights Up.' Thank you, Geometra. She'll be turning long after you and I are done."
+    ]
+   }
+  },
+  {
+   "id": "port_queue",
+   "title": "The Queue at the Bank",
+   "giver": "port_nicolo",
+   "type": "request",
+   "description": "The whole town is queuing out under the arcade to change its lire, in the wind. Build the queue somewhere to sit outside the bank: four seats, a roof and a light.",
+   "requires": {
+    "quests": [
+     "port_welcome"
+    ]
+   },
+   "onAccept": {
+    "blueprints": [
+     "bench",
+     "pillar",
+     "roof",
+     "lamp",
+     "table"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "seats",
+     "kind": "commission",
+     "stage": 0,
+     "text": "Outside the bank: four seats for the queue, a roof, and a light",
+     "zone": "port_bank_arcade",
+     "musts": [
+      {
+       "check": "provides",
+       "kind": "seat",
+       "label": "Four seats for the queue",
+       "count": 4
+      },
+      {
+       "check": "provides",
+       "kind": "shelter",
+       "label": "A roof against the tramontana"
+      },
+      {
+       "check": "provides",
+       "kind": "light",
+       "label": "A light for the early queue"
+      }
+     ],
+     "wishes": [
+      {
+       "check": "provides",
+       "kind": "green",
+       "label": "Something green",
+       "who": "port_pina"
+      },
+      {
+       "check": "pieces",
+       "any": [
+        "table"
+       ],
+       "label": "A table to fill in the forms on",
+       "who": "port_nicolo"
+      }
+     ],
+     "buildHint": "A roof needs something to rest on, like two pillars under one edge.",
+     "hint": {
+      "x": 13,
+      "z": 27.5
+     },
+     "plan": [
+      [
+       9,
+       27,
+       "bench",
+       0
+      ],
+      [
+       11,
+       27,
+       "bench",
+       0
+      ],
+      [
+       13,
+       27,
+       "bench",
+       0
+      ],
+      [
+       15,
+       27,
+       "bench",
+       0
+      ],
+      [
+       17,
+       28,
+       "pillar",
+       0
+      ],
+      [
+       18,
+       28,
+       "pillar",
+       0
+      ],
+      [
+       17,
+       28,
+       "roof",
+       0
+      ],
+      [
+       8,
+       27,
+       "lamp",
+       0
+      ]
+     ]
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "port_nicolo",
+     "text": "Tell Nicolò the queue can sit down",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "meter": 4,
+    "items": {
+     "coins": 20
+    },
+    "flags": [
+     "port_queue_done"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "Geometra, look at them. The whole town, queuing out under the arcade to change their lire, in the tramontana. Signora Repetto has been there since six. She's ninety-one.",
+     "If they could sit. If they had a roof. If they could see their forms before dawn. They'd still shout at me, but sitting down."
+    ],
+    "acceptLabel": "Seats, a roof, a light",
+    "declineLabel": "Not now",
+    "accept": [
+     "Bless you. Here are the plans for benches, pillars, a roof, a lamp, and a table, if you're feeling generous. Outside the bank, on the quay."
+    ],
+    "decline": [
+     "Of course. They'll stand. They're good at standing. It's the shouting that tires them."
+    ],
+    "progress": [
+     "Four seats, a roof and a light, outside the bank."
+    ],
+    "complete": [
+     "They're sitting! Signora Repetto has fallen asleep with her lire in her lap. It's the first peaceful queue in the history of the bank. Thank you, Geometra."
+    ]
+   }
+  },
+  {
+   "id": "port_seagulls",
+   "title": "Seagulls vs Focaccia",
+   "giver": "port_rosetta",
+   "type": "request",
+   "description": "The dockers eat breakfast outside Rosetta's door from 4 AM, in the dark, and the gulls take it. Give them somewhere to sit under a roof, with a light so they can see the gulls coming.",
+   "requires": {
+    "quests": [
+     "port_welcome"
+    ]
+   },
+   "onAccept": {
+    "blueprints": [
+     "table",
+     "chair",
+     "pillar",
+     "roof",
+     "lamp"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "tables",
+     "kind": "commission",
+     "stage": 0,
+     "text": "Outside Rosetta's bakery: four seats, a roof over them and a light",
+     "zone": "port_bakery_door",
+     "musts": [
+      {
+       "check": "provides",
+       "kind": "seat",
+       "label": "Four seats for the dockers",
+       "count": 4
+      },
+      {
+       "check": "provides",
+       "kind": "shelter",
+       "label": "A roof against the gulls"
+      },
+      {
+       "check": "provides",
+       "kind": "light",
+       "label": "A light for breakfast at four"
+      }
+     ],
+     "wishes": [
+      {
+       "check": "pieces",
+       "any": [
+        "table"
+       ],
+       "label": "Two tables for the coffee",
+       "count": 2,
+       "who": "port_giobatta"
+      },
+      {
+       "check": "provides",
+       "kind": "green",
+       "label": "Something green",
+       "who": "port_pina"
+      },
+      {
+       "check": "recolored",
+       "label": "In the bakery's warm yellow",
+       "who": "port_rosetta"
+      }
+     ],
+     "buildHint": "A roof needs something to rest on, like two pillars under one edge. The gulls hate roofs.",
+     "hint": {
+      "x": -3,
+      "z": 27.5
+     },
+     "plan": [
+      [
+       -6,
+       27,
+       "table",
+       0
+      ],
+      [
+       -7,
+       27,
+       "chair",
+       1
+      ],
+      [
+       -5,
+       27,
+       "chair",
+       3
+      ],
+      [
+       -2,
+       27,
+       "table",
+       0
+      ],
+      [
+       -3,
+       27,
+       "chair",
+       1
+      ],
+      [
+       -1,
+       27,
+       "chair",
+       3
+      ],
+      [
+       -4,
+       28,
+       "pillar",
+       0
+      ],
+      [
+       -3,
+       28,
+       "pillar",
+       0
+      ],
+      [
+       -4,
+       28,
+       "roof",
+       0
+      ],
+      [
+       1,
+       27,
+       "lamp",
+       0
+      ]
+     ]
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "port_rosetta",
+     "text": "Tell Rosetta the dockers have a roof",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "meter": 4,
+    "items": {
+     "coins": 20
+    },
+    "flags": [
+     "port_seagulls_done"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "Geometra. A war. Every morning at four the dockers come for focaccia and milky coffee, and they eat it outside my door in the dark, and the gulls take it out of their hands.",
+     "Seats, a roof, a light. Under a roof the gulls can't dive. With a light, the dockers can see them coming. It's not much to ask. It's everything to ask."
+    ],
+    "acceptLabel": "Let's beat the gulls",
+    "declineLabel": "The gulls win today",
+    "accept": [
+     "Here: plans for tables, chairs, pillars, a roof and a lamp. Outside my door, on the quay. Quick, before the gulls hear about it."
+    ],
+    "decline": [
+     "They always win. That's what makes it a war and not a picnic."
+    ],
+    "progress": [
+     "Four seats, a roof, a light. And tables, if you love me."
+    ],
+    "complete": [
+     "This morning they ate all their focaccia! All of it! One gull landed on the roof and just glared. Glared! Thank you, Geometra. Free focaccia for life. Well, for a week."
+    ]
+   }
+  },
+  {
+   "id": "port_labels",
+   "title": "The Two-Price Labels",
+   "giver": "port_davide",
+   "type": "request",
+   "description": "The law says every shop must show both prices, and the arcade's shopkeepers argue over every lira. For Davide and the other shops of the arcade, put up signs under the arcade, by the bakery, the bank and the chandlery, with a lamp so they can be read before dawn.",
+   "requires": {
+    "quests": [
+     "port_fishmarket"
+    ]
+   },
+   "onAccept": {
+    "blueprints": [
+     "enamelSign",
+     "signpost",
+     "lamp"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "signs",
+     "kind": "commission",
+     "stage": 0,
+     "text": "Under the arcade: three signs for the prices, by the bakery, the bank and the chandlery, and a lamp",
+     "zone": "port_arcade",
+     "musts": [
+      {
+       "check": "pieces",
+       "any": [
+        "enamelSign",
+        "signpost"
+       ],
+       "label": "Three signs along the arcade",
+       "count": 3
+      },
+      {
+       "check": "provides",
+       "kind": "light",
+       "label": "A lamp to read them by before dawn"
+      }
+     ],
+     "wishes": [
+      {
+       "check": "recolored",
+       "label": "Painted scooter blue",
+       "who": "port_davide"
+      },
+      {
+       "check": "provides",
+       "kind": "green",
+       "label": "Something green",
+       "who": "port_pina"
+      }
+     ],
+     "buildHint": "Signs go up against the shopfronts under the arcade, out of the way of the doors.",
+     "hint": {
+      "x": 10,
+      "z": 22.5
+     },
+     "plan": [
+      [
+       0,
+       22,
+       "enamelSign",
+       0
+      ],
+      [
+       10,
+       22,
+       "enamelSign",
+       0
+      ],
+      [
+       21,
+       22,
+       "enamelSign",
+       0
+      ],
+      [
+       2,
+       22,
+       "lamp",
+       0
+      ]
+     ]
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "port_davide",
+     "text": "Tell Davide the arcade has its signs",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "meter": 4,
+    "items": {
+     "coins": 20
+    },
+    "flags": [
+     "port_labels_done"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "Geometra! Got a sec? The law says every shop has to show both prices, lire and euros. Uncle says the chandlery needs a sign. Rosetta says the bakery needs the biggest sign. Nicolò says the bank needs a sign that apologises.",
+     "Three signs under the arcade, by the bakery, the bank and the chandlery, and a lamp so the dockers can read them at four. Then everyone shouts at the signs instead of at me. Sick."
+    ],
+    "acceptLabel": "Three signs and a lamp",
+    "declineLabel": "Not today",
+    "accept": [
+     "Here, plans from the back: enamel signs, signposts, a lamp. Against the shopfronts, under the arcade, out of the way of the doors. Blue would be cool. Just saying."
+    ],
+    "decline": [
+     "No worries. We'll keep writing prices on paper bags. The gulls eat the paper bags."
+    ],
+    "progress": [
+     "Three signs under the arcade and a lamp. Blue if you love me."
+    ],
+    "complete": [
+     "Look at them! Lire on top, euros underneath. Baciccia came to look and said the euros were too big. They're the same size. He measured. With his pencil. Thanks, Geometra."
+    ]
+   }
+  },
+  {
+   "id": "port_lampara",
+   "title": "Night of the Lampara",
+   "giver": "port_stefano",
+   "type": "request",
+   "description": "With the breakwater mended, Stefano will take his lampara out just inside the harbour mouth. Meet him at his boat after 8 PM and fish anchovies under his lamp, then bring the catch to Baciccia when the fish market opens at dawn.",
+   "requires": {
+    "quests": [
+     "port_breakwater"
+    ]
+   },
+   "onAccept": {
+    "flags": [
+     "port_lampara_on"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "fish",
+     "kind": "event",
+     "event": "fish:port_anchovy",
+     "count": 4,
+     "stage": 0,
+     "hours": [
+      20,
+      4
+     ],
+     "text": "After 8 PM, fish anchovies under Stefano's lamp, at his boat on the quay (4 catches)",
+     "hint": {
+      "x": -25.5,
+      "z": 41.3
+     }
+    },
+    {
+     "id": "sell",
+     "kind": "pay",
+     "npc": "port_giobatta",
+     "stage": 1,
+     "items": {
+      "port_anchovy": 4
+     },
+     "hours": [
+      5,
+      12
+     ],
+     "text": "At dawn, bring the anchovies to Baciccia at the fish market (5 AM to noon)",
+     "hint": {
+      "x": 36,
+      "z": 35
+     },
+     "lines": [
+      "Anchovies! Lampara anchovies! Look at them shine. Stefano's been in harbour since February and the town's been eating tinned ones like animals.",
+      "I'll take them. Three thousand lire the lot. One euro fifty-five, if you insist, and I'll sigh."
+     ]
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "port_stefano",
+     "text": "Tell Stefano the catch is sold",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "meter": 4,
+    "items": {
+     "coins": 25
+    },
+    "flags": [
+     "port_lampara_done"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "Geometra. You mended the breakwater. Inside it the water's calm as a plate, even without the light. I can take the lampara out, just past the boats.",
+     "Come tonight, after eight. I'll light the lamp, the anchovies come up to look, and you fish them. Then at dawn we sell them to Baciccia before he's had his coffee. He pays more before coffee."
+    ],
+    "acceptLabel": "See you after eight",
+    "declineLabel": "Not tonight",
+    "accept": [
+     "After eight, at my boat, on the quay by the lift. Bring a jumper. The tramontana doesn't care that you're from inland."
+    ],
+    "decline": [
+     "The anchovies will wait. They're very patient. They have to be, they're anchovies."
+    ],
+    "progress": [
+     "After eight at my boat for the anchovies, then Baciccia at dawn."
+    ],
+    "complete": [
+     "Sold before his coffee? Ha! You're a natural. Tomorrow night, same time? No, I'm joking. Unless you want to. I'm not joking."
+    ]
+   }
+  },
+  {
+   "id": "port_nonna_lire",
+   "title": "Nonna's Hidden Lire",
+   "giver": "port_pina",
+   "type": "request",
+   "description": "Over fifty years Nonna Pina hid tins of lire round town: in flowerpots, in walls, under steps. She's lent you a metal detector. Find five tins, then take them to Nicolò at the bank to be changed.",
+   "requires": {
+    "quests": [
+     "port_lift"
+    ]
+   },
+   "onAccept": {
+    "flags": [
+     "metalDetector",
+     "port_nonna_asked"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "tins",
+     "kind": "gather",
+     "item": "port_lire_tin",
+     "count": 5,
+     "stage": 0,
+     "text": "Find 5 of Nonna's tins of lire round town where the metal detector beeps (under steps, in walls, under pots)",
+     "hint": {
+      "x": -11,
+      "z": -28
+     },
+     "fresh": true
+    },
+    {
+     "id": "change",
+     "kind": "pay",
+     "npc": "port_nicolo",
+     "stage": 1,
+     "items": {
+      "port_lire_tin": 5
+     },
+     "text": "Take the tins to Nicolò at the bank to be changed",
+     "hint": {
+      "x": 14,
+      "z": 23.6
+     },
+     "lines": [
+      "Tins? Of lire? Nonna Pina's? Oh no. Oh no, no. These are 1956 notes. These are Verdi. Nobody has seen a Verdi since I was in short trousers.",
+      "Let me count. Let me count again. Seventy-three thousand, five hundred lire. Thirty-seven euros ninety-six. I rounded. Don't tell her I rounded."
+     ]
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "port_pina",
+     "text": "Tell Nonna Pina how much it came to",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "meter": 4,
+    "items": {
+     "coins": 20
+    },
+    "flags": [
+     "port_nonna_lire_done"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "Geometra, come here. Closer. I have a secret. Fifty years of secrets, in tins, all over town.",
+     "My husband didn't trust banks. So every month, a tin. Under a step, in a wall, under a geranium. Now they say the lire won't be worth anything. Find my tins, and take them to that nervous boy at the bank.",
+     "Here. My grandson's metal detector. He bought it to find treasure. He found a lot of ring pulls. Your turn."
+    ],
+    "acceptLabel": "I'll find your tins",
+    "declineLabel": "Another day",
+    "accept": [
+     "I'd tell you where they are, but I forget. Steps, walls, pots. Start with the stair lanes. Listen for the beeping. Then the bank. Count it in front of me."
+    ],
+    "decline": [
+     "They've waited fifty years. Another day won't hurt them. It might hurt me, I'm eighty-four."
+    ],
+    "progress": [
+     "Five tins, then the bank. The detector beeps faster when you're close."
+    ],
+    "complete": [
+     "Thirty-eight euros? For fifty years? In 1956 that was a motor scooter! Ah well. I'll buy Rosetta's whole tray of focaccia and feed the gulls. My husband would be furious. Good."
+    ]
+   }
+  },
+  {
+   "id": "port_wash_tablecloth",
+   "title": "Nonna's best tablecloth",
+   "giver": "port_pina",
+   "type": "request",
+   "description": "The storm blew Nonna's best tablecloth off the washing line and left it up a lamp post in the alleys. Find it and bring it back.",
+   "requires": {
+    "quests": [
+     "port_welcome"
+    ]
+   },
+   "onAccept": {
+    "flags": [
+     "port_wash_tablecloth_asked"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "find",
+     "kind": "gather",
+     "item": "port_wash_tablecloth",
+     "count": 1,
+     "stage": 0,
+     "text": "Find Nonna's best tablecloth up a lamp post in the alleys",
+     "hint": {
+      "x": -30.8,
+      "z": 1.4
+     }
+    },
+    {
+     "id": "give",
+     "kind": "pay",
+     "npc": "port_pina",
+     "stage": 1,
+     "items": {
+      "port_wash_tablecloth": 1
+     },
+     "text": "Give it back"
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "port_pina",
+     "text": "Let them say thank you",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "meter": 1,
+    "items": {
+     "coins": 5
+    },
+    "flags": [
+     "port_wash_tablecloth_done"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "My tablecloth! The good one, with the lemons. The storm took it off the line and hung it on a lamp post like a flag. Everyone's seen it. Everyone.",
+     "If you see it, bring it back. Before somebody has a picnic on it."
+    ],
+    "acceptLabel": "I'll look for it",
+    "declineLabel": "Not now",
+    "accept": [
+     "Thank you. U, the storm left it. You can't miss it.p a lamp post in the alleys"
+    ],
+    "decline": [
+     "Of course. It's only washing. It's my washing, but it's only washing."
+    ],
+    "progress": [
+     "Have you seen it? Up a lamp post in the alleys, they say."
+    ],
+    "complete": [
+     "My lemons! You found them. Back on the line it goes, and nobody's to eat off it until Christmas."
+    ]
+   }
+  },
+  {
+   "id": "port_wash_shirt",
+   "title": "The Comandante's dress shirt",
+   "giver": "port_lorenzo",
+   "type": "request",
+   "description": "The storm blew the Comandante's dress shirt off the washing line and left it on the rocks below the castle. Find it and bring it back.",
+   "requires": {
+    "quests": [
+     "port_welcome"
+    ]
+   },
+   "onAccept": {
+    "flags": [
+     "port_wash_shirt_asked"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "find",
+     "kind": "gather",
+     "item": "port_wash_shirt",
+     "count": 1,
+     "stage": 0,
+     "text": "Find the Comandante's dress shirt on the rocks below the castle",
+     "hint": {
+      "x": 64,
+      "z": -24
+     }
+    },
+    {
+     "id": "give",
+     "kind": "pay",
+     "npc": "port_lorenzo",
+     "stage": 1,
+     "items": {
+      "port_wash_shirt": 1
+     },
+     "text": "Give it back"
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "port_lorenzo",
+     "text": "Let them say thank you",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "meter": 1,
+    "items": {
+     "coins": 5
+    },
+    "flags": [
+     "port_wash_shirt_done"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "My dress shirt. For the inaugurations. The storm took it off Signora Ottonello's line and threw it on the rocks under the castle. I've seen it through my binoculars. It's waving at me.",
+     "Bring it back, Geometra. A harbour master can't open things in his vest."
+    ],
+    "acceptLabel": "I'll look for it",
+    "declineLabel": "Not now",
+    "accept": [
+     "Thank you. O, the storm left it. You can't miss it.n the rocks below the castle"
+    ],
+    "decline": [
+     "Of course. It's only washing. It's my washing, but it's only washing."
+    ],
+    "progress": [
+     "Have you seen it? On the rocks below the castle, they say."
+    ],
+    "complete": [
+     "My shirt. Salty, but whole. I'll wear it to the next inauguration and complain about the starch."
+    ]
+   }
+  },
+  {
+   "id": "port_wash_longjohns",
+   "title": "Baciccia's long johns",
+   "giver": "port_giobatta",
+   "type": "request",
+   "description": "The storm blew Baciccia's long johns off the washing line and left it in a palm on the waterfront. Find it and bring it back.",
+   "requires": {
+    "quests": [
+     "port_welcome"
+    ]
+   },
+   "onAccept": {
+    "flags": [
+     "port_wash_longjohns_asked"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "find",
+     "kind": "gather",
+     "item": "port_wash_longjohns",
+     "count": 1,
+     "stage": 0,
+     "text": "Find Baciccia's long johns in a palm on the waterfront",
+     "hint": {
+      "x": -6,
+      "z": 37.4
+     }
+    },
+    {
+     "id": "give",
+     "kind": "pay",
+     "npc": "port_giobatta",
+     "stage": 1,
+     "items": {
+      "port_wash_longjohns": 1
+     },
+     "text": "Give it back"
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "port_giobatta",
+     "text": "Let them say thank you",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "meter": 1,
+    "items": {
+     "coins": 5
+    },
+    "flags": [
+     "port_wash_longjohns_done"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "Don't laugh. My long johns. The storm put them in a palm tree on the waterfront, and the whole town walks under them every day.",
+     "Get them down, Geometra. Quietly. Quietly!"
+    ],
+    "acceptLabel": "I'll look for it",
+    "declineLabel": "Not now",
+    "accept": [
+     "Thank you. I, the storm left it. You can't miss it.n a palm on the waterfront"
+    ],
+    "decline": [
+     "Of course. It's only washing. It's my washing, but it's only washing."
+    ],
+    "progress": [
+     "Have you seen it? In a palm on the waterfront, they say."
+    ],
+    "complete": [
+     "Ssh! Give them here. Inside the apron. Nobody saw. Did anybody see? Don't answer."
+    ]
+   }
+  },
+  {
+   "id": "port_wash_apron",
+   "title": "Rosetta's spare apron",
+   "giver": "port_rosetta",
+   "type": "request",
+   "description": "The storm blew Rosetta's spare apron off the washing line and left it on a cannon at the castle. Find it and bring it back.",
+   "requires": {
+    "quests": [
+     "port_welcome"
+    ]
+   },
+   "onAccept": {
+    "flags": [
+     "port_wash_apron_asked"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "find",
+     "kind": "gather",
+     "item": "port_wash_apron",
+     "count": 1,
+     "stage": 0,
+     "text": "Find Rosetta's spare apron on a cannon at the castle",
+     "hint": {
+      "x": 56.2,
+      "z": -44.6
+     }
+    },
+    {
+     "id": "give",
+     "kind": "pay",
+     "npc": "port_rosetta",
+     "stage": 1,
+     "items": {
+      "port_wash_apron": 1
+     },
+     "text": "Give it back"
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "port_rosetta",
+     "text": "Let them say thank you",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "meter": 1,
+    "items": {
+     "coins": 5
+    },
+    "flags": [
+     "port_wash_apron_done"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "My spare apron flew off the line in the storm, and Davide says it's tied round a cannon up at the castle like a bib. A cannon in a bib!",
+     "Bring it back, would you? I've only got one other, and it's mostly flour."
+    ],
+    "acceptLabel": "I'll look for it",
+    "declineLabel": "Not now",
+    "accept": [
+     "Thank you. O, the storm left it. You can't miss it.n a cannon at the castle"
+    ],
+    "decline": [
+     "Of course. It's only washing. It's my washing, but it's only washing."
+    ],
+    "progress": [
+     "Have you seen it? On a cannon at the castle, they say."
+    ],
+    "complete": [
+     "My apron! It smells of gunpowder and tramontana. I'll wash it twice. Thank you, Geometra."
+    ]
+   }
+  },
+  {
+   "id": "port_wash_gloves",
+   "title": "Agostino's white gloves",
+   "giver": "port_agostino",
+   "type": "request",
+   "description": "The storm blew Agostino's white gloves off the washing line and left it by the lift's top stop. Find it and bring it back.",
+   "requires": {
+    "quests": [
+     "port_welcome"
+    ]
+   },
+   "onAccept": {
+    "flags": [
+     "port_wash_gloves_asked"
+    ]
+   },
+   "objectives": [
+    {
+     "id": "find",
+     "kind": "gather",
+     "item": "port_wash_gloves",
+     "count": 1,
+     "stage": 0,
+     "text": "Find Agostino's white gloves by the lift's top stop",
+     "hint": {
+      "x": 23.5,
+      "z": -39.8
+     }
+    },
+    {
+     "id": "give",
+     "kind": "pay",
+     "npc": "port_agostino",
+     "stage": 1,
+     "items": {
+      "port_wash_gloves": 1
+     },
+     "text": "Give it back"
+    },
+    {
+     "id": "tell",
+     "kind": "talk",
+     "npc": "port_agostino",
+     "text": "Let them say thank you",
+     "final": true
+    }
+   ],
+   "rewards": {
+    "meter": 1,
+    "items": {
+     "coins": 5
+    },
+    "flags": [
+     "port_wash_gloves_done"
+    ]
+   },
+   "dialogue": {
+    "offer": [
+     "My white gloves. The storm took them off my landlady's line. A lift attendant without white gloves is just a man in a brown suit.",
+     "Somebody said they saw them by the top stop. Near the lift, of course. They know where they belong."
+    ],
+    "acceptLabel": "I'll look for it",
+    "declineLabel": "Not now",
+    "accept": [
+     "Thank you. B, the storm left it. You can't miss it.y the lift's top stop"
+    ],
+    "decline": [
+     "Of course. It's only washing. It's my washing, but it's only washing."
+    ],
+    "progress": [
+     "Have you seen it? By the lift's top stop, they say."
+    ],
+    "complete": [
+     "My gloves! Now I'm properly dressed again. Even with no lift. Thank you, Geometra."
+    ]
+   }
+  }
+ ]
+}

@@ -6,12 +6,13 @@ var t
 
 func test_merge_adds_without_replacing():
 	var lists := {"islands": [{"id": "hearthglow"}], "npcs": [{"id": "fern"}], "quests": [{"id": "bridge"}],
-		"shops": {"fern": {"name": "old"}}, "resources": {"wood": {"name": "Wood"}}, "order": ["wood"]}
+		"shops": {"fern": {"name": "old"}}, "resources": {"wood": {"name": "Wood"}}, "order": ["wood"], "tastes": {"fern": {"line": "old"}}}
 	var pack := {"location": {"name": "Porto", "x": 1, "y": 2},
 		"npcs": {"npcs": [{"id": "porto_baciccia"}, {"id": "fern", "name": "impostor"}]},
 		"quests": {"quests": [{"id": "porto_fish"}]},
 		"shops": {"shops": {"porto_baciccia": {"name": "Focacceria"}, "fern": {"name": "new"}}},
-		"resources": {"resources": {"porto_slate": {"name": "Slate"}, "wood": {"name": "Not wood"}}, "order": ["porto_slate"]}}
+		"resources": {"resources": {"porto_slate": {"name": "Slate"}, "wood": {"name": "Not wood"}}, "order": ["porto_slate"]},
+		"tastes": {"tastes": {"porto_baciccia": {"pieces": ["counter"]}, "fern": {"line": "new"}}}}
 	Data.merge_pack(lists, "porto", pack)
 	t.eq(lists.islands.size(), 2, "the pack's map entry is added")
 	t.eq(lists.islands[1].id, "porto", "the map entry takes the pack's id")
@@ -22,6 +23,8 @@ func test_merge_adds_without_replacing():
 	t.eq(lists.shops.porto_baciccia.name, "Focacceria", "the pack's shop is added")
 	t.eq(lists.resources.wood.name, "Wood", "an existing material is never replaced")
 	t.eq(lists.order, ["wood", "porto_slate"], "new materials join the bag order")
+	t.eq(lists.tastes.porto_baciccia.pieces, ["counter"], "the pack's villagers' tastes are added")
+	t.eq(lists.tastes.fern.line, "old", "an existing villager's tastes are never replaced")
 	Data.merge_pack(lists, "porto", pack)
 	t.eq(lists.islands.size() + lists.npcs.size() + lists.quests.size(), 6, "merging twice adds nothing more")
 

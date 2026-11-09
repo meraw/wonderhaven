@@ -43,12 +43,15 @@ var action_prev_p := 0.0
 func _init(app: Dictionary = {}) -> void:
 	set_appearance(app)
 
+static func colour_ok(c) -> bool:
+	return c is String and (c.length() == 7 or c.length() == 6) and Color.html_is_valid(c)
+
 static func sanitize(a: Dictionary) -> Dictionary:
 	var A: Dictionary = Data.appearance
 	var D: Dictionary = A["default"]
 	var out := {}
 	var pick := func(k: String, list: Array) -> void: out[k] = a[k] if a.has(k) and list.has(a[k]) else D[k]
-	var col := func(k: String) -> void: out[k] = a[k] if a.has(k) and a[k] is String and Color.html_is_valid(a[k]) else D[k]
+	var col := func(k: String) -> void: out[k] = a[k] if a.has(k) and Chibi.colour_ok(a[k]) else D[k]
 	col.call("skin"); pick.call("eyeShape", A.EYE_SHAPES); col.call("eyeColor"); pick.call("hair", A.HAIR_STYLES); col.call("hairColor"); pick.call("mouth", A.MOUTHS)
 	pick.call("top", A.TOPS); col.call("topColor"); pick.call("bottom", A.BOTTOMS); col.call("bottomColor"); pick.call("shoes", A.SHOES); col.call("shoesColor")
 	pick.call("hat", A.HATS); col.call("hatColor"); pick.call("accessory", A.ACCESSORIES)

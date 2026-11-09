@@ -1,0 +1,1713 @@
+{
+ "npcs": [
+  {
+   "id": "port_nicolo",
+   "name": "Ragioniere Nicolò \"Arrotonda\" Bruzzone",
+   "pronoun": "he",
+   "title": "Teller at the savings bank",
+   "likes": [
+    "port_focaccia",
+    "port_lire_purse",
+    "port_greens_pie"
+   ],
+   "voice": 1.15,
+   "appearance": {
+    "skin": "f4c9a0",
+    "eyeShape": "round",
+    "eyeColor": "3a2a1e",
+    "hair": "short",
+    "hairColor": "d8d8d8",
+    "mouth": "o",
+    "top": "suit",
+    "topColor": "8a8d90",
+    "bottom": "pants",
+    "bottomColor": "6a6d70",
+    "shoes": "boots",
+    "shoesColor": "2a2a2a",
+    "hat": "none",
+    "hatColor": "8a8d90",
+    "accessory": "glasses",
+    "body": {
+     "height": 0.95,
+     "width": 1.08,
+     "belly": 0.35
+    }
+   },
+   "home": "port_court",
+   "schedule": [
+    [
+     0,
+     24,
+     "port_forecourt",
+     "wave"
+    ]
+   ],
+   "when": [
+    {
+     "flag": "port_lighthouse_lit",
+     "schedule": [
+      [
+       8,
+       13,
+       "port_bank:spot",
+       "work"
+      ],
+      [
+       13,
+       15,
+       "port_square",
+       "idle"
+      ],
+      [
+       15,
+       18,
+       "port_bank:spot",
+       "work"
+      ],
+      [
+       18,
+       21,
+       "port_quay_mid",
+       "idle"
+      ]
+     ]
+    },
+    {
+     "flag": "port_finale_night",
+     "schedule": [
+      [
+       8,
+       13,
+       "port_bank:spot",
+       "work"
+      ],
+      [
+       13,
+       15,
+       "port_square",
+       "idle"
+      ],
+      [
+       15,
+       18,
+       "port_bank:spot",
+       "work"
+      ],
+      [
+       18,
+       21,
+       "port_quay_mid",
+       "idle"
+      ],
+      [
+       21,
+       24,
+       "port_crowd_w",
+       "idle"
+      ],
+      [
+       0,
+       2,
+       "port_crowd_w",
+       "idle"
+      ]
+     ]
+    },
+    {
+     "flag": "port_lighthouse_ready",
+     "schedule": [
+      [
+       8,
+       13,
+       "port_bank:spot",
+       "work"
+      ],
+      [
+       13,
+       15,
+       "port_square",
+       "idle"
+      ],
+      [
+       15,
+       18,
+       "port_bank:spot",
+       "work"
+      ],
+      [
+       18,
+       24,
+       "port_bw_a",
+       "idle"
+      ]
+     ]
+    },
+    {
+     "flag": "port_welcomed",
+     "schedule": [
+      [
+       8,
+       13,
+       "port_bank:spot",
+       "work"
+      ],
+      [
+       13,
+       15,
+       "port_square",
+       "idle"
+      ],
+      [
+       15,
+       18,
+       "port_bank:spot",
+       "work"
+      ],
+      [
+       18,
+       21,
+       "port_quay_mid",
+       "idle"
+      ]
+     ]
+    },
+    {
+     "flag": "port_lorenzo_met",
+     "schedule": [
+      [
+       0,
+       24,
+       "port_home_door",
+       "wave"
+      ]
+     ]
+    },
+    {
+     "flag": "port_nicolo_met",
+     "schedule": [
+      [
+       0,
+       24,
+       "port_bank:spot",
+       "work"
+      ]
+     ]
+    }
+   ],
+   "greetings": [
+    {
+     "flag": "port_euro_only",
+     "lines": [
+      "No more lire. I keep counting them in my sleep anyway. Nineteen thirty-six, twenty-seven. Nineteen thirty-six, twenty-seven."
+     ]
+    },
+    {
+     "flag": "port_welcomed",
+     "lines": [
+      "{name}! Good morning. Or is it? The rate hasn't moved. It never moves. It's fixed. That's the worst part: there's nothing to worry about, so I worry about that."
+     ]
+    },
+    {
+     "flag": "port_lorenzo_met",
+     "lines": [
+      "Up you go! I'll wait here. I'll count. Somebody has to."
+     ]
+    },
+    {
+     "flag": "port_nicolo_met",
+     "lines": [
+      "Down to the bank, under the arcades. Mind the steps. There are a lot of them. I know exactly how many."
+     ]
+    },
+    {
+     "lines": [
+      "You must be the Geometra! Bruzzone, Ragioniere, savings bank of Tonnarella. I've been on this platform since the 7:40. You came on the 10:05. I counted the trains."
+     ]
+    }
+   ],
+   "sleepy": [
+    "Mmm, no, not that. Mmm, one thousand nine hundred and thirty-six. Zzz"
+   ],
+   "topics": [
+    {
+     "id": "rate",
+     "label": "What's the rate again?",
+     "lines": [
+      "One euro, one thousand nine hundred and thirty-six lire and twenty-seven cents. Of a lira. Cents of a lira! Nobody has seen a cent of a lira since 1947.",
+      "So I round. I have to round. And every time I round, somebody in the queue says 'Arrotonda!' like I've stolen their grandmother's teeth."
+     ]
+    },
+    {
+     "id": "steps",
+     "label": "Why won't you climb the steps?",
+     "lines": [
+      "One hundred and twelve, to your flat. Ninety-four from the square to the castle. Sixty-one from the arcades to the square. I don't climb them. I count them. It's different.",
+      "When the lift worked, I rode with Agostino every day. Thirty-one seconds, top to bottom. I miss those thirty-one seconds."
+     ]
+    },
+    {
+     "id": "nickname",
+     "label": "Why do they call you Arrotonda?",
+     "lines": [
+      "Because of the rounding. Because I give them 51 cents where it should be 51.6. I didn't make the rule. Brussels made the rule. Brussels doesn't stand in the queue."
+     ]
+    }
+   ],
+   "gifts": [
+    {
+     "hearts": 3,
+     "items": {
+      "port_focaccia": 1
+     },
+     "line": "A slice of focaccia. Rosetta gives me the corner bits, out of pity. Have one. Pity is very filling."
+    },
+    {
+     "hearts": 6,
+     "blueprint": "enamelSign",
+     "line": "The plans of the enamel sign over the bank door. A bank needs a sign. People need to know where to be angry."
+    }
+   ]
+  },
+  {
+   "id": "port_gerolamo",
+   "name": "Fanalista Gerolamo \"Lanternin\" Repetto",
+   "pronoun": "he",
+   "title": "Keeper of the lighthouse",
+   "likes": [
+    "port_focaccia",
+    "port_focaccia_onion",
+    "port_mussel"
+   ],
+   "voice": 0.7,
+   "appearance": {
+    "skin": "eec1a0",
+    "eyeShape": "happy",
+    "eyeColor": "4a6a8a",
+    "hair": "short",
+    "hairColor": "f2f2f2",
+    "mouth": "calm",
+    "top": "longcoat",
+    "topColor": "1f2f4a",
+    "bottom": "pants",
+    "bottomColor": "2a2e3a",
+    "shoes": "boots",
+    "shoesColor": "2a2a2a",
+    "hat": "captain",
+    "hatColor": "1f2f4a",
+    "accessory": "beard",
+    "body": {
+     "height": 1.02,
+     "width": 1.05,
+     "belly": 0.45
+    }
+   },
+   "home": "port_keeper:spot",
+   "schedule": [
+    [
+     0,
+     24,
+     "port_keeper:spot",
+     "idle"
+    ]
+   ],
+   "when": [
+    {
+     "flag": "port_lighthouse_lit",
+     "schedule": [
+      [
+       5,
+       7,
+       "port_bakery_door",
+       "idle"
+      ],
+      [
+       7,
+       21,
+       "port_keeper:spot",
+       "work"
+      ],
+      [
+       21,
+       24,
+       "port_tower_door",
+       "idle"
+      ]
+     ]
+    },
+    {
+     "flag": "port_glazing",
+     "schedule": [
+      [
+       5,
+       7,
+       "port_bakery_door",
+       "idle"
+      ],
+      [
+       7,
+       19,
+       "port_keeper:spot",
+       "work"
+      ],
+      [
+       19,
+       24,
+       "port_tower_door",
+       "idle"
+      ],
+      [
+       0,
+       3,
+       "port_tower_door",
+       "idle"
+      ]
+     ]
+    },
+    {
+     "flag": "port_breakwater_open",
+     "schedule": [
+      [
+       5,
+       7,
+       "port_bakery_door",
+       "idle"
+      ],
+      [
+       7,
+       24,
+       "port_keeper:spot",
+       "work"
+      ]
+     ]
+    }
+   ],
+   "greetings": [
+    {
+     "flag": "port_lighthouse_lit",
+     "lines": [
+      "She's turning, {name}. Every eleven seconds, two white flashes. You can set your heart by her. I do."
+     ]
+    },
+    {
+     "flag": "port_breakwater_open",
+     "lines": [
+      "I walked to Rosetta's this morning. Walked! Forty years I rowed in for focaccia. The gulls followed me anyway. Old habits."
+     ]
+    },
+    {
+     "lines": [
+      "Ahoy there. You crossed the gap? Nobody crosses the gap. Not even the gulls, and they cheat."
+     ]
+    }
+   ],
+   "sleepy": [
+    "Steady, old girl, two flashes, steady. Zzz"
+   ],
+   "topics": [
+    {
+     "id": "light",
+     "label": "Tell me about the light",
+     "lines": [
+      "A lens from 1911, made in Paris, carried up the stair in pieces by my grandfather. Two white flashes every eleven seconds. Every ship from here to Corsica knows her voice.",
+      "Since the storm she's been dark. I still go up every evening and talk to her. She doesn't answer. Neither did my wife, and we were married fifty years."
+     ]
+    },
+    {
+     "id": "storm",
+     "label": "What happened in the storm?",
+     "lines": [
+      "February. A libeccio like a wall. It took the middle out of the breakwater, the panes out of the lantern and the power out of everything.",
+      "I stayed. The keeper stays. That's the whole job, really: staying."
+     ]
+    },
+    {
+     "id": "gulls",
+     "label": "The gulls follow you?",
+     "lines": [
+      "Every morning, to the bakery and back. I think they believe I'm their mother. I've never corrected them. It would be rude."
+     ]
+    }
+   ],
+   "gifts": [
+    {
+     "hearts": 3,
+     "items": {
+      "port_mussel": 2
+     },
+     "line": "Mussels off my rock. Steam them with a glass of white. Not for the mussels: for you."
+    },
+    {
+     "hearts": 6,
+     "blueprint": "railLantern",
+     "line": "The plans of a little lantern for a railing. Not as good as mine. Nothing is. But it helps."
+    }
+   ]
+  },
+  {
+   "id": "port_lorenzo",
+   "name": "Comandante Lorenzo \"Mugugno\" Traverso",
+   "pronoun": "he",
+   "title": "Harbour master",
+   "likes": [
+    "port_farinata",
+    "fish",
+    "port_greens_pie"
+   ],
+   "voice": 0.8,
+   "appearance": {
+    "skin": "e8b890",
+    "eyeShape": "round",
+    "eyeColor": "3a2a1e",
+    "hair": "short",
+    "hairColor": "8a8a8a",
+    "mouth": "calm",
+    "top": "jacket",
+    "topColor": "1d2b4f",
+    "bottom": "pants",
+    "bottomColor": "1d2b4f",
+    "shoes": "boots",
+    "shoesColor": "1a1a1a",
+    "hat": "captain",
+    "hatColor": "ffffff",
+    "accessory": "sash",
+    "accessoryColor": "d9b54a",
+    "body": {
+     "height": 1.05,
+     "width": 1.02,
+     "belly": 0.25
+    }
+   },
+   "home": "port_harbour_office:spot",
+   "schedule": [
+    [
+     7,
+     12,
+     "port_harbour_office:spot",
+     "work"
+    ],
+    [
+     12,
+     14,
+     "port_quay_w",
+     "idle"
+    ],
+    [
+     14,
+     19,
+     "port_harbour_office:spot",
+     "work"
+    ],
+    [
+     19,
+     21,
+     "port_breakwater_root",
+     "idle"
+    ]
+   ],
+   "when": [
+    {
+     "flag": "port_lighthouse_lit",
+     "schedule": [
+      [
+       7,
+       12,
+       "port_harbour_office:spot",
+       "work"
+      ],
+      [
+       12,
+       14,
+       "port_quay_w",
+       "idle"
+      ],
+      [
+       14,
+       19,
+       "port_harbour_office:spot",
+       "work"
+      ],
+      [
+       19,
+       21,
+       "port_breakwater_root",
+       "idle"
+      ]
+     ]
+    },
+    {
+     "flag": "port_finale_night",
+     "schedule": [
+      [
+       7,
+       12,
+       "port_harbour_office:spot",
+       "work"
+      ],
+      [
+       12,
+       14,
+       "port_quay_w",
+       "idle"
+      ],
+      [
+       14,
+       19,
+       "port_harbour_office:spot",
+       "work"
+      ],
+      [
+       19,
+       21,
+       "port_breakwater_root",
+       "idle"
+      ],
+      [
+       21,
+       24,
+       "port_crowd_e",
+       "idle"
+      ],
+      [
+       0,
+       2,
+       "port_crowd_e",
+       "idle"
+      ]
+     ]
+    },
+    {
+     "flag": "port_lighthouse_ready",
+     "schedule": [
+      [
+       7,
+       12,
+       "port_harbour_office:spot",
+       "work"
+      ],
+      [
+       12,
+       14,
+       "port_quay_w",
+       "idle"
+      ],
+      [
+       14,
+       19,
+       "port_harbour_office:spot",
+       "work"
+      ],
+      [
+       19,
+       24,
+       "port_bw_b",
+       "idle"
+      ]
+     ]
+    }
+   ],
+   "greetings": [
+    {
+     "flag": "port_lighthouse_lit",
+     "lines": [
+      "The Navy wrote again. No buoy. I've framed it next to the first one. Now I have two letters to grumble at. Life is rich."
+     ]
+    },
+    {
+     "flag": "port_breakwater_done",
+     "lines": [
+      "The breakwater holds. I inspected it. Twice. I found nothing to complain about, which is very upsetting."
+     ]
+    },
+    {
+     "flag": "port_welcomed",
+     "lines": [
+      "Geometra. The wind is from the north, the sea is rough, the Navy is silent and the gulls are in charge. A normal day."
+     ]
+    },
+    {
+     "lines": [
+      "You're the Geometra? About time. I wrote to Toriano in February. It's not February any more. I noticed."
+     ]
+    }
+   ],
+   "sleepy": [
+    "Mmm, dear Admiral, with respect, no. Zzz"
+   ],
+   "topics": [
+    {
+     "id": "mugugno",
+     "label": "Why do they call you Mugugno?",
+     "lines": [
+      "The mugugno is a Genoese sailor's right to grumble. It was written into the contracts: you could pay a sailor less, but then he was allowed to complain.",
+      "I've never taken the pay cut. I complain for free. It's a public service."
+     ]
+    },
+    {
+     "id": "navy",
+     "label": "What's the Navy's letter?",
+     "lines": [
+      "If the lighthouse isn't lit by spring, they'll switch it off for good and put a buoy in the bay. A buoy! A plastic thing with a battery.",
+      "I've framed the letter on my wall so I can grumble at it every morning. It keeps me young."
+     ]
+    },
+    {
+     "id": "castle",
+     "label": "Can I take stone from the castle?",
+     "lines": [
+      "The castle is a protected monument. I want that on record. Now: take the fallen bits. The sea's already taken the rest, and it never asked."
+     ]
+    }
+   ],
+   "gifts": [
+    {
+     "hearts": 3,
+     "items": {
+      "port_farinata": 1
+     },
+     "line": "Farinata. Rosetta's. She burns the edges for me, the way my mother did. Don't tell her I said so. Don't tell anyone."
+    },
+    {
+     "hearts": 6,
+     "blueprint": "stoneBlock",
+     "line": "The plans of a proper stone block. The old breakwater was made of them. They lasted ninety years. Plastic buoys last eleven."
+    }
+   ]
+  },
+  {
+   "id": "port_rosetta",
+   "name": "Rosetta \"la Sveglia\" Canepa",
+   "pronoun": "she",
+   "title": "Baker of focaccia",
+   "likes": [
+    "port_caper",
+    "flowers",
+    "port_anchovy"
+   ],
+   "voice": 1.2,
+   "appearance": {
+    "skin": "f2c69e",
+    "eyeShape": "happy",
+    "eyeColor": "3a2a1e",
+    "hair": "bun",
+    "hairColor": "5a3a22",
+    "mouth": "grin",
+    "top": "tunic",
+    "topColor": "f6f2ea",
+    "bottom": "pants",
+    "bottomColor": "d9cdb8",
+    "shoes": "sneakers",
+    "shoesColor": "f2f2f2",
+    "hat": "chef",
+    "hatColor": "ffffff",
+    "accessory": "apron",
+    "accessoryColor": "f2ece2",
+    "body": {
+     "height": 0.98,
+     "width": 1.05,
+     "belly": 0.3
+    }
+   },
+   "home": "port_bakery:spot",
+   "schedule": [
+    [
+     4,
+     13,
+     "port_bakery:spot",
+     "work"
+    ],
+    [
+     13,
+     15,
+     "port_bakery_door",
+     "idle"
+    ],
+    [
+     15,
+     20,
+     "port_bakery:spot",
+     "work"
+    ]
+   ],
+   "when": [
+    {
+     "flag": "port_lighthouse_lit",
+     "schedule": [
+      [
+       4,
+       13,
+       "port_bakery:spot",
+       "work"
+      ],
+      [
+       13,
+       15,
+       "port_bakery_door",
+       "idle"
+      ],
+      [
+       15,
+       20,
+       "port_bakery:spot",
+       "work"
+      ]
+     ]
+    },
+    {
+     "flag": "port_finale_night",
+     "schedule": [
+      [
+       0,
+       24,
+       "port_bakery:spot",
+       "work"
+      ]
+     ]
+    }
+   ],
+   "greetings": [
+    {
+     "flag": "port_lighthouse_lit",
+     "lines": [
+      "Every lira in town came through my till that night. I've never been so rich in a currency that doesn't exist."
+     ]
+    },
+    {
+     "flag": "port_welcomed",
+     "lines": [
+      "Morning, {name}! The focaccia's out, the gulls are circling, and I've been up since four. So the usual."
+     ]
+    },
+    {
+     "lines": [
+      "You're new! Have a bit of focaccia. Quick, before. Oh. Too late. That gull. That one. We've met."
+     ]
+    }
+   ],
+   "sleepy": [
+    "Mmm, the dough's rising, so am I, no, I'm not. Zzz"
+   ],
+   "topics": [
+    {
+     "id": "sveglia",
+     "label": "Why la Sveglia?",
+     "lines": [
+      "My shutter goes up at four in the morning. Bang. Rattle. The whole street wakes. They used to complain. Now they set their watches by it."
+     ]
+    },
+    {
+     "id": "gulls",
+     "label": "What's the trouble with the gulls?",
+     "lines": [
+      "They're organised. One distracts you at the door, the other goes for the tray. I've seen them do it to a docker with a whole slice. He didn't even feel it.",
+      "Gerolamo feeds them. On purpose. I've told him. He says they're family."
+     ]
+    },
+    {
+     "id": "focaccia",
+     "label": "What makes good focaccia?",
+     "lines": [
+      "Olive oil, salt, and fingers. You press holes all over it with your fingers, and the oil goes in the holes. My nonna said: if it doesn't shine, it isn't focaccia.",
+      "And you dunk it in milky coffee at five in the morning. People from Toriano look at you like you've done a crime."
+     ]
+    }
+   ],
+   "gifts": [
+    {
+     "hearts": 3,
+     "items": {
+      "port_focaccia_onion": 1
+     },
+     "line": "Onion focaccia, from the corner of the tray. The corner's the best bit. Don't tell the dockers."
+    },
+    {
+     "hearts": 6,
+     "blueprint": "table",
+     "line": "The plans of the tables outside my door. Copy them. Every street should have somewhere to sit and eat focaccia badly."
+    }
+   ]
+  },
+  {
+   "id": "port_giobatta",
+   "name": "Giobatta \"Baciccia\" Parodi",
+   "pronoun": "he",
+   "title": "Fishmonger at the market",
+   "likes": [
+    "port_mussel",
+    "port_anchovy",
+    "port_lire_purse"
+   ],
+   "voice": 0.9,
+   "appearance": {
+    "skin": "e0a882",
+    "eyeShape": "round",
+    "eyeColor": "3a2a1e",
+    "hair": "curly",
+    "hairColor": "7a7a7a",
+    "mouth": "grin",
+    "top": "shirt",
+    "topColor": "6aa0b8",
+    "bottom": "pants",
+    "bottomColor": "4a4a6a",
+    "shoes": "boots",
+    "shoesColor": "2f5a3a",
+    "hat": "drivercap",
+    "hatColor": "5a5a5a",
+    "accessory": "apron",
+    "accessoryColor": "e89a30",
+    "body": {
+     "height": 0.97,
+     "width": 1.12,
+     "belly": 0.7
+    }
+   },
+   "home": "port_church_door",
+   "schedule": [
+    [
+     5,
+     12,
+     "port_fishmarket",
+     "work"
+    ],
+    [
+     12,
+     15,
+     "port_quay_e",
+     "idle"
+    ],
+    [
+     15,
+     19,
+     "port_fishmarket",
+     "work"
+    ]
+   ],
+   "when": [
+    {
+     "flag": "port_lighthouse_lit",
+     "schedule": [
+      [
+       5,
+       12,
+       "port_fishmarket",
+       "work"
+      ],
+      [
+       12,
+       15,
+       "port_quay_e",
+       "idle"
+      ],
+      [
+       15,
+       19,
+       "port_fishmarket",
+       "work"
+      ]
+     ]
+    },
+    {
+     "flag": "port_finale_night",
+     "schedule": [
+      [
+       5,
+       12,
+       "port_fishmarket",
+       "work"
+      ],
+      [
+       12,
+       15,
+       "port_quay_e",
+       "idle"
+      ],
+      [
+       15,
+       19,
+       "port_fishmarket",
+       "work"
+      ],
+      [
+       21,
+       24,
+       "port_crowd_e",
+       "idle"
+      ],
+      [
+       0,
+       2,
+       "port_crowd_e",
+       "idle"
+      ]
+     ]
+    },
+    {
+     "flag": "port_lighthouse_ready",
+     "schedule": [
+      [
+       5,
+       12,
+       "port_fishmarket",
+       "work"
+      ],
+      [
+       12,
+       15,
+       "port_quay_e",
+       "idle"
+      ],
+      [
+       15,
+       19,
+       "port_fishmarket",
+       "work"
+      ],
+      [
+       19,
+       24,
+       "port_bw_c",
+       "idle"
+      ]
+     ]
+    }
+   ],
+   "greetings": [
+    {
+     "flag": "port_baciccia_gives_in",
+     "lines": [
+      "Don't say it. Don't say anything. Look at the frame instead. That's my last thousand-lire note. Maria Montessori. She deserved better."
+     ]
+    },
+    {
+     "flag": "port_fishmarket_done",
+     "lines": [
+      "Fresh bream! Mullet! Octopus that winked at me! Prices in lire, euros if you insist, and I'll sigh."
+     ]
+    },
+    {
+     "lines": [
+      "Lire. I take lire. I give change in lire. I'll be buried with lire in my pockets, and the ferryman can do the conversion."
+     ]
+    }
+   ],
+   "sleepy": [
+    "Mmm, three thousand a kilo, no, I won't round it. Zzz"
+   ],
+   "topics": [
+    {
+     "id": "lire",
+     "label": "Why won't you take euros?",
+     "lines": [
+      "I take them. I don't like them. They're too small. A thousand-lire note, you could wrap a sardine in it. A euro, you lose it in your apron.",
+      "And the prices! Two thousand lire for mussels. In euros it's one euro and three cents. One euro and three cents! It sounds like a bus ticket, not a dinner."
+     ]
+    },
+    {
+     "id": "market",
+     "label": "What happened to your stall?",
+     "lines": [
+      "The storm took the roof off and put it in the harbour. I sell off the boxes now, under the sky, like a pirate.",
+      "The fish don't mind. The customers mind. The rain minds most of all."
+     ]
+    }
+   ],
+   "gifts": [
+    {
+     "hearts": 3,
+     "items": {
+      "port_mussel": 2
+     },
+     "line": "Mussels. No charge. Don't tell anyone, or I'll have to give everybody mussels, and then where would I be? Poor, with mussels."
+    },
+    {
+     "hearts": 6,
+     "blueprint": "counter",
+     "line": "The plans of a market counter. Marble top, so the fish stay cold. Well, it says marble. Use what you've got."
+    }
+   ]
+  },
+  {
+   "id": "port_pina",
+   "name": "Nonna Pina Lagomarsino",
+   "pronoun": "she",
+   "title": "Grandmother of the alleys",
+   "likes": [
+    "port_greens_pie",
+    "flowers",
+    "port_caper"
+   ],
+   "voice": 1.25,
+   "appearance": {
+    "skin": "f0c8a8",
+    "eyeShape": "happy",
+    "eyeColor": "3a2a1e",
+    "hair": "bun",
+    "hairColor": "f0f0f0",
+    "mouth": "smile",
+    "top": "tunic",
+    "topColor": "4f6f8f",
+    "bottom": "dress",
+    "bottomColor": "2a2a2e",
+    "shoes": "sandals",
+    "shoesColor": "8a4a6a",
+    "hat": "none",
+    "hatColor": "f0f0f0",
+    "accessory": "glasses",
+    "body": {
+     "height": 0.9,
+     "width": 1.06,
+     "belly": 0.45
+    }
+   },
+   "home": "port_nonna_door",
+   "schedule": [
+    [
+     7,
+     21,
+     "port_nonna_door",
+     "idle"
+    ]
+   ],
+   "when": [
+    {
+     "flag": "port_lighthouse_lit",
+     "schedule": [
+      [
+       7,
+       10,
+       "port_nonna_door",
+       "idle"
+      ],
+      [
+       10,
+       12,
+       "port_bank_door",
+       "idle"
+      ],
+      [
+       12,
+       21,
+       "port_nonna_door",
+       "idle"
+      ]
+     ]
+    },
+    {
+     "flag": "port_finale_night",
+     "schedule": [
+      [
+       7,
+       10,
+       "port_nonna_door",
+       "idle"
+      ],
+      [
+       10,
+       12,
+       "port_bank_door",
+       "idle"
+      ],
+      [
+       12,
+       21,
+       "port_nonna_door",
+       "idle"
+      ],
+      [
+       21,
+       24,
+       "port_crowd_w",
+       "idle"
+      ],
+      [
+       0,
+       2,
+       "port_crowd_w",
+       "idle"
+      ]
+     ]
+    },
+    {
+     "flag": "port_lighthouse_ready",
+     "schedule": [
+      [
+       7,
+       10,
+       "port_nonna_door",
+       "idle"
+      ],
+      [
+       10,
+       12,
+       "port_bank_door",
+       "idle"
+      ],
+      [
+       18,
+       24,
+       "port_bw_a",
+       "idle"
+      ]
+     ]
+    },
+    {
+     "flag": "port_lift_on",
+     "schedule": [
+      [
+       7,
+       10,
+       "port_nonna_door",
+       "idle"
+      ],
+      [
+       10,
+       12,
+       "port_bank_door",
+       "idle"
+      ],
+      [
+       12,
+       21,
+       "port_nonna_door",
+       "idle"
+      ]
+     ]
+    }
+   ],
+   "greetings": [
+    {
+     "flag": "port_lift_on",
+     "lines": [
+      "I went down to the harbour today! In the lift! Agostino held the door and pretended not to cry. I pretended not to see."
+     ]
+    },
+    {
+     "flag": "port_welcomed",
+     "lines": [
+      "{name}, you're too thin. Are you eating? Rosetta's focaccia doesn't count, it's mostly air and oil."
+     ]
+    },
+    {
+     "lines": [
+      "Ah, the Geometra. Come here, let me look at you. Too thin. You need pesto. Everybody needs pesto."
+     ]
+    }
+   ],
+   "sleepy": [
+    "Mmm, basil, more basil. Zzz"
+   ],
+   "topics": [
+    {
+     "id": "euro",
+     "label": "How do you find the euro?",
+     "lines": [
+      "I don't find it. It finds me, and I convert it. One euro is nearly two thousand lire. In 1955 two thousand lire was a week's shopping. So a euro is a week's shopping. So a coffee costs a week's shopping. You see? Robbery."
+     ]
+    },
+    {
+     "id": "basket",
+     "label": "What's the basket on the rope for?",
+     "lines": [
+      "Everything. Bread comes up, rubbish goes down, gossip goes both ways. Before the storm I'd go down in the lift and fetch it myself.",
+      "Since the lift stopped, my knees and the stairs have had a disagreement. The stairs are winning."
+     ]
+    },
+    {
+     "id": "basil",
+     "label": "Your balcony is all basil!",
+     "lines": [
+      "Forty-one pots. Genoese basil, the small leaves. The secret is: you talk to it. Not nicely. Basil likes to be told off."
+     ]
+    }
+   ],
+   "gifts": [
+    {
+     "hearts": 3,
+     "items": {
+      "port_greens_pie": 1
+     },
+     "line": "Spring greens pie. My recipe. Rosetta says it's hers. It's mine. She was six when I taught her."
+    },
+    {
+     "hearts": 6,
+     "blueprint": "flowerBed",
+     "line": "The plans for a flower bed. Put basil in it. Put basil in everything."
+    }
+   ]
+  },
+  {
+   "id": "port_agostino",
+   "name": "Agostino \"Su e Giù\" Ottonello",
+   "pronoun": "he",
+   "title": "Attendant of the public lift",
+   "likes": [
+    "port_focaccia",
+    "port_farinata",
+    "port_wash_gloves"
+   ],
+   "voice": 0.85,
+   "appearance": {
+    "skin": "e8bc98",
+    "eyeShape": "sleepy",
+    "eyeColor": "3a2a1e",
+    "hair": "short",
+    "hairColor": "5a5a5a",
+    "mouth": "calm",
+    "top": "suit",
+    "topColor": "6b4a2a",
+    "bottom": "pants",
+    "bottomColor": "5a3e24",
+    "shoes": "boots",
+    "shoesColor": "2a2a2a",
+    "hat": "drivercap",
+    "hatColor": "6b4a2a",
+    "accessory": "bowtie",
+    "accessoryColor": "f2f2f2",
+    "body": {
+     "height": 1.0,
+     "width": 0.98,
+     "belly": 0.3
+    }
+   },
+   "home": "port_bastion_e",
+   "schedule": [
+    [
+     7,
+     20,
+     "port_lift_top_door",
+     "work"
+    ]
+   ],
+   "when": [
+    {
+     "flag": "port_lighthouse_lit",
+     "schedule": [
+      [
+       7,
+       20,
+       "port_lift_top_door",
+       "work"
+      ]
+     ]
+    },
+    {
+     "flag": "port_finale_night",
+     "schedule": [
+      [
+       7,
+       20,
+       "port_lift_top_door",
+       "work"
+      ],
+      [
+       21,
+       24,
+       "port_crowd_e",
+       "idle"
+      ],
+      [
+       0,
+       2,
+       "port_crowd_e",
+       "idle"
+      ]
+     ]
+    },
+    {
+     "flag": "port_lighthouse_ready",
+     "schedule": [
+      [
+       18,
+       24,
+       "port_bw_b",
+       "idle"
+      ]
+     ]
+    }
+   ],
+   "greetings": [
+    {
+     "flag": "port_lift_on",
+     "lines": [
+      "Going down? Going up? Either way, mind the doors. Thirty-one seconds, top to bottom. I've timed it eleven thousand times."
+     ]
+    },
+    {
+     "lines": [
+      "Good morning. The lift is out of service. I am not. I'm here every day, in case it changes its mind."
+     ]
+    }
+   ],
+   "sleepy": [
+    "Mmm, doors closing, going down. Zzz"
+   ],
+   "topics": [
+    {
+     "id": "lift",
+     "label": "How long have you run the lift?",
+     "lines": [
+      "Thirty years in March. Before me, my uncle. Before him, a man called Bacigalupo who wore a top hat. There's a photo.",
+      "Everybody rides with me, so I hear everything. Who's courting, who's owing, who's selling the boat. I never repeat it. I just remember it, very loudly, in my head."
+     ]
+    },
+    {
+     "id": "wind",
+     "label": "Could the wind run it?",
+     "lines": [
+      "The tramontana blows on the bastion three days out of four. My uncle always said: one day someone will put a windmill up there and we'll never pay the electric again. Nobody listened. Uncle was a great one for windmills."
+     ]
+    }
+   ],
+   "gifts": [
+    {
+     "hearts": 3,
+     "items": {
+      "port_farinata": 1
+     },
+     "line": "Farinata from Rosetta's, still warm. I used to bring Nonna Pina a slice every morning, in the lift. Take it, before I get sentimental."
+    },
+    {
+     "hearts": 6,
+     "blueprint": "bench",
+     "line": "The plans of the bench by the top stop. Thirty years I've sat on it. It knows me better than my doctor."
+    }
+   ]
+  },
+  {
+   "id": "port_stefano",
+   "name": "Padron Stefano \"Lampara\" Dellepiane",
+   "pronoun": "he",
+   "title": "Skipper of the night boat",
+   "likes": [
+    "port_anchovy",
+    "port_focaccia",
+    "fish"
+   ],
+   "voice": 0.75,
+   "appearance": {
+    "skin": "d9a07a",
+    "eyeShape": "round",
+    "eyeColor": "3a2a1e",
+    "hair": "short",
+    "hairColor": "3a2a1e",
+    "mouth": "grin",
+    "top": "windbreaker",
+    "topColor": "f2c230",
+    "bottom": "pants",
+    "bottomColor": "3a4a5a",
+    "shoes": "boots",
+    "shoesColor": "2f3a30",
+    "hat": "beanie",
+    "hatColor": "3a4a5a",
+    "accessory": "beard",
+    "body": {
+     "height": 1.04,
+     "width": 1.08,
+     "belly": 0.35
+    }
+   },
+   "home": "port_alley_w2",
+   "schedule": [
+    [
+     0,
+     3,
+     "port_stefano_boat",
+     "work"
+    ],
+    [
+     6,
+     24,
+     "port_stefano_boat",
+     "work"
+    ]
+   ],
+   "when": [
+    {
+     "flag": "port_lighthouse_lit",
+     "schedule": [
+      [
+       0,
+       3,
+       "port_stefano_boat",
+       "work"
+      ],
+      [
+       6,
+       24,
+       "port_stefano_boat",
+       "work"
+      ]
+     ]
+    }
+   ],
+   "greetings": [
+    {
+     "flag": "port_lighthouse_lit",
+     "lines": [
+      "We went out under the beam last night. Six boats, six lamps, and the light going round over us like a big slow clock. Best catch since the storm."
+     ]
+    },
+    {
+     "flag": "port_breakwater_done",
+     "lines": [
+      "Evening, Geometra. Or morning. On a night boat they're the same thing, with coffee in between."
+     ]
+    },
+    {
+     "lines": [
+      "No lighthouse, no fishing. You don't take a boat out past the point in the dark without the light. Not twice."
+     ]
+    }
+   ],
+   "sleepy": [
+    "Mmm, more to port, the lamp, the lamp. Zzz"
+   ],
+   "topics": [
+    {
+     "id": "lampara",
+     "label": "What's a lampara?",
+     "lines": [
+      "A big lamp on a pole over the side. You go out on a dark night, no moon, and switch it on. The anchovies come up to look. They're curious. Like tourists.",
+      "Then you close the net round them, gently. They don't even notice. Also like tourists."
+     ]
+    },
+    {
+     "id": "light",
+     "label": "Why does the lighthouse matter?",
+     "lines": [
+      "There's a reef off the point they call the Bishop. It's had nine boats in my lifetime. The light keeps you off him. Without it, I stay in, and the anchovies laugh at me."
+     ]
+    }
+   ],
+   "gifts": [
+    {
+     "hearts": 3,
+     "items": {
+      "port_anchovy": 3
+     },
+     "line": "Anchovies, salted last spring. Eat them on focaccia, with a cold glass of something. Then thank me."
+    },
+    {
+     "hearts": 6,
+     "blueprint": "railing",
+     "line": "The plans of the railing on my boat. Keeps the crew on board. Mostly."
+    }
+   ]
+  },
+  {
+   "id": "port_davide",
+   "name": "Davide \"Motorino\" Cambiaso",
+   "pronoun": "he",
+   "title": "Minds his uncle's chandlery",
+   "likes": [
+    "port_focaccia",
+    "port_boot",
+    "port_farinata"
+   ],
+   "voice": 1.3,
+   "appearance": {
+    "skin": "f2c8a4",
+    "eyeShape": "sparkle",
+    "eyeColor": "3a2a1e",
+    "hair": "spiky",
+    "hairColor": "2a1e14",
+    "mouth": "cat",
+    "top": "windbreaker",
+    "topColor": "3a6fd8",
+    "bottom": "jeans",
+    "bottomColor": "4a5a7a",
+    "shoes": "sneakers",
+    "shoesColor": "e8e8e8",
+    "hat": "helmet",
+    "hatColor": "3a6fd8",
+    "accessory": "discman",
+    "accessoryColor": "2a2a2a",
+    "body": {
+     "height": 0.97,
+     "width": 1.15,
+     "belly": 0.1
+    }
+   },
+   "home": "port_court_entry",
+   "schedule": [
+    [
+     8,
+     12,
+     "port_chandlery_door",
+     "work"
+    ],
+    [
+     12,
+     14,
+     "port_laneB2_foot",
+     "idle"
+    ],
+    [
+     14,
+     19,
+     "port_chandlery_door",
+     "work"
+    ],
+    [
+     19,
+     22,
+     "port_square",
+     "idle"
+    ]
+   ],
+   "when": [
+    {
+     "flag": "port_lighthouse_lit",
+     "schedule": [
+      [
+       8,
+       12,
+       "port_chandlery_door",
+       "work"
+      ],
+      [
+       12,
+       14,
+       "port_laneB2_foot",
+       "idle"
+      ],
+      [
+       14,
+       19,
+       "port_chandlery_door",
+       "work"
+      ],
+      [
+       19,
+       22,
+       "port_square",
+       "idle"
+      ]
+     ]
+    },
+    {
+     "flag": "port_finale_night",
+     "schedule": [
+      [
+       8,
+       12,
+       "port_chandlery_door",
+       "work"
+      ],
+      [
+       12,
+       14,
+       "port_laneB2_foot",
+       "idle"
+      ],
+      [
+       14,
+       19,
+       "port_chandlery_door",
+       "work"
+      ],
+      [
+       21,
+       24,
+       "port_crowd_w",
+       "idle"
+      ],
+      [
+       0,
+       2,
+       "port_crowd_w",
+       "idle"
+      ]
+     ]
+    },
+    {
+     "flag": "port_lighthouse_ready",
+     "schedule": [
+      [
+       8,
+       12,
+       "port_chandlery_door",
+       "work"
+      ],
+      [
+       12,
+       14,
+       "port_laneB2_foot",
+       "idle"
+      ],
+      [
+       14,
+       19,
+       "port_chandlery_door",
+       "work"
+      ],
+      [
+       19,
+       24,
+       "port_bw_c",
+       "idle"
+      ]
+     ]
+    }
+   ],
+   "greetings": [
+    {
+     "flag": "port_lift_on",
+     "lines": [
+      "The lift works! I put the scooter in it. Agostino said no. I said it's a passenger. He said it's a scooter. We're still discussing it."
+     ]
+    },
+    {
+     "flag": "port_welcomed",
+     "lines": [
+      "Yo, Geometra. Uncle's out the back. Need anything? Rope, wire, glass, tiles? I'll find it. Probably."
+     ]
+    },
+    {
+     "lines": [
+      "Cool helmet, right? I wear it everywhere. The stairs are dangerous. Mostly because I carry the scooter up them."
+     ]
+    }
+   ],
+   "sleepy": [
+    "Mmm, rewind, play. Zzz"
+   ],
+   "topics": [
+    {
+     "id": "scooter",
+     "label": "Why carry a scooter up stairs?",
+     "lines": [
+      "Deliveries! Rope to the boats, glass to the lighthouse, tiles to the roofs. Half of Tonnarella is stairs. The other half is the sea. I'm working on the sea."
+     ]
+    },
+    {
+     "id": "uncle",
+     "label": "Where's your uncle?",
+     "lines": [
+      "Out the back. He's always out the back. I've worked here two years and I've seen him four times. I think he's in a card game that started in 1988."
+     ]
+    },
+    {
+     "id": "tape",
+     "label": "What are you listening to?",
+     "lines": [
+      "A tape my cousin made off the radio. Every song has the DJ talking over the start. I know all the DJ's bits by heart. They're my favourite part."
+     ]
+    }
+   ],
+   "gifts": [
+    {
+     "hearts": 3,
+     "items": {
+      "crystal": 1
+     },
+     "line": "Copper wire, off the end of a reel. Uncle won't notice. Uncle doesn't notice anything. He's out the back."
+    },
+    {
+     "hearts": 6,
+     "blueprint": "streetlight",
+     "line": "Plans for a streetlight, from a box in the back. Uncle had them. I think. Somebody had them."
+    }
+   ]
+  }
+ ]
+}

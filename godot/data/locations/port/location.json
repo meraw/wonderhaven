@@ -7,6 +7,80 @@
  "desc": "The old quarter of a port on a rocky headland: tall palazzi, stair lanes, laundry lines, and a lighthouse gone dark since the February storm.",
  "reveal": "metropolis_angel_lit",
  "bikes": false,
+ "currency": {"both": "port_euro_both", "first": "port_euro_first", "euro": "port_euro_only", "here": "both"},
+ "day": {"holdAt": 20.5, "regrow": "overnight", "hold": false},
+ "meter": {
+  "name": "The changeover",
+  "icon": "💶",
+  "about": "Tonnarella is changing its lire for euros, one shop, one queue and one grumble at a time. Every request you finish moves the changeover on: fifteen points for the big ones, four for the others, one for each piece of washing back on its line. At 100% the last lira is spent.",
+  "reward": "%d%% of the changeover",
+  "short": "Changeover",
+  "display": {
+   "from": 0,
+   "per_point": 1,
+   "format": "%d%%",
+   "to": 100
+  },
+  "milestones": [
+   {
+    "at": 10,
+    "id": "port_euro_both",
+    "title": "Prices in both.",
+    "desc": "Nicolò hands out euro converters. Every price, in every place, shows lire and euros, lire first.",
+    "flags": [
+     "port_euro_both"
+    ]
+   },
+   {
+    "at": 25,
+    "id": "port_nonna_converter",
+    "title": "Nonna buys a converter.",
+    "desc": "She still checks it against her head. Davide finds you a fisherman's wool cap at the back of the chandlery.",
+    "clothes": [
+     "port_woolcap"
+    ]
+   },
+   {
+    "at": 50,
+    "id": "port_euro_first",
+    "title": "Euros first.",
+    "desc": "The euro becomes the main figure on every price. Your roof terrace grows onto the next roof.",
+    "flags": [
+     "port_euro_first"
+    ]
+   },
+   {
+    "at": 75,
+    "id": "port_baciccia_gives_in",
+    "title": "Baciccia gives in.",
+    "desc": "He frames his last 1,000-lire note over his stall. Rosetta knits you a navy fisherman's sweater, and a vine goes up on your terrace.",
+    "clothes": [
+     "port_sweater"
+    ],
+    "flags": [
+     "port_pergola"
+    ]
+   },
+   {
+    "at": 100,
+    "id": "port_euro_only",
+    "title": "The last lira.",
+    "desc": "Lire are gone, in every place. Nicolò gives you a framed 1,000-lire note for your wall.",
+    "flags": [
+     "port_euro_only"
+    ],
+    "items": {
+     "port_last_note": 1
+    },
+    "requires": {
+     "quests": [
+      "port_lighthouse"
+     ]
+    },
+    "waits": "the lighthouse lit"
+   }
+  ]
+ },
  "look": {
   "shade": [0.0, 0.006, 0.022],
   "light": [1.03, 1.01, 0.98],
