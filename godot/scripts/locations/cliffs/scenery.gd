@@ -294,7 +294,7 @@ static func plaque(root: Node3D) -> void:
 	g.name = "cliffs_plaque"
 	Props._add(g, P.box(0.62, 0.42, 0.05), P.stone("4f535b"), Vector3(0, 0, 0))
 	for i in 3: Props._add(g, P.box(0.44 - i * 0.08, 0.035, 0.06), P.mat("e8e2d6"), Vector3(0, 0.1 - i * 0.09, 0))
-	g.position = Vector3(-7.2, 11.6, -19.95)
+	g.position = Vector3(-7.2, 11.6, -19.72)
 	root.add_child(g)
 
 static func cart() -> Node3D:

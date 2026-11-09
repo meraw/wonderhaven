@@ -576,13 +576,19 @@ the euro switch happening in Serenza itself.
   - Trenin's rail runs straight across the slip rather than along the path you built.
   - Terraces don't yet change on the hillside when they come back (brambles cleared, walls mended): the meter and the
     toasts say so. That's stage 4, with the lizards.
+  - Fishing spots stand on the edge (the square's quay, both sides of the breakwater, the beach) with the water in
+    front, rather than out in the harbour where you couldn't reach them.
+  - Tables for the Guests is built along the square's south edge, so nothing built there blocks the way from the
+    square to the church; a test keeps every request's site off the routes villagers walk.
+  - On Easter morning the villagers gather on the square beside the route, not on it, and each has a spot of their
+    own, so you can walk through to Don Aurelio and talk to whoever you like.
 - **Checked:**
-  - **Tested** (`test_cliffs.gd`, 22 tests): stages 1 and 2's, plus the cast (homes and every routine on the nav
+  - **Tested** (`test_cliffs.gd`, 23 tests): stages 1 and 2's, plus the cast (homes and every routine on the nav
     graph, pronouns, topics, gifts, tastes, liked items that exist), the requests (thirteen, six main, givers and items
     that exist, the finale after the other five and opening Liolivato, four shops selling real things), every brief
     built from its ghost plan with the game's own placement rules and finished by it (and not finished before), the
     gathering paying for the plans, the wall needing both courses and the whole gap, the slip, the gully, the rocks
     and the slipway uncrossable before you build, terraces coming back on the meter (wall and green, green alone,
-    flags, once each, never taken back, the readings and milestones), the boats' moorings, the paper, the naps and
-    the hangouts. Shared tests cover the new pieces, picking, `lower`, the meter hook and pack tastes.
+    flags, once each, never taken back, the readings and milestones), the boats' moorings, the plaque, the paper, the naps
+    and the hangouts, fishing spots on the water's edge, and request sites that leave the villagers' routes open. Shared tests cover the new pieces, picking, `lower`, the meter hook and pack tastes.
   - **Played** (`play_cliffs.gd`, real input): see the stage 3 pull request.

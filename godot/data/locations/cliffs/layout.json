@@ -1451,6 +1451,22 @@
    -18.6,
    0.6
   ],
+  "gatherA": [
+   -3.5,
+   23.0
+  ],
+  "gatherB": [
+   -6.0,
+   27.0
+  ],
+  "gatherC": [
+   4.0,
+   23.0
+  ],
+  "gatherD": [
+   7.0,
+   23.5
+  ],
   "doorW1": [
    -2.9,
    19.6
@@ -2018,6 +2034,22 @@
   [
    "platformW",
    "shelter"
+  ],
+  [
+   "squareN",
+   "gatherA"
+  ],
+  [
+   "square",
+   "gatherB"
+  ],
+  [
+   "squareN",
+   "gatherC"
+  ],
+  [
+   "squareE",
+   "gatherD"
   ],
   [
    "doorW1",

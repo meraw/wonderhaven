@@ -509,6 +509,15 @@ func test_the_place_changes_with_the_story():
 		t.ok(boats.all(func(p): return p.get("afloat", false) and Heightfield.height(p.x, p.z) < Heightfield.WATER_Y), "launched, the boats ride at their moorings in the harbour")
 		t.ok(Data.layout.nav_edges.any(func(e): return e.size() > 2 and e[2] == "cliffs_monorailRuns"), "the path beside the monorail opens when it runs")
 		t.ok(Data.layout.nav_edges.any(func(e): return e.size() > 2 and e[2] == "cliffs_sanctuaryPath"), "the mule path opens when the gully is bridged")
+		var root := Node3D.new()
+		var before: Dictionary = Data.world_flags
+		Data.world_flags = {"cliffs_plaque": true}
+		C.Scenery.plaque(root)
+		var plaque: Node3D = root.get_node_or_null("cliffs_plaque")
+		var cellar: Dictionary = Data.layout.buildings.filter(func(b): return b.id == "cliffs_cellar")[0]
+		t.ok(plaque != null and plaque.position.z > float(cellar.z) + float(cellar.d) / 2.0 + 0.1, "at sixteen terraces a slate plaque goes up outside the cellar door")
+		Data.world_flags = before
+		root.free()
 		var ferry: Dictionary = Data.layout.features.filter(func(f): return f.id == "cliffs_ferry")[0]
 		t.eq(ferry.get("flag", ""), "olive_village_revealed", "the ferry calls once the finale's done"))
 

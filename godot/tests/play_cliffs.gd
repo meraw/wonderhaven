@@ -67,11 +67,10 @@ func shots() -> void:
 	await story_at(["cliffs_welcomed"])
 	await view(0.0, 24.0, 0.35, 0.6, 20.0, 10.5, "harbour-square-in-the-morning")
 	await view(0.0, 10.0, 0.25, 0.5, 14.0, 10.0, "boats-in-the-street")
-	await story_at(["cliffs_boats_launched", "cliffs_monorailRuns", "cliffs_plaque", "cliffs_sanctuaryPath"])
-	await view(0.0, 24.0, 0.2, 0.55, 26.0, 10.5, "boats-launched")
+	await story_at(["cliffs_boats_launched", "cliffs_monorailRuns", "cliffs_sanctuaryPath"])
+	await view(0.0, 29.0, PI - 0.3, 0.6, 22.0, 10.5, "boats-launched")
 	await view(0.0, 10.0, 0.25, 0.5, 14.0, 10.0, "the-street-opened-up")
-	await view(15.0, -40.0, -1.1, 0.5, 18.0, 12.0, "the-monorail-running")
-	await view(-7.5, -18.6, 0.0, 0.25, 4.0, 11.0, "the-plaque")
+	await view(19.0, -45.5, PI / 2.0, 0.75, 16.0, 12.0, "the-monorail-running")
 
 func walk_around() -> void:
 	var s: Dictionary = game.state
@@ -718,6 +717,7 @@ func sec_easter() -> void:
 	var placed := await build_plan("easter", "rest")
 	var rest: bool = flag("restBuilt")
 	await shot("the-resting-place")
+	await go("square")
 	await nap_until(6)
 	await talk(P + "aurelio")
 	var procession: bool = step_done("easter", "procession")

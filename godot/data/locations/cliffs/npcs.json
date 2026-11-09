@@ -50,7 +50,7 @@
       [
        6,
        11,
-       "churchRampTop",
+       "gatherA",
        "idle"
       ],
       [
@@ -62,7 +62,7 @@
       [
        13,
        19,
-       "cellarSq",
+       "cellarSqE",
        "idle"
       ],
       [
@@ -290,7 +290,7 @@
       [
        6,
        11,
-       "churchRamp",
+       "gatherB",
        "idle"
       ],
       [
@@ -456,7 +456,7 @@
       [
        6,
        11,
-       "squareE",
+       "gatherC",
        "idle"
       ],
       [
@@ -468,7 +468,7 @@
       [
        13,
        19,
-       "cliffs_cellar:in",
+       "cliffs_workshop:spot",
        "idle"
       ]
      ]
@@ -839,7 +839,7 @@
       [
        13,
        19,
-       "cliffs_cellar:in",
+       "laneE",
        "idle"
       ],
       [
@@ -1023,13 +1023,13 @@
       [
        6,
        11,
-       "square",
+       "gatherD",
        "idle"
       ],
       [
        11,
        13,
-       "squareN",
+       "gatherC",
        "idle"
       ],
       [
@@ -1175,7 +1175,7 @@
       [
        6,
        11,
-       "squareN",
+       "squareSW",
        "idle"
       ],
       [
@@ -1187,7 +1187,7 @@
       [
        13,
        19,
-       "cellarSq",
+       "workshopDoor",
        "idle"
       ],
       [
