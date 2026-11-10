@@ -130,7 +130,9 @@ func talk(agent) -> void:
 	var talked := engine.on_talk(agent.def.id)
 	for x in talked:
 		if x.has("objective") and x.objective.get("npc", "") == agent.def.id and x.objective.has("lines"):
-			await ui.say(x.objective.lines.map(func(l): return Conversation.fill(l, s.name)))
+			var said: Array = x.objective.lines.map(func(l): return Conversation.fill(l, s.name))
+			if x.objective.has("scene") and game.get("pageant") != null: await game.pageant.play(x.objective.scene, said, agent)
+			else: await ui.say(said)
 	handle(talked)
 	var conv := _conv(agent, not met)
 	for q in conv.turn_ins: await complete_quest(q.id, agent)

@@ -65,6 +65,7 @@ var roof_fade: Dictionary = {}   # building id -> roof opacity
 var guide: Guide
 var nap_gags: NapGags
 var ceremony: InaugurationScene
+var pageant: Pageant
 var sight_walls: Array = []   # building walls you can't talk through (WorldStatics.sight_walls)
 var outline: MeshInstance3D
 var outline_override := ""   # look-dev renders force outlines on or off without touching saved settings
@@ -106,6 +107,7 @@ func _ready() -> void:
 	effects = Effects.new(); add_child(effects)
 	nap_gags = NapGags.new(); nap_gags.name = "NapGags"; add_child(nap_gags); nap_gags.setup(self)
 	ceremony = InaugurationScene.new(); ceremony.name = "Inauguration"; add_child(ceremony); ceremony.setup(self)
+	pageant = Pageant.new(); pageant.name = "Pageant"; add_child(pageant); pageant.setup(self)
 	player_char = Chibi.new(state.appearance); player_char.name = "Player"; player_char.vis_layer = 2; add_child(player_char); player_char.apply_layer()
 	var sp: Dictionary = Data.layout.spawn
 	player = PlayerController.new(player_char, walk, sp.x, sp.z, sp.yaw)

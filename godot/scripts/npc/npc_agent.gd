@@ -29,6 +29,7 @@ var visit_t := 30.0
 var held := false
 var bench := {}
 var seat_look_t := 0.0
+var held_speed := 0.0
 var hat_on := ""
 
 func _init(g, d: Dictionary) -> void:
@@ -146,7 +147,7 @@ func update(dt: float) -> void:
 	if not present: return
 	if held:
 		marker_offer.visible = false; marker_ready.visible = false
-		character.animate(dt, 0.0)
+		character.animate(dt, held_speed)
 		sync()
 		return
 	var a := Schedule.activity_at(def, game.state.time.minute, flags)

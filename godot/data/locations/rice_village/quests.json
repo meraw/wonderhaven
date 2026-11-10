@@ -532,7 +532,306 @@
      "hours": [
       17,
       22
-     ]
+     ],
+     "scene": {
+      "at": {
+       "zone": "rice_village_churchyard",
+       "pieces": [
+        "roof"
+       ]
+      },
+      "audience": [
+       -1.0,
+       0.0
+      ],
+      "camera": {
+       "look": [
+        0.0,
+        0.6
+       ],
+       "look_up": 0.7,
+       "dist": 8.5,
+       "up": 3.8,
+       "push": 0.12,
+       "sides": [
+        0.35,
+        -0.35,
+        0.0,
+        0.7,
+        -0.7
+       ]
+      },
+      "player": [
+       -2.3,
+       5.4
+      ],
+      "speaker": [
+       2.3,
+       5.5
+      ],
+      "enter": [
+       -5.0,
+       1.5
+      ],
+      "crowd": {
+       "spots": [
+        [
+         -3.6,
+         3.6
+        ],
+        [
+         3.7,
+         3.7
+        ],
+        [
+         -4.3,
+         4.6
+        ],
+        [
+         4.4,
+         4.7
+        ]
+       ],
+       "at": [
+        0.0,
+        5.4
+       ],
+       "gap": 1.0
+      },
+      "candles": {
+       "from": [
+        -10.6,
+        -2.4
+       ],
+       "to": [
+        -10.6,
+        6.2
+       ],
+       "count": 8,
+       "every": 0.35,
+       "energy": 1.1,
+       "range": 3.5
+      },
+      "props": [
+       {
+        "kind": "manger",
+        "at": [
+         0.0,
+         0.4
+        ]
+       },
+       {
+        "kind": "bale",
+        "at": [
+         -1.9,
+         -0.9
+        ]
+       }
+      ],
+      "actors": [
+       {
+        "node": "rice_village_donkey",
+        "from": [
+         5.5,
+         -0.4
+        ],
+        "at": [
+         -1.5,
+         -0.4
+        ],
+        "face": [
+         0.0,
+         0.4
+        ],
+        "beat": 0
+       },
+       {
+        "node": "rice_village_ox",
+        "from": [
+         6.0,
+         -1.0
+        ],
+        "at": [
+         1.5,
+         -0.6
+        ],
+        "face": [
+         0.0,
+         0.4
+        ],
+        "beat": 0
+       },
+       {
+        "npc": "rice_village_pierina",
+        "at": [
+         -2.7,
+         0.9
+        ],
+        "beat": 0,
+        "wear": "lantern"
+       },
+       {
+        "npc": "rice_village_silvia",
+        "at": [
+         -0.6,
+         0.25
+        ],
+        "face": [
+         0.0,
+         0.4
+        ],
+        "pose": "kneel",
+        "wear": "veil",
+        "color": "#5a7bb8",
+        "beat": 1
+       },
+       {
+        "npc": "rice_village_battista",
+        "at": [
+         0.65,
+         0.0
+        ],
+        "face": [
+         0.0,
+         0.4
+        ],
+        "pose": "hold_staff",
+        "wear": "staff",
+        "beat": 1
+       },
+       {
+        "npc": "rice_village_matteo",
+        "at": [
+         1.8,
+         1.1
+        ],
+        "face": [
+         0.0,
+         0.4
+        ],
+        "pose": "hold_staff",
+        "wear": "crook",
+        "every": {
+         "anim": "watch",
+         "s": 3.2
+        },
+        "beat": 1
+       }
+      ],
+      "beats": [
+       {
+        "line": 0,
+        "candles": true
+       },
+       {
+        "line": 1,
+        "push": 0.2
+       },
+       {
+        "line": 2,
+        "sing": [
+         "rice_village_pierina"
+        ],
+        "push": 0.28,
+        "melody": {
+         "kind": "flute",
+         "step": 0.42,
+         "vol": 0.3,
+         "delay": 0.3,
+         "notes": [
+          [
+           69,
+           1
+          ],
+          [
+           71,
+           0.5
+          ],
+          [
+           69,
+           0.5
+          ],
+          [
+           67,
+           1
+          ],
+          [
+           66,
+           2
+          ],
+          [
+           64,
+           1
+          ],
+          [
+           66,
+           1
+          ],
+          [
+           67,
+           1
+          ],
+          [
+           69,
+           2
+          ],
+          [
+           0,
+           1
+          ],
+          [
+           71,
+           1
+          ],
+          [
+           72,
+           0.5
+          ],
+          [
+           71,
+           0.5
+          ],
+          [
+           69,
+           1
+          ],
+          [
+           67,
+           2
+          ],
+          [
+           66,
+           1
+          ],
+          [
+           64,
+           1
+          ],
+          [
+           66,
+           0.5
+          ],
+          [
+           64,
+           0.5
+          ],
+          [
+           62,
+           3
+          ]
+         ]
+        }
+       },
+       {
+        "line": 3,
+        "event": "peal",
+        "react": "clap",
+        "player": "celebrate",
+        "push": 0.16
+       }
+      ],
+      "hold": 1.8
+     }
     },
     {
      "id": "tell",

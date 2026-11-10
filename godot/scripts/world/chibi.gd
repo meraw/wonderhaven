@@ -3,7 +3,7 @@ extends Node3D
 ## Chibi character: big head, short limbs, a painted face (FaceShader) that blinks and emotes, bouncy procedural animation.
 const P := preload("res://scripts/world/palette.gd")
 const HEAD_R := 0.4
-const ACTION_LENGTH := {"wave": 1.6, "clap": 1.4, "celebrate": 1.9, "surprised": 0.9, "chop": 0.55, "mine": 0.6, "dig": 0.7, "build": 0.9, "nod": 0.8, "shrug": 1.0, "feed": 1.0, "shake": 1.1}
+const ACTION_LENGTH := {"watch": 1.7, "wave": 1.6, "clap": 1.4, "celebrate": 1.9, "surprised": 0.9, "chop": 0.55, "mine": 0.6, "dig": 0.7, "build": 0.9, "nod": 0.8, "shrug": 1.0, "feed": 1.0, "shake": 1.1}
 
 var appearance: Dictionary
 var body: Node3D
@@ -654,6 +654,14 @@ func animate(dt: float, speed: float = 0.0, airborne: bool = false) -> void:
 		"garden": body.rotation.x = 0.3; arm_l.rotation.x = -0.9 + sin(t * 4.0) * 0.2; arm_r.rotation.x = arm_l.rotation.x
 		"read": arm_l.rotation.x = -1.1; arm_r.rotation.x = -1.1; arm_l.rotation.z = 0.35; arm_r.rotation.z = -0.35; head.rotation.x = 0.25
 		"talk": arm_r.rotation.x = -0.4 + sin(t * 3.0) * 0.3; arm_r.rotation.z = 0.35; head.rotation.y = sin(t * 1.3) * 0.12
+		"kneel":
+			body.position.y = -0.3; leg_l.rotation.x = 1.25; leg_r.rotation.x = 1.25; body.rotation.x = 0.08
+			arm_l.rotation.x = -1.15; arm_r.rotation.x = -1.15; arm_l.rotation.z = 0.5; arm_r.rotation.z = -0.5; head.rotation.x = 0.3
+		"sing":
+			var sway := sin(t * 1.4)
+			head.rotation.x = -0.22; head.rotation.z = sway * 0.08; body.rotation.z = sway * 0.035
+			arm_l.rotation.x = -0.75; arm_r.rotation.x = -0.75; arm_l.rotation.z = -0.55 - sway * 0.08; arm_r.rotation.z = 0.55 - sway * 0.08
+		"hold_staff": arm_r.rotation.x = -0.35; arm_r.rotation.z = 0.32
 		"dance":
 			var step := t * 5.9
 			body.rotation.y = sin(t * 0.9) * 1.4
@@ -726,6 +734,9 @@ func animate(dt: float, speed: float = 0.0, airborne: bool = false) -> void:
 					body.rotation.x += lerpf(0.45, 0.0, a); arm_r.rotation.x = lerpf(-0.3, 0.0, a); arm_l.rotation.x = arm_r.rotation.x
 				if action_prev_p < 0.5 and p >= 0.5: impact_age = 0.0; impact_amp = 0.08
 			"feed": arm_r.rotation.x = -1.2 * ease_out(s); body.rotation.x += 0.3 * s
+			"watch":
+				arm_l.rotation.x = -1.45 * s; arm_l.rotation.z = 0.75 * s
+				head.rotation.x = 0.35 * s; head.rotation.y = 0.3 * s
 		action_prev_p = p
 		if action_t >= length: action = ""; action_prev_p = 0.0
 	squash = clampf(squash, -0.12, 0.2)
