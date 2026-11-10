@@ -27,6 +27,8 @@ var stare_mark: Label3D
 var visit := {}
 var visit_t := 30.0
 var held := false
+var bench := {}
+var seat_look_t := 0.0
 var hat_on := ""
 
 func _init(g, d: Dictionary) -> void:
@@ -70,7 +72,20 @@ static func node_storey(node: String) -> float:
 
 func visiting() -> bool: return not visit.is_empty()
 
-func seated() -> bool: return visiting() and visit.get("arrived", false) and String(visit.spot.get("pose", "")) == "sit"
+func _visit_seated() -> bool: return visiting() and visit.get("arrived", false) and String(visit.spot.get("pose", "")) == "sit"
+
+func seated() -> bool: return _visit_seated() or bool(bench.get("arrived", false))
+
+func leave_bench() -> void:
+	if bench.get("arrived", false):
+		var back: Vector2 = bench.approach
+		pos = Vector3(back.x, game.walk.surface_at(back.x, back.y, float(bench.at.y) + 0.3).y, back.y)
+	bench = {}
+
+func _sit_down() -> void:
+	pos = bench.at
+	yaw = float(bench.yaw)
+	bench["arrived"] = true
 
 func start_visit(v: Dictionary, h: Dictionary) -> void:
 	visit = v
@@ -84,14 +99,14 @@ func _arrive() -> void:
 	visit["arrived"] = true
 	var sp: Dictionary = visit.spot
 	yaw = float(sp.get("yaw", yaw))
-	if seated(): pos = Vector3(sp.at.x, float(sp.y), sp.at.y)
+	if _visit_seated(): pos = Vector3(sp.at.x, float(sp.y), sp.at.y)
 	if not visit.use:
 		stare_mark.visible = true
 		character.play("shrug")
 	game.visit_arrived(self)
 
 func end_visit() -> void:
-	if seated():
+	if _visit_seated():
 		var back: Vector2 = visit.spot.approach
 		pos = Vector3(back.x, game.walk.surface_at(back.x, back.y, float(visit.spot.get("y", INF))).y, back.y)
 	visit = {}
@@ -102,6 +117,7 @@ func end_visit() -> void:
 
 func teleport_home() -> void:
 	if visiting(): end_visit()
+	bench = {}
 	var a := Schedule.activity_at(def, game.state.time.minute, game.state.flags)
 	var p := node_pos(a.node)
 	pos.x = p.x; pos.z = p.y; waypoints = []; goal = a.node; activity = a.activity
@@ -140,15 +156,27 @@ func update(dt: float) -> void:
 		hat_on = want
 		character.wear_hat(want)
 	if visiting() and a.activity == "sleep": end_visit()
-	if not visiting() and a.node != goal: plan_route(a.node)
+	if not visiting() and a.node != goal:
+		leave_bench()
+		plan_route(a.node)
 	activity = a.activity
+	if bench.get("arrived", false) and Vector2(pos.x - bench.at.x, pos.z - bench.at.z).length() > Seats.TAKEN_R: bench = {}
+	if not bench.is_empty() and (activity != "sit" or visiting() or not game.seat_exists(String(bench.key))): leave_bench()
+	seat_look_t -= dt
+	if activity == "sit" and bench.is_empty() and not visiting() and not talking and waypoints.is_empty() and goal == a.node and seat_look_t <= 0.0:
+		seat_look_t = 1.0
+		var got: Dictionary = game.claim_seat(self)
+		if not got.is_empty():
+			bench = got
+			bench["arrived"] = false
+			waypoints = [got.approach]
 	if visiting() and visit.arrived: activity = String(visit.spot.get("pose", "")) if visit.use else "stare"
 	var speed := 0.0
 	hurry_t = maxf(0.0, hurry_t - dt)
 	var pp: Vector3 = game.player.pos
 	if talking:
 		if riding: _ride(false)
-		face(pp, dt, 10.0)
+		if not seated(): face(pp, dt, 10.0)
 	elif not waypoints.is_empty():
 		var tgt: Vector2 = waypoints[0]
 		var d := Vector2(tgt.x - pos.x, tgt.y - pos.z)
@@ -173,6 +201,7 @@ func update(dt: float) -> void:
 			elif pd > 12.0: rang = false
 	else:
 		if riding: _ride(false)
+		if not bench.is_empty() and not bench.arrived: _sit_down()
 		if visiting() and not visit.arrived: _arrive()
 		if visiting() and visit.arrived and not talking:
 			visit["left"] = float(visit.get("left", 20.0)) - dt
@@ -186,7 +215,7 @@ func update(dt: float) -> void:
 		elif pd > 6.0: greeted = false
 	var s: Dictionary = game.walk.surface_at(pos.x, pos.z, pos.y + 0.3)
 	if s.walkable and not seated(): pos.y = s.y
-	var hold: String = "talk" if talking else ("ride" if riding else ("" if speed > 0.0 else {"garden": "garden", "work": "work", "read": "read", "talk": "talk", "sleep": "sleep", "sit": "sit", "dance": "dance"}.get(activity, "")))
+	var hold: String = ("sit" if seated() else "talk") if talking else ("ride" if riding else ("" if speed > 0.0 else {"garden": "garden", "work": "work", "read": "read", "talk": "talk", "sleep": "sleep", "sit": "sit", "dance": "dance"}.get(activity, "")))
 	if hold != "":
 		if character.hold != hold: character.play(hold, true)
 	elif character.hold != "": character.stop_hold()

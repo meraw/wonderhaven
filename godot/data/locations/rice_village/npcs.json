@@ -328,7 +328,7 @@
        16,
        19,
        "nonnaPaddy",
-       "idle"
+       "sit"
       ],
       [
        19,
@@ -401,6 +401,13 @@
      ],
      "line": "There. A hat and a scarf. I didn't ask what colours you like because you'd have said the wrong ones. Wear them on the bus, it's draughty."
     }
+   ],
+   "sitLines": [
+    "Nonna shifts over to make room. \"Sit, sit. The bench was built for two. I made sure.\"",
+    "Nonna pats the seat beside her. \"Look at the paddy with me a while. It doesn't need us to say anything.\"",
+    "Nonna hums the mondina's song under her breath. Just the tune: the words of that verse are not for a Geometra.",
+    "\"In 1951 I'd have given a week's pay for a bench like this,\" says Nonna. \"Well. Half a week's.\"",
+    "Nonna offers you a biscuit from her apron pocket. It's a little squashed. It's very good."
    ]
   },
   {

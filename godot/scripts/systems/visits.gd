@@ -53,7 +53,7 @@ static func use_spot(pl: Dictionary, kind: String, cells: Array, placements: Arr
 				cell = near_cell(cells, c + reach, 0.55, float(b.bottom))
 				if cell.is_empty(): cell = near_cell(cells, c - reach, 0.55, float(b.bottom))
 			if not cell.is_empty():
-				var at := NapGags.seat_spot(pl)
+				var at: Vector3 = Seats.spots(pl)[0].at
 				spot = {"approach": Vector2(cell.x, cell.z), "at": Vector2(at.x, at.z), "y": at.y, "yaw": -int(pl.r) * PI / 2.0, "pose": "sit"}
 		"shelter":
 			for p in cells:
