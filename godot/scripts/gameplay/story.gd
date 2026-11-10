@@ -130,7 +130,9 @@ func talk(agent) -> void:
 	var talked := engine.on_talk(agent.def.id)
 	for x in talked:
 		if x.has("objective") and x.objective.get("npc", "") == agent.def.id and x.objective.has("lines"):
-			await ui.say(x.objective.lines.map(func(l): return Conversation.fill(l, s.name)))
+			var said: Array = x.objective.lines.map(func(l): return Conversation.fill(l, s.name))
+			if x.objective.has("scene") and game.get("pageant") != null: await game.pageant.play(x.objective.scene, said, agent)
+			else: await ui.say(said)
 	handle(talked)
 	var conv := _conv(agent, not met)
 	for q in conv.turn_ins: await complete_quest(q.id, agent)
@@ -445,13 +447,17 @@ func _zone_items(qid: String, o: Dictionary) -> Array:
 		"commission":
 			var cr := engine.commission(qid, o)
 			var rows: Array = []
-			for r in cr.musts:
+			var musts: Array = o.get("musts", [])
+			for mi in cr.musts.size():
+				var r: Dictionary = cr.musts[mi]
 				var ok: bool = r.ok or st.done
 				rows.append({"label": String(r.label) + ("" if ok or int(r.need) <= 1 else " (%d/%d)" % [int(r.have), int(r.need)]), "ok": ok})
 				if String(r.check) == "fed" and not ok:
-					var m: Dictionary = game.mech
-					rows.append({"label": "A waterwheel or windmill turning", "ok": not m.sources.is_empty(), "sub": true})
-					rows.append({"label": "A pump beside the water, powered", "ok": not m.pumps.is_empty(), "sub": true})
+					var target_id := String(musts[mi].get("target", "")) if mi < musts.size() else ""
+					var type := "water"
+					for tg in game.machine_targets():
+						if String(tg.id) == target_id: type = String(tg.get("type", "water"))
+					rows.append_array(Mechanics.fed_steps(type, Data.zone(String(o.get("zone", ""))), game.state.placements, game.mech))
 			for r in cr.wishes:
 				var who := String(Data.npc(String(r.who)).get("name", "")).get_slice(" ", 0)
 				rows.append({"label": String(r.label) + ("" if r.ok or int(r.need) <= 1 else " (%d/%d)" % [int(r.have), int(r.need)]) + ((" · " + who) if who != "" else ""), "ok": r.ok, "wish": true})

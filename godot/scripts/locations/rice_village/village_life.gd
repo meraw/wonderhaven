@@ -35,6 +35,8 @@ var noted: Dictionary = {}        # trains already noted down, "day:n"
 var canal: MeshInstance3D
 var paddy: MeshInstance3D
 var ringing := 0.0
+var pealed_at := -1000.0
+const PEAL_GAP := 90.0
 
 func setup(g, v: Node3D) -> void:
 	game = g; village = v
@@ -59,9 +61,14 @@ func setup(g, v: Node3D) -> void:
 			"label": func(): return "Pull the bell ropes", "act": func(): ring()})
 
 func _on_event(type: String, data: Dictionary) -> void:
+	if type == "scene_cue" and String(data.get("cue", "")) == "peal":
+		ringing = 7.0
+		pealed_at = float(game.time)
+		Sounds.peal(game)
+		return
 	if type != "flag": return
 	refresh_water()
-	if data.get("flag", "") in PEAL_FLAGS and data.get("value", false): Sounds.peal(game)
+	if data.get("flag", "") in PEAL_FLAGS and data.get("value", false) and float(game.time) - pealed_at > PEAL_GAP: Sounds.peal(game)
 
 func refresh_water() -> void:
 	var flags: Dictionary = game.state.flags if game != null and game.get("state") != null else {}

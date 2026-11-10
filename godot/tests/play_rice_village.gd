@@ -127,3 +127,29 @@ func play() -> void:
 	check(35, "the barriers go up again and you cross", await go("crossingN") and game.player.pos.z < RV.RAIL_Z - 2.0, str(game.player.pos))
 	await go("crossingS")
 	check(36, "still clear skies at the end", game.weather_now.get("type", "") == "clear", str(game.weather_now.get("type", "")))
+	await platform_departure()
+
+func train_prompt() -> bool:
+	await frames(3)
+	var tg = game.target
+	return tg != null and String(tg.label.call()) == "Take the regional train"
+
+func platform_departure() -> void:
+	game.state.flags["boatReady"] = true
+	game.state.flags[TT.STOP_FLAG] = true
+	await go("platformW")
+	check(40, "before the platform, no train to take", not await train_prompt(), str(game.player.pos))
+	await walk_direct(7.5, -43.7, 0.5)
+	game.player.yaw = PI; game.player.sync()
+	var by_track := await train_prompt()
+	game.player.yaw = 0.0; game.player.sync()
+	var facing_away := await train_prompt()
+	check(41, "after the finale, anywhere on the platform: take the regional train, facing the track or not", by_track and facing_away, "%s by the track %s, facing away %s" % [game.player.pos, by_track, facing_away])
+	await walk_direct(9.6, -41.2, 0.5)
+	game.player.yaw = PI / 2.0; game.player.sync()
+	check(42, "and at the back of the platform, facing along it", await train_prompt(), str(game.player.pos))
+	await tap(KEY_E); await frames(6)
+	check(43, "E opens the travel map", game.panels.find_child("map_view", true, false) != null, game.mode)
+	game.panels.close(); await frames(4)
+	await go("stationDoor")
+	check(44, "round at the station's front door, the platform is out of reach", not await train_prompt(), str(game.player.pos))

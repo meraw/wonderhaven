@@ -79,6 +79,11 @@ func _register_node(n: Dictionary) -> void:
 	base.merge({"radius": 2.0 if n.kind == "mine" else (1.3 if n.kind == "fish" else (2.2 if n.get("big", false) else 1.7)), "label": func(): return node_label(nd), "act": func(): act(nd)}, true)
 	game.add_interactable(base)
 
+static func area_point(area: Array, p: Vector2) -> Vector2:
+	var x0 := minf(float(area[0]), float(area[2])); var x1 := maxf(float(area[0]), float(area[2]))
+	var z0 := minf(float(area[1]), float(area[3])); var z1 := maxf(float(area[1]), float(area[3]))
+	return Vector2(clampf(p.x, x0, x1), clampf(p.y, z0, z1))
+
 static func feature_y(f: Dictionary):
 	if f.has("y"): return float(f.y)
 	if f.kind == "boat": return null
@@ -117,7 +122,14 @@ func _register_feature(f: Dictionary) -> void:
 		"boat":   # a bus can be boarded anywhere along its side, not just by its middle
 			var reach: float = float(f.get("length", 8.6)) / 2.0 + 0.6 if f.get("model", "boat") == "bus" else 2.6
 			var fl := String(f.get("flag", ""))
-			_add_feature(f, {"id": f.id, "x": f.x, "z": f.z, "radius": reach, "object": game.village.objects.get(f.id), "available": func(): return state().flags.get("boatReady", false) and (fl == "" or state().flags.get(fl, false)), "label": func(): return String(f.get("depart_label", "Catch the bus")), "act": func(): game.panels.map(true)})
+			var rec := {"id": f.id, "x": f.x, "z": f.z, "radius": reach, "object": game.village.objects.get(f.id), "available": func(): return state().flags.get("boatReady", false) and (fl == "" or state().flags.get(fl, false)), "label": func(): return String(f.get("depart_label", "Catch the bus")), "act": func(): game.panels.map(true)}
+			if f.get("area") is Array and (f.area as Array).size() == 4:
+				var area: Array = f.area
+				rec["x"] = func(): return area_point(area, Vector2(game.player.pos.x, game.player.pos.z)).x
+				rec["z"] = func(): return area_point(area, Vector2(game.player.pos.x, game.player.pos.z)).y
+				rec["radius"] = 0.8
+				rec["priority"] = -0.5
+			_add_feature(f, rec)
 
 func wants(ev: String) -> bool:
 	var e: QuestEngine = game.story.engine

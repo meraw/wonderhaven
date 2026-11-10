@@ -532,7 +532,306 @@
      "hours": [
       17,
       22
-     ]
+     ],
+     "scene": {
+      "at": {
+       "zone": "rice_village_churchyard",
+       "pieces": [
+        "roof"
+       ]
+      },
+      "audience": [
+       -1.0,
+       0.0
+      ],
+      "camera": {
+       "look": [
+        0.0,
+        0.6
+       ],
+       "look_up": 0.7,
+       "dist": 8.5,
+       "up": 3.8,
+       "push": 0.12,
+       "sides": [
+        0.35,
+        -0.35,
+        0.0,
+        0.7,
+        -0.7
+       ]
+      },
+      "player": [
+       -2.3,
+       5.4
+      ],
+      "speaker": [
+       2.3,
+       5.5
+      ],
+      "enter": [
+       -5.0,
+       1.5
+      ],
+      "crowd": {
+       "spots": [
+        [
+         -3.6,
+         3.6
+        ],
+        [
+         3.7,
+         3.7
+        ],
+        [
+         -4.3,
+         4.6
+        ],
+        [
+         4.4,
+         4.7
+        ]
+       ],
+       "at": [
+        0.0,
+        5.4
+       ],
+       "gap": 1.0
+      },
+      "candles": {
+       "from": [
+        -10.6,
+        -2.4
+       ],
+       "to": [
+        -10.6,
+        6.2
+       ],
+       "count": 8,
+       "every": 0.35,
+       "energy": 1.1,
+       "range": 3.5
+      },
+      "props": [
+       {
+        "kind": "manger",
+        "at": [
+         0.0,
+         0.4
+        ]
+       },
+       {
+        "kind": "bale",
+        "at": [
+         -1.9,
+         -0.9
+        ]
+       }
+      ],
+      "actors": [
+       {
+        "node": "rice_village_donkey",
+        "from": [
+         5.5,
+         -0.4
+        ],
+        "at": [
+         -1.5,
+         -0.4
+        ],
+        "face": [
+         0.0,
+         0.4
+        ],
+        "beat": 0
+       },
+       {
+        "node": "rice_village_ox",
+        "from": [
+         6.0,
+         -1.0
+        ],
+        "at": [
+         1.5,
+         -0.6
+        ],
+        "face": [
+         0.0,
+         0.4
+        ],
+        "beat": 0
+       },
+       {
+        "npc": "rice_village_pierina",
+        "at": [
+         -2.7,
+         0.9
+        ],
+        "beat": 0,
+        "wear": "lantern"
+       },
+       {
+        "npc": "rice_village_silvia",
+        "at": [
+         -0.6,
+         0.25
+        ],
+        "face": [
+         0.0,
+         0.4
+        ],
+        "pose": "kneel",
+        "wear": "veil",
+        "color": "#5a7bb8",
+        "beat": 1
+       },
+       {
+        "npc": "rice_village_battista",
+        "at": [
+         0.65,
+         0.0
+        ],
+        "face": [
+         0.0,
+         0.4
+        ],
+        "pose": "hold_staff",
+        "wear": "staff",
+        "beat": 1
+       },
+       {
+        "npc": "rice_village_matteo",
+        "at": [
+         1.8,
+         1.1
+        ],
+        "face": [
+         0.0,
+         0.4
+        ],
+        "pose": "hold_staff",
+        "wear": "crook",
+        "every": {
+         "anim": "watch",
+         "s": 3.2
+        },
+        "beat": 1
+       }
+      ],
+      "beats": [
+       {
+        "line": 0,
+        "candles": true
+       },
+       {
+        "line": 1,
+        "push": 0.2
+       },
+       {
+        "line": 2,
+        "sing": [
+         "rice_village_pierina"
+        ],
+        "push": 0.28,
+        "melody": {
+         "kind": "flute",
+         "step": 0.42,
+         "vol": 0.3,
+         "delay": 0.3,
+         "notes": [
+          [
+           69,
+           1
+          ],
+          [
+           71,
+           0.5
+          ],
+          [
+           69,
+           0.5
+          ],
+          [
+           67,
+           1
+          ],
+          [
+           66,
+           2
+          ],
+          [
+           64,
+           1
+          ],
+          [
+           66,
+           1
+          ],
+          [
+           67,
+           1
+          ],
+          [
+           69,
+           2
+          ],
+          [
+           0,
+           1
+          ],
+          [
+           71,
+           1
+          ],
+          [
+           72,
+           0.5
+          ],
+          [
+           71,
+           0.5
+          ],
+          [
+           69,
+           1
+          ],
+          [
+           67,
+           2
+          ],
+          [
+           66,
+           1
+          ],
+          [
+           64,
+           1
+          ],
+          [
+           66,
+           0.5
+          ],
+          [
+           64,
+           0.5
+          ],
+          [
+           62,
+           3
+          ]
+         ]
+        }
+       },
+       {
+        "line": 3,
+        "event": "peal",
+        "react": "clap",
+        "player": "celebrate",
+        "push": 0.16
+       }
+      ],
+      "hold": 1.8
+     }
     },
     {
      "id": "tell",
@@ -833,9 +1132,9 @@
      "id": "wood",
      "kind": "gather",
      "item": "wood",
-     "count": 6,
+     "count": 12,
      "stage": 0,
-     "text": "Chop 6 wood"
+     "text": "Chop 12 wood (planks for the walkway, a lever, a waterwheel and a pump)"
     },
     {
      "id": "sluice",
@@ -878,11 +1177,28 @@
        "label": "A lamp to check the gate by"
       }
      ],
-     "buildHint": "The sluice stands across the canal, by the old ruins.",
+     "buildHint": "The sluice stands across the canal, by the old ruins. Follow the glowing plan, or build your own: two stone pillars and a lever.",
      "hint": {
       "x": -36.5,
       "z": -28.5
-     }
+     },
+     "plan": [
+      [
+       -43,
+       -28,
+       "pillar"
+      ],
+      [
+       -38,
+       -28,
+       "pillar"
+      ],
+      [
+       -38,
+       -30,
+       "lever"
+      ]
+     ]
     },
     {
      "id": "walk",
@@ -922,13 +1238,45 @@
       "flags": [
        "rice_village_canalFull"
       ]
-     }
+     },
+     "plan": [
+      [
+       -43,
+       -29,
+       "bridgeDeck"
+      ],
+      [
+       -42,
+       -29,
+       "bridgeDeck"
+      ],
+      [
+       -41,
+       -29,
+       "bridgeDeck"
+      ],
+      [
+       -38,
+       -29,
+       "bridgeDeck"
+      ],
+      [
+       -39,
+       -29,
+       "bridgeDeck"
+      ],
+      [
+       -40,
+       -29,
+       "bridgeDeck"
+      ]
+     ]
     },
     {
      "id": "paddy",
      "kind": "commission",
      "stage": 2,
-     "text": "Flood the winter paddy: a waterwheel in the canal drives a pump, and pipes carry water to the paddy's inlet",
+     "text": "Flood the winter paddy: a waterwheel in the canal at the low cut in its bank, a pump beside it, and pipes east to the paddy's inlet",
      "zone": "rice_village_paddy",
      "musts": [
       {
@@ -955,7 +1303,7 @@
        "label": "A flower bed by the inlet"
       }
      ],
-     "buildHint": "A waterwheel turns in the canal; a pump beside the water needs its power; pipes run from the pump.",
+     "buildHint": "Follow the glowing plan. The coloured marks show each machine's sides: orange carries power, blue carries water, and R turns a piece so its marks meet. The wheel turns only in the canal, the pump needs the water beside it and takes power on its orange side, and the pipes run from its blue spout to the blue arrow at the inlet.",
      "hint": {
       "x": -36,
       "z": 10.5
@@ -964,7 +1312,45 @@
       "flags": [
        "rice_village_paddyFlooded"
       ]
-     }
+     },
+     "plan": [
+      [
+       -39,
+       10,
+       "waterwheel",
+       1
+      ],
+      [
+       -38,
+       10,
+       "pump",
+       2
+      ],
+      [
+       -37,
+       10,
+       "pipe",
+       1
+      ],
+      [
+       -36,
+       10,
+       "pipe",
+       1
+      ],
+      [
+       -35,
+       10,
+       "pipe",
+       1
+      ],
+      [
+       -34,
+       10,
+       "pipe",
+       1
+      ]
+     ]
     },
     {
      "id": "tell",
@@ -1033,9 +1419,9 @@
      "id": "wood",
      "kind": "gather",
      "item": "wood",
-     "count": 6,
+     "count": 10,
      "stage": 0,
-     "text": "Chop 6 wood"
+     "text": "Chop 10 wood (a waterwheel and six drive shafts)"
     },
     {
      "id": "metal",
@@ -1049,7 +1435,7 @@
      "id": "drive",
      "kind": "commission",
      "stage": 1,
-     "text": "Drive the old mill: a waterwheel in the canal and shafts to the mill's west wall",
+     "text": "Drive the old mill: a waterwheel in the canal at the mill race's low cut, and drive shafts east to the mill's west wall",
      "zone": "rice_village_mill",
      "musts": [
       {
@@ -1074,11 +1460,55 @@
        "label": "A workbench for repairs"
       }
      ],
-     "buildHint": "A waterwheel turns in the canal. Shafts carry power in a line; gears turn corners.",
+     "buildHint": "Follow the glowing plan. The coloured marks show each machine's sides: orange carries power, and R turns a piece so its marks meet. The wheel turns only in the canal; shafts carry power in a straight line to the orange arrow on the mill's wall; gear boxes turn corners.",
      "hint": {
       "x": -36,
       "z": -12.5
-     }
+     },
+     "plan": [
+      [
+       -39,
+       -13,
+       "waterwheel",
+       1
+      ],
+      [
+       -38,
+       -13,
+       "shaft",
+       1
+      ],
+      [
+       -37,
+       -13,
+       "shaft",
+       1
+      ],
+      [
+       -36,
+       -13,
+       "shaft",
+       1
+      ],
+      [
+       -35,
+       -13,
+       "shaft",
+       1
+      ],
+      [
+       -34,
+       -13,
+       "shaft",
+       1
+      ],
+      [
+       -33,
+       -13,
+       "shaft",
+       1
+      ]
+     ]
     },
     {
      "id": "tell",

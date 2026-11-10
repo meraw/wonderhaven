@@ -24,7 +24,8 @@ static func lay_out(entries: Array, zone: Dictionary, built_pieces: Array = []) 
 static func built(pl: Dictionary, placements: Array) -> bool:
 	var d := Data.piece(pl.id)
 	var edge: bool = d.get("edge", false) or d.get("attach", "") == "wall"
-	return placements.any(func(p): return p.id == pl.id and p.i == pl.i and p.k == pl.k and (not edge or int(p.r) == int(pl.r)))
+	var mech: bool = d.has("mech")
+	return placements.any(func(p): return p.id == pl.id and p.i == pl.i and p.k == pl.k and (not edge or int(p.r) == int(pl.r)) and (not mech or Mechanics.same_ports(p, pl)))
 
 ## The plans to show now: [{quest, objective, zone, pieces}], one for every current, unfinished step with a plan in
 ## the place you're in.

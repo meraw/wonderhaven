@@ -5,6 +5,160 @@ Working title: **Wonderhaven** (to be renamed). The game is moving to a comic, l
 - **Godot 4 (`godot/`)** is the game. See `godot/README.md`. Its content (`godot/data/*.json`) is edited directly.
 - **Web / Three.js (`index.html`, `src/`)** is the original prototype, **frozen**: kept as it was, no longer updated. Everything added since the Godot port (interiors, shops, staged requests, the guided day, the look) exists only in Godot.
 
+## The Living Nativity plays out in the churchyard (10/11)
+Reported: "the nativity scene should be animated also!" Don Remo only described it in four lines of dialogue.
+- **The scene.** His four evening lines now each start a beat of a staged scene at the stable you built (found from
+  your roof; the middle of the churchyard if there is none). The screen fades; you and Don Remo stand with the
+  villagers to the west, a manger with a swaddled bundle and a straw bale are set out, and the camera looks east at
+  the stable with the church wall behind, pushing in slowly. Line 1: the farm's ox and donkey are led in, eight candles
+  along the church wall light one by one, Nonna comes over with a lantern. Line 2: Silvia kneels at the manger in a
+  blue veil (Mary), Barba Tista stands with a staff (Joseph), Matteo is a shepherd with a crook who keeps checking his
+  watch. Line 3: Nonna sings (a swaying pose, notes rising, an original flute carol). Line 4: the bells peal and the
+  tower bell swings, everyone claps. Then a fade, and the village goes back to normal: villagers to their routines
+  (a seated one stood up first and sits again after), costumes and props gone, the ox and donkey back where they were;
+  the thanks and the vin brulé follow in dialogue.
+- **Shared and data-driven:** the scene is a `"scene"` block on the talk step (`quests.json`: audience, camera,
+  player and speaker spots, onlookers, candles, props, actors by villager id or world node, beats per line), played
+  by `Pageant` (`scripts/world/pageant.gd`) with its rules in `Staging` (`scripts/systems/staging.gd`). Any place can
+  stage its own. New poses `kneel`, `sing`, `hold_staff` and a `watch` action (`chibi.gd`); a held villager can walk.
+  The quest's usual peal is skipped if the scene's bells rang in the last 90 s.
+- **Checked:**
+  - **Tested** (`godot/run_tests.sh`, 545 passed, 536 before). `test_staging` (9): the stable's position, the layout
+    round it, a free spot, the onlookers' places, candle timing, the melody, walking.
+  - **Played**: `play_nativity` (new, 13 checks: candles 8 of 8 lit; ox and donkey at their marks; the cast at theirs,
+    Silvia kneeling in the veil, staff and crook worn; Nonna singing; bells during the scene and 6 villagers clapping;
+    afterwards nobody held, the camera released, candles gone, the animals back, the request done with vin brulé, no
+    costumes left). `play_rice_village3` in full from `play_rice_village2`'s save (41 checks, the nativity included)
+    and `play_rice_village2` (50 checks). Screenshots of each beat.
+  - **Not checked**: the sound (autoplays are silent); the kneel and veil only seen from a distance. Known flaws: a
+    front post of your stable can hide Barba Tista, depending on how you built it; Paletta's cap can clip a corner of
+    the view; the veil reads more like a cape. Casalrana keeps the default day, so at 8:30 PM it is only half dark: a
+    late-November `sunset` in its look (as Toriano's 17.0) would make the candles glow, but would change the whole day.
+
+## Sit on a bench beside a villager: Nonna on her bench (10/11)
+Reported: "I should be able to sit on a bench with the nonna? Like come on just make her sit and me next to her".
+Nonna's request asked you to sit with her on her bench at dusk, but she stood beside the paddy and you couldn't.
+- **Villagers sit on real seats** (shared, every place). When a routine says "sit", the villager looks for a free
+  seat within 8 m of their spot (a bench, chair, sofa or armchair you built, or a bench in the layout), walks up from
+  the front, sits facing the way the seat faces, and gets up and steps off when the routine moves on. With no seat
+  near, they sit where they stand, as before. `Seats` (`scripts/systems/seats.gd`), `npc_agent.gd`.
+- **A bench seats two, and nobody shares a place.** A villager takes the far half, so the near half stays free for
+  you; visitors to a hangout take one half too, not the middle. Every place is checked against everyone seated or on
+  their way, you included; napping on a full bench still wakes you on it; a villager moved by a cutscene while seated
+  gives the seat up.
+- **Sitting with someone.** By the free half of a seated villager's bench, E offers "Sit with <name>". You sit side by
+  side; they say one of their `sitLines` (data), a heart once a day. From the seat, E talks to them and you both stay
+  seated through the conversation (Nonna's dusk talk, so she sings from her bench). Moving stands you up. In front of
+  them, facing them, E is still a plain talk.
+- **Nonna** (data only): once her bench is built, from 4 to 7 PM she sits by her paddy, which puts her on the bench
+  you built; five lines for when you sit with her.
+- **Checked:**
+  - **Tested** (`godot/run_tests.sh`, 536 passed, 529 before). `test_seats` (7): two places on a bench and one on a
+    chair, a turned bench included; never two people in one place; a villager claims the nearest bench with room and
+    takes its far half; a layout bench and the bench you sit on are the same seat; Nonna sits at dusk only once the
+    bench is built, within reach of her corner of the paddy; by the free half the prompt is "Sit with", in front of
+    her facing her it is "Talk". `test_visits`: visitors on a bench now sit on one half (was: the middle), on purpose.
+  - **Played** with real input: `play_nonna_bench` (new, 21 checks): accept her request, chop, build the bench and
+    flower bed, nap to 6 PM; she walks to the bench and sits on the seat in the sitting pose, the other half free; E
+    there offers "Sit with"; side by side a metre apart, same height and facing; a heart; from the seat E talks, she
+    sings, the request is done, you're still seated; moving stands you up while she stays; sitting again the same day
+    gives no second heart; at 7 PM she gets up and walks off. (Its only shortcut: the welcome request marked done so
+    she offers the bench request.) Its first run found "Talk to" beating "Sit with" by the free half depending on
+    where you faced; fixed. `play_rice_village2` (50 checks; 43 now finds her seated on the bench). Screenshots of the
+    two of them on the bench and talking from it, from behind the bench.
+
+## Casalrana's water machines can be understood (10/11)
+Reported: "I CANNOT build any of the watermill things in casalrana, they're incomprehensible". The pieces were right
+but nothing showed which side of a waterwheel, pump, shaft or pipe carries power or water: the wheel's axle runs
+north–south until turned, and the pump must be turned half round to pump towards the paddy. A wrongly turned piece
+did nothing, without a word. Casalrana also had no glowing plans, and the mill's checklist asked for a pump and ticked
+it for the paddy's.
+- **Glowing plans** for the sluice, the walkway, the paddy's machine and the mill's drive. Gathering pays for them:
+  12 wood for Water for the Winter (was 6), 10 for the mill (was 6).
+- **Power and water marks** (shared): in build mode every machine piece, held or built, has orange (power) and blue
+  (water) marks on its sides, bright when live. Each machine target has an arrow and a label where the power or water
+  goes in ("The winter paddy's inlet / Water goes in here"), "arrives ✔" once it does. `MachineMarks`
+  (`scripts/build/machine_marks.gd`).
+- **The status line says what a machine will do there** (shared): "It turns in the water and sends power out of its
+  east and west sides", "No power yet: its east side takes the power and has to touch a turning axle (R turns it)",
+  "Water reaches the winter paddy's inlet!". A selected machine's panel says the same, with ✔ or ✖.
+  `Mechanics.explain`.
+- **A plan's machine counts only when turned the plan's way** (`Plans.built`, `Mechanics.same_ports`).
+- **A power target's checklist** asks for a turning wheel and drive shafts, not a pump, and counts only the machines on
+  its own site (`Mechanics.fed_steps`).
+- **Checked:**
+  - **Tested** (`godot/run_tests.sh`, 529 passed with the fixes above, 521 before). `test_machine_hints` (7): the
+    wheel in and out of the canal, the pump turned both ways and away from a wheel, a dry pipe and the last pipe
+    feeding the inlet, a wrongly turned machine not counting as the plan's piece, the mill's checklist, the inlet
+    marker's edge and a turned pump's marks, and side words. `test_plans` builds Casalrana's water and mill plans piece
+    by piece and checks each step is done.
+  - **Played** with real input: `play_rice_village2` (50 checks; new 39: at the paddy site the plan glows, the wheel is
+    in your hand already turned, the inlet arrow is there; new 49: the pump turned wrong says its east side takes the
+    power, turned round it says it pumps) and `play_rice_village3` from that save (41 checks; new 134: at the mill the
+    plan glows, the drive's arrow is there, the checklist asks for shafts, not a pump). Screenshots of the paddy and
+    mill build views read back correctly (a "➜" that drew as a black box was dropped).
+  - **Not played**: the other places' playthroughs, though the plan check, marks and checklist are shared; their
+    headless plan tests still pass.
+
+## Playtest fixes: the donkey, the ceremony's comments, the regional train (09/11)
+Reported in play: "those donkeys are BUSTED"; "I can't properly read the comments of the villagers during a reveal
+of new things ceremony"; "finding the button to take the regionale train in Casalrana is super fickle".
+- **The donkey.** Casalrana's donkey stood 0.9 m from a cow, so the two bodies went through each other: his head was
+  inside the cow, and his mane, which wasn't fixed to his head, floated over his back as a black slab. He now has his
+  own spot at the paddock's rail on the path side (48.6, −2.6), facing the path where you stand to scratch his ears,
+  clear of the herd and the hay rack, and his own model (`_donkey`, `rice_village/wildlife.gd`): a neck carrying the head, long ears with dark tips
+  and a mane that move with it, a pale muzzle and belly, the dark stripe and shoulder cross, a slimmer body. He lowers
+  his whole neck to graze (`graze` on a herd animal: how far its head goes down).
+- **The ceremony's comments.** After the ribbon, every villager's comment appeared at once as floating text over their
+  heads, on one unwrapped line each, overlapping, and gone after 2.6 s. Now the crowd cheers together, then whoever has
+  something to say speaks in turn, the one thanking you first: their line goes in the caption box under their name,
+  wrapped, with a "!" over their head. Each line (the Sindaco's too) stays up for its reading time (2.6 to 6 s by its
+  length, `InaugurationScene.reading_time`), and E moves on to the next one sooner. Shared: every place's ceremony.
+- **The regional train.** The platform's departure point was one invisible spot (8.5, −42.9) with a 2.6 m reach that
+  you also had to face. A departure point can now take an `area` (a rectangle, `layout.json`): anywhere inside it the
+  departure is where you stand, so E works facing any way; outside it, it is the nearest edge, with a short reach.
+  Casalrana's covers the whole platform (x 5 to 34). It comes after a villager you face at arm's length (priority
+  −0.5), so talking to Paletta on the platform still works. Shared: `WorldActions.area_point`, any place's stop.
+- **Checked:**
+  - **Tested** (`godot/run_tests.sh`, 521 passed, 516 before): `test_inauguration` (+2: who speaks and in what order; reading times),
+    `test_departure_area` (3: on the platform, off it, and against a villager or a sign close by).
+  - **Played**: `play_inauguration` (11 checks; i5 now waits for Ornella's thanks in the caption under her name) and
+    looked at the ribbon-cut and puzzled-crowd shots. `play_rice_village` (+5, checks 40 to 44): no train before the
+    platform is reached; on it after the finale, facing the track and facing away, and at the back facing along it,
+    the prompt is the train; E opens the travel map; at the station's front door it is out of reach. The donkey was
+    looked at in screenshots from the path and from the side (Forward+); `play_rice_village2`'s check 73 now walks to
+    wherever he stands and scratches his ears (50 checks, 0 failed, with the water machines below merged in), and
+    `play_rice_village3` passes from its save (41 checks).
+
+## Shadows no longer shimmer while you talk (09/11)
+Reported: "the light is glitching while I talk to Battista the first time" (Windows PC; shadows jump or shimmer).
+- **The cause.** The clock never stops (one game minute a second), and the sun's direction was set from it every
+  frame, so the sun turned a tiny bit each frame and the shadow map was redrawn at a new angle each time: shadow edges
+  crawled. While you walk the motion hides it. In a conversation the camera holds still and close to two characters,
+  so it shows, and Barba Tista's first conversation is a long one. It was not his: every conversation, and every still
+  view, did the same.
+- **The fix** (shared, every place): the shadow-casting light holds still while the camera does. It follows the sun
+  at once while the camera moves; with a still view it waits until it is 6° behind (about half a minute of game
+  clock) and then catches up over about a second. A jump of the clock (sleeping, loading a save, a test setting the
+  hour) snaps it straight to the sun. The sky's sun disc, cloud shadows and the shader globals still follow the clock
+  every frame. Where: `SunHold` (`scripts/systems/sun_hold.gd`), used by `_update_world_time` in `game.gd`.
+- **How it was found.** Battista's first conversation was recorded frame by frame (Forward+ and compatibility, in the
+  fields in the morning and in the machine shed in the afternoon) and the frames compared on still ground away from
+  the characters. With the sun's direction frozen, the frame-to-frame change fell from 0.33 to 0.008 (109 sharply
+  changed pixels a frame to 5); with the dialogue portrait switched off instead it hardly changed (68), so the
+  portrait's second camera was not the cause.
+- **Checked:**
+  - **Tested** (`godot/run_tests.sh`, 516 passed, 510 before). `test_sun_hold` (6 tests): the first frame shows the
+    sun where it is; ten seconds of talking at 60 frames a second never move the light; over a minute and a half it
+    stays within the hold and moves on under a tenth of the frames; a moving camera catches up in the same frame; an
+    hour's nap and a save at another hour snap it; a camera easing its last millimetres counts as still, walking and
+    turning do not.
+  - **Played**: the same recorded conversation with the fix, Forward+: the change on still ground is 0.032 (2 sharply
+    changed pixels a frame), as with the sun frozen. `play_rice_village` (30 checks) passes. `npm test` and
+    `npm run build` pass.
+  - **Not checked on a real graphics card**: all of the above ran on software rendering (llvmpipe). The cause is the
+    same on any card, but whether the shimmer is gone on the reporter's Windows PC is for them to confirm.
+
 ## Building by dragging, corners that close, and fixes found on the way (09/11)
 The request was open ("improve my game"), so the work went to the centre of the design, building. All of it is shared:
 it works the same in every place.

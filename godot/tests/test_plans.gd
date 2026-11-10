@@ -100,6 +100,13 @@ func test_liolivatos_plans_work():
 		if q.objectives.any(func(o): return o.has("plan")): _build(q, [])
 	Data.use_island("hearthglow")
 
+func test_casalranas_water_and_mill_plans_work():
+	Data.use_island("rice_village")
+	var canal: Array = []
+	_build(Data.quest("rice_village_water"), canal)
+	_build(Data.quest("rice_village_mill"), canal)
+	Data.use_island("hearthglow")
+
 ## What a request has you gather pays for following its plans (gifts on accepting are in your bag, so they count
 ## towards it): you never tick off the materials and then come up short on the last plank.
 func test_gathering_pays_for_the_plan():

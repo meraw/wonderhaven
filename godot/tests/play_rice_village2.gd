@@ -134,6 +134,17 @@ func surface_at(x: float, z: float) -> float:
 		if x > b.minX and x < b.maxX and z > b.minZ and z < b.maxZ: y = maxf(y, b.top)
 	return y
 
+func hover_status(id: String, i: int, k: int, r: int) -> String:
+	if game.build.item_id != id: await select_piece(id)
+	for n in 4:
+		if game.build.rotation == r: break
+		await tap(KEY_R)
+	game.build.focus = Vector3(i + 0.5, 0, k + 0.5)
+	await settle()
+	mouse_move(game.camera.unproject_position(Vector3(i + 0.5, surface_at(i + 0.5, k + 0.5), k + 0.5)))
+	await frames(6)
+	return game.build.status_label.text if game.build.status_label else ""
+
 ## Places a list of [piece, i, k, rotation] in a build site, then leaves build mode. Each piece is aimed at the middle
 ## of its footprint, on the surface the cursor will land on there.
 func build(zone: String, pieces: Array) -> Array:
@@ -263,9 +274,9 @@ func water() -> void:
 	await talk_for(P + "battista", P + "water")
 	check(30, "Barba Tista asks for water for the winter", status("water") == "active", status("water"))
 	await gather_for("mine", "water", "stone", 6, "stone", 4)
-	await gather_for("chop", "water", "wood", 6, "wood", 12, 24)
+	await gather_for("chop", "water", "wood", 12, "wood", 12, 24)
 	await buy("battista", "metal", 2)
-	check(31, "gather cobbles and wood, and buy metal at the machine shed", progress("water", "stone") >= 6 and progress("water", "wood") >= 6 and inv("metal") >= 3, "stone %d wood %d metal %d" % [inv("stone"), inv("wood"), inv("metal")])
+	check(31, "gather cobbles and wood, and buy metal at the machine shed", progress("water", "stone") >= 6 and progress("water", "wood") >= 12 and inv("metal") >= 3, "stone %d wood %d metal %d" % [inv("stone"), inv("wood"), inv("metal")])
 	await walk_to(-36.6, -27.0, 1.0)
 	var sl := await build(P + "sluice", [["bridgeDeck", -43, -29, 0], ["bridgeDeck", -42, -29, 0], ["bridgeDeck", -41, -29, 0],
 		["bridgeDeck", -38, -29, 0], ["bridgeDeck", -39, -29, 0], ["bridgeDeck", -40, -29, 0],
@@ -281,7 +292,20 @@ func water() -> void:
 	await gather_to("clay", "clay", 4, 12)
 	await gather_to("chop", "wood", 5)
 	await walk_to(-36.0, 5.6, 1.0)
-	var pd := await build(P + "paddy", [["waterwheel", -39, 10, 1], ["pump", -38, 10, 2], ["pipe", -37, 10, 1], ["pipe", -36, 10, 1], ["pipe", -35, 10, 1], ["pipe", -34, 10, 1]])
+	await open_build(P + "paddy")
+	var planned: bool = game.build.site_plan().get("objective", "") == "paddy" and game.build.item_id == "waterwheel" and game.build.rotation == 1
+	var arrow: bool = game.build.marks.target_marks.get_node_or_null("target_" + P + "paddy") != null
+	await leave_build()
+	check(39, "at the paddy's site the plan glows with the waterwheel in your hand, turned its way, and a blue arrow marks the inlet", planned and arrow, "plan %s, in hand %s r%d, arrow %s" % [game.build.site_plan().get("objective", ""), game.build.item_id, game.build.rotation, arrow])
+	var wheel := await build(P + "paddy", [["waterwheel", -39, 10, 1]])
+	await open_build(P + "paddy")
+	await select_piece("pump")
+	var wrong := await hover_status("pump", -38, 10, 0)
+	var right := await hover_status("pump", -38, 10, 2)
+	var nubs: Array = game.build.marks.ghost_marks.get_children().map(func(n): return String(n.name))
+	await leave_build()
+	check(49, "holding the pump turned the wrong way says its east side takes the power; turned round it pumps, with its power and water marks on show", wrong.contains("east side takes the power") and right.contains("It pumps") and nubs.has("port_W_power") and nubs.has("port_E_water"), "%s / %s / %s" % [wrong, right, nubs])
+	var pd: Array = wheel + await build(P + "paddy", [["pump", -38, 10, 2], ["pipe", -37, 10, 1], ["pipe", -36, 10, 1], ["pipe", -35, 10, 1], ["pipe", -34, 10, 1]])
 	note("paddy: %s" % [pd])
 	await frames(30)
 	check(35, "a waterwheel, a pump and pipes carry water to the winter paddy", progress("water", "paddy") == 1 and game.mech.fed.get(P + "paddy", false), str(pd))
@@ -334,8 +358,9 @@ func wildlife() -> void:
 	var day := int(game.state.time.day)
 	await face_and_press(P + "cat2", 27.6, -14.55); await frames(10)
 	check(72, "stroke the ginger cat by the farmhouse door", game.state.flags.keys().any(func(k): return String(k).begins_with("pet_rice_village_cat_") and String(k).ends_with("_%d" % day)), "")
-	await walk_to(37.5, -5.0, 0.6); await walk_direct(46.2, -5.0, 0.6)
-	await face_and_press(P + "donkey", 46.3, -2.2); await frames(10)
+	var dk: Vector3 = (wild().herd[4].obj as Node3D).global_position
+	await walk_to(37.5, -5.0, 0.6); await walk_direct(dk.x, -5.0, 0.6)
+	await face_and_press(P + "donkey", dk.x, dk.z); await frames(10)
 	check(73, "and scratch the donkey's ears over the paddock fence", game.state.flags.has("pet_rice_village_donkey_%d" % day), str(game.player.pos))
 	game.cam.yaw = 3.4; game.cam.pitch = 0.4; game.cam.dist = 9.0
 	await shot("paddock")

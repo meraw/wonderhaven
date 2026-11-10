@@ -64,6 +64,7 @@ These hold for any cozy, stylised 3D game with a painted look, not only this one
 | Character animation with weight: walking eases in and out, the stride follows the distance walked, squash and stretch on every step and on landing, a lean into the walk and a tip forward on stopping, a bank into turns with the head leading, breathing, a slow shift of weight and glances around when standing, and actions with anticipation, impact and follow-through (a chop winds back, strikes fast, jolts and recovers) | `chibi.gd` (`animate`, `swing_pose`, easing helpers) | all |
 | A layout's own cobblestones (`cobbleColors`: Monteforchetta's warm grey local stone instead of pale granite) | `terrain.gd` (terrain shader `cobble_a`, `cobble_b`) | all |
 | Colour grade that follows the hour and weather | `atmosphere.gd` (environment colour correction) | all |
+| Sun shadows that hold still while the view does: the clock still turns the sun, but the shadow-casting light only follows it while the camera moves, or eases up over a second once it is 6° behind (a clock jump snaps it). Shadows no longer crawl in a conversation | `sun_hold.gd`, `game.gd` (`_update_world_time`) | all |
 | Cloud shadows matching the sky's clouds, soft vignette | `atmosphere.gd` (screen pass) | Forward+ |
 | Slight blur on the far distance | `atmosphere.gd` (camera attributes) | Forward+ |
 | Dust motes, fireflies, falling leaves | `atmosphere.gd` (GPU particles) | all |

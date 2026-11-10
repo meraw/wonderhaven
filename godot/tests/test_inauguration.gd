@@ -172,3 +172,18 @@ func test_the_paper_reports_the_inauguration():
 	t.ok(p.notes.any(func(n): return String(n).contains("8/10")), "with the grade: %s" % str(p.notes))
 	var plain := MorningPaper.compose({"quests": [], "built": 2, "harmony": 5}, {"day": 4, "harmony": 5}, Data.paper, [], 0.0)
 	t.ok(String(plain.headline).contains("2"), "without one it's the old headline: %s" % plain.headline)
+
+func test_the_crowds_comments_come_one_at_a_time_with_the_thanks_first():
+	var reacts := [
+		{"npc": "a", "line": "", "heart": false},
+		{"npc": "b", "line": "Not bad, for a Geometra.", "heart": false},
+		{"npc": "c", "line": "Thank you, it's just what I wanted!", "heart": true},
+		{"npc": "d", "line": "", "heart": false}]
+	var order := InaugurationScene.speaking_order(reacts)
+	t.eq(order.map(func(r): return r.npc), ["c", "b"], "only those with something to say, the one thanking you first")
+
+func test_each_comment_stays_long_enough_to_read():
+	t.ok(InaugurationScene.reading_time("Hm.") >= 2.6, "even a short one stays a while")
+	var long_line := "Well, I never thought I'd see a bench outside the bakery in my lifetime, and here it is, with a cushion."
+	t.ok(InaugurationScene.reading_time(long_line) > 5.0, "a long one stays longer (%.1f s)" % InaugurationScene.reading_time(long_line))
+	t.ok(InaugurationScene.reading_time(long_line + long_line) <= 6.0, "but never holds the scene for ever")

@@ -47,6 +47,9 @@ var mode := "explore"
 var time := 0.0
 var started := false
 var sitting := {}
+var seat_list: Array = []
+var seat_keys: Dictionary = {}
+var npc_targets: Dictionary = {}
 var dragging := false
 var panning := false
 const WHEEL_TURN := 0.12
@@ -62,6 +65,7 @@ var roof_fade: Dictionary = {}   # building id -> roof opacity
 var guide: Guide
 var nap_gags: NapGags
 var ceremony: InaugurationScene
+var pageant: Pageant
 var sight_walls: Array = []   # building walls you can't talk through (WorldStatics.sight_walls)
 var outline: MeshInstance3D
 var outline_override := ""   # look-dev renders force outlines on or off without touching saved settings
@@ -103,6 +107,7 @@ func _ready() -> void:
 	effects = Effects.new(); add_child(effects)
 	nap_gags = NapGags.new(); nap_gags.name = "NapGags"; add_child(nap_gags); nap_gags.setup(self)
 	ceremony = InaugurationScene.new(); ceremony.name = "Inauguration"; add_child(ceremony); ceremony.setup(self)
+	pageant = Pageant.new(); pageant.name = "Pageant"; add_child(pageant); pageant.setup(self)
 	player_char = Chibi.new(state.appearance); player_char.name = "Player"; player_char.vis_layer = 2; add_child(player_char); player_char.apply_layer()
 	var sp: Dictionary = Data.layout.spawn
 	player = PlayerController.new(player_char, walk, sp.x, sp.z, sp.yaw)
@@ -127,11 +132,16 @@ func _ready() -> void:
 		var ag := a
 		add_interactable({"id": "npc:" + d.id, "x": func(): return ag.pos.x, "z": func(): return ag.pos.z, "y": func(): return ag.pos.y, "radius": 1.9, "priority": 0.6, "object": null, "sight": true,
 			"available": func(): return ag.present, "label": func(): return "Talk to " + ag.def.name, "act": func(): story.talk(ag)})
+		npc_targets[d.id] = interactables[-1]
+		add_interactable({"id": "sitwith:" + d.id, "x": func(): return float(_spot_beside(ag).get("at", ag.pos).x), "z": func(): return float(_spot_beside(ag).get("at", ag.pos).z), "y": func(): return ag.pos.y,
+			"radius": 1.0, "priority": Seats.PROMPT_PRIORITY, "object": null,
+			"available": func(): return ag.present and not ag.talking and ag.seated() and not _spot_beside(ag).is_empty(), "label": func(): return "Sit with " + ag.def.name, "act": func(): sit_on(seat_of(ag))})
 	for f in Data.layout.features:
 		if f.kind == "sign":
 			var text: String = f.text
 			add_interactable({"id": f.id, "x": f.x, "z": f.z, "object": village.objects[f.id], "label": func(): return "Read sign", "act": func(): toast(text, "", 4.0)})
 	actions = WorldActions.new(self)
+	refresh_seats()
 	_make_rain(); _make_snow()
 	_load_optional_modules()
 	apply_settings()
@@ -382,7 +392,8 @@ func enter_dialogue(agent) -> void:
 	agent.talking = true
 	dialogue.start(agent)
 	cam.set_mode("dialogue"); cam.frame_dialogue(player.pos, agent.pos)
-	player.yaw = atan2(agent.pos.x - player.pos.x, agent.pos.z - player.pos.z); player.sync()
+	if sitting.is_empty(): player.yaw = atan2(agent.pos.x - player.pos.x, agent.pos.z - player.pos.z)
+	player.sync()
 	hud.tracker.visible = false
 
 func exit_dialogue() -> void:
@@ -513,6 +524,9 @@ func _update_visits(dt: float) -> void:
 	var taken := {}
 	for a in npcs.values():
 		if a.visiting() and a.visit.use: taken[int(a.visit.uid)] = true
+	var seated_now := sitters()
+	for e in seat_list:
+		if e.seat.has("uid") and not e.spots.is_empty() and Seats.taken(e.spots[0].at, seated_now): taken[int(e.seat.uid)] = true
 	if dusk and Visits.gathering(village_score, dusk):
 		for a in npcs.values():
 			if a.visiting() and a.visit.get("arrived", false) and String(a.visit.hangout) == "piazza" and not a.seated() and randf() < dt * 0.3:
@@ -944,7 +958,62 @@ func on_build_changed(ev: Dictionary) -> void:
 		story.count_world_meter()
 		autosave("build")
 
+func refresh_seats() -> void:
+	var from_layout: Array = []
+	for f in Data.layout.get("features", []):
+		if String(f.get("kind", "")) == "bench": from_layout.append(Seats.feature_seat(f, Heightfield.height(float(f.x), float(f.z))))
+	seat_list = Seats.entries(state.placements, from_layout)
+	seat_keys = {}
+	for e in seat_list: seat_keys[String(e.key)] = e
+
+func seat_exists(key: String) -> bool: return seat_keys.has(key)
+
+func sitters(except = null) -> Array:
+	var out: Array = []
+	if not sitting.is_empty(): out.append(player.pos)
+	for a in npcs.values():
+		if a == except or not a.present: continue
+		if not a.bench.is_empty(): out.append(a.bench.at)
+		elif a.visiting() and a.visit.use and String(a.visit.spot.get("pose", "")) == "sit":
+			out.append(Vector3(a.visit.spot.at.x, float(a.visit.spot.y), a.visit.spot.at.y))
+	return out
+
+func claim_seat(a) -> Dictionary:
+	return Seats.claim(seat_list, Vector2(a.pos.x, a.pos.z), sitters(a), Seats.REACH, a.pos.y)
+
+func seat_of(a) -> Dictionary:
+	if not a.bench.is_empty() and seat_keys.has(String(a.bench.key)): return seat_keys[String(a.bench.key)].seat
+	if a.visiting() and a.visit.use: return _find_pl(int(a.visit.uid))
+	return {}
+
+func _spot_beside(a) -> Dictionary:
+	var seat := seat_of(a)
+	if seat.is_empty() or not sitting.is_empty(): return {}
+	var spot_list := Seats.spots(seat)
+	var i := Seats.free_spot(spot_list, sitters(), Vector2(player.pos.x, player.pos.z))
+	return spot_list[i] if i >= 0 else {}
+
+func seated_beside():
+	if sitting.is_empty() or not sitting.has("seat"): return null
+	var spot_list := Seats.spots(sitting.seat)
+	for a in npcs.values():
+		if a.present and a.seated() and Seats.beside(spot_list, a.pos): return a
+	return null
+
+func _sat_with(a) -> void:
+	var day := int(state.time.day)
+	var key := "satwith_%s_%d" % [a.def.id, day]
+	if not state.flags.get(key, false):
+		state.flags[key] = true
+		story.add_hearts(a.def.id, 1)
+		effects.hearts(a.pos + Vector3(0, 1.0, 0), 3)
+	var lines: Array = a.def.get("sitLines", [])
+	var line: String = Conversation.fill(String(lines[day % lines.size()]), String(state.get("name", ""))) if not lines.is_empty() else "You sit down next to %s." % a.def.name
+	toast(line, "good", 5.0)
+	emit_event("sat_with", {"npc": String(a.def.id)})
+
 func _refresh_piece_interactables() -> void:
+	refresh_seats()
 	interactables = interactables.filter(func(it): return not it.get("piece", false))
 	for pl in state.placements:
 		var d := Data.piece(pl.id)
@@ -985,11 +1054,22 @@ func _refresh_piece_interactables() -> void:
 
 ## Sit on a seat (pose "sleep" to wake up slumped on a bench); moving gets you up again, back where you stood.
 func sit_on(pl: Dictionary, pose: String = "sit", quiet: bool = false) -> void:
-	sitting = {"back": player.pos}
-	player.pos = NapGags.seat_spot(pl)
-	player.yaw = -int(pl.r) * PI / 2.0; player.sync()
+	if pl.is_empty(): return
+	var back: Vector3 = sitting.get("back", player.pos)
+	sitting = {}
+	var spot_list := Seats.spots(pl)
+	var i := Seats.free_spot(spot_list, sitters(), Vector2(player.pos.x, player.pos.z))
+	if i < 0 and quiet: i = Seats.free_spot(spot_list, [], Vector2(player.pos.x, player.pos.z))
+	if i < 0:
+		toast("Someone's already sitting there.", "", 2.5)
+		return
+	sitting = {"back": back, "seat": pl}
+	player.pos = spot_list[i].at
+	player.yaw = float(spot_list[i].yaw); player.sync()
 	player_char.play(pose, true)
-	if not quiet: toast("Ahh, cozy. Move to stand up.")
+	var mate = seated_beside()
+	if mate != null and not quiet: _sat_with(mate)
+	elif not quiet: toast("Ahh, cozy. Move to stand up.")
 
 func stand_up() -> void:
 	if sitting.is_empty(): return
@@ -1042,6 +1122,9 @@ func _set_highlight(obj, on: bool) -> void:
 func _update_interaction() -> void:
 	var prev = target
 	target = find_target() if mode == "explore" and sitting.is_empty() else null
+	if mode == "explore" and not sitting.is_empty():
+		var mate = seated_beside()
+		if mate != null: target = npc_targets.get(String(mate.def.id))
 	if prev != null and prev != target: _set_highlight(prev.get("object"), false)
 	if target != null:
 		_set_highlight(target.get("object"), true)
@@ -1193,6 +1276,8 @@ func _update_hotkeys() -> void:
 ## Sky, light, fog and rain follow the clock: keyframed colours through dawn, day, dusk and night, the sun and
 ## moon crossing the sky, and weather that drifts between clear, fair, cloudy, drizzle, rain and morning mist.
 var weather_now: Dictionary = {}
+var sun_hold := SunHold.new()
+var _sun_cam_xf := Transform3D()
 var look_here: Dictionary = {}   # the look block of the place you're on (its map entry)
 var _look_island := ""
 func _update_world_time(dt: float) -> void:
@@ -1219,7 +1304,10 @@ func _update_world_time(dt: float) -> void:
 	var grey := clampf((clouds - 0.4) * 1.1, 0.0, 0.7)
 	sun.light_energy = look.sun_energy * weather_now.sun
 	sun.light_color = look.sun_color.lerp(Color("d8dde2"), grey * 0.6)
-	var ld := Daylight.light_dir(h)
+	var cam_xf: Transform3D = camera.global_transform if camera and camera.is_inside_tree() else _sun_cam_xf
+	var view_moving := mode in ["cutscene", "menu"] or SunHold.view_moving(_sun_cam_xf, cam_xf, dt)
+	_sun_cam_xf = cam_xf
+	var ld := sun_hold.step(Daylight.light_dir(h), view_moving, dt)
 	sun.global_transform.basis = Basis.looking_at(-ld, Vector3.UP if absf(ld.y) < 0.99 else Vector3.FORWARD)
 	var e: Environment = env.environment
 	e.ambient_light_energy = look.ambient_energy * lerpf(1.0, 0.92, grey) * Palette.ambient_gain(nt)

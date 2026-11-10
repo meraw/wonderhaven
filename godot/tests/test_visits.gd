@@ -52,7 +52,9 @@ func test_a_bench_with_a_clear_front_is_sat_on():
 	var spot := Visits.use_spot(bench, "seat", _cells(list, h))
 	t.ok(spot.ok and spot.pose == "sit", "a villager sits on it")
 	var at := NapGags.seat_spot(bench)
-	t.ok(Vector2(at.x, at.z).distance_to(spot.at) < 0.01 and absf(float(spot.y) - at.y) < 0.01, "on the seat itself")
+	var half: Vector3 = Seats.spots(bench)[0].at
+	t.ok(Vector2(half.x, half.z).distance_to(spot.at) < 0.01 and absf(float(spot.y) - at.y) < 0.01, "on one half of the seat, leaving the other half for someone else")
+	t.ok(Vector2(at.x, at.z).distance_to(spot.at) < 0.6, "still on the bench")
 	t.ok(spot.approach.distance_to(Visits.center(bench) + Visits.forward(bench) * 0.85) < 0.6, "coming up to it from the front")
 
 func test_a_bench_facing_a_wall_counts_but_gets_a_stare():
