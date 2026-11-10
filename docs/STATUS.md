@@ -5,6 +5,36 @@ Working title: **Wonderhaven** (to be renamed). The game is moving to a comic, l
 - **Godot 4 (`godot/`)** is the game. See `godot/README.md`. Its content (`godot/data/*.json`) is edited directly.
 - **Web / Three.js (`index.html`, `src/`)** is the original prototype, **frozen**: kept as it was, no longer updated. Everything added since the Godot port (interiors, shops, staged requests, the guided day, the look) exists only in Godot.
 
+## The Living Nativity plays out in the churchyard (10/11)
+Reported: "the nativity scene should be animated also!" Don Remo only described it in four lines of dialogue.
+- **The scene.** His four evening lines now each start a beat of a staged scene at the stable you built (found from
+  your roof; the middle of the churchyard if there is none). The screen fades; you and Don Remo stand with the
+  villagers to the west, a manger with a swaddled bundle and a straw bale are set out, and the camera looks east at
+  the stable with the church wall behind, pushing in slowly. Line 1: the farm's ox and donkey are led in, eight candles
+  along the church wall light one by one, Nonna comes over with a lantern. Line 2: Silvia kneels at the manger in a
+  blue veil (Mary), Barba Tista stands with a staff (Joseph), Matteo is a shepherd with a crook who keeps checking his
+  watch. Line 3: Nonna sings (a swaying pose, notes rising, an original flute carol). Line 4: the bells peal and the
+  tower bell swings, everyone claps. Then a fade, and the village goes back to normal: villagers to their routines
+  (a seated one stood up first and sits again after), costumes and props gone, the ox and donkey back where they were;
+  the thanks and the vin brulé follow in dialogue.
+- **Shared and data-driven:** the scene is a `"scene"` block on the talk step (`quests.json`: audience, camera,
+  player and speaker spots, onlookers, candles, props, actors by villager id or world node, beats per line), played
+  by `Pageant` (`scripts/world/pageant.gd`) with its rules in `Staging` (`scripts/systems/staging.gd`). Any place can
+  stage its own. New poses `kneel`, `sing`, `hold_staff` and a `watch` action (`chibi.gd`); a held villager can walk.
+  The quest's usual peal is skipped if the scene's bells rang in the last 90 s.
+- **Checked:**
+  - **Tested** (`godot/run_tests.sh`, 545 passed, 536 before). `test_staging` (9): the stable's position, the layout
+    round it, a free spot, the onlookers' places, candle timing, the melody, walking.
+  - **Played**: `play_nativity` (new, 13 checks: candles 8 of 8 lit; ox and donkey at their marks; the cast at theirs,
+    Silvia kneeling in the veil, staff and crook worn; Nonna singing; bells during the scene and 6 villagers clapping;
+    afterwards nobody held, the camera released, candles gone, the animals back, the request done with vin brulé, no
+    costumes left). `play_rice_village3` in full from `play_rice_village2`'s save (41 checks, the nativity included)
+    and `play_rice_village2` (50 checks). Screenshots of each beat.
+  - **Not checked**: the sound (autoplays are silent); the kneel and veil only seen from a distance. Known flaws: a
+    front post of your stable can hide Barba Tista, depending on how you built it; Paletta's cap can clip a corner of
+    the view; the veil reads more like a cape. Casalrana keeps the default day, so at 8:30 PM it is only half dark: a
+    late-November `sunset` in its look (as Toriano's 17.0) would make the candles glow, but would change the whole day.
+
 ## Sit on a bench beside a villager: Nonna on her bench (10/11)
 Reported: "I should be able to sit on a bench with the nonna? Like come on just make her sit and me next to her".
 Nonna's request asked you to sit with her on her bench at dusk, but she stood beside the paddy and you couldn't.
