@@ -5,6 +5,38 @@ Working title: **Wonderhaven** (to be renamed). The game is moving to a comic, l
 - **Godot 4 (`godot/`)** is the game. See `godot/README.md`. Its content (`godot/data/*.json`) is edited directly.
 - **Web / Three.js (`index.html`, `src/`)** is the original prototype, **frozen**: kept as it was, no longer updated. Everything added since the Godot port (interiors, shops, staged requests, the guided day, the look) exists only in Godot.
 
+## Sit on a bench beside a villager: Nonna on her bench (10/11)
+Reported: "I should be able to sit on a bench with the nonna? Like come on just make her sit and me next to her".
+Nonna's request asked you to sit with her on her bench at dusk, but she stood beside the paddy and you couldn't.
+- **Villagers sit on real seats** (shared, every place). When a routine says "sit", the villager looks for a free
+  seat within 8 m of their spot (a bench, chair, sofa or armchair you built, or a bench in the layout), walks up from
+  the front, sits facing the way the seat faces, and gets up and steps off when the routine moves on. With no seat
+  near, they sit where they stand, as before. `Seats` (`scripts/systems/seats.gd`), `npc_agent.gd`.
+- **A bench seats two, and nobody shares a place.** A villager takes the far half, so the near half stays free for
+  you; visitors to a hangout take one half too, not the middle. Every place is checked against everyone seated or on
+  their way, you included; napping on a full bench still wakes you on it; a villager moved by a cutscene while seated
+  gives the seat up.
+- **Sitting with someone.** By the free half of a seated villager's bench, E offers "Sit with <name>". You sit side by
+  side; they say one of their `sitLines` (data), a heart once a day. From the seat, E talks to them and you both stay
+  seated through the conversation (Nonna's dusk talk, so she sings from her bench). Moving stands you up. In front of
+  them, facing them, E is still a plain talk.
+- **Nonna** (data only): once her bench is built, from 4 to 7 PM she sits by her paddy, which puts her on the bench
+  you built; five lines for when you sit with her.
+- **Checked:**
+  - **Tested** (`godot/run_tests.sh`, 536 passed, 529 before). `test_seats` (7): two places on a bench and one on a
+    chair, a turned bench included; never two people in one place; a villager claims the nearest bench with room and
+    takes its far half; a layout bench and the bench you sit on are the same seat; Nonna sits at dusk only once the
+    bench is built, within reach of her corner of the paddy; by the free half the prompt is "Sit with", in front of
+    her facing her it is "Talk". `test_visits`: visitors on a bench now sit on one half (was: the middle), on purpose.
+  - **Played** with real input: `play_nonna_bench` (new, 21 checks): accept her request, chop, build the bench and
+    flower bed, nap to 6 PM; she walks to the bench and sits on the seat in the sitting pose, the other half free; E
+    there offers "Sit with"; side by side a metre apart, same height and facing; a heart; from the seat E talks, she
+    sings, the request is done, you're still seated; moving stands you up while she stays; sitting again the same day
+    gives no second heart; at 7 PM she gets up and walks off. (Its only shortcut: the welcome request marked done so
+    she offers the bench request.) Its first run found "Talk to" beating "Sit with" by the free half depending on
+    where you faced; fixed. `play_rice_village2` (50 checks; 43 now finds her seated on the bench). Screenshots of the
+    two of them on the bench and talking from it, from behind the bench.
+
 ## Casalrana's water machines can be understood (10/11)
 Reported: "I CANNOT build any of the watermill things in casalrana, they're incomprehensible". The pieces were right
 but nothing showed which side of a waterwheel, pump, shaft or pipe carries power or water: the wheel's axle runs
