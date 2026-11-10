@@ -5,13 +5,46 @@ Working title: **Wonderhaven** (to be renamed). The game is moving to a comic, l
 - **Godot 4 (`godot/`)** is the game. See `godot/README.md`. Its content (`godot/data/*.json`) is edited directly.
 - **Web / Three.js (`index.html`, `src/`)** is the original prototype, **frozen**: kept as it was, no longer updated. Everything added since the Godot port (interiors, shops, staged requests, the guided day, the look) exists only in Godot.
 
+## Casalrana's water machines can be understood (10/11)
+Reported: "I CANNOT build any of the watermill things in casalrana, they're incomprehensible". The pieces were right
+but nothing showed which side of a waterwheel, pump, shaft or pipe carries power or water: the wheel's axle runs
+north–south until turned, and the pump must be turned half round to pump towards the paddy. A wrongly turned piece
+did nothing, without a word. Casalrana also had no glowing plans, and the mill's checklist asked for a pump and ticked
+it for the paddy's.
+- **Glowing plans** for the sluice, the walkway, the paddy's machine and the mill's drive. Gathering pays for them:
+  12 wood for Water for the Winter (was 6), 10 for the mill (was 6).
+- **Power and water marks** (shared): in build mode every machine piece, held or built, has orange (power) and blue
+  (water) marks on its sides, bright when live. Each machine target has an arrow and a label where the power or water
+  goes in ("The winter paddy's inlet / Water goes in here"), "arrives ✔" once it does. `MachineMarks`
+  (`scripts/build/machine_marks.gd`).
+- **The status line says what a machine will do there** (shared): "It turns in the water and sends power out of its
+  east and west sides", "No power yet: its east side takes the power and has to touch a turning axle (R turns it)",
+  "Water reaches the winter paddy's inlet!". A selected machine's panel says the same, with ✔ or ✖.
+  `Mechanics.explain`.
+- **A plan's machine counts only when turned the plan's way** (`Plans.built`, `Mechanics.same_ports`).
+- **A power target's checklist** asks for a turning wheel and drive shafts, not a pump, and counts only the machines on
+  its own site (`Mechanics.fed_steps`).
+- **Checked:**
+  - **Tested** (`godot/run_tests.sh`, 529 passed with the fixes above, 521 before). `test_machine_hints` (7): the
+    wheel in and out of the canal, the pump turned both ways and away from a wheel, a dry pipe and the last pipe
+    feeding the inlet, a wrongly turned machine not counting as the plan's piece, the mill's checklist, the inlet
+    marker's edge and a turned pump's marks, and side words. `test_plans` builds Casalrana's water and mill plans piece
+    by piece and checks each step is done.
+  - **Played** with real input: `play_rice_village2` (50 checks; new 39: at the paddy site the plan glows, the wheel is
+    in your hand already turned, the inlet arrow is there; new 49: the pump turned wrong says its east side takes the
+    power, turned round it says it pumps) and `play_rice_village3` from that save (41 checks; new 134: at the mill the
+    plan glows, the drive's arrow is there, the checklist asks for shafts, not a pump). Screenshots of the paddy and
+    mill build views read back correctly (a "➜" that drew as a black box was dropped).
+  - **Not played**: the other places' playthroughs, though the plan check, marks and checklist are shared; their
+    headless plan tests still pass.
+
 ## Playtest fixes: the donkey, the ceremony's comments, the regional train (09/11)
 Reported in play: "those donkeys are BUSTED"; "I can't properly read the comments of the villagers during a reveal
 of new things ceremony"; "finding the button to take the regionale train in Casalrana is super fickle".
 - **The donkey.** Casalrana's donkey stood 0.9 m from a cow, so the two bodies went through each other: his head was
   inside the cow, and his mane, which wasn't fixed to his head, floated over his back as a black slab. He now has his
-  own spot at the paddock's west rail (46.2, 1.0), facing the path where you stand to scratch his ears, clear of the
-  herd, and his own model (`_donkey`, `rice_village/wildlife.gd`): a neck carrying the head, long ears with dark tips
+  own spot at the paddock's rail on the path side (48.6, −2.6), facing the path where you stand to scratch his ears,
+  clear of the herd and the hay rack, and his own model (`_donkey`, `rice_village/wildlife.gd`): a neck carrying the head, long ears with dark tips
   and a mane that move with it, a pale muzzle and belly, the dark stripe and shoulder cross, a slimmer body. He lowers
   his whole neck to graze (`graze` on a herd animal: how far its head goes down).
 - **The ceremony's comments.** After the ribbon, every villager's comment appeared at once as floating text over their
@@ -31,7 +64,9 @@ of new things ceremony"; "finding the button to take the regionale train in Casa
     looked at the ribbon-cut and puzzled-crowd shots. `play_rice_village` (+5, checks 40 to 44): no train before the
     platform is reached; on it after the finale, facing the track and facing away, and at the back facing along it,
     the prompt is the train; E opens the travel map; at the station's front door it is out of reach. The donkey was
-    looked at in screenshots from the path, from the side and from behind (Forward+).
+    looked at in screenshots from the path and from the side (Forward+); `play_rice_village2`'s check 73 now walks to
+    wherever he stands and scratches his ears (50 checks, 0 failed, with the water machines below merged in), and
+    `play_rice_village3` passes from its save (41 checks).
 
 ## Shadows no longer shimmer while you talk (09/11)
 Reported: "the light is glitching while I talk to Battista the first time" (Windows PC; shadows jump or shimmer).

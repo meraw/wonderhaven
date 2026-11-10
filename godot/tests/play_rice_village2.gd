@@ -358,8 +358,9 @@ func wildlife() -> void:
 	var day := int(game.state.time.day)
 	await face_and_press(P + "cat2", 27.6, -14.55); await frames(10)
 	check(72, "stroke the ginger cat by the farmhouse door", game.state.flags.keys().any(func(k): return String(k).begins_with("pet_rice_village_cat_") and String(k).ends_with("_%d" % day)), "")
-	await walk_to(37.5, -5.0, 0.6); await walk_direct(46.2, -5.0, 0.6)
-	await face_and_press(P + "donkey", 46.3, -2.2); await frames(10)
+	var dk: Vector3 = (wild().herd[4].obj as Node3D).global_position
+	await walk_to(37.5, -5.0, 0.6); await walk_direct(dk.x, -5.0, 0.6)
+	await face_and_press(P + "donkey", dk.x, dk.z); await frames(10)
 	check(73, "and scratch the donkey's ears over the paddock fence", game.state.flags.has("pet_rice_village_donkey_%d" % day), str(game.player.pos))
 	game.cam.yaw = 3.4; game.cam.pitch = 0.4; game.cam.dist = 9.0
 	await shot("paddock")

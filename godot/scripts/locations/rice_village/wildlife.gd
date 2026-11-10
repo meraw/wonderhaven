@@ -171,7 +171,7 @@ static func _clear_mat(col: String) -> StandardMaterial3D:
 
 func _build_farm() -> void:
 	# the herd: three white Piedmontese cows, the ox with his long horns, and the donkey
-	var spots := [[Vector2(47.0, -1.6), 0.4, "cow"], [Vector2(49.4, 0.8), 2.6, "cow"], [Vector2(47.4, 3.6), -1.2, "cow"], [Vector2(49.6, 4.4), 3.6, "ox"], [Vector2(46.2, 1.0), -PI / 2.0, "donkey"]]   # the donkey by the fence, to have his ears scratched
+	var spots := [[Vector2(47.0, -1.6), 0.4, "cow"], [Vector2(49.4, 0.8), 2.6, "cow"], [Vector2(47.4, 3.6), -1.2, "cow"], [Vector2(49.6, 4.4), 3.6, "ox"], [Vector2(48.6, -2.6), PI, "donkey"]]   # the donkey by the fence, to have his ears scratched
 	for s in spots:
 		var a := _donkey() if s[2] == "donkey" else _beast(s[2])
 		a.obj.position = _ground(s[0]); a.obj.rotation.y = s[1]
