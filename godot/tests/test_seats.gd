@@ -74,3 +74,22 @@ func test_nonna_sits_on_her_bench_at_dusk_once_it_is_built():
 	for c in [Vector2(z.minI, z.minK), Vector2(z.maxI, z.minK), Vector2(z.minI, z.maxK), Vector2(z.maxI, z.maxK)]:
 		t.ok(Vector2(float(p[0]), float(p[1])).distance_to(c) < Seats.REACH, "a bench anywhere in her corner of the paddy is within her reach (%s)" % str(c))
 	Data.use_island("hearthglow")
+
+func _facing(from: Vector2, yaw: float, to: Vector2) -> float:
+	var d := to - from
+	return (d.x * sin(yaw) + d.y * cos(yaw)) / maxf(d.length(), 0.01)
+
+func test_by_the_free_half_you_are_offered_the_seat_and_in_front_of_her_a_talk():
+	var s := Seats.spots(_bench(9.0, 35.0))
+	var her := Vector2(s[1].at.x, s[1].at.z)
+	var free := Vector2(s[0].at.x, s[0].at.z)
+	var ap: Vector2 = s[0].approach
+	for yaw in [PI, PI + 0.6, PI - 0.6, PI * 0.5, -PI * 0.5]:
+		var sit := Prompts.score(ap.distance_to(free), _facing(ap, yaw, free), Seats.PROMPT_PRIORITY)
+		var talk := Prompts.score(ap.distance_to(her), _facing(ap, yaw, her), 0.6)
+		t.ok(sit < talk, "standing at the free half (facing %.1f): Sit with her" % yaw)
+	var front: Vector2 = s[1].approach
+	var to_her := atan2(her.x - front.x, her.y - front.y)
+	var sit2 := Prompts.score(front.distance_to(free), _facing(front, to_her, free), Seats.PROMPT_PRIORITY)
+	var talk2 := Prompts.score(front.distance_to(her), _facing(front, to_her, her), 0.6)
+	t.ok(talk2 < sit2, "standing in front of her, facing her: Talk to her")

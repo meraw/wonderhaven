@@ -132,7 +132,7 @@ func _ready() -> void:
 			"available": func(): return ag.present, "label": func(): return "Talk to " + ag.def.name, "act": func(): story.talk(ag)})
 		npc_targets[d.id] = interactables[-1]
 		add_interactable({"id": "sitwith:" + d.id, "x": func(): return float(_spot_beside(ag).get("at", ag.pos).x), "z": func(): return float(_spot_beside(ag).get("at", ag.pos).z), "y": func(): return ag.pos.y,
-			"radius": 1.0, "priority": 0.65, "object": null,
+			"radius": 1.0, "priority": Seats.PROMPT_PRIORITY, "object": null,
 			"available": func(): return ag.present and not ag.talking and ag.seated() and not _spot_beside(ag).is_empty(), "label": func(): return "Sit with " + ag.def.name, "act": func(): sit_on(seat_of(ag))})
 	for f in Data.layout.features:
 		if f.kind == "sign":

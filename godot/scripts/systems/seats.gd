@@ -6,6 +6,7 @@ const SEAT_LIFT := 0.28
 const APPROACH := 0.85
 const TAKEN_R := 0.4
 const TAKEN_DY := 0.8
+const PROMPT_PRIORITY := 0.9
 
 static func is_seat(piece_id: String) -> bool:
 	return String(Data.piece(piece_id).get("interact", "")) == "sit"
