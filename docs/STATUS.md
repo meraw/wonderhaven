@@ -5,6 +5,47 @@ Working title: **Wonderhaven** (to be renamed). The game is moving to a comic, l
 - **Godot 4 (`godot/`)** is the game. See `godot/README.md`. Its content (`godot/data/*.json`) is edited directly.
 - **Web / Three.js (`index.html`, `src/`)** is the original prototype, **frozen**: kept as it was, no longer updated. Everything added since the Godot port (interiors, shops, staged requests, the guided day, the look) exists only in Godot.
 
+## The camera looks over houses instead of landing on your head (11/11)
+Reported: "The camerawork in the game is still fucked up, fix it."
+- **What was wrong** (measured, Monteforchetta). A walk round the village lanes with real key presses and the camera
+  left where it was (four directions, 60 frames a second): your character was **hidden, with the camera on their
+  head, 11.0% of the time**, and the camera was closer than 3 m 37.5% of the time. The houses are 6 to 10 m tall and
+  the usual view sits 5 m up and 7 m back, so any house within a few metres on the camera's side blocked it, and the
+  only answer the camera had was to come in, at once, as far as it took.
+- **A bug underneath.** The camera's four side rays started beside your head, parallel to the middle one. Passing
+  within about 70 cm of a house corner, one of them started inside the wall's safety margin and the camera dropped
+  onto your head with a clear line of sight. They now fan out from you towards the camera, and the margin only
+  applies where the camera ends up, not along the whole line.
+- **The fix** (shared, every place; `scripts/player/follow_camera.gd`):
+  - **It looks over what is in the way.** When a building would bring the camera closer than about half its distance
+    (never less than 3.5 m), the view rises just enough to keep that distance; the nearer the wall, the more from
+    above, and close to a wall it goes back out to its full distance, looking down from above the lane. Your own
+    pitch is kept and comes back once the way is clear (after half a second, over about a second). Rooms you walk
+    into keep their own cutaway view, and conversations, minigames and build mode are unchanged.
+  - **It sees it coming.** The camera checks where you will be in a third and two thirds of a second (and where the
+    view will point if you are turning it), starts rising before the house comes between, and eases the distance in
+    instead of jumping. The jump is still there as a last resort, so the camera is never inside a building.
+  - **Brushing a wall** with the camera beyond it, the point the camera looks at moves up to a metre off the wall, so
+    the view from above has room.
+  - **Cost.** Terrain is sampled along one line per view instead of five: 0.40 ms a frame at worst in Monteforchetta
+    (0.24 before), 0.23 ms in Toriano (0.49) and 1.1 ms in Casalrana (1.7).
+- **Checked:**
+  - **Played** (`play_camera`, now 7 checks; it failed 3 of them with the old camera): the same walk with the fix,
+    at 60 frames a second: hidden **0.6%** (11.0% before), closer than 3 m **4.0%** (37.5%), never inside a house
+    or under the ground; at the playthroughs' usual 10 frames a second 0.1% and 2.9%. Standing at six tight spots
+    with a house between you and the camera, the nearest view is from 4.7 m (0.1 m before).
+  - **Tested** (`godot/run_tests.sh`, 549 passed, 545 before): the view rises just enough and no further, keeps its
+    pitch in the open, leaves an already steep view alone, ignores a corner beside you, moves off a wall you brush,
+    and walks past a house without a jump in distance or a jerk in tilt, settling back afterwards.
+    Monteforchetta's other playthroughs (`godot/play_all.sh`): 23 of 24 pass. `play_visits` fails its check w5 (a
+    villager sits on the bench you placed) with and without this change, so it was already failing; not looked into
+    here. `npm test` and `npm run build` pass.
+  - **Seen:** screenshots at the tight spots and after each lane walk.
+  - **Not checked:** how it feels at a real frame rate on a real screen, with a mouse or a stick; the other places'
+    playthroughs (the camera code is shared; their owners run those). In the narrowest lanes, with the camera
+    pointing across the lane, the view is from almost straight above: turning the camera along the lane gives the
+    usual view. Walking straight into a wall with the camera beyond it can still hide your character for a moment.
+
 ## The Living Nativity plays out in the churchyard (10/11)
 Reported: "the nativity scene should be animated also!" Don Remo only described it in four lines of dialogue.
 - **The scene.** His four evening lines now each start a beat of a staged scene at the stable you built (found from
