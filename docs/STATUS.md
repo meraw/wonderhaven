@@ -5,6 +5,38 @@ Working title: **Wonderhaven** (to be renamed). The game is moving to a comic, l
 - **Godot 4 (`godot/`)** is the game. See `godot/README.md`. Its content (`godot/data/*.json`) is edited directly.
 - **Web / Three.js (`index.html`, `src/`)** is the original prototype, **frozen**: kept as it was, no longer updated. Everything added since the Godot port (interiors, shops, staged requests, the guided day, the look) exists only in Godot.
 
+## Framing the build view (12/11)
+Reported: "during building, the camera is fucked up and you can't decide precisely what to put in the frame."
+Build mode already had moving, turning and zooming the view. What made framing imprecise, and what changed (shared):
+- **The middle of the view was under the pieces.** The view turned and zoomed about the middle of the screen, but the
+  catalog covers the bottom third, so the spot you were working on sat low, partly behind it. The view is now centred
+  in the clear part of the screen, between the top bar and the catalog (a fixed amount, so it never moves by itself).
+- **The keys moved the view at one speed.** 9 m a second whether close up or far out: too coarse to line up a piece
+  close up. The speed now follows the zoom (3.6 m a second at 6 m, 9 at 15, 18 at 30; Shift doubles it).
+- **Dragging the view** (middle button) moved the ground about 1.4 times as far as the pointer. It now stays under
+  the pointer, also at a slant.
+- **The view was reset every time.** Entering build mode forced the view up and out, and leaving it squeezed the
+  walking view into a narrow range, so neither stayed as you set it. Each now remembers its own tilt and zoom. The
+  same goes for conversations and minigames: afterwards the walking view is what it was before (it used to come
+  back low and close).
+- **Narrow limits.** The build view can now tilt from low and side-on to straight above (it stopped at 31° and
+  77°), and zoom from 4 m to 40 m (6 to 30 before).
+- **Houses in the way.** Nothing kept the build view out of buildings, so a house between the view and the site hid
+  it, or the view sat inside the house. It now rises over a building in the way, at the distance you chose, as the
+  walking view does, and comes back down when clear.
+- **Checked:**
+  - **Played:** `play_camera` (10 checks; b1 to b3 are new): the middle of the view is in the clear part of the
+    screen; the keys move it 3.6 m in a second close up and 18 m far out; leaving build mode gives the walking view
+    back and build mode returns as you left it. Monteforchetta's playthroughs (`godot/play_all.sh`): 24 of 25 pass;
+    `play_visits` still fails its check w5, as it does without these changes. `npm test` and `npm run build` pass.
+  - **Tested** (`godot/run_tests.sh`, 552 passed): each view remembers itself, the wider limits, the build view
+    rising over a house and never sitting inside it, key speed following the zoom, the drag matching the pointer.
+  - **A test was on a knife edge:** `play_build_rows` clicked exactly 30 cm from a tile's edge, the line that decides
+    which side a wall goes on, and the few pixels the view moved tipped it. Its clicks are now 20 cm from the edge;
+    it passes with and without this change.
+  - **Not checked:** on a real screen with a real mouse; trees and other scenery can still stand in front of the
+    build view (only buildings lift it); other places' playthroughs.
+
 ## The camera looks over houses instead of landing on your head (11/11)
 Reported: "The camerawork in the game is still fucked up, fix it."
 - **What was wrong** (measured, Monteforchetta). A walk round the village lanes with real key presses and the camera
@@ -21,7 +53,7 @@ Reported: "The camerawork in the game is still fucked up, fix it."
     (never less than 3.5 m), the view rises just enough to keep that distance; the nearer the wall, the more from
     above, and close to a wall it goes back out to its full distance, looking down from above the lane. Your own
     pitch is kept and comes back once the way is clear (after half a second, over about a second). Rooms you walk
-    into keep their own cutaway view, and conversations, minigames and build mode are unchanged.
+    into keep their own cutaway view, and conversations and minigames are unchanged.
   - **It sees it coming.** The camera checks where you will be in a third and two thirds of a second (and where the
     view will point if you are turning it), starts rising before the house comes between, and eases the distance in
     instead of jumping. The jump is still there as a last resort, so the camera is never inside a building.

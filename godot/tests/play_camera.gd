@@ -49,6 +49,50 @@ func play() -> void:
 	print("   pull-ins (moves closer of more than half a metre in one frame): ", pull_ins)
 	await fixed_angles(walls)
 	await tight_spots()
+	await build_view()
+
+func build_view() -> void:
+	game.state.flags["hasTool"] = true
+	game.cam.yaw = 0.3; game.cam.pitch = 0.6; game.cam.dist = 9.0
+	game.player.teleport(4.0, 5.0, 0.0)
+	await frames(2)
+	game.cam.snap()
+	await frames(5)
+	await tap(KEY_B)
+	await frames(30)
+	var open: bool = game.build.active
+	var size: Vector2 = get_viewport().get_visible_rect().size
+	var cat: Control = game.build.catalog_panel if open else null
+	var free_mid: float = (150.0 + cat.get_global_rect().position.y) / 2.0 if cat else size.y / 2.0
+	var at: Vector2 = game.camera.unproject_position(game.cam.target)
+	check("b1", "In build mode the middle of the view sits in the clear part of the screen, above the pieces (%.0f px from its middle)" % absf(at.y - free_mid), open and cat != null and absf(at.y - free_mid) < 25.0 and absf(at.x - size.x / 2.0) < 25.0, "")
+	await shot("build-view")
+	game.cam.dist = 6.0
+	await frames(20)
+	var before: Vector3 = game.build.focus
+	await hold(KEY_D, 1.0)
+	var close_step: float = Vector2(game.build.focus.x - before.x, game.build.focus.z - before.z).length()
+	game.cam.dist = 30.0
+	await frames(20)
+	before = game.build.focus
+	await hold(KEY_D, 1.0)
+	var far_step: float = Vector2(game.build.focus.x - before.x, game.build.focus.z - before.z).length()
+	check("b2", "The keys move the view gently close up and quickly far out (%.1f m and %.1f m in a second)" % [close_step, far_step], close_step > 1.5 and close_step < 6.0 and far_step > close_step * 3.0, "")
+	game.cam.pitch = 0.45; game.cam.dist = 8.0
+	await frames(10)
+	await tap(KEY_ESCAPE)
+	await frames(10)
+	if game.build.active:
+		await tap(KEY_ESCAPE)
+		await frames(10)
+	var walking_back: bool = not game.build.active and absf(game.cam.pitch - 0.6) < 0.01 and absf(game.cam.dist - 9.0) < 0.01
+	await tap(KEY_B)
+	await frames(10)
+	check("b3", "Leaving build mode gives back the walking view, and build mode comes back as you left it", walking_back and game.build.active and absf(game.cam.pitch - 0.45) < 0.01 and absf(game.cam.dist - 8.0) < 0.01, "pitch %.2f dist %.1f" % [game.cam.pitch, game.cam.dist])
+	await shot("build-view-low")
+	await tap(KEY_ESCAPE)
+	await frames(10)
+	if game.build.active: await tap(KEY_ESCAPE)
 
 const LANES := [Vector2(4, 5), Vector2(6.1, -3), Vector2(6.1, -13.3), Vector2(14.3, -13.3), Vector2(14.3, -5), Vector2(18.5, -3), Vector2(18.5, 17.8), Vector2(10.5, 17.9), Vector2(3, 17.5), Vector2(4, 23), Vector2(4, 33), Vector2(-5, 33), Vector2(-5, 21.5), Vector2(-16.5, 21.8), Vector2(-19.5, 21.5), Vector2(-19.5, 13), Vector2(-33, 13.3), Vector2(-33, 4.4), Vector2(-22, 4.4), Vector2(-16, -2), Vector2(-6, -2.2), Vector2(-0.1, -3.5), Vector2(-0.1, -12), Vector2(-0.1, -3.5), Vector2(-3, 3), Vector2(-3, 12.7), Vector2(2.9, 12.7), Vector2(2.9, 7.5), Vector2(4, 5)]
 const MOVE_KEYS := [KEY_W, KEY_S, KEY_A, KEY_D]

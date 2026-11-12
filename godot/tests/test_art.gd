@@ -196,6 +196,49 @@ func test_camera_moves_without_jumps_past_a_house():
 	t.ok(worst_tilt < 4.0, "the tilt is eased (fastest %.2f rad/s)" % worst_tilt)
 	t.ok(absf(c.lifted - 0.5) < 0.05, "past the house it settles back to the pitch you chose (%.2f)" % c.lifted)
 
+func test_camera_remembers_each_view():
+	var c := FollowCamera.new(null)
+	c.pitch = 0.6; c.dist = 9.0
+	c.set_mode("build")
+	t.ok(c.pitch >= 0.95 and c.dist >= 15.0, "the first time, build mode starts from above and further out")
+	c.pitch = 0.4; c.dist = 7.0
+	c.set_mode("explore")
+	t.ok(absf(c.pitch - 0.6) < 0.001 and absf(c.dist - 9.0) < 0.001, "leaving build mode gives back the walking view you had")
+	c.set_mode("build")
+	t.ok(absf(c.pitch - 0.4) < 0.001 and absf(c.dist - 7.0) < 0.001, "and build mode comes back the way you left it")
+	c.set_mode("explore")
+	c.set_mode("dialogue"); c.pitch = 0.28; c.dist = 4.6
+	c.set_mode("explore")
+	t.ok(absf(c.pitch - 0.6) < 0.001 and absf(c.dist - 9.0) < 0.001, "a conversation gives the walking view back too")
+	c.set_mode("build"); c.pitch = 0.1; c.dist = 100.0; c.clamp_limits()
+	t.ok(c.pitch <= 0.31 and c.dist <= 40.0, "the build view can look from low down and from far out (pitch %.2f, %.0f m)" % [c.pitch, c.dist])
+	c.pitch = 3.0; c.dist = 0.5; c.clamp_limits()
+	t.ok(c.pitch >= 1.49 and c.dist <= 4.01, "and from straight above, close up (pitch %.2f, %.0f m)" % [c.pitch, c.dist])
+
+func test_build_view_rises_over_a_house_in_the_way():
+	var cam3d := Camera3D.new()
+	t.root.add_child(cam3d)
+	var c := FollowCamera.new(cam3d)
+	c.blockers = [AABB(Vector3(-4, -1, 3), Vector3(8, 9, 5))]
+	c.yaw = 0.0
+	c.set_mode("build")
+	c.pitch = 0.4; c.dist = 12.0
+	c.focus = Vector3(0, Heightfield.height(0.0, 0.0) + 0.5, 0)
+	c.update(1.0 / 60.0, Vector3.ZERO); c.snap()
+	for i in 180: c.update(1.0 / 60.0, Vector3.ZERO)
+	var at := cam3d.global_position
+	var d := at.distance_to(c.aim)
+	cam3d.free()
+	t.ok(c.lifted > 0.9 and absf(c.pitch - 0.4) < 0.001, "a house between the build view and the site lifts the view over it, keeping your setting (pitch %.2f)" % c.lifted)
+	t.ok(d > 11.0, "at the distance you chose (%.1f m)" % d)
+	t.ok(not (c.blockers[0] as AABB).has_point(at), "and never from inside the house")
+
+func test_build_view_moves_with_the_zoom():
+	t.ok(BuildMode.pan_speed(6.0) < 4.0 and BuildMode.pan_speed(30.0) > 15.0, "the keys move the build view slowly close up and fast far out (%.1f and %.1f m/s)" % [BuildMode.pan_speed(6.0), BuildMode.pan_speed(30.0)])
+	t.ok(absf(BuildMode.pan_speed(15.0) - 9.0) < 0.01, "and as before at the usual distance")
+	var px := BuildMode.metres_per_pixel(15.0, 45.0, 720.0)
+	t.ok(absf(px * 720.0 - 2.0 * 15.0 * tan(deg_to_rad(22.5))) < 0.001, "dragging the view moves the ground with the pointer (%.4f m a pixel)" % px)
+
 func test_camera_rays_ignore_a_thin_miss():
 	# A building just beside the line of sight still gets a little room thanks to the probe rays, so walking past
 	# a corner doesn't make the camera flick in and out.

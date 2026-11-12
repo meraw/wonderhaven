@@ -19,7 +19,7 @@ var cur := {"yaw": PI * 1.5, "pitch": 0.5, "dist": 8.5}
 var target := Vector3.ZERO
 var focus := Vector3.ZERO
 var mode := "explore"
-var limits := {"explore": [3.5, 16.0, 0.12, 1.25], "build": [6.0, 30.0, 0.55, 1.35], "dialogue": [2.5, 6.0, 0.1, 0.6], "action": [3.0, 9.0, 0.12, 0.9]}
+var limits := {"explore": [3.5, 16.0, 0.12, 1.25], "build": [4.0, 40.0, 0.3, 1.5], "dialogue": [2.5, 6.0, 0.1, 0.6], "action": [3.0, 9.0, 0.12, 0.9]}
 var shake := 0.0
 var blockers: Array = []   # AABBs (buildings) the camera stays in front of
 var occluders: Array = []  # [centre: Vector3, radius: float] tree canopies and bushes the dialogue view avoids
@@ -30,6 +30,9 @@ var blend := 0.0           # seconds left of a slower blend after a mode change
 var indoor_k := 0.0        # 0 outdoors .. 1 fully in the indoor cutaway view
 var indoor_pitch := 0.95   # smoothed pitch the cutaway uses
 var lifted := 0.5
+var frame_shift := Vector2.ZERO
+var _shift := Vector2.ZERO
+var _views := {}
 var aim := Vector3.ZERO
 var _off := Vector3.ZERO
 var _t := 0.0
@@ -62,10 +65,16 @@ const PROBES := [Vector2(0, 0), Vector2(0.28, 0), Vector2(-0.28, 0), Vector2(0, 
 func _init(cam: Camera3D) -> void: camera = cam
 
 func set_mode(m: String) -> void:
-	if m != mode: blend = 0.7
+	if m == mode: return
+	blend = 0.7
+	if mode in ["explore", "build"]: _views[mode] = [pitch, dist]
 	mode = m
-	if m == "build": pitch = maxf(pitch, 0.95); dist = maxf(dist, 15.0)
-	if m == "explore": pitch = clampf(pitch, 0.25, 0.75); dist = clampf(dist, 5.0, 11.0)
+	if _views.has(m):
+		pitch = _views[m][0]; dist = _views[m][1]
+	elif m == "build":
+		pitch = maxf(pitch, 0.95); dist = maxf(dist, 15.0)
+	elif m == "explore":
+		pitch = clampf(pitch, 0.25, 0.75); dist = clampf(dist, 5.0, 11.0)
 
 func frame_dialogue(a: Vector3, b: Vector3) -> void:
 	focus = (a + b) / 2.0 + Vector3(0, 0.9, 0)
@@ -133,7 +142,7 @@ func update(dt: float, follow: Vector3) -> void:
 		dv = lerpf(cur.dist, clampf(cur.dist, INDOOR_DIST[0], INDOOR_DIST[1]), indoor_k)
 	else:
 		indoor_pitch = maxf(cur.pitch, INDOOR_PITCH)
-	var colliding: bool = mode in ["explore", "dialogue", "action"]
+	var colliding: bool = mode in ["explore", "dialogue", "action", "build"]
 	if colliding: _near = _blockers_near(target, maxf(dv, cur.dist) + 6.0)
 	var off_walls := _wall_push(target, cur.yaw) if mode == "explore" and room_top == -INF else Vector3.ZERO
 	_off = _off.lerp(off_walls, 1.0 - exp(-8.0 * dt))
@@ -144,6 +153,7 @@ func update(dt: float, follow: Vector3) -> void:
 		looking_ahead = room_top == -INF and (_vel.length() > 0.3 or absf(_yaw_rate) > 0.15)
 	var want_lift: float = cur.pitch
 	var ahead: Array = []
+	if mode == "build" and cur.pitch < LIFT_MAX: want_lift = _least_pitch(aim, cur.yaw, cur.pitch, dv, dv)
 	if mode == "explore" and room_top == -INF:
 		want_lift = lift_pitch(aim, cur.yaw, cur.pitch, dv)
 		if looking_ahead:
@@ -162,13 +172,13 @@ func update(dt: float, follow: Vector3) -> void:
 		_clear_for += dt
 		if _clear_for > 0.5: _spring_lift(want_lift, LIFT_FALL, dt)
 		else: _spring_lift(lifted, LIFT_RISE, dt)
-	if mode != "explore": lifted = cur.pitch; _lift_vel = 0.0
+	if not mode in ["explore", "build"]: lifted = cur.pitch; _lift_vel = 0.0
 	pv = lerpf(lifted, indoor_pv, indoor_k)
 	var dir := _dir(cur.yaw, pv)
 	var allowed: float = dv
 	var soft: float = dv
 	if colliding:
-		allowed = clear_distance(aim, dir, dv)
+		allowed = clear_distance(aim, dir, dv, mode != "build")
 		soft = allowed
 		for a in ahead:
 			var by_then: float = 1.0 - (1.0 + LIFT_RISE * a[3]) * exp(-LIFT_RISE * a[3])
@@ -177,7 +187,7 @@ func update(dt: float, follow: Vector3) -> void:
 	else: col_dist = settle(col_dist, soft, dt)
 	_near = null
 	var p: Vector3 = aim + dir * col_dist
-	if mode in ["explore", "dialogue", "action"]: p = _outside_walls(aim, p)
+	if colliding: p = _outside_walls(aim, p)
 	var ground := maxf(Heightfield.height(p.x, p.z), Heightfield.WATER_Y) + 0.45
 	if p.y < ground: p.y = ground
 	if shake > 0.0:
@@ -185,6 +195,11 @@ func update(dt: float, follow: Vector3) -> void:
 		p += Vector3(sin(_t * 41.0), sin(_t * 33.0 + 1.3), 0.0) * shake * 0.12
 	camera.global_position = p
 	camera.look_at(aim, Vector3.UP)
+	_shift = _shift.lerp(frame_shift if mode == "build" else Vector2.ZERO, 1.0 - exp(-6.0 * dt))
+	if _shift.length() > 0.0005:
+		var half := p.distance_to(aim) * tan(deg_to_rad(camera.fov) / 2.0)
+		var size := camera.get_viewport().get_visible_rect().size if camera.is_inside_tree() else Vector2(16, 9)
+		camera.global_position -= camera.global_basis.x * _shift.x * half * size.x / maxf(size.y, 1.0) + camera.global_basis.y * _shift.y * half
 
 ## Collision distance filter: jump in at once, ease out slowly (exponentially, and never faster than 3.5 m/s,
 ## so a low frame rate can't make it lurch).
@@ -282,7 +297,7 @@ static func _dir(y: float, p: float) -> Vector3: return Vector3(sin(y) * cos(p),
 
 ## How far the camera can sit from `origin` along `dir` (up to `d`) without a building or the ground in the way,
 ## using a small bundle of rays so a thin edge can't flicker it in and out.
-func clear_distance(origin: Vector3, dir: Vector3, d: float) -> float:
+func clear_distance(origin: Vector3, dir: Vector3, d: float, ground: bool = true) -> float:
 	var right := dir.cross(Vector3.UP)
 	right = right.normalized() if right.length() > 0.001 else Vector3.RIGHT
 	var up := right.cross(dir).normalized()
@@ -292,7 +307,7 @@ func clear_distance(origin: Vector3, dir: Vector3, d: float) -> float:
 		var len := reach.length()
 		if len < 0.001: continue
 		best = minf(best, _ray_clear(origin, origin, reach / len, len) * d / len)
-	best = minf(best, _ground_clear(origin, dir, d))
+	if ground: best = minf(best, _ground_clear(origin, dir, d))
 	return clampf(best, minf(MIN_DIST, d), d)
 
 func _built_clear(origin: Vector3, dir: Vector3, d: float) -> float:
