@@ -124,6 +124,121 @@ func test_indoor_cutaway_looks_over_the_walls():
 	var mid := c.wall_clear_pitch(Vector3(4, 1, 3), 0.0)
 	t.ok(mid < FollowCamera.INDOOR_PITCH, "in the middle of the room the usual cutaway pitch already clears the walls (needs %.2f)" % mid)
 
+func test_camera_looks_over_a_house_behind_you():
+	var c := FollowCamera.new(null)
+	c.blockers = [AABB(Vector3(4, -1, -4), Vector3(6, 9, 8))]
+	var east := PI / 2.0
+	var open_ground := c.lift_pitch(Vector3(-20, 1, 0), east, 0.5, 8.5)
+	t.eq(open_ground, 0.5, "with nothing behind you the view keeps the pitch you chose")
+	var far := c.lift_pitch(Vector3(-2.5, 1, 0), east, 0.5, 8.5)
+	t.eq(far, 0.5, "a house that only shortens the view a little doesn't tilt it")
+	var pivot := Vector3(1.5, 1, 0)
+	var low := c.clear_distance(pivot, FollowCamera._dir(east, 0.5), 8.5)
+	var p := c.lift_pitch(pivot, east, 0.5, 8.5)
+	var over := c.clear_distance(pivot, FollowCamera._dir(east, p), 8.5)
+	t.ok(low < 2.5, "a house close behind you blocks the usual view (d=%.2f)" % low)
+	t.ok(p > 0.6 and p < FollowCamera.LIFT_MAX and over >= 4.6, "so the view rises just enough to keep its distance (pitch %.2f, d=%.2f)" % [p, over])
+	var lower := c.clear_distance(pivot, FollowCamera._dir(east, p - 0.1), 8.5)
+	t.ok(lower < over, "and no further than it needs (a little lower is blocked sooner: %.2f)" % lower)
+	var hug := c.lift_pitch(Vector3(3.0, 1, 0), east, 0.5, 8.5)
+	var hug_d := c.clear_distance(Vector3(3.0, 1, 0), FollowCamera._dir(east, hug), 8.5)
+	t.ok(hug_d > 2.0, "right by the wall it looks down from above instead of sitting on your head (pitch %.2f, d=%.2f)" % [hug, hug_d])
+	t.eq(c.lift_pitch(pivot, east, 1.5, 8.5), 1.5, "a view already steeper than the limit is left alone")
+
+func test_camera_ignores_a_corner_beside_you():
+	var c := FollowCamera.new(null)
+	c.blockers = [AABB(Vector3(-7.0, -1, -10.0), Vector3(5.6, 11, 5.4))]
+	var d := c.clear_distance(Vector3(-0.8, 1, -4.2), FollowCamera._dir(5.012, 0.5), 8.5)
+	t.eq(d, 8.5, "passing a house corner with a clear line to the camera, it keeps its distance")
+
+func test_camera_gets_room_when_you_brush_a_wall():
+	var c := FollowCamera.new(null)
+	c.blockers = [AABB(Vector3(4, -1, -4), Vector3(6, 9, 8))]
+	var east := PI / 2.0
+	var by_wall := Vector3(3.9, 1, 0)
+	var push := c._wall_push(by_wall, east)
+	t.ok(push.x < -0.7 and absf(push.z) < 0.01, "touching a wall with the camera beyond it, the view centres a little off the wall (%.2f m)" % push.x)
+	t.eq(c._wall_push(by_wall, -east), Vector3.ZERO, "with the camera on your own side nothing shifts")
+	t.eq(c._wall_push(Vector3(2.0, 1, 0), east), Vector3.ZERO, "nor a couple of metres from the wall")
+	t.eq(c._wall_push(Vector3(7.0, 1, 0), east), Vector3.ZERO, "nor inside the building")
+	var from: Vector3 = by_wall + push
+	var p := c.lift_pitch(from, east, 0.5, 8.5)
+	var d := c.clear_distance(from, FollowCamera._dir(east, p), 8.5)
+	t.ok(d > 6.0, "so it can look down from well above instead of from your head (pitch %.2f, d=%.2f)" % [p, d])
+
+func test_camera_moves_without_jumps_past_a_house():
+	var cam3d := Camera3D.new()
+	t.root.add_child(cam3d)
+	var c := FollowCamera.new(cam3d)
+	c.blockers = [AABB(Vector3(-4, -1, 2.5), Vector3(8, 9, 2.6))]
+	c.yaw = 0.0; c.pitch = 0.5; c.dist = 8.5
+	var ground := Heightfield.height(-14.0, 0.0)
+	var pos := Vector3(-14.0, ground, 0.0)
+	c.update(1.0 / 60.0, pos); c.snap(); c.update(1.0 / 60.0, pos)
+	var last := cam3d.global_position.distance_to(c.target)
+	var worst_in := 0.0
+	var worst_out := 0.0
+	var worst_tilt := 0.0
+	var last_pitch := c.lifted
+	var closest := last
+	var steepest := c.lifted
+	for i in 540:
+		pos.x += 4.0 / 60.0
+		c.update(1.0 / 60.0, pos)
+		var d := cam3d.global_position.distance_to(c.target)
+		worst_in = maxf(worst_in, last - d); worst_out = maxf(worst_out, d - last); last = d
+		worst_tilt = maxf(worst_tilt, absf(c.lifted - last_pitch) * 60.0); last_pitch = c.lifted
+		closest = minf(closest, d); steepest = maxf(steepest, c.lifted)
+	cam3d.free()
+	t.ok(steepest > 0.8, "walking past a house that stands behind you, the view rises over it (pitch %.2f)" % steepest)
+	t.ok(closest > 3.0, "and never comes in onto your head (closest %.2f m)" % closest)
+	t.ok(worst_in < 0.6 and worst_out < 0.2, "the distance changes without a jump (largest step in %.2f m, out %.2f m)" % [worst_in, worst_out])
+	t.ok(worst_tilt < 4.0, "the tilt is eased (fastest %.2f rad/s)" % worst_tilt)
+	t.ok(absf(c.lifted - 0.5) < 0.05, "past the house it settles back to the pitch you chose (%.2f)" % c.lifted)
+
+func test_camera_remembers_each_view():
+	var c := FollowCamera.new(null)
+	c.pitch = 0.6; c.dist = 9.0
+	c.set_mode("build")
+	t.ok(c.pitch >= 0.95 and c.dist >= 15.0, "the first time, build mode starts from above and further out")
+	c.pitch = 0.4; c.dist = 7.0
+	c.set_mode("explore")
+	t.ok(absf(c.pitch - 0.6) < 0.001 and absf(c.dist - 9.0) < 0.001, "leaving build mode gives back the walking view you had")
+	c.set_mode("build")
+	t.ok(absf(c.pitch - 0.4) < 0.001 and absf(c.dist - 7.0) < 0.001, "and build mode comes back the way you left it")
+	c.set_mode("explore")
+	c.set_mode("dialogue"); c.pitch = 0.28; c.dist = 4.6
+	c.set_mode("explore")
+	t.ok(absf(c.pitch - 0.6) < 0.001 and absf(c.dist - 9.0) < 0.001, "a conversation gives the walking view back too")
+	c.set_mode("build"); c.pitch = 0.1; c.dist = 100.0; c.clamp_limits()
+	t.ok(c.pitch <= 0.31 and c.dist <= 40.0, "the build view can look from low down and from far out (pitch %.2f, %.0f m)" % [c.pitch, c.dist])
+	c.pitch = 3.0; c.dist = 0.5; c.clamp_limits()
+	t.ok(c.pitch >= 1.49 and c.dist <= 4.01, "and from straight above, close up (pitch %.2f, %.0f m)" % [c.pitch, c.dist])
+
+func test_build_view_rises_over_a_house_in_the_way():
+	var cam3d := Camera3D.new()
+	t.root.add_child(cam3d)
+	var c := FollowCamera.new(cam3d)
+	c.blockers = [AABB(Vector3(-4, -1, 3), Vector3(8, 9, 5))]
+	c.yaw = 0.0
+	c.set_mode("build")
+	c.pitch = 0.4; c.dist = 12.0
+	c.focus = Vector3(0, Heightfield.height(0.0, 0.0) + 0.5, 0)
+	c.update(1.0 / 60.0, Vector3.ZERO); c.snap()
+	for i in 180: c.update(1.0 / 60.0, Vector3.ZERO)
+	var at := cam3d.global_position
+	var d := at.distance_to(c.aim)
+	cam3d.free()
+	t.ok(c.lifted > 0.9 and absf(c.pitch - 0.4) < 0.001, "a house between the build view and the site lifts the view over it, keeping your setting (pitch %.2f)" % c.lifted)
+	t.ok(d > 11.0, "at the distance you chose (%.1f m)" % d)
+	t.ok(not (c.blockers[0] as AABB).has_point(at), "and never from inside the house")
+
+func test_build_view_moves_with_the_zoom():
+	t.ok(BuildMode.pan_speed(6.0) < 4.0 and BuildMode.pan_speed(30.0) > 15.0, "the keys move the build view slowly close up and fast far out (%.1f and %.1f m/s)" % [BuildMode.pan_speed(6.0), BuildMode.pan_speed(30.0)])
+	t.ok(absf(BuildMode.pan_speed(15.0) - 9.0) < 0.01, "and as before at the usual distance")
+	var px := BuildMode.metres_per_pixel(15.0, 45.0, 720.0)
+	t.ok(absf(px * 720.0 - 2.0 * 15.0 * tan(deg_to_rad(22.5))) < 0.001, "dragging the view moves the ground with the pointer (%.4f m a pixel)" % px)
+
 func test_camera_rays_ignore_a_thin_miss():
 	# A building just beside the line of sight still gets a little room thanks to the probe rays, so walking past
 	# a corner doesn't make the camera flick in and out.

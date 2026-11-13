@@ -43,6 +43,9 @@ var hover := {}
 var check := {}
 var mouse := Vector2.ZERO
 var ui: Control
+var catalog_panel: Control
+const VIEW_CLEAR_TOP := 150.0
+const VIEW_CLEAR_BOTTOM := 232.0
 var status_label: Label
 var sel_box: MeshInstance3D
 var pad_cursor: Label
@@ -428,10 +431,23 @@ static func view_limit() -> float: return Data.map_size() / 2.0 - 7.0
 func pan_by(rel: Vector2) -> void:
 	var yaw: float = game.cam.move_yaw()
 	var fx := -sin(yaw); var fz := -cos(yaw)
-	var s: float = game.cam.dist * 0.0016
+	var s := metres_per_pixel(game.cam.cur.dist, game.camera.fov, game.get_viewport().get_visible_rect().size.y)
+	var deep: float = s / maxf(sin(game.cam.cur.pitch), 0.35)
 	var lim := view_limit()
-	focus.x = clampf(focus.x + (fz * rel.x + fx * rel.y) * s, -lim, lim)
-	focus.z = clampf(focus.z + (-fx * rel.x + fz * rel.y) * s, -lim, lim)
+	focus.x = clampf(focus.x + fz * rel.x * s + fx * rel.y * deep, -lim, lim)
+	focus.z = clampf(focus.z - fx * rel.x * s + fz * rel.y * deep, -lim, lim)
+
+static func metres_per_pixel(dist: float, fov_degrees: float, screen_height: float) -> float:
+	return 2.0 * dist * tan(deg_to_rad(fov_degrees) / 2.0) / maxf(screen_height, 1.0)
+
+static func pan_speed(dist: float) -> float:
+	return clampf(dist * 0.6, 2.5, 24.0)
+
+func free_view_shift() -> Vector2:
+	var height: float = game.get_viewport().get_visible_rect().size.y
+	if height < VIEW_CLEAR_TOP + VIEW_CLEAR_BOTTOM + 120.0: return Vector2.ZERO
+	var middle := (VIEW_CLEAR_TOP + height - VIEW_CLEAR_BOTTOM) / 2.0
+	return Vector2(0.0, (height / 2.0 - middle) / (height / 2.0))
 
 func turn_view(dir: int) -> void: game.cam.yaw += dir * PI / 4.0
 
@@ -439,7 +455,8 @@ func update(dt: float) -> void:
 	var mv: Vector2 = game.move_vector()
 	var yaw: float = game.cam.move_yaw()
 	var fx := -sin(yaw); var fz := -cos(yaw)
-	var spd := 9.0 * (2.0 if Input.is_action_pressed("sprint") else 1.0) * dt
+	var spd: float = pan_speed(game.cam.cur.dist) * (2.0 if Input.is_action_pressed("sprint") else 1.0) * dt
+	game.cam.frame_shift = free_view_shift()
 	var lim := view_limit()
 	focus.x = clampf(focus.x + (fx * mv.y - fz * mv.x) * spd, -lim, lim)
 	focus.z = clampf(focus.z + (fz * mv.y + fx * mv.x) * spd, -lim, lim)
@@ -1246,6 +1263,7 @@ func _build_ui() -> void:
 	var vh := UiTheme.label("🎥  Move the view: %s%s%s%s or drag with the middle button   ·   Turn it: %s %s, ⟲ ⟳ or drag with the right button   ·   Zoom: wheel" % [Controls.key_label("move_forward"), Controls.key_label("move_left"), Controls.key_label("move_back"), Controls.key_label("move_right"), Controls.key_label("cam_left"), Controls.key_label("cam_right")], 12, UiTheme.INK2)
 	vh.name = "view_hint"; vh.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	cv.add_child(vh)
+	catalog_panel = cat
 	ui.add_child(cat)
 
 ## The plan you can follow on this site: how far along it is, what the next piece is and where it goes, what you

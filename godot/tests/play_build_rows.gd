@@ -163,7 +163,7 @@ func build_a_house() -> void:
 	var top := floor_top(15, -36)
 	await ui_click("piece_woodWall")
 	var sides: Array = []
-	for line in [[15.5, -35.7, 20.5, -35.7], [15.3, -35.5, 15.3, -32.5], [20.7, -35.5, 20.7, -32.5], [15.5, -32.3, 20.5, -32.3]]:
+	for line in [[15.5, -35.8, 20.5, -35.8], [15.2, -35.5, 15.2, -32.5], [20.8, -35.5, 20.8, -32.5], [15.5, -32.2, 20.5, -32.2]]:
 		var had := count("woodWall")
 		await drag([at_height(line[0], line[1], top), at_height(line[2], line[3], top)], 12)
 		sides.append(count("woodWall") - had)
